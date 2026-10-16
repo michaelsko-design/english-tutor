@@ -7,7 +7,7 @@ import {
 } from '../data/rewardShop';
 import { LearnerGender } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
-import { X, Gem, CheckCircle2, Sparkles, ShoppingBag } from 'lucide-react';
+import { X, Gem, CheckCircle2, Sparkles, ShoppingBag, Lock } from 'lucide-react';
 
 interface RewardShopModalProps {
   diamonds: number;
@@ -159,12 +159,18 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
               item.costDiamonds === 0 || unlockedRewardIds.includes(item.id);
             const isEquipped =
               item.category === 'avatar' && equippedAvatarEmoji === item.emoji;
+            const canAfford = isUnlocked || diamonds >= item.costDiamonds;
+            const missingDiamonds = Math.max(0, item.costDiamonds - diamonds);
 
             return (
               <div
                 key={item.id}
                 className={`rounded-2xl p-4 ${theme.cardBgClass} flex flex-col justify-between gap-3 transition-all ${
                   isEquipped ? 'ring-2 ring-amber-400' : ''
+                } ${
+                  !canAfford
+                    ? 'opacity-60 grayscale-[65%] border-dashed border-slate-300 dark:border-slate-700 hover:opacity-85'
+                    : ''
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -175,6 +181,11 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
                     <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 text-xs font-extrabold flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>{isEquipped ? 'מצויד כעת' : 'פתוח'}</span>
+                    </span>
+                  ) : !canAfford ? (
+                    <span className="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-200/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 flex items-center gap-1">
+                      <Lock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                      <span>💎 {item.costDiamonds}</span>
                     </span>
                   ) : (
                     <span className={`px-2.5 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
@@ -198,23 +209,38 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
                 <button
                   type="button"
                   onClick={() => handleBuyOrEquip(item)}
-                  className={`w-full py-2.5 rounded-xl text-xs font-extrabold transition-all ${
+                  className={`w-full py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 ${
                     isUnlocked
                       ? item.category === 'avatar'
                         ? isEquipped
                           ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-400'
                           : theme.secondaryBtnClass
                         : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 cursor-default'
-                      : theme.primaryBtnClass
+                      : !canAfford
+                        ? 'bg-slate-200/90 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 border border-slate-300/80 dark:border-slate-700/80 hover:bg-slate-300/80 dark:hover:bg-slate-700/80 active:scale-[0.99] cursor-pointer'
+                        : theme.primaryBtnClass
                   }`}
                 >
-                  {isUnlocked
-                    ? item.category === 'avatar'
-                      ? isEquipped
-                        ? '✓ האווטאר הפעיל שלך'
-                        : 'בחרי כאווטאר ראשי'
-                      : '✓ נמצא באלבום שלך'
-                    : `פתיחה ב-${item.costDiamonds} 💎`}
+                  {isUnlocked ? (
+                    item.category === 'avatar' ? (
+                      isEquipped ? (
+                        '✓ האווטאר הפעיל שלך'
+                      ) : isGirl ? (
+                        'בחרי כאווטאר ראשי'
+                      ) : (
+                        'בחר כאווטאר ראשי'
+                      )
+                    ) : (
+                      '✓ נמצא באלבום שלך'
+                    )
+                  ) : !canAfford ? (
+                    <>
+                      <Lock className="w-3.5 h-3.5 shrink-0" />
+                      <span>חסרים עוד {missingDiamonds} 💎</span>
+                    </>
+                  ) : (
+                    `פתיחה ב-${item.costDiamonds} 💎`
+                  )}
                 </button>
               </div>
             );
