@@ -33,5 +33,13 @@ export function getHebrewCopy(gender: LearnerGender, name: string) {
     pronunciationPrompt: isGirl
       ? 'הקשיבי למשפט ואז הקליטי את עצמך קוראת אותו בקול:'
       : 'הקשב למשפט ואז הקלט את עצמך קורא אותו בקול:',
+    cloudSyncModalSubtitle: isGirl
+      ? 'התחברי כדי שהכוכבים, היהלומים והרצף שלך יישמרו בענן ויסתנכרנו בין הטלפון למחשב!'
+      : 'התחבר כדי שהכוכבים, היהלומים והרצף שלך יישמרו בענן ויסתנכרנו בין הטלפון למחשב!',
+    loggedInAs: (label: string) =>
+      isGirl ? `מחוברת בתור ${label}` : `מחובר בתור ${label}`,
+    localGuestTapToSync: isGirl
+      ? 'שמור במכשיר (לחצי לסנכרון ☁️)'
+      : 'שמור במכשיר (לחץ לסנכרון ☁️)',
   };
 }

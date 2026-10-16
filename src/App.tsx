@@ -1,5 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { LearnerProfile } from './types/learner';
+import React, { useEffect, useRef, useState } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
+import {
+  AuthUserSummary,
+  CloudSyncStatus,
+  LearnerProfile,
+} from './types/learner';
+import { auth, db, isFirebaseConfigured } from './services/firebase';
+import {
+  mergeLearnerProfiles,
+  migrateAndSyncProfileOnLogin,
+  saveProfileToFirestore,
+} from './services/cloudSync';
 import { OnboardingView } from './components/OnboardingView';
 import { DashboardView } from './components/DashboardView';
 
@@ -38,6 +50,7 @@ const DEFAULT_PROFILE: LearnerProfile = {
     threeStarMissionsToday: 0,
   },
   createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
 };
 
 export function App() {
@@ -70,7 +83,13 @@ export function App() {
   });
 
   const [isEditingOnboarding, setIsEditingOnboarding] = useState<boolean>(false);
+  const [authUser, setAuthUser] = useState<AuthUserSummary | null>(null);
+  const [syncStatus, setSyncStatus] = useState<CloudSyncStatus>('local-only');
 
+  const profileRef = useRef<LearnerProfile>(profile);
+  profileRef.current = profile;
+
+  // Always mirror profile to localStorage for instant offline access
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
@@ -79,12 +98,96 @@ export function App() {
     }
   }, [profile]);
 
+  // Listen to Firebase Auth state & attach real-time Firestore onSnapshot listener
+  useEffect(() => {
+    if (!isFirebaseConfigured || !auth || !db) {
+      setSyncStatus('local-only');
+      return;
+    }
+
+    let unsubscribeSnapshot: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+      }
+
+      if (!firebaseUser) {
+        setAuthUser(null);
+        setSyncStatus('local-only');
+        return;
+      }
+
+      const summary: AuthUserSummary = {
+        uid: firebaseUser.uid,
+        displayName: firebaseUser.displayName,
+        email: firebaseUser.email,
+        isAnonymous: firebaseUser.isAnonymous,
+      };
+      setAuthUser(summary);
+      setSyncStatus('syncing');
+
+      try {
+        // 1. First-time login migration: merge local progress into Firestore document
+        const migrated = await migrateAndSyncProfileOnLogin(
+          firebaseUser.uid,
+          profileRef.current
+        );
+        setProfile(migrated);
+        setSyncStatus('synced');
+      } catch {
+        setSyncStatus('offline-error');
+      }
+
+      // 2. Real-time cross-device sync via Firestore onSnapshot
+      if (db) {
+        const learnerDocRef = doc(db, 'learners', firebaseUser.uid);
+        unsubscribeSnapshot = onSnapshot(
+          learnerDocRef,
+          (snapshot) => {
+            if (!snapshot.exists()) return;
+            const cloudData = snapshot.data() as Partial<LearnerProfile>;
+            setProfile((currentLocal) =>
+              mergeLearnerProfiles(currentLocal, cloudData)
+            );
+            setSyncStatus('synced');
+          },
+          () => {
+            setSyncStatus('offline-error');
+          }
+        );
+      }
+    });
+
+    return () => {
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+      unsubscribeAuth();
+    };
+  }, []);
+
+  // Unified handler that updates local state and pushes to Firestore when logged in
+  const handleUpdateProfile = (updated: LearnerProfile) => {
+    const stamped: LearnerProfile = {
+      ...updated,
+      updatedAt: new Date().toISOString(),
+    };
+    setProfile(stamped);
+
+    if (authUser && isFirebaseConfigured) {
+      setSyncStatus('syncing');
+      saveProfileToFirestore(authUser.uid, stamped)
+        .then(() => setSyncStatus('synced'))
+        .catch(() => setSyncStatus('offline-error'));
+    }
+  };
+
   if (!profile.isOnboarded || isEditingOnboarding) {
     return (
       <OnboardingView
         initialProfile={profile}
         onComplete={(updated) => {
-          setProfile(updated);
+          handleUpdateProfile(updated);
           setIsEditingOnboarding(false);
         }}
       />
@@ -94,7 +197,9 @@ export function App() {
   return (
     <DashboardView
       profile={profile}
-      onUpdateProfile={setProfile}
+      authUser={authUser}
+      syncStatus={syncStatus}
+      onUpdateProfile={handleUpdateProfile}
       onEditOnboarding={() => setIsEditingOnboarding(true)}
     />
   );

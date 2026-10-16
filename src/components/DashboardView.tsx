@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import {
+  AuthUserSummary,
+  CloudSyncStatus,
   GradeId,
   LearnerProfile,
   ProficiencyTier,
@@ -21,6 +23,7 @@ import { MissionRunner } from './MissionRunner';
 import { VocabularyVaultModal } from './VocabularyVaultModal';
 import { DailyQuestsCard } from './DailyQuestsCard';
 import { RewardShopModal } from './RewardShopModal';
+import { AuthModal } from './AuthModal';
 import { getHebrewCopy } from '../utils/hebrewGender';
 import {
   Flame,
@@ -35,16 +38,23 @@ import {
   Palette,
   BookOpen,
   ShoppingBag,
+  Cloud,
+  CloudOff,
+  RefreshCw,
 } from 'lucide-react';
 
 interface DashboardViewProps {
   profile: LearnerProfile;
+  authUser: AuthUserSummary | null;
+  syncStatus: CloudSyncStatus;
   onUpdateProfile: (updated: LearnerProfile) => void;
   onEditOnboarding: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   profile,
+  authUser,
+  syncStatus,
   onUpdateProfile,
   onEditOnboarding,
 }) => {
@@ -52,6 +62,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     useState<MissionNode | null>(null);
   const [isVocabVaultOpen, setIsVocabVaultOpen] = useState(false);
   const [isRewardShopOpen, setIsRewardShopOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const theme = THEME_REGISTRY[profile.themeId] || THEME_REGISTRY['cozy-studio'];
   const activeAvatarEmoji = profile.equippedAvatarEmoji || theme.avatarEmoji;
@@ -224,6 +235,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     });
   };
 
+  const formatShortAccountLabel = (u: AuthUserSummary) => {
+    if (u.isAnonymous) return 'ענן אורח';
+    if (u.email?.endsWith('@peachnote.tutor.local')) {
+      return u.email.replace('@peachnote.tutor.local', '');
+    }
+    return u.displayName || u.email?.split('@')[0] || profile.name;
+  };
+
   return (
     <div className={`min-h-screen w-full ${theme.pageBgClass} pb-14 transition-colors duration-300`}>
       {/* Top Sticky Navigation / HUD */}
@@ -254,8 +273,39 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
 
-          {/* Right Controls: Vocab Vault, Shop, Grade Switcher, Theme Switcher, Profile Edit */}
+          {/* Right Controls: Cloud Sync Status Badge, Vocab Vault, Shop, Grade, Theme, Profile */}
           <div className="flex items-center gap-2 flex-wrap">
+            {/* CLOUD SYNC STATUS BADGE */}
+            <button
+              type="button"
+              onClick={() => setIsAuthModalOpen(true)}
+              title={
+                authUser
+                  ? `Logged in as ${authUser.email || authUser.displayName || authUser.uid}`
+                  : 'Guest / Local Only (Tap to Sync)'
+              }
+              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 border transition-all ${
+                syncStatus === 'synced'
+                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
+                  : syncStatus === 'syncing'
+                  ? 'bg-sky-500/15 border-sky-500/40 text-sky-700 dark:text-sky-300'
+                  : 'bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300'
+              }`}
+            >
+              {syncStatus === 'synced' ? (
+                <Cloud className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              ) : syncStatus === 'syncing' ? (
+                <RefreshCw className="w-3.5 h-3.5 text-sky-500 animate-spin shrink-0" />
+              ) : (
+                <CloudOff className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              )}
+              <span dir="rtl">
+                {authUser
+                  ? `מסונכרן (${formatShortAccountLabel(authUser)})`
+                  : heb.localGuestTapToSync}
+              </span>
+            </button>
+
             <button
               type="button"
               onClick={() => setIsVocabVaultOpen(true)}
@@ -271,7 +321,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
             >
               <ShoppingBag className="w-3.5 h-3.5" />
-              <span dir="rtl">חנות פרסים ({profile.stats.diamonds} 💎)</span>
+              <span dir="rtl">חנות ({profile.stats.diamonds} 💎)</span>
             </button>
 
             {/* Multi-Grade Architecture Selector */}
@@ -592,6 +642,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           onBuyReward={handleBuyReward}
           onEquipAvatar={handleEquipAvatar}
           onClose={() => setIsRewardShopOpen(false)}
+        />
+      )}
+
+      {/* FEATURE 6: KID-FRIENDLY CLOUD AUTHENTICATION & CROSS-DEVICE SYNC MODAL */}
+      {isAuthModalOpen && (
+        <AuthModal
+          authUser={authUser}
+          syncStatus={syncStatus}
+          gender={profile.gender}
+          learnerName={profile.name}
+          theme={theme}
+          onClose={() => setIsAuthModalOpen(false)}
         />
       )}
     </div>

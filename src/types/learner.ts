@@ -6,6 +6,15 @@ export type ProficiencyTier = 'explorer' | 'challenger' | 'master';
 
 export type ThemeId = 'cozy-studio' | 'neon-pop' | 'starlight-rpg';
 
+export type CloudSyncStatus = 'synced' | 'syncing' | 'local-only' | 'offline-error';
+
+export interface AuthUserSummary {
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+  isAnonymous: boolean;
+}
+
 export interface GradeMetadata {
   id: GradeId;
   labelEn: string;
@@ -71,6 +80,8 @@ export interface LearnerProfile {
   /** Daily activity counters for quests and streaks */
   dailyCounters: DailyActivityCounters;
   createdAt: string;
+  /** ISO timestamp of the latest profile update for conflict resolution */
+  updatedAt?: string;
 }
 
 export const SUPPORTED_GRADES: GradeMetadata[] = [
