@@ -7,7 +7,7 @@ import {
   signOut,
   updateProfile,
 } from 'firebase/auth';
-import { auth, googleProvider, isFirebaseConfigured } from '../services/firebase';
+import { auth, googleProvider } from '../services/firebase';
 import {
   AuthUserSummary,
   CloudSyncStatus,
@@ -18,13 +18,11 @@ import { getHebrewCopy } from '../utils/hebrewGender';
 import {
   X,
   Cloud,
-  CloudOff,
   CheckCircle2,
   LogOut,
   UserPlus,
   LogIn,
   KeyRound,
-  Sparkles,
   AlertCircle,
 } from 'lucide-react';
 
@@ -260,29 +258,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           )}
 
-          {/* Case 1: Firebase .env keys are not configured yet */}
-          {!isFirebaseConfigured && (
-            <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-400/40 space-y-2 text-xs">
-              <div className="font-extrabold flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
-                <Sparkles className="w-4 h-4 shrink-0" />
-                <span>מצב שמירה מקומית פעיל (`localStorage` Offline Fallback)</span>
-              </div>
-              <p className="leading-relaxed opacity-90">
-                כל הכוכבים, היהלומים והרצף שלך נשמרים אוטומטית במכשיר זה. כדי להפעיל סנכרון ענן בזמן אמת בין מכשירים, העתיקו את הקובץ{' '}
-                <code className="px-1.5 py-0.5 rounded bg-black/10 font-mono" dir="ltr">
-                  .env.example
-                </code>{' '}
-                ל-
-                <code className="px-1.5 py-0.5 rounded bg-black/10 font-mono" dir="ltr">
-                  .env
-                </code>{' '}
-                והזינו את מפתחות הפרויקט מ-Firebase Console.
-              </p>
-            </div>
-          )}
-
-          {/* Case 2: Authenticated User View */}
-          {isFirebaseConfigured && authUser && (
+          {/* Authenticated User View */}
+          {authUser && (
             <div className={`p-5 rounded-2xl ${theme.cardBgClass} space-y-4`}>
               <div className="flex items-center justify-between gap-3">
                 <div className="space-y-0.5">
@@ -317,8 +294,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           )}
 
-          {/* Case 3: Not Logged In (Sign In / Create Account Options) */}
-          {isFirebaseConfigured && !authUser && (
+          {/* Not Logged In (Sign In / Create Account Options) */}
+          {!authUser && (
             <div className="space-y-4">
               {/* Option 1: 1-Tap Google Sign-In */}
               <button

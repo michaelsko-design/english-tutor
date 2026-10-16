@@ -9,12 +9,24 @@ import {
 } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY?.trim(),
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN?.trim(),
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID?.trim(),
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET?.trim(),
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID?.trim(),
-  appId: import.meta.env.VITE_FIREBASE_APP_ID?.trim(),
+  apiKey:
+    import.meta.env.VITE_FIREBASE_API_KEY?.trim() ||
+    'AIzaSyAXCksnrNURhcvq5Z2VhMaQ1oBL4uB9fC8',
+  authDomain:
+    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN?.trim() ||
+    'english-tutor-il-7.firebaseapp.com',
+  projectId:
+    import.meta.env.VITE_FIREBASE_PROJECT_ID?.trim() ||
+    'english-tutor-il-7',
+  storageBucket:
+    import.meta.env.VITE_FIREBASE_STORAGE_BUCKET?.trim() ||
+    'english-tutor-il-7.firebasestorage.app',
+  messagingSenderId:
+    import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID?.trim() ||
+    '1003230297590',
+  appId:
+    import.meta.env.VITE_FIREBASE_APP_ID?.trim() ||
+    '1:1003230297590:web:740118a4daff206b391bd7',
 };
 
 /**
