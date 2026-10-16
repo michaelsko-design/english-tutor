@@ -15,9 +15,12 @@ import {
   getSuggestedMissionForGrade,
   MissionNode,
 } from '../data/curriculum';
+import { DailyQuestDefinition, RewardShopItem } from '../data/rewardShop';
 import { MissionMap } from './MissionMap';
 import { MissionRunner } from './MissionRunner';
 import { VocabularyVaultModal } from './VocabularyVaultModal';
+import { DailyQuestsCard } from './DailyQuestsCard';
+import { RewardShopModal } from './RewardShopModal';
 import { getHebrewCopy } from '../utils/hebrewGender';
 import {
   Flame,
@@ -31,6 +34,7 @@ import {
   GraduationCap,
   Palette,
   BookOpen,
+  ShoppingBag,
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -47,8 +51,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [activePracticeMission, setActivePracticeMission] =
     useState<MissionNode | null>(null);
   const [isVocabVaultOpen, setIsVocabVaultOpen] = useState(false);
+  const [isRewardShopOpen, setIsRewardShopOpen] = useState(false);
 
   const theme = THEME_REGISTRY[profile.themeId] || THEME_REGISTRY['cozy-studio'];
+  const activeAvatarEmoji = profile.equippedAvatarEmoji || theme.avatarEmoji;
   const heb = getHebrewCopy(profile.gender, profile.name);
   const currentGradeMeta =
     SUPPORTED_GRADES.find((g) => g.id === profile.gradeId) || SUPPORTED_GRADES[2];
@@ -93,12 +99,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
     const newXp = profile.stats.xp + result.xpEarned;
     const newLevel = Math.max(profile.stats.level, Math.floor(newXp / 150) + 1);
+    const isFirstMissionToday =
+      (profile.dailyCounters?.missionsCompletedToday || 0) === 0;
 
     onUpdateProfile({
       ...profile,
       missionProgress: {
         ...(profile.missionProgress || {}),
         [result.missionId]: updatedMissionStars,
+      },
+      dailyCounters: {
+        dateStr: new Date().toISOString().slice(0, 10),
+        missionsCompletedToday:
+          (profile.dailyCounters?.missionsCompletedToday || 0) + 1,
+        voiceWordsPracticedToday:
+          (profile.dailyCounters?.voiceWordsPracticedToday || 0) + 1,
+        threeStarMissionsToday:
+          (profile.dailyCounters?.threeStarMissionsToday || 0) +
+          (result.starsEarned === 3 ? 1 : 0),
       },
       stats: {
         ...profile.stats,
@@ -107,6 +125,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         stars: profile.stats.stars + starDelta,
         maxPossibleStars: totalGradeStarsPossible,
         diamonds: profile.stats.diamonds + result.diamondsEarned,
+        streakDays: isFirstMissionToday
+          ? profile.stats.streakDays + 1
+          : profile.stats.streakDays,
         wordsMastered: profile.stats.wordsMastered + result.wordsLearnedCount,
         missionsCompleted: profile.stats.missionsCompleted + 1,
       },
@@ -120,6 +141,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     const newLevel = Math.max(profile.stats.level, Math.floor(newXp / 150) + 1);
     onUpdateProfile({
       ...profile,
+      dailyCounters: {
+        ...profile.dailyCounters,
+        voiceWordsPracticedToday:
+          (profile.dailyCounters?.voiceWordsPracticedToday || 0) + 1,
+      },
       stats: {
         ...profile.stats,
         xp: newXp,
@@ -127,6 +153,52 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         diamonds: profile.stats.diamonds + diamondBonus,
         wordsMastered: profile.stats.wordsMastered + 1,
       },
+    });
+  };
+
+  const handleClaimDailyQuest = (quest: DailyQuestDefinition) => {
+    if (profile.claimedDailyQuestIds?.includes(quest.id)) return;
+    const newXp = profile.stats.xp + quest.rewardXp;
+    const newLevel = Math.max(profile.stats.level, Math.floor(newXp / 150) + 1);
+
+    onUpdateProfile({
+      ...profile,
+      claimedDailyQuestIds: [...(profile.claimedDailyQuestIds || []), quest.id],
+      stats: {
+        ...profile.stats,
+        xp: newXp,
+        level: newLevel,
+        diamonds: profile.stats.diamonds + quest.rewardDiamonds,
+      },
+    });
+  };
+
+  const handleBuyReward = (item: RewardShopItem) => {
+    if (profile.stats.diamonds < item.costDiamonds) return;
+    const nextUnlocked = Array.from(
+      new Set([...(profile.unlockedRewardIds || []), item.id])
+    );
+
+    onUpdateProfile({
+      ...profile,
+      unlockedRewardIds: nextUnlocked,
+      equippedAvatarEmoji:
+        item.category === 'avatar' ? item.emoji : profile.equippedAvatarEmoji,
+      stats: {
+        ...profile.stats,
+        diamonds: profile.stats.diamonds - item.costDiamonds,
+        streakDays:
+          item.id === 'boost-streak-shield'
+            ? profile.stats.streakDays + 1
+            : profile.stats.streakDays,
+      },
+    });
+  };
+
+  const handleEquipAvatar = (emoji: string) => {
+    onUpdateProfile({
+      ...profile,
+      equippedAvatarEmoji: emoji,
     });
   };
 
@@ -159,11 +231,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
           {/* Brand & Learner Identity */}
           <div className="flex items-center gap-3">
-            <div
+            <button
+              type="button"
+              onClick={() => setIsRewardShopOpen(true)}
+              title="Click to customize Avatar in Reward Shop"
               className={`w-11 h-11 rounded-2xl flex items-center justify-center text-2xl ${theme.primaryBtnClass}`}
             >
-              {theme.avatarEmoji}
-            </div>
+              {activeAvatarEmoji}
+            </button>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-base md:text-lg tracking-tight">
@@ -179,7 +254,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
 
-          {/* Right Controls: Vocab Vault, Grade Switcher, Theme Switcher, Profile Edit */}
+          {/* Right Controls: Vocab Vault, Shop, Grade Switcher, Theme Switcher, Profile Edit */}
           <div className="flex items-center gap-2 flex-wrap">
             <button
               type="button"
@@ -188,6 +263,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             >
               <BookOpen className="w-3.5 h-3.5" />
               <span dir="rtl">מאגר מילים + הגייה 🎙️</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsRewardShopOpen(true)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span dir="rtl">חנות פרסים ({profile.stats.diamonds} 💎)</span>
             </button>
 
             {/* Multi-Grade Architecture Selector */}
@@ -298,8 +382,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
 
-          {/* Stat 3: Diamonds / Gems */}
-          <div className={`rounded-2xl p-4 md:p-5 ${theme.cardBgClass} flex items-center gap-3.5`}>
+          {/* Stat 3: Diamonds / Gems (Clickable to open Reward Shop!) */}
+          <div
+            onClick={() => setIsRewardShopOpen(true)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') setIsRewardShopOpen(true);
+            }}
+            className={`rounded-2xl p-4 md:p-5 ${theme.cardBgClass} flex items-center gap-3.5 cursor-pointer hover:ring-2 hover:ring-fuchsia-400 transition-all`}
+          >
             <div className="w-12 h-12 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-400/30 flex items-center justify-center text-fuchsia-500 shrink-0">
               <Gem className="w-6 h-6" />
             </div>
@@ -307,8 +399,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="text-xl md:text-2xl font-extrabold">
                 {profile.stats.diamonds}
               </div>
-              <div className={`text-xs font-semibold ${theme.mutedTextClass}`} dir="rtl">
-                {theme.currencyNameHe} ({theme.currencyNameEn})
+              <div className={`text-xs font-semibold underline ${theme.mutedTextClass}`} dir="rtl">
+                {theme.currencyNameHe} (לחנות 🛍️)
               </div>
             </div>
           </div>
@@ -331,7 +423,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 {profile.stats.xp.toLocaleString()} XP
               </div>
               <div className={`text-xs font-semibold underline ${theme.mutedTextClass}`} dir="rtl">
-                {heb.youLearnedWords(profile.stats.wordsMastered)} (לחצי לתרגול)
+                {heb.youLearnedWords(profile.stats.wordsMastered)} (לתרגול)
               </div>
             </div>
           </div>
@@ -429,6 +521,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </section>
 
+        {/* FEATURE 5: DAILY QUESTS & SHABBAT-SAFE WEEKLY STREAK TRACKER */}
+        <DailyQuestsCard
+          streakDays={profile.stats.streakDays}
+          dailyCounters={
+            profile.dailyCounters || {
+              dateStr: new Date().toISOString().slice(0, 10),
+              missionsCompletedToday: 0,
+              voiceWordsPracticedToday: 1,
+              threeStarMissionsToday: 0,
+            }
+          }
+          claimedQuestIds={profile.claimedDailyQuestIds || []}
+          gender={profile.gender}
+          theme={theme}
+          onClaimQuest={handleClaimDailyQuest}
+          onOpenShop={() => setIsRewardShopOpen(true)}
+        />
+
         {/* FEATURE 2 & 4: INTERACTIVE STORY WORLD & MISSION MAP */}
         <MissionMap
           units={gradeCurriculum.units}
@@ -467,6 +577,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           onSpeakEnglish={speakEnglish}
           onEarnPracticeReward={handleEarnVocabReward}
           onClose={() => setIsVocabVaultOpen(false)}
+        />
+      )}
+
+      {/* FEATURE 5: INTERACTIVE DIAMOND REWARD SHOP & STICKER ALBUM */}
+      {isRewardShopOpen && (
+        <RewardShopModal
+          diamonds={profile.stats.diamonds}
+          unlockedRewardIds={profile.unlockedRewardIds || ['avatar-boba-cat']}
+          equippedAvatarEmoji={activeAvatarEmoji}
+          gender={profile.gender}
+          learnerName={profile.name}
+          theme={theme}
+          onBuyReward={handleBuyReward}
+          onEquipAvatar={handleEquipAvatar}
+          onClose={() => setIsRewardShopOpen(false)}
         />
       )}
     </div>

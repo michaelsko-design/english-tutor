@@ -27,6 +27,13 @@ export interface LearnerStats {
   missionsCompleted: number;
 }
 
+export interface DailyActivityCounters {
+  dateStr: string;
+  missionsCompletedToday: number;
+  voiceWordsPracticedToday: number;
+  threeStarMissionsToday: number;
+}
+
 export interface TodaysMissionSuggestion {
   id: string;
   unitNumber: number;
@@ -55,6 +62,14 @@ export interface LearnerProfile {
   stats: LearnerStats;
   /** Maps missionId -> stars earned (0 to 3) */
   missionProgress: Record<string, number>;
+  /** Unlocked shop item IDs */
+  unlockedRewardIds: string[];
+  /** Optional custom equipped avatar emoji from the shop */
+  equippedAvatarEmoji?: string;
+  /** Daily quest IDs claimed today */
+  claimedDailyQuestIds: string[];
+  /** Daily activity counters for quests and streaks */
+  dailyCounters: DailyActivityCounters;
   createdAt: string;
 }
 
