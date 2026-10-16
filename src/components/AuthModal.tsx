@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   signInWithPopup,
+  signInWithRedirect,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInAnonymously,
@@ -79,8 +80,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       );
     } catch (err: unknown) {
       const code = (err as { code?: string })?.code || '';
-      if (code === 'auth/popup-closed-by-user') {
+      if (code === 'auth/popup-blocked') {
+        try {
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        } catch {
+          setErrorHe('הדפדפן חסם את חלון ההתחברות של Google. אשרו חלונות קופצים או התחברו עם שם משתמש וסיסמה.');
+        }
+      } else if (
+        code === 'auth/popup-closed-by-user' ||
+        code === 'auth/cancelled-popup-request'
+      ) {
         setErrorHe('חלון ההתחברות נסגר לפני סיום הפעולה.');
+      } else if (code === 'auth/unauthorized-domain') {
+        setErrorHe(
+          `הדומיין (${window.location.hostname}) טרם אושר ב-Firebase Auth. נסו לרענן את העמוד או להשתמש בשם משתמש וסיסמה.`
+        );
       } else {
         setErrorHe('לא הצלחנו להתחבר עם Google. בדקו את החיבור או נסו שם משתמש וסיסמה.');
       }
