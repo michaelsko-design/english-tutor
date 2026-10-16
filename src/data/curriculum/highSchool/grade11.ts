@@ -1,0 +1,143 @@
+import { GradeCurriculumPack } from '../types';
+
+export const grade11Curriculum: GradeCurriculumPack = {
+  gradeId: 'grade-11',
+  units: [
+    {
+      unitNumber: 1,
+      titleEn: 'Unit 1: Literature, Cinema & Critical Minds',
+      titleHe: 'פרק 1: ספרות, קולנוע ומחשבה ביקורתית',
+      subtitleHe: 'אסטרטגיות חשיבה מסדר גבוה (HOTS), תנאי שלישי (Third Conditional) ושאלון E',
+      badgeEmoji: '🎬',
+      missions: [
+        {
+          id: 'g11-u1-m1',
+          unitNumber: 1,
+          missionNumber: 1,
+          icon: '🎭',
+          titleEn: 'Cause & Effect: Characters in Conflict',
+          titleHe: 'סיבה ותוצאה: דמויות בקונפליקט ספרותי',
+          storyHookHe: 'ניתוח דמויות וקונפליקטים מתוך תוכנית הספרות לבגרות באנגלית! נלמד ליישם את ה-HOTS של Cause and Effect ואת התנאי השלישי (Third Conditional).',
+          grammarTopic: 'Third Conditional (If + Past Perfect, would have + V3) & HOTS',
+          estimatedMinutes: 5,
+          baseXp: 95,
+          baseDiamonds: 28,
+          skills: ['HOTS Cause & Effect', 'Third Conditional', 'Module E Prep'],
+          sampleSentenceEn: 'If George had studied diligently, he would have achieved his dream earlier.',
+          sampleSentenceHe: 'אילו ג׳ורג׳ היה לומד בשקדנות, הוא היה מגשים את חלומו מוקדם יותר.',
+          vocabulary: [
+            {
+              wordEn: 'significant',
+              partOfSpeech: 'adjective',
+              translationHe: 'משמעותי / בעל חשיבות',
+              exampleEn: 'The turning point in the story had a significant impact on the character.',
+              exampleHe: 'נקודת המפנה בסיפור הייתה בעלת השפעה משמעותית על הדמות.',
+            },
+            {
+              wordEn: 'motivation',
+              partOfSpeech: 'noun',
+              translationHe: 'מוטיבציה / מניע',
+              exampleEn: 'Understanding the protagonist\'s inner motivation explains his choices.',
+              exampleHe: 'הבנת המניע הפנימי של הגיבור מסבירה את בחירותיו.',
+            },
+            {
+              wordEn: 'dilemma',
+              partOfSpeech: 'noun',
+              translationHe: 'דילמה / התלבטות קשה',
+              exampleEn: 'The character faced a painful moral dilemma.',
+              exampleHe: 'הדמות עמדה בפני דילמה מוסרית כואבת.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'זיהוי מבנה התנאי השלישי: had + V3 עם would have + V3',
+              samplePromptEn: 'If she had listened to the advice, she _______ (would have avoided / avoided) the mistake.',
+              samplePromptHe: 'אילו הייתה מקשיבה לעצה, היא הייתה נמנעת מהטעות.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'ניסוח תשובת ספרות המשלבת כלי חשיבה (Thinking Skill: Cause and Effect)',
+              samplePromptEn: 'The lack of communication caused the misunderstanding, which ultimately led to the crisis.',
+              samplePromptHe: 'חוסר התקשורת גרם לאי-ההבנה, אשר בסופו של דבר הובילה למשבר.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'מענה מלא לשאלת בגרות בספרות (Module D/F) בדיבור והסבר מעמיק',
+              samplePromptEn: 'If Mr. Cattanzara had not questioned George gently, George would never have realized his own self-deception.',
+              samplePromptHe: 'אילולא מר קטנזארה היה חוקר את ג׳ורג׳ בעדינות, ג׳ורג׳ לעולם לא היה מבין את הונאת העצמי שלו.',
+            },
+          },
+        },
+      ],
+    },
+    {
+      unitNumber: 2,
+      titleEn: 'Unit 2: Scientific Frontiers & Reported Speech',
+      titleHe: 'פרק 2: חזית המדע ודיבור עקיף',
+      subtitleHe: 'דיבור עקיף (Reported / Indirect Speech), פועלי דיווח ומילות קישור של תוצאה',
+      badgeEmoji: '🔬',
+      missions: [
+        {
+          id: 'g11-u2-m1',
+          unitNumber: 2,
+          missionNumber: 1,
+          icon: '🧬',
+          titleEn: 'Scientists Announce: Medical Breakthroughs',
+          titleHe: 'מדענים מדווחים: פריצות דרך ברפואה',
+          storyHookHe: 'קריאת מאמרים מדעיים לקראת שאלון E! נלמד להמיר ציטוטים ישירים לדיבור עקיף (He announced that the trial had succeeded).',
+          grammarTopic: 'Reported Speech (Statements & Tense Shift Backwards)',
+          estimatedMinutes: 5,
+          baseXp: 95,
+          baseDiamonds: 28,
+          skills: ['Reported Speech', 'Academic Connectors', 'Module E Strategy'],
+          sampleSentenceEn: 'The lead researcher stated that genetic therapies had shown promising results.',
+          sampleSentenceHe: 'החוקר הראשי הצהיר שטיפולים גנטיים הראו תוצאות מבטיחות.',
+          vocabulary: [
+            {
+              wordEn: 'demonstrate',
+              partOfSpeech: 'verb',
+              translationHe: 'להדגים / להוכיח',
+              exampleEn: 'The clinical trial demonstrated positive improvements.',
+              exampleHe: 'הניסוי הקליני הוכיח שיפורים חיוביים.',
+            },
+            {
+              wordEn: 'conclude',
+              partOfSpeech: 'verb',
+              translationHe: 'להסיק / לסכם',
+              exampleEn: 'Scientists concluded that early detection saves lives.',
+              exampleHe: 'מדענים הסיקו שגילוי מוקדם מציל חיים.',
+            },
+            {
+              wordEn: 'substantial',
+              partOfSpeech: 'adjective',
+              translationHe: 'ניכר / משמעותי מאוד',
+              exampleEn: 'There has been a substantial increase in public health funding.',
+              exampleHe: 'נרשמה עלייה ניכרת במימון בריאות הציבור.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'זיהוי מעבר הזמן בדיבור עקיף (Present Simple הופך ל-Past Simple)',
+              samplePromptEn: 'The doctor said that the vaccine _______ (was / is) completely safe.',
+              samplePromptHe: 'הרופא אמר שהחיסון היה בטוח לחלוטין.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'המרת שאלות ובקשות לדיבור עקיף ותרגול הגייה אקדמית',
+              samplePromptEn: 'The journalist inquired whether the innovative treatment had received government approval.',
+              samplePromptHe: 'העיתונאי בירר האם הטיפול החדשני קיבל אישור ממשלתי.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'סיכום טיעון מדעי משולב בדיבור עקיף ובמילות קישור מתקדמות',
+              samplePromptEn: 'Although initial experiments raised skepticism, researchers emphasized that rigorous peer review confirmed their hypotheses.',
+              samplePromptHe: 'למרות שניסויים ראשוניים עוררו ספקנות, החוקרים הדגישו כי ביקורת עמיתים קפדנית אישרה את השערותיהם.',
+            },
+          },
+        },
+      ],
+    },
+  ],
+};

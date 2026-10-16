@@ -1,0 +1,143 @@
+import { GradeCurriculumPack } from '../types';
+
+export const grade5Curriculum: GradeCurriculumPack = {
+  gradeId: 'grade-5',
+  units: [
+    {
+      unitNumber: 1,
+      titleEn: 'Unit 1: Cozy Pet Café & Animals',
+      titleHe: 'פרק 1: בית הקפה לחיות מחמד וחברים',
+      subtitleHe: 'אוצר מילים Band I, פועל Be (Am / Is / Are) ותיאור חיות',
+      badgeEmoji: '🐱',
+      missions: [
+        {
+          id: 'g5-u1-m1',
+          unitNumber: 1,
+          missionNumber: 1,
+          icon: '🐾',
+          titleEn: 'Meet Mochi the Cat',
+          titleHe: 'הכירו את מוצ׳י החתול',
+          storyHookHe: 'בואו נלמד לתאר חיות מחמד מתוקות ולהגיד משפטים שלמים באנגלית בעזרת פועל To Be!',
+          grammarTopic: 'Verb To Be (Am / Is / Are) & Adjectives',
+          estimatedMinutes: 3,
+          baseXp: 40,
+          baseDiamonds: 10,
+          skills: ['Band I Vocab', 'Am / Is / Are', 'Voice Reading'],
+          sampleSentenceEn: 'My cute cat is very friendly and loves warm milk.',
+          sampleSentenceHe: 'החתול החמוד שלי ידידותי מאוד ואוהב חלב חם.',
+          vocabulary: [
+            {
+              wordEn: 'friendly',
+              partOfSpeech: 'adjective',
+              translationHe: 'ידידותי / נחמד',
+              exampleEn: 'The puppy is very friendly.',
+              exampleHe: 'הגור ידידותי מאוד.',
+            },
+            {
+              wordEn: 'favorite',
+              partOfSpeech: 'adjective',
+              translationHe: 'אהוב / מועדף',
+              exampleEn: 'Purple is my favorite color.',
+              exampleHe: 'סגול הוא הצבע האהוב עליי.',
+            },
+            {
+              wordEn: 'fluffy',
+              partOfSpeech: 'adjective',
+              translationHe: 'פרוותי / נעים למגע',
+              exampleEn: 'The rabbit has fluffy white fur.',
+              exampleHe: 'לארנב יש פרווה לבנה ופרוותית.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'בחירת am / is / are עם רמזים מלאים',
+              samplePromptEn: 'Mochi _______ (is / are) a cute white cat.',
+              samplePromptHe: 'מוצ׳י הוא חתול לבן וחמוד.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'הרכבת משפטים קצרים ותרגול קריאה בקול',
+              samplePromptEn: 'These puppies are playful and happy.',
+              samplePromptHe: 'הגורים האלה שובבים ושמחים.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'שאלות ותשובות מלאות באנגלית',
+              samplePromptEn: 'Are your friends ready for the game today?',
+              samplePromptHe: 'האם החברות שלך מוכנות למשחק היום?',
+            },
+          },
+        },
+      ],
+    },
+    {
+      unitNumber: 2,
+      titleEn: 'Unit 2: Town Explorers & Telling Time',
+      titleHe: 'פרק 2: מטיילים בעיר וקוראים שעון',
+      subtitleHe: 'מקומות בעיר (library, park, bakery), מילות יחס ומילות זמן (at 4 o\'clock)',
+      badgeEmoji: '🏙️',
+      missions: [
+        {
+          id: 'g5-u2-m1',
+          unitNumber: 2,
+          missionNumber: 1,
+          icon: '🗺️',
+          titleEn: 'Meet Me at the Library',
+          titleHe: 'נפגשים בספרייה בשעה ארבע',
+          storyHookHe: 'יוצאים לסיבוב במרכז העיר! בואו נלמד לקבוע פגישה, לשאול איפה כל מקום נמצא ולספר מה השעה.',
+          grammarTopic: 'Prepositions of Place (in, on, next to) & Telling Time',
+          estimatedMinutes: 3,
+          baseXp: 45,
+          baseDiamonds: 11,
+          skills: ['Places in Town', 'Telling Time', 'Prepositions'],
+          sampleSentenceEn: 'The public library is next to the sunny park.',
+          sampleSentenceHe: 'הספרייה הציבורית נמצאת ליד הפארק השמשי.',
+          vocabulary: [
+            {
+              wordEn: 'library',
+              partOfSpeech: 'noun',
+              translationHe: 'ספרייה',
+              exampleEn: 'We borrow adventure books from the library.',
+              exampleHe: 'אנחנו משאילים ספרי הרפתקאות מהספרייה.',
+            },
+            {
+              wordEn: 'next to',
+              partOfSpeech: 'preposition',
+              translationHe: 'ליד / סמוך ל-',
+              exampleEn: 'The bakery is next to the bookstore.',
+              exampleHe: 'המאפייה נמצאת ליד חנות הספרים.',
+            },
+            {
+              wordEn: 'arrive',
+              partOfSpeech: 'verb',
+              translationHe: 'להגיע',
+              exampleEn: 'The bus will arrive at five o\'clock.',
+              exampleHe: 'האוטובוס יגיע בחמש בדיוק.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'זיהוי מילת היחס next to ושם המקום בעיר',
+              samplePromptEn: 'The bakery is _______ (next to / under) the ice cream shop.',
+              samplePromptHe: 'המאפייה נמצאת ליד חנות הגלידה.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'הרכבת משפט שילוב של מקום בעיר ושעת הגעה',
+              samplePromptEn: 'We meet at the library at four o\'clock every Tuesday.',
+              samplePromptHe: 'אנחנו נפגשים בספרייה בארבע כל יום שלישי.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'מתן הנחיות הגעה בעיר בדיבור שוטף באנגלית',
+              samplePromptEn: 'Walk straight past the supermarket and turn left near the fountain.',
+              samplePromptHe: 'הלכו ישר מעבר לסופרמרקט ופנו שמאלה ליד המזרקה.',
+            },
+          },
+        },
+      ],
+    },
+  ],
+};

@@ -181,40 +181,103 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                 onChange={(e) => handleAgeChange(Number(e.target.value))}
                 className={`w-full px-3 py-2.5 rounded-2xl font-bold text-xs sm:text-sm outline-none ${activeTheme.inputBgClass}`}
               >
-                {[9, 10, 11, 12, 13, 14, 15].map((a) => (
+                {[6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((a) => (
                   <option key={a} value={a} className="text-slate-900 bg-white">
-                    גיל {a} {a === 12 ? '(כיתה ז׳)' : ''}
+                    גיל {a}
                   </option>
                 ))}
               </select>
             </div>
           </div>
 
-          {/* 3. Multi-Grade Curriculum Pack Selection */}
-          <div className="space-y-1.5" dir="rtl">
-            <label className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
-              <GraduationCap className="w-4 h-4" />
-              <span>שכבת לימוד:</span>
-            </label>
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-              {SUPPORTED_GRADES.map((g) => {
-                const isSelected = g.id === gradeId;
-                return (
-                  <button
-                    key={g.id}
-                    type="button"
-                    onClick={() => setGradeId(g.id)}
-                    className={`p-2 rounded-xl text-center transition-all ${
-                      isSelected
-                        ? activeTheme.primaryBtnClass
-                        : activeTheme.secondaryBtnClass
-                    }`}
-                  >
-                    <div className="font-extrabold text-xs">{g.labelHe}</div>
-                    <div className="text-[11px] opacity-80">{g.labelEn}</div>
-                  </button>
-                );
-              })}
+          {/* 3. Multi-Grade Curriculum Pack Selection (All 12 Grades grouped) */}
+          <div className="space-y-2.5" dir="rtl">
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
+                <GraduationCap className="w-4 h-4" />
+                <span>שכבת לימוד (מותאם אוטומטית לפי הגיל):</span>
+              </label>
+              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                {SUPPORTED_GRADES.find((g) => g.id === gradeId)?.labelHe} · {SUPPORTED_GRADES.find((g) => g.id === gradeId)?.ministryBand}
+              </span>
+            </div>
+
+            {/* Elementary School: Grades 1-6 */}
+            <div className="space-y-1">
+              <div className="text-[11px] font-extrabold opacity-75">🏫 יסודי (כיתות א׳–ו׳)</div>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+                {SUPPORTED_GRADES.slice(0, 6).map((g) => {
+                  const isSelected = g.id === gradeId;
+                  return (
+                    <button
+                      key={g.id}
+                      type="button"
+                      onClick={() => setGradeId(g.id)}
+                      className={`p-2 rounded-xl text-center transition-all ${
+                        isSelected
+                          ? activeTheme.primaryBtnClass
+                          : activeTheme.secondaryBtnClass
+                      }`}
+                    >
+                      <div className="font-extrabold text-xs">{g.labelHe}</div>
+                      <div className="text-[10px] opacity-80 truncate">{g.labelEn}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Middle School & High School */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {/* Middle School: Grades 7-9 */}
+              <div className="space-y-1">
+                <div className="text-[11px] font-extrabold opacity-75">🎒 חטיבת ביניים (כיתות ז׳–ט׳)</div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {SUPPORTED_GRADES.slice(6, 9).map((g) => {
+                    const isSelected = g.id === gradeId;
+                    return (
+                      <button
+                        key={g.id}
+                        type="button"
+                        onClick={() => setGradeId(g.id)}
+                        className={`p-2 rounded-xl text-center transition-all ${
+                          isSelected
+                            ? activeTheme.primaryBtnClass
+                            : activeTheme.secondaryBtnClass
+                        }`}
+                      >
+                        <div className="font-extrabold text-xs">{g.labelHe}</div>
+                        <div className="text-[10px] opacity-80 truncate">{g.labelEn}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* High School: Grades 10-12 */}
+              <div className="space-y-1">
+                <div className="text-[11px] font-extrabold opacity-75">🎓 תיכון ובגרות (כיתות י׳–י״ב)</div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {SUPPORTED_GRADES.slice(9, 12).map((g) => {
+                    const isSelected = g.id === gradeId;
+                    return (
+                      <button
+                        key={g.id}
+                        type="button"
+                        onClick={() => setGradeId(g.id)}
+                        className={`p-2 rounded-xl text-center transition-all ${
+                          isSelected
+                            ? activeTheme.primaryBtnClass
+                            : activeTheme.secondaryBtnClass
+                        }`}
+                      >
+                        <div className="font-extrabold text-xs">{g.labelHe}</div>
+                        <div className="text-[10px] opacity-80 truncate">{g.labelEn}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
 

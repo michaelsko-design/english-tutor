@@ -19,6 +19,8 @@ interface VocabularyVaultModalProps {
   gender: LearnerGender;
   learnerName: string;
   theme: ThemeDefinition;
+  gradeLabel?: string;
+  ministryBand?: string;
   onSpeakEnglish: (text: string, rate?: number) => void;
   onEarnPracticeReward: (xp: number, diamonds: number) => void;
   onClose: () => void;
@@ -29,6 +31,8 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
   gender,
   learnerName,
   theme,
+  gradeLabel,
+  ministryBand,
   onSpeakEnglish,
   onEarnPracticeReward,
   onClose,
@@ -166,7 +170,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
             </div>
             <div className="min-w-0" dir="rtl">
               <h2 className="text-sm sm:text-lg md:text-xl font-extrabold truncate">
-                📚 מאגר מילים והגייה ({allVocabWithUnit.length})
+                📚 מאגר מילים והגייה · {gradeLabel || ''} {ministryBand ? `(${ministryBand})` : ''} ({allVocabWithUnit.length})
               </h2>
               <p className={`text-xs hidden sm:block ${theme.mutedTextClass}`}>
                 {isGirl

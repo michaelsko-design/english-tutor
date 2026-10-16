@@ -1,0 +1,143 @@
+import { GradeCurriculumPack } from '../types';
+
+export const grade9Curriculum: GradeCurriculumPack = {
+  gradeId: 'grade-9',
+  units: [
+    {
+      unitNumber: 1,
+      titleEn: 'Unit 1: Future Innovators & Teen Podcast',
+      titleHe: 'פרק 1: יזמים צעירים והפודקאסט העולמי',
+      subtitleHe: 'Present Perfect, Conditionals ואוצר מילים לקראת תיכון (Band III Prep)',
+      badgeEmoji: '🚀',
+      missions: [
+        {
+          id: 'g9-u1-m1',
+          unitNumber: 1,
+          missionNumber: 1,
+          icon: '🎙️',
+          titleEn: 'Recording Our First Global Episode',
+          titleHe: 'הקלטת הפרק הבינלאומי הראשון שלנו',
+          storyHookHe: 'איך מתארים הישגים שכבר השגנו בחיים (Present Perfect) ומתכננים את העתיד?',
+          grammarTopic: 'Present Perfect (Have/Has + V3) & First Conditional',
+          estimatedMinutes: 5,
+          baseXp: 85,
+          baseDiamonds: 22,
+          skills: ['Present Perfect', 'Band III Vocab', 'Podcast Speaking'],
+          sampleSentenceEn: 'We have already interviewed three young inventors this month!',
+          sampleSentenceHe: 'כבר ראיינו שלושה ממציאים צעירים החודש!',
+          vocabulary: [
+            {
+              wordEn: 'opportunity',
+              partOfSpeech: 'noun',
+              translationHe: 'הזדמנות',
+              exampleEn: 'This podcast gives teens an opportunity to share their voice.',
+              exampleHe: 'הפודקאסט הזה נותן לבני נוער הזדמנות להשמיע את קולם.',
+            },
+            {
+              wordEn: 'confident',
+              partOfSpeech: 'adjective',
+              translationHe: 'בטוח בעצמו / בטוחה בעצמה',
+              exampleEn: 'Practice makes you feel much more confident when speaking.',
+              exampleHe: 'תרגול גורם לך להרגיש הרבה יותר בטוחה בעצמך בזמן דיבור.',
+            },
+            {
+              wordEn: 'achievement',
+              partOfSpeech: 'noun',
+              translationHe: 'הישג',
+              exampleEn: 'Winning the robotics contest was a remarkable achievement.',
+              exampleHe: 'הזכייה בתחרות הרובוטיקה הייתה הישג ראוי לציון.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'שימוש ב-have / has + V3 עם מילות רמז (already, just, ever)',
+              samplePromptEn: 'She _______ (has already finished / already finished) editing the audio.',
+              samplePromptHe: 'היא כבר סיימה לערוך את ההקלטה.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'הבחנה בין Past Simple ל-Present Perfect',
+              samplePromptEn: 'Have you ever spoken English on a live podcast before?',
+              samplePromptHe: 'האם אי פעם דיברת אנגלית בפודקאסט חי בעבר?',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'ניסוח משפטי תנאי ודיבור רהוט למיקרופון',
+              samplePromptEn: 'If we practice our pronunciation daily, we will sound natural and confident.',
+              samplePromptHe: 'אם נתרגל את ההגייה שלנו מדי יום, נישמע טבעיות ובטוחות בעצמנו.',
+            },
+          },
+        },
+      ],
+    },
+    {
+      unitNumber: 2,
+      titleEn: 'Unit 2: The AI Revolution & Debate Club',
+      titleHe: 'פרק 2: מהפכת הבינה המלאכותית ומועדון הדיבייט',
+      subtitleHe: 'Second Conditional (If + V2, would), מילות קישור של ניגוד (Although, In contrast)',
+      badgeEmoji: '🤖',
+      missions: [
+        {
+          id: 'g9-u2-m1',
+          unitNumber: 2,
+          missionNumber: 1,
+          icon: '💡',
+          titleEn: 'Debating the Future: If We Built a Robot',
+          titleHe: 'מדברים על העתיד: אילו בנינו רובוט',
+          storyHookHe: 'מועדון הדיבייט של בית הספר דן בהשפעות ה-AI על העתיד! נלמד להביע דעה ולשער השערות היפותטיות.',
+          grammarTopic: 'Second Conditional (Hypothetical Situations) & Contrast Connectors',
+          estimatedMinutes: 5,
+          baseXp: 85,
+          baseDiamonds: 22,
+          skills: ['Second Conditional', 'Debate Vocabulary', 'Contrast Connectors'],
+          sampleSentenceEn: 'If I had enough resources, I would develop an AI assistant for education.',
+          sampleSentenceHe: 'אילו היו לי מספיק משאבים, הייתי מפתח עוזר AI לחינוך.',
+          vocabulary: [
+            {
+              wordEn: 'artificial',
+              partOfSpeech: 'adjective',
+              translationHe: 'מלאכותי / לא טבעי',
+              exampleEn: 'Artificial intelligence is changing the way we learn.',
+              exampleHe: 'בינה מלאכותית משנה את הדרך שבה אנחנו לומדים.',
+            },
+            {
+              wordEn: 'influence',
+              partOfSpeech: 'verb / noun',
+              translationHe: 'להשפיע / השפעה',
+              exampleEn: 'Social media can influence young people\'s perspectives.',
+              exampleHe: 'רשתות חברתיות יכולות להשפיע על נקודת המבט של צעירים.',
+            },
+            {
+              wordEn: 'perspective',
+              partOfSpeech: 'noun',
+              translationHe: 'נקודת מבט / השקפה',
+              exampleEn: 'Listening to others offers a fresh perspective.',
+              exampleHe: 'הקשבה לאחרים מעניקה נקודת מבט רעננה.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'זיהוי מבנה התנאי השני: If + past simple, would + base verb',
+              samplePromptEn: 'If we _______ (had / have) more time, we would debate further.',
+              samplePromptHe: 'אילו היה לנו עוד זמן, היינו ממשיכים לדון.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'שימוש במילות קישור של ניגוד (Although, However) לניסוח טיעון',
+              samplePromptEn: 'Although technology evolves rapidly, human empathy remains irreplaceable.',
+              samplePromptHe: 'למרות שהטכנולוגיה מתפתחת במהירות, אמפתיה אנושית נשארת בלתי ניתנת להחלפה.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'נאום דיבייט מנומק ודיבור שוטף בטיעון מורכב',
+              samplePromptEn: 'If society invested more in youth research, we would solve environmental crises much faster.',
+              samplePromptHe: 'אילו החברה הייתה משקיעה יותר במחקר נוער, היינו פותרים משברים סביבתיים הרבה יותר מהר.',
+            },
+          },
+        },
+      ],
+    },
+  ],
+};

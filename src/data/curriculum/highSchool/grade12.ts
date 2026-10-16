@@ -1,0 +1,143 @@
+import { GradeCurriculumPack } from '../types';
+
+export const grade12Curriculum: GradeCurriculumPack = {
+  gradeId: 'grade-12',
+  units: [
+    {
+      unitNumber: 1,
+      titleEn: 'Unit 1: Bagrut Launchpad & Essay Writing',
+      titleHe: 'פרק 1: כן שיגור לבגרות וכתיבת חיבורים',
+      subtitleHe: 'מילות קישור אקדמיות (Furthermore, Consequently), מבנה חיבור דעה (Opinion Essay) ושאלון G',
+      badgeEmoji: '🚀',
+      missions: [
+        {
+          id: 'g12-u1-m1',
+          unitNumber: 1,
+          missionNumber: 1,
+          icon: '✍️',
+          titleEn: 'Structuring the Winning Opinion Essay',
+          titleHe: 'מבנה מנצח לחיבור דעה בבגרות',
+          storyHookHe: 'כתיבת חיבור מושלם לשאלון G/C! נלמד לחבר פסקת פתיחה חזקה, נימוקים מבוססים ומסקנה משכנעת עם מילות קישור ברמה הגבוהה ביותר.',
+          grammarTopic: 'Academic Discourse Markers & Connectors of Addition / Contrast',
+          estimatedMinutes: 6,
+          baseXp: 100,
+          baseDiamonds: 30,
+          skills: ['Opinion Essay', 'Academic Connectors', 'Module G Mastery'],
+          sampleSentenceEn: 'Furthermore, innovative digital tools allow students to express their ideas independently.',
+          sampleSentenceHe: 'יתרה מזאת, כלים דיגיטליים חדשניים מאפשרים לתלמידים לבטא את רעיונותיהם באופן עצמאי.',
+          vocabulary: [
+            {
+              wordEn: 'furthermore',
+              partOfSpeech: 'connector / adverb',
+              translationHe: 'יתרה מזאת / בנוסף לכך',
+              exampleEn: 'Furthermore, practical experience increases graduates\' employment chances.',
+              exampleHe: 'יתרה מזאת, ניסיון מעשי מגדיל את סיכויי התעסוקה של הבוגרים.',
+            },
+            {
+              wordEn: 'consequently',
+              partOfSpeech: 'connector / adverb',
+              translationHe: 'כתוצאה מכך / לפיכך',
+              exampleEn: 'Air travel reduced; consequently, carbon emissions dropped significantly.',
+              exampleHe: 'הטיסות פחתו; כתוצאה מכך, פליטות הפחמן ירדו משמעותית.',
+            },
+            {
+              wordEn: 'perspective',
+              partOfSpeech: 'noun',
+              translationHe: 'השקפה / זווית ראייה',
+              exampleEn: 'It is essential to consider the problem from multiple perspectives.',
+              exampleHe: 'חיוני לבחון את הבעיה ממגוון השקפות.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'זיהוי מילת הקישור המתאימה להוספה (Furthermore) או ניגוד (In contrast)',
+              samplePromptEn: 'Students learn theory; _______ (furthermore / despite), they gain valuable skills.',
+              samplePromptHe: 'תלמידים לומדים תיאוריה; בנוסף, הם רוכשים מיומנויות יקרות ערך.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'כתיבת פסקת נימוק מלאה המשלבת דוגמה אישית ומילת קישור של תוצאה',
+              samplePromptEn: 'Consequently, educational authorities must adapt curricula to meet contemporary digital demands.',
+              samplePromptHe: 'לפיכך, רשויות החינוך חייבות להתאים תוכניות לימודים לדרישות הדיגיטליות בנות-זמננו.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'הצגת טיעון מורכב בדיבור קולח, עשיר באוצר מילים של Band III+',
+              samplePromptEn: 'In conclusion, despite understandable concerns regarding automation, technological synergy fundamentally empowers human innovation.',
+              samplePromptHe: 'לסיכום, למרות חששות מובנים לגבי אוטומציה, סינרגיה טכנולוגית מעצימה באופן יסודי את החדשנות האנושית.',
+            },
+          },
+        },
+      ],
+    },
+    {
+      unitNumber: 2,
+      titleEn: 'Unit 2: Spoken Bagrut & Career Readiness',
+      titleHe: 'פרק 2: סימולציית בגרות בעל-פה ומוכנות לעולם האמיתי',
+      subtitleHe: 'אימון לראיון הבגרות בעל-פה (COBE / Spoken Bagrut), הצגת פרויקט אישי ודיבור שוטף',
+      badgeEmoji: '🎙️',
+      missions: [
+        {
+          id: 'g12-u2-m1',
+          unitNumber: 2,
+          missionNumber: 1,
+          icon: '🎓',
+          titleEn: 'Spoken Bagrut: Personal Interview & Project',
+          titleHe: 'בגרות בעל-פה: הראיון האישי והצגת הפרויקט',
+          storyHookHe: 'סימולציה של מבחן הבגרות בעל-פה הממוחשב (COBE)! נלמד להציג את עצמנו בביטחון, לספר על הפרויקט השנתי ולהרשים את הבוחן.',
+          grammarTopic: 'Spoken Fluency, Idiomatic Expressions & Presentation Strategies',
+          estimatedMinutes: 6,
+          baseXp: 100,
+          baseDiamonds: 30,
+          skills: ['Spoken Bagrut Exam', 'Personal Project Pitch', 'Fluency & Pronunciation'],
+          sampleSentenceEn: 'During my research project, I discovered fascinating insights about social psychology.',
+          sampleSentenceHe: 'במהלך פרויקט המחקר שלי, גיליתי תובנות מרתקות על פסיכולוגיה חברתית.',
+          vocabulary: [
+            {
+              wordEn: 'insight',
+              partOfSpeech: 'noun',
+              translationHe: 'תובנה / הבנה מעמיקה',
+              exampleEn: 'The experiment provided valuable insight into human behavior.',
+              exampleHe: 'הניסוי סיפק תובנה יקרת ערך על התנהגות אנושית.',
+            },
+            {
+              wordEn: 'contribute',
+              partOfSpeech: 'verb',
+              translationHe: 'לתרום ל-',
+              exampleEn: 'Volunteering allows students to contribute meaningfully to society.',
+              exampleHe: 'התנדבות מאפשרת לתלמידים לתרום באופן משמעותי לחברה.',
+            },
+            {
+              wordEn: 'ambition',
+              partOfSpeech: 'noun',
+              translationHe: 'שאיפה / אמביציה',
+              exampleEn: 'Her ambition is to study biomedical engineering at university.',
+              exampleHe: 'שאיפתה היא ללמוד הנדסה ביו-רפואית באוניברסיטה.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'מענה מובנה לשאלת פתיחה בראיון: שם, תחביב ושאיפה לעתיד',
+              samplePromptEn: 'My goal is to _______ (contribute / contribution) to renewable tech.',
+              samplePromptHe: 'המטרה שלי היא לתרום לטכנולוגיה מתחדשת.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'הצגת פרויקט באנגלית תוך שימוש באוצר מילים מדויק ומבנה לוגי',
+              samplePromptEn: 'The primary challenge we encountered was gathering empirical data from diverse focus groups.',
+              samplePromptHe: 'האתגר העיקרי שנתקלנו בו היה איסוף נתונים אמפיריים מקבוצות מיקוד מגוונות.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'סימולציית בגרות בעל-פה שלמה (100 נקודות) בדיבור שוטף, רהוט וללא הפסקות',
+              samplePromptEn: 'Ultimately, working on this in-depth inquiry broadened my intellectual horizon and solidified my passion for scientific exploration.',
+              samplePromptHe: 'בסופו של דבר, העבודה על חקירה מעמיקה זו הרחיבה את האופק האינטלקטואלי שלי וחיזקה את התשוקה שלי לחקר מדעי.',
+            },
+          },
+        },
+      ],
+    },
+  ],
+};

@@ -407,7 +407,7 @@ function getRawExercisesForMission(
     ];
   }
 
-  // Dynamic generator for all other missions across Grades 5, 6, 7, 8, 9
+  // Dynamic generator for all other missions across Grades 1 through 12
   const v0 = mission.vocabulary[0] || {
     wordEn: 'creative',
     partOfSpeech: 'adj',

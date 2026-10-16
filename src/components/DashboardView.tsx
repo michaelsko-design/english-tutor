@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import {
   AuthUserSummary,
   CloudSyncStatus,
+  GradeId,
   LearnerProfile,
   ProficiencyTier,
   SUPPORTED_GRADES,
+  ThemeId,
 } from '../types/learner';
 import {
   THEME_REGISTRY,
@@ -38,6 +40,9 @@ import {
   RefreshCw,
   Home,
   Map as MapIcon,
+  GraduationCap,
+  Palette,
+  Sparkles,
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -65,7 +70,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const activeAvatarEmoji = profile.equippedAvatarEmoji || theme.avatarEmoji;
   const heb = getHebrewCopy(profile.gender, profile.name);
   const currentGradeMeta =
-    SUPPORTED_GRADES.find((g) => g.id === profile.gradeId) || SUPPORTED_GRADES[2];
+    SUPPORTED_GRADES.find((g) => g.id === profile.gradeId) || SUPPORTED_GRADES[6];
 
   const gradeCurriculum =
     CURRICULUM_BY_GRADE[profile.gradeId] || CURRICULUM_BY_GRADE['grade-7'];
@@ -254,9 +259,47 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="font-extrabold text-sm md:text-base tracking-tight truncate">
                   {theme.name}
                 </span>
-                <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold shrink-0 ${theme.badgeClass}`}>
-                  {currentGradeMeta.labelHe} · Lv.{profile.stats.level}
-                </span>
+                <div className="flex items-center gap-1 shrink-0">
+                  <select
+                    aria-label="בחר שכבת לימוד"
+                    value={profile.gradeId}
+                    onChange={(e) => {
+                      const newGrade = e.target.value as GradeId;
+                      onUpdateProfile({
+                        ...profile,
+                        gradeId: newGrade,
+                        updatedAt: new Date().toISOString(),
+                      });
+                    }}
+                    className={`text-[11px] px-2 py-0.5 rounded-full font-bold cursor-pointer outline-none border transition-all ${theme.badgeClass}`}
+                    title="לחץ להחלפת שכבת לימוד (כיתות א׳–י״ב)"
+                  >
+                    <optgroup label="🏫 יסודי (כיתות א׳–ו׳)">
+                      {SUPPORTED_GRADES.slice(0, 6).map((g) => (
+                        <option key={g.id} value={g.id} className="text-slate-900 bg-white">
+                          {g.labelHe} · {g.labelEn}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="🎒 חטיבת ביניים (כיתות ז׳–ט׳)">
+                      {SUPPORTED_GRADES.slice(6, 9).map((g) => (
+                        <option key={g.id} value={g.id} className="text-slate-900 bg-white">
+                          {g.labelHe} · {g.labelEn}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="🎓 תיכון ובגרות (כיתות י׳–י״ב)">
+                      {SUPPORTED_GRADES.slice(9, 12).map((g) => (
+                        <option key={g.id} value={g.id} className="text-slate-900 bg-white">
+                          {g.labelHe} · {g.labelEn}
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
+                  <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${theme.badgeClass}`}>
+                    Lv.{profile.stats.level}
+                  </span>
+                </div>
               </div>
               <p className={`text-[11px] hidden sm:block truncate ${theme.mutedTextClass}`} dir="rtl">
                 {heb.championBadge} · {theme.companionName}
@@ -698,13 +741,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         />
       )}
 
-      {/* FEATURE 4: INTERACTIVE BAND II VOCABULARY & SPEAKING STUDIO */}
+      {/* FEATURE 4: INTERACTIVE VOCABULARY & SPEAKING STUDIO */}
       {isVocabVaultOpen && (
         <VocabularyVaultModal
           units={gradeCurriculum.units}
           gender={profile.gender}
           learnerName={profile.name}
           theme={theme}
+          gradeLabel={currentGradeMeta.labelHe}
+          ministryBand={currentGradeMeta.ministryBand}
           onSpeakEnglish={speakEnglish}
           onEarnPracticeReward={handleEarnVocabReward}
           onClose={() => setIsVocabVaultOpen(false)}

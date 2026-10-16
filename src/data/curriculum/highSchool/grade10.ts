@@ -1,0 +1,143 @@
+import { GradeCurriculumPack } from '../types';
+
+export const grade10Curriculum: GradeCurriculumPack = {
+  gradeId: 'grade-10',
+  units: [
+    {
+      unitNumber: 1,
+      titleEn: 'Unit 1: Global Youth Summit & Environment',
+      titleHe: 'פרק 1: ועידת הנוער העולמית ומשבר האקלים',
+      subtitleHe: 'מבנה הסביל (Passive Voice), פסוקיות יחסיות (who / which / that) ואוצר מילים Band III',
+      badgeEmoji: '🌍',
+      missions: [
+        {
+          id: 'g10-u1-m1',
+          unitNumber: 1,
+          missionNumber: 1,
+          icon: '🌱',
+          titleEn: 'Protecting Our Planet: Passive Action',
+          titleHe: 'שומרים על כדור הארץ: משפטי סביל',
+          storyHookHe: 'הצטרפתם לוועידת האקלים העולמית של בני נוער! נלמד לתאר יוזמות סביבתיות במבנה סביל (Passive Voice) כשהפעולה חשובה יותר ממבצע הפעולה.',
+          grammarTopic: 'Passive Voice (Present & Past Simple)',
+          estimatedMinutes: 5,
+          baseXp: 90,
+          baseDiamonds: 25,
+          skills: ['Passive Voice', 'Band III Environment', 'Bagrut Unseen'],
+          sampleSentenceEn: 'Millions of plastic bottles are recycled every year around the world.',
+          sampleSentenceHe: 'מיליוני בקבוקי פלסטיק ממוחזרים מדי שנה ברחבי העולם.',
+          vocabulary: [
+            {
+              wordEn: 'consequence',
+              partOfSpeech: 'noun',
+              translationHe: 'תוצאה / השלכה',
+              exampleEn: 'Pollution has serious consequences for marine life.',
+              exampleHe: 'לזיהום יש השלכות חמורות על החיים בים.',
+            },
+            {
+              wordEn: 'sustainable',
+              partOfSpeech: 'adjective',
+              translationHe: 'בר-קיימא / סביבתי',
+              exampleEn: 'We must build sustainable cities for future generations.',
+              exampleHe: 'עלינו לבנות ערים בנות-קיימא עבור הדורות הבאים.',
+            },
+            {
+              wordEn: 'implement',
+              partOfSpeech: 'verb',
+              translationHe: 'ליישם / להוציא לפועל',
+              exampleEn: 'The school implemented a new recycling program.',
+              exampleHe: 'בית הספר יישם תוכנית מחזור חדשה.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'זיהוי מבנה הסביל: be (am/is/are/was/were) + V3',
+              samplePromptEn: 'The trees _______ (were planted / planted) by the youth delegates yesterday.',
+              samplePromptHe: 'העצים ניטעו על ידי נציגי הנוער אתמול.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'המרת משפט פעיל (Active) למשפט סביל (Passive) עם אוצר מילים אקדמי',
+              samplePromptEn: 'Renewable energy is widely used to power clean public transportation.',
+              samplePromptHe: 'אנרגיה מתחדשת משמשת באופן נרחב להנעת תחבורה ציבורית נקייה.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'ניתוח קטע Unseen ברמת שאלון C/E ושילוב הסביל בנימוק מלא',
+              samplePromptEn: 'If urgent action is not taken immediately, delicate ecosystems will be destroyed irreversibly.',
+              samplePromptHe: 'אם לא תינקט פעולה דחופה באופן מיידי, מערכות אקולוגיות עדינות ייהרסו באופן בלתי הפיך.',
+            },
+          },
+        },
+      ],
+    },
+    {
+      unitNumber: 2,
+      titleEn: 'Unit 2: Media Literacy & Digital Footprints',
+      titleHe: 'פרק 2: אוריינות תקשורת ועקבות דיגיטליים',
+      subtitleHe: 'פסוקיות יחסיות (Relative Clauses), מודלים של השערה (Modals of Deduction) והבנת הנקרא',
+      badgeEmoji: '📱',
+      missions: [
+        {
+          id: 'g10-u2-m1',
+          unitNumber: 2,
+          missionNumber: 1,
+          icon: '🔍',
+          titleEn: 'The Truth Behind Fake News',
+          titleHe: 'האמת מאחורי פייק ניוז',
+          storyHookHe: 'איך מזהים עובדה מול שמועה ברשת? נלמד להשתמש בפסוקיות יחסיות (who, which, that) ובמודלים של השערה להערכת מידע.',
+          grammarTopic: 'Relative Clauses (Defining & Non-Defining) & Modals of Deduction',
+          estimatedMinutes: 5,
+          baseXp: 90,
+          baseDiamonds: 25,
+          skills: ['Relative Clauses', 'Modals of Deduction', 'Media Analysis'],
+          sampleSentenceEn: 'Journalists who verify their sources ensure that information is reliable.',
+          sampleSentenceHe: 'עיתונאים שמאמתים את מקורותיהם מבטיחים שהמידע מהימן.',
+          vocabulary: [
+            {
+              wordEn: 'reliable',
+              partOfSpeech: 'adjective',
+              translationHe: 'מהימן / אמין',
+              exampleEn: 'Always check if the news source is reliable.',
+              exampleHe: 'תמיד בדוק האם מקור החדשות מהימן.',
+            },
+            {
+              wordEn: 'verify',
+              partOfSpeech: 'verb',
+              translationHe: 'לאמת / לוודא',
+              exampleEn: 'You should verify the facts before sharing the post.',
+              exampleHe: 'עליך לאמת את העובדות לפני שיתוף הפוסט.',
+            },
+            {
+              wordEn: 'misleading',
+              partOfSpeech: 'adjective',
+              translationHe: 'מטעה / מוליך שולל',
+              exampleEn: 'The sensational headline was completely misleading.',
+              exampleHe: 'הכותרת הסנסציונית הייתה מטעה לחלוטין.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'בחירת מילת החיבור הנכונה (who לאנשים, which לחפצים)',
+              samplePromptEn: 'The article _______ (which / who) was published yesterday went viral.',
+              samplePromptHe: 'המאמר שפורסם אתמול הפך לוויראלי.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'שימוש במודלים של השערה (must be, can\'t be, might be) לפי רמת הוודאות',
+              samplePromptEn: 'This dramatic video can\'t be authentic because the background looks edited.',
+              samplePromptHe: 'הסרטון הדרמטי הזה לא יכול להיות אותנטי כי הרקע נראה ערוך.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'ניסוח פסקת הערכה ביקורתית של מקור מידע בדיבור רהוט',
+              samplePromptEn: 'Consumers who practice critical thinking are far less likely to be deceived by online misinformation.',
+              samplePromptHe: 'צרכנים שמתרגלים חשיבה ביקורתית נוטים הרבה פחות ללכת שולל אחר מידע שגוי ברשת.',
+            },
+          },
+        },
+      ],
+    },
+  ],
+};

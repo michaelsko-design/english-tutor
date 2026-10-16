@@ -1,0 +1,143 @@
+import { GradeCurriculumPack } from '../types';
+
+export const grade6Curriculum: GradeCurriculumPack = {
+  gradeId: 'grade-6',
+  units: [
+    {
+      unitNumber: 1,
+      titleEn: 'Unit 1: After-School Creators Club',
+      titleHe: 'פרק 1: מועדון היוצרים אחרי בית הספר',
+      subtitleHe: 'Present Simple, תחביבים, שעות וימים בשבוע',
+      badgeEmoji: '🎨',
+      missions: [
+        {
+          id: 'g6-u1-m1',
+          unitNumber: 1,
+          missionNumber: 1,
+          icon: '🎶',
+          titleEn: 'Our Weekly Hobby Club',
+          titleHe: 'מועדון התחביבים השבועי שלנו',
+          storyHookHe: 'מה אתם אוהבים לעשות אחרי הלימודים? נלמד לספר על תחביבים, נגינה ופעילויות!',
+          grammarTopic: 'Present Simple & Hobbies',
+          estimatedMinutes: 3,
+          baseXp: 45,
+          baseDiamonds: 12,
+          skills: ['Present Simple', 'Hobbies Vocab', 'Voice Practice'],
+          sampleSentenceEn: 'We usually paint and listen to music on Tuesdays.',
+          sampleSentenceHe: 'אנחנו בדרך כלל מציירים ומאזינים למוזיקה בימי שלישי.',
+          vocabulary: [
+            {
+              wordEn: 'together',
+              partOfSpeech: 'adverb',
+              translationHe: 'ביחד',
+              exampleEn: 'We walk home together every day.',
+              exampleHe: 'אנחנו הולכים הביתה ביחד כל יום.',
+            },
+            {
+              wordEn: 'instrument',
+              partOfSpeech: 'noun',
+              translationHe: 'כלי נגינה',
+              exampleEn: 'Do you play a musical instrument?',
+              exampleHe: 'האם את מנגנת בכלי נגינה?',
+            },
+            {
+              wordEn: 'practice',
+              partOfSpeech: 'verb / noun',
+              translationHe: 'להתאמן / תרגול',
+              exampleEn: 'Practice makes progress in English.',
+              exampleHe: 'תרגול מוביל להתקדמות באנגלית.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'זיהוי מילות תחביבים וימים בשבוע',
+              samplePromptEn: 'I _______ (play / plays) the piano on Sundays.',
+              samplePromptHe: 'אני מנגן בפסנתר בימי ראשון.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'השלמת משפטי Present Simple לגוף שלישי',
+              samplePromptEn: 'My sister bakes delicious cookies every weekend.',
+              samplePromptHe: 'אחותי אופה עוגיות טעימות כל סוף שבוע.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'ניסוח שאלות והקלטת משפט שלם בקול',
+              samplePromptEn: 'What time does the art club start on Wednesday?',
+              samplePromptHe: 'באיזו שעה מתחיל חוג האמנות ביום רביעי?',
+            },
+          },
+        },
+      ],
+    },
+    {
+      unitNumber: 2,
+      titleEn: 'Unit 2: Junior High Countdown & Digital Skills',
+      titleHe: 'פרק 2: ספירה לאחור לחטיבה ועולם דיגיטלי',
+      subtitleHe: 'Present Progressive (am/is/are + -ing) מול Present Simple, וטכנולוגיה יומיומית',
+      badgeEmoji: '💻',
+      missions: [
+        {
+          id: 'g6-u2-m1',
+          unitNumber: 2,
+          missionNumber: 1,
+          icon: '📱',
+          titleEn: 'Sending a Quick Voice Note',
+          titleHe: 'שולחים הודעה קולית מהירה',
+          storyHookHe: 'מתכוננים לעלייה לחטיבת הביניים! נלמד להבדיל בין פעולה שקורית ברגע זה (now) לבין שגרה קבועה.',
+          grammarTopic: 'Present Simple vs. Present Progressive Intro',
+          estimatedMinutes: 4,
+          baseXp: 50,
+          baseDiamonds: 12,
+          skills: ['Simple vs. Progressive', 'Digital Vocab', 'Voice Messaging'],
+          sampleSentenceEn: 'Right now, Dan is recording a fun video for his classmates.',
+          sampleSentenceHe: 'ברגע זה, דן מקליט סרטון מהנה לחבריו לכיתה.',
+          vocabulary: [
+            {
+              wordEn: 'message',
+              partOfSpeech: 'noun',
+              translationHe: 'הודעה',
+              exampleEn: 'Did you receive my voice message?',
+              exampleHe: 'האם קיבלת את ההודעה הקולית שלי?',
+            },
+            {
+              wordEn: 'record',
+              partOfSpeech: 'verb',
+              translationHe: 'להקליט',
+              exampleEn: 'We record English stories for school.',
+              exampleHe: 'אנחנו מקליטים סיפורים באנגלית לבית הספר.',
+            },
+            {
+              wordEn: 'prepare',
+              partOfSpeech: 'verb',
+              translationHe: 'להתכונן / להכין',
+              exampleEn: 'The students prepare for middle school.',
+              exampleHe: 'התלמידים מתכוננים לחטיבת הביניים.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'זיהוי מילת הרמז right now ובחירת פועל עם ing',
+              samplePromptEn: 'Look! Maya _______ (is drawing / draws) right now.',
+              samplePromptHe: 'תסתכלו! מאיה מציירת ברגע זה.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'הבחנה בין הרגל יומי לבין פעולה המתרחשת עכשיו',
+              samplePromptEn: 'Usually I ride my bike, but today I am taking the bus.',
+              samplePromptHe: 'בדרך כלל אני רוכב על אופניים, אבל היום אני נוסע באוטובוס.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'הקלטת הודעה קולית שלמה המשלבת את שני הזמנים',
+              samplePromptEn: 'I usually finish my homework early, but today I am helping my friend with math.',
+              samplePromptHe: 'בדרך כלל אני מסיים שיעורי בית מוקדם, אבל היום אני עוזר לחבר בחשבון.',
+            },
+          },
+        },
+      ],
+    },
+  ],
+};

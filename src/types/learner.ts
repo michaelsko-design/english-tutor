@@ -1,6 +1,18 @@
 export type LearnerGender = 'girl' | 'boy';
 
-export type GradeId = 'grade-5' | 'grade-6' | 'grade-7' | 'grade-8' | 'grade-9';
+export type GradeId =
+  | 'grade-1'
+  | 'grade-2'
+  | 'grade-3'
+  | 'grade-4'
+  | 'grade-5'
+  | 'grade-6'
+  | 'grade-7'
+  | 'grade-8'
+  | 'grade-9'
+  | 'grade-10'
+  | 'grade-11'
+  | 'grade-12';
 
 export type ProficiencyTier = 'explorer' | 'challenger' | 'master';
 
@@ -89,37 +101,72 @@ export interface LearnerProfile {
 }
 
 export const SUPPORTED_GRADES: GradeMetadata[] = [
+  // Elementary School (יסודי)
+  {
+    id: 'grade-1',
+    labelEn: '1st Grade',
+    labelHe: 'כיתה א׳',
+    ministryBand: 'Pre-Foundation (Phonics & Letters)',
+    recommendedAge: 6,
+    descriptionHe: 'אותיות ה-ABC, צלילים ראשונים, צבעים, חיות וברכות שלום',
+  },
+  {
+    id: 'grade-2',
+    labelEn: '2nd Grade',
+    labelHe: 'כיתה ב׳',
+    ministryBand: 'Pre-Foundation+ (CVC & Sight Words)',
+    recommendedAge: 7,
+    descriptionHe: 'קריאת מילים קצרות (CVC), משפחה, חלקי גוף ומילות יסוד',
+  },
+  {
+    id: 'grade-3',
+    labelEn: '3rd Grade',
+    labelHe: 'כיתה ג׳',
+    ministryBand: 'Pre-Band I (Early Reading)',
+    recommendedAge: 8,
+    descriptionHe: 'קריאה שוטפת, משפטים פשוטים, כלי כתיבה, ימים ומזג אוויר',
+  },
+  {
+    id: 'grade-4',
+    labelEn: '4th Grade',
+    labelHe: 'כיתה ד׳',
+    ministryBand: 'Band I (Entry)',
+    recommendedAge: 9,
+    descriptionHe: 'פועלי פעולה (Action Verbs), יכולת (Can/Can\'t), כינויי גוף ומשפטים ראשונים',
+  },
   {
     id: 'grade-5',
     labelEn: '5th Grade',
     labelHe: 'כיתה ה׳',
     ministryBand: 'Band I (Foundation)',
     recommendedAge: 10,
-    descriptionHe: 'אוצר מילים בסיסי, קריאה ראשונית ומשפטים פשוטים',
+    descriptionHe: 'אוצר מילים בסיסי, פועל Be (Am/Is/Are), הרגלים יומיים ותיאורים',
   },
   {
     id: 'grade-6',
     labelEn: '6th Grade',
     labelHe: 'כיתה ו׳',
-    ministryBand: 'Band I+ (Foundation)',
+    ministryBand: 'Band I+ (Transition to Junior High)',
     recommendedAge: 11,
-    descriptionHe: 'חיזוק הבסיס לקראת חטיבת הביניים וזמני הווה',
+    descriptionHe: 'חיזוק לקראת חטיבת הביניים, זמני הווה (Simple vs. Progressive) ותחביבים',
   },
+
+  // Junior High / Middle School (חטיבת ביניים)
   {
     id: 'grade-7',
     labelEn: '7th Grade',
     labelHe: 'כיתה ז׳',
     ministryBand: 'Band II (Intermediate Entry)',
     recommendedAge: 12,
-    descriptionHe: 'תוכנית משרד החינוך לכיתה ז׳: Present Simple/Prog, Past Simple, אוצר מילים Band II וקטעי Unseen',
+    descriptionHe: 'תוכנית משרד החינוך: Present Simple/Prog, Past Simple V2, Band II וקטעי Unseen',
   },
   {
     id: 'grade-8',
     labelEn: '8th Grade',
     labelHe: 'כיתה ח׳',
-    ministryBand: 'Band II+ (Intermediate)',
+    ministryBand: 'Band II+ (Core Intermediate)',
     recommendedAge: 13,
-    descriptionHe: 'העמקת זמנים, Future, Modals, כתיבה והבנת הנקרא מתקדמת',
+    descriptionHe: 'העמקת זמנים, Past Progressive (While/When), Future Will/Going to ו-Modals',
   },
   {
     id: 'grade-9',
@@ -127,14 +174,47 @@ export const SUPPORTED_GRADES: GradeMetadata[] = [
     labelHe: 'כיתה ט׳',
     ministryBand: 'Band II / Band III Prep',
     recommendedAge: 14,
-    descriptionHe: 'אנגלית ברמה גבוהה, ניבים, Passive וקריאה ביקורתית',
+    descriptionHe: 'Present Perfect Simple, משפטי תנאי (Conditionals), טיעונים ודיבייט',
+  },
+
+  // High School & Bagrut (תיכון ובגרות)
+  {
+    id: 'grade-10',
+    labelEn: '10th Grade',
+    labelHe: 'כיתה י׳',
+    ministryBand: 'Band III (High School Entry)',
+    recommendedAge: 15,
+    descriptionHe: 'הכנה לשאלון C/E, סביל (Passive Voice), פסוקיות יחסיות ואוצר מילים Band III',
+  },
+  {
+    id: 'grade-11',
+    labelEn: '11th Grade',
+    labelHe: 'כיתה י״א',
+    ministryBand: 'Band III (Core / Module E)',
+    recommendedAge: 16,
+    descriptionHe: 'שאלון E/D, ספרות ואסטרטגיות חשיבה (HOTS), דיבור עקיף (Reported Speech) ותנאי מורכב',
+  },
+  {
+    id: 'grade-12',
+    labelEn: '12th Grade',
+    labelHe: 'כיתה י״ב',
+    ministryBand: 'Band III+ (Bagrut Mastery & Oral)',
+    recommendedAge: 17,
+    descriptionHe: 'שאלון G/F, חיבורי דעה וטיעון, סימולציית בגרות בעל-פה (Spoken Bagrut) ושליטה אקדמית',
   },
 ];
 
 export function getRecommendedGradeForAge(age: number): GradeId {
-  if (age <= 10) return 'grade-5';
+  if (age <= 6) return 'grade-1';
+  if (age === 7) return 'grade-2';
+  if (age === 8) return 'grade-3';
+  if (age === 9) return 'grade-4';
+  if (age === 10) return 'grade-5';
   if (age === 11) return 'grade-6';
   if (age === 12) return 'grade-7';
   if (age === 13) return 'grade-8';
-  return 'grade-9';
+  if (age === 14) return 'grade-9';
+  if (age === 15) return 'grade-10';
+  if (age === 16) return 'grade-11';
+  return 'grade-12';
 }

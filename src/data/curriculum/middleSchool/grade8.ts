@@ -1,0 +1,143 @@
+import { GradeCurriculumPack } from '../types';
+
+export const grade8Curriculum: GradeCurriculumPack = {
+  gradeId: 'grade-8',
+  units: [
+    {
+      unitNumber: 1,
+      titleEn: 'Unit 1: Global Travellers & Past Adventures',
+      titleHe: 'פרק 1: הרפתקאות מסביב לעולם',
+      subtitleHe: 'Past Simple מול Past Progressive, Modals והבנת הנקרא ברמת כיתה ח׳',
+      badgeEmoji: '✈️',
+      missions: [
+        {
+          id: 'g8-u1-m1',
+          unitNumber: 1,
+          missionNumber: 1,
+          icon: '🧭',
+          titleEn: 'While We Were Travelling in Tokyo',
+          titleHe: 'בזמן שטיילנו בטוקיו',
+          storyHookHe: 'שילוב של פעולה ארוכה בעבר (Past Progressive) עם פעולה קצרה שהפריעה לה בעזרת While ו-When!',
+          grammarTopic: 'Past Simple vs. Past Progressive (While / When)',
+          estimatedMinutes: 4,
+          baseXp: 70,
+          baseDiamonds: 18,
+          skills: ['Past Progressive', 'While vs. When', 'Speaking Fluency'],
+          sampleSentenceEn: 'While we were waiting for the train, we met our favorite singer.',
+          sampleSentenceHe: 'בזמן שחיכינו לרכבת, פגשנו את הזמרת האהובה עלינו.',
+          vocabulary: [
+            {
+              wordEn: 'destination',
+              partOfSpeech: 'noun',
+              translationHe: 'יעד (לטיול)',
+              exampleEn: 'Kyoto was our favorite destination on the trip.',
+              exampleHe: 'קיוטו הייתה היעד האהוב עלינו בטיול.',
+            },
+            {
+              wordEn: 'experience',
+              partOfSpeech: 'noun / verb',
+              translationHe: 'חוויה / לחוות',
+              exampleEn: 'Visiting the digital art museum was an unforgettable experience.',
+              exampleHe: 'הביקור במוזיאון האמנות הדיגיטלית היה חוויה בלתי נשכחת.',
+            },
+            {
+              wordEn: 'suddenly',
+              partOfSpeech: 'adverb',
+              translationHe: 'פתאום / לפתע',
+              exampleEn: 'Suddenly, the train arrived at the platform.',
+              exampleHe: 'פתאום, הרכבת הגיעה לרציף.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'הבחנה בין While (+ was/were ing) לבין When (+ V2)',
+              samplePromptEn: 'While I _______ (was reading / read), my phone rang.',
+              samplePromptHe: 'בזמן שקראתי, הטלפון שלי צלצל.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'שילוב שני זמני העבר בסיפור הרפתקה',
+              samplePromptEn: 'What were you doing when the storm started?',
+              samplePromptHe: 'מה עשית כשהסופה התחילה?',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'קריאה בקול והשלמת טקסט Unseen ברמת כיתה ח׳',
+              samplePromptEn: 'While the photographers were setting up, the lights suddenly flashed.',
+              samplePromptHe: 'בזמן שהצלמים התארגנו, האורות הבזיקו פתאום.',
+            },
+          },
+        },
+      ],
+    },
+    {
+      unitNumber: 2,
+      titleEn: 'Unit 2: London Clues & Future Plans',
+      titleHe: 'פרק 2: תעלומת לונדון ותוכניות לעתיד',
+      subtitleHe: 'עתיד Will מול Going to, שאלות Did בעבר ו-Modals (must, should, could)',
+      badgeEmoji: '🕵️',
+      missions: [
+        {
+          id: 'g8-u2-m1',
+          unitNumber: 2,
+          missionNumber: 1,
+          icon: '🔍',
+          titleEn: 'The Lost Ticket at Baker Street',
+          titleHe: 'הכרטיס האבוד ברחוב בייקר',
+          storyHookHe: 'בלשי הנוער של לונדון בעקבות רמז מסתורי! נלמד לשאול שאלות על העבר ולתכנן את הצעד הבא.',
+          grammarTopic: 'Future: Will vs. Be Going to & Past Questions (Did)',
+          estimatedMinutes: 4,
+          baseXp: 75,
+          baseDiamonds: 20,
+          skills: ['Future Tenses', 'Past Questions', 'Mystery Vocabulary'],
+          sampleSentenceEn: 'Did you find the secret note, and what are you going to do next?',
+          sampleSentenceHe: 'האם מצאת את הפתק הסודי, ומה אתה מתכוון לעשות עכשיו?',
+          vocabulary: [
+            {
+              wordEn: 'investigate',
+              partOfSpeech: 'verb',
+              translationHe: 'לחקור / לברר',
+              exampleEn: 'The detectives will investigate the mysterious message.',
+              exampleHe: 'הבלשים יחקרו את ההודעה המסתורית.',
+            },
+            {
+              wordEn: 'clue',
+              partOfSpeech: 'noun',
+              translationHe: 'רמז',
+              exampleEn: 'Every clue brings us closer to solving the case.',
+              exampleHe: 'כל רמז מקרב אותנו לפתרון התעלומה.',
+            },
+            {
+              wordEn: 'decision',
+              partOfSpeech: 'noun',
+              translationHe: 'החלטה',
+              exampleEn: 'We have to make an important decision today.',
+              exampleHe: 'אנחנו חייבים לקבל החלטה חשובה היום.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'זיהוי Did בשאלות עבר והבחנה בין will ל-going to',
+              samplePromptEn: '_______ (Did you find / Were you find) the key yesterday?',
+              samplePromptHe: 'האם מצאת את המפתח אתמול?',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'ניסוח תוכניות מתוכננות (be going to) מול החלטות ספונטניות (will)',
+              samplePromptEn: 'I am going to visit the British Museum tomorrow morning.',
+              samplePromptHe: 'אני מתכוון לבקר במוזיאון הבריטי מחר בבוקר.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'שליטה מלאה במבנה Modals ודיבור שוטף בפתרון תעלומה',
+              samplePromptEn: 'You should examine the footsteps carefully before making a final decision.',
+              samplePromptHe: 'כדאי שתבחן את העקבות בקפידה לפני שתקבל החלטה סופית.',
+            },
+          },
+        },
+      ],
+    },
+  ],
+};

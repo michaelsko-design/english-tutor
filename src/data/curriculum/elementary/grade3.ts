@@ -1,0 +1,143 @@
+import { GradeCurriculumPack } from '../types';
+
+export const grade3Curriculum: GradeCurriculumPack = {
+  gradeId: 'grade-3',
+  units: [
+    {
+      unitNumber: 1,
+      titleEn: 'Unit 1: Little Artists & School Supplies',
+      titleHe: 'פרק 1: אמנים צעירים וכלי כתיבה',
+      subtitleHe: 'מילות יסוד לכיתה (pencil, book, desk), פעלים פשוטים ומשפטי "I have / I see"',
+      badgeEmoji: '🎨',
+      missions: [
+        {
+          id: 'g3-u1-m1',
+          unitNumber: 1,
+          missionNumber: 1,
+          icon: '✏️',
+          titleEn: 'My Colorful Pencil Case',
+          titleHe: 'הקלמר הצבעוני שלי',
+          storyHookHe: 'מתחילים את שנת הלימודים עם קלמר מלא בעפרונות וצבעים! בואו נתאר מה יש לנו.',
+          grammarTopic: 'Singular & Plural Nouns (-s) & "I have"',
+          estimatedMinutes: 3,
+          baseXp: 40,
+          baseDiamonds: 10,
+          skills: ['School Supplies', 'Singular & Plural', 'Speaking Aloud'],
+          sampleSentenceEn: 'I have blue pens and yellow paper in my desk.',
+          sampleSentenceHe: 'יש לי עטים כחולים ודף צהוב בשולחן שלי.',
+          vocabulary: [
+            {
+              wordEn: 'pencil',
+              partOfSpeech: 'noun',
+              translationHe: 'עיפרון',
+              exampleEn: 'Sharpen your pencil before writing.',
+              exampleHe: 'חדד את העיפרון לפני הכתיבה.',
+            },
+            {
+              wordEn: 'paper',
+              partOfSpeech: 'noun',
+              translationHe: 'נייר / דף',
+              exampleEn: 'Draw a sunny picture on the paper.',
+              exampleHe: 'צייר תמונה שטופת שמש על הדף.',
+            },
+            {
+              wordEn: 'desk',
+              partOfSpeech: 'noun',
+              translationHe: 'שולחן כתיבה',
+              exampleEn: 'Keep your desk neat and tidy.',
+              exampleHe: 'שמור על שולחן הכתיבה שלך מסודר ונקי.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'זיהוי כלי כתיבה והבדל בין יחיד לרבים (pen / pens)',
+              samplePromptEn: 'In my bag, I have two _______ (pencil / pencils).',
+              samplePromptHe: 'בתיק שלי, יש לי שני עפרונות.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'הרכבת משפט תיאור מלא על הציוד בכיתה',
+              samplePromptEn: 'She puts three colorful pencils on her desk.',
+              samplePromptHe: 'היא שמה שלושה עפרונות צבעוניים על השולחן שלה.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'הקלטת משפט מורכב הכולל צבעים, כמויות וכלי כתיבה',
+              samplePromptEn: 'I always have five sharp pencils and a blue ruler ready for art class.',
+              samplePromptHe: 'תמיד יש לי מוכנים חמישה עפרונות מחודדים וסרגל כחול לשיעור אמנות.',
+            },
+          },
+        },
+      ],
+    },
+    {
+      unitNumber: 2,
+      titleEn: 'Unit 2: Days, Weather & Happy Feelings',
+      titleHe: 'פרק 2: ימים בשבוע, מזג אוויר ורגשות',
+      subtitleHe: 'ימי השבוע (Sunday to Friday), שמש וגשם, ואיך מביעים רגשות (happy, tired, excited)',
+      badgeEmoji: '🌈',
+      missions: [
+        {
+          id: 'g3-u2-m1',
+          unitNumber: 2,
+          missionNumber: 1,
+          icon: '☀️',
+          titleEn: 'Sunny Sundays & Weekend Fun',
+          titleHe: 'ימי ראשון שמשיים וכיף בסוף השבוע',
+          storyHookHe: 'איזה יום היום? ואיך מזג האוויר בחוץ? נלמד לספר איך אנחנו מרגישים בימים שונים!',
+          grammarTopic: 'Days of the Week & Feelings (I am...)',
+          estimatedMinutes: 3,
+          baseXp: 40,
+          baseDiamonds: 10,
+          skills: ['Days of Week', 'Feelings', 'Weather'],
+          sampleSentenceEn: 'On sunny Sundays, I am very excited to play outside.',
+          sampleSentenceHe: 'בימי ראשון שמשיים, אני מאוד נרגש לשחק בחוץ.',
+          vocabulary: [
+            {
+              wordEn: 'weather',
+              partOfSpeech: 'noun',
+              translationHe: 'מזג אוויר',
+              exampleEn: 'The weather is warm and sunny today.',
+              exampleHe: 'מזג האוויר חמים ושמשי היום.',
+            },
+            {
+              wordEn: 'excited',
+              partOfSpeech: 'adjective',
+              translationHe: 'נרגש / נרגשת',
+              exampleEn: 'The children are excited about the school trip.',
+              exampleHe: 'הילדים נרגשים לקראת הטיול של בית הספר.',
+            },
+            {
+              wordEn: 'outside',
+              partOfSpeech: 'adverb / preposition',
+              translationHe: 'בחוץ',
+              exampleEn: 'We love to run and play outside.',
+              exampleHe: 'אנחנו אוהבים לרוץ ולשחק בחוץ.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'זיהוי מילת מזג אוויר (sunny) וביטוי רגש (excited)',
+              samplePromptEn: 'Today is Sunday and the weather is _______ (sunny / pen).',
+              samplePromptHe: 'היום יום ראשון ומזג האוויר שמשי.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'חיבור יום בשבוע עם פעילות והקלטה קולית',
+              samplePromptEn: 'On Fridays, we are happy because weekend is here.',
+              samplePromptHe: 'בימי שישי, אנחנו שמחים כי סוף השבוע כבר כאן.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'הקלטת משפט מלא המתאר יום, מזג אוויר ופעילות אהובה',
+              samplePromptEn: 'When the weather is cloudy on Tuesday, I prefer to stay inside and read.',
+              samplePromptHe: 'כאשר מזג האוויר מעונן ביום שלישי, אני מעדיפה להישאר בפנים ולקרוא.',
+            },
+          },
+        },
+      ],
+    },
+  ],
+};

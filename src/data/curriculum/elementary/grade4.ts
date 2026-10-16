@@ -1,0 +1,143 @@
+import { GradeCurriculumPack } from '../types';
+
+export const grade4Curriculum: GradeCurriculumPack = {
+  gradeId: 'grade-4',
+  units: [
+    {
+      unitNumber: 1,
+      titleEn: 'Unit 1: Superhero Action Academy',
+      titleHe: 'פרק 1: אקדמיית גיבורי העל',
+      subtitleHe: 'פועלי פעולה (run, jump, swim, fly), כינויי גוף ויכולת עם Can ו-Can\'t',
+      badgeEmoji: '🦸‍♂️',
+      missions: [
+        {
+          id: 'g4-u1-m1',
+          unitNumber: 1,
+          missionNumber: 1,
+          icon: '⚡',
+          titleEn: 'Super Powers: What Can You Do?',
+          titleHe: 'כוחות על: מה אתם יכולים לעשות?',
+          storyHookHe: 'התקבלתם לאקדמיית גיבורי העל! בואו נלמד לספר על היכולות המיוחדות שלכם באנגלית בעזרת Can ו-Can\'t.',
+          grammarTopic: 'Modal Verb "Can / Can\'t" & Action Verbs',
+          estimatedMinutes: 3,
+          baseXp: 40,
+          baseDiamonds: 10,
+          skills: ['Action Verbs', 'Can / Can\'t', 'Voice Power Drill'],
+          sampleSentenceEn: 'Super heroes can fly fast and help people every day.',
+          sampleSentenceHe: 'גיבורי על יכולים לעוף מהר ולעזור לאנשים כל יום.',
+          vocabulary: [
+            {
+              wordEn: 'jump',
+              partOfSpeech: 'verb',
+              translationHe: 'לקפוץ',
+              exampleEn: 'She can jump over the obstacle easily.',
+              exampleHe: 'היא יכולה לקפוץ מעל המכשול בקלות.',
+            },
+            {
+              wordEn: 'swim',
+              partOfSpeech: 'verb',
+              translationHe: 'לשחות',
+              exampleEn: 'Dolphins can swim very quickly.',
+              exampleHe: 'דולפינים יכולים לשחות מהר מאוד.',
+            },
+            {
+              wordEn: 'protect',
+              partOfSpeech: 'verb',
+              translationHe: 'להגן על / לשמור',
+              exampleEn: 'Superheroes protect the city from villains.',
+              exampleHe: 'גיבורי על מגנים על העיר מפני נבלים.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'זיהוי פועל הפעולה הנכון עם can',
+              samplePromptEn: 'Eagles _______ (can fly / can flying) high in the mountains.',
+              samplePromptHe: 'נשרים יכולים לעוף גבוה בהרים.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'הבחנה בין יכולת (can) לאי-יכולת (can\'t) ותרגול הקלטה',
+              samplePromptEn: 'Penguins can swim fast, but they can\'t fly in the air.',
+              samplePromptHe: 'פינגווינים יכולים לשחות מהר, אבל הם לא יכולים לעוף באוויר.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'ניסוח שאלות יכולת באנגלית והשמעת תשובה מנומקת',
+              samplePromptEn: 'Can you climb that tall wall without any superhero gear?',
+              samplePromptHe: 'האם את יכולה לטפס על הקיר הגבוה ההוא ללא ציוד גיבורי על?',
+            },
+          },
+        },
+      ],
+    },
+    {
+      unitNumber: 2,
+      titleEn: 'Unit 2: Around the House & My Room',
+      titleHe: 'פרק 2: סביב הבית והחדר שלי',
+      subtitleHe: 'חדרי הבית (kitchen, bedroom, living room), שמות עצם ברבים ומבנה There is / There are',
+      badgeEmoji: '🏠',
+      missions: [
+        {
+          id: 'g4-u2-m1',
+          unitNumber: 2,
+          missionNumber: 1,
+          icon: '🛋️',
+          titleEn: 'Welcome to My Cozy Room',
+          titleHe: 'ברוכים הבאים לחדר הנעים שלי',
+          storyHookHe: 'בואו נעשה סיור בחדר שלנו! נלמד להגיד מה יש בו בעזרת There is (ליחיד) ו-There are (לרבים).',
+          grammarTopic: 'There is / There are & House Vocabulary',
+          estimatedMinutes: 3,
+          baseXp: 45,
+          baseDiamonds: 11,
+          skills: ['There is / are', 'Room Vocabulary', 'Prepositions'],
+          sampleSentenceEn: 'There are two comfortable chairs in the living room.',
+          sampleSentenceHe: 'יש שני כיסאות נוחים בסלון.',
+          vocabulary: [
+            {
+              wordEn: 'bedroom',
+              partOfSpeech: 'noun',
+              translationHe: 'חדר שינה',
+              exampleEn: 'My bedroom has a soft blue rug.',
+              exampleHe: 'בחדר השינה שלי יש שטיח כחול ורך.',
+            },
+            {
+              wordEn: 'kitchen',
+              partOfSpeech: 'noun',
+              translationHe: 'מטבח',
+              exampleEn: 'Dad is cooking vegetable soup in the kitchen.',
+              exampleHe: 'אבא מבשל מרק ירקות במטבח.',
+            },
+            {
+              wordEn: 'comfortable',
+              partOfSpeech: 'adjective',
+              translationHe: 'נוח / נוחה',
+              exampleEn: 'This sofa is very comfortable for reading.',
+              exampleHe: 'הספה הזו נוחה מאוד לקריאה.',
+            },
+          ],
+          tierObjectives: {
+            explorer: {
+              tier: 'explorer',
+              focusHe: 'בחירת There is ליחיד או There are לרבים',
+              samplePromptEn: '_______ (There is / There are) a big lamp on the nightstand.',
+              samplePromptHe: 'יש מנורה גדולה על שידת הלילה.',
+            },
+            challenger: {
+              tier: 'challenger',
+              focusHe: 'השלמת משפטי תיאור החדר ותרגול הגייה קולית',
+              samplePromptEn: 'There are many colorful books on the wooden shelf.',
+              samplePromptHe: 'יש ספרים צבעוניים רבים על מדף העץ.',
+            },
+            master: {
+              tier: 'master',
+              focusHe: 'תיאור מפורט של סידור החדר בדיבור שוטף',
+              samplePromptEn: 'In my room, there is a desk near the window and there are games in the closet.',
+              samplePromptHe: 'בחדר שלי יש שולחן ליד החלון ויש משחקים בארון.',
+            },
+          },
+        },
+      ],
+    },
+  ],
+};
