@@ -57,7 +57,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   onClose,
 }) => {
   const isGirl = gender === 'girl';
-  const steps = getExercisesForMission(mission, tier);
+  const steps = getExercisesForMission(mission, tier, gender);
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [showHint, setShowHint] = useState(false);
 
@@ -704,8 +704,12 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                   <Mic className="w-4 h-4" />
                   <span dir="rtl">
                     {isListening
-                      ? 'מקשיב לך... קראי את המשפט באנגלית!'
-                      : '🎙️ לחצי והקליטי בקול (Speak Aloud)'}
+                      ? isGirl
+                        ? 'מקשיב לך... קראי את המשפט באנגלית!'
+                        : 'מקשיב לך... קרא את המשפט באנגלית!'
+                      : isGirl
+                      ? '🎙️ לחצי והקליטי בקול (Speak Aloud)'
+                      : '🎙️ לחץ והקלט בקול (Speak Aloud)'}
                   </span>
                 </button>
               </div>
@@ -724,7 +728,9 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     className="text-xs underline opacity-70 hover:opacity-100"
                     dir="rtl"
                   >
-                    אני במקום שקט ולא יכולה לדבר כרגע (מעבר להאזנה בלבד)
+                    {isGirl
+                      ? 'אני במקום שקט ולא יכולה לדבר כרגע (מעבר להאזנה בלבד)'
+                      : 'אני במקום שקט ולא יכול לדבר כרגע (מעבר להאזנה בלבד)'}
                   </button>
                 </div>
               )}

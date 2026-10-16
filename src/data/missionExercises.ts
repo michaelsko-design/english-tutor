@@ -1,5 +1,6 @@
 import { MissionNode } from './curriculum';
-import { ProficiencyTier } from '../types/learner';
+import { LearnerGender, ProficiencyTier } from '../types/learner';
+import { inflectHebrew } from '../utils/hebrewGender';
 
 export type DrillType =
   | 'chat-reply'
@@ -38,10 +39,38 @@ export interface MissionExerciseStep {
   focusWordEn?: string;
 }
 
+function applyGenderToStep(
+  step: MissionExerciseStep,
+  gender: LearnerGender
+): MissionExerciseStep {
+  return {
+    ...step,
+    badgeLabelHe: inflectHebrew(step.badgeLabelHe, gender),
+    promptHe: inflectHebrew(step.promptHe, gender),
+    hintHe: inflectHebrew(step.hintHe, gender),
+    contextPassageHe: step.contextPassageHe
+      ? inflectHebrew(step.contextPassageHe, gender)
+      : undefined,
+    options: step.options?.map((opt) => ({
+      ...opt,
+      explanationHe: inflectHebrew(opt.explanationHe, gender),
+    })),
+  };
+}
+
 /**
- * Generates a 5-step interactive mission tailored to the specific MissionNode and ProficiencyTier.
+ * Generates a 5-step interactive mission tailored to the specific MissionNode, ProficiencyTier, and LearnerGender.
  */
 export function getExercisesForMission(
+  mission: MissionNode,
+  tier: ProficiencyTier,
+  gender: LearnerGender = 'girl'
+): MissionExerciseStep[] {
+  const steps = getRawExercisesForMission(mission, tier);
+  return steps.map((s) => applyGenderToStep(s, gender));
+}
+
+function getRawExercisesForMission(
   mission: MissionNode,
   tier: ProficiencyTier
 ): MissionExerciseStep[] {

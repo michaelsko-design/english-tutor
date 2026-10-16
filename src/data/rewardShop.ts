@@ -1,4 +1,5 @@
-import { DailyActivityCounters } from '../types/learner';
+import { DailyActivityCounters, LearnerGender } from '../types/learner';
+import { inflectHebrew } from '../utils/hebrewGender';
 
 export type RewardCategory = 'avatar' | 'sticker' | 'studio-decor' | 'boost';
 
@@ -153,3 +154,18 @@ export const REWARD_SHOP_ITEMS: RewardShopItem[] = [
     costDiamonds: 50,
   },
 ];
+
+export function getDailyQuests(gender: LearnerGender): DailyQuestDefinition[] {
+  return DAILY_QUESTS.map((q) => ({
+    ...q,
+    titleHe: inflectHebrew(q.titleHe, gender),
+  }));
+}
+
+export function getRewardShopItems(gender: LearnerGender): RewardShopItem[] {
+  return REWARD_SHOP_ITEMS.map((item) => ({
+    ...item,
+    titleHe: inflectHebrew(item.titleHe, gender),
+    descriptionHe: inflectHebrew(item.descriptionHe, gender),
+  }));
+}

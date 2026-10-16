@@ -11,6 +11,7 @@ import {
   ThemeDefinition,
   TIER_CONFIG,
 } from '../themes/themeRegistry';
+import { inflectHebrew } from '../utils/hebrewGender';
 import {
   Star,
   Lock,
@@ -197,7 +198,7 @@ export const MissionMap: React.FC<MissionMapProps> = ({
                               </div>
 
                               <p className="text-xs font-bold truncate" dir="rtl">
-                                {mission.titleHe}
+                                {inflectHebrew(mission.titleHe, gender)}
                               </p>
                             </div>
                           </div>
@@ -326,9 +327,9 @@ export const MissionMap: React.FC<MissionMapProps> = ({
                 <h3 className="text-xl font-extrabold" dir="ltr">
                   {selectedMission.titleEn}
                 </h3>
-                <p className="text-sm font-bold">{selectedMission.titleHe}</p>
+                <p className="text-sm font-bold">{inflectHebrew(selectedMission.titleHe, gender)}</p>
                 <p className={`text-xs leading-relaxed ${theme.mutedTextClass}`}>
-                  {selectedMission.storyHookHe}
+                  {inflectHebrew(selectedMission.storyHookHe, gender)}
                 </p>
               </div>
 
@@ -348,7 +349,7 @@ export const MissionMap: React.FC<MissionMapProps> = ({
                       {selectedMission.baseDiamonds + tierMeta.diamondBonus} 💎
                     </span>
                   </div>
-                  <p className="text-xs font-semibold">{currentTierObj.focusHe}</p>
+                  <p className="text-xs font-semibold">{inflectHebrew(currentTierObj.focusHe, gender)}</p>
                   <div
                     className="p-2.5 rounded-xl bg-black/5 dark:bg-black/25 text-xs font-bold flex items-center justify-between gap-2"
                     dir="ltr"
@@ -376,7 +377,7 @@ export const MissionMap: React.FC<MissionMapProps> = ({
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-extrabold flex items-center gap-1.5">
                     <BookOpen className="w-4 h-4" />
-                    <span>אוצר מילים למשימה (לחצו להאזנה 🔊):</span>
+                    <span>אוצר מילים למשימה ({isGirl ? 'לחצי' : 'לחץ'} להאזנה 🔊):</span>
                   </h4>
                   <span className="text-xs opacity-75">
                     {selectedMission.vocabulary.length} מילים

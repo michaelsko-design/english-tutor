@@ -1,6 +1,6 @@
 import React from 'react';
 import confetti from 'canvas-confetti';
-import { DAILY_QUESTS, DailyQuestDefinition } from '../data/rewardShop';
+import { getDailyQuests, DailyQuestDefinition } from '../data/rewardShop';
 import { DailyActivityCounters, LearnerGender } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
 import { Flame, CheckCircle2, Gift, ShieldCheck } from 'lucide-react';
@@ -20,10 +20,12 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
   streakDays,
   dailyCounters,
   claimedQuestIds,
-   theme,
+  gender,
+  theme,
   isShabbatObserver = true,
   onClaimQuest,
 }) => {
+  const quests = getDailyQuests(gender);
   const todayDayIdx = new Date().getDay();
 
   const weekDays = [
@@ -58,7 +60,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
         </div>
 
         <div className="space-y-2.5" dir="rtl">
-          {DAILY_QUESTS.map((quest) => {
+          {quests.map((quest) => {
             const currentVal = quest.getCurrentCount(dailyCounters);
             const progressRatio = Math.min(1, currentVal / quest.targetCount);
             const isCompleted = currentVal >= quest.targetCount;

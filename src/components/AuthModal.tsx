@@ -154,7 +154,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     } catch (err: unknown) {
       const code = (err as { code?: string })?.code || '';
       if (code === 'auth/email-already-in-use') {
-        setErrorHe('שם המשתמש או האימייל הזה כבר קיימים — עברי ללשונית "התחברות"!');
+        setErrorHe(
+          isGirl
+            ? 'שם המשתמש או האימייל הזה כבר קיימים — עברי ללשונית "התחברות"!'
+            : 'שם המשתמש או האימייל הזה כבר קיימים — עבור ללשונית "התחברות"!'
+        );
       } else if (
         code === 'auth/invalid-credential' ||
         code === 'auth/wrong-password' ||

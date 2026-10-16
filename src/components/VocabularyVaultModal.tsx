@@ -329,10 +329,14 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                     <Mic className="w-3.5 h-3.5" />
                     <span dir="rtl">
                       {isRecordingThis
-                        ? 'אמרי את המילה...'
+                        ? isGirl
+                          ? 'אמרי את המילה...'
+                          : 'אמור את המילה...'
                         : isMastered
                         ? 'תורגל בהצלחה ✓'
-                        : 'תרגלי הגייה (+10 XP)'}
+                        : isGirl
+                        ? 'תרגלי הגייה (+10 XP)'
+                        : 'תרגל הגייה (+10 XP)'}
                     </span>
                   </button>
                 </div>

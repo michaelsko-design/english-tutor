@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import {
-  REWARD_SHOP_ITEMS,
+  getRewardShopItems,
   RewardCategory,
   RewardShopItem,
 } from '../data/rewardShop';
@@ -36,7 +36,8 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<RewardCategory | 'all'>('all');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  const filteredItems = REWARD_SHOP_ITEMS.filter(
+  const shopItems = getRewardShopItems(gender);
+  const filteredItems = shopItems.filter(
     (item) => selectedCategory === 'all' || item.category === selectedCategory
   );
 

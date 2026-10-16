@@ -22,7 +22,7 @@ import { VocabularyVaultModal } from './VocabularyVaultModal';
 import { DailyQuestsCard } from './DailyQuestsCard';
 import { RewardShopModal } from './RewardShopModal';
 import { AuthModal } from './AuthModal';
-import { getHebrewCopy } from '../utils/hebrewGender';
+import { getHebrewCopy, inflectHebrew } from '../utils/hebrewGender';
 import {
   Flame,
   Star,
@@ -462,10 +462,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   {todaysMission.titleEn}
                 </h2>
                 <p className="text-sm sm:text-base font-bold" dir="rtl">
-                  {todaysMission.titleHe}
+                  {inflectHebrew(todaysMission.titleHe, profile.gender)}
                 </p>
                 <p className={`text-xs sm:text-sm line-clamp-2 md:line-clamp-none ${theme.mutedTextClass}`} dir="rtl">
-                  {todaysMission.storyHookHe}
+                  {inflectHebrew(todaysMission.storyHookHe, profile.gender)}
                 </p>
               </div>
             </div>
@@ -662,7 +662,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 className={`flex-1 py-3.5 px-5 rounded-2xl font-extrabold text-sm ${theme.primaryBtnClass}`}
               >
                 {profile.gender === 'girl'
-                  ? 'איזה כיף, בואו נתחיל! 🚀'
+                  ? 'איזה כיף, בואי נתחיל! 🚀'
                   : 'איזה כיף, בוא נתחיל! 🚀'}
               </button>
               <button
