@@ -56,6 +56,7 @@ if (isFirebaseConfigured) {
     // stays fast and responsive even with spotty mobile connectivity.
     try {
       db = initializeFirestore(app, {
+        ignoreUndefinedProperties: true,
         localCache: persistentLocalCache({
           tabManager: persistentMultipleTabManager(),
         }),

@@ -99,9 +99,11 @@ export function mergeLearnerProfiles(
   );
 
   // Determine which profile has more recent preference updates
+  // Always prefer an onboarded cloud profile over an unonboarded local default
   const localTime = local.updatedAt ? Date.parse(local.updatedAt) : 0;
   const cloudTime = cloud.updatedAt ? Date.parse(cloud.updatedAt) : 0;
-  const preferCloudPrefs = cloudTime > localTime;
+  const preferCloudPrefs =
+    (Boolean(cloud.isOnboarded) && !local.isOnboarded) || cloudTime >= localTime;
 
   const mergedXp = Math.max(local.stats?.xp || 0, cloud.stats?.xp || 0);
   const mergedLevel = Math.max(
@@ -110,7 +112,11 @@ export function mergeLearnerProfiles(
     Math.floor(mergedXp / 150) + 1
   );
 
-  return {
+  const resolvedAvatar = preferCloudPrefs
+    ? cloud.equippedAvatarEmoji || local.equippedAvatarEmoji
+    : local.equippedAvatarEmoji || cloud.equippedAvatarEmoji;
+
+  const merged: LearnerProfile = {
     isOnboarded: Boolean(local.isOnboarded || cloud.isOnboarded),
     name:
       (preferCloudPrefs ? cloud.name || local.name : local.name || cloud.name) ||
@@ -123,9 +129,7 @@ export function mergeLearnerProfiles(
       'challenger',
     themeId:
       (preferCloudPrefs ? cloud.themeId : local.themeId) || 'cozy-studio',
-    equippedAvatarEmoji: preferCloudPrefs
-      ? cloud.equippedAvatarEmoji ?? local.equippedAvatarEmoji
-      : local.equippedAvatarEmoji ?? cloud.equippedAvatarEmoji,
+    ...(resolvedAvatar ? { equippedAvatarEmoji: resolvedAvatar } : {}),
     stats: {
       xp: mergedXp,
       level: mergedLevel,
@@ -159,9 +163,18 @@ export function mergeLearnerProfiles(
     hasSeenWelcomeGiftModal: Boolean(
       local.hasSeenWelcomeGiftModal || cloud.hasSeenWelcomeGiftModal
     ),
-    createdAt: local.createdAt || cloud.createdAt || new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: cloud.createdAt || local.createdAt || new Date().toISOString(),
+    updatedAt: cloud.updatedAt || local.updatedAt || new Date().toISOString(),
   };
+
+  return merged;
+}
+
+/**
+ * Strips any `undefined` keys recursively before sending to Firestore.
+ */
+function sanitizeForFirestore<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj));
 }
 
 /**
@@ -182,8 +195,9 @@ export async function migrateAndSyncProfileOnLogin(
     return mergeLearnerProfiles(cleanDefaultProfile, cloudData);
   }
 
-  await setDoc(docRef, cleanDefaultProfile, { merge: true });
-  return cleanDefaultProfile;
+  const sanitized = sanitizeForFirestore(cleanDefaultProfile);
+  await setDoc(docRef, sanitized, { merge: true });
+  return sanitized;
 }
 
 /**
@@ -195,12 +209,9 @@ export async function saveProfileToFirestore(
 ): Promise<void> {
   if (!db) return;
   const docRef = doc(db, LEARNERS_COLLECTION, uid);
-  await setDoc(
-    docRef,
-    {
-      ...profile,
-      updatedAt: new Date().toISOString(),
-    },
-    { merge: true }
-  );
+  const sanitized = sanitizeForFirestore({
+    ...profile,
+    updatedAt: new Date().toISOString(),
+  });
+  await setDoc(docRef, sanitized, { merge: true });
 }

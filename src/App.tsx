@@ -141,7 +141,7 @@ export function App() {
         isAnonymous: firebaseUser.isAnonymous,
       };
       setAuthUser(summary);
-      setIsAuthInitializing(false);
+      setIsAuthInitializing(true);
       setSyncStatus('syncing');
 
       try {
@@ -149,8 +149,8 @@ export function App() {
         const freshDefault: LearnerProfile = {
           ...DEFAULT_PROFILE,
           name: firebaseUser.displayName?.split(' ')[0] || '',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          createdAt: new Date(0).toISOString(),
+          updatedAt: new Date(0).toISOString(),
         };
         const loadedProfile = await migrateAndSyncProfileOnLogin(
           firebaseUser.uid,
@@ -160,6 +160,8 @@ export function App() {
         setSyncStatus('synced');
       } catch {
         setSyncStatus('offline-error');
+      } finally {
+        setIsAuthInitializing(false);
       }
 
       // 2. Real-time cross-device sync via Firestore onSnapshot
