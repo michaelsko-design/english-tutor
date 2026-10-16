@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import {
   AuthUserSummary,
   CloudSyncStatus,
-  GradeId,
   LearnerProfile,
   ProficiencyTier,
   SUPPORTED_GRADES,
-  ThemeId,
 } from '../types/learner';
 import {
   THEME_REGISTRY,
@@ -33,14 +31,13 @@ import {
   Play,
   Settings,
   ShieldCheck,
-  Sparkles,
-  GraduationCap,
-  Palette,
   BookOpen,
   ShoppingBag,
   Cloud,
   CloudOff,
   RefreshCw,
+  Home,
+  Map as MapIcon,
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -222,62 +219,65 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     });
   };
 
-  const handleSelectGrade = (gradeId: GradeId) => {
-    setActivePracticeMission(null);
-    onUpdateProfile({
-      ...profile,
-      gradeId,
-    });
-  };
-
-  const handleSelectTheme = (themeId: ThemeId) => {
-    onUpdateProfile({
-      ...profile,
-      themeId,
-    });
-  };
-
   const formatShortAccountLabel = (u: AuthUserSummary) => {
     if (u.isAnonymous) return 'ענן אורח';
     if (u.email?.endsWith('@peachnote.tutor.local')) {
       return u.email.replace('@peachnote.tutor.local', '');
     }
-    return u.displayName || u.email?.split('@')[0] || profile.name;
+    return u.displayName?.split(' ')[0] || u.email?.split('@')[0] || profile.name;
+  };
+
+  const scrollToSection = (elementId: string) => {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   return (
-    <div className={`min-h-screen w-full ${theme.pageBgClass} pb-14 transition-colors duration-300`}>
-      {/* Top Sticky Navigation / HUD */}
-      <header className={`sticky top-0 z-30 ${theme.hudBgClass} px-4 md:px-8 py-3.5`}>
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+    <div className={`min-h-screen w-full ${theme.pageBgClass} pb-24 md:pb-14 transition-colors duration-300`}>
+      {/* Compact Single-Row Top Sticky Navigation / HUD */}
+      <header className={`sticky top-0 z-30 ${theme.hudBgClass} px-3.5 md:px-8 py-2.5 md:py-3`}>
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
           {/* Brand & Learner Identity */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
             <button
               type="button"
               onClick={() => setIsRewardShopOpen(true)}
               title="Click to customize Avatar in Reward Shop"
-              className={`w-11 h-11 rounded-2xl flex items-center justify-center text-2xl ${theme.primaryBtnClass}`}
+              className={`w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-xl shrink-0 ${theme.primaryBtnClass}`}
             >
               {activeAvatarEmoji}
             </button>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base md:text-lg tracking-tight">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-sm md:text-base tracking-tight truncate">
                   {theme.name}
                 </span>
-                <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${theme.badgeClass}`}>
-                  {currentGradeMeta.labelHe} · Lv. {profile.stats.level}
+                <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold shrink-0 ${theme.badgeClass}`}>
+                  {currentGradeMeta.labelHe} · Lv.{profile.stats.level}
                 </span>
               </div>
-              <p className={`text-xs ${theme.mutedTextClass}`} dir="rtl">
+              <p className={`text-[11px] hidden sm:block truncate ${theme.mutedTextClass}`} dir="rtl">
                 {heb.championBadge} · {theme.companionName}
               </p>
             </div>
           </div>
 
-          {/* Right Controls: Cloud Sync Status Badge, Vocab Vault, Shop, Grade, Theme, Profile */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* CLOUD SYNC STATUS BADGE */}
+          {/* Right Controls: Compact Cloud Sync + Quick Diamond Pill (Mobile) + Desktop Actions */}
+          <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+            {/* Compact Mobile Diamond Counter */}
+            <button
+              type="button"
+              onClick={() => setIsRewardShopOpen(true)}
+              className={`md:hidden px-2.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1 ${theme.secondaryBtnClass}`}
+              title="Open Reward Shop"
+            >
+              <span>💎</span>
+              <span>{profile.stats.diamonds}</span>
+            </button>
+
+            {/* CLOUD SYNC STATUS BADGE (Icon-only on mobile, short label on sm+) */}
             <button
               type="button"
               onClick={() => setIsAuthModalOpen(true)}
@@ -286,7 +286,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   ? `Logged in as ${authUser.email || authUser.displayName || authUser.uid}`
                   : 'Guest / Local Only (Tap to Sync)'
               }
-              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 border transition-all ${
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 border transition-all ${
                 syncStatus === 'synced'
                   ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
                   : syncStatus === 'syncing'
@@ -295,207 +295,161 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               }`}
             >
               {syncStatus === 'synced' ? (
-                <Cloud className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                <Cloud className="w-4 h-4 text-emerald-500 shrink-0" />
               ) : syncStatus === 'syncing' ? (
-                <RefreshCw className="w-3.5 h-3.5 text-sky-500 animate-spin shrink-0" />
+                <RefreshCw className="w-4 h-4 text-sky-500 animate-spin shrink-0" />
               ) : (
-                <CloudOff className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <CloudOff className="w-4 h-4 text-amber-500 shrink-0" />
               )}
-              <span dir="rtl">
-                {authUser
-                  ? `מסונכרן (${formatShortAccountLabel(authUser)})`
-                  : heb.localGuestTapToSync}
+              <span className="hidden sm:inline" dir="rtl">
+                {authUser ? formatShortAccountLabel(authUser) : 'סנכרון'}
               </span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => setIsVocabVaultOpen(true)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.primaryBtnClass}`}
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span dir="rtl">מאגר מילים + הגייה 🎙️</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsRewardShopOpen(true)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-            >
-              <ShoppingBag className="w-3.5 h-3.5" />
-              <span dir="rtl">חנות ({profile.stats.diamonds} 💎)</span>
-            </button>
-
-            {/* Multi-Grade Architecture Selector */}
-            <div className="flex items-center gap-1.5 text-xs">
-              <GraduationCap className="w-4 h-4 opacity-75 hidden sm:inline" />
-              <select
-                aria-label="Select Grade Level"
-                value={profile.gradeId}
-                onChange={(e) => handleSelectGrade(e.target.value as GradeId)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold outline-none ${theme.secondaryBtnClass}`}
+            {/* Desktop Navigation Controls (hidden on mobile where bottom nav is used) */}
+            <div className="hidden md:flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsVocabVaultOpen(true)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.primaryBtnClass}`}
               >
-                {SUPPORTED_GRADES.map((g) => (
-                  <option key={g.id} value={g.id} className="text-slate-900 bg-white">
-                    {g.labelHe} ({g.labelEn})
-                  </option>
-                ))}
-              </select>
-            </div>
+                <BookOpen className="w-3.5 h-3.5" />
+                <span dir="rtl">מאגר מילים 🎙️</span>
+              </button>
 
-            {/* Pluggable UI Theme Switcher */}
-            <div className="flex items-center gap-1.5 text-xs">
-              <Palette className="w-4 h-4 opacity-75 hidden sm:inline" />
-              <select
-                aria-label="Select Visual Theme"
-                value={profile.themeId}
-                onChange={(e) => handleSelectTheme(e.target.value as ThemeId)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold outline-none ${theme.secondaryBtnClass}`}
+              <button
+                type="button"
+                onClick={() => setIsRewardShopOpen(true)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
               >
-                {(Object.keys(THEME_REGISTRY) as ThemeId[]).map((tk) => (
-                  <option key={tk} value={tk} className="text-slate-900 bg-white">
-                    {THEME_REGISTRY[tk].avatarEmoji} {THEME_REGISTRY[tk].name}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span dir="rtl">חנות ({profile.stats.diamonds} 💎)</span>
+              </button>
 
-            <button
-              onClick={onEditOnboarding}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-              title="Edit Name, Age or Gender"
-            >
-              <Settings className="w-3.5 h-3.5" />
-              <span dir="rtl">פרופיל</span>
-            </button>
+              <button
+                type="button"
+                onClick={onEditOnboarding}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
+                title="הגדרות פרופיל, כיתה ועיצוב"
+              >
+                <Settings className="w-3.5 h-3.5" />
+                <span dir="rtl">פרופיל והגדרות</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content Container (Mobile-First + Laptop Grid) */}
-      <main className="max-w-6xl mx-auto px-4 md:px-8 pt-6 space-y-8">
-        {/* Personalized Welcome Banner */}
-        <section
-          className={`rounded-3xl p-5 md:p-6 ${theme.cardBgClass} flex flex-col md:flex-row md:items-center justify-between gap-4`}
-          dir="rtl"
-        >
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-amber-400/20 text-amber-600 dark:text-amber-300">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>
-                מותאם לתוכנית משרד החינוך · {currentGradeMeta.labelHe} ({currentGradeMeta.ministryBand})
-              </span>
+      {/* Main Content Container */}
+      <main id="dashboard-top" className="max-w-6xl mx-auto px-3.5 md:px-8 pt-4 md:pt-6 space-y-5 md:space-y-7">
+        {/* Compact Greeting & 4-Stat Strip */}
+        <section aria-label="Learner Greeting and Statistics" className="space-y-3" dir="rtl">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+            <div>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight">
+                {heb.welcomeTitle}
+              </h1>
+              <p className={`text-xs ${theme.mutedTextClass}`}>
+                תוכנית משרד החינוך · {currentGradeMeta.labelHe}
+              </p>
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-              {heb.welcomeTitle}
-            </h1>
-            <p className={`text-sm ${theme.mutedTextClass}`}>
-              {currentGradeMeta.descriptionHe}
-            </p>
+
+            {profile.isShabbatObserver !== false && (
+              <div className={`px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1 ${theme.badgeClass}`}>
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                <span>מגן שבת פעיל</span>
+              </div>
+            )}
           </div>
 
-          {profile.isShabbatObserver !== false && (
-            <div className="flex items-center gap-2.5 self-start md:self-center">
-              <div className={`px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 ${theme.badgeClass}`}>
-                <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                <span>מגן שבת וחג פעיל (Shabbat Streak Safe)</span>
+          {/* 4-Pill Horizontal Achievement Strip */}
+          <div className="grid grid-cols-4 gap-2 md:gap-3.5">
+            {/* Stat 1: Streak */}
+            <div className={`rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right`}>
+              <div className="w-8 h-8 md:w-11 md:h-11 rounded-xl bg-orange-500/15 border border-orange-400/30 flex items-center justify-center text-orange-500 shrink-0">
+                <Flame className="w-4 h-4 md:w-5 md:h-5 fill-orange-500" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm sm:text-base md:text-xl font-extrabold leading-tight">
+                  {profile.stats.streakDays}
+                </div>
+                <div className={`text-[11px] md:text-xs font-semibold truncate ${theme.mutedTextClass}`}>
+                  ימי רצף
+                </div>
               </div>
             </div>
-          )}
-        </section>
 
-        {/* Clear 4-Card Achievement Stats Grid */}
-        <section aria-label="Achievement Statistics" className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {/* Stat 1: Streak */}
-          <div className={`rounded-2xl p-4 md:p-5 ${theme.cardBgClass} flex items-center gap-3.5`}>
-            <div className="w-12 h-12 rounded-2xl bg-orange-500/15 border border-orange-400/30 flex items-center justify-center text-orange-500 shrink-0">
-              <Flame className="w-6 h-6 fill-orange-500" />
-            </div>
-            <div>
-              <div className="text-xl md:text-2xl font-extrabold">
-                {profile.stats.streakDays} ימים
+            {/* Stat 2: Stars */}
+            <div className={`rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right`}>
+              <div className="w-8 h-8 md:w-11 md:h-11 rounded-xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-amber-500 shrink-0">
+                <Star className="w-4 h-4 md:w-5 md:h-5 fill-amber-400" />
               </div>
-              <div className={`text-xs font-semibold ${theme.mutedTextClass}`} dir="rtl">
-                רצף למידה (Daily Streak)
+              <div className="min-w-0">
+                <div className="text-sm sm:text-base md:text-xl font-extrabold leading-tight" dir="ltr">
+                  {profile.stats.stars}/{totalGradeStarsPossible}
+                </div>
+                <div className={`text-[11px] md:text-xs font-semibold truncate ${theme.mutedTextClass}`}>
+                  כוכבים
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Stat 2: Stars */}
-          <div className={`rounded-2xl p-4 md:p-5 ${theme.cardBgClass} flex items-center gap-3.5`}>
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-amber-500 shrink-0">
-              <Star className="w-6 h-6 fill-amber-400" />
-            </div>
-            <div>
-              <div className="text-xl md:text-2xl font-extrabold">
-                {profile.stats.stars} / {totalGradeStarsPossible}
+            {/* Stat 3: Diamonds / Gems (Clickable to open Reward Shop) */}
+            <button
+              type="button"
+              onClick={() => setIsRewardShopOpen(true)}
+              className={`rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right hover:ring-2 hover:ring-fuchsia-400 transition-all`}
+            >
+              <div className="w-8 h-8 md:w-11 md:h-11 rounded-xl bg-fuchsia-500/15 border border-fuchsia-400/30 flex items-center justify-center text-fuchsia-500 shrink-0">
+                <Gem className="w-4 h-4 md:w-5 md:h-5" />
               </div>
-              <div className={`text-xs font-semibold ${theme.mutedTextClass}`} dir="rtl">
-                כוכבי משימות (Stars)
+              <div className="min-w-0">
+                <div className="text-sm sm:text-base md:text-xl font-extrabold leading-tight">
+                  {profile.stats.diamonds}
+                </div>
+                <div className={`text-[11px] md:text-xs font-semibold truncate underline ${theme.mutedTextClass}`}>
+                  {theme.currencyNameHe}
+                </div>
               </div>
-            </div>
-          </div>
+            </button>
 
-          {/* Stat 3: Diamonds / Gems (Clickable to open Reward Shop!) */}
-          <div
-            onClick={() => setIsRewardShopOpen(true)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') setIsRewardShopOpen(true);
-            }}
-            className={`rounded-2xl p-4 md:p-5 ${theme.cardBgClass} flex items-center gap-3.5 cursor-pointer hover:ring-2 hover:ring-fuchsia-400 transition-all`}
-          >
-            <div className="w-12 h-12 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-400/30 flex items-center justify-center text-fuchsia-500 shrink-0">
-              <Gem className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="text-xl md:text-2xl font-extrabold">
-                {profile.stats.diamonds}
+            {/* Stat 4: XP & Words Mastered (Clickable to open Vocab Vault) */}
+            <button
+              type="button"
+              onClick={() => setIsVocabVaultOpen(true)}
+              className={`rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right hover:ring-2 hover:ring-purple-400 transition-all`}
+            >
+              <div className="w-8 h-8 md:w-11 md:h-11 rounded-xl bg-indigo-500/15 border border-indigo-400/30 flex items-center justify-center text-indigo-500 shrink-0">
+                <Zap className="w-4 h-4 md:w-5 md:h-5 fill-indigo-400" />
               </div>
-              <div className={`text-xs font-semibold underline ${theme.mutedTextClass}`} dir="rtl">
-                {theme.currencyNameHe} (לחנות 🛍️)
+              <div className="min-w-0">
+                <div className="text-sm sm:text-base md:text-xl font-extrabold leading-tight" dir="ltr">
+                  {profile.stats.xp} XP
+                </div>
+                <div className={`text-[11px] md:text-xs font-semibold truncate underline ${theme.mutedTextClass}`}>
+                  {profile.stats.wordsMastered} מילים
+                </div>
               </div>
-            </div>
-          </div>
-
-          {/* Stat 4: XP & Words Mastered (Clickable to open Vocab Vault!) */}
-          <div
-            onClick={() => setIsVocabVaultOpen(true)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') setIsVocabVaultOpen(true);
-            }}
-            className={`rounded-2xl p-4 md:p-5 ${theme.cardBgClass} flex items-center gap-3.5 cursor-pointer hover:ring-2 hover:ring-purple-400 transition-all`}
-          >
-            <div className="w-12 h-12 rounded-2xl bg-indigo-500/15 border border-indigo-400/30 flex items-center justify-center text-indigo-500 shrink-0">
-              <Zap className="w-6 h-6 fill-indigo-400" />
-            </div>
-            <div>
-              <div className="text-xl md:text-2xl font-extrabold">
-                {profile.stats.xp.toLocaleString()} XP
-              </div>
-              <div className={`text-xs font-semibold underline ${theme.mutedTextClass}`} dir="rtl">
-                {heb.youLearnedWords(profile.stats.wordsMastered)} (לתרגול)
-              </div>
-            </div>
+            </button>
           </div>
         </section>
 
         {/* HERO CARD: TODAY'S SUGGESTED MISSION WITH 1-TAP START */}
         <section
           aria-label="Today's Suggested Mission"
-          className={`rounded-3xl p-6 md:p-8 ${theme.heroCardClass} transition-all`}
+          className={`rounded-3xl p-4 sm:p-6 md:p-7 ${theme.heroCardClass} transition-all`}
         >
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-3 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold uppercase tracking-wide">
-                  ⭐ Today&apos;s Suggested Mission · המשימה היומית
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 md:gap-6">
+            <div className="space-y-2.5 flex-1">
+              <div className="flex flex-wrap items-center justify-between sm:justify-start gap-2" dir="rtl">
+                <span className="px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold">
+                  ⭐ המשימה היומית
                 </span>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${theme.badgeClass}`}>
-                  ⏱️ {todaysMission.estimatedMinutes} דקות · 🔊 קריאה, האזנה ודיבור
+                <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${theme.badgeClass}`}>
+                  ⏱️ {todaysMission.estimatedMinutes} דק׳
+                </span>
+                <span className="text-xs font-extrabold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-400/40" dir="ltr">
+                  +{calculatedXp} XP · +{calculatedDiamonds} 💎
                 </span>
               </div>
 
@@ -503,39 +457,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <p className={`text-xs font-bold uppercase tracking-wider ${theme.accentTextClass}`}>
                   {todaysMission.grammarTopic}
                 </p>
-                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight">
                   Mission {todaysMission.unitNumber}.{todaysMission.missionNumber}:{' '}
                   {todaysMission.titleEn}
                 </h2>
-                <p className="text-base font-bold" dir="rtl">
-                  {todaysMission.titleHe} — {heb.readyForMission}
+                <p className="text-sm sm:text-base font-bold" dir="rtl">
+                  {todaysMission.titleHe}
                 </p>
-                <p className={`text-sm ${theme.mutedTextClass}`} dir="rtl">
+                <p className={`text-xs sm:text-sm line-clamp-2 md:line-clamp-none ${theme.mutedTextClass}`} dir="rtl">
                   {todaysMission.storyHookHe}
                 </p>
-              </div>
-
-              {/* Skill Pills & Reward Preview */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                {todaysMission.skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className={`text-xs font-bold px-3 py-1 rounded-xl ${theme.secondaryBtnClass}`}
-                  >
-                    ✓ {skill}
-                  </span>
-                ))}
-                <span className="text-xs font-extrabold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-400/40">
-                  🎁 +{calculatedXp} XP · +{calculatedDiamonds} 💎 · Up to 3 ⭐
-                </span>
               </div>
             </div>
 
             {/* Right Side: Proficiency Tier Selector + Giant 1-Tap Start CTA */}
-            <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end justify-between gap-4 shrink-0">
+            <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end justify-between gap-3 shrink-0 pt-1 lg:pt-0">
               {/* 3 Proficiency Levels Selector */}
-              <div className="space-y-1.5 w-full lg:w-72" dir="rtl">
-                <span className="text-xs font-bold block opacity-85">
+              <div className="space-y-1 w-full lg:w-72" dir="rtl">
+                <span className="text-[11px] font-bold block opacity-80">
                   {heb.chooseTierPrompt}
                 </span>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -547,15 +486,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         key={tKey}
                         type="button"
                         onClick={() => handleSelectTier(tKey)}
-                        className={`p-2 rounded-xl text-center transition-all ${
+                        className={`py-2 px-1.5 rounded-xl text-center transition-all ${
                           isSelected
                             ? theme.primaryBtnClass
                             : theme.secondaryBtnClass
                         }`}
                       >
-                        <div className="text-sm">{tInfo.badgeEmoji}</div>
-                        <div className="text-xs font-extrabold">{tInfo.labelEn}</div>
-                        <div className="text-[12px] opacity-85">{tInfo.labelHe}</div>
+                        <div className="text-xs font-extrabold">
+                          {tInfo.badgeEmoji} {tInfo.labelHe}
+                        </div>
+                        <div className="text-[10px] opacity-80">{tInfo.labelEn}</div>
                       </button>
                     );
                   })}
@@ -566,7 +506,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button
                 type="button"
                 onClick={() => handleLaunchMission(todaysMission)}
-                className={`w-full lg:w-72 py-4 px-6 rounded-2xl font-extrabold text-base md:text-lg flex items-center justify-center gap-2.5 transition-all ${theme.primaryBtnClass}`}
+                className={`w-full lg:w-72 py-3.5 md:py-4 px-6 rounded-2xl font-extrabold text-base md:text-lg flex items-center justify-center gap-2.5 transition-all ${theme.primaryBtnClass}`}
               >
                 <Play className="w-5 h-5 fill-current" />
                 <span dir="rtl">{heb.startMissionCta}</span>
@@ -595,17 +535,73 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         />
 
         {/* FEATURE 2 & 4: INTERACTIVE STORY WORLD & MISSION MAP */}
-        <MissionMap
-          units={gradeCurriculum.units}
-          missionProgress={profile.missionProgress || {}}
-          selectedTier={profile.preferredTier}
-          onSelectTier={handleSelectTier}
-          theme={theme}
-          gender={profile.gender}
-          onStartMission={handleLaunchMission}
-          onSpeakEnglish={speakEnglish}
-        />
+        <div id="mission-map">
+          <MissionMap
+            units={gradeCurriculum.units}
+            missionProgress={profile.missionProgress || {}}
+            selectedTier={profile.preferredTier}
+            onSelectTier={handleSelectTier}
+            theme={theme}
+            gender={profile.gender}
+            onStartMission={handleLaunchMission}
+            onSpeakEnglish={speakEnglish}
+          />
+        </div>
       </main>
+
+      {/* MOBILE BOTTOM NAVIGATION BAR (Thumb-Friendly, Hidden on Desktop) */}
+      <nav
+        aria-label="Mobile Bottom Navigation"
+        dir="rtl"
+        className={`md:hidden fixed bottom-0 inset-x-0 z-30 ${theme.hudBgClass} border-t border-current/10 px-2 py-1.5 backdrop-blur-md`}
+      >
+        <div className="grid grid-cols-5 gap-1 max-w-md mx-auto">
+          <button
+            type="button"
+            onClick={() => scrollToSection('dashboard-top')}
+            className="flex flex-col items-center justify-center py-1.5 rounded-xl text-[11px] font-extrabold opacity-90 hover:opacity-100 active:scale-95 transition-all"
+          >
+            <Home className="w-4 h-4 mb-0.5" />
+            <span>ראשי</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => scrollToSection('mission-map')}
+            className="flex flex-col items-center justify-center py-1.5 rounded-xl text-[11px] font-extrabold opacity-90 hover:opacity-100 active:scale-95 transition-all"
+          >
+            <MapIcon className="w-4 h-4 mb-0.5" />
+            <span>מפה</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsVocabVaultOpen(true)}
+            className="flex flex-col items-center justify-center py-1.5 rounded-xl text-[11px] font-extrabold opacity-90 hover:opacity-100 active:scale-95 transition-all"
+          >
+            <BookOpen className="w-4 h-4 mb-0.5" />
+            <span>מילים 🎙️</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsRewardShopOpen(true)}
+            className="flex flex-col items-center justify-center py-1.5 rounded-xl text-[11px] font-extrabold opacity-90 hover:opacity-100 active:scale-95 transition-all"
+          >
+            <ShoppingBag className="w-4 h-4 mb-0.5" />
+            <span>חנות</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onEditOnboarding}
+            className="flex flex-col items-center justify-center py-1.5 rounded-xl text-[11px] font-extrabold opacity-90 hover:opacity-100 active:scale-95 transition-all"
+          >
+            <Settings className="w-4 h-4 mb-0.5" />
+            <span>פרופיל</span>
+          </button>
+        </div>
+      </nav>
 
       {/* WELCOME COMPLIMENTARY DIAMONDS POPUP FOR NEW LEARNERS */}
       {!profile.hasSeenWelcomeGiftModal && (

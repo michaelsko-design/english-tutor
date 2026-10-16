@@ -156,19 +156,19 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
       >
         {/* Modal Header */}
         <div
-          className={`px-6 py-4 ${theme.hudBgClass} flex items-center justify-between gap-4 shrink-0`}
+          className={`px-4 sm:px-6 py-3 sm:py-4 ${theme.hudBgClass} flex items-center justify-between gap-3 shrink-0`}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
             <div
-              className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl ${theme.primaryBtnClass}`}
+              className={`w-9 h-9 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center text-lg shrink-0 ${theme.primaryBtnClass}`}
             >
-              <BookOpen className="w-5 h-5" />
+              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <div dir="rtl">
-              <h2 className="text-lg md:text-xl font-extrabold">
-                📚 מאגר מילים Band II וסטודיו להגייה ({allVocabWithUnit.length} מילים)
+            <div className="min-w-0" dir="rtl">
+              <h2 className="text-sm sm:text-lg md:text-xl font-extrabold truncate">
+                📚 מאגר מילים והגייה ({allVocabWithUnit.length})
               </h2>
-              <p className={`text-xs ${theme.mutedTextClass}`}>
+              <p className={`text-xs hidden sm:block ${theme.mutedTextClass}`}>
                 {isGirl
                   ? 'האזיני לכל מילה באנגלית או הקליטי את עצמך קוראת אותה בקול כדי לצבור XP ויהלומים!'
                   : 'האזן לכל מילה באנגלית או הקלט את עצמך קורא אותה בקול כדי לצבור XP ויהלומים!'}
@@ -179,7 +179,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className={`p-2.5 rounded-xl ${theme.secondaryBtnClass}`}
+            className={`p-2 sm:p-2.5 rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
             title="Close Vocabulary Studio"
           >
             <X className="w-5 h-5" />
@@ -187,10 +187,10 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="px-6 pt-4 pb-2 space-y-3 shrink-0" dir="rtl">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="px-4 sm:px-6 pt-3 pb-2 space-y-2.5 shrink-0" dir="rtl">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
             {/* Unit Filter Pills */}
-            <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
               <button
                 type="button"
                 onClick={() => setSelectedUnitNum('all')}

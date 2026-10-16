@@ -83,19 +83,19 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
       >
         {/* Header */}
         <div
-          className={`px-6 py-4 ${theme.hudBgClass} flex items-center justify-between gap-4 shrink-0`}
+          className={`px-4 sm:px-6 py-3 sm:py-4 ${theme.hudBgClass} flex items-center justify-between gap-3 shrink-0`}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
             <div
-              className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl ${theme.primaryBtnClass}`}
+              className={`w-9 h-9 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center text-lg shrink-0 ${theme.primaryBtnClass}`}
             >
-              <ShoppingBag className="w-5 h-5" />
+              <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <div dir="rtl">
-              <h2 className="text-lg md:text-xl font-extrabold">
-                🛍️ {theme.shopTitleHe} (Reward Shop)
+            <div className="min-w-0" dir="rtl">
+              <h2 className="text-sm sm:text-lg md:text-xl font-extrabold truncate">
+                🛍️ {theme.shopTitleHe}
               </h2>
-              <p className={`text-xs ${theme.mutedTextClass}`}>
+              <p className={`text-xs hidden sm:block ${theme.mutedTextClass}`}>
                 {isGirl
                   ? 'השתמשי ביהלומים שצברת במשימות כדי לפתוח אווטארים, מדבקות נדירות ומגני רצף!'
                   : 'השתמש ביהלומים שצברת במשימות כדי לפתוח אווטארים, מדבקות נדירות ומגני רצף!'}
@@ -103,15 +103,15 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="px-3.5 py-1.5 rounded-xl bg-fuchsia-500/20 border border-fuchsia-400/40 flex items-center gap-1.5 font-extrabold text-sm">
-              <Gem className="w-4 h-4 text-fuchsia-500" />
-              <span>{diamonds} 💎</span>
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-fuchsia-500/20 border border-fuchsia-400/40 flex items-center gap-1 font-extrabold text-xs sm:text-sm">
+              <Gem className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-fuchsia-500" />
+              <span>{diamonds}</span>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className={`p-2.5 rounded-xl ${theme.secondaryBtnClass}`}
+              className={`p-2 sm:p-2.5 rounded-xl ${theme.secondaryBtnClass}`}
               title="Close Shop"
             >
               <X className="w-5 h-5" />
@@ -120,8 +120,8 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
         </div>
 
         {/* Category Filter Tabs */}
-        <div className="px-6 pt-4 pb-2 space-y-3 shrink-0" dir="rtl">
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="px-4 sm:px-6 pt-3 pb-2 space-y-2.5 shrink-0" dir="rtl">
+          <div className="flex items-center gap-1.5 flex-wrap">
             {[
               { id: 'all', label: '🌟 הכל' },
               { id: 'avatar', label: '🐰 אווטארים לדשבורד' },

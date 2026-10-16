@@ -257,6 +257,9 @@ export function App() {
           handleUpdateProfile(updated);
           setIsEditingOnboarding(false);
         }}
+        onCancel={
+          profile.isOnboarded ? () => setIsEditingOnboarding(false) : undefined
+        }
       />
     );
   }

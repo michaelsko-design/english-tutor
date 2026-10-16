@@ -371,26 +371,26 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-3 md:p-6 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto">
       <div
         className={`w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
       >
         {/* Top Mission HUD Bar */}
         <div
-          className={`px-5 py-4 ${theme.hudBgClass} flex flex-wrap items-center justify-between gap-3`}
+          className={`px-3.5 sm:px-5 py-3 sm:py-4 ${theme.hudBgClass} flex items-center justify-between gap-2.5`}
         >
-          <div className="flex items-center gap-3 flex-1 min-w-[200px]">
+          <div className="flex items-center gap-2.5 flex-1 min-w-0">
             <button
               type="button"
               onClick={onClose}
-              className={`p-2 rounded-xl ${theme.secondaryBtnClass}`}
+              className={`p-2 rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
               title="Exit Mission"
             >
               <X className="w-4 h-4" />
             </button>
 
             {/* Step Progress Bar */}
-            <div className="flex-1 h-3 rounded-full bg-black/15 dark:bg-white/15 overflow-hidden">
+            <div className="flex-1 h-2.5 sm:h-3 rounded-full bg-black/15 dark:bg-white/15 overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-amber-400 rounded-full transition-all duration-300"
                 style={{
@@ -399,17 +399,17 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
               />
             </div>
 
-            <span className="text-xs font-extrabold">
-              {currentStepIdx + 1} / {steps.length}
+            <span className="text-xs font-extrabold shrink-0" dir="ltr">
+              {currentStepIdx + 1}/{steps.length}
             </span>
           </div>
 
           {/* Combo Meter + Live Tier Selector */}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 shrink-0">
             {combo >= 2 && (
-              <span className="px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold flex items-center gap-1 animate-bounce">
-                <Flame className="w-3.5 h-3.5 fill-slate-950" />
-                <span>{combo}x COMBO!</span>
+              <span className="px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 text-[11px] font-extrabold flex items-center gap-1 animate-bounce">
+                <Flame className="w-3 h-3 fill-slate-950" />
+                <span>{combo}x</span>
               </span>
             )}
 
@@ -419,11 +419,13 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                   key={tk}
                   type="button"
                   onClick={() => onChangeTier(tk)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-extrabold transition-all ${
+                  title={TIER_CONFIG[tk].labelEn}
+                  className={`px-2 sm:px-2.5 py-1 rounded-lg text-xs font-extrabold transition-all flex items-center gap-1 ${
                     tier === tk ? theme.primaryBtnClass : theme.secondaryBtnClass
                   }`}
                 >
-                  {TIER_CONFIG[tk].badgeEmoji} {TIER_CONFIG[tk].labelEn}
+                  <span>{TIER_CONFIG[tk].badgeEmoji}</span>
+                  <span className="hidden sm:inline">{TIER_CONFIG[tk].labelEn}</span>
                 </button>
               ))}
             </div>
@@ -431,7 +433,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
         </div>
 
         {/* Main Exercise Body */}
-        <div className="p-5 md:p-8 space-y-5">
+        <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
           {/* Badge & Hebrew Prompt */}
           <div className="flex flex-wrap items-center justify-between gap-2" dir="rtl">
             <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>

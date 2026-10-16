@@ -9,16 +9,18 @@ import {
 } from '../types/learner';
 import { THEME_REGISTRY } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
-import { Sparkles, UserCheck, GraduationCap, Palette, ShieldCheck } from 'lucide-react';
+import { Sparkles, UserCheck, GraduationCap, Palette, ShieldCheck, X } from 'lucide-react';
 
 interface OnboardingViewProps {
   initialProfile: LearnerProfile;
   onComplete: (updatedProfile: LearnerProfile) => void;
+  onCancel?: () => void;
 }
 
 export const OnboardingView: React.FC<OnboardingViewProps> = ({
   initialProfile,
   onComplete,
+  onCancel,
 }) => {
   const [name, setName] = useState(initialProfile.name || '');
   const [age, setAge] = useState<number>(initialProfile.age || 12);
@@ -73,39 +75,52 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
 
   return (
     <div
-      className={`min-h-screen w-full ${activeTheme.pageBgClass} flex items-center justify-center p-4 md:p-8 transition-colors duration-300`}
+      className={`min-h-screen w-full ${activeTheme.pageBgClass} flex items-center justify-center p-3 sm:p-6 md:p-8 transition-colors duration-300`}
     >
       <div
-        className={`w-full max-w-xl rounded-3xl p-6 md:p-8 ${activeTheme.cardBgClass} space-y-6`}
+        className={`w-full max-w-xl rounded-3xl p-5 sm:p-6 md:p-8 ${activeTheme.cardBgClass} space-y-5 relative`}
       >
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className={`absolute top-4 left-4 p-2 rounded-xl ${activeTheme.secondaryBtnClass}`}
+            title="חזרה לדשבורד"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
+
         {/* Header */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-1.5">
           <div
-            className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl ${activeTheme.primaryBtnClass} animate-float`}
+            className={`w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl ${activeTheme.primaryBtnClass} animate-float`}
           >
             {activeTheme.avatarEmoji}
           </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300">
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Welcome to {activeTheme.name}</span>
+            <span>{activeTheme.name}</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight" dir="rtl">
-            {name.trim()
+          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight" dir="rtl">
+            {onCancel
+              ? 'הגדרות פרופיל, כיתה ועיצוב ⚙️'
+              : name.trim()
               ? heb.welcomeTitle
               : gender === 'girl'
               ? 'ברוכה הבאה לסטודיו לאנגלית! ✨'
               : 'ברוך הבא לסטודיו לאנגלית! ✨'}
           </h1>
-          <p className={`text-sm ${activeTheme.mutedTextClass}`} dir="rtl">
+          <p className={`text-xs sm:text-sm ${activeTheme.mutedTextClass}`} dir="rtl">
             {heb.onboardingSubtitle}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* 1. Name Input */}
           <div className="space-y-1.5" dir="rtl">
-            <label className="block text-sm font-bold">
-              1. איך קוראים לך? (Your First Name)
+            <label className="block text-xs sm:text-sm font-bold">
+              איך קוראים לך?
             </label>
             <input
               type="text"
@@ -114,9 +129,9 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                 setName(e.target.value);
                 setErrorMsg('');
               }}
-              placeholder={gender === 'girl' ? 'למשל: נועה / Noa' : 'למשל: עידו / Ido'}
-              className={`w-full px-4 py-3.5 rounded-2xl font-bold text-base outline-none transition-all ${activeTheme.inputBgClass}`}
-              autoFocus
+              placeholder={gender === 'girl' ? 'למשל: נועה' : 'למשל: עידו'}
+              className={`w-full px-4 py-3 rounded-2xl font-bold text-sm sm:text-base outline-none transition-all ${activeTheme.inputBgClass}`}
+              autoFocus={!onCancel}
             />
             {errorMsg && (
               <p className="text-xs font-bold text-rose-500 mt-1">{errorMsg}</p>
@@ -124,51 +139,51 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           </div>
 
           {/* 2. Gender & Age Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" dir="rtl">
+          <div className="grid grid-cols-2 gap-3" dir="rtl">
             {/* Gender Selection */}
             <div className="space-y-1.5">
-              <label className="block text-sm font-bold">
-                2. אני... (לפנייה נכונה בעברית)
+              <label className="block text-xs sm:text-sm font-bold">
+                מגדר
               </label>
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setGender('girl')}
-                  className={`py-3 px-3 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all ${
+                  className={`py-2.5 px-2 rounded-2xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all ${
                     gender === 'girl'
                       ? activeTheme.primaryBtnClass
                       : activeTheme.secondaryBtnClass
                   }`}
                 >
-                  <span className="text-lg">👧</span>
-                  <span>בת (Girl)</span>
+                  <span>👧</span>
+                  <span>בת</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setGender('boy')}
-                  className={`py-3 px-3 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all ${
+                  className={`py-2.5 px-2 rounded-2xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all ${
                     gender === 'boy'
                       ? activeTheme.primaryBtnClass
                       : activeTheme.secondaryBtnClass
                   }`}
                 >
-                  <span className="text-lg">👦</span>
-                  <span>בן (Boy)</span>
+                  <span>👦</span>
+                  <span>בן</span>
                 </button>
               </div>
             </div>
 
             {/* Age Selection */}
             <div className="space-y-1.5">
-              <label className="block text-sm font-bold">3. בת/בן כמה את/ה? (Age)</label>
+              <label className="block text-xs sm:text-sm font-bold">גיל</label>
               <select
                 value={age}
                 onChange={(e) => handleAgeChange(Number(e.target.value))}
-                className={`w-full px-4 py-3.5 rounded-2xl font-bold text-sm outline-none ${activeTheme.inputBgClass}`}
+                className={`w-full px-3 py-2.5 rounded-2xl font-bold text-xs sm:text-sm outline-none ${activeTheme.inputBgClass}`}
               >
                 {[9, 10, 11, 12, 13, 14, 15].map((a) => (
                   <option key={a} value={a} className="text-slate-900 bg-white">
-                    גיל {a} {a === 12 ? '(מומלץ לכיתה ז׳)' : ''}
+                    גיל {a} {a === 12 ? '(כיתה ז׳)' : ''}
                   </option>
                 ))}
               </select>
@@ -177,11 +192,11 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
 
           {/* 3. Multi-Grade Curriculum Pack Selection */}
           <div className="space-y-1.5" dir="rtl">
-            <label className="flex items-center gap-1.5 text-sm font-bold">
+            <label className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
               <GraduationCap className="w-4 h-4" />
-              <span>שכבת לימוד (מותאם אוטומטית לפי הגיל, ניתן לשינוי בכל עת):</span>
+              <span>שכבת לימוד:</span>
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {SUPPORTED_GRADES.map((g) => {
                 const isSelected = g.id === gradeId;
                 return (
@@ -189,25 +204,25 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                     key={g.id}
                     type="button"
                     onClick={() => setGradeId(g.id)}
-                    className={`p-2.5 rounded-xl text-center transition-all ${
+                    className={`p-2 rounded-xl text-center transition-all ${
                       isSelected
                         ? activeTheme.primaryBtnClass
                         : activeTheme.secondaryBtnClass
                     }`}
                   >
                     <div className="font-extrabold text-xs">{g.labelHe}</div>
-                    <div className="text-[12px] opacity-85">{g.labelEn}</div>
+                    <div className="text-[11px] opacity-80">{g.labelEn}</div>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* 4. Pluggable UI Style Switcher (Option B selected by default) */}
+          {/* 4. Pluggable UI Style Switcher */}
           <div className="space-y-1.5" dir="rtl">
-            <label className="flex items-center gap-1.5 text-sm font-bold">
+            <label className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
               <Palette className="w-4 h-4" />
-              <span>עיצוב האפליקציה (Option B נבחר כברירת מחדל):</span>
+              <span>ערכת עיצוב:</span>
             </label>
             <div className="grid grid-cols-3 gap-2">
               {(Object.keys(THEME_REGISTRY) as ThemeId[]).map((tKey) => {
@@ -218,16 +233,16 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                     key={tKey}
                     type="button"
                     onClick={() => setThemeId(tKey)}
-                    className={`p-2.5 rounded-xl text-right transition-all ${
+                    className={`p-2.5 rounded-xl text-center transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 ${
                       isSelected
                         ? activeTheme.primaryBtnClass
                         : activeTheme.secondaryBtnClass
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-base">{tItem.avatarEmoji}</span>
-                      <span className="font-extrabold text-xs">{tItem.name}</span>
-                    </div>
+                    <span className="text-base">{tItem.avatarEmoji}</span>
+                    <span className="font-extrabold text-[11px] sm:text-xs truncate max-w-full">
+                      {tItem.name}
+                    </span>
                   </button>
                 );
               })}
@@ -236,21 +251,21 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
 
           {/* 5. Shabbat Observance Setting */}
           <div className="space-y-1.5" dir="rtl">
-            <label className="flex items-center gap-1.5 text-sm font-bold">
+            <label className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>שמירת שבת (Shabbat Observance):</span>
+              <span>מגן שבת וחג:</span>
             </label>
             <button
               type="button"
               onClick={() => setIsShabbatObserver(!isShabbatObserver)}
-              className={`w-full p-4 rounded-2xl border text-right transition-all flex items-start gap-3.5 ${
+              className={`w-full p-3.5 rounded-2xl border text-right transition-all flex items-start gap-3 ${
                 isShabbatObserver
                   ? 'border-emerald-500/50 bg-emerald-500/10'
                   : 'border-current/10 bg-black/5 dark:bg-white/5 opacity-80'
               }`}
             >
               <div
-                className={`w-6 h-6 rounded-lg border-2 mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+                className={`w-5 h-5 rounded-lg border-2 mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
                   isShabbatObserver
                     ? 'border-emerald-500 bg-emerald-500 text-white'
                     : 'border-gray-400 bg-transparent'
@@ -258,36 +273,45 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
               >
                 {isShabbatObserver && <span className="text-xs font-black">✓</span>}
               </div>
-              <div className="space-y-1 flex-1">
-                <div className="font-extrabold text-sm flex items-center gap-2">
+              <div className="space-y-0.5 flex-1">
+                <div className="font-extrabold text-xs sm:text-sm flex items-center gap-2">
                   <span>{gender === 'girl' ? 'שומרת שבת' : 'שומר שבת'}</span>
                   {isShabbatObserver && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-bold">
-                      מגן פעיל
+                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-bold">
+                      פעיל
                     </span>
                   )}
                 </div>
                 <p className={`text-xs ${activeTheme.mutedTextClass}`}>
                   {isShabbatObserver
-                    ? 'הרצף מוגן אוטומטית בימי שישי ושבת ללא צורך בלמידה 🛡️'
-                    : 'אין צורך במגן שבת - רצף הלמידה נספר בכל ימות השבוע, כולל יום שבת 🔥'}
+                    ? 'הרצף מוגן אוטומטית בימי שישי ושבת 🛡️'
+                    : 'רצף הלמידה נספר בכל ימות השבוע 🔥'}
                 </p>
               </div>
             </button>
           </div>
 
           {/* Submit CTA */}
-          <button
-            type="submit"
-            className={`w-full py-4 rounded-2xl font-extrabold text-base flex items-center justify-center gap-2 transition-transform ${activeTheme.primaryBtnClass}`}
-          >
-            <UserCheck className="w-5 h-5" />
-            <span dir="rtl">
-              {gender === 'girl'
-                ? 'שמירה וכניסה לדשבורד האישי שלי 🚀'
-                : 'שמירה וכניסה לדשבורד האישי שלי 🚀'}
-            </span>
-          </button>
+          <div className="flex items-center gap-2.5 pt-1" dir="rtl">
+            <button
+              type="submit"
+              className={`flex-1 py-3.5 rounded-2xl font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 transition-transform ${activeTheme.primaryBtnClass}`}
+            >
+              <UserCheck className="w-5 h-5" />
+              <span>
+                {onCancel ? 'שמירת שינויים' : 'שמירה וכניסה לדשבורד 🚀'}
+              </span>
+            </button>
+            {onCancel && (
+              <button
+                type="button"
+                onClick={onCancel}
+                className={`py-3.5 px-5 rounded-2xl font-extrabold text-sm ${activeTheme.secondaryBtnClass}`}
+              >
+                ביטול
+              </button>
+            )}
+          </div>
         </form>
       </div>
     </div>
