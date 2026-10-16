@@ -14,6 +14,8 @@ import {
 } from './services/cloudSync';
 import { OnboardingView } from './components/OnboardingView';
 import { DashboardView } from './components/DashboardView';
+import { AuthModal } from './components/AuthModal';
+import { THEME_REGISTRY } from './themes/themeRegistry';
 
 const STORAGE_KEY = 'english_tutor_learner_profile_v1';
 
@@ -84,6 +86,7 @@ export function App() {
 
   const [isEditingOnboarding, setIsEditingOnboarding] = useState<boolean>(false);
   const [authUser, setAuthUser] = useState<AuthUserSummary | null>(null);
+  const [isAuthInitializing, setIsAuthInitializing] = useState<boolean>(isFirebaseConfigured);
   const [syncStatus, setSyncStatus] = useState<CloudSyncStatus>('local-only');
 
   const profileRef = useRef<LearnerProfile>(profile);
@@ -102,6 +105,7 @@ export function App() {
   useEffect(() => {
     if (!isFirebaseConfigured || !auth || !db) {
       setSyncStatus('local-only');
+      setIsAuthInitializing(false);
       return;
     }
 
@@ -116,6 +120,7 @@ export function App() {
       if (!firebaseUser) {
         setAuthUser(null);
         setSyncStatus('local-only');
+        setIsAuthInitializing(false);
         return;
       }
 
@@ -126,6 +131,7 @@ export function App() {
         isAnonymous: firebaseUser.isAnonymous,
       };
       setAuthUser(summary);
+      setIsAuthInitializing(false);
       setSyncStatus('syncing');
 
       try {
@@ -181,6 +187,44 @@ export function App() {
         .catch(() => setSyncStatus('offline-error'));
     }
   };
+
+  const activeTheme =
+    THEME_REGISTRY[profile.themeId] || THEME_REGISTRY['cozy-studio'];
+
+  if (isAuthInitializing) {
+    return (
+      <div
+        className={`min-h-screen w-full ${activeTheme.pageBgClass} flex items-center justify-center p-6`}
+      >
+        <div className="text-center space-y-3" dir="rtl">
+          <div
+            className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl ${activeTheme.primaryBtnClass} animate-bounce`}
+          >
+            {activeTheme.avatarEmoji}
+          </div>
+          <p className="font-extrabold text-sm md:text-base">
+            בודק חיבור לחשבון...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Mandatory Login Gate: require authenticated user before accessing the app
+  if (!authUser) {
+    return (
+      <div className={`min-h-screen w-full ${activeTheme.pageBgClass}`}>
+        <AuthModal
+          authUser={authUser}
+          syncStatus={syncStatus}
+          gender={profile.gender}
+          learnerName={profile.name}
+          theme={activeTheme}
+          isMandatory={true}
+        />
+      </div>
+    );
+  }
 
   if (!profile.isOnboarded || isEditingOnboarding) {
     return (

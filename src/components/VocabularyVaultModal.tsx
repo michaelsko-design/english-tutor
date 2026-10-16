@@ -38,7 +38,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [practicingWord, setPracticingWord] = useState<string | null>(null);
   const [masteredWordsSession, setMasteredWordsSession] = useState<Record<string, boolean>>({});
-  const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
+  const [feedbackMsg, setFeedbackMsg] = useState<{ isCorrect: boolean; text: string } | null>(null);
 
   const allVocabWithUnit: Array<VocabularyItem & { unitNumber: number; unitTitleHe: string }> =
     units.flatMap((u) =>
@@ -76,22 +76,29 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
       (window as unknown as { webkitSpeechRecognition?: unknown })
         .webkitSpeechRecognition;
 
-    const completeWordMastery = () => {
+    const completeWordMastery = (transcript: string) => {
       setPracticingWord(null);
       if (!masteredWordsSession[vocab.wordEn]) {
         setMasteredWordsSession((prev) => ({ ...prev, [vocab.wordEn]: true }));
         onEarnPracticeReward(10, 2);
       }
-      setFeedbackMsg(
-        isGirl
-          ? `מעולה ${learnerName}! ביטאת את המילה "${vocab.wordEn}" בצורה מושלמת! (+10 XP · +2 💎)`
-          : `מעולה ${learnerName}! ביטאת את המילה "${vocab.wordEn}" בצורה מושלמת! (+10 XP · +2 💎)`
-      );
+      setFeedbackMsg({
+        isCorrect: true,
+        text: isGirl
+          ? `מעולה ${learnerName}! ביטאת את המילה "${vocab.wordEn}" (זוהה: "${transcript}") בצורה מושלמת! (+10 XP · +2 💎)`
+          : `מעולה ${learnerName}! ביטאת את המילה "${vocab.wordEn}" (זוהה: "${transcript}") בצורה מושלמת! (+10 XP · +2 💎)`,
+      });
       confetti({ particleCount: 40, spread: 55, origin: { y: 0.7 } });
     };
 
     if (!SpeechRecognitionApi) {
-      setTimeout(completeWordMastery, 1100);
+      setPracticingWord(null);
+      setFeedbackMsg({
+        isCorrect: false,
+        text: isGirl
+          ? 'הדפדפן שלך אינו תומך בזיהוי דיבור קולי. אנא השתמשי בדפדפן Chrome או Edge כדי לתרגל הגייה במיקרופון.'
+          : 'הדפדפן שלך אינו תומך בזיהוי דיבור קולי. אנא השתמש בדפדפן Chrome או Edge כדי לתרגל הגייה במיקרופון.',
+      });
       return;
     }
 
@@ -103,22 +110,40 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognition.onresult = (event: any) => {
-      const transcript: string = event.results[0][0].transcript;
+      const transcript: string = event.results?.[0]?.[0]?.transcript || '';
       const evalResult = evaluateSpokenSentence(vocab.wordEn, transcript);
       if (evalResult.passed) {
-        completeWordMastery();
+        completeWordMastery(transcript);
       } else {
         setPracticingWord(null);
-        setFeedbackMsg(
-          isGirl
-            ? `שמענו "${transcript}" — האזיני שוב למילה "${vocab.wordEn}" ונסי פעם נוספת!`
-            : `שמענו "${transcript}" — האזן שוב למילה "${vocab.wordEn}" ונסה פעם נוספת!`
-        );
+        setFeedbackMsg({
+          isCorrect: false,
+          text: isGirl
+            ? `שמענו "${transcript || '...'}" במקום "${vocab.wordEn}" — האזיני שוב למילה ונסי פעם נוספת!`
+            : `שמענו "${transcript || '...'}" במקום "${vocab.wordEn}" — האזן שוב למילה ונסה פעם נוספת!`,
+        });
       }
     };
 
-    recognition.onerror = () => {
-      completeWordMastery();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onerror = (event: any) => {
+      setPracticingWord(null);
+      const errCode = event?.error || '';
+      if (errCode === 'not-allowed' || errCode === 'service-not-allowed') {
+        setFeedbackMsg({
+          isCorrect: false,
+          text: isGirl
+            ? 'הגישה למיקרופון חסומה בדפדפן. אשרי גישה למיקרופון ונסי שוב!'
+            : 'הגישה למיקרופון חסומה בדפדפן. אשר גישה למיקרופון ונסה שוב!',
+        });
+      } else {
+        setFeedbackMsg({
+          isCorrect: false,
+          text: isGirl
+            ? `לא הצלחנו לשמוע את המילה "${vocab.wordEn}". לחצי שוב על המיקרופון ואמרי אותה בקול ברור!`
+            : `לא הצלחנו לשמוע את המילה "${vocab.wordEn}". לחץ שוב על המיקרופון ואמור אותה בקול ברור!`,
+        });
+      }
     };
 
     recognition.start();
@@ -207,9 +232,19 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
           </div>
 
           {feedbackMsg && (
-            <div className="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-xs font-extrabold flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span>{feedbackMsg}</span>
+            <div
+              className={`p-3 rounded-2xl border text-xs font-extrabold flex items-center gap-2 ${
+                feedbackMsg.isCorrect
+                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
+                  : 'bg-rose-500/15 border-rose-500/40 text-rose-600 dark:text-rose-300'
+              }`}
+            >
+              <Sparkles
+                className={`w-4 h-4 shrink-0 ${
+                  feedbackMsg.isCorrect ? 'text-emerald-500' : 'text-rose-500'
+                }`}
+              />
+              <span>{feedbackMsg.text}</span>
             </div>
           )}
         </div>

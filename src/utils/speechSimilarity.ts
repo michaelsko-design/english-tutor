@@ -45,19 +45,20 @@ function levenshteinDistance(a: string, b: string): number {
 
 /**
  * Evaluates a spoken transcript from Web Speech Recognition against the target English sentence.
- * Forgiving enough for a 12-year-old Hebrew speaker's accent while highlighting each matched word.
+ * Requires accurate pronunciation while highlighting each matched word.
  */
 export function evaluateSpokenSentence(
   targetSentence: string,
   spokenTranscript: string
 ): SpeechEvaluationResult {
-  const rawTargetWords = targetSentence.trim().split(/\s+/);
+  const rawTargetWords = targetSentence.trim().split(/\s+/).filter(Boolean);
   const spokenTokens = spokenTranscript
     .trim()
     .split(/\s+/)
     .map(normalizeToken)
     .filter(Boolean);
 
+  const usedSpokenIndices = new Set<number>();
   let matchedCount = 0;
 
   const wordResults: WordMatchResult[] = rawTargetWords.map((rawWord) => {
@@ -66,16 +67,29 @@ export function evaluateSpokenSentence(
       return { targetWord: rawWord, cleanWord: '', matched: true };
     }
 
-    const isMatched = spokenTokens.some((spoken) => {
-      if (spoken === cleanTarget) return true;
-      // Allow 1 character difference for words >= 4 chars, or 2 chars for words >= 7 chars
-      const dist = levenshteinDistance(spoken, cleanTarget);
-      if (cleanTarget.length >= 7 && dist <= 2) return true;
-      if (cleanTarget.length >= 4 && dist <= 1) return true;
-      return false;
-    });
+    // 1. First try exact match on an unused spoken token
+    let matchedIdx = spokenTokens.findIndex(
+      (spoken, idx) => !usedSpokenIndices.has(idx) && spoken === cleanTarget
+    );
 
-    if (isMatched) matchedCount++;
+    // 2. If no exact match, allow slight phonetic/spelling variation only on longer words
+    //    when the first letter matches
+    if (matchedIdx === -1 && cleanTarget.length >= 5) {
+      matchedIdx = spokenTokens.findIndex((spoken, idx) => {
+        if (usedSpokenIndices.has(idx) || !spoken) return false;
+        if (spoken[0] !== cleanTarget[0]) return false;
+        const dist = levenshteinDistance(spoken, cleanTarget);
+        if (cleanTarget.length >= 8 && dist <= 2) return true;
+        if (cleanTarget.length >= 5 && dist <= 1) return true;
+        return false;
+      });
+    }
+
+    const isMatched = matchedIdx !== -1;
+    if (isMatched) {
+      usedSpokenIndices.add(matchedIdx);
+      matchedCount++;
+    }
 
     return {
       targetWord: rawWord,
@@ -86,10 +100,11 @@ export function evaluateSpokenSentence(
 
   const totalWords = Math.max(1, wordResults.length);
   const scorePercent = Math.round((matchedCount / totalWords) * 100);
+  const requiredPercent = totalWords <= 2 ? 100 : 80;
 
   return {
     scorePercent,
-    passed: scorePercent >= 60,
+    passed: spokenTokens.length > 0 && scorePercent >= requiredPercent,
     wordResults,
   };
 }

@@ -189,19 +189,13 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
         .webkitSpeechRecognition;
 
     if (!SpeechRecognitionApi) {
-      // Graceful fallback if browser doesn't support SpeechRecognition API
-      setIsListening(true);
-      setTimeout(() => {
-        setIsListening(false);
-        setSpokenText(target);
-        const evaluation = evaluateSpokenSentence(target, target);
-        setSpeechEval(evaluation);
-        registerCorrectAnswer(
-          isGirl
-            ? `כל הכבוד ${learnerName}! קראת את המשפט בביטחון ובהגייה מצוינת!`
-            : `כל הכבוד ${learnerName}! קראת את המשפט בביטחון ובהגייה מצוינת!`
-        );
-      }, 1300);
+      setIsListening(false);
+      setFeedbackHe({
+        isCorrect: false,
+        text: isGirl
+          ? 'הדפדפן שלך אינו תומך בזיהוי דיבור קולי. אנא השתמשי בדפדפן Chrome או Edge, או לחצי על כפתור הדילוג למטה.'
+          : 'הדפדפן שלך אינו תומך בזיהוי דיבור קולי. אנא השתמש בדפדפן Chrome או Edge, או לחץ על כפתור הדילוג למטה.',
+      });
       return;
     }
 
@@ -212,11 +206,12 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     recognition.maxAlternatives = 1;
 
     setIsListening(true);
+    setFeedbackHe(null);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognition.onresult = (event: any) => {
       setIsListening(false);
-      const transcript: string = event.results[0][0].transcript;
+      const transcript: string = event.results?.[0]?.[0]?.transcript || '';
       setSpokenText(transcript);
       const evaluation = evaluateSpokenSentence(target, transcript);
       setSpeechEval(evaluation);
@@ -224,28 +219,37 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
       if (evaluation.passed) {
         registerCorrectAnswer(
           isGirl
-            ? `אלופה! דיוק הגייה של ${evaluation.scorePercent}% — המילים המסומנות בירוק זוהו מצוין!`
-            : `אלוף! דיוק הגייה של ${evaluation.scorePercent}% — המילים המסומנות בירוק זוהו מצוין!`
+            ? `אלופה! דיוק הגייה של ${evaluation.scorePercent}% (שמענו: "${transcript}") — המילים המסומנות בירוק נהגו מצוין!`
+            : `אלוף! דיוק הגייה של ${evaluation.scorePercent}% (שמענו: "${transcript}") — המילים המסומנות בירוק נהגו מצוין!`
         );
       } else {
         registerWrongAttempt(
           isGirl
-            ? `זיהינו ${evaluation.scorePercent}% מהמשפט ("${transcript}"). האזיני להשמעה האיטית 🐢 ונסי שוב!`
-            : `זיהינו ${evaluation.scorePercent}% מהמשפט ("${transcript}"). האזן להשמעה האיטית 🐢 ונסה שוב!`
+            ? `שמענו "${transcript || '...'}" (דיוק ${evaluation.scorePercent}%). המילים בכתום לא זוהו כראוי — האזיני להשמעה האיטית 🐢 ונסי שוב!`
+            : `שמענו "${transcript || '...'}" (דיוק ${evaluation.scorePercent}%). המילים בכתום לא זוהו כראוי — האזן להשמעה האיטית 🐢 ונסה שוב!`
         );
       }
     };
 
-    recognition.onerror = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onerror = (event: any) => {
       setIsListening(false);
-      setSpokenText(target);
-      const evaluation = evaluateSpokenSentence(target, target);
-      setSpeechEval(evaluation);
-      registerCorrectAnswer(
-        isGirl
-          ? 'מעולה! תרגול הקריאה בקול הושלם בהצלחה!'
-          : 'מעולה! תרגול הקריאה בקול הושלם בהצלחה!'
-      );
+      const errCode = event?.error || '';
+      if (errCode === 'not-allowed' || errCode === 'service-not-allowed') {
+        setFeedbackHe({
+          isCorrect: false,
+          text: isGirl
+            ? 'הגישה למיקרופון חסומה בדפדפן. אשרי גישה למיקרופון בשורת הכתובת ונסי שוב!'
+            : 'הגישה למיקרופון חסומה בדפדפן. אשר גישה למיקרופון בשורת הכתובת ונסה שוב!',
+        });
+      } else {
+        setFeedbackHe({
+          isCorrect: false,
+          text: isGirl
+            ? 'לא הצלחנו לשמוע אותך בבירור במיקרופון. לחצי שוב על הכפתור וקראי את המשפט בקול רם וברור!'
+            : 'לא הצלחנו לשמוע אותך בבירור במיקרופון. לחץ שוב על הכפתור וקרא את המשפט בקול רם וברור!',
+        });
+      }
     };
 
     recognition.start();

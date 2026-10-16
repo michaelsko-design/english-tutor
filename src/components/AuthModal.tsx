@@ -34,7 +34,8 @@ interface AuthModalProps {
   gender: LearnerGender;
   learnerName: string;
   theme: ThemeDefinition;
-  onClose: () => void;
+  isMandatory?: boolean;
+  onClose?: () => void;
 }
 
 /**
@@ -54,6 +55,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   gender,
   learnerName,
   theme,
+  isMandatory = false,
   onClose,
 }) => {
   const isGirl = gender === 'girl';
@@ -206,35 +208,41 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               {syncStatus === 'synced' ? (
                 <Cloud className="w-5 h-5" />
               ) : (
-                <CloudOff className="w-5 h-5" />
+                <LogIn className="w-5 h-5" />
               )}
             </div>
             <div dir="rtl">
               <h2 className="text-base md:text-lg font-extrabold">
-                ☁️ סנכרון ענן וחשבון רב-מכשירים (Cloud Sync)
+                {isMandatory && !authUser
+                  ? '🔐 התחברות לסטודיו לאנגלית (Sign In Required)'
+                  : '☁️ סנכרון ענן וחשבון רב-מכשירים (Cloud Sync)'}
               </h2>
               <p className={`text-xs ${theme.mutedTextClass}`}>
                 {authUser
                   ? heb.loggedInAs(formatUserLabel(authUser))
-                  : 'Guest / Local Only (שמור במכשיר הנוכחי)'}
+                  : 'יש להתחבר לחשבון או לפתוח חשבון חדש כדי להמשיך'}
               </p>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className={`p-2 rounded-xl ${theme.secondaryBtnClass}`}
-            title="Close Cloud Sync Modal"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          {!isMandatory && onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className={`p-2 rounded-xl ${theme.secondaryBtnClass}`}
+              title="Close Cloud Sync Modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* Modal Content */}
         <div className="p-6 space-y-5" dir="rtl">
           <p className={`text-xs md:text-sm ${theme.mutedTextClass}`}>
-            {heb.cloudSyncModalSubtitle}
+            {isMandatory && !authUser
+              ? 'ברוכים הבאים! התחברו עם חשבון Google או עם שם משתמש וקוד סודי כדי לשמור ולסנכרן את כל הכוכבים, היהלומים וההתקדמות שלכם.'
+              : heb.cloudSyncModalSubtitle}
           </p>
 
           {/* Status Messages */}
@@ -403,16 +411,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </button>
               </form>
 
-              <div className="pt-1 text-center">
-                <button
-                  type="button"
-                  disabled={isBusy}
-                  onClick={handleAnonymousCloudSync}
-                  className="text-xs underline opacity-75 hover:opacity-100"
-                >
-                  המשך עם גיבוי ענן מהיר ללא סיסמה (Guest Cloud)
-                </button>
-              </div>
+              {!isMandatory && (
+                <div className="pt-1 text-center">
+                  <button
+                    type="button"
+                    disabled={isBusy}
+                    onClick={handleAnonymousCloudSync}
+                    className="text-xs underline opacity-75 hover:opacity-100"
+                  >
+                    המשך עם גיבוי ענן מהיר ללא סיסמה (Guest Cloud)
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
