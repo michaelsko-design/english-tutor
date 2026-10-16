@@ -9,7 +9,7 @@ import {
 } from '../types/learner';
 import { THEME_REGISTRY } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
-import { Sparkles, UserCheck, GraduationCap, Palette } from 'lucide-react';
+import { Sparkles, UserCheck, GraduationCap, Palette, ShieldCheck } from 'lucide-react';
 
 interface OnboardingViewProps {
   initialProfile: LearnerProfile;
@@ -28,6 +28,11 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
   );
   const [themeId, setThemeId] = useState<ThemeId>(
     initialProfile.themeId || 'cozy-studio'
+  );
+  const [isShabbatObserver, setIsShabbatObserver] = useState<boolean>(
+    initialProfile.isShabbatObserver !== undefined
+      ? initialProfile.isShabbatObserver
+      : true
   );
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -58,6 +63,11 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
       gender,
       gradeId,
       themeId,
+      isShabbatObserver,
+      stats: {
+        ...initialProfile.stats,
+        shabbatShieldActive: isShabbatObserver,
+      },
     });
   };
 
@@ -222,6 +232,48 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                 );
               })}
             </div>
+          </div>
+
+          {/* 5. Shabbat Observance Setting */}
+          <div className="space-y-1.5" dir="rtl">
+            <label className="flex items-center gap-1.5 text-sm font-bold">
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              <span>שמירת שבת (Shabbat Observance):</span>
+            </label>
+            <button
+              type="button"
+              onClick={() => setIsShabbatObserver(!isShabbatObserver)}
+              className={`w-full p-4 rounded-2xl border text-right transition-all flex items-start gap-3.5 ${
+                isShabbatObserver
+                  ? 'border-emerald-500/50 bg-emerald-500/10'
+                  : 'border-current/10 bg-black/5 dark:bg-white/5 opacity-80'
+              }`}
+            >
+              <div
+                className={`w-6 h-6 rounded-lg border-2 mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+                  isShabbatObserver
+                    ? 'border-emerald-500 bg-emerald-500 text-white'
+                    : 'border-gray-400 bg-transparent'
+                }`}
+              >
+                {isShabbatObserver && <span className="text-xs font-black">✓</span>}
+              </div>
+              <div className="space-y-1 flex-1">
+                <div className="font-extrabold text-sm flex items-center gap-2">
+                  <span>{gender === 'girl' ? 'שומרת שבת' : 'שומר שבת'}</span>
+                  {isShabbatObserver && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-bold">
+                      מגן פעיל
+                    </span>
+                  )}
+                </div>
+                <p className={`text-xs ${activeTheme.mutedTextClass}`}>
+                  {isShabbatObserver
+                    ? 'הרצף מוגן אוטומטית בימי שישי ושבת ללא צורך בלמידה 🛡️'
+                    : 'אין צורך במגן שבת - רצף הלמידה נספר בכל ימות השבוע, כולל יום שבת 🔥'}
+                </p>
+              </div>
+            </button>
           </div>
 
           {/* Submit CTA */}

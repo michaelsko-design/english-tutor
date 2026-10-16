@@ -11,19 +11,10 @@ interface DailyQuestsCardProps {
   claimedQuestIds: string[];
   gender: LearnerGender;
   theme: ThemeDefinition;
+  isShabbatObserver?: boolean;
   onClaimQuest: (quest: DailyQuestDefinition) => void;
   onOpenShop: () => void;
 }
-
-const WEEK_DAYS_HE = [
-  { label: 'א׳', dayIndex: 0 },
-  { label: 'ב׳', dayIndex: 1 },
-  { label: 'ג׳', dayIndex: 2 },
-  { label: 'ד׳', dayIndex: 3 },
-  { label: 'ה׳', dayIndex: 4 },
-  { label: 'ו׳', dayIndex: 5, isShabbatSafe: true },
-  { label: 'ש׳', dayIndex: 6, isShabbatSafe: true },
-];
 
 export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
   streakDays,
@@ -31,11 +22,22 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
   claimedQuestIds,
   gender,
   theme,
+  isShabbatObserver = true,
   onClaimQuest,
   onOpenShop,
 }) => {
   const isGirl = gender === 'girl';
   const todayDayIdx = new Date().getDay();
+
+  const weekDays = [
+    { label: 'א׳', dayIndex: 0, isShabbatSafe: false },
+    { label: 'ב׳', dayIndex: 1, isShabbatSafe: false },
+    { label: 'ג׳', dayIndex: 2, isShabbatSafe: false },
+    { label: 'ד׳', dayIndex: 3, isShabbatSafe: false },
+    { label: 'ה׳', dayIndex: 4, isShabbatSafe: false },
+    { label: 'ו׳', dayIndex: 5, isShabbatSafe: isShabbatObserver },
+    { label: 'ש׳', dayIndex: 6, isShabbatSafe: isShabbatObserver },
+  ];
 
   const handleClaim = (quest: DailyQuestDefinition) => {
     confetti({ particleCount: 55, spread: 60, origin: { y: 0.7 } });
@@ -146,25 +148,31 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
               <Flame className="w-4 h-4 fill-orange-500" />
               <span>רצף למידה: {streakDays} ימים ברצף!</span>
             </span>
-            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-              <ShieldCheck className="w-4 h-4" />
-              <span>שבת שמורה</span>
-            </span>
+            {isShabbatObserver && (
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                <ShieldCheck className="w-4 h-4" />
+                <span>שבת שמורה</span>
+              </span>
+            )}
           </div>
 
           <h3 className="text-lg font-extrabold pt-1">
             לוח הרצף השבועי שלך 🔥
           </h3>
           <p className={`text-xs ${theme.mutedTextClass}`}>
-            {isGirl
-              ? 'התמידי במשימה קצרה מדי יום! בימי שישי, שבת וחגים הרצף שלך מוגן אוטומטית.'
-              : 'התמד במשימה קצרה מדי יום! בימי שישי, שבת וחגים הרצף שלך מוגן אוטומטית.'}
+            {isShabbatObserver
+              ? isGirl
+                ? 'התמידי במשימה קצרה מדי יום! בימי שישי, שבת וחגים הרצף שלך מוגן אוטומטית.'
+                : 'התמד במשימה קצרה מדי יום! בימי שישי, שבת וחגים הרצף שלך מוגן אוטומטית.'
+              : isGirl
+              ? 'התמידי במשימה קצרה מדי יום כדי להגדיל את רצף הלמידה שלך!'
+              : 'התמד במשימה קצרה מדי יום כדי להגדיל את רצף הלמידה שלך!'}
           </p>
         </div>
 
         {/* 7-Day Streak Row */}
         <div className="grid grid-cols-7 gap-1.5 py-2">
-          {WEEK_DAYS_HE.map((d) => {
+          {weekDays.map((d) => {
             const isToday = d.dayIndex === todayDayIdx;
             const isPastOrToday = d.dayIndex <= todayDayIdx;
 

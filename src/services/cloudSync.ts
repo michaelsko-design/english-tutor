@@ -129,6 +129,10 @@ export function mergeLearnerProfiles(
       'challenger',
     themeId:
       (preferCloudPrefs ? cloud.themeId : local.themeId) || 'cozy-studio',
+    isShabbatObserver:
+      preferCloudPrefs
+        ? (cloud.isShabbatObserver ?? local.isShabbatObserver ?? true)
+        : (local.isShabbatObserver ?? cloud.isShabbatObserver ?? true),
     ...(resolvedAvatar ? { equippedAvatarEmoji: resolvedAvatar } : {}),
     stats: {
       xp: mergedXp,
@@ -146,7 +150,9 @@ export function mergeLearnerProfiles(
         local.stats?.streakDays ?? 0,
         cloud.stats?.streakDays ?? 0
       ),
-      shabbatShieldActive: true,
+      shabbatShieldActive: preferCloudPrefs
+        ? (cloud.isShabbatObserver ?? local.isShabbatObserver ?? true)
+        : (local.isShabbatObserver ?? cloud.isShabbatObserver ?? true),
       wordsMastered: Math.max(
         local.stats?.wordsMastered || 0,
         cloud.stats?.wordsMastered || 0

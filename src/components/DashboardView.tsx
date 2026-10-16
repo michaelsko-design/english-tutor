@@ -110,8 +110,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
     const newXp = profile.stats.xp + result.xpEarned;
     const newLevel = Math.max(profile.stats.level, Math.floor(newXp / 150) + 1);
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const isToday = profile.dailyCounters?.dateStr === todayStr;
     const isFirstMissionToday =
-      (profile.dailyCounters?.missionsCompletedToday || 0) === 0;
+      !isToday || (profile.dailyCounters?.missionsCompletedToday || 0) === 0;
 
     onUpdateProfile({
       ...profile,
@@ -120,13 +122,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         [result.missionId]: updatedMissionStars,
       },
       dailyCounters: {
-        dateStr: new Date().toISOString().slice(0, 10),
+        dateStr: todayStr,
         missionsCompletedToday:
-          (profile.dailyCounters?.missionsCompletedToday || 0) + 1,
+          (isToday ? profile.dailyCounters?.missionsCompletedToday || 0 : 0) + 1,
         voiceWordsPracticedToday:
-          (profile.dailyCounters?.voiceWordsPracticedToday || 0) + 1,
+          (isToday ? profile.dailyCounters?.voiceWordsPracticedToday || 0 : 0) + 1,
         threeStarMissionsToday:
-          (profile.dailyCounters?.threeStarMissionsToday || 0) +
+          (isToday ? profile.dailyCounters?.threeStarMissionsToday || 0 : 0) +
           (result.starsEarned === 3 ? 1 : 0),
       },
       stats: {
@@ -392,12 +394,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 self-start md:self-center">
-            <div className={`px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 ${theme.badgeClass}`}>
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>מגן שבת וחג פעיל (Shabbat Streak Safe)</span>
+          {profile.isShabbatObserver !== false && (
+            <div className="flex items-center gap-2.5 self-start md:self-center">
+              <div className={`px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 ${theme.badgeClass}`}>
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span>מגן שבת וחג פעיל (Shabbat Streak Safe)</span>
+              </div>
             </div>
-          </div>
+          )}
         </section>
 
         {/* Clear 4-Card Achievement Stats Grid */}
@@ -585,6 +589,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           claimedQuestIds={profile.claimedDailyQuestIds || []}
           gender={profile.gender}
           theme={theme}
+          isShabbatObserver={profile.isShabbatObserver !== false}
           onClaimQuest={handleClaimDailyQuest}
           onOpenShop={() => setIsRewardShopOpen(true)}
         />

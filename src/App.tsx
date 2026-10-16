@@ -49,6 +49,7 @@ export const DEFAULT_PROFILE: LearnerProfile = {
     voiceWordsPracticedToday: 0,
     threeStarMissionsToday: 0,
   },
+  isShabbatObserver: true,
   hasSeenWelcomeGiftModal: false,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
@@ -63,6 +64,10 @@ export function App() {
         return {
           ...DEFAULT_PROFILE,
           ...parsed,
+          isShabbatObserver:
+            parsed.isShabbatObserver !== undefined
+              ? parsed.isShabbatObserver
+              : true,
           missionProgress: {
             ...(parsed.missionProgress || {}),
           },
