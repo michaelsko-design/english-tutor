@@ -578,7 +578,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             profile.dailyCounters || {
               dateStr: new Date().toISOString().slice(0, 10),
               missionsCompletedToday: 0,
-              voiceWordsPracticedToday: 1,
+              voiceWordsPracticedToday: 0,
               threeStarMissionsToday: 0,
             }
           }
@@ -601,6 +601,86 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           onSpeakEnglish={speakEnglish}
         />
       </main>
+
+      {/* WELCOME COMPLIMENTARY DIAMONDS POPUP FOR NEW LEARNERS */}
+      {!profile.hasSeenWelcomeGiftModal && (
+        <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div
+            className={`w-full max-w-md rounded-3xl p-6 md:p-8 ${theme.cardBgClass} ${theme.pageBgClass} text-center space-y-5 shadow-2xl border-2 border-fuchsia-400`}
+            dir="rtl"
+          >
+            <div className="w-20 h-20 rounded-3xl mx-auto bg-fuchsia-500/20 border-2 border-fuchsia-400 flex items-center justify-center text-4xl animate-bounce">
+              💎
+            </div>
+
+            <div className="space-y-2">
+              <span className="px-3 py-1 rounded-full bg-fuchsia-500/20 text-fuchsia-600 dark:text-fuchsia-300 text-xs font-extrabold">
+                מתנת הצטרפות · WELCOME GIFT!
+              </span>
+              <h2 className="text-2xl font-extrabold">
+                {profile.gender === 'girl'
+                  ? `תתחדשי, ${profile.name}! קיבלת 50 יהלומים במתנה! 🎉`
+                  : `תתחדש, ${profile.name}! קיבלת 50 יהלומים במתנה! 🎉`}
+              </h2>
+              <p className={`text-xs md:text-sm ${theme.mutedTextClass} leading-relaxed`}>
+                {profile.gender === 'girl'
+                  ? 'שמחים שהצטרפת לסטודיו לאנגלית! הענקנו לך 50 יהלומי פתיחה כדי שתוכלי להתחיל בסטייל.'
+                  : 'שמחים שהצטרפת לסטודיו לאנגלית! הענקנו לך 50 יהלומי פתיחה כדי שתוכל להתחיל בסטייל.'}
+              </p>
+            </div>
+
+            <div className="text-right space-y-2.5 p-4 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10 text-xs md:text-sm">
+              <div className="font-extrabold flex items-center gap-2 text-fuchsia-600 dark:text-fuchsia-300">
+                <span>🛍️</span>
+                <span>מה עושים עם יהלומים?</span>
+              </div>
+              <p className="opacity-90 leading-relaxed">
+                בחנות הפרסים תוכלו לפתוח אווטארים מיוחדים לפרופיל, מדבקות לאלבום הסטודיו, קישוטים לחדר ומגיני רצף!
+              </p>
+
+              <div className="font-extrabold flex items-center gap-2 text-amber-600 dark:text-amber-300 pt-1">
+                <span>⭐</span>
+                <span>איך מרוויחים עוד יהלומים?</span>
+              </div>
+              <ul className="list-disc list-inside space-y-1 opacity-90">
+                <li>השלמת משימות יומיות וקבלת עד 3 כוכבים</li>
+                <li>תרגול הגייה במיקרופון במאגר המילים</li>
+                <li>השלמת האתגרים היומיים (Daily Quests)</li>
+              </ul>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={() =>
+                  onUpdateProfile({
+                    ...profile,
+                    hasSeenWelcomeGiftModal: true,
+                  })
+                }
+                className={`flex-1 py-3.5 px-5 rounded-2xl font-extrabold text-sm ${theme.primaryBtnClass}`}
+              >
+                {profile.gender === 'girl'
+                  ? 'איזה כיף, בואו נתחיל! 🚀'
+                  : 'איזה כיף, בוא נתחיל! 🚀'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onUpdateProfile({
+                    ...profile,
+                    hasSeenWelcomeGiftModal: true,
+                  });
+                  setIsRewardShopOpen(true);
+                }}
+                className={`py-3.5 px-4 rounded-2xl font-extrabold text-xs ${theme.secondaryBtnClass}`}
+              >
+                הצצה לחנות 🛍️
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* FEATURE 3: FULL INTERACTIVE 5-STEP MISSION RUNNER MODAL */}
       {activePracticeMission && (

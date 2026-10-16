@@ -17,9 +17,10 @@ import { DashboardView } from './components/DashboardView';
 import { AuthModal } from './components/AuthModal';
 import { THEME_REGISTRY } from './themes/themeRegistry';
 
-const STORAGE_KEY = 'english_tutor_learner_profile_v1';
+const STORAGE_KEY = 'english_tutor_learner_profile_v2';
+export const WELCOME_GIFT_DIAMONDS = 50;
 
-const DEFAULT_PROFILE: LearnerProfile = {
+export const DEFAULT_PROFILE: LearnerProfile = {
   isOnboarded: false,
   name: '',
   age: 12,
@@ -28,29 +29,27 @@ const DEFAULT_PROFILE: LearnerProfile = {
   preferredTier: 'challenger',
   themeId: 'cozy-studio', // Option B selected by user
   stats: {
-    xp: 320,
-    level: 3,
-    stars: 5,
+    xp: 0,
+    level: 1,
+    stars: 0,
     maxPossibleStars: 36,
-    diamonds: 140,
-    streakDays: 5,
+    diamonds: WELCOME_GIFT_DIAMONDS,
+    streakDays: 0,
     shabbatShieldActive: true,
-    wordsMastered: 48,
-    missionsCompleted: 2,
+    wordsMastered: 0,
+    missionsCompleted: 0,
   },
-  missionProgress: {
-    'g7-u1-m1': 3,
-    'g7-u1-m2': 2,
-  },
-  unlockedRewardIds: ['avatar-boba-cat', 'sticker-strawberry-croissant'],
+  missionProgress: {},
+  unlockedRewardIds: ['avatar-boba-cat'],
   equippedAvatarEmoji: undefined,
   claimedDailyQuestIds: [],
   dailyCounters: {
     dateStr: new Date().toISOString().slice(0, 10),
     missionsCompletedToday: 0,
-    voiceWordsPracticedToday: 1,
+    voiceWordsPracticedToday: 0,
     threeStarMissionsToday: 0,
   },
+  hasSeenWelcomeGiftModal: false,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
 };
@@ -65,7 +64,6 @@ export function App() {
           ...DEFAULT_PROFILE,
           ...parsed,
           missionProgress: {
-            ...DEFAULT_PROFILE.missionProgress,
             ...(parsed.missionProgress || {}),
           },
           unlockedRewardIds:
@@ -92,14 +90,20 @@ export function App() {
   const profileRef = useRef<LearnerProfile>(profile);
   profileRef.current = profile;
 
-  // Always mirror profile to localStorage for instant offline access
+  // Always mirror profile to localStorage when logged in for instant offline access
   useEffect(() => {
+    try {
+      localStorage.removeItem('english_tutor_learner_profile_v1');
+    } catch {
+      // ignore storage errors
+    }
+    if (!authUser) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
     } catch {
       // ignore storage errors
     }
-  }, [profile]);
+  }, [profile, authUser]);
 
   // Listen to Firebase Auth state & attach real-time Firestore onSnapshot listener
   useEffect(() => {
@@ -119,6 +123,12 @@ export function App() {
 
       if (!firebaseUser) {
         setAuthUser(null);
+        setProfile(DEFAULT_PROFILE);
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {
+          // ignore storage errors
+        }
         setSyncStatus('local-only');
         setIsAuthInitializing(false);
         return;
@@ -135,12 +145,18 @@ export function App() {
       setSyncStatus('syncing');
 
       try {
-        // 1. First-time login migration: merge local progress into Firestore document
-        const migrated = await migrateAndSyncProfileOnLogin(
+        // 1. Load user's cloud profile or initialize a clean-slate profile for new users
+        const freshDefault: LearnerProfile = {
+          ...DEFAULT_PROFILE,
+          name: firebaseUser.displayName?.split(' ')[0] || '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        const loadedProfile = await migrateAndSyncProfileOnLogin(
           firebaseUser.uid,
-          profileRef.current
+          freshDefault
         );
-        setProfile(migrated);
+        setProfile(loadedProfile);
         setSyncStatus('synced');
       } catch {
         setSyncStatus('offline-error');

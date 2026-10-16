@@ -139,8 +139,8 @@ export function mergeLearnerProfiles(
         cloud.stats?.diamonds || 0
       ),
       streakDays: Math.max(
-        local.stats?.streakDays || 1,
-        cloud.stats?.streakDays || 1
+        local.stats?.streakDays ?? 0,
+        cloud.stats?.streakDays ?? 0
       ),
       shabbatShieldActive: true,
       wordsMastered: Math.max(
@@ -156,30 +156,34 @@ export function mergeLearnerProfiles(
     unlockedRewardIds: mergedUnlockedRewards,
     claimedDailyQuestIds: mergedClaimedQuests,
     dailyCounters: mergedDailyCounters,
+    hasSeenWelcomeGiftModal: Boolean(
+      local.hasSeenWelcomeGiftModal || cloud.hasSeenWelcomeGiftModal
+    ),
     createdAt: local.createdAt || cloud.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
 }
 
 /**
- * Performs initial one-time migration when a learner signs in on a device:
- * reads the remote Firestore document, merges it with local progress, and writes back.
+ * Loads or initializes the learner profile when signing in:
+ * - If a cloud document exists for this user, loads it as the source of truth.
+ * - If this is a brand-new user (no cloud document yet), initializes a clean-slate profile.
  */
 export async function migrateAndSyncProfileOnLogin(
   uid: string,
-  localProfile: LearnerProfile
+  cleanDefaultProfile: LearnerProfile
 ): Promise<LearnerProfile> {
-  if (!db) return localProfile;
+  if (!db) return cleanDefaultProfile;
 
   const docRef = doc(db, LEARNERS_COLLECTION, uid);
   const snapshot = await getDoc(docRef);
-  const cloudData = snapshot.exists()
-    ? (snapshot.data() as Partial<LearnerProfile>)
-    : null;
+  if (snapshot.exists()) {
+    const cloudData = snapshot.data() as Partial<LearnerProfile>;
+    return mergeLearnerProfiles(cleanDefaultProfile, cloudData);
+  }
 
-  const merged = mergeLearnerProfiles(localProfile, cloudData);
-  await setDoc(docRef, merged, { merge: true });
-  return merged;
+  await setDoc(docRef, cleanDefaultProfile, { merge: true });
+  return cleanDefaultProfile;
 }
 
 /**

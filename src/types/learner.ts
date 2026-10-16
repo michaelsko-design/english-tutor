@@ -79,6 +79,8 @@ export interface LearnerProfile {
   claimedDailyQuestIds: string[];
   /** Daily activity counters for quests and streaks */
   dailyCounters: DailyActivityCounters;
+  /** Whether the new user has seen and acknowledged the complimentary welcome diamonds modal */
+  hasSeenWelcomeGiftModal?: boolean;
   createdAt: string;
   /** ISO timestamp of the latest profile update for conflict resolution */
   updatedAt?: string;
