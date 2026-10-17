@@ -121,7 +121,7 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
 
   const handleToggleTile = (idx: number) => {
     if (isNamed) return;
-    setTileIndices(tileIndices.includes(idx) ? tileIndices.filter((i) => i !== idx) : [...tileIndices, idx]);
+    setTileIndices((prev) => (prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]));
   };
 
   const handleCheckSpelling = () => {

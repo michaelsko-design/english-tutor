@@ -303,6 +303,16 @@ function mergeCustomWordLists(
   ];
 }
 
+/** Per game, the best score from either device. */
+function mergeBestScores(
+  local: Record<string, number> | undefined,
+  cloud: Record<string, number> | undefined
+): Record<string, number> | undefined {
+  if (!local || !cloud) return local || cloud;
+  const keys = Array.from(new Set([...Object.keys(local), ...Object.keys(cloud)]));
+  return Object.fromEntries(keys.map((key) => [key, Math.max(local[key] ?? 0, cloud[key] ?? 0)]));
+}
+
 /** Dreams from both devices by id, newest first, capped like the journal itself. */
 function mergeDreamJournal(
   local: DreamEntry[] | undefined,
@@ -353,12 +363,14 @@ function mergeRoom(
   const dressUpDay = mergeDressUpDay(local.dressUpDay, cloud.dressUpDay);
   const activityRewardDates = mergeLatestDates(local.activityRewardDates, cloud.activityRewardDates);
   const dreamJournal = mergeDreamJournal(local.dreamJournal, cloud.dreamJournal);
+  const gameBestScores = mergeBestScores(local.gameBestScores, cloud.gameBestScores);
   return {
     ...newer,
     namedItemIds: Array.from(new Set([...(local.namedItemIds || []), ...(cloud.namedItemIds || [])])),
     ...(dressUpDay ? { dressUpDay } : {}),
     ...(activityRewardDates ? { activityRewardDates } : {}),
     ...(dreamJournal ? { dreamJournal } : {}),
+    ...(gameBestScores ? { gameBestScores } : {}),
   };
 }
 

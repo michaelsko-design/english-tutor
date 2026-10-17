@@ -18,6 +18,7 @@ import { NameItemPanel } from './NameItemPanel';
 import { RoomInventory } from './RoomInventory';
 import { RoomScene, SceneBubble } from './RoomScene';
 import { DreamJournalPanel } from './DreamJournalPanel';
+import { GamesBookPanel } from './games/GamesBookPanel';
 import { PhonePanel } from './PhonePanel';
 import { WardrobePanel } from './WardrobePanel';
 import { AVATAR_HOME, OBJECT_POSITIONS, SLOT_POSITIONS, ScenePoint, getStandingPoint } from './roomLayout';
@@ -35,13 +36,14 @@ interface RoomScreenProps {
 const WALK_MS = 700;
 
 /** Room activities shown in the panel under the scene; the inventory shows when none is open. */
-type RoomPanel = 'wardrobe' | 'phone' | 'journal';
+type RoomPanel = 'wardrobe' | 'phone' | 'journal' | 'games';
 
 /** Mission objects whose activity is ready open a panel; the others show "coming soon". */
 const OBJECT_PANELS: Partial<Record<RoomObjectId, RoomPanel>> = {
   wardrobe: 'wardrobe',
   phone: 'phone',
   bed: 'journal',
+  'games-book': 'games',
 };
 
 function prefersReducedMotion(): boolean {
@@ -249,6 +251,14 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
             onSpeakEnglish={onSpeakEnglish}
             onClose={closePanel}
           />
+        ) : activePanel === 'games' ? (
+          <GamesBookPanel
+            profile={profile}
+            theme={theme}
+            onUpdateProfile={onUpdateProfile}
+            onSpeakEnglish={onSpeakEnglish}
+            onClose={closePanel}
+          />
         ) : activePanel === 'phone' ? (
           <PhonePanel
             profile={profile}
@@ -281,7 +291,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
         )}
 
         <p className={`text-[11px] text-center ${theme.mutedTextClass}`} dir="rtl">
-          🚪 ארון: הלבשה · 📱 טלפון: הודעות קוליות · 🛏️ מיטה: יומן חלומות · 📖 ספר המשחקים מגיע בקרוב!
+          🚪 ארון: הלבשה · 📱 טלפון: הודעות קוליות · 🛏️ מיטה: יומן חלומות · 📖 ספר המשחקים: משחקי מילים
         </p>
       </div>
     </ExamModalShell>

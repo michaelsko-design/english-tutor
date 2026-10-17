@@ -190,6 +190,8 @@ export interface LearnerRoom {
   activityRewardDates?: Record<string, string>;
   /** Saved dreams, newest first (at most 20) */
   dreamJournal?: DreamEntry[];
+  /** Word game id -> best score (0–100) in the Games Book */
+  gameBestScores?: Record<string, number>;
   /** Items the learner has said or spelled at least once (the first time earns XP) */
   namedItemIds: string[];
   /** ISO timestamp of the latest layout or outfit change; the newer one wins on merge */

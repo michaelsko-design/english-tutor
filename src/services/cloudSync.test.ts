@@ -281,6 +281,14 @@ describe('mergeLearnerProfiles room', () => {
     expect(merged.dreamJournal?.map((d) => d.id)).toEqual(['b', 'c', 'a']);
   });
 
+  it('keeps the best word-game score per game', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, room: { ...newerRoom, gameBestScores: { scramble: 60, search: 100 } } },
+      { room: { ...olderRoom, gameBestScores: { scramble: 80, crossword: 40 } } }
+    ).room!;
+    expect(merged.gameBestScores).toEqual({ scramble: 80, search: 100, crossword: 40 });
+  });
+
   it('keeps a room that exists on only one side and adds none otherwise', () => {
     expect(mergeLearnerProfiles(baseProfile, { room: olderRoom }).room).toEqual(olderRoom);
     expect(mergeLearnerProfiles({ ...baseProfile, room: olderRoom }, {}).room).toEqual(olderRoom);
