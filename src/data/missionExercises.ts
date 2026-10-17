@@ -3,6 +3,12 @@ import { LearnerGender, ProficiencyTier } from '../types/learner';
 import { inflectHebrew } from '../utils/hebrewGender';
 import { seededShuffle, seededShuffleNotIdentity } from '../utils/shuffle';
 import { buildElementaryExercises } from './elementaryExercises';
+import {
+  findAnswerSentenceNumber,
+  getPronunciationTipHe,
+  getSentenceOrderHintHe,
+  isolateLtr,
+} from '../utils/hints';
 
 export type DrillType =
   | 'chat-reply'
@@ -108,6 +114,8 @@ function getRawExercisesForMission(
   };
   const v1 = mission.vocabulary[1] || v0;
   const tierObj = mission.tierObjectives[tier];
+  const storyPassageEn = `${mission.sampleSentenceEn} ${v0.exampleEn} ${v1.exampleEn}`;
+  const storySentence = findAnswerSentenceNumber(storyPassageEn, v1.wordEn, '');
   const cleanWords = mission.sampleSentenceEn
     .replace(/[.!?"]/g, '')
     .split(/\s+/)
@@ -120,7 +128,7 @@ function getRawExercisesForMission(
       type: 'chat-reply',
       badgeLabelHe: '💬 שלב 1/5: אתגר אוצר מילים בהקשר',
       promptHe: `בחרי את המשמעות הנכונה של המילה "${v0.wordEn}" מתוך הסיפור:`,
-      hintHe: `💡 משפט לדוגמה: "${v0.exampleEn}" (${v0.exampleHe})`,
+      hintHe: `💡 כדאי לקרוא את המילה בתוך משפט: "${isolateLtr(v0.exampleEn)}"`,
       speakerName: 'Studio Guide',
       speakerAvatar: mission.icon,
       questionEn: `In the sentence "${v0.exampleEn}", what does "${v0.wordEn}" mean?`,
@@ -148,7 +156,7 @@ function getRawExercisesForMission(
       type: 'sentence-builder',
       badgeLabelHe: '🧩 שלב 2/5: הרכבת משפט המפתח',
       promptHe: 'לחצי על המילים לפי הסדר הנכון כדי להרכיב את משפט המפתח של המשימה:',
-      hintHe: `💡 תרגום המשפט: "${mission.sampleSentenceHe}"`,
+      hintHe: `💡 ${getSentenceOrderHintHe(cleanWords)}`,
       questionEn: 'Tap the words in the right order:',
       targetSentenceEn: cleanWords.join(' '),
       targetSentenceHe: mission.sampleSentenceHe,
@@ -160,7 +168,7 @@ function getRawExercisesForMission(
       type: 'voice-speak',
       badgeLabelHe: '🎙️ שלב 3/5: אימון קריאה ודיבור (Voice Recognition)',
       promptHe: 'האזיני למשפט (רגיל או איטי) ואז הקליטי את עצמך קוראת אותו בקול:',
-      hintHe: `💡 מילת המיקוד להיום: "${v0.wordEn}" (${v0.translationHe})`,
+      hintHe: `💡 ${getPronunciationTipHe(mission.sampleSentenceEn)}`,
       questionEn: 'Speak this sentence aloud:',
       speakTargetEn: mission.sampleSentenceEn,
       speakTargetHe: mission.sampleSentenceHe,
@@ -172,7 +180,7 @@ function getRawExercisesForMission(
       type: 'grammar-detective',
       badgeLabelHe: '🕵️‍♀️ שלב 4/5: מיקוד דקדוק ורמת קושי',
       promptHe: tierObj.focusHe,
-      hintHe: `💡 נושא הדקדוק במשימה: ${mission.grammarTopic}`,
+      hintHe: '💡 כדאי לבדוק בכל משפט שהנושא והפועל מתאימים זה לזה, ושכל הפעלים באותו זמן.',
       questionEn: `Which sentence matches our "${mission.grammarTopic}" rule best?`,
       options: [
         {
@@ -198,8 +206,8 @@ function getRawExercisesForMission(
       type: 'story-unseen',
       badgeLabelHe: '📖 שלב 5/5: שאלת הבנה מסכמת',
       promptHe: 'קראי את משפטי המשימה ובחרי את התשובה הנכונה לסיום:',
-      hintHe: `💡 זכרי את המילים שלמדנו: ${v0.wordEn} ו-${v1.wordEn}.`,
-      contextPassageEn: `${mission.sampleSentenceEn} ${v0.exampleEn} ${v1.exampleEn}`,
+      hintHe: `💡 כדאי למצוא את "${v1.wordEn}" בסיפור${storySentence ? ` (משפט מספר ${storySentence})` : ''} ולהבין אותה מתוך המשפט.`,
+      contextPassageEn: storyPassageEn,
       contextPassageHe: `${mission.sampleSentenceHe} ${v0.exampleHe}`,
       questionEn: `Which Hebrew meaning matches the word "${v1.wordEn}" from our story?`,
       options: [

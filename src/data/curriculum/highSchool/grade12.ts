@@ -59,6 +59,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'כאשר מילת קישור אקדמית כגון Furthermore, Moreover או However פותחת משפט, חובה לשים פסיק מיד אחריה.',
+            hintHe: 'כשמילת קישור אקדמית פותחת משפט, איזה סימן פיסוק בא מיד אחריה?',
           },
           story: {
             passageEn:
@@ -124,6 +125,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'כאשר מחברים שני משפטים עצמאיים באמצעות therefore או consequently, שמים נקודה-פסיק (;) לפני מילת הקישור ופסיק (,) מיד אחריה.',
+            hintHe: 'שני משפטים עצמאיים: לפני מילת הקישור בא סימן שמפריד בין משפטים, ואחריה פסיק.',
           },
           story: {
             passageEn:
@@ -190,6 +192,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'בכתיבת טיעון ברמה גבוהה משתמשים בוויתור (Concession): מודים בנכונות חלקית של טענת הצד השני (While it is true that...), ואז מציגים את הטיעון החזק שלנו (nevertheless...).',
+            hintHe: 'ויתור פירושו להודות קודם שהצד השני צודק בחלק, ואז להציג טיעון נגדי חזק. מה מתאים לשני השלבים?',
           },
           story: {
             passageEn:
@@ -263,6 +266,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'משפט עמדה מוצלח בבגרות מציג הן את העמדה החד-משמעית שלך והן את מפת הדרכים התמציתית של הנימוקים שיוצגו בפסקאות הבאות.',
+            hintHe: 'משפט עמדה טוב מראה מה העמדה של הכותב ואילו נימוקים יבואו אחריה.',
           },
           story: {
             passageEn:
@@ -328,6 +332,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'אחרי Despite חייב לבוא שם עצם (noun phrase) או פועל עם ing (Despite the cost), ולא משפט עם נושא ופועל (בשונה מ-Although).',
+            hintHe: 'אחרי Despite לא בא משפט עם נושא ופועל, אלא צירוף שמני.',
           },
           story: {
             passageEn:
@@ -394,6 +399,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'שגיאה נפוצה בפסקת הסיכום היא העלאת טיעון חדש שלא הוזכר בגוף החיבור. הסיכום נועד אך ורק לתמצת את הטיעונים הקיימים ולתת המלצה סופית.',
+            hintHe: 'פסקת הסיכום רק מסכמת את מה שכבר נאמר. מה פוגע בה?',
           },
           story: {
             passageEn:
@@ -464,6 +470,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['Enthusiastic / Celebratory', 'Completely Indifferent / Unbiased'],
             explainHe:
               'ביטויים כמו "מומחים כביכול" (so-called) ו"הבטחות מוטלות בספק" (doubtful promises) מעידים במובהק על טון ספקני וביקורתי של הכותב.',
+            hintHe: 'so-called ו-doubtful מראים שהכותב לא מאמין לטענות. איזה טון מתאים לחוסר אמון?',
           },
           story: {
             passageEn:
@@ -529,6 +536,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'שאלת סינתזה בבגרות מחייבת להבין את הקשר הלוגי (סיבה, תוצאה, הסבר או ניגוד) בין שתי הפסקאות ולנסח תשובה שלמה המשלבת את שתיהן.',
+            hintHe: 'שאלת סינתזה דורשת לחבר בין שתי הפסקאות: איך פרט באחת מסביר או גורם למה שקורה בשנייה?',
           },
           story: {
             passageEn:
@@ -595,6 +603,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'בשאלות נימוק מהטקסט (Justify your answer) יש לצטט או לנסח במדויק את המשפט הרלוונטי בלבד ולא להעתיק פסקאות שלמות, כדי לא לאבד נקודות.',
+            hintHe: 'נימוק מהטקסט הוא מדויק וקצר: רק המשפט הרלוונטי, לא דעה אישית ולא פסקאות שלמות.',
           },
           story: {
             passageEn:
@@ -668,6 +677,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'כאשר פותחים משפט בביטוי שלילתי או מגביל כמו Not only, משתמשים בהיפוך כמו בשאלה (does bilingualism enhance).',
+            hintHe: 'אחרי Not only בתחילת משפט סדר המילים הפוך, כמו בשאלה: פועל עזר לפני הנושא.',
           },
           story: {
             passageEn:
@@ -733,6 +743,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'במשלב פורמלי רשמי נשתמש בביטויים מנומסים ומדויקים כגון "I would like to inquire" במקום שפת דיבור סלנגית.',
+            hintHe: 'משלב רשמי הוא מנומס ומלא, בלי סלנג ובלי קיצורים של דיבור.',
           },
           story: {
             passageEn:
@@ -799,6 +810,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'הצטיינות בבגרות באנגלית (שאלונים E-G) נמדדת בדיוק לקסיקלי עשיר (Band III), מגוון תחבירי, זרימה לוגית עם מילות קישור, ועומק אנליטי.',
+            hintHe: 'הצטיינות נמדדת באוצר מילים עשיר, מבנים מגוונים ומילות קישור, לא בתשובות קצרות.',
           },
           story: {
             passageEn:

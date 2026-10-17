@@ -38,6 +38,7 @@ export const grade3Curriculum = buildElementaryGrade('grade-3', [
             correct: 'I have two pencils.',
             wrong: ['I have two pencil.', 'I have pencils two.'],
             explainHe: 'כשיש יותר מאחד מוסיפים s לשם העצם: two pencils (שני עפרונות). המספר בא לפני שם העצם.',
+            hintHe: 'יותר מעיפרון אחד: מה מוסיפים לסוף המילה? והמספר בא לפני שם העצם.',
           },
           story: {
             passageEn: 'I have a pencil case. I have a pencil and paper in it. I put it on my desk.',
@@ -76,6 +77,7 @@ export const grade3Curriculum = buildElementaryGrade('grade-3', [
             correct: 'I have a green crayon.',
             wrong: ['I have a crayon green.', 'I green have a crayon.'],
             explainHe: 'באנגלית הצבע בא לפני שם העצם: green crayon הוא עיפרון צבעוני ירוק.',
+            hintHe: 'כדאי לזכור: באנגלית הצבע בא לפני הדבר שהוא מתאר.',
           },
           story: {
             passageEn: 'Dan has a green crayon. Dan has a purple crayon. He draws a purple flower.',
@@ -115,6 +117,7 @@ export const grade3Curriculum = buildElementaryGrade('grade-3', [
             correct: 'I have a ruler and two notebooks.',
             wrong: ['I have a ruler and two notebook.', 'I have two ruler and a notebooks.'],
             explainHe: 'אחד אומרים a ruler. כששניים או יותר מוסיפים s: two notebooks (שתי מחברות).',
+            hintHe: 'כדאי לבדוק כל דבר בנפרד: אחד או יותר? אחרי מספר גדול מאחד מוסיפים משהו לסוף המילה.',
           },
           story: {
             passageEn:
@@ -161,6 +164,7 @@ export const grade3Curriculum = buildElementaryGrade('grade-3', [
             correct: 'I am excited.',
             wrong: ['I is excited.', 'I are excited.'],
             explainHe: 'עם I תמיד אומרים am: I am excited (אני נרגש/ת).',
+            hintHe: 'איזו צורה של be הולכת תמיד עם I? (is הולכת עם he / she / it)',
           },
           story: {
             passageEn: 'It is Sunday. The weather is sunny. I am excited. I play outside with my friends.',
@@ -199,6 +203,7 @@ export const grade3Curriculum = buildElementaryGrade('grade-3', [
             correct: 'It is rainy today.',
             wrong: ['Rainy is it today.', 'It are rainy today.'],
             explainHe: 'כשמדברים על מזג האוויר אומרים It is ואחריו המילה המתארת: It is rainy.',
+            hintHe: 'על מזג האוויר מתחילים ב-It. איזה פועל מתאים ל-it, ואיפה הוא עומד?',
           },
           story: {
             passageEn: 'Today it is rainy. I take my umbrella. Then the sun comes out. It is sunny!',
@@ -238,6 +243,7 @@ export const grade3Curriculum = buildElementaryGrade('grade-3', [
             correct: 'We are happy on Friday.',
             wrong: ['We is happy on Friday.', 'We am happy on Friday.'],
             explainHe: 'עם We (אנחנו) אומרים are: We are happy. את am אומרים רק עם I, ואת is עם הוא / היא / זה.',
+            hintHe: 'We זה אנחנו, כלומר רבים. איזו צורה של be מתאימה לרבים?',
           },
           story: {
             passageEn:
@@ -285,6 +291,7 @@ export const grade3Curriculum = buildElementaryGrade('grade-3', [
             correct: 'I see an elephant.',
             wrong: ['I see a elephant.', 'I see elephant.'],
             explainHe: 'לפני מילה שמתחילה בצליל תנועה (a, e, i, o, u) אומרים an: an elephant. לפני שאר המילים אומרים a.',
+            hintHe: 'האם elephant מתחילה בצליל של תנועה (a, e, i, o, u)? המילה הקטנה לפניה משתנה בהתאם.',
           },
           story: {
             passageEn: 'We go to the zoo. I see a lion and a monkey. The lion is big. The monkey is funny.',
@@ -323,6 +330,7 @@ export const grade3Curriculum = buildElementaryGrade('grade-3', [
             correct: 'A bird can fly.',
             wrong: ['A bird can flies.', 'A bird can to fly.'],
             explainHe: 'אחרי can באה המילה הפשוטה בלי s ובלי to: can fly.',
+            hintHe: 'אחרי can בא הפועל בצורה הכי פשוטה, בלי תוספות ובלי מילה באמצע.',
           },
           story: {
             passageEn: 'The monkey can jump. The fish can swim. The bird can fly. I can run!',
@@ -361,6 +369,7 @@ export const grade3Curriculum = buildElementaryGrade('grade-3', [
             correct: 'I see two zebras.',
             wrong: ['I see two zebra.', 'I see zebras two.'],
             explainHe: 'כשיש שתיים או יותר מוסיפים s: two zebras (שתי זברות). המספר בא לפני שם העצם.',
+            hintHe: 'יותר מזברה אחת: מה מוסיפים לסוף המילה? והמספר בא לפני שם העצם.',
           },
           story: {
             passageEn:
@@ -409,6 +418,7 @@ export const grade3Curriculum = buildElementaryGrade('grade-3', [
             correct: 'I like pizza.',
             wrong: ['I likes pizza.', 'I am like pizza.'],
             explainHe: 'עם I אומרים like בלי s ובלי am: I like pizza.',
+            hintHe: 'עם I הפועל נשאר פשוט, בלי s ובלי מילה נוספת לפניו.',
           },
           story: {
             passageEn: 'It is my birthday! I like cake. My friend likes pizza. We drink juice.',
@@ -447,6 +457,7 @@ export const grade3Curriculum = buildElementaryGrade('grade-3', [
             correct: 'It is a balloon.',
             wrong: ['I am fine.', 'Yes, I do.'],
             explainHe: 'לשאלה What is this? (מה זה?) עונים It is a... ואז שם החפץ: It is a balloon.',
+            hintHe: 'השאלה היא "מה זה?". תשובה טובה מתארת את החפץ, לא איך מרגישים.',
           },
           story: {
             passageEn: 'Today is my birthday. I see a big present. I see a red balloon. It is a nice party!',
@@ -486,6 +497,7 @@ export const grade3Curriculum = buildElementaryGrade('grade-3', [
             correct: 'Is it a cake?',
             wrong: ['Is a it cake?', 'Cake is it a?'],
             explainHe: 'בשאלה Is it...? מתחילים ב-Is ואחריו it: Is it a cake? (האם זו עוגה?).',
+            hintHe: 'שאלת כן/לא מתחילה בפועל, ואחריו it.',
           },
           story: {
             passageEn:

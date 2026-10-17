@@ -64,6 +64,7 @@ const units: MiddleSchoolUnitSpec[] = [
             wrong: ['draw', 'is drawing'],
             explainHe:
               'ב-Present Simple עבור גוף שלישי יחיד (He / She / It) מוסיפים s או es לפועל (Mina draws).',
+            hintHe: 'Mina היא she, ו-usually מראה שגרה. מה קורה לפועל ב-Present Simple עם she?',
           },
           story: {
             passageEn:
@@ -126,6 +127,7 @@ const units: MiddleSchoolUnitSpec[] = [
             wrong: ['Do your sister prefer iced tea?', 'Does your sister prefers iced tea?'],
             explainHe:
               'בשאלות עבור He / She / It משתמשים ב-Does, והפועל הראשי חוזר לצורת הבסיס שלו ללא s (Does your sister prefer).',
+            hintHe: 'your sister היא she: שואלים עם פועל העזר של גוף שלישי, ואז הפועל הראשי בלי סיומת.',
           },
           story: {
             passageEn:
@@ -192,6 +194,7 @@ const units: MiddleSchoolUnitSpec[] = [
             ],
             explainHe:
               'לתיאור פעולה שגרתית קבועה (שקרתה, קורית ותקרה שוב) משתמשים ב-Present Simple בתוספת s בגוף שלישי (Hana edits).',
+            hintHe: 'always ו-on Friday evenings מראים שגרה. איזה זמן מתאים לשגרה, ומה מוסיפים לפועל עם she?',
           },
           story: {
             passageEn:
@@ -273,6 +276,7 @@ const units: MiddleSchoolUnitSpec[] = [
             ],
             explainHe:
               'לפעולה המתרחשת ממש ברגע זה (right now, look, listen) משתמשים ב-Present Progressive: am / is / are בתוספת הפועל עם ing.',
+            hintHe: 'Look! ו-right now מראים שזה קורה עכשיו. צריך צורה של be וגם פועל עם ing.',
           },
           story: {
             passageEn:
@@ -338,6 +342,7 @@ const units: MiddleSchoolUnitSpec[] = [
             ],
             explainHe:
               'פעלי מצב, רגש והבנה (understand, know, believe, want, need) אינם מקבלים צורת ing גם כאשר הפעולה מתרחשת עכשיו.',
+            hintHe: 'פעלי הבנה וידיעה הם פעלי מצב. האם פעלי מצב מקבלים ing, גם כשמדברים על עכשיו?',
           },
           story: {
             passageEn:
@@ -404,6 +409,7 @@ const units: MiddleSchoolUnitSpec[] = [
             ],
             explainHe:
               'הופעה היא פעולה המתרחשת כרגע (is performing ב-Progressive), ואילו אהבה היא פועל מצב/רגש שאינו מקבל ing (love).',
+            hintHe: 'שני חלקים: הופעה היא פעולה שקורית עכשיו, ואהבה היא רגש (פועל מצב). איזה מהם יכול לקבל ing?',
           },
           story: {
             passageEn:
@@ -474,6 +480,7 @@ const units: MiddleSchoolUnitSpec[] = [
             wrong: ['finded', 'was find'],
             explainHe:
               'הפועל find הוא פועל בלתי רגיל (irregular verb), וצורת העבר (V2) שלו היא found ולא finded.',
+            hintHe: 'find הוא פועל לא רגיל: לא מוסיפים לו ed, ובעבר הפשוט לא צריך was לפניו.',
           },
           story: {
             passageEn:
@@ -539,6 +546,7 @@ const units: MiddleSchoolUnitSpec[] = [
             ],
             explainHe:
               'במשפטי שאלה ושלילה בעבר עם Did או Didn’t, הפועל העיקרי חוזר תמיד לצורת המקור הבסיסית V1 (see ולא saw).',
+            hintHe: 'אחרי Did הפועל הראשי חוזר לצורת הבסיס (V1), כי Did כבר מראה שזה עבר.',
           },
           story: {
             passageEn:
@@ -605,6 +613,7 @@ const units: MiddleSchoolUnitSpec[] = [
             ],
             explainHe:
               'הפעלים run ו-take הם בלתי רגילים, וצורות העבר הנכונות שלהם הן ran ו-took.',
+            hintHe: 'run ו-take הם פעלים לא רגילים: בעבר אין להם ed, ולא צריך were או did לפניהם.',
           },
           story: {
             passageEn:
@@ -675,6 +684,7 @@ const units: MiddleSchoolUnitSpec[] = [
             wrong: ['will + -ing', 'did + base verb'],
             explainHe:
               'לתוכניות שנקבעו מראש (prior intentions) משתמשים ב-be going to (We are going to launch), בעוד ש-will משמש להחלטות ספונטניות או תחזיות.',
+            hintHe: 'תוכנית שהוחלטה מראש היא לא החלטה של הרגע. איזה מבנה של עתיד מתאים לתוכנית?',
           },
           story: {
             passageEn:
@@ -737,6 +747,7 @@ const units: MiddleSchoolUnitSpec[] = [
             wrong: ['mustn’t', 'have to'],
             explainHe:
               'המודל should משמש למתן עצה ידידותית או המלצה (כדאי לך), בעוד ש-must מבטא חובה מוחלטת.',
+            hintHe: 'עצה ידידותית היא כדאי לך, לא חובה ולא איסור. איזה מודל מתאים לעצה?',
           },
           story: {
             passageEn:
@@ -803,6 +814,7 @@ const units: MiddleSchoolUnitSpec[] = [
             ],
             explainHe:
               'לפעולה שהסתיימה בעבר משתמשים ב-Past Simple (finished), ולפעולה בעתיד משתמשים ב-will (will take).',
+            hintHe: 'כדאי לבדוק כל חצי לפי מילת הזמן: Yesterday מבקשת עבר, ו-tomorrow מבקשת עתיד.',
           },
           story: {
             passageEn:

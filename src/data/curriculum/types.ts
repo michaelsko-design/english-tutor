@@ -39,6 +39,8 @@ export interface DrillSeed {
     correct: string;
     wrong: [string, string];
     explainHe: string;
+    /** Hint shown before answering: how to decide, without naming the answer (Feature 20). */
+    hintHe: string;
   };
   /** Step 5: short story with one comprehension question. */
   story: {

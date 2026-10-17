@@ -10,6 +10,12 @@ import {
   LearnerProfile,
 } from '../types/learner';
 import { seededShuffle, seededShuffleNotIdentity } from '../utils/shuffle';
+import {
+  getPronunciationTipHe,
+  getSentenceOrderHintHe,
+  getSpellingHintHe,
+  getWordShapeHintHe,
+} from '../utils/hints';
 
 /**
  * School word-list importer (Feature 10).
@@ -312,7 +318,7 @@ function buildMeaningStep(
     translationHe: item.translationHe,
     badgeLabelHe: '🔤 מה הפירוש?',
     promptHe: `איזו מילה באנגלית פירושה "${item.translationHe}"?`,
-    hintHe: byGender(gender, 'קראי כל אפשרות בקול ונסי להיזכר במילה מהדף של המורה.', 'קרא כל אפשרות בקול ונסה להיזכר במילה מהדף של המורה.'),
+    hintHe: getWordShapeHintHe(item.textEn, distractors.map((d) => d.textEn)),
     options,
   };
 }
@@ -329,7 +335,7 @@ function buildMagnetStep(item: CustomWordItem, gender: LearnerGender, seed: stri
       translationHe: item.translationHe,
       badgeLabelHe: '🧲 מגנטי אותיות',
       promptHe: byGender(gender, 'האזיני למילה וסדרי את האותיות לפי הסדר.', 'האזן למילה וסדר את האותיות לפי הסדר.'),
-      hintHe: `המילה מתחילה באות "${letters[0]}" ויש בה ${letters.length} אותיות.`,
+      hintHe: getSpellingHintHe(letters),
       letterTiles: seededShuffleNotIdentity(letters, `${seed}|letters`),
     };
   }
@@ -342,7 +348,7 @@ function buildMagnetStep(item: CustomWordItem, gender: LearnerGender, seed: stri
     translationHe: item.translationHe,
     badgeLabelHe: '🧩 מגנטי מילים',
     promptHe: byGender(gender, 'סדרי את המילים למשפט מהדף של המורה.', 'סדר את המילים למשפט מהדף של המורה.'),
-    hintHe: `המשפט מתחיל במילה "${words[0]}".`,
+    hintHe: getSentenceOrderHintHe(words),
     scrambledWords: seededShuffleNotIdentity(words, `${seed}|words`),
   };
 }
@@ -359,7 +365,7 @@ function buildVoiceStep(item: CustomWordItem, gender: LearnerGender): WordListSt
     promptHe: isWord
       ? byGender(gender, 'אמרי את המילה בקול באנגלית.', 'אמור את המילה בקול באנגלית.')
       : byGender(gender, 'קראי את המשפט בקול באנגלית.', 'קרא את המשפט בקול באנגלית.'),
-    hintHe: byGender(gender, 'לחצי על 🐢 כדי לשמוע לאט, ואז נסי בעצמך.', 'לחץ על 🐢 כדי לשמוע לאט, ואז נסה בעצמך.'),
+    hintHe: getPronunciationTipHe(item.textEn),
   };
 }
 

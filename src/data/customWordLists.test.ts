@@ -278,6 +278,25 @@ describe('buildWordListSteps', () => {
     expect(boy.promptHe).toMatch(/אמור|קרא /);
   });
 
+  it('gives hints that help without naming the answer or repeating the prompt', () => {
+    const steps = buildWordListSteps(list, 'girl', 7);
+    for (const step of steps) {
+      expect(step.hintHe).not.toBe('');
+      expect(step.promptHe).not.toContain(step.hintHe);
+    }
+    for (const step of steps.filter((s) => s.type === 'meaning-match')) {
+      expect(step.hintHe).not.toMatch(new RegExp(`\\b${step.textEn}\\b`, 'i'));
+      expect(step.hintHe).toContain(`${getSpellingLetters(step.textEn).length} אותיות`);
+    }
+    const builder = steps.find((s) => s.type === 'sentence-builder')!;
+    const words = builder.textEn.split(' ');
+    expect(builder.hintHe).toContain(words[words.length - 1].replace(/[^A-Za-z0-9']+$/, ''));
+    expect(builder.hintHe).toContain(`${words.length} מילים`);
+    for (const step of steps.filter((s) => s.type === 'voice-speak')) {
+      expect(step.hintHe.startsWith('טיפ:')).toBe(true);
+    }
+  });
+
   it('spells only letters and digits of a phrase', () => {
     expect(getSpellingLetters("ice-cream don't")).toEqual('icecreamdont'.split(''));
   });

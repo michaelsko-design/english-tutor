@@ -38,6 +38,7 @@ export const grade1Curriculum = buildElementaryGrade('grade-1', [
             correct: 'car',
             wrong: ['bus', 'sun'],
             explainHe: 'המילה car מתחילה בצליל /k/ בדיוק כמו cat. המילים bus ו-sun מתחילות בצלילים אחרים.',
+            hintHe: 'כדאי לומר כל מילה בקול ולהקשיב לצליל הראשון: איזה מהם נשמע כמו ההתחלה של cat?',
           },
           story: {
             passageEn: 'Hello! I see a cat. The cat is happy.',
@@ -75,6 +76,7 @@ export const grade1Curriculum = buildElementaryGrade('grade-1', [
             correct: 'The dog has a red ball.',
             wrong: ['The dog has ball a red.', 'Red a ball has dog the.'],
             explainHe: 'באנגלית הצבע בא לפני שם העצם: red ball הוא כדור אדום.',
+            hintHe: 'כדאי לזכור: באנגלית הצבע בא לפני הדבר שהוא מתאר.',
           },
           story: {
             passageEn: 'The dog has a ball. The ball is red.',
@@ -113,6 +115,7 @@ export const grade1Curriculum = buildElementaryGrade('grade-1', [
             correct: 'dog',
             wrong: ['egg', 'fish'],
             explainHe: 'המילה dog מתחילה בצליל /d/ כמו duck. המילה egg מתחילה ב-E והמילה fish מתחילה ב-F.',
+            hintHe: 'כדאי לומר כל מילה בקול: איזו מילה מתחילה באותו צליל כמו duck?',
           },
           story: {
             passageEn: 'The duck has an egg. The fish is in the water.',
@@ -159,6 +162,7 @@ export const grade1Curriculum = buildElementaryGrade('grade-1', [
             correct: 'I see three birds.',
             wrong: ['I see three bird.', 'I see bird three.'],
             explainHe: 'כשיש יותר מאחד מוסיפים s לשם העצם: three birds (שלוש ציפורים).',
+            hintHe: 'כמה ציפורים יש? כשיש יותר מאחת, משהו קטן נוסף לסוף המילה. והמספר בא לפני המילה.',
           },
           story: {
             passageEn: 'I see one dog and three birds in the sun.',
@@ -197,6 +201,7 @@ export const grade1Curriculum = buildElementaryGrade('grade-1', [
             correct: 'nine',
             wrong: ['seven', 'six'],
             explainHe: 'סופרים: seven, eight, nine, ten. אחרי eight בא nine.',
+            hintHe: 'כדאי לספור בקול מ-one ולעצור מיד אחרי eight.',
           },
           story: {
             passageEn: 'Look at the sky! I see six stars. Then I see ten stars!',
@@ -236,6 +241,7 @@ export const grade1Curriculum = buildElementaryGrade('grade-1', [
             correct: 'Goodbye',
             wrong: ['Hello', 'Please'],
             explainHe: 'את המילה Goodbye אומרים כשנפרדים. את המילה Hello אומרים כשנפגשים.',
+            hintHe: 'מה אומרים לחבר כשהולכים הביתה בסוף היום?',
           },
           story: {
             passageEn: 'The sun is red. It is time to go. Goodbye, my friend!',
@@ -282,6 +288,7 @@ export const grade1Curriculum = buildElementaryGrade('grade-1', [
             correct: 'nose',
             wrong: ['hand', 'ear'],
             explainHe: 'מריחים בעזרת האף - nose. את ה-hand (יד) משתמשים כדי לתפוס, ואת ה-ear (אוזן) כדי לשמוע.',
+            hintHe: 'כדאי לגעת בחלק בגוף שבעזרתו מריחים פרח. איך קוראים לו באנגלית?',
           },
           story: {
             passageEn: 'I have two eyes. I have one nose. I have two ears.',
@@ -320,6 +327,7 @@ export const grade1Curriculum = buildElementaryGrade('grade-1', [
             correct: 'I have a pen.',
             wrong: ['I have pen.', 'I a have pen.'],
             explainHe: 'לפני שם עצם בודד אומרים a: a pen (עט אחד).',
+            hintHe: 'כשמדברים על דבר אחד צריך מילה קטנה לפניו. איפה היא צריכה לעמוד במשפט?',
           },
           story: {
             passageEn: 'I have a bag. In my bag I have a book and a pen.',
@@ -359,6 +367,7 @@ export const grade1Curriculum = buildElementaryGrade('grade-1', [
             correct: 'I sit.',
             wrong: ['I stand.', 'I run.'],
             explainHe: 'Sit down פירושו שבו - עושים sit. את המילה stand עושים כשעומדים.',
+            hintHe: 'בבקשה של המורה יש down (למטה). מה עושים עם הגוף כשיורדים אל הכיסא?',
           },
           story: {
             passageEn: 'Please listen. Stand up. Now sit down and open your book.',
@@ -405,6 +414,7 @@ export const grade1Curriculum = buildElementaryGrade('grade-1', [
             correct: 'I like apples.',
             wrong: ['I apples like.', 'Like I apples.'],
             explainHe: 'באנגלית אומרים קודם I (אני), אחר כך like (אוהב/ת) ואז את מה שאוהבים: I like apples.',
+            hintHe: 'סדר המילים באנגלית: קודם מי (I), אחר כך מה עושים, ובסוף את מה.',
           },
           story: {
             passageEn: 'I like apples and bananas. My friend likes oranges.',
@@ -443,6 +453,7 @@ export const grade1Curriculum = buildElementaryGrade('grade-1', [
             correct: 'kite',
             wrong: ['bird', 'book'],
             explainHe: 'עפיפון (kite) הוא צעצוע. המילה bird היא ציפור והמילה book היא ספר.',
+            hintHe: 'כדאי לחשוב: עם איזה דבר משחקים בחוץ כשיש רוח?',
           },
           story: {
             passageEn: 'I have a red ball. I have a blue kite. I play with my friend.',
@@ -482,6 +493,7 @@ export const grade1Curriculum = buildElementaryGrade('grade-1', [
             correct: 'I drink water.',
             wrong: ['I eat water.', 'I drink a cake.'],
             explainHe: 'שותים מים (drink water) ואוכלים עוגה (eat a cake).',
+            hintHe: 'כדאי לבדוק אם הפועל מתאים לדבר: מה שותים ומה אוכלים?',
           },
           story: {
             passageEn: 'It is a picnic! I eat a cake. My friend drinks water.',

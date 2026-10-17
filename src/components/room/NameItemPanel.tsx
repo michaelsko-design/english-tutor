@@ -8,6 +8,7 @@ import { LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { SpeechEvaluationResult } from '../../utils/speechSimilarity';
 import { seededShuffle, seededShuffleNotIdentity } from '../../utils/shuffle';
+import { getSpellingHintHe } from '../../utils/hints';
 import { getSpeechErrorTextHe, useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { FeedbackBanner, MultipleChoiceOptions, SpellingMagnetDrill, VoiceSpeakDrill } from '../drills';
 import { ItemIcon } from './ItemIcon';
@@ -208,7 +209,7 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
               className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
             >
               <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-              <span>{showHint ? item.nameEn : 'רמז 💡'}</span>
+              <span>{showHint ? getSpellingHintHe(getSpellingLetters(item.nameEn)) : 'רמז 💡'}</span>
             </button>
           )}
         </div>

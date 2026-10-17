@@ -39,6 +39,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'pig',
             wrong: ['bus', 'cup'],
             explainHe: 'מילים מחרזות מסתיימות באותו צליל: big ו-pig מסתיימות ב-ig. המילים bus ו-cup מסתיימות בצלילים אחרים.',
+            hintHe: 'מילים מחרזות נגמרות באותו צליל. כדאי לומר big ואז כל מילה, ולהקשיב לסוף.',
           },
           story: {
             passageEn: 'I have a big ball. The ball is red. It is in my bag.',
@@ -77,6 +78,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'It is a doll.',
             wrong: ['It a is doll.', 'Is it doll a.'],
             explainHe: 'כדי לענות על השאלה "What is this?" אומרים It is a ... – סדר המילים הנכון הוא It, is, a ואחריהן שם החפץ.',
+            hintHe: 'כדאי להתחיל ב-It, אחריו הפועל, ואז מילה קטנה לפני שם החפץ.',
           },
           story: {
             passageEn: 'I see a box. It is a little box. A doll is in the box.',
@@ -115,6 +117,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'mat',
             wrong: ['pen', 'dog'],
             explainHe: 'המילים bat ו-mat מסתיימות שתיהן ב-at ולכן הן מחרזות. המילים pen ו-dog מסתיימות בצלילים אחרים.',
+            hintHe: 'כדאי להקשיב לסוף של bat: איזו מילה נגמרת באותו צליל?',
           },
           story: {
             passageEn:
@@ -162,6 +165,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'an apple',
             wrong: ['a apple', 'an apples'],
             explainHe: 'לפני מילה שמתחילה בתנועה (a, e, i, o, u) אומרים an: an apple. כשיש יותר מאחד אומרים apples בלי a ובלי an.',
+            hintHe: 'האם apple מתחילה בתנועה (a, e, i, o, u)? וכמה תפוחים יש, אחד או יותר?',
           },
           story: {
             passageEn: 'My family has a picnic. Mom has an apple. Dad has a banana.',
@@ -200,6 +204,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'This is my brother.',
             wrong: ['This are my brother.', 'This my is brother.'],
             explainHe: 'כשמצביעים על אדם אחד אומרים This is my ... – המילה is מתאימה ליחיד, והסדר הוא This, is, my.',
+            hintHe: 'מדברים על אדם אחד: איזה פועל מתאים ליחיד? וגם כדאי לבדוק את סדר המילים.',
           },
           story: {
             passageEn: 'This is my family. I have a brother and a sister. My brother is big. My sister is little.',
@@ -238,6 +243,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'bananas',
             wrong: ['banana', 'a banana'],
             explainHe: 'כשיש יותר מאחד מוסיפים s בסוף המילה: bananas. המילה banana ו-a banana מדברות על בננה אחת בלבד.',
+            hintHe: 'יותר מבננה אחת: מה קורה לסוף המילה כשיש הרבה?',
           },
           story: {
             passageEn:
@@ -285,6 +291,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'big',
             wrong: ['hen', 'cow'],
             explainHe: 'המילים pig ו-big מסתיימות שתיהן ב-ig ולכן הן מחרזות. המילים hen ו-cow מסתיימות בצלילים אחרים.',
+            hintHe: 'כדאי להקשיב לסוף של pig: איזו מילה נגמרת באותו צליל?',
           },
           story: {
             passageEn: 'I am on a farm. I see a cow and a hen. The pig is pink.',
@@ -322,6 +329,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'Is it a rabbit?',
             wrong: ['Is a it rabbit?', 'Rabbit it is a?'],
             explainHe: 'שאלה על חיה מתחילה במילה Is ואחריה it: Is it a rabbit? כך שואלים ומקבלים תשובה Yes, it is או No, it is not.',
+            hintHe: 'שאלת כן/לא מתחילה בפועל, ואחריו מי שמדברים עליו.',
           },
           story: {
             passageEn: 'Dan has a pet. Is it a dog? No, it is a rabbit. The rabbit is white.',
@@ -360,6 +368,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'log',
             wrong: ['dig', 'duck'],
             explainHe: 'המילים frog ו-log מסתיימות שתיהן ב-og ולכן הן מחרזות. המילים dig ו-duck מסתיימות בצלילים אחרים.',
+            hintHe: 'כדאי להקשיב לסוף של frog: איזו מילה נגמרת באותו צליל?',
           },
           story: {
             passageEn:
@@ -407,6 +416,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'red',
             wrong: ['bus', 'dog'],
             explainHe: 'המילים bed ו-red מסתיימות שתיהן ב-ed ולכן הן מחרזות. המילים bus ו-dog מסתיימות בצלילים אחרים.',
+            hintHe: 'כדאי לומר bed ואז כל מילה, ולהקשיב לצליל בסוף.',
           },
           story: {
             passageEn: 'This is my house. It is big. I have a bed. My bed is blue.',
@@ -444,6 +454,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'I have two socks.',
             wrong: ['I have two sock.', 'I have socks two.'],
             explainHe: 'אחרי מספר גדול מאחד מוסיפים s לשם העצם: two socks. כך מראים שיש יותר מפריט אחד.',
+            hintHe: 'יותר מגרב אחת: מה מוסיפים לסוף המילה? ואיפה בא המספר?',
           },
           story: {
             passageEn: 'I get dressed. I have a green shirt. I have blue socks and red shoes.',
@@ -482,6 +493,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'I can sit on a chair.',
             wrong: ['I can sits on a chair.', 'I can sit on chair a.'],
             explainHe: 'אחרי can בא הפועל בצורתו הבסיסית, בלי s: I can sit. וגם סדר המילים הנכון הוא on a chair.',
+            hintHe: 'אחרי can הפועל נשאר בצורה הפשוטה, בלי תוספות. וגם כדאי לבדוק את סדר המילים בסוף.',
           },
           story: {
             passageEn:

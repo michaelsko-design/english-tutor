@@ -56,6 +56,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['was / were + base verb', 'have / has + -ing form'],
             explainHe:
               'בסביל בהווה (Present Simple Passive) משתמשים בפועל to be בהווה (am / is / are) ואחריו צורת הפועל השלישית (V3).',
+            hintHe: 'סביל בהווה צריך צורה של הפועל להיות בהווה, ואחריה צורת הפועל השלישית. איזו תשובה עונה על שני התנאים?',
           },
           story: {
             passageEn:
@@ -118,6 +119,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['The modern bridge was complete in 2024.', 'The modern bridge did completed in 2024.'],
             explainHe:
               'בסביל בעבר משתמשים ב-was (ליחיד) או were (לרבים) ולאחריו צורת ה-V3 של הפועל (was completed ולא was complete).',
+            hintHe: 'סביל בעבר בנוי מ-was / were + V3. האם complete כתוב כאן בצורת V3? ו-did לא משמש בסביל.',
           },
           story: {
             passageEn:
@@ -181,6 +183,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['will enacted', 'are enact'],
             explainHe:
               'סביל בעתיד נבנה באמצעות will be בתוספת הפועל השלישי (will be enacted).',
+            hintHe: 'סביל בעתיד צריך שלושה חלקים: will, צורת הבסיס של הפועל להיות, ואז V3.',
           },
           story: {
             passageEn:
@@ -251,6 +254,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['which', 'where'],
             explainHe:
               'משתמשים בכינוי הזיקה who עבור בני אדם (למשל: The student who studied passed the test), בעוד ש-which משמש עבור חפצים או בעלי חיים.',
+            hintHe: 'כדאי לנסות משפט כמו: The girl ___ sings is my friend. איזו מילה מתאימה לאדם?',
           },
           story: {
             passageEn:
@@ -316,6 +320,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'בפסוקית לא-מגדירה המספקת מידע נוסף ולא-הכרחי, משתמשים בפסיקים סביב הפסוקית, ולעולם לא משתמשים ב-that.',
+            hintHe: 'מידע נוסף שאפשר להשמיט נכתב בין שני פסיקים. וגם כדאי לבדוק שכינוי הזיקה מתאים לאדם.',
           },
           story: {
             passageEn:
@@ -379,6 +384,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['whom', 'which'],
             explainHe:
               'משתמשים ב-whose לציון שייכות של אדם או גורם (למשל: The author whose article won an award).',
+            hintHe: 'שייכות היא ש... שלו / שלה. איזו מילה שואלת של מי משהו?',
           },
           story: {
             passageEn:
@@ -449,6 +455,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['must be', 'might not be'],
             explainHe:
               'באנגלית משתמשים ב-can\'t be כדי להביע ביטחון מלא שמשהו אינו אפשרי (למשל: He can\'t be in Paris; I saw him here an hour ago).',
+            hintHe: 'מחפשים ודאות שלילית חזקה (בטוח שלא), לא רק אפשרות ולא ודאות חיובית.',
           },
           story: {
             passageEn:
@@ -511,6 +518,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['must / will', 'should / ought'],
             explainHe:
               'משתמשים ב-might או could כדי להביע אפשרות של כ-50% שדבר מסוים מתרחש או ייתכן (ייתכן שכן וייתכן שלא).',
+            hintHe: 'אפשרות של 50% היא ייתכן שכן וייתכן שלא: לא ודאות ולא עצה.',
           },
           story: {
             passageEn:
@@ -577,6 +585,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'משפט עם must be מביע את דרגת הוודאות הגבוהה ביותר כאשר יש ראיה תומכת (they found living samples).',
+            hintHe: 'הוודאות הגבוהה ביותר מגיעה כשיש ראיה. באיזה משפט מופיעה ראיה שכבר נמצאה?',
           },
           story: {
             passageEn:
@@ -647,6 +656,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['will regulate', 'regulated'],
             explainHe:
               'בפסוקית התנאי (אחרי if) במשפט תנאי ראשון, משתמשים ב-Present Simple (regulates), ורק בחלק העיקרי של המשפט שמים will.',
+            hintHe: 'אחרי if בתנאי ראשון לא שמים will, ו-society הוא it (יחיד).',
           },
           story: {
             passageEn:
@@ -712,6 +722,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'בתנאי שני למצב היפותטי בהווה, משתמשים בצורת עבר (if I were/studied) ולאחריה would + פועל בסיסי.',
+            hintHe: 'תנאי שני הוא מצב דמיוני: אחרי If צורת עבר, ובתוצאה would + פועל בסיסי. בכתיבה רשמית יש לפועל להיות צורת עבר אחת לכל הגופים.',
           },
           story: {
             passageEn:
@@ -775,6 +786,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['will establish', 'established'],
             explainHe:
               'המילה unless פירושה if not (אלא אם כן). אחריה משתמשים ב-Present Simple (establish) בדיוק כמו אחרי if.',
+            hintHe: 'unless פירושו if not. אחריה משתמשים באותו זמן כמו אחרי if בתנאי ראשון.',
           },
           story: {
             passageEn:

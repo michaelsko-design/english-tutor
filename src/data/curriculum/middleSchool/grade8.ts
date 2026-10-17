@@ -44,6 +44,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               'While was I sleeping, the doorbell rang.',
             ],
             explainHe: 'אחרי While נשתמש בדרך כלל ב-Past Continuous (was / were + V-ing) עבור הפעולה הארוכה ברקע.',
+            hintHe: 'אחרי While באה הפעולה הארוכה ברקע (was / were + ing). וגם כדאי לבדוק שאחרי While בא הנושא.',
           },
           story: {
             passageEn:
@@ -90,6 +91,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               'They were look for the bag when the phone rang.',
             ],
             explainHe: 'עבור They משתמשים ב-were ולא ב-was, ומוסיפים ing לפועל ב-Past Continuous.',
+            hintHe: 'They הוא רבים: איזו צורת עבר של be מתאימה? וב-Past Continuous הפועל מקבל ing.',
           },
           story: {
             passageEn:
@@ -137,6 +139,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               'The lights went out while the detective were questioning the guard.',
             ],
             explainHe: 'הפעולה הקצרה (went out) קוטעת את הפעולה המתמשכת (was questioning). עבור detective יחיד נשתמש ב-was.',
+            hintHe: 'הפעולה הקצרה קוטעת את הארוכה. the detective הוא יחיד: איזו צורה של be מתאימה לו?',
           },
           story: {
             passageEn:
@@ -191,6 +194,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               'Were you examine the camera footage yesterday?',
             ],
             explainHe: 'אחרי פועל העזר Did, הפועל הראשי חייב לחזור לצורת המקור שלו (examine ללא ed).',
+            hintHe: 'אחרי Did הפועל הראשי חוזר לצורת הבסיס, בלי ed.',
           },
           story: {
             passageEn:
@@ -237,6 +241,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               'We are go to meet our guide at four o’clock.',
             ],
             explainHe: 'כאשר מדובר בתוכנית מוגדרת מראש שהוכנה בעבר, נשתמש ב-Be Going To ולא ב-Will ספונטני.',
+            hintHe: 'הכרטיסים נקנו מראש, אז זו תוכנית שכבר נקבעה (be + ___ + to). כדאי לבדוק שכל חלקי המבנה במקום.',
           },
           story: {
             passageEn:
@@ -284,6 +289,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               'The door is locked, so the key could to be inside.',
             ],
             explainHe: 'המודל must מבטא מסקנה לוגית כמעט ודאית ("חייב להיות ש..."). אחרי מודל תמיד בא פועל בסיסי.',
+            hintHe: 'הדלת נעולה, אז המסקנה כמעט ודאית. איזה מודל מבטא ודאות חזקה? ואחרי מודל בא פועל בסיסי בלי to.',
           },
           story: {
             passageEn:
@@ -338,6 +344,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               'Have you ever try scuba diving?',
             ],
             explainHe: 'ב-Present Perfect משתמשים ב-have / has בתוספת הפועל בצורת ה-V3 (Past Participle): tried.',
+            hintHe: 'Present Perfect בנוי מ-have / has + V3. הפועל try צריך להיות בצורת V3.',
           },
           story: {
             passageEn:
@@ -384,6 +391,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               'I have yet finished my homework.',
             ],
             explainHe: 'המילה yet מופיעה בדרך כלל בסוף משפטי שלילה ושאלה ב-Present Perfect.',
+            hintHe: 'המילה yet באה בדרך כלל בסוף שאלה או שלילה ב-Present Perfect.',
           },
           story: {
             passageEn:
@@ -431,6 +439,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               'I visited London in 2023, but I never saw Paris in my life.',
             ],
             explainHe: 'כשיש ציון זמן מדויק בעבר (in 2023) חייבים להשתמש ב-Past Simple. כשמדברים על ניסיון חיים כללי נשתמש ב-Present Perfect.',
+            hintHe: 'יש ציון זמן מדויק (in 2023)? אז עבר פשוט. ניסיון חיים בלי זמן? אז Present Perfect.',
           },
           story: {
             passageEn:
@@ -485,6 +494,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               'If temperatures rise, ice sheets melt faster tomorrow.',
             ],
             explainHe: 'בחלק התנאי עם If משתמשים ב-Present Simple (ללא will), ובחלק התוצאה משתמשים ב-will + פועל מקור.',
+            hintHe: 'בחלק של If לא שמים will. ובחלק התוצאה צריך will + פועל בסיסי.',
           },
           story: {
             passageEn:
@@ -531,6 +541,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               'The project proved successful; although, funding was expanded.',
             ],
             explainHe: 'המילה therefore (לפיכך / לכן) מציגה תוצאה או מסקנה הגיונית של המשפט הקודם.',
+            hintHe: 'מחפשים מילת קישור שמשמעותה לכן: החלק השני הוא תוצאה של הראשון.',
           },
           story: {
             passageEn:
@@ -578,6 +589,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               'If our community plants more trees, the air became cleaner.',
             ],
             explainHe: 'במשפט תנאי ראשון: If + פועל בהווה (plants), והתוצאה ב-will + מקור (will become).',
+            hintHe: 'בתנאי ראשון: If + הווה פשוט, והתוצאה ב-will + פועל בסיסי.',
           },
           story: {
             passageEn:

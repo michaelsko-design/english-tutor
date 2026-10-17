@@ -47,6 +47,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             correct: 'Birds can fly.',
             wrong: ['Birds can flies.', 'Birds can to fly.'],
             explainHe: 'אחרי can תמיד בא הפועל בצורתו הבסיסית, בלי s ובלי to: can fly (יכול לעוף).',
+            hintHe: 'אחרי can הפועל נשאר בצורה הבסיסית שלו: בלי סיומת ובלי מילה נוספת ביניהם.',
           },
           story: {
             passageEn:
@@ -86,6 +87,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             correct: 'Can you climb?',
             wrong: ['Can you climbs?', 'Do you can climb?'],
             explainHe: 'בשאלה עם can שמים את can בהתחלה ואחריו הפועל הבסיסי: Can you climb? (האם אתם יכולים לטפס?).',
+            hintHe: 'שאלה עם can מתחילה ב-can עצמו (בלי do), ואחרי הנושא בא הפועל בצורה הבסיסית.',
           },
           story: {
             passageEn:
@@ -126,6 +128,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             correct: 'He can jump high.',
             wrong: ['He cans jump high.', 'He can jumps high.'],
             explainHe: 'גם עם he ו-she אומרים can ללא s, והפועל שאחריו נשאר בצורה הבסיסית: He can jump.',
+            hintHe: 'המילה can לא משתנה גם עם he / she, וגם הפועל שאחריה נשאר בלי תוספות.',
           },
           story: {
             passageEn:
@@ -188,6 +191,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             correct: 'There are two chairs.',
             wrong: ['There is two chairs.', 'There are a chair.'],
             explainHe: 'There is משתמשים ליחיד (a chair), ו-There are לרבים (two chairs).',
+            hintHe: 'כמה כיסאות יש? There is מתאים לדבר אחד ולרבים יש צורה אחרת. וגם a בא רק לפני דבר אחד.',
           },
           story: {
             passageEn:
@@ -227,6 +231,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             correct: 'under',
             wrong: ['on', 'next to'],
             explainHe: 'under פירושו מתחת ל, on פירושו על, ו-next to פירושו ליד.',
+            hintHe: 'כדאי לחשוב על ההפך של on (על): איפה מתחבא חתול כשהוא מתחת לשולחן?',
           },
           story: {
             passageEn:
@@ -267,6 +272,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             correct: 'There is a sofa in the living room.',
             wrong: ['There are a sofa in the living room.', 'There is sofas in the living room.'],
             explainHe: 'עם a sofa (ספה אחת) משתמשים ב-There is. There are מתאים רק לרבים, כמו two sofas.',
+            hintHe: 'כמה ספות יש בחדר? כדאי להתאים את There is / There are למספר, וגם את צורת המילה sofa.',
           },
           story: {
             passageEn:
@@ -314,6 +320,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             correct: 'We play basketball.',
             wrong: ['We plays basketball.', 'We play are basketball.'],
             explainHe: 'עם I, you, we ו-they הפועל נשאר בצורתו הבסיסית, בלי s: We play.',
+            hintHe: 'עם we הפועל נשאר בצורה הבסיסית, בלי סיומת ובלי פועל נוסף.',
           },
           story: {
             passageEn:
@@ -353,6 +360,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             correct: 'Yes, I can.',
             wrong: ['Yes, I am.', 'Yes, can I.'],
             explainHe: 'עונים לשאלה עם can בתשובה קצרה עם can: Yes, I can. או No, I can\'t.',
+            hintHe: 'תשובה קצרה חוזרת על אותו פועל מהשאלה, והסדר הוא: Yes, הנושא, ואז הפועל.',
           },
           story: {
             passageEn: "Lia has two hobbies. She can draw and she can sing. She can't dance. Her brother can dance.",
@@ -391,6 +399,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             correct: 'She can play tennis.',
             wrong: ['She can plays tennis.', 'She cans play tennis.'],
             explainHe: 'אחרי can הפועל נשאר בצורה הבסיסית, גם עם she: She can play.',
+            hintHe: 'גם עם she, אחרי can הפועל נשאר בלי סיומת, ו-can עצמו לא משתנה.',
           },
           story: {
             passageEn:
@@ -439,6 +448,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             correct: "I don't like carrots.",
             wrong: ['I no like carrots.', 'I not like carrots.'],
             explainHe: "כדי להגיד שאנחנו לא אוהבים משהו משתמשים ב-don't לפני like: I don't like.",
+            hintHe: 'באנגלית לא שמים no או not לבד לפני פועל. צריך פועל עזר לפני not.',
           },
           story: {
             passageEn:
@@ -478,6 +488,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             correct: 'What do you eat?',
             wrong: ['What you do eat?', 'Do what you eat?'],
             explainHe: 'בשאלה עם What סדר המילים הוא: What + do + you + הפועל. למשל: What do you eat?',
+            hintHe: 'בשאלת What הסדר הוא: מילת השאלה, פועל עזר, הנושא, ואז הפועל הראשי.',
           },
           story: {
             passageEn:
@@ -518,6 +529,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             correct: 'There are apples in the basket.',
             wrong: ['There is apples in the basket.', 'There apples are in the basket.'],
             explainHe: 'לרבים (apples) אומרים There are, ובמשפט הסדר הוא: There are + שם העצם + מקום.',
+            hintHe: 'apples זה רבים: איזה פועל מתאים אחרי There? והסדר: There, הפועל, ואז הדבר.',
           },
           story: {
             passageEn:

@@ -39,6 +39,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
             correct: 'My sister plays the guitar.',
             wrong: ['My sister play the guitar.', 'My sister playing the guitar.'],
             explainHe: 'ב-Present Simple עם he / she / it (גוף שלישי יחיד) מוסיפים s לפועל: My sister plays.',
+            hintHe: 'my sister היא she. איזו סיומת מקבל הפועל ב-Present Simple עם she?',
           },
           story: {
             passageEn:
@@ -78,6 +79,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
             correct: 'Does he play chess?',
             wrong: ['Do he play chess?', 'Does he plays chess?'],
             explainHe: 'עם he / she / it שואלים עם Does, ואחרי Does הפועל חוזר לצורתו הבסיסית בלי s: Does he play?',
+            hintHe: 'עם he שואלים עם פועל העזר של גוף שלישי, ואחריו הפועל בלי סיומת.',
           },
           story: {
             passageEn:
@@ -118,6 +120,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
             correct: 'She usually walks to the club.',
             wrong: ['She walks usually to the club.', 'She usually walk to the club.'],
             explainHe: 'מילות תדירות כמו usually באות לפני הפועל הראשי, ועם she הפועל מקבל s: She usually walks.',
+            hintHe: 'מילת תדירות (usually) באה לפני הפועל הראשי, ועם she הפועל מקבל סיומת.',
           },
           story: {
             passageEn:
@@ -167,6 +170,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
             wrong: ['Maya draws right now.', 'Maya drawing right now.'],
             explainHe:
               'כשהפעולה קורית ברגע זה (right now) משתמשים ב-am / is / are + פועל עם ing: Maya is drawing.',
+            hintHe: 'right now זה ממש עכשיו. לפעולה שקורית עכשיו צריך גם צורה של be וגם פועל עם ing.',
           },
           story: {
             passageEn:
@@ -206,6 +210,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
             correct: 'They are using the laptop now.',
             wrong: ['They using the laptop now.', 'They are use the laptop now.'],
             explainHe: 'חייבים להשתמש ב-am / is / are וגם בפועל עם ing: They are using. אי אפשר לדלג על are.',
+            hintHe: 'פעולה שקורית עכשיו צריכה שני חלקים: צורה של be ופועל עם ing.',
           },
           story: {
             passageEn:
@@ -250,6 +255,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
             ],
             explainHe:
               'שגרה (every day) מבטאים ב-Present Simple: I read. פעולה ברגע זה (now) מבטאים ב-am / is / are + ing: I am watching.',
+            hintHe: 'every day זו שגרה (Present Simple), ו-now זה עכשיו (be + ing). כדאי לבדוק כל חלק בנפרד.',
           },
           story: {
             passageEn:
@@ -297,6 +303,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
             correct: 'We were at the beach yesterday.',
             wrong: ['We was at the beach yesterday.', 'We are at the beach yesterday.'],
             explainHe: 'בעבר of to be: was עם I / he / she / it, ו-were עם we / you / they. אתמול זה עבר, לכן אומרים were.',
+            hintHe: 'yesterday זה עבר. עם we, איזו צורת עבר של be מתאימה (לא was)?',
           },
           story: {
             passageEn:
@@ -336,6 +343,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
             correct: 'We visited our grandparents yesterday.',
             wrong: ['We visit our grandparents yesterday.', 'We visiting our grandparents yesterday.'],
             explainHe: 'כדי לדבר על העבר מוסיפים ed לפועל רגיל: visit הופך ל-visited. המילה yesterday מרמזת על עבר.',
+            hintHe: 'yesterday מרמזת על עבר. מה מוסיפים לסוף של פועל רגיל בעבר?',
           },
           story: {
             passageEn:
@@ -376,6 +384,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
             correct: 'Last Purim I wore a funny costume.',
             wrong: ['Last Purim I wear a funny costume.', 'Last Purim I wearing a funny costume.'],
             explainHe: 'פורים שעבר הוא זמן עבר. לפועל לא רגיל wear יש צורת עבר מיוחדת: wore.',
+            hintHe: 'Last Purim זה עבר. wear הוא פועל לא רגיל, עם צורת עבר מיוחדת (בלי ed).',
           },
           story: {
             passageEn:
@@ -423,6 +432,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
             correct: 'An elephant is bigger than a horse.',
             wrong: ['An elephant is biggest than a horse.', 'An elephant is more big than a horse.'],
             explainHe: 'בשם תואר קצר מוסיפים er כדי להשוות: big הופך ל-bigger (עם b כפולה), ואחריו בא than.',
+            hintHe: 'משווים שני דברים (than). לתואר קצר כמו big מוסיפים סיומת, ולפעמים מכפילים אות.',
           },
           story: {
             passageEn:
@@ -462,6 +472,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
             correct: 'Math is more difficult than art.',
             wrong: ['Math is difficulter than art.', 'Math is most difficult than art.'],
             explainHe: 'בשמות תואר ארוכים (difficult, interesting) לא מוסיפים er אלא שמים more לפני התואר, ואחריו than.',
+            hintHe: 'difficult הוא תואר ארוך: לא מוסיפים לו סיומת אלא מילה לפניו. ו-most שמור ל-הכי.',
           },
           story: {
             passageEn:
@@ -502,6 +513,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
             correct: 'How many books are in the bag?',
             wrong: ['How much books are in the bag?', 'How many book are in the bag?'],
             explainHe: 'עם עצמים שאפשר לספור משתמשים ב-How many ובשם עצם ברבים: books. ל-How much משתמשים עם דברים שלא סופרים, כמו water.',
+            hintHe: 'אפשר לספור ספרים? לדברים שסופרים יש מילת שאלה מיוחדת, ושם העצם צריך להיות ברבים.',
           },
           story: {
             passageEn:

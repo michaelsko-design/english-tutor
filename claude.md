@@ -180,6 +180,16 @@ Each learning mission consists of 5 pedagogical drill stages:
 - Stored as `room` on the profile (`placements` slot → item, `outfit` layer → item, `namedItemIds`, `dressUpDay`, `activityRewardDates`, `dreamJournal`, `gameBestScores`, `drawnStickers`, `backgroundStickerId`, `updatedAt`). Merge: the newer layout and outfit win; named items are unioned; the same day's dress-up progress keeps the highest counts and a given reward stays given; activity reward dates keep the later date per activity; dreams are unioned by id (newest 20); game best scores keep the higher score per game; drawn stickers are unioned by id and stay deleted once either device archived one.
 - Every mission object now opens its activity; the per-item missions follow the draft designs in `backlog.md` (Feature 12) until a detailed breakdown replaces them.
 
+### 4.13. Drill Hints (`utils/hints.ts`)
+- **Rule**: a hint (`hintHe`, shown by the "רמז בעברית 💡" button and automatically for Explorer) gives a way to work the answer out. It never names the answer or repeats text already on screen. Hints are worded gender-neutrally (`כדאי…`, `טיפ:`).
+- **Generated hints** (pure helpers in `utils/hints.ts`, + `.test.ts`):
+  - Step 1, vocabulary: Explorer and Master (English-word options) get the example sentence with the word blanked (`toClozeSentence`). When the word isn't in it, they get the letter count, plus the first letter when another option has the same length (`getWordShapeHintHe`). Challenger (Hebrew-meaning options) gets the English example sentence without its Hebrew translation.
+  - Step 2, sentence builder: the word count and the last word, plus the first word for sentences of 5+ words (`getSentenceOrderHintHe`). The capitalised chip already shows the first word of short sentences.
+  - Step 3, voice: a pronunciation tip for Hebrew speakers on the first tricky sound, checking content words first (`getPronunciationTipHe`: th, w, silent letters, `-ed`, `-ing`, silent e, ee).
+  - Step 5, story: which sentence of the story holds the answer (`findAnswerSentenceNumber`). Challenger/Master also get the question in Hebrew.
+- **Hand-written step-4 hints**: every mission's `drillSeed.rule.hintHe` (required, 144 in all) reminds the learner how to decide. It must not contain any word that is in the correct option but in none of the wrong ones. `missionHints.test.ts` checks every mission × tier for this and for repeated prompts.
+- Word lists reuse the same helpers (meaning: word shape, magnets: `getSpellingHintHe` / sentence order, voice: pronunciation tip). The room naming panel's spell hint shows the first letter and the letter count, not the name.
+
 ---
 
 ## 5. Directory Structure
@@ -214,6 +224,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── missionExercises.ts       # Concrete exercise definitions & seeded option/word shuffler
 │   │   ├── examPrep.ts               # Exam study plan building, session/mock steps & scoring (+ .test.ts)
 │   │   ├── milestones.ts             # Boss star gate, mission unlocks, suggested mission & missions counter (+ .test.ts)
+│   │   ├── missionHints.test.ts      # Sweep of every mission × tier: hints never repeat the prompt or reveal the answer
 │   │   ├── placementTest.ts          # Placement question generation, staircase & scoring (+ .test.ts)
 │   │   ├── progressRewards.ts        # Shared level formula & daily-activity/streak bookkeeping
 │   │   ├── room.ts                   # Room items & slots, placing & naming rules (+ .test.ts)
@@ -236,6 +247,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   └── learner.ts                # Core domain types (LearnerProfile, Stats, Grades)
 │   ├── utils/
 │   │   ├── hebrewGender.ts           # Hebrew grammatical gender inflection engine
+│   │   ├── hints.ts                  # Drill hint builders: word shape, cloze, word order, pronunciation tips, story locator (+ .test.ts)
 │   │   ├── shuffle.ts                # Deterministic seeded shuffle for options & word chips
 │   │   └── speechSimilarity.ts       # Phonetic & string similarity calculation for voice
 │   ├── App.tsx                       # Root orchestrator & Firebase auth/sync listener

@@ -39,6 +39,7 @@ export const grade5Curriculum = buildElementaryGrade('grade-5', [
             correct: 'My cat is friendly.',
             wrong: ['My cat are friendly.', 'My cat am friendly.'],
             explainHe: 'עם שם עצם ביחיד (my cat) משתמשים ב-is. את am אומרים רק עם I, ואת are עם you / we / they ועם רבים.',
+            hintHe: 'my cat הוא חתול אחד (יחיד). איזו צורה של be מתאימה ליחיד שהוא לא I?',
           },
           story: {
             passageEn:
@@ -77,6 +78,7 @@ export const grade5Curriculum = buildElementaryGrade('grade-5', [
             correct: 'The parrot has green wings.',
             wrong: ['The parrot have green wings.', 'The parrot haves green wings.'],
             explainHe: 'עם he / she / it ועם שם עצם ביחיד משתמשים ב-has. עם I / you / we / they משתמשים ב-have. אין צורה בשם haves.',
+            hintHe: 'the parrot הוא it, כלומר יחיד. עם he / she / it הפועל have משנה את צורתו (וזו לא haves).',
           },
           story: {
             passageEn:
@@ -119,6 +121,7 @@ export const grade5Curriculum = buildElementaryGrade('grade-5', [
               'The kittens are small and they has soft fur.',
             ],
             explainHe: 'kittens הוא רבים ולכן are. גם they הוא רבים ולכן have. הצורות is ו-has מתאימות רק ליחיד.',
+            hintHe: 'כדאי לבדוק שני חלקים: kittens ו-they הם רבים, ולכן שני הפעלים צריכים צורת רבים.',
           },
           story: {
             passageEn:
@@ -166,6 +169,7 @@ export const grade5Curriculum = buildElementaryGrade('grade-5', [
             correct: 'The bakery is next to the library.',
             wrong: ['The bakery is next the library.', 'The bakery is next at library.'],
             explainHe: 'הביטוי המלא הוא next to (ליד). חייבים לכתוב את המילה to ואחריה את שם המקום.',
+            hintHe: 'ליד באנגלית זה ביטוי של שתי מילים: next ועוד מילה קטנה. איזו?',
           },
           story: {
             passageEn:
@@ -205,6 +209,7 @@ export const grade5Curriculum = buildElementaryGrade('grade-5', [
             correct: 'It is half past four.',
             wrong: ['It is half past five.', "It is four o'clock."],
             explainHe: "half past אומר שעברו 30 דקות מהשעה העגולה. ארבע וחצי היא half past four. ארבע בדיוק היא four o'clock.",
+            hintHe: 'half past פירושו חצי שעה אחרי. 4:30 זה חצי שעה אחרי איזו שעה עגולה?',
           },
           story: {
             passageEn:
@@ -244,6 +249,7 @@ export const grade5Curriculum = buildElementaryGrade('grade-5', [
             correct: 'Where is the supermarket?',
             wrong: ['Where the supermarket is?', 'Where is supermarket the?'],
             explainHe: 'בשאלות Wh סדר המילים הוא: מילת שאלה, פועל, ואז נושא. Where is the supermarket?',
+            hintHe: 'בשאלת Wh הסדר הוא: מילת השאלה, הפועל, ואז הנושא עם the לפניו.',
           },
           story: {
             passageEn:
@@ -291,6 +297,7 @@ export const grade5Curriculum = buildElementaryGrade('grade-5', [
             correct: 'She wakes up at seven.',
             wrong: ['She wake up at seven.', 'She do wake up at seven.'],
             explainHe: 'ב-Present Simple עם he / she / it מוסיפים s לפועל: she wakes up. בלי s או עם do המשפט שגוי.',
+            hintHe: 'she היא גוף שלישי יחיד. מה מוסיפים לפועל ב-Present Simple עם he / she / it?',
           },
           story: {
             passageEn:
@@ -329,6 +336,7 @@ export const grade5Curriculum = buildElementaryGrade('grade-5', [
             correct: 'He goes to school every day.',
             wrong: ['He go to school every day.', 'He gos to school every day.'],
             explainHe: 'לפועל go מוסיפים es עם he / she / it: goes. כך גם do הופך ל-does.',
+            hintHe: 'עם he הפועל go מקבל סיומת, אבל לא רק s. בדיוק כמו do שהופך ל-does.',
           },
           story: {
             passageEn:
@@ -368,6 +376,7 @@ export const grade5Curriculum = buildElementaryGrade('grade-5', [
             correct: 'What time does he go to bed?',
             wrong: ['What time do he go to bed?', 'What time does he goes to bed?'],
             explainHe: 'בשאלה עם he / she / it משתמשים ב-does, ואז הפועל חוזר לצורה הרגילה בלי s: does he go.',
+            hintHe: 'עם he שואלים עם פועל עזר מיוחד ליחיד, ואחריו הפועל חוזר לצורה הבסיסית.',
           },
           story: {
             passageEn:
@@ -415,6 +424,7 @@ export const grade5Curriculum = buildElementaryGrade('grade-5', [
             correct: 'She plays the guitar on Fridays.',
             wrong: ['She play the guitar on Fridays.', 'She plays guitar the on Fridays.'],
             explainHe: 'עם she מוסיפים s לפועל: plays. וחשוב לשמור על סדר המילים: the guitar.',
+            hintHe: 'עם she הפועל מקבל סיומת. וגם כדאי לבדוק איפה עומדת המילה the.',
           },
           story: {
             passageEn:
@@ -454,6 +464,7 @@ export const grade5Curriculum = buildElementaryGrade('grade-5', [
             correct: 'He always eats breakfast.',
             wrong: ['He always eat breakfast.', 'He eats always breakfast.'],
             explainHe: 'מילת תדירות באה לפני הפועל הרגיל, ועם he עדיין מוסיפים s לפועל: He always eats.',
+            hintHe: 'מילת תדירות (always) באה לפני הפועל הראשי, ועם he הפועל עדיין מקבל סיומת.',
           },
           story: {
             passageEn:
@@ -494,6 +505,7 @@ export const grade5Curriculum = buildElementaryGrade('grade-5', [
             correct: 'Where do you go on Saturday?',
             wrong: ['Where you go on Saturday?', 'Where does you go on Saturday?'],
             explainHe: 'בשאלת Wh ב-Present Simple מוסיפים do או does אחרי מילת השאלה. עם you משתמשים ב-do ולא ב-does.',
+            hintHe: 'בשאלת Wh צריך פועל עזר אחרי מילת השאלה. עם you משתמשים בצורה בלי s.',
           },
           story: {
             passageEn:

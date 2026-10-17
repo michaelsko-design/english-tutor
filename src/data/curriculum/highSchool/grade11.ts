@@ -56,6 +56,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['If + have + V3, will have + V3', 'If + would + V1, had + V3'],
             explainHe:
               'תנאי שלישי מתאר מצב בלתי אפשרי בעבר (חרטה / מה היה קורה אילו). המבנה הוא: If + had + V3, ולאחריו would have + V3.',
+            hintHe: 'תנאי שלישי מדבר על עבר שאי אפשר לשנות, ולכן בשני החלקים יש V3. איזה מבנה מתאים לעבר רחוק ולא להווה או לעתיד?',
           },
           story: {
             passageEn:
@@ -118,6 +119,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['Because', 'Since'],
             explainHe:
               'הביטויים Due to ו-Because of נדרשים לקבל שם עצם (Due to the storm), בעוד ש-Because ו-Since דורשים משפט שלם עם נושא ופועל (Because it rained).',
+            hintHe: 'כדאי לנסות כל אפשרות עם the storm אחריה: איזו נשמעת נכון בלי נושא ופועל?',
           },
           story: {
             passageEn:
@@ -184,6 +186,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'תנאי שלישי מביע חרטה על אירוע שהתרחש בעבר הרחוק באמצעות had taken ולאחריו would have been.',
+            hintHe: 'חרטה על העבר היא תנאי שלישי: כדאי לחפש V3 בשני חלקי המשפט.',
           },
           story: {
             passageEn:
@@ -254,6 +257,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['Furthermore / In addition', 'Consequently / Therefore'],
             explainHe:
               'המילים Whereas ו-On the other hand משמשות להצגת ניגוד או הבדל בין שתי עמדות או רעיונות שונים.',
+            hintHe: 'מחפשים מילים שמציגות ניגוד (לעומת זאת), לא הוספה ולא תוצאה.',
           },
           story: {
             passageEn:
@@ -316,6 +320,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['In contrast', 'Despite this'],
             explainHe:
               'המילה Similarly (בדומה לכך) משמשת להצגת דמיון בין שתי תופעות, דמויות או יצירות ספרותיות.',
+            hintHe: 'מחפשים מילה שמשמעותה בדומה לכך, ולא ניגוד או ויתור.',
           },
           story: {
             passageEn:
@@ -379,6 +384,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['Chronological Ordering', 'Fact Counting'],
             explainHe:
               'פענוח סמליות ביצירה ספרותית הוא תהליך חשיבה פרשני מסדר גבוה שבו מקשרים בין אלמנט קונקרטי למשמעות מופשטת.',
+            hintHe: 'סמל הוא דבר מוחשי שמייצג רעיון מופשט. איזו מיומנות מפרשת משמעות נסתרת, ולא סופרת או מסדרת?',
           },
           story: {
             passageEn:
@@ -452,6 +458,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'לציון חרטה או ביקורת על העבר, המבנה הוא should have ולאחריו צורת V3 של הפועל (should have checked).',
+            hintHe: 'חרטה על העבר: אחרי should צריך עוד מילה אחת, ואז V3.',
           },
           story: {
             passageEn:
@@ -514,6 +521,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['might have + V1', 'could have + V2'],
             explainHe:
               'כדי להביע ודאות לוגית חזקה לגבי פעולה בעבר, משתמשים ב-must have + V3 (למשל: He must have forgotten his keys).',
+            hintHe: 'ודאות חזקה (חייב להיות ש...) על משהו שכבר קרה: איזה מודל מבטא ודאות, ואיזו צורת פועל מתאימה לעבר?',
           },
           story: {
             passageEn:
@@ -577,6 +585,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['couldn\'t became', 'could not becoming'],
             explainHe:
               'לתיאור תוצאה בלתי אפשרית בעבר משתמשים ב-couldn\'t have + V3 (couldn\'t have become).',
+            hintHe: 'תוצאה בלתי אפשרית בעבר: אחרי couldn’t צריך מבנה של עבר מושלם (מילת עזר + V3).',
           },
           story: {
             passageEn:
@@ -647,6 +656,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['Reading every word slowly from beginning to end', 'Translating the passage into another language'],
             explainHe:
               'סריקה (Scanning) היא טכניקה לאיתור מהיר של מילה, שם, תאריך או עובדה ספציפית בטקסט מבלי לקרוא כל מילה.',
+            hintHe: 'Scanning היא סריקה מהירה כדי למצוא פרט אחד, לא קריאה של כל מילה ולא תרגום.',
           },
           story: {
             passageEn:
@@ -709,6 +719,7 @@ const units: HighSchoolUnitSpec[] = [
             wrong: ['Majority', 'Plurality'],
             explainHe:
               'המילה minority מציינת מיעוט (פחות מ-50%), בעוד ש-majority פירושה רוב.',
+            hintHe: 'פחות מחצי. כדאי לחשוב על מילה שקרובה ל-minor (קטן, משני).',
           },
           story: {
             passageEn:
@@ -775,6 +786,7 @@ const units: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'שאלת הסקה (Inference) בשאלון E דורשת להסיק מסקנה הגיונית שאינה כתובה במפורש, בהתבסס אך ורק על הראיות המופיעות בפסקה.',
+            hintHe: 'הסקה היא מסקנה שלא כתובה במפורש, אבל נשענת על הראיות בטקסט ולא על דעה אישית.',
           },
           story: {
             passageEn:

@@ -45,6 +45,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               'She is already finished editing the audio file.',
             ],
             explainHe: 'ב-Present Perfect משתמשים ב-has/have ואחריו V3 (finished). לא משתמשים ב-is.',
+            hintHe: 'Present Perfect בנוי מ-has / have ואחריו V3. האם is מתאים כאן?',
           },
           story: {
             passageEn:
@@ -91,6 +92,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               'during',
             ],
             explainHe: 'כאשר מציינים נקודת זמן ספציפית בעבר (כמו שנת 2021) משתמשים ב-since. המילה for משמשת למשך זמן (for three years).',
+            hintHe: '2021 היא נקודה בזמן, לא משך זמן (כמו three years). איזו מילה מתאימה לנקודת התחלה?',
           },
           story: {
             passageEn:
@@ -138,6 +140,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               'We have recorded three interviews this week, and we have recorded one yesterday too.',
             ],
             explainHe: 'כשיש ציון זמן סגור בעבר (yesterday) חייבים Past Simple (recorded). כשהשבוע עוד נמשך (this week) נשתמש ב-Present Perfect.',
+            hintHe: 'yesterday הוא זמן סגור בעבר (עבר פשוט), ו-this week עוד לא נגמר (Present Perfect). כדאי לבדוק כל חצי.',
           },
           story: {
             passageEn:
@@ -192,6 +195,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               'If we have a laboratory robot, we would finished experiments faster.',
             ],
             explainHe: 'בתנאי שני למצבים היפותטיים בהווה: בחלק ה-If משתמשים ב-Past Simple (had), ובחלק התוצאה ב-would + פועל מקור.',
+            hintHe: 'תנאי שני הוא מצב דמיוני: אחרי If בא עבר פשוט, ובתוצאה would + פועל בסיסי.',
           },
           story: {
             passageEn:
@@ -238,6 +242,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               'The algorithm was fast, although it made not mistakes.',
             ],
             explainHe: 'כאשר פותחים משפט עם Although (למרות ש...), אין להוסיף את המילה but במשפט המשני.',
+            hintHe: 'אחרי Although לא מוסיפים but. וגם כדאי לבדוק שהשלילה כתובה נכון.',
           },
           story: {
             passageEn:
@@ -285,6 +290,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               'If governments supported young scientists, breakthroughs emerge rapidly.',
             ],
             explainHe: 'בחלק התנאי: If + Past Simple (supported). בחלק התוצאה: would + פועל מקור (would emerge). אין להשתמש ב-would בחלק ה-If.',
+            hintHe: 'מצב לא אמיתי בהווה: אחרי If עבר פשוט (בלי would), ובתוצאה would + פועל בסיסי.',
           },
           story: {
             passageEn:
@@ -339,6 +345,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               'Digital photographs are upload to the news server every minute.',
             ],
             explainHe: 'עבור שמות עצם ברבים (photographs) משתמשים ב-are בתוספת פועל ב-V3 (uploaded).',
+            hintHe: 'photographs הוא רבים. סביל בהווה בנוי מ-am / is / are + V3.',
           },
           story: {
             passageEn:
@@ -385,6 +392,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               'The printing press was build in Germany in the fifteenth century.',
             ],
             explainHe: 'עבור יחיד (the printing press) משתמשים ב-was + V3 (built). הצורה were מתאימה לרבים בלבד.',
+            hintHe: 'the printing press הוא יחיד. סביל בעבר בנוי מ-was / were + V3 של build.',
           },
           story: {
             passageEn:
@@ -432,6 +440,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               'The facts are checked by reporters yesterday.',
             ],
             explainHe: 'המילה facts היא ברבים ועבר (yesterday), ולכן נשתמש ב-were checked.',
+            hintHe: 'facts הוא רבים, ו-yesterday זה עבר. איזו צורה של be מתאימה לרבים בעבר?',
           },
           story: {
             passageEn:
@@ -486,6 +495,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               'The student where won the scholarship studies medicine.',
             ],
             explainHe: 'כאשר מתייחסים לבני אדם (the student) משתמשים ב-who (או that). המילה which משמשת רק לחפצים ובעלי חיים.',
+            hintHe: 'the student הוא אדם. איזה כינוי זיקה מתאים לאנשים, ולא לחפצים או למקומות?',
           },
           story: {
             passageEn:
@@ -532,6 +542,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               'If I study physics, I prepared for university engineering.',
             ],
             explainHe: 'בתנאי ראשון (First Conditional) לחלק התנאי נכנס הווה פשוט (study) ולחלק התוצאה will + מקור.',
+            hintHe: 'בתנאי ראשון: אחרי If הווה פשוט (בלי will), ובתוצאה will + פועל בסיסי.',
           },
           story: {
             passageEn:
@@ -579,6 +590,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               'Students who shows dedication will succeed in advanced high school courses.',
             ],
             explainHe: 'עבור רבים (Students) כינוי הזיקה לבני אדם הוא who והפועל בלשון רבים הוא show (ללא s).',
+            hintHe: 'Students הם אנשים ברבים: צריך כינוי זיקה לאנשים, ופועל שמתאים לרבים (בלי s).',
           },
           story: {
             passageEn:

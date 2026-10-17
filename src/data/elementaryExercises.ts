@@ -1,6 +1,14 @@
 import { MissionNode } from './curriculum';
 import { ProficiencyTier } from '../types/learner';
 import type { MissionExerciseStep, MultipleChoiceOption } from './missionExercises';
+import {
+  findAnswerSentenceNumber,
+  getPronunciationTipHe,
+  getSentenceOrderHintHe,
+  getWordShapeHintHe,
+  isolateLtr,
+  toClozeSentence,
+} from '../utils/hints';
 
 /**
  * Generates the 5-step mission for elementary missions (Grades 1–6) from the
@@ -38,6 +46,14 @@ export function buildElementaryExercises(
     mission.id.startsWith('g11-') ||
     mission.id.startsWith('g12-');
 
+  // English-word options: a fill-in-the-blank example needs real understanding, while a letter
+  // clue would single out one of only two or three options.
+  const cloze = toClozeSentence(v0.exampleEn, v0.wordEn);
+  const englishOptionHint = (others: string[]) =>
+    cloze
+      ? `💡 איזו מילה משלימה את המשפט? "${isolateLtr(cloze)}"`
+      : `💡 ${getWordShapeHintHe(v0.wordEn, others)}`;
+
   if (isExplorer) {
     const opts: MultipleChoiceOption[] = [
       { textEn: v0.wordEn, isCorrect: true, explanationHe: correctExplain },
@@ -53,7 +69,7 @@ export function buildElementaryExercises(
         : v0.emoji
         ? 'איזו מילה באנגלית מתאימה לתמונה? בחרי:'
         : `איזו מילה באנגלית פירושה "${v0.translationHe}"? בחרי:`,
-      hintHe: `💡 רמז: המילה מתחילה באות ${v0.wordEn.charAt(0).toUpperCase()}`,
+      hintHe: englishOptionHint([wrongA.wordEn]),
       speakerName: 'Word Guide',
       speakerAvatar: mission.icon,
       questionEn: isMiddleOrHigh
@@ -70,7 +86,7 @@ export function buildElementaryExercises(
       type: 'chat-reply',
       badgeLabelHe: '💬 שלב 1/5: מה פירוש המילה?',
       promptHe: 'מה המשמעות של המילה באנגלית? בחרי את התרגום הנכון:',
-      hintHe: `💡 משפט לדוגמה: "${v0.exampleEn}" (${v0.exampleHe})`,
+      hintHe: `💡 כדאי לקרוא את המילה בתוך משפט: "${isolateLtr(v0.exampleEn)}"`,
       speakerName: 'Word Guide',
       speakerAvatar: mission.icon,
       questionEn: `What does "${v0.wordEn}" mean?`,
@@ -87,7 +103,7 @@ export function buildElementaryExercises(
       type: 'chat-reply',
       badgeLabelHe: '💬 שלב 1/5: איך אומרים באנגלית?',
       promptHe: `איך אומרים באנגלית "${v0.translationHe}"? בחרי את המילה הנכונה:`,
-      hintHe: `💡 משפט לדוגמה: "${v0.exampleEn}"`,
+      hintHe: englishOptionHint([wrongA.wordEn, wrongB.wordEn]),
       speakerName: 'Word Guide',
       speakerAvatar: mission.icon,
       questionEn: 'Which English word is right?',
@@ -113,7 +129,7 @@ export function buildElementaryExercises(
     type: 'sentence-builder',
     badgeLabelHe: '🧩 שלב 2/5: הרכבת משפט',
     promptHe: 'לחצי על המילים לפי הסדר הנכון כדי להרכיב את המשפט:',
-    hintHe: `💡 תרגום המשפט: "${sentenceHe}"`,
+    hintHe: `💡 ${getSentenceOrderHintHe(cleanWords)}`,
     questionEn: 'Tap the words in the right order:',
     targetSentenceEn: sentenceEn,
     targetSentenceHe: sentenceHe,
@@ -127,7 +143,7 @@ export function buildElementaryExercises(
     type: 'voice-speak',
     badgeLabelHe: '🎙️ שלב 3/5: אימון קריאה ודיבור',
     promptHe: 'האזיני למשפט (רגיל או איטי) ואז הקליטי את עצמך קוראת אותו בקול:',
-    hintHe: `💡 מילת המיקוד להיום: "${v0.wordEn}" (${v0.translationHe})`,
+    hintHe: `💡 ${getPronunciationTipHe(sentenceEn)}`,
     questionEn: 'Speak this sentence aloud:',
     speakTargetEn: sentenceEn,
     speakTargetHe: sentenceHe,
@@ -162,7 +178,7 @@ export function buildElementaryExercises(
     promptHe: isExplorer
       ? 'בחרי את התשובה הנכונה (יש רק שתי אפשרויות):'
       : 'בחרי את התשובה הנכונה:',
-    hintHe: `💡 נושא המשימה: ${mission.grammarTopic}`,
+    hintHe: `💡 ${seed.rule.hintHe}`,
     questionEn: seed.rule.questionEn,
     options: ruleOpts,
   };
@@ -195,10 +211,7 @@ export function buildElementaryExercises(
     promptHe: isExplorer
       ? `קראי את הסיפור הקצר. ${seed.story.questionHe}`
       : 'קראי את הסיפור ובחרי את התשובה הנכונה:',
-    hintHe: `💡 זכרי את המילים שלמדנו: ${mission.vocabulary
-      .slice(0, 2)
-      .map((v) => v.wordEn)
-      .join(', ')}.`,
+    hintHe: getStoryHintHe(seed.story, isExplorer),
     contextPassageEn: seed.story.passageEn,
     contextPassageHe: isMaster ? undefined : seed.story.passageHe,
     questionEn: seed.story.questionEn,
@@ -206,4 +219,19 @@ export function buildElementaryExercises(
   };
 
   return [step1, step2, step3, step4, step5];
+}
+
+/**
+ * Points to the story sentence that holds the answer. Challenger and Master also get the question
+ * in Hebrew; Explorer already sees it in the prompt.
+ */
+function getStoryHintHe(
+  story: { passageEn: string; questionEn: string; questionHe: string; correct: string },
+  isExplorer: boolean
+): string {
+  const sentenceNumber = findAnswerSentenceNumber(story.passageEn, story.correct, story.questionEn);
+  const where = sentenceNumber
+    ? `התשובה נמצאת במשפט מספר ${sentenceNumber} בסיפור.`
+    : 'כדאי לחפש בסיפור את המילים מהשאלה.';
+  return isExplorer ? `💡 ${where}` : `💡 ${where} השאלה בעברית: "${story.questionHe}"`;
 }
