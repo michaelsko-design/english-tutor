@@ -136,6 +136,14 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Estimate**: rounded mean mastery evidence of questions 5–10 (correct at grade g → g, wrong → g−1, correct at grade 12 → 13). Tier: below school grade → Explorer, equal → Challenger, above → Master. A different grade is recommended only when the estimate is 2+ grades away.
 - The result is stored as `placementResult` on the profile (merged across devices by latest `completedAt`). The first completed test grants +30 XP and +10 diamonds.
 
+### 4.9. "Get Ready for an Exam" Study Plans (`examPrep.ts`, `components/examPrep/`)
+- The learner picks an exam date (today to +21 days), the units of their grade, and the skills: Vocabulary, Grammar, Sentence building, Unseen reading.
+- **Plan**: study days run from today to the day before the exam (Saturdays skipped for Shabbat observers). The (unit × skill) focus blocks are spread over the practice days (repeated when there are more days than blocks), a mixed review day is added once there are 3+ practice days, and the last study day is the **Mock Mini-Exam**. An exam today or tomorrow gives a 1-day crash course (mixed review + mock).
+- **Sessions** reuse the mission drills: for each focus unit, the step type matching the skill (`chat-reply`, `grammar-detective`, `sentence-builder`, `story-unseen`) from every mission, up to 8 per session. Voice drills are not used. Practice allows hints and retries and scores the first try; the mock (12 questions, balanced by skill) has no hints and locks each answer.
+- **Rewards**: first completion of a day gives XP and diamonds and counts as a mission for the daily quests and streak (no mission stars); repeats give a little XP. A mock score of 70%+ grants the "Exam Ready" certificate and a one-time bonus.
+- Stored as `examPrep` on the profile. Dismissing a plan sets `archivedAt` (fields are never removed, so a merge can't bring them back). Merge: different plans → newest `createdAt`; same plan → earliest completion and best score per day.
+- Shared drill UI (`components/drills/`) renders the steps for both `MissionRunner` and `ExamSessionRunner`.
+
 ---
 
 ## 5. Directory Structure
@@ -147,6 +155,8 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── AuthModal.tsx             # Kid-friendly authentication modal
 │   │   ├── DailyQuestsCard.tsx       # Daily quest tracker & streak counter
 │   │   ├── DashboardView.tsx         # Main hub screen (HUD, Hero, Maps, Actions)
+│   │   ├── drills/                   # Shared drill UI (options, sentence builder, passage, feedback)
+│   │   ├── examPrep/                 # Exam prep hub, setup, plan timeline, session runner, certificate
 │   │   ├── MissionMap.tsx            # Unit & mission progression node tree
 │   │   ├── MissionRunner.tsx         # 5-step interactive exercise runner
 │   │   ├── OnboardingView.tsx        # Profile setup (name, gender, age, grade, tier)
@@ -163,7 +173,9 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   │   └── types.ts              # Unit, MissionNode, VocabularyItem, and DrillSeed types
 │   │   ├── elementaryExercises.ts    # Tier-aware 5-step generator for elementary drill seeds
 │   │   ├── missionExercises.ts       # Concrete exercise definitions & seeded option/word shuffler
+│   │   ├── examPrep.ts               # Exam study plan building, session/mock steps & scoring (+ .test.ts)
 │   │   ├── placementTest.ts          # Placement question generation, staircase & scoring (+ .test.ts)
+│   │   ├── progressRewards.ts        # Shared level formula & daily-activity/streak bookkeeping
 │   │   └── rewardShop.ts             # Daily quest & shop item catalog
 │   ├── services/
 │   │   ├── cloudSync.ts              # LocalStorage <-> Firestore sync & merge logic (+ .test.ts)

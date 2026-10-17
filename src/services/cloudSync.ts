@@ -1,6 +1,6 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import { LearnerProfile, PlacementResult } from '../types/learner';
+import { ExamPlanDay, ExamPrepPlan, LearnerProfile, PlacementResult } from '../types/learner';
 
 const LEARNERS_COLLECTION = 'learners';
 
@@ -117,6 +117,8 @@ export function mergeLearnerProfiles(
     cloud.placementResult
   );
 
+  const resolvedExamPrep = mergeExamPrep(local.examPrep, cloud.examPrep);
+
   const resolvedAvatar = preferCloudPrefs
     ? cloud.equippedAvatarEmoji || local.equippedAvatarEmoji
     : local.equippedAvatarEmoji || cloud.equippedAvatarEmoji;
@@ -140,6 +142,7 @@ export function mergeLearnerProfiles(
         : (local.isShabbatObserver ?? cloud.isShabbatObserver ?? true),
     ...(resolvedAvatar ? { equippedAvatarEmoji: resolvedAvatar } : {}),
     ...(resolvedPlacement ? { placementResult: resolvedPlacement } : {}),
+    ...(resolvedExamPrep ? { examPrep: resolvedExamPrep } : {}),
     stats: {
       xp: mergedXp,
       level: mergedLevel,
@@ -189,6 +192,55 @@ function latestPlacementResult(
 ): PlacementResult | undefined {
   if (!local || !cloud) return local || cloud;
   return Date.parse(cloud.completedAt) >= Date.parse(local.completedAt) ? cloud : local;
+}
+
+/** The earlier of two optional ISO timestamps. */
+function earliestIso(a: string | undefined, b: string | undefined): string | undefined {
+  if (!a || !b) return a || b;
+  return Date.parse(a) <= Date.parse(b) ? a : b;
+}
+
+function mergeExamDay(local: ExamPlanDay, cloud: ExamPlanDay | undefined): ExamPlanDay {
+  if (!cloud) return local;
+  const completedAt = earliestIso(local.completedAt, cloud.completedAt);
+  const scorePercent = Math.max(local.scorePercent ?? 0, cloud.scorePercent ?? 0);
+  return {
+    ...local,
+    ...(completedAt ? { completedAt } : {}),
+    ...(local.scorePercent !== undefined || cloud.scorePercent !== undefined ? { scorePercent } : {}),
+  };
+}
+
+/**
+ * Different plans: the most recently created one wins. The same plan on two devices: keeps the
+ * progress from both (earliest completion and best score per day, best mock score, and the
+ * earliest certificate and archive times).
+ */
+function mergeExamPrep(
+  local: ExamPrepPlan | undefined,
+  cloud: ExamPrepPlan | undefined
+): ExamPrepPlan | undefined {
+  if (!local || !cloud) return local || cloud;
+  if (local.id !== cloud.id) {
+    return Date.parse(cloud.createdAt) >= Date.parse(local.createdAt) ? cloud : local;
+  }
+
+  const certificateEarnedAt = earliestIso(local.certificateEarnedAt, cloud.certificateEarnedAt);
+  const archivedAt = earliestIso(local.archivedAt, cloud.archivedAt);
+  const hasMockScore = local.bestMockScore !== undefined || cloud.bestMockScore !== undefined;
+  const cloudDays = cloud.days || [];
+
+  return {
+    ...local,
+    days: (local.days || []).map((d) =>
+      mergeExamDay(d, cloudDays.find((c) => c.dayIndex === d.dayIndex))
+    ),
+    ...(hasMockScore
+      ? { bestMockScore: Math.max(local.bestMockScore ?? 0, cloud.bestMockScore ?? 0) }
+      : {}),
+    ...(certificateEarnedAt ? { certificateEarnedAt } : {}),
+    ...(archivedAt ? { archivedAt } : {}),
+  };
 }
 
 /**

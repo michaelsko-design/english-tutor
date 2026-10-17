@@ -27,6 +27,8 @@ import { RewardShopModal } from './RewardShopModal';
 import { AuthModal } from './AuthModal';
 import { PlacementTest } from './PlacementTest';
 import { applyPlacementToProfile } from '../data/placementTest';
+import { levelForXp, recordDailyActivity } from '../data/progressRewards';
+import { ExamPrepHub } from './examPrep/ExamPrepHub';
 import { getHebrewCopy, inflectHebrew } from '../utils/hebrewGender';
 import {
   Flame,
@@ -115,39 +117,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     const updatedMissionStars = Math.max(prevStarsForMission, result.starsEarned);
     const starDelta = Math.max(0, updatedMissionStars - prevStarsForMission);
 
-    const newXp = profile.stats.xp + result.xpEarned;
-    const newLevel = Math.max(profile.stats.level, Math.floor(newXp / 150) + 1);
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const isToday = profile.dailyCounters?.dateStr === todayStr;
-    const isFirstMissionToday =
-      !isToday || (profile.dailyCounters?.missionsCompletedToday || 0) === 0;
+    const withActivity = recordDailyActivity(
+      profile,
+      { missions: 1, voiceWords: 1, threeStarMissions: result.starsEarned === 3 ? 1 : 0 },
+      new Date().toISOString().slice(0, 10)
+    );
+    const newXp = withActivity.stats.xp + result.xpEarned;
 
     onUpdateProfile({
-      ...profile,
+      ...withActivity,
       missionProgress: {
         ...(profile.missionProgress || {}),
         [result.missionId]: updatedMissionStars,
       },
-      dailyCounters: {
-        dateStr: todayStr,
-        missionsCompletedToday:
-          (isToday ? profile.dailyCounters?.missionsCompletedToday || 0 : 0) + 1,
-        voiceWordsPracticedToday:
-          (isToday ? profile.dailyCounters?.voiceWordsPracticedToday || 0 : 0) + 1,
-        threeStarMissionsToday:
-          (isToday ? profile.dailyCounters?.threeStarMissionsToday || 0 : 0) +
-          (result.starsEarned === 3 ? 1 : 0),
-      },
       stats: {
-        ...profile.stats,
+        ...withActivity.stats,
         xp: newXp,
-        level: newLevel,
+        level: levelForXp(newXp, withActivity.stats.level),
         stars: profile.stats.stars + starDelta,
         maxPossibleStars: totalGradeStarsPossible,
         diamonds: profile.stats.diamonds + result.diamondsEarned,
-        streakDays: isFirstMissionToday
-          ? profile.stats.streakDays + 1
-          : profile.stats.streakDays,
         wordsMastered: profile.stats.wordsMastered + result.wordsLearnedCount,
         missionsCompleted: profile.stats.missionsCompleted + 1,
       },
@@ -581,6 +570,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
         </section>
+
+        {/* FEATURE 18: GET READY FOR AN EXAM */}
+        <ExamPrepHub
+          profile={profile}
+          theme={theme}
+          onUpdateProfile={onUpdateProfile}
+          onSpeakEnglish={speakEnglish}
+        />
 
         {/* FEATURE 5: DAILY QUESTS & SHABBAT-SAFE WEEKLY STREAK TRACKER */}
         <DailyQuestsCard

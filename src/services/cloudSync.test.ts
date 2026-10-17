@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { LearnerProfile, PlacementResult } from '../types/learner';
+import { ExamPlanDay, ExamPrepPlan, LearnerProfile, PlacementResult } from '../types/learner';
 
 vi.mock('./firebase', () => ({ db: null }));
 
@@ -76,5 +76,64 @@ describe('mergeLearnerProfiles placementResult', () => {
   it('leaves the field out when neither side has taken the test', () => {
     const merged = mergeLearnerProfiles(baseProfile, baseProfile);
     expect('placementResult' in merged).toBe(false);
+  });
+});
+
+function makeExamPlan(id: string, createdAt: string, days: ExamPlanDay[] = []): ExamPrepPlan {
+  return {
+    id,
+    createdAt,
+    gradeId: 'grade-5',
+    examDateStr: '2026-10-25',
+    unitNumbers: [1],
+    skills: ['grammar'],
+    days,
+  };
+}
+
+function makeDay(dayIndex: number, extra: Partial<ExamPlanDay> = {}): ExamPlanDay {
+  return { dayIndex, dateStr: '2026-10-20', kind: 'practice', focus: [], ...extra };
+}
+
+describe('mergeLearnerProfiles examPrep', () => {
+  it('keeps the newer plan when the plan ids differ', () => {
+    const older = makeExamPlan('a', '2026-10-01T00:00:00.000Z');
+    const newer = makeExamPlan('b', '2026-10-12T00:00:00.000Z');
+
+    expect(mergeLearnerProfiles({ ...baseProfile, examPrep: older }, { examPrep: newer }).examPrep).toEqual(newer);
+    expect(mergeLearnerProfiles({ ...baseProfile, examPrep: newer }, { examPrep: older }).examPrep).toEqual(newer);
+  });
+
+  it('merges progress of the same plan from both devices', () => {
+    const local = {
+      ...makeExamPlan('a', '2026-10-01T00:00:00.000Z', [
+        makeDay(0, { completedAt: '2026-10-20T10:00:00.000Z', scorePercent: 60 }),
+        makeDay(1),
+      ]),
+      bestMockScore: 50,
+    };
+    const cloud = {
+      ...makeExamPlan('a', '2026-10-01T00:00:00.000Z', [
+        makeDay(0, { completedAt: '2026-10-20T08:00:00.000Z', scorePercent: 90 }),
+        makeDay(1, { completedAt: '2026-10-21T08:00:00.000Z', scorePercent: 70 }),
+      ]),
+      bestMockScore: 80,
+      certificateEarnedAt: '2026-10-22T08:00:00.000Z',
+      archivedAt: '2026-10-26T08:00:00.000Z',
+    };
+    const merged = mergeLearnerProfiles({ ...baseProfile, examPrep: local }, { examPrep: cloud }).examPrep;
+
+    expect(merged?.days[0]).toMatchObject({ completedAt: '2026-10-20T08:00:00.000Z', scorePercent: 90 });
+    expect(merged?.days[1]).toMatchObject({ completedAt: '2026-10-21T08:00:00.000Z', scorePercent: 70 });
+    expect(merged?.bestMockScore).toBe(80);
+    expect(merged?.certificateEarnedAt).toBe('2026-10-22T08:00:00.000Z');
+    expect(merged?.archivedAt).toBe('2026-10-26T08:00:00.000Z');
+  });
+
+  it('keeps a plan that exists on only one side and omits the field otherwise', () => {
+    const plan = makeExamPlan('a', '2026-10-01T00:00:00.000Z');
+
+    expect(mergeLearnerProfiles(baseProfile, { examPrep: plan }).examPrep).toEqual(plan);
+    expect('examPrep' in mergeLearnerProfiles(baseProfile, baseProfile)).toBe(false);
   });
 });
