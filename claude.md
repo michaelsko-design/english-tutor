@@ -158,7 +158,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 - Stored as `customWordLists` on the profile. Deleting a list sets `archivedAt` and empties its items (a small tombstone, so a merge can't bring it back). Merge: union by id; the same list keeps the best score and latest practice, and stays deleted once either device archived it.
 - Voice recognition lives in `hooks/useSpeechRecognition.ts` and `drills/VoiceSpeakDrill.tsx`, shared with `MissionRunner`; letter magnets are `drills/SpellingMagnetDrill.tsx`.
 
-### 4.12. My English Room (`room.ts`, `wardrobe.ts`, `roomRewards.ts`, `components/room/`) — Phases 1–2
+### 4.12. My English Room (`room.ts`, `wardrobe.ts`, `roomRewards.ts`, `roomActivities.ts`, `components/room/`)
 - The "החדר האנגלי שלי" dashboard card (under the word lists card) shows a live preview of the room and opens it full-screen.
 - **The room** (`RoomScene`): a drawn wall/floor scene with fixed slots (wall, sticker board, shelf, desk, floor) and four mission objects: 🛏️ bed, 📱 phone, 🚪 wardrobe, 📖 Games Book. Slot positions and per-theme colours live in `roomLayout.ts`. The equipped shop avatar walks to whatever the learner taps.
 - **Mission objects** show a "coming soon" bubble with their activity until later phases ship.
@@ -170,8 +170,10 @@ Each learning mission consists of 5 pedagogical drill stages:
   - Starter set: cap, glasses, scarf, shirt, jeans. More come from 3-star missions; sunglasses, graduation cap and crown are sold in the shop's new `accessory` category (same ids).
   - An item goes on only after naming it (`NameItemPanel` modes by tier): Explorer can say, pick from 3 written names or spell; Challenger says or spells; Master must spell. Tapping a worn item takes it off. A new item on a layer replaces the old one.
   - Daily reward: putting on 3 items a day (`DRESS_UP_DAILY_GOAL`) gives +10 XP and +2 💎 once a day and counts as a mission for the daily quests and streak (voice namings count as voice words). First naming of each item also gives +5 XP.
-- Stored as `room` on the profile (`placements` slot → item, `outfit` layer → item, `namedItemIds`, `dressUpDay`, `updatedAt`). Merge: the newer layout and outfit win; named items are unioned; the same day's dress-up progress keeps the highest counts and a given reward stays given.
-- Later phases (phone voice messages, bed dream journal, Games Book word games, Sticker Studio) are tracked under Feature 12 in `backlog.md`.
+- **📱 Voice Messages** (phase 3, `voiceMessages.ts`, `PhonePanel`): tapping the phone opens a chat. A friend's message is read aloud, and the learner records the English reply (`VoiceSpeakDrill`, scored by `evaluateSpokenSentence`). Each session has 3 messages from the learner's grade band (`getGradeBand`: grades 1–3, 4–6, 7–9, 10–12; 8 messages each, replies grow from 2–4 words to two Band III sentences). Skipped messages are not sent.
+- **Room activity rewards** (`roomActivities.ts`): the first finished session of each activity per day (`phone`, `journal`, each word game) gives +10 XP and +2 💎 and counts as a mission for the daily quests and streak; repeats give +2 XP. Dates are kept in `room.activityRewardDates`. Panels share `RoomPanelFrame` and `ActivityRewardSummary`.
+- Stored as `room` on the profile (`placements` slot → item, `outfit` layer → item, `namedItemIds`, `dressUpDay`, `activityRewardDates`, `updatedAt`). Merge: the newer layout and outfit win; named items are unioned; the same day's dress-up progress keeps the highest counts and a given reward stays given; activity reward dates keep the later date per activity.
+- Later phases (bed dream journal, Games Book word games, Sticker Studio) are tracked under Feature 12 in `backlog.md`.
 
 ---
 
@@ -211,6 +213,8 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── progressRewards.ts        # Shared level formula & daily-activity/streak bookkeeping
 │   │   ├── room.ts                   # Room items & slots, placing & naming rules (+ .test.ts)
 │   │   ├── roomRewards.ts            # 3-star rewards alternating room decor and wardrobe items (+ .test.ts)
+│   │   ├── roomActivities.ts         # Shared daily reward for room activities (+ .test.ts, with voice messages)
+│   │   ├── voiceMessages.ts          # Phone voice-message prompts by grade band & session reward
 │   │   ├── wardrobe.ts               # Dress-Up Studio items, outfit rules & daily dress-up reward (+ .test.ts)
 │   │   └── rewardShop.ts             # Daily quest & shop item catalog
 │   ├── hooks/

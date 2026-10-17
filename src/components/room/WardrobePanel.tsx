@@ -19,6 +19,7 @@ import { LearnerProfile, ProficiencyTier } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { DressedAvatar } from './DressedAvatar';
 import { NameItemPanel } from './NameItemPanel';
+import { RoomPanelFrame } from './RoomPanelFrame';
 
 interface WardrobePanelProps {
   profile: LearnerProfile;
@@ -114,13 +115,7 @@ export const WardrobePanel: React.FC<WardrobePanelProps> = ({
   }
 
   return (
-    <section aria-label="סטודיו ההלבשה" className={`p-4 rounded-3xl space-y-3 ${theme.cardBgClass}`} dir="rtl">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="font-extrabold text-sm sm:text-base">🚪 סטודיו ההלבשה · Dress-Up</h3>
-        <button type="button" onClick={onClose} className={`px-3 py-1.5 rounded-xl text-xs font-bold ${theme.secondaryBtnClass}`}>
-          חזרה לחדר
-        </button>
-      </div>
+    <RoomPanelFrame titleHe="🚪 סטודיו ההלבשה · Dress-Up" theme={theme} onClose={onClose}>
 
       <div className="flex items-center gap-4">
         <div className="w-24 h-32 shrink-0 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center pt-4">
@@ -175,6 +170,6 @@ export const WardrobePanel: React.FC<WardrobePanelProps> = ({
       <p className={`text-[11px] ${theme.mutedTextClass}`}>
         🎁 עוד בגדים ואקססוריז: משימות עם 3 כוכבים, ו־🕶️ אקססוריז מיוחדים בחנות.
       </p>
-    </section>
+    </RoomPanelFrame>
   );
 };

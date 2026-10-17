@@ -260,6 +260,18 @@ describe('mergeLearnerProfiles room', () => {
     expect(merged.dressUpDay).toEqual(laterDay);
   });
 
+  it('keeps the latest daily reward date per room activity', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, room: { ...newerRoom, activityRewardDates: { phone: '2026-10-14', journal: '2026-10-10' } } },
+      { room: { ...olderRoom, activityRewardDates: { phone: '2026-10-12', 'game-search': '2026-10-13' } } }
+    ).room!;
+    expect(merged.activityRewardDates).toEqual({
+      phone: '2026-10-14',
+      journal: '2026-10-10',
+      'game-search': '2026-10-13',
+    });
+  });
+
   it('keeps a room that exists on only one side and adds none otherwise', () => {
     expect(mergeLearnerProfiles(baseProfile, { room: olderRoom }).room).toEqual(olderRoom);
     expect(mergeLearnerProfiles({ ...baseProfile, room: olderRoom }, {}).room).toEqual(olderRoom);

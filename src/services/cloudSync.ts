@@ -301,6 +301,16 @@ function mergeCustomWordLists(
   ];
 }
 
+/** Per key, the later YYYY-MM-DD date, so a daily reward given on either device stays given. */
+function mergeLatestDates(
+  local: Record<string, string> | undefined,
+  cloud: Record<string, string> | undefined
+): Record<string, string> | undefined {
+  if (!local || !cloud) return local || cloud;
+  const keys = Array.from(new Set([...Object.keys(local), ...Object.keys(cloud)]));
+  return Object.fromEntries(keys.map((key) => [key, [local[key] || '', cloud[key] || ''].sort().pop() as string]));
+}
+
 /** The later day wins; the same day keeps the most progress, and a given reward stays given. */
 function mergeDressUpDay(
   local: DressUpDay | undefined,
@@ -329,10 +339,12 @@ function mergeRoom(
   const cloudTime = Date.parse(cloud.updatedAt) || 0;
   const newer = cloudTime > localTime ? cloud : local;
   const dressUpDay = mergeDressUpDay(local.dressUpDay, cloud.dressUpDay);
+  const activityRewardDates = mergeLatestDates(local.activityRewardDates, cloud.activityRewardDates);
   return {
     ...newer,
     namedItemIds: Array.from(new Set([...(local.namedItemIds || []), ...(cloud.namedItemIds || [])])),
     ...(dressUpDay ? { dressUpDay } : {}),
+    ...(activityRewardDates ? { activityRewardDates } : {}),
   };
 }
 

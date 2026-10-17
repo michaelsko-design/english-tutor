@@ -17,6 +17,7 @@ import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { NameItemPanel } from './NameItemPanel';
 import { RoomInventory } from './RoomInventory';
 import { RoomScene, SceneBubble } from './RoomScene';
+import { PhonePanel } from './PhonePanel';
 import { WardrobePanel } from './WardrobePanel';
 import { AVATAR_HOME, OBJECT_POSITIONS, SLOT_POSITIONS, ScenePoint, getStandingPoint } from './roomLayout';
 
@@ -31,6 +32,15 @@ interface RoomScreenProps {
 }
 
 const WALK_MS = 700;
+
+/** Room activities shown in the panel under the scene; the inventory shows when none is open. */
+type RoomPanel = 'wardrobe' | 'phone';
+
+/** Mission objects whose activity is ready open a panel; the others show "coming soon". */
+const OBJECT_PANELS: Partial<Record<RoomObjectId, RoomPanel>> = {
+  wardrobe: 'wardrobe',
+  phone: 'phone',
+};
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -58,7 +68,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   const [focusedSlotId, setFocusedSlotId] = useState<string | null>(null);
   const [naming, setNaming] = useState<{ itemId: string; slotId: string } | null>(null);
   const [statusText, setStatusText] = useState<string | null>(null);
-  const [isWardrobeOpen, setIsWardrobeOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<RoomPanel | null>(null);
   const walkTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(walkTimer.current), []);
@@ -77,7 +87,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
 
   const handleSelectItem = (itemId: string) => {
     setFocusedSlotId(null);
-    setIsWardrobeOpen(false);
+    setActivePanel(null);
     if (selectedItemId === itemId) {
       setSelectedItemId(null);
       setStatusText(null);
@@ -118,14 +128,15 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     setSelectedItemId(null);
     setFocusedSlotId(null);
     setStatusText(null);
-    setIsWardrobeOpen(false);
+    setActivePanel(null);
     walkTo(point, () => {
-      onSpeakEnglish(object.nameEn, 0.9);
-      if (objectId === 'wardrobe') {
+      const panel = OBJECT_PANELS[objectId];
+      if (panel) {
         setBubble({ at: point, textEn: object.nameEn, textHe: object.nameHe });
-        setIsWardrobeOpen(true);
+        setActivePanel(panel);
         return;
       }
+      onSpeakEnglish(object.nameEn, 0.9);
       setBubble({ at: point, textEn: object.nameEn, textHe: `בקרוב: ${object.activityHe}` });
     });
   };
@@ -154,6 +165,11 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     setFocusedSlotId(null);
     setBubble(null);
     setStatusText(`${item?.emoji} ${item?.nameEn} חזר לארגז הפריטים 📦`);
+  };
+
+  const closePanel = () => {
+    setActivePanel(null);
+    setBubble(null);
   };
 
   const focusedItem = focusedSlotId ? getRoomItem(room.placements[focusedSlotId]) : undefined;
@@ -214,14 +230,22 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
           </div>
         )}
 
-        {isWardrobeOpen ? (
+        {activePanel === 'wardrobe' ? (
           <WardrobePanel
             profile={profile}
             avatarEmoji={avatarEmoji}
             theme={theme}
             onUpdateProfile={onUpdateProfile}
             onSpeakEnglish={onSpeakEnglish}
-            onClose={() => setIsWardrobeOpen(false)}
+            onClose={closePanel}
+          />
+        ) : activePanel === 'phone' ? (
+          <PhonePanel
+            profile={profile}
+            theme={theme}
+            onUpdateProfile={onUpdateProfile}
+            onSpeakEnglish={onSpeakEnglish}
+            onClose={closePanel}
           />
         ) : naming && namingItem ? (
           <NameItemPanel
@@ -248,8 +272,8 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
 
         <p className={`text-[11px] text-center ${theme.mutedTextClass}`} dir="rtl">
           {isGirl
-            ? '🚪 לחצי על הארון כדי להלביש את האווטאר. 🛏️ 📱 📖 המיטה, הטלפון וספר המשחקים מגיעים בקרוב!'
-            : '🚪 לחץ על הארון כדי להלביש את האווטאר. 🛏️ 📱 📖 המיטה, הטלפון וספר המשחקים מגיעים בקרוב!'}
+            ? '🚪 ארון: להלביש את האווטאר · 📱 טלפון: הודעות קוליות · 🛏️ 📖 המיטה וספר המשחקים מגיעים בקרוב!'
+            : '🚪 ארון: להלביש את האווטאר · 📱 טלפון: הודעות קוליות · 🛏️ 📖 המיטה וספר המשחקים מגיעים בקרוב!'}
         </p>
       </div>
     </ExamModalShell>

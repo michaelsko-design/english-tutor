@@ -1,7 +1,7 @@
 import { DressUpDay, LearnerProfile } from '../types/learner';
 import { seededShuffle } from '../utils/shuffle';
 import { toLocalDateStr } from './examPrep';
-import { levelForXp, recordDailyActivity } from './progressRewards';
+import { grantDailyActivityReward } from './roomActivities';
 import { NameableItem, applyItemNamedReward, getRoom } from './room';
 
 /**
@@ -107,25 +107,6 @@ export interface PutOnResult {
   isDailyRewardEarned: boolean;
 }
 
-/** Gives today's dress-up reward once the daily goal is reached; it counts as a mission. */
-function applyDailyDressUpReward(profile: LearnerProfile, day: DressUpDay, now: Date): LearnerProfile {
-  const withActivity = recordDailyActivity(
-    profile,
-    { missions: 1, voiceWords: day.voiceCount, threeStarMissions: 0 },
-    now.toISOString().slice(0, 10)
-  );
-  const xp = withActivity.stats.xp + DRESS_UP_REWARD_XP;
-  return {
-    ...withActivity,
-    stats: {
-      ...withActivity.stats,
-      xp,
-      level: levelForXp(xp, withActivity.stats.level),
-      diamonds: withActivity.stats.diamonds + DRESS_UP_REWARD_DIAMONDS,
-    },
-  };
-}
-
 /**
  * Puts an owned, wearable item on the avatar after the learner named it. It replaces whatever was
  * on the same layer. Invalid requests (not owned, can't wear, already worn) change nothing.
@@ -162,7 +143,13 @@ export function putOnWardrobeItem(
     },
   };
   const named = applyItemNamedReward(dressed, itemId);
-  const finalProfile = isDailyRewardEarned ? applyDailyDressUpReward(named.profile, day, now) : named.profile;
+  const finalProfile = isDailyRewardEarned
+    ? grantDailyActivityReward(
+        named.profile,
+        { xp: DRESS_UP_REWARD_XP, diamonds: DRESS_UP_REWARD_DIAMONDS, voiceWords: day.voiceCount },
+        now
+      )
+    : named.profile;
 
   return {
     profile: finalProfile,

@@ -176,6 +176,8 @@ export interface LearnerRoom {
   /** Maps wardrobe layer -> worn wardrobe item id; saved with the layout */
   outfit?: Record<string, string>;
   dressUpDay?: DressUpDay;
+  /** Activity id -> local date (YYYY-MM-DD) of its latest full daily reward */
+  activityRewardDates?: Record<string, string>;
   /** Items the learner has said or spelled at least once (the first time earns XP) */
   namedItemIds: string[];
   /** ISO timestamp of the latest layout or outfit change; the newer one wins on merge */
