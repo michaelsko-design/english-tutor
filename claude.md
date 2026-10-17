@@ -23,6 +23,7 @@ It provides an engaging, Duolingo-meets-aesthetic-studio learning experience fea
 | **Icons & Visual Effects** | [Lucide React](https://lucide.dev/), [canvas-confetti](https://www.npmjs.com/package/canvas-confetti) |
 | **Speech & Audio** | Native Web Speech API (`SpeechSynthesis` and `SpeechRecognition` / `webkitSpeechRecognition`) |
 | **Backend & Auth** | [Firebase](https://firebase.google.com/) (Authentication & Cloud Firestore) |
+| **Testing** | [Vitest](https://vitest.dev/) unit tests (`npm test`) |
 | **Deployment & Hosting** | [Vercel](https://vercel.com/) & Firebase Hosting configuration |
 
 ---
@@ -127,6 +128,14 @@ Each learning mission consists of 5 pedagogical drill stages:
 - One-tap audio pronunciation via Text-to-Speech (`window.speechSynthesis`).
 - Interactive microphone drill to test spoken pronunciation against target vocabulary words.
 
+### 4.8. Diagnostic Level Placement Test (`PlacementTest.tsx`, `placementTest.ts`)
+- A 10-question adaptive test (מבחן רמה) that estimates the learner's English level and recommends a grade and proficiency tier.
+- **Offered** once right after first-time onboarding (skippable), and on demand from the dashboard link under the tier selector (retakes allowed).
+- **Questions are generated from the curriculum**: each mission yields a grammar-rule item (`drillSeed.rule`) and a vocabulary-meaning item (`vocabulary[0]` + `drillSeed.wrongWords`). Options are shuffled with the seeded shuffle and a per-attempt salt.
+- **Adaptive staircase**: starts one grade below the school grade; a correct answer moves up and a wrong answer or "לא יודע/ת" moves down (±2 for the first 3 questions, then ±1), clamped to grades 1–12.
+- **Estimate**: rounded mean mastery evidence of questions 5–10 (correct at grade g → g, wrong → g−1, correct at grade 12 → 13). Tier: below school grade → Explorer, equal → Challenger, above → Master. A different grade is recommended only when the estimate is 2+ grades away.
+- The result is stored as `placementResult` on the profile (merged across devices by latest `completedAt`). The first completed test grants +30 XP and +10 diamonds.
+
 ---
 
 ## 5. Directory Structure
@@ -141,6 +150,8 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── MissionMap.tsx            # Unit & mission progression node tree
 │   │   ├── MissionRunner.tsx         # 5-step interactive exercise runner
 │   │   ├── OnboardingView.tsx        # Profile setup (name, gender, age, grade, tier)
+│   │   ├── PlacementTest.tsx         # Adaptive diagnostic placement test overlay
+│   │   ├── PlacementResultCard.tsx   # Placement result & grade/tier recommendation
 │   │   ├── RewardShopModal.tsx       # Diamond shop (avatars, stickers, shields)
 │   │   └── VocabularyVaultModal.tsx  # Ministry word bank & pronunciation studio
 │   ├── data/
@@ -152,9 +163,10 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   │   └── types.ts              # Unit, MissionNode, VocabularyItem, and DrillSeed types
 │   │   ├── elementaryExercises.ts    # Tier-aware 5-step generator for elementary drill seeds
 │   │   ├── missionExercises.ts       # Concrete exercise definitions & seeded option/word shuffler
+│   │   ├── placementTest.ts          # Placement question generation, staircase & scoring (+ .test.ts)
 │   │   └── rewardShop.ts             # Daily quest & shop item catalog
 │   ├── services/
-│   │   ├── cloudSync.ts              # LocalStorage <-> Firestore sync & merge logic
+│   │   ├── cloudSync.ts              # LocalStorage <-> Firestore sync & merge logic (+ .test.ts)
 │   │   └── firebase.ts               # Firebase initialization & auth/db instances
 │   ├── themes/
 │   │   └── themeRegistry.ts          # Pluggable theme visual definitions & tiers
@@ -186,6 +198,9 @@ npm install
 
 # Start local development server
 npm run dev
+
+# Run unit tests (Vitest)
+npm test
 
 # Typecheck and build for production
 npm run build

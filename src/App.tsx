@@ -15,6 +15,8 @@ import {
 import { OnboardingView } from './components/OnboardingView';
 import { DashboardView } from './components/DashboardView';
 import { AuthModal } from './components/AuthModal';
+import { PlacementTest } from './components/PlacementTest';
+import { applyPlacementToProfile } from './data/placementTest';
 import { THEME_REGISTRY } from './themes/themeRegistry';
 
 const STORAGE_KEY = 'english_tutor_learner_profile_v2';
@@ -88,6 +90,8 @@ export function App() {
   });
 
   const [isEditingOnboarding, setIsEditingOnboarding] = useState<boolean>(false);
+  /** True right after first-time onboarding, while the placement test is being offered */
+  const [isOfferingPlacement, setIsOfferingPlacement] = useState<boolean>(false);
   const [authUser, setAuthUser] = useState<AuthUserSummary | null>(null);
   const [isAuthInitializing, setIsAuthInitializing] = useState<boolean>(isFirebaseConfigured);
   const [syncStatus, setSyncStatus] = useState<CloudSyncStatus>('local-only');
@@ -129,6 +133,7 @@ export function App() {
       if (!firebaseUser) {
         setAuthUser(null);
         setProfile(DEFAULT_PROFILE);
+        setIsOfferingPlacement(false);
         try {
           localStorage.removeItem(STORAGE_KEY);
         } catch {
@@ -254,13 +259,34 @@ export function App() {
       <OnboardingView
         initialProfile={profile}
         onComplete={(updated) => {
+          const isFirstOnboarding = !profile.isOnboarded;
           handleUpdateProfile(updated);
           setIsEditingOnboarding(false);
+          setIsOfferingPlacement(isFirstOnboarding);
         }}
         onCancel={
           profile.isOnboarded ? () => setIsEditingOnboarding(false) : undefined
         }
       />
+    );
+  }
+
+  if (isOfferingPlacement) {
+    return (
+      <div className={`min-h-screen w-full ${activeTheme.pageBgClass}`}>
+        <PlacementTest
+          profile={profile}
+          theme={activeTheme}
+          mode="onboarding"
+          onFinish={(result, applyRecommendation) => {
+            handleUpdateProfile(
+              applyPlacementToProfile(profile, result, applyRecommendation)
+            );
+            setIsOfferingPlacement(false);
+          }}
+          onClose={() => setIsOfferingPlacement(false)}
+        />
+      </div>
     );
   }
 

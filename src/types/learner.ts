@@ -72,6 +72,18 @@ export interface TodaysMissionSuggestion {
   sampleSentenceHe: string;
 }
 
+/** Outcome of the adaptive diagnostic placement test (Feature 11). */
+export interface PlacementResult {
+  /** ISO timestamp of when the test was finished; the latest result wins on merge */
+  completedAt: string;
+  /** Highest grade level the learner showed mastery of */
+  estimatedGradeId: GradeId;
+  recommendedGradeId: GradeId;
+  recommendedTier: ProficiencyTier;
+  correctCount: number;
+  totalQuestions: number;
+}
+
 export interface LearnerProfile {
   isOnboarded: boolean;
   name: string;
@@ -95,6 +107,8 @@ export interface LearnerProfile {
   isShabbatObserver?: boolean;
   /** Whether the new user has seen and acknowledged the complimentary welcome diamonds modal */
   hasSeenWelcomeGiftModal?: boolean;
+  /** Latest diagnostic placement test result, if the learner has taken it */
+  placementResult?: PlacementResult;
   createdAt: string;
   /** ISO timestamp of the latest profile update for conflict resolution */
   updatedAt?: string;

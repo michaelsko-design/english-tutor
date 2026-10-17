@@ -4,6 +4,7 @@ import {
   CloudSyncStatus,
   GradeId,
   LearnerProfile,
+  PlacementResult,
   ProficiencyTier,
   SUPPORTED_GRADES,
   ThemeId,
@@ -24,6 +25,8 @@ import { VocabularyVaultModal } from './VocabularyVaultModal';
 import { DailyQuestsCard } from './DailyQuestsCard';
 import { RewardShopModal } from './RewardShopModal';
 import { AuthModal } from './AuthModal';
+import { PlacementTest } from './PlacementTest';
+import { applyPlacementToProfile } from '../data/placementTest';
 import { getHebrewCopy, inflectHebrew } from '../utils/hebrewGender';
 import {
   Flame,
@@ -43,6 +46,7 @@ import {
   GraduationCap,
   Palette,
   Sparkles,
+  Target,
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -65,6 +69,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [isVocabVaultOpen, setIsVocabVaultOpen] = useState(false);
   const [isRewardShopOpen, setIsRewardShopOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isPlacementOpen, setIsPlacementOpen] = useState(false);
 
   const theme = THEME_REGISTRY[profile.themeId] || THEME_REGISTRY['cozy-studio'];
   const activeAvatarEmoji = profile.equippedAvatarEmoji || theme.avatarEmoji;
@@ -222,6 +227,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       ...profile,
       preferredTier: tier,
     });
+  };
+
+  const handleFinishPlacement = (result: PlacementResult, applyRecommendation: boolean) => {
+    onUpdateProfile(applyPlacementToProfile(profile, result, applyRecommendation));
+    setIsPlacementOpen(false);
   };
 
   const formatShortAccountLabel = (u: AuthUserSummary) => {
@@ -543,6 +553,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     );
                   })}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setIsPlacementOpen(true)}
+                  className={`text-[11px] font-bold flex items-center gap-1 pt-0.5 underline underline-offset-2 hover:opacity-100 opacity-85 ${theme.accentTextClass}`}
+                >
+                  <Target className="w-3.5 h-3.5 shrink-0" />
+                  <span>
+                    {profile.placementResult
+                      ? 'מבחן רמה חוזר 🎯'
+                      : profile.gender === 'girl'
+                      ? 'לא בטוחה באיזו רמה? מבחן רמה קצר 🎯'
+                      : 'לא בטוח באיזו רמה? מבחן רמה קצר 🎯'}
+                  </span>
+                </button>
               </div>
 
               {/* 1-TAP START MISSION CTA BUTTON */}
@@ -738,6 +762,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           onSpeakEnglish={speakEnglish}
           onCompleteMission={handleCompleteMission}
           onClose={() => setActivePracticeMission(null)}
+        />
+      )}
+
+      {/* FEATURE 11: DIAGNOSTIC LEVEL PLACEMENT TEST */}
+      {isPlacementOpen && (
+        <PlacementTest
+          profile={profile}
+          theme={theme}
+          mode="on-demand"
+          onFinish={handleFinishPlacement}
+          onClose={() => setIsPlacementOpen(false)}
         />
       )}
 

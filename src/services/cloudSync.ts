@@ -1,6 +1,6 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import { LearnerProfile } from '../types/learner';
+import { LearnerProfile, PlacementResult } from '../types/learner';
 
 const LEARNERS_COLLECTION = 'learners';
 
@@ -112,6 +112,11 @@ export function mergeLearnerProfiles(
     Math.floor(mergedXp / 150) + 1
   );
 
+  const resolvedPlacement = latestPlacementResult(
+    local.placementResult,
+    cloud.placementResult
+  );
+
   const resolvedAvatar = preferCloudPrefs
     ? cloud.equippedAvatarEmoji || local.equippedAvatarEmoji
     : local.equippedAvatarEmoji || cloud.equippedAvatarEmoji;
@@ -134,6 +139,7 @@ export function mergeLearnerProfiles(
         ? (cloud.isShabbatObserver ?? local.isShabbatObserver ?? true)
         : (local.isShabbatObserver ?? cloud.isShabbatObserver ?? true),
     ...(resolvedAvatar ? { equippedAvatarEmoji: resolvedAvatar } : {}),
+    ...(resolvedPlacement ? { placementResult: resolvedPlacement } : {}),
     stats: {
       xp: mergedXp,
       level: mergedLevel,
@@ -174,6 +180,15 @@ export function mergeLearnerProfiles(
   };
 
   return merged;
+}
+
+/** Keeps the most recently completed placement test result from either device. */
+function latestPlacementResult(
+  local: PlacementResult | undefined,
+  cloud: PlacementResult | undefined
+): PlacementResult | undefined {
+  if (!local || !cloud) return local || cloud;
+  return Date.parse(cloud.completedAt) >= Date.parse(local.completedAt) ? cloud : local;
 }
 
 /**
