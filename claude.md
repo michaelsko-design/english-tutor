@@ -149,6 +149,15 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Suggestion**: `getSuggestedMission` returns the first mission without stars; when that is a gated Boss it suggests replaying the unit's weakest regular mission and returns the gate, so the dashboard hero and the mission map explain how many stars are missing.
 - **Metrics**: stars (all grades, 1–3 per mission) measure mastery depth; the "Missions Completed" (משימות הושלמו) tile counts distinct missions with ≥1 star (`countCompletedMissions`). Both are derived from `missionProgress`, so no extra sync fields. `stats.missionsCompleted` (counts replays) is still stored but not shown.
 
+### 4.11. School Word List Importer (`customWordLists.ts`, `components/wordLists/`)
+- The "My Word Lists" (רשימות המילים שלי) dashboard card, under the exam prep card, lets the learner paste a word list from a school worksheet and practise it.
+- **Parsing** (`parseWordListText`): one item per line; numbering and bullets are stripped; a Hebrew translation can come before or after the English, separated by a dash, `=`, `:` or a tab; comma lists of short words are split. Lines of 1–2 words are words, longer lines are sentences (max 15 words). Duplicates and lines without English are reported with a Hebrew reason. A word without a translation gets one from the curriculum vocabulary when it is there (📚).
+- **Limits**: 3–30 items per list, up to 10 active lists.
+- **Sessions** (`buildWordListSteps`): up to 5 items per session in three rounds: meaning match (words with a translation, options are other list words), magnets (letter tiles for words with spaces/punctuation kept fixed, word chips for sentences), then voice. Practice allows hints and retries and scores the first try; a skipped voice step ("quiet place") is left out of the score.
+- **Rewards**: the full reward (15 XP, 2 💎, +3 💎 at 80%+) once per list per day, for up to 3 lists a day (`lastRewardedDateStr`); otherwise 3 XP. Every session counts as a mission for the daily quests and streak; voice-word and 3-star quest credit come only from rewarded sessions. There are no mission stars.
+- Stored as `customWordLists` on the profile. Deleting a list sets `archivedAt` and empties its items (a small tombstone, so a merge can't bring it back). Merge: union by id; the same list keeps the best score and latest practice, and stays deleted once either device archived it.
+- Voice recognition lives in `hooks/useSpeechRecognition.ts` and `drills/VoiceSpeakDrill.tsx`, shared with `MissionRunner`; letter magnets are `drills/SpellingMagnetDrill.tsx`.
+
 ---
 
 ## 5. Directory Structure
@@ -160,7 +169,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── AuthModal.tsx             # Kid-friendly authentication modal
 │   │   ├── DailyQuestsCard.tsx       # Daily quest tracker & streak counter
 │   │   ├── DashboardView.tsx         # Main hub screen (HUD, Hero, Maps, Actions)
-│   │   ├── drills/                   # Shared drill UI (options, sentence builder, passage, feedback)
+│   │   ├── drills/                   # Shared drill UI (options, sentence/letter magnets, voice, passage, feedback)
 │   │   ├── examPrep/                 # Exam prep hub, setup, plan timeline, session runner, certificate
 │   │   ├── MissionMap.tsx            # Unit & mission progression node tree
 │   │   ├── MissionRunner.tsx         # 5-step interactive exercise runner
@@ -168,7 +177,8 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── PlacementTest.tsx         # Adaptive diagnostic placement test overlay
 │   │   ├── PlacementResultCard.tsx   # Placement result & grade/tier recommendation
 │   │   ├── RewardShopModal.tsx       # Diamond shop (avatars, stickers, shields)
-│   │   └── VocabularyVaultModal.tsx  # Ministry word bank & pronunciation studio
+│   │   ├── VocabularyVaultModal.tsx  # Ministry word bank & pronunciation studio
+│   │   └── wordLists/                # School word lists: dashboard card, importer, session runner & result
 │   ├── data/
 │   │   ├── curriculum/               # Grade-specific curriculum packs
 │   │   │   ├── elementary/           # Grades 1 to 6 (builder.ts + 72 missions across grade1..6.ts)
@@ -176,6 +186,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   │   ├── highSchool/           # Grades 10 to 12 (builder.ts + 36 missions across grade10..12.ts)
 │   │   │   ├── index.ts              # CURRICULUM_BY_GRADE registry
 │   │   │   └── types.ts              # Unit, MissionNode, VocabularyItem, and DrillSeed types
+│   │   ├── customWordLists.ts        # School word list parsing, session steps, scoring & rewards (+ .test.ts)
 │   │   ├── elementaryExercises.ts    # Tier-aware 5-step generator for elementary drill seeds
 │   │   ├── missionExercises.ts       # Concrete exercise definitions & seeded option/word shuffler
 │   │   ├── examPrep.ts               # Exam study plan building, session/mock steps & scoring (+ .test.ts)
@@ -183,6 +194,8 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── placementTest.ts          # Placement question generation, staircase & scoring (+ .test.ts)
 │   │   ├── progressRewards.ts        # Shared level formula & daily-activity/streak bookkeeping
 │   │   └── rewardShop.ts             # Daily quest & shop item catalog
+│   ├── hooks/
+│   │   └── useSpeechRecognition.ts   # Web Speech recognition for the voice drills
 │   ├── services/
 │   │   ├── cloudSync.ts              # LocalStorage <-> Firestore sync & merge logic (+ .test.ts)
 │   │   └── firebase.ts               # Firebase initialization & auth/db instances

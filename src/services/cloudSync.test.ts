@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ExamPlanDay, ExamPrepPlan, LearnerProfile, PlacementResult } from '../types/learner';
+import {
+  CustomWordList,
+  ExamPlanDay,
+  ExamPrepPlan,
+  LearnerProfile,
+  PlacementResult,
+} from '../types/learner';
 
 vi.mock('./firebase', () => ({ db: null }));
 
@@ -135,5 +141,71 @@ describe('mergeLearnerProfiles examPrep', () => {
 
     expect(mergeLearnerProfiles(baseProfile, { examPrep: plan }).examPrep).toEqual(plan);
     expect('examPrep' in mergeLearnerProfiles(baseProfile, baseProfile)).toBe(false);
+  });
+});
+
+function makeWordList(id: string, overrides: Partial<CustomWordList> = {}): CustomWordList {
+  return {
+    id,
+    title: `List ${id}`,
+    createdAt: '2026-10-10T08:00:00.000Z',
+    items: [
+      { id: 'w1', textEn: 'window', translationHe: 'חלון', kind: 'word' },
+      { id: 'w2', textEn: 'pillow', kind: 'word' },
+    ],
+    ...overrides,
+  };
+}
+
+describe('mergeLearnerProfiles customWordLists', () => {
+  it('keeps the lists from both devices', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, customWordLists: [makeWordList('a')] },
+      { customWordLists: [makeWordList('b')] }
+    ).customWordLists;
+    expect(merged?.map((l) => l.id)).toEqual(['a', 'b']);
+  });
+
+  it('keeps the best score and the latest practice of the same list', () => {
+    const local = makeWordList('a', {
+      bestScore: 90,
+      lastPracticedAt: '2026-10-12T08:00:00.000Z',
+      lastRewardedDateStr: '2026-10-12',
+    });
+    const cloud = makeWordList('a', {
+      bestScore: 60,
+      lastPracticedAt: '2026-10-14T08:00:00.000Z',
+      lastRewardedDateStr: '2026-10-14',
+    });
+    const [merged] = mergeLearnerProfiles(
+      { ...baseProfile, customWordLists: [local] },
+      { customWordLists: [cloud] }
+    ).customWordLists!;
+    expect(merged.bestScore).toBe(90);
+    expect(merged.lastPracticedAt).toBe('2026-10-14T08:00:00.000Z');
+    expect(merged.lastRewardedDateStr).toBe('2026-10-14');
+    expect(merged.items).toHaveLength(2);
+  });
+
+  it('keeps a list deleted on either device deleted', () => {
+    const archived = makeWordList('a', { items: [], archivedAt: '2026-10-15T08:00:00.000Z' });
+    const fromCloud = mergeLearnerProfiles(
+      { ...baseProfile, customWordLists: [makeWordList('a')] },
+      { customWordLists: [archived] }
+    ).customWordLists![0];
+    const fromLocal = mergeLearnerProfiles(
+      { ...baseProfile, customWordLists: [archived] },
+      { customWordLists: [makeWordList('a')] }
+    ).customWordLists![0];
+    [fromCloud, fromLocal].forEach((list) => {
+      expect(list.archivedAt).toBe('2026-10-15T08:00:00.000Z');
+      expect(list.items).toEqual([]);
+    });
+  });
+
+  it('adds no field when neither device has lists', () => {
+    expect('customWordLists' in mergeLearnerProfiles(baseProfile, baseProfile)).toBe(false);
+    const lists = [makeWordList('a')];
+    expect(mergeLearnerProfiles(baseProfile, { customWordLists: lists }).customWordLists).toEqual(lists);
   });
 });

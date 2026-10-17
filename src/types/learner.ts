@@ -127,6 +127,36 @@ export interface ExamPrepPlan {
   archivedAt?: string;
 }
 
+/** A school word-list line: a word or short phrase, or a whole sentence (Feature 10). */
+export type CustomItemKind = 'word' | 'sentence';
+
+export interface CustomWordItem {
+  id: string;
+  textEn: string;
+  translationHe?: string;
+  kind: CustomItemKind;
+}
+
+/** A word list the learner pasted from a school worksheet (Feature 10). */
+export interface CustomWordList {
+  id: string;
+  title: string;
+  createdAt: string;
+  /** Emptied when the list is archived, so the kept tombstone stays small */
+  items: CustomWordItem[];
+  /** Best session score (0–100) */
+  bestScore?: number;
+  /** ISO timestamp of the latest finished session */
+  lastPracticedAt?: string;
+  /** Local calendar date (YYYY-MM-DD) of the latest session that earned the full reward */
+  lastRewardedDateStr?: string;
+  /**
+   * ISO timestamp of when the learner deleted the list. Lists are archived instead of removed,
+   * because a removed list would come back from another device on the next merge.
+   */
+  archivedAt?: string;
+}
+
 export interface LearnerProfile {
   isOnboarded: boolean;
   name: string;
@@ -154,6 +184,8 @@ export interface LearnerProfile {
   placementResult?: PlacementResult;
   /** Active exam preparation plan, if the learner created one */
   examPrep?: ExamPrepPlan;
+  /** Word lists imported from school worksheets, including archived (deleted) ones */
+  customWordLists?: CustomWordList[];
   createdAt: string;
   /** ISO timestamp of the latest profile update for conflict resolution */
   updatedAt?: string;

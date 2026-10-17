@@ -26,6 +26,7 @@ import { PlacementTest } from './PlacementTest';
 import { applyPlacementToProfile } from '../data/placementTest';
 import { levelForXp, recordDailyActivity } from '../data/progressRewards';
 import { ExamPrepHub } from './examPrep/ExamPrepHub';
+import { WordListsHub } from './wordLists/WordListsHub';
 import { getHebrewCopy, inflectHebrew } from '../utils/hebrewGender';
 import {
   Flame,
@@ -602,6 +603,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         {/* FEATURE 18: GET READY FOR AN EXAM */}
         <ExamPrepHub
+          profile={profile}
+          theme={theme}
+          onUpdateProfile={onUpdateProfile}
+          onSpeakEnglish={speakEnglish}
+        />
+
+        {/* FEATURE 10: SCHOOL WORD LIST IMPORTER */}
+        <WordListsHub
           profile={profile}
           theme={theme}
           onUpdateProfile={onUpdateProfile}

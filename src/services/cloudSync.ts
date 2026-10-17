@@ -1,6 +1,12 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import { ExamPlanDay, ExamPrepPlan, LearnerProfile, PlacementResult } from '../types/learner';
+import {
+  CustomWordList,
+  ExamPlanDay,
+  ExamPrepPlan,
+  LearnerProfile,
+  PlacementResult,
+} from '../types/learner';
 
 const LEARNERS_COLLECTION = 'learners';
 
@@ -119,6 +125,8 @@ export function mergeLearnerProfiles(
 
   const resolvedExamPrep = mergeExamPrep(local.examPrep, cloud.examPrep);
 
+  const resolvedWordLists = mergeCustomWordLists(local.customWordLists, cloud.customWordLists);
+
   const resolvedAvatar = preferCloudPrefs
     ? cloud.equippedAvatarEmoji || local.equippedAvatarEmoji
     : local.equippedAvatarEmoji || cloud.equippedAvatarEmoji;
@@ -143,6 +151,7 @@ export function mergeLearnerProfiles(
     ...(resolvedAvatar ? { equippedAvatarEmoji: resolvedAvatar } : {}),
     ...(resolvedPlacement ? { placementResult: resolvedPlacement } : {}),
     ...(resolvedExamPrep ? { examPrep: resolvedExamPrep } : {}),
+    ...(resolvedWordLists ? { customWordLists: resolvedWordLists } : {}),
     stats: {
       xp: mergedXp,
       level: mergedLevel,
@@ -241,6 +250,50 @@ function mergeExamPrep(
     ...(certificateEarnedAt ? { certificateEarnedAt } : {}),
     ...(archivedAt ? { archivedAt } : {}),
   };
+}
+
+/** The later of two optional ISO timestamps. */
+function latestIso(a: string | undefined, b: string | undefined): string | undefined {
+  if (!a || !b) return a || b;
+  return Date.parse(a) >= Date.parse(b) ? a : b;
+}
+
+function mergeWordList(local: CustomWordList, cloud: CustomWordList): CustomWordList {
+  const archivedAt = earliestIso(local.archivedAt, cloud.archivedAt);
+  const lastPracticedAt = latestIso(local.lastPracticedAt, cloud.lastPracticedAt);
+  const lastRewardedDateStr = [local.lastRewardedDateStr, cloud.lastRewardedDateStr]
+    .filter((d): d is string => Boolean(d))
+    .sort()
+    .pop();
+  const hasBestScore = local.bestScore !== undefined || cloud.bestScore !== undefined;
+  return {
+    ...local,
+    items: archivedAt ? [] : local.items.length ? local.items : cloud.items || [],
+    ...(hasBestScore ? { bestScore: Math.max(local.bestScore ?? 0, cloud.bestScore ?? 0) } : {}),
+    ...(lastPracticedAt ? { lastPracticedAt } : {}),
+    ...(lastRewardedDateStr ? { lastRewardedDateStr } : {}),
+    ...(archivedAt ? { archivedAt } : {}),
+  };
+}
+
+/**
+ * Union of both devices' word lists by id. The same list keeps the best score and latest
+ * practice, and stays deleted once either device archived it.
+ */
+function mergeCustomWordLists(
+  local: CustomWordList[] | undefined,
+  cloud: CustomWordList[] | undefined
+): CustomWordList[] | undefined {
+  if (!local || !cloud) return local || cloud;
+  const cloudById = new Map(cloud.map((l) => [l.id, l]));
+  const localIds = new Set(local.map((l) => l.id));
+  return [
+    ...local.map((l) => {
+      const match = cloudById.get(l.id);
+      return match ? mergeWordList(l, match) : l;
+    }),
+    ...cloud.filter((c) => !localIds.has(c.id)),
+  ];
 }
 
 /**

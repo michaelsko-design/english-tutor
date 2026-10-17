@@ -7,18 +7,14 @@ import {
 } from '../data/missionExercises';
 import { LearnerGender, ProficiencyTier } from '../types/learner';
 import { ThemeDefinition, TIER_CONFIG } from '../themes/themeRegistry';
-import {
-  evaluateSpokenSentence,
-  SpeechEvaluationResult,
-} from '../utils/speechSimilarity';
+import { SpeechEvaluationResult } from '../utils/speechSimilarity';
+import { getSpeechErrorTextHe, useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import {
   X,
   Flame,
   Star,
   Gem,
   Zap,
-  Volume2,
-  Mic,
   Lightbulb,
   Trophy,
 } from 'lucide-react';
@@ -28,6 +24,7 @@ import {
   PassageBox,
   QuestionBubble,
   SentenceBuilderDrill,
+  VoiceSpeakDrill,
 } from './drills';
 
 interface MissionRunnerProps {
@@ -88,8 +85,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   const [selectedWordIndices, setSelectedWordIndices] = useState<number[]>([]);
 
   // State for Voice Speaking step
-  const [isListening, setIsListening] = useState(false);
-  const [spokenText, setSpokenText] = useState('');
+  const speech = useSpeechRecognition();
+  const cancelListening = speech.cancel;
   const [speechEval, setSpeechEval] = useState<SpeechEvaluationResult | null>(
     null
   );
@@ -108,10 +105,9 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     setFeedbackHe(null);
     setSelectedOptionIdx(null);
     setSelectedWordIndices([]);
-    setIsListening(false);
-    setSpokenText('');
+    cancelListening();
     setSpeechEval(null);
-  }, [currentStepIdx, tier]);
+  }, [currentStepIdx, tier, cancelListening]);
 
   const registerCorrectAnswer = (explanationHe: string) => {
     const newCombo = attemptedCurrentStep ? 1 : combo + 1;
@@ -189,81 +185,26 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   // Handler for Voice Speaking Recognition (STT)
   const handleStartSpeechRecognition = () => {
     if (!currentStep.speakTargetEn) return;
-    const target = currentStep.speakTargetEn;
-
-    const SpeechRecognitionApi =
-      (window as unknown as {
-        SpeechRecognition?: unknown;
-        webkitSpeechRecognition?: unknown;
-      }).SpeechRecognition ||
-      (window as unknown as { webkitSpeechRecognition?: unknown })
-        .webkitSpeechRecognition;
-
-    if (!SpeechRecognitionApi) {
-      setIsListening(false);
-      setFeedbackHe({
-        isCorrect: false,
-        text: isGirl
-          ? 'הדפדפן שלך אינו תומך בזיהוי דיבור קולי. אנא השתמשי בדפדפן Chrome או Edge, או לחצי על כפתור הדילוג למטה.'
-          : 'הדפדפן שלך אינו תומך בזיהוי דיבור קולי. אנא השתמש בדפדפן Chrome או Edge, או לחץ על כפתור הדילוג למטה.',
-      });
-      return;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const recognition = new (SpeechRecognitionApi as any)();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    setIsListening(true);
     setFeedbackHe(null);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onresult = (event: any) => {
-      setIsListening(false);
-      const transcript: string = event.results?.[0]?.[0]?.transcript || '';
-      setSpokenText(transcript);
-      const evaluation = evaluateSpokenSentence(target, transcript);
-      setSpeechEval(evaluation);
-
-      if (evaluation.passed) {
-        registerCorrectAnswer(
-          isGirl
-            ? `אלופה! דיוק הגייה של ${evaluation.scorePercent}% (שמענו: "${transcript}") — המילים המסומנות בירוק נהגו מצוין!`
-            : `אלוף! דיוק הגייה של ${evaluation.scorePercent}% (שמענו: "${transcript}") — המילים המסומנות בירוק נהגו מצוין!`
-        );
-      } else {
-        registerWrongAttempt(
-          isGirl
-            ? `שמענו "${transcript || '...'}" (דיוק ${evaluation.scorePercent}%). המילים בכתום לא זוהו כראוי — האזיני להשמעה האיטית 🐢 ונסי שוב!`
-            : `שמענו "${transcript || '...'}" (דיוק ${evaluation.scorePercent}%). המילים בכתום לא זוהו כראוי — האזן להשמעה האיטית 🐢 ונסה שוב!`
-        );
-      }
-    };
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onerror = (event: any) => {
-      setIsListening(false);
-      const errCode = event?.error || '';
-      if (errCode === 'not-allowed' || errCode === 'service-not-allowed') {
-        setFeedbackHe({
-          isCorrect: false,
-          text: isGirl
-            ? 'הגישה למיקרופון חסומה בדפדפן. אשרי גישה למיקרופון בשורת הכתובת ונסי שוב!'
-            : 'הגישה למיקרופון חסומה בדפדפן. אשר גישה למיקרופון בשורת הכתובת ונסה שוב!',
-        });
-      } else {
-        setFeedbackHe({
-          isCorrect: false,
-          text: isGirl
-            ? 'לא הצלחנו לשמוע אותך בבירור במיקרופון. לחצי שוב על הכפתור וקראי את המשפט בקול רם וברור!'
-            : 'לא הצלחנו לשמוע אותך בבירור במיקרופון. לחץ שוב על הכפתור וקרא את המשפט בקול רם וברור!',
-        });
-      }
-    };
-
-    recognition.start();
+    speech.start(currentStep.speakTargetEn, {
+      onResult: (transcript, evaluation) => {
+        setSpeechEval(evaluation);
+        if (evaluation.passed) {
+          registerCorrectAnswer(
+            isGirl
+              ? `אלופה! דיוק הגייה של ${evaluation.scorePercent}% (שמענו: "${transcript}") — המילים המסומנות בירוק נהגו מצוין!`
+              : `אלוף! דיוק הגייה של ${evaluation.scorePercent}% (שמענו: "${transcript}") — המילים המסומנות בירוק נהגו מצוין!`
+          );
+        } else {
+          registerWrongAttempt(
+            isGirl
+              ? `שמענו "${transcript || '...'}" (דיוק ${evaluation.scorePercent}%). המילים בכתום לא זוהו כראוי — האזיני להשמעה האיטית 🐢 ונסי שוב!`
+              : `שמענו "${transcript || '...'}" (דיוק ${evaluation.scorePercent}%). המילים בכתום לא זוהו כראוי — האזן להשמעה האיטית 🐢 ונסה שוב!`
+          );
+        }
+      },
+      onError: (kind) => setFeedbackHe({ isCorrect: false, text: getSpeechErrorTextHe(kind, gender) }),
+    });
   };
 
   const handleNextStep = () => {
@@ -520,100 +461,24 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
 
           {/* DRILL TYPE 3: TWO-WAY VOICE SPEAKING & PRONUNCIATION MATCHER */}
           {currentStep.type === 'voice-speak' && currentStep.speakTargetEn && (
-            <div className={`p-5 rounded-3xl ${theme.cardBgClass} space-y-4 text-center`}>
-              <p className="text-xs font-bold opacity-80" dir="rtl">
-                תרגום: &ldquo;{currentStep.speakTargetHe}&rdquo;
-              </p>
-
-              {/* Word-by-word interactive display (highlights green after speaking!) */}
-              <div className="flex flex-wrap items-center justify-center gap-2 py-2" dir="ltr">
-                {(speechEval
-                  ? speechEval.wordResults
-                  : currentStep.speakTargetEn.split(/\s+/).map((w) => ({
-                      targetWord: w,
-                      cleanWord: w,
-                      matched: false,
-                    }))
-                ).map((item, idx) => (
-                  <button
-                    key={`${item.targetWord}-${idx}`}
-                    type="button"
-                    onClick={() => onSpeakEnglish(item.targetWord, 0.85)}
-                    className={`px-3 py-1.5 rounded-xl text-base md:text-lg font-extrabold border transition-all ${
-                      speechEval
-                        ? item.matched
-                          ? 'bg-emerald-500/20 border-emerald-500 text-emerald-700 dark:text-emerald-300'
-                          : 'bg-amber-500/20 border-amber-500'
-                        : 'bg-black/5 dark:bg-white/5 border-current/15 hover:border-purple-400'
-                    }`}
-                    title="Tap any word to hear it pronounced"
-                  >
-                    {item.targetWord}
-                  </button>
-                ))}
-              </div>
-
-              {/* Listen Normal / Listen Slow / Speak Aloud Controls */}
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => onSpeakEnglish(currentStep.speakTargetEn!, 0.95)}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-                >
-                  <Volume2 className="w-4 h-4" />
-                  <span>🔊 Listen (רגיל)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onSpeakEnglish(currentStep.speakTargetEn!, 0.7)}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-                >
-                  <Volume2 className="w-4 h-4" />
-                  <span>🐢 Listen Slow (איטי)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleStartSpeechRecognition}
-                  className={`px-6 py-3 rounded-2xl text-xs md:text-sm font-extrabold flex items-center gap-2 ${
-                    isListening
-                      ? 'bg-rose-500 text-white animate-pulse'
-                      : theme.primaryBtnClass
-                  }`}
-                >
-                  <Mic className="w-4 h-4" />
-                  <span dir="rtl">
-                    {isListening
-                      ? isGirl
-                        ? 'מקשיב לך... קראי את המשפט באנגלית!'
-                        : 'מקשיב לך... קרא את המשפט באנגלית!'
-                      : isGirl
-                      ? '🎙️ לחצי והקליטי בקול (Speak Aloud)'
-                      : '🎙️ לחץ והקלט בקול (Speak Aloud)'}
-                  </span>
-                </button>
-              </div>
-
-              {!stepCompleted && (
-                <div className="pt-1">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      registerCorrectAnswer(
-                        isGirl
-                          ? 'דילגת על מיקרופון במצב שקט — ממשיכות לשלב הבא!'
-                          : 'דילגת על מיקרופון במצב שקט — ממשיכים לשלב הבא!'
-                      )
-                    }
-                    className="text-xs underline opacity-70 hover:opacity-100"
-                    dir="rtl"
-                  >
-                    {isGirl
-                      ? 'אני במקום שקט ולא יכולה לדבר כרגע (מעבר להאזנה בלבד)'
-                      : 'אני במקום שקט ולא יכול לדבר כרגע (מעבר להאזנה בלבד)'}
-                  </button>
-                </div>
-              )}
-            </div>
+            <VoiceSpeakDrill
+              targetEn={currentStep.speakTargetEn}
+              targetHe={currentStep.speakTargetHe}
+              speechEval={speechEval}
+              isListening={speech.isListening}
+              isCompleted={stepCompleted}
+              gender={gender}
+              theme={theme}
+              onSpeakEnglish={onSpeakEnglish}
+              onStartListening={handleStartSpeechRecognition}
+              onSkip={() =>
+                registerCorrectAnswer(
+                  isGirl
+                    ? 'דילגת על מיקרופון במצב שקט — ממשיכות לשלב הבא!'
+                    : 'דילגת על מיקרופון במצב שקט — ממשיכים לשלב הבא!'
+                )
+              }
+            />
           )}
 
           {/* Instant Hebrew Feedback Banner + Next Step Button */}
