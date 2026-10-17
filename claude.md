@@ -190,6 +190,20 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Hand-written step-4 hints**: every mission's `drillSeed.rule.hintHe` (required, 144 in all) reminds the learner how to decide. It must not contain any word that is in the correct option but in none of the wrong ones. `missionHints.test.ts` checks every mission × tier for this and for repeated prompts.
 - Word lists reuse the same helpers (meaning: word shape, magnets: `getSpellingHintHe` / sentence order, voice: pronunciation tip). The room naming panel's spell hint shows the first letter and the letter count, not the name.
 
+### 4.14. Friends Hub & Daily Contests (`friends.ts`, `contests.ts`, `services/friendsService.ts`, `components/friends/`)
+- The "👫 החברים שלי" dashboard card (under the room card) opens the hub. It is only for signed-in, non-guest accounts. The settings screen (`OnboardingView` in edit mode) has an on/off toggle (`friendsHub.isEnabled`, on by default). When it is off, the card is hidden, no listeners run, and the public summary, friend code entry and username entry are deleted.
+- **Firestore** (all access rules in `firestore.rules`; client-only, no Cloud Functions):
+  - `friendCodes/{CODE}` and `usernames/{slug}` → `{uid, displayName, avatarEmoji}`. They can be read one at a time (no listing). Each learner owns exactly one code, recorded in `friendCodeOwners/{uid}` in the same write; another device recovers it from there. A username can be claimed or changed only by the account whose sign-in email is `<slug>@peachnote.tutor.local` (`utils/username.ts`). A lookup returns both the code match and the username match, labelled, when both exist.
+  - Every avatar field must be emoji only (no letters or digits). Timestamps are bounded strings.
+  - `publicProfiles/{uid}` → display name, avatar, level, streak, stars, missions completed. Nothing else (no age, grade or email). Readable only by the owner and accepted friends. `useFriendPresence` (in `App.tsx`) claims the friend code and republishes the summary when it changes.
+  - `friendships/{pairId}` (`getPairId`: sorted uids): a pending request with both names and avatars. The requester's name and avatar must match their own public profile. The addressee accepts. Either side deletes it to cancel, decline or remove. Each friend may set only their own preset reaction (`FRIEND_REACTIONS`, also listed in the rules). There is no free text anywhere.
+  - `contests/{pairId}_{dateStr}`: one contest per pair per day, ending at the creator's local midnight (`expiresAtMs`). The rules accept only a date within a day of the server date, an expiry at most 25 hours away, and players who are still friends. The invitee accepts or declines. Each player writes their own result once, before midnight, with at least 5 questions and at least 3 seconds. Listed with the `uids` + `dateStr` composite index (`firestore.indexes.json`).
+- **Adding friends**: by friend code (6 characters, no 0/O/1/I/L) or username. An invite link `/?invite=CODE` (`usePendingInvite`) is kept through sign-in and opens the hub with the code. Sharing uses `navigator.share`, with a WhatsApp link and copy as the fallback. Limits: 30 friends and 10 outgoing requests (`checkFriendRequest`).
+- **Contests** (`buildContestSteps`): each player gets questions from their *own* grade, at the same relative difficulty. That means the same unit number (seeded 1–4), the Challenger tier for both, and the same layout: 5 meaning matches (1 + 3 distractor translations from the grade) and the sentence magnet of each of the unit's 3 missions. Everything is seeded by the contest. `ContestRunner` has no hints, one try per question and a timer. Leaving after the first answer ends the contest with the answers so far. The result screen opens while the result saves. Offline saves time out after 10 seconds with a message.
+- **Deciding a contest** (`getContestState`): the higher score percentage wins, and the faster time breaks a tie. A contest is decided once both played, or at midnight or a decline when only one did (`friend-missed`). A result finished after midnight is ignored. A contest is recorded only after the server confirms it (`hasPendingWrites`). Contests are found by the viewer's local date, which assumes friends share a time zone.
+- **Rewards**: finishing gives +10 XP and counts as a mission for the daily quests and streak, for the first 3 contests a day (then +2 XP). A decided contest is recorded once in `friendsHub.contestHistory` (the last 30 days, sized so no record in the 7-day lookback is ever dropped). The history also feeds the record vs. each friend. A win or tie gives 10 💎; a loss, or a friend who never played, gives 3 💎. Diamonds are paid for at most 3 contests per contest day.
+- Merge (`mergeFriendsHub`): the newer toggle wins, the earlier-claimed friend code is kept, contest records are unioned by contest id (newest first, `MAX_CONTEST_HISTORY`), and the same day's finish count keeps the higher value.
+
 ---
 
 ## 5. Directory Structure
@@ -203,6 +217,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── DashboardView.tsx         # Main hub screen (HUD, Hero, Maps, Actions)
 │   │   ├── drills/                   # Shared drill UI (options, sentence/letter magnets, voice, passage, feedback)
 │   │   ├── examPrep/                 # Exam prep hub, setup, plan timeline, session runner, certificate
+│   │   ├── friends/                  # Friends Hub: dashboard card, hub screen, friend card & reactions, add friend, invite code, contest panel/runner/result
 │   │   ├── MissionMap.tsx            # Unit & mission progression node tree
 │   │   ├── MissionRunner.tsx         # 5-step interactive exercise runner
 │   │   ├── OnboardingView.tsx        # Profile setup (name, gender, age, grade, tier)
@@ -223,6 +238,8 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── elementaryExercises.ts    # Tier-aware 5-step generator for elementary drill seeds
 │   │   ├── missionExercises.ts       # Concrete exercise definitions & seeded option/word shuffler
 │   │   ├── examPrep.ts               # Exam study plan building, session/mock steps & scoring (+ .test.ts)
+│   │   ├── friends.ts                # Friend codes, requests, public summary, reactions & invite links (+ .test.ts)
+│   │   ├── contests.ts               # Daily contest questions by grade, deciding & rewards (+ .test.ts)
 │   │   ├── milestones.ts             # Boss star gate, mission unlocks, suggested mission & missions counter (+ .test.ts)
 │   │   ├── missionHints.test.ts      # Sweep of every mission × tier: hints never repeat the prompt or reveal the answer
 │   │   ├── placementTest.ts          # Placement question generation, staircase & scoring (+ .test.ts)
@@ -237,9 +254,13 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── wardrobe.ts               # Dress-Up Studio items, outfit rules & daily dress-up reward (+ .test.ts)
 │   │   └── rewardShop.ts             # Daily quest & shop item catalog
 │   ├── hooks/
+│   │   ├── useFriendsHub.ts          # Live friendships, friends' public profiles & contests
+│   │   ├── useFriendPresence.ts      # Claims the friend code and publishes the public summary
+│   │   ├── usePendingInvite.ts       # Friend code from an invite link, kept through sign-in
 │   │   └── useSpeechRecognition.ts   # Web Speech recognition for the voice drills
 │   ├── services/
 │   │   ├── cloudSync.ts              # LocalStorage <-> Firestore sync & merge logic (+ .test.ts)
+│   │   ├── friendsService.ts         # Firestore calls for friends, public profiles & contests
 │   │   └── firebase.ts               # Firebase initialization & auth/db instances
 │   ├── themes/
 │   │   └── themeRegistry.ts          # Pluggable theme visual definitions & tiers
@@ -249,12 +270,14 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── hebrewGender.ts           # Hebrew grammatical gender inflection engine
 │   │   ├── hints.ts                  # Drill hint builders: word shape, cloze, word order, pronunciation tips, story locator (+ .test.ts)
 │   │   ├── shuffle.ts                # Deterministic seeded shuffle for options & word chips
-│   │   └── speechSimilarity.ts       # Phonetic & string similarity calculation for voice
+│   │   ├── speechSimilarity.ts       # Phonetic & string similarity calculation for voice
+│   │   └── username.ts               # Username <-> sign-in email slug (auth, lookup and rules)
 │   ├── App.tsx                       # Root orchestrator & Firebase auth/sync listener
 │   ├── index.css                     # Tailwind & custom CSS utility rules
 │   └── main.tsx                      # React root entry point
 ├── backlog.md              # Project product backlog (completed & future items)
-├── firestore.rules         # Security rules for Firestore learners collection
+├── firestore.rules         # Firestore security rules (learners, friends, public profiles, contests)
+├── firestore.indexes.json  # Composite index for the contests query
 ├── index.html              # HTML entry point
 ├── package.json            # Node.js dependencies & scripts
 ├── tailwind.config.js      # Tailwind configuration

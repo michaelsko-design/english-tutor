@@ -1,18 +1,21 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import {
+  ContestRecord,
   CustomWordList,
   DrawnSticker,
   DreamEntry,
   DressUpDay,
   ExamPlanDay,
   ExamPrepPlan,
+  FriendsHubState,
   LearnerProfile,
   LearnerRoom,
   PlacementResult,
 } from '../types/learner';
 import { keepNewestEntries } from '../data/dreamJournal';
 import { MAX_DRAWN_STICKERS } from '../data/stickers';
+import { MAX_CONTEST_HISTORY } from '../data/contests';
 
 const LEARNERS_COLLECTION = 'learners';
 
@@ -135,6 +138,8 @@ export function mergeLearnerProfiles(
 
   const resolvedRoom = mergeRoom(local.room, cloud.room);
 
+  const resolvedFriendsHub = mergeFriendsHub(local.friendsHub, cloud.friendsHub);
+
   const resolvedAvatar = preferCloudPrefs
     ? cloud.equippedAvatarEmoji || local.equippedAvatarEmoji
     : local.equippedAvatarEmoji || cloud.equippedAvatarEmoji;
@@ -161,6 +166,7 @@ export function mergeLearnerProfiles(
     ...(resolvedExamPrep ? { examPrep: resolvedExamPrep } : {}),
     ...(resolvedWordLists ? { customWordLists: resolvedWordLists } : {}),
     ...(resolvedRoom ? { room: resolvedRoom } : {}),
+    ...(resolvedFriendsHub ? { friendsHub: resolvedFriendsHub } : {}),
     stats: {
       xp: mergedXp,
       level: mergedLevel,
@@ -423,6 +429,57 @@ function mergeRoom(
     ...(gameBestScores ? { gameBestScores } : {}),
     ...(drawnStickers ? { drawnStickers } : {}),
   };
+}
+
+/**
+ * The newer toggle wins. The earlier-claimed friend code is kept, so both devices end up with the
+ * same code; a code claimed by the other device still points to this learner, so it stays valid.
+ */
+function mergeFriendsHub(
+  local: FriendsHubState | undefined,
+  cloud: FriendsHubState | undefined
+): FriendsHubState | undefined {
+  if (!local || !cloud) return local || cloud;
+  const newer = (Date.parse(cloud.updatedAt) || 0) > (Date.parse(local.updatedAt) || 0) ? cloud : local;
+  const codeOwner = [local, cloud]
+    .filter((hub) => hub.friendCode)
+    .sort((a, b) => (a.friendCodeCreatedAt || '').localeCompare(b.friendCodeCreatedAt || ''))[0];
+  const contestFinishDay = mergeContestFinishDay(local.contestFinishDay, cloud.contestFinishDay);
+  const contestHistory = mergeContestHistory(local.contestHistory, cloud.contestHistory);
+  return {
+    ...newer,
+    ...(codeOwner
+      ? { friendCode: codeOwner.friendCode, friendCodeCreatedAt: codeOwner.friendCodeCreatedAt }
+      : {}),
+    ...(contestFinishDay ? { contestFinishDay } : {}),
+    ...(contestHistory ? { contestHistory } : {}),
+  };
+}
+
+/** The later day wins; the same day keeps the higher count, so a given reward stays given. */
+function mergeContestFinishDay(
+  local: FriendsHubState['contestFinishDay'],
+  cloud: FriendsHubState['contestFinishDay']
+): FriendsHubState['contestFinishDay'] {
+  if (!local || !cloud) return local || cloud;
+  if (local.dateStr !== cloud.dateStr) return local.dateStr > cloud.dateStr ? local : cloud;
+  return { dateStr: local.dateStr, count: Math.max(local.count, cloud.count) };
+}
+
+/** Contest records from both devices by contest, newest first; a contest is recorded only once. */
+function mergeContestHistory(
+  local: ContestRecord[] | undefined,
+  cloud: ContestRecord[] | undefined
+): ContestRecord[] | undefined {
+  if (!local || !cloud) return local || cloud;
+  const byId = new Map<string, ContestRecord>();
+  // The earlier record of a contest wins, so its diamonds are counted once
+  for (const record of [...local, ...cloud].sort((a, b) => a.recordedAt.localeCompare(b.recordedAt))) {
+    if (!byId.has(record.contestId)) byId.set(record.contestId, record);
+  }
+  return Array.from(byId.values())
+    .sort((a, b) => b.recordedAt.localeCompare(a.recordedAt) || a.contestId.localeCompare(b.contestId))
+    .slice(0, MAX_CONTEST_HISTORY);
 }
 
 /**

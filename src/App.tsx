@@ -18,6 +18,8 @@ import { AuthModal } from './components/AuthModal';
 import { PlacementTest } from './components/PlacementTest';
 import { applyPlacementToProfile } from './data/placementTest';
 import { THEME_REGISTRY } from './themes/themeRegistry';
+import { useFriendPresence } from './hooks/useFriendPresence';
+import { usePendingInvite } from './hooks/usePendingInvite';
 
 const STORAGE_KEY = 'english_tutor_learner_profile_v2';
 export const WELCOME_GIFT_DIAMONDS = 50;
@@ -95,6 +97,7 @@ export function App() {
   const [authUser, setAuthUser] = useState<AuthUserSummary | null>(null);
   const [isAuthInitializing, setIsAuthInitializing] = useState<boolean>(isFirebaseConfigured);
   const [syncStatus, setSyncStatus] = useState<CloudSyncStatus>('local-only');
+  const [pendingInviteCode, clearPendingInvite] = usePendingInvite();
 
   const profileRef = useRef<LearnerProfile>(profile);
   profileRef.current = profile;
@@ -219,6 +222,15 @@ export function App() {
   const activeTheme =
     THEME_REGISTRY[profile.themeId] || THEME_REGISTRY['cozy-studio'];
 
+  useFriendPresence({
+    authUser,
+    profile,
+    isSynced: !isAuthInitializing && syncStatus === 'synced',
+    avatarEmoji: profile.equippedAvatarEmoji || activeTheme.avatarEmoji,
+    getLatestProfile: () => profileRef.current,
+    onUpdateProfile: handleUpdateProfile,
+  });
+
   if (isAuthInitializing) {
     return (
       <div
@@ -297,6 +309,8 @@ export function App() {
       syncStatus={syncStatus}
       onUpdateProfile={handleUpdateProfile}
       onEditOnboarding={() => setIsEditingOnboarding(true)}
+      pendingInviteCode={pendingInviteCode}
+      onInviteHandled={clearPendingInvite}
     />
   );
 }

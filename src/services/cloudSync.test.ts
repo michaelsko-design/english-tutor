@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  ContestRecord,
   CustomWordList,
   ExamPlanDay,
   ExamPrepPlan,
+  FriendsHubState,
   LearnerProfile,
   PlacementResult,
 } from '../types/learner';
@@ -359,5 +361,73 @@ describe('mergeLearnerProfiles room', () => {
     expect(mergeLearnerProfiles(baseProfile, { room: olderRoom }).room).toEqual(olderRoom);
     expect(mergeLearnerProfiles({ ...baseProfile, room: olderRoom }, {}).room).toEqual(olderRoom);
     expect('room' in mergeLearnerProfiles(baseProfile, baseProfile)).toBe(false);
+  });
+});
+
+describe('mergeLearnerProfiles friendsHub', () => {
+  const hubOn: FriendsHubState = {
+    isEnabled: true,
+    friendCode: 'K7MP2Q',
+    friendCodeCreatedAt: '2026-10-05T00:00:00.000Z',
+    updatedAt: '2026-10-05T00:00:00.000Z',
+  };
+  const hubOffLater: FriendsHubState = { isEnabled: false, updatedAt: '2026-10-12T00:00:00.000Z' };
+
+  it('keeps the newer toggle and the claimed code, from either side', () => {
+    const expected = { ...hubOffLater, friendCode: 'K7MP2Q', friendCodeCreatedAt: hubOn.friendCodeCreatedAt };
+    expect(mergeLearnerProfiles({ ...baseProfile, friendsHub: hubOn }, { friendsHub: hubOffLater }).friendsHub).toEqual(expected);
+    expect(mergeLearnerProfiles({ ...baseProfile, friendsHub: hubOffLater }, { friendsHub: hubOn }).friendsHub).toEqual(expected);
+  });
+
+  it('keeps the earlier code when both devices claimed one', () => {
+    const laterCode: FriendsHubState = {
+      ...hubOn,
+      friendCode: 'ZZZ222',
+      friendCodeCreatedAt: '2026-10-06T00:00:00.000Z',
+      updatedAt: '2026-10-06T00:00:00.000Z',
+    };
+    expect(mergeLearnerProfiles({ ...baseProfile, friendsHub: laterCode }, { friendsHub: hubOn }).friendsHub?.friendCode).toBe('K7MP2Q');
+    expect(mergeLearnerProfiles({ ...baseProfile, friendsHub: hubOn }, { friendsHub: laterCode }).friendsHub?.friendCode).toBe('K7MP2Q');
+  });
+
+  it('keeps a hub that exists on only one side and adds none otherwise', () => {
+    expect(mergeLearnerProfiles(baseProfile, { friendsHub: hubOn }).friendsHub).toEqual(hubOn);
+    expect(mergeLearnerProfiles({ ...baseProfile, friendsHub: hubOn }, {}).friendsHub).toEqual(hubOn);
+    expect('friendsHub' in mergeLearnerProfiles(baseProfile, baseProfile)).toBe(false);
+  });
+});
+
+describe('mergeLearnerProfiles friendsHub contests', () => {
+  const hub: FriendsHubState = { isEnabled: true, updatedAt: '2026-10-05T00:00:00.000Z' };
+  const record = (contestId: string, recordedAt: string, diamondsEarned = 10): ContestRecord => ({
+    contestId,
+    friendUid: 'f',
+    friendName: 'Dana',
+    dateStr: '2026-10-17',
+    myScorePercent: 80,
+    theirScorePercent: 60,
+    outcome: 'won',
+    diamondsEarned,
+    recordedAt,
+  });
+
+  it('unions contest records by contest, newest first, keeping the first record of a contest', () => {
+    const local = { ...hub, contestHistory: [record('b', '2026-10-17T12:00:00.000Z'), record('a', '2026-10-17T09:00:00.000Z')] };
+    const cloud = { ...hub, contestHistory: [record('c', '2026-10-17T15:00:00.000Z'), record('a', '2026-10-17T10:00:00.000Z', 0)] };
+    for (const [l, c] of [[local, cloud], [cloud, local]]) {
+      const merged = mergeLearnerProfiles({ ...baseProfile, friendsHub: l }, { friendsHub: c }).friendsHub!.contestHistory!;
+      expect(merged.map((r) => r.contestId)).toEqual(['c', 'b', 'a']);
+      expect(merged.find((r) => r.contestId === 'a')?.recordedAt).toBe('2026-10-17T09:00:00.000Z');
+    }
+  });
+
+  it("keeps the later day's finish count, and the higher count for the same day", () => {
+    const day = (dateStr: string, count: number): FriendsHubState => ({ ...hub, contestFinishDay: { dateStr, count } });
+    expect(
+      mergeLearnerProfiles({ ...baseProfile, friendsHub: day('2026-10-17', 1) }, { friendsHub: day('2026-10-17', 3) }).friendsHub?.contestFinishDay
+    ).toEqual({ dateStr: '2026-10-17', count: 3 });
+    expect(
+      mergeLearnerProfiles({ ...baseProfile, friendsHub: day('2026-10-18', 1) }, { friendsHub: day('2026-10-17', 3) }).friendsHub?.contestFinishDay
+    ).toEqual({ dateStr: '2026-10-18', count: 1 });
   });
 });

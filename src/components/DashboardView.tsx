@@ -28,10 +28,12 @@ import { levelForXp, recordDailyActivity } from '../data/progressRewards';
 import { ExamPrepHub } from './examPrep/ExamPrepHub';
 import { WordListsHub } from './wordLists/WordListsHub';
 import { RoomHub } from './room/RoomHub';
+import { FriendsHub } from './friends/FriendsHub';
 import { StickerBackground } from './room/StickerBackground';
 import { getBackgroundSticker } from '../data/stickers';
 import { RoomRewardItem, getNextRoomReward, getRoomRewardForMission } from '../data/roomRewards';
 import { getHebrewCopy, inflectHebrew } from '../utils/hebrewGender';
+import { usernameFromEmail } from '../utils/username';
 import {
   Flame,
   Star,
@@ -60,6 +62,9 @@ interface DashboardViewProps {
   syncStatus: CloudSyncStatus;
   onUpdateProfile: (updated: LearnerProfile) => void;
   onEditOnboarding: () => void;
+  /** A friend code from an invite link, waiting for the Friends Hub */
+  pendingInviteCode: string | null;
+  onInviteHandled: () => void;
 }
 
 const ROOM_TOAST_MS = 6000;
@@ -70,6 +75,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   syncStatus,
   onUpdateProfile,
   onEditOnboarding,
+  pendingInviteCode,
+  onInviteHandled,
 }) => {
   const [activePracticeMission, setActivePracticeMission] =
     useState<MissionNode | null>(null);
@@ -244,9 +251,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   const formatShortAccountLabel = (u: AuthUserSummary) => {
     if (u.isAnonymous) return 'ענן אורח';
-    if (u.email?.endsWith('@peachnote.tutor.local')) {
-      return u.email.replace('@peachnote.tutor.local', '');
-    }
+    const username = usernameFromEmail(u.email);
+    if (username) return username;
     return u.displayName?.split(' ')[0] || u.email?.split('@')[0] || profile.name;
   };
 
@@ -647,6 +653,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           onUpdateProfile={onUpdateProfile}
           onSpeakEnglish={speakEnglish}
           onOpenShop={() => setIsRewardShopOpen(true)}
+        />
+
+        {/* FEATURE 19: FRIENDS HUB */}
+        <FriendsHub
+          profile={profile}
+          authUser={authUser}
+          theme={theme}
+          avatarEmoji={activeAvatarEmoji}
+          onUpdateProfile={onUpdateProfile}
+          onSpeakEnglish={speakEnglish}
+          pendingInviteCode={pendingInviteCode}
+          onInviteHandled={onInviteHandled}
         />
 
         {/* FEATURE 5: DAILY QUESTS & SHABBAT-SAFE WEEKLY STREAK TRACKER */}

@@ -9,7 +9,8 @@ import {
 } from '../types/learner';
 import { THEME_REGISTRY } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
-import { Sparkles, UserCheck, GraduationCap, Palette, ShieldCheck, X } from 'lucide-react';
+import { Sparkles, UserCheck, GraduationCap, Palette, ShieldCheck, Users, X } from 'lucide-react';
+import { isFriendsHubEnabled, setFriendsHubEnabled } from '../data/friends';
 
 interface OnboardingViewProps {
   initialProfile: LearnerProfile;
@@ -36,6 +37,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
       ? initialProfile.isShabbatObserver
       : true
   );
+  const [isFriendsHubOn, setIsFriendsHubOn] = useState<boolean>(isFriendsHubEnabled(initialProfile));
   const [errorMsg, setErrorMsg] = useState('');
 
   const activeTheme = THEME_REGISTRY[themeId];
@@ -57,8 +59,12 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
       return;
     }
 
+    const withFriendsHub =
+      isFriendsHubOn === isFriendsHubEnabled(initialProfile)
+        ? initialProfile
+        : setFriendsHubEnabled(initialProfile, isFriendsHubOn, new Date());
     onComplete({
-      ...initialProfile,
+      ...withFriendsHub,
       isOnboarded: true,
       name: name.trim(),
       age,
@@ -353,6 +359,44 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
               </div>
             </button>
           </div>
+
+          {/* 6. Friends Hub (Feature 19), in the settings only */}
+          {onCancel && (
+            <div className="space-y-1.5" dir="rtl">
+              <label className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
+                <Users className="w-4 h-4 text-sky-500" />
+                <span>מרכז החברים:</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => setIsFriendsHubOn(!isFriendsHubOn)}
+                aria-pressed={isFriendsHubOn}
+                className={`w-full p-3.5 rounded-2xl border text-right transition-all flex items-start gap-3 ${
+                  isFriendsHubOn
+                    ? 'border-sky-500/50 bg-sky-500/10'
+                    : 'border-current/10 bg-black/5 dark:bg-white/5 opacity-80'
+                }`}
+              >
+                <div
+                  className={`w-5 h-5 rounded-lg border-2 mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+                    isFriendsHubOn ? 'border-sky-500 bg-sky-500 text-white' : 'border-gray-400 bg-transparent'
+                  }`}
+                >
+                  {isFriendsHubOn && <span className="text-xs font-black">✓</span>}
+                </div>
+                <div className="space-y-0.5 flex-1">
+                  <div className="font-extrabold text-xs sm:text-sm">
+                    {isFriendsHubOn ? 'מרכז החברים פעיל' : 'מרכז החברים כבוי'}
+                  </div>
+                  <p className={`text-xs ${activeTheme.mutedTextClass}`}>
+                    {isFriendsHubOn
+                      ? 'חברים רואים את השם, הדמות וההתקדמות. אין צ׳אט 👫'
+                      : 'הכרטיס מוסתר וחברים לא רואים את ההתקדמות 🔒'}
+                  </p>
+                </div>
+              </button>
+            </div>
+          )}
 
           {/* Submit CTA */}
           <div className="flex items-center gap-2.5 pt-1" dir="rtl">

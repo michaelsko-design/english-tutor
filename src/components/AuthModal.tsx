@@ -16,6 +16,7 @@ import {
 } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
+import { normalizeIdentifierToEmail, usernameFromEmail } from '../utils/username';
 import {
   X,
   Cloud,
@@ -35,17 +36,6 @@ interface AuthModalProps {
   theme: ThemeDefinition;
   isMandatory?: boolean;
   onClose?: () => void;
-}
-
-/**
- * Converts a simple kid username (e.g. "noa12") into a valid email format
- * for Firebase Email/Password authentication if no "@" is present.
- */
-function normalizeIdentifierToEmail(input: string): string {
-  const trimmed = input.trim().toLowerCase();
-  if (trimmed.includes('@')) return trimmed;
-  const safeSlug = trimmed.replace(/[^a-z0-9._-]/g, '');
-  return `${safeSlug || 'learner'}@peachnote.tutor.local`;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
@@ -203,9 +193,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const formatUserLabel = (u: AuthUserSummary): string => {
     if (u.isAnonymous) return `Guest Cloud (${u.uid.slice(0, 6)})`;
-    if (u.email?.endsWith('@peachnote.tutor.local')) {
-      return u.email.replace('@peachnote.tutor.local', '');
-    }
+    const username = usernameFromEmail(u.email);
+    if (username) return username;
     return u.displayName || u.email || learnerName || 'Learner';
   };
 

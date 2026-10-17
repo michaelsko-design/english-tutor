@@ -1,10 +1,269 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function isRealAccount() {
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+
+    function isShortString(value, maxLength) {
+      return value is string && value.size() > 0 && value.size() <= maxLength;
+    }
+
+    // ISO timestamps written by the client; bounded so a document can't be inflated
+    function isIsoTime(value) {
+      return isShortString(value, 40);
+    }
+
+    // An avatar is emoji only: no letters or digits, so it can't carry a message
+    function isAvatar(value) {
+      return isShortString(value, 16) && !value.matches('.*[\\p{L}\\p{N}].*');
+    }
+
+    function isCount(value) {
+      return value is int && value >= 0 && value <= 1000000;
+    }
+
+    function docPath(collectionName, id) {
+      return /databases/$(database)/documents/$(collectionName)/$(id);
+    }
+
+    // The friendship document id: both uids, sorted (src/data/friends.ts getPairId)
+    function pairId(a, b) {
+      return a < b ? a + '_' + b : b + '_' + a;
+    }
+
+    function areFriends(a, b) {
+      let path = docPath('friendships', pairId(a, b));
+      return exists(path) && get(path).data.status == 'accepted';
+    }
+
+    // Preset reactions (src/data/friends.ts FRIEND_REACTIONS); there is no free text
+    function isPresetReaction(emoji) {
+      return emoji in ['👏', '🔥', '⭐', '😄', '💪', '🎉'];
+    }
+
+    function pad2(n) {
+      return n < 10 ? '0' + string(n) : string(n);
+    }
+
+    function dateOf(t) {
+      return string(t.year()) + '-' + pad2(t.month()) + '-' + pad2(t.day());
+    }
+
+    // A learner's local date is within a day of the server's UTC date
+    function isNearToday(dateStr) {
+      return dateStr in [
+        dateOf(request.time - duration.value(1, 'd')),
+        dateOf(request.time),
+        dateOf(request.time + duration.value(1, 'd'))
+      ];
+    }
+
     // Each authenticated learner can only read and write their own profile document
     match /learners/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Friend codes and usernames point to a learner and show their name and avatar before adding.
+    // They can be read one at a time (no listing), and only their owner can change them.
+    function isLookupEntry(data) {
+      return data.keys().hasOnly(['uid', 'displayName', 'avatarEmoji'])
+        && data.keys().hasAll(['uid', 'displayName', 'avatarEmoji'])
+        && data.uid == request.auth.uid
+        && isShortString(data.displayName, 24)
+        && isAvatar(data.avatarEmoji);
+    }
+
+    // Each learner owns exactly one friend code, recorded here when it is first claimed
+    match /friendCodeOwners/{userId} {
+      allow get: if isRealAccount() && request.auth.uid == userId;
+      allow create: if isRealAccount()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['code'])
+        && request.resource.data.code is string
+        && getAfter(docPath('friendCodes', request.resource.data.code)).data.uid == userId;
+    }
+
+    match /friendCodes/{code} {
+      allow get: if isRealAccount();
+      // Only the learner's own code (claimed with its owner record in the same write)
+      allow create: if isRealAccount()
+        && code.matches('^[A-HJKMNP-Z2-9]{6}$')
+        && isLookupEntry(request.resource.data)
+        && getAfter(docPath('friendCodeOwners', request.auth.uid)).data.code == code;
+      allow update: if isRealAccount()
+        && resource.data.uid == request.auth.uid
+        && isLookupEntry(request.resource.data);
+      // Removed while the hub is off; it can be claimed again only by its owner
+      allow delete: if isRealAccount() && resource.data.uid == request.auth.uid;
+    }
+
+    // Only the account whose sign-in email is <slug>@peachnote.tutor.local can claim or change the slug
+    match /usernames/{slug} {
+      allow get: if isRealAccount();
+      allow create, update: if isRealAccount()
+        && request.auth.token.email == slug + '@peachnote.tutor.local'
+        && isLookupEntry(request.resource.data);
+      allow delete: if isRealAccount()
+        && request.auth.token.email == slug + '@peachnote.tutor.local';
+    }
+
+    // What friends can see: display name, avatar and progress. No age, grade, email or school.
+    function isPublicProfile(data) {
+      let keys = ['displayName', 'avatarEmoji', 'level', 'streakDays', 'stars', 'missionsCompleted', 'updatedAt'];
+      return data.keys().hasOnly(keys)
+        && data.keys().hasAll(keys)
+        && isShortString(data.displayName, 24)
+        && isAvatar(data.avatarEmoji)
+        && isCount(data.level)
+        && isCount(data.streakDays)
+        && isCount(data.stars)
+        && isCount(data.missionsCompleted)
+        && isIsoTime(data.updatedAt);
+    }
+
+    match /publicProfiles/{userId} {
+      allow read: if isRealAccount()
+        && (request.auth.uid == userId || areFriends(request.auth.uid, userId));
+      allow create, update: if isRealAccount()
+        && request.auth.uid == userId
+        && isPublicProfile(request.resource.data);
+      allow delete: if isRealAccount() && request.auth.uid == userId;
+    }
+
+    // A friend request becomes a friendship only when the invited learner accepts it.
+    // The requester's name and avatar must be the ones on their own public profile.
+    function isNewFriendRequest(data, friendshipId) {
+      let keys = ['uids', 'requesterUid', 'requesterName', 'requesterAvatar',
+                  'addresseeName', 'addresseeAvatar', 'status', 'createdAt'];
+      let me = get(docPath('publicProfiles', request.auth.uid)).data;
+      return data.keys().hasOnly(keys)
+        && data.keys().hasAll(keys)
+        && data.requesterUid == request.auth.uid
+        && data.uids is list
+        && data.uids.size() == 2
+        && data.uids[0] == request.auth.uid
+        && data.uids[1] is string
+        && data.uids[1] != request.auth.uid
+        && friendshipId == pairId(data.uids[0], data.uids[1])
+        && data.status == 'pending'
+        && data.requesterName == me.displayName
+        && data.requesterAvatar == me.avatarEmoji
+        && isShortString(data.addresseeName, 24)
+        && isAvatar(data.addresseeAvatar)
+        && isIsoTime(data.createdAt);
+    }
+
+    function isAcceptance() {
+      return resource.data.status == 'pending'
+        && request.auth.uid != resource.data.requesterUid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'acceptedAt'])
+        && request.resource.data.status == 'accepted'
+        && isIsoTime(request.resource.data.acceptedAt);
+    }
+
+    // Each friend may change only their own reaction
+    function isOwnReaction() {
+      let before = resource.data.get('reactions', {});
+      let after = request.resource.data.get('reactions', {});
+      let mine = after.get(request.auth.uid, {});
+      return resource.data.status == 'accepted'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions'])
+        && after.diff(before).affectedKeys().hasOnly([request.auth.uid])
+        && mine.keys().hasOnly(['emoji', 'at'])
+        && mine.keys().hasAll(['emoji', 'at'])
+        && isPresetReaction(mine.emoji)
+        && isIsoTime(mine.at);
+    }
+
+    match /friendships/{friendshipId} {
+      allow read: if isRealAccount() && request.auth.uid in resource.data.uids;
+      allow create: if isRealAccount() && isNewFriendRequest(request.resource.data, friendshipId);
+      allow update: if isRealAccount()
+        && request.auth.uid in resource.data.uids
+        && (isAcceptance() || isOwnReaction());
+      // Cancelling, declining and removing a friend all delete the document
+      allow delete: if isRealAccount() && request.auth.uid in resource.data.uids;
+    }
+
+    // Daily contests (src/data/contests.ts): one per pair of friends per day, ending at the
+    // creator's local midnight (at most about a day away).
+    function isNewContest(data, contestId) {
+      let keys = ['uids', 'createdBy', 'creatorName', 'inviteeName', 'dateStr', 'expiresAtMs',
+                  'seed', 'unitNumber', 'status', 'createdAt'];
+      return data.keys().hasOnly(keys)
+        && data.keys().hasAll(keys)
+        && data.createdBy == request.auth.uid
+        && data.uids is list
+        && data.uids.size() == 2
+        && data.uids[0] == request.auth.uid
+        && data.uids[1] is string
+        && data.uids[1] != request.auth.uid
+        && areFriends(data.uids[0], data.uids[1])
+        && data.dateStr is string
+        && isNearToday(data.dateStr)
+        && contestId == pairId(data.uids[0], data.uids[1]) + '_' + data.dateStr
+        && data.expiresAtMs is int
+        && data.expiresAtMs > request.time.toMillis()
+        && data.expiresAtMs <= request.time.toMillis() + 25 * 60 * 60 * 1000
+        && data.seed is int
+        && data.unitNumber is int
+        && data.unitNumber >= 1
+        && data.unitNumber <= 4
+        && data.status == 'invited'
+        && data.creatorName == get(docPath('publicProfiles', request.auth.uid)).data.displayName
+        && isShortString(data.inviteeName, 24)
+        && isIsoTime(data.createdAt);
+    }
+
+    function isContestOpen() {
+      return request.time.toMillis() < resource.data.expiresAtMs;
+    }
+
+    // The invitee accepts or declines
+    function isContestResponse() {
+      return resource.data.status == 'invited'
+        && request.auth.uid == resource.data.uids[1]
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['accepted', 'declined'];
+    }
+
+    // Each player writes their own result once, before midnight. A contest has at least 5
+    // questions and can't be finished in under 3 seconds.
+    function isOwnContestResult() {
+      let before = resource.data.get('results', {});
+      let after = request.resource.data.get('results', {});
+      let mine = after.get(request.auth.uid, {});
+      let keys = ['correctCount', 'totalCount', 'timeMs', 'finishedAt'];
+      return !(request.auth.uid in before)
+        && resource.data.status != 'declined'
+        && (request.auth.uid == resource.data.createdBy || resource.data.status == 'accepted')
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['results'])
+        && after.diff(before).affectedKeys().hasOnly([request.auth.uid])
+        && mine.keys().hasOnly(keys)
+        && mine.keys().hasAll(keys)
+        && mine.totalCount is int
+        && mine.totalCount >= 5
+        && mine.totalCount <= 20
+        && mine.correctCount is int
+        && mine.correctCount >= 0
+        && mine.correctCount <= mine.totalCount
+        && mine.timeMs is int
+        && mine.timeMs >= 3000
+        && mine.timeMs <= 24 * 60 * 60 * 1000
+        && isIsoTime(mine.finishedAt);
+    }
+
+    match /contests/{contestId} {
+      allow read: if isRealAccount() && request.auth.uid in resource.data.uids;
+      allow create: if isRealAccount() && isNewContest(request.resource.data, contestId);
+      allow update: if isRealAccount()
+        && request.auth.uid in resource.data.uids
+        && isContestOpen()
+        && areFriends(resource.data.uids[0], resource.data.uids[1])
+        && (isContestResponse() || isOwnContestResult());
     }
   }
 }

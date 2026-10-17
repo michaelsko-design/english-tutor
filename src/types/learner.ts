@@ -219,6 +219,40 @@ export interface LearnerRoom {
   updatedAt: string;
 }
 
+/** How a daily contest ended for the learner (Feature 19). */
+export type ContestOutcome = 'won' | 'lost' | 'tie' | 'friend-missed';
+
+/** A decided daily contest; recording it also marks its diamonds as given. */
+export interface ContestRecord {
+  contestId: string;
+  friendUid: string;
+  friendName: string;
+  /** Local date the contest was played for, YYYY-MM-DD */
+  dateStr: string;
+  myScorePercent: number;
+  /** Missing when the friend didn't play */
+  theirScorePercent?: number;
+  outcome: ContestOutcome;
+  diamondsEarned: number;
+  recordedAt: string;
+}
+
+/** The learner's Friends Hub settings (Feature 19). Friends themselves live in Firestore. */
+export interface FriendsHubState {
+  /** The settings toggle; when off the hub is hidden and friends can't see the learner's progress */
+  isEnabled: boolean;
+  /** The learner's 6-character friend code, once claimed */
+  friendCode?: string;
+  /** When the code was claimed; if two devices each claimed one, the earlier code is kept */
+  friendCodeCreatedAt?: string;
+  /** Contests finished today that earned the full finishing reward */
+  contestFinishDay?: { dateStr: string; count: number };
+  /** Decided contests, newest first (at most 50) */
+  contestHistory?: ContestRecord[];
+  /** ISO timestamp of the latest toggle change; the newer one wins on merge */
+  updatedAt: string;
+}
+
 export interface LearnerProfile {
   isOnboarded: boolean;
   name: string;
@@ -250,6 +284,8 @@ export interface LearnerProfile {
   customWordLists?: CustomWordList[];
   /** My English Room layout, once the learner has placed or named an item */
   room?: LearnerRoom;
+  /** Friends Hub settings, once the learner opened the hub or changed its toggle */
+  friendsHub?: FriendsHubState;
   createdAt: string;
   /** ISO timestamp of the latest profile update for conflict resolution */
   updatedAt?: string;
