@@ -63,7 +63,7 @@ const BAND2: PromptSeed[] = [
   { fromName: 'Lily', fromEmoji: '👧', incomingEn: 'If it rains tomorrow, what will we do?', incomingHe: 'אם מחר ירד גשם, מה נעשה?', replyEn: 'If it rains, we will watch a movie. It will be fun.', replyHe: 'אם ירד גשם, נראה סרט. יהיה כיף.' },
   { fromName: 'Mom', fromEmoji: '👩', incomingEn: 'Did you finish your science project?', incomingHe: 'סיימת את הפרויקט במדעים?', replyEn: 'Not yet, but I have already started. I will finish it tonight.', replyHe: 'עוד לא, אבל כבר התחלתי. אסיים אותו הערב.' },
   { fromName: 'Omer', fromEmoji: '👦', incomingEn: 'Which is better, the book or the movie?', incomingHe: 'מה יותר טוב, הספר או הסרט?', replyEn: 'The book is better than the movie. It has more details.', replyHe: 'הספר טוב יותר מהסרט. יש בו יותר פרטים.' },
-  { fromName: 'Coach', fromEmoji: '🧑‍🏫', incomingEn: 'You should practice more before the game.', incomingHe: 'כדאי שתתאמן/י יותר לפני המשחק.', replyEn: 'You are right. I will practice every day.', replyHe: 'את/ה צודק/ת. אתאמן כל יום.' },
+  { fromName: 'Coach', fromEmoji: '🧑‍🏫', incomingEn: 'You should practice more before the game.', incomingHe: 'כדאי שתתאמן/י יותר לפני המשחק.', replyEn: 'You are right. I will practice every day.', replyHe: 'זה נכון. אתאמן כל יום.' },
 ];
 
 const BAND3: PromptSeed[] = [
