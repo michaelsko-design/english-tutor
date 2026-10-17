@@ -13,6 +13,11 @@ import {
 } from '../themes/themeRegistry';
 import { inflectHebrew } from '../utils/hebrewGender';
 import {
+  getBossGate,
+  getSuggestedMission,
+  isMissionUnlocked,
+} from '../data/milestones';
+import {
   Star,
   Lock,
   Play,
@@ -43,40 +48,18 @@ export const MissionMap: React.FC<MissionMapProps> = ({
   onStartMission,
   onSpeakEnglish,
 }) => {
-  const allMissions = units.flatMap((u) => u.missions);
-  const firstUncompletedIdx = allMissions.findIndex(
-    (m) => (missionProgress[m.id] || 0) === 0
-  );
-  const activeMissionIndex =
-    firstUncompletedIdx === -1 ? 0 : firstUncompletedIdx;
+  const nextMission = getSuggestedMission(units, missionProgress).mission;
 
-  const [selectedMission, setSelectedMission] = useState<MissionNode>(
-    allMissions[activeMissionIndex] || allMissions[0]
-  );
+  const [selectedMission, setSelectedMission] = useState<MissionNode>(nextMission);
 
   // Keep selectedMission synced if grade changes
   React.useEffect(() => {
-    const updatedList = units.flatMap((u) => u.missions);
-    const nextIdx = updatedList.findIndex(
-      (m) => (missionProgress[m.id] || 0) === 0
-    );
-    setSelectedMission(updatedList[nextIdx === -1 ? 0 : nextIdx] || updatedList[0]);
+    setSelectedMission(getSuggestedMission(units, missionProgress).mission);
   }, [units, missionProgress]);
 
   const isGirl = gender === 'girl';
   const tierMeta = TIER_CONFIG[selectedTier];
   const currentTierObj = selectedMission?.tierObjectives[selectedTier];
-
-  const isMissionUnlocked = (missionId: string): boolean => {
-    const idx = allMissions.findIndex((m) => m.id === missionId);
-    if (idx <= 0) return true;
-    const prevMission = allMissions[idx - 1];
-    return (
-      (missionProgress[missionId] || 0) > 0 ||
-      (missionProgress[prevMission.id] || 0) > 0 ||
-      idx <= activeMissionIndex
-    );
-  };
 
   return (
     <section aria-label="Interactive Story World and Mission Map" className="space-y-4 md:space-y-6">
@@ -104,6 +87,14 @@ export const MissionMap: React.FC<MissionMapProps> = ({
               0
             );
             const maxUnitStars = unit.missions.length * 3;
+            const bossGate = getBossGate(unit, missionProgress);
+            const bossMission = unit.missions.find((m) => m.isBoss);
+            const isBossGated = Boolean(
+              bossGate &&
+                !bossGate.isMet &&
+                bossMission &&
+                (missionProgress[bossMission.id] || 0) === 0
+            );
 
             return (
               <div
@@ -128,25 +119,43 @@ export const MissionMap: React.FC<MissionMapProps> = ({
                     </div>
                   </div>
 
-                  <div
-                    className={`px-2.5 py-1 rounded-xl text-xs font-extrabold flex items-center gap-1 shrink-0 ${theme.badgeClass}`}
-                    dir="ltr"
-                  >
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span>
-                      {unitStars}/{maxUnitStars}
-                    </span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {isBossGated && bossGate && bossGate.earned > 0 && (
+                      <div
+                        className="px-2 py-1 rounded-xl text-xs font-extrabold flex items-center gap-1 bg-amber-400/15 border border-amber-400/50 text-amber-700 dark:text-amber-300"
+                        dir="ltr"
+                        title="כוכבים שנצברו במשימות היחידה לפתיחת משימת הבוס"
+                      >
+                        <Crown className="w-3.5 h-3.5" />
+                        <span>
+                          {bossGate.earned}/{bossGate.required}
+                        </span>
+                      </div>
+                    )}
+                    <div
+                      className={`px-2.5 py-1 rounded-xl text-xs font-extrabold flex items-center gap-1 ${theme.badgeClass}`}
+                      dir="ltr"
+                    >
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      <span>
+                        {unitStars}/{maxUnitStars}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Mission Nodes List */}
                 <div className="space-y-2.5">
-                  {unit.missions.map((mission) => {
+                  {unit.missions.map((mission, missionIdx) => {
                     const starsEarned = missionProgress[mission.id] || 0;
-                    const unlocked = isMissionUnlocked(mission.id);
+                    const unlocked = isMissionUnlocked(units, missionProgress, mission.id);
                     const isSelected = selectedMission?.id === mission.id;
-                    const isCurrentNext =
-                      allMissions[activeMissionIndex]?.id === mission.id;
+                    const isCurrentNext = unlocked && nextMission.id === mission.id;
+                    const prevInUnit = unit.missions[missionIdx - 1];
+                    const isLockedByStars =
+                      mission.isBoss &&
+                      isBossGated &&
+                      Boolean(prevInUnit && (missionProgress[prevInUnit.id] || 0) > 0);
 
                     return (
                       <div
@@ -246,11 +255,28 @@ export const MissionMap: React.FC<MissionMapProps> = ({
                                     : 'התחל'}
                                 </span>
                               </button>
+                            ) : isLockedByStars && bossGate ? (
+                              <span
+                                className="px-2 py-1 rounded-xl text-xs font-extrabold bg-amber-400/15 border border-amber-400/50"
+                                dir="ltr"
+                                title={`${bossGate.earned} מתוך ${bossGate.required} כוכבים`}
+                              >
+                                🔑 {bossGate.earned}/{bossGate.required} ⭐
+                              </span>
                             ) : (
                               <span className="text-xs font-bold opacity-60">🔒</span>
                             )}
                           </div>
                         </div>
+
+                        {isLockedByStars && bossGate && (
+                          <p
+                            className="mt-2 text-xs font-extrabold text-amber-700 dark:text-amber-300"
+                            dir="rtl"
+                          >
+                            🔒 עוד {bossGate.missing} ⭐ ביחידה כדי לפתוח את משימת הבוס
+                          </p>
+                        )}
 
                         {/* Inline Mobile Mission Preview (shown right inside the selected node on <lg screens) */}
                         {isSelected && unlocked && (

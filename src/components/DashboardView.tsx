@@ -13,11 +13,8 @@ import {
   THEME_REGISTRY,
   TIER_CONFIG,
 } from '../themes/themeRegistry';
-import {
-  CURRICULUM_BY_GRADE,
-  getSuggestedMissionForGrade,
-  MissionNode,
-} from '../data/curriculum';
+import { CURRICULUM_BY_GRADE, MissionNode } from '../data/curriculum';
+import { countCompletedMissions, getSuggestedMission } from '../data/milestones';
 import { DailyQuestDefinition, RewardShopItem } from '../data/rewardShop';
 import { MissionMap } from './MissionMap';
 import { MissionRunner } from './MissionRunner';
@@ -49,6 +46,7 @@ import {
   Palette,
   Sparkles,
   Target,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -83,10 +81,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     CURRICULUM_BY_GRADE[profile.gradeId] || CURRICULUM_BY_GRADE['grade-7'];
   const totalGradeStarsPossible =
     gradeCurriculum.units.reduce((acc, u) => acc + u.missions.length * 3, 0) || 36;
-  const todaysMission = getSuggestedMissionForGrade(
-    profile.gradeId,
+  const { mission: todaysMission, bossGate: todaysBossGate } = getSuggestedMission(
+    gradeCurriculum.units,
     profile.missionProgress || {}
   );
+  const missionsCompletedCount = countCompletedMissions(profile.missionProgress || {});
   const activeTier = TIER_CONFIG[profile.preferredTier];
 
   const calculatedXp = Math.round(todaysMission.baseXp * activeTier.xpMultiplier);
@@ -404,10 +403,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             )}
           </div>
 
-          {/* 4-Pill Horizontal Achievement Strip */}
-          <div className="grid grid-cols-4 gap-2 md:gap-3.5">
+          {/* 5-Pill Achievement Strip: progress row (3) + currency row (2) on mobile, one row on md+ */}
+          <div className="grid grid-cols-6 md:grid-cols-5 gap-2 md:gap-3.5">
             {/* Stat 1: Streak */}
-            <div className={`rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right`}>
+            <div className={`col-span-2 md:col-span-1 rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right`}>
               <div className="w-8 h-8 md:w-11 md:h-11 rounded-xl bg-orange-500/15 border border-orange-400/30 flex items-center justify-center text-orange-500 shrink-0">
                 <Flame className="w-4 h-4 md:w-5 md:h-5 fill-orange-500" />
               </div>
@@ -421,14 +420,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
 
-            {/* Stat 2: Stars */}
-            <div className={`rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right`}>
+            {/* Stat 2: Stars (mastery depth: 1–3 per mission, all grades) */}
+            <div
+              className={`col-span-2 md:col-span-1 rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right`}
+              title="כוכבים מודדים עומק שליטה: 1–3 כוכבים לכל משימה"
+            >
               <div className="w-8 h-8 md:w-11 md:h-11 rounded-xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-amber-500 shrink-0">
                 <Star className="w-4 h-4 md:w-5 md:h-5 fill-amber-400" />
               </div>
               <div className="min-w-0">
-                <div className="text-sm sm:text-base md:text-xl font-extrabold leading-tight" dir="ltr">
-                  {profile.stats.stars}/{totalGradeStarsPossible}
+                <div className="text-sm sm:text-base md:text-xl font-extrabold leading-tight">
+                  {profile.stats.stars}
                 </div>
                 <div className={`text-[11px] md:text-xs font-semibold truncate ${theme.mutedTextClass}`}>
                   כוכבים
@@ -436,11 +438,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
 
-            {/* Stat 3: Diamonds / Gems (Clickable to open Reward Shop) */}
+            {/* Stat 3: Missions Completed (volume: distinct missions finished at least once) */}
+            <div
+              className={`col-span-2 md:col-span-1 rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right`}
+              title="מספר המשימות השונות שהושלמו לפחות פעם אחת"
+            >
+              <div className="w-8 h-8 md:w-11 md:h-11 rounded-xl bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center text-emerald-500 shrink-0">
+                <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm sm:text-base md:text-xl font-extrabold leading-tight">
+                  {missionsCompletedCount}
+                </div>
+                <div className={`text-[11px] md:text-xs font-semibold truncate ${theme.mutedTextClass}`}>
+                  משימות הושלמו
+                </div>
+              </div>
+            </div>
+
+            {/* Stat 4: Diamonds / Gems (Clickable to open Reward Shop) */}
             <button
               type="button"
               onClick={() => setIsRewardShopOpen(true)}
-              className={`rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right hover:ring-2 hover:ring-fuchsia-400 transition-all`}
+              className={`col-span-3 md:col-span-1 rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right hover:ring-2 hover:ring-fuchsia-400 transition-all`}
             >
               <div className="w-8 h-8 md:w-11 md:h-11 rounded-xl bg-fuchsia-500/15 border border-fuchsia-400/30 flex items-center justify-center text-fuchsia-500 shrink-0">
                 <Gem className="w-4 h-4 md:w-5 md:h-5" />
@@ -455,11 +475,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </button>
 
-            {/* Stat 4: XP & Words Mastered (Clickable to open Vocab Vault) */}
+            {/* Stat 5: XP & Words Mastered (Clickable to open Vocab Vault) */}
             <button
               type="button"
               onClick={() => setIsVocabVaultOpen(true)}
-              className={`rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right hover:ring-2 hover:ring-purple-400 transition-all`}
+              className={`col-span-3 md:col-span-1 rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right hover:ring-2 hover:ring-purple-400 transition-all`}
             >
               <div className="w-8 h-8 md:w-11 md:h-11 rounded-xl bg-indigo-500/15 border border-indigo-400/30 flex items-center justify-center text-indigo-500 shrink-0">
                 <Zap className="w-4 h-4 md:w-5 md:h-5 fill-indigo-400" />
@@ -509,6 +529,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <p className={`text-xs sm:text-sm line-clamp-2 md:line-clamp-none ${theme.mutedTextClass}`} dir="rtl">
                   {inflectHebrew(todaysMission.storyHookHe, profile.gender)}
                 </p>
+                {todaysBossGate && (
+                  <p
+                    className="inline-flex items-center gap-1 mt-1 px-2.5 py-1 rounded-xl text-xs font-extrabold bg-amber-400/20 border border-amber-400/50"
+                    dir="rtl"
+                  >
+                    🔁 {profile.gender === 'girl' ? 'שפרי' : 'שפר'} את המשימה הזו · עוד{' '}
+                    {todaysBossGate.missing} ⭐ לפתיחת משימת הבוס
+                  </p>
+                )}
               </div>
             </div>
 

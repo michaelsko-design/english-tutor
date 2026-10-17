@@ -1,5 +1,5 @@
 import { GradeId } from '../../types/learner';
-import { GradeCurriculumPack, MissionNode } from './types';
+import { GradeCurriculumPack } from './types';
 
 import { grade1Curriculum } from './elementary/grade1';
 import { grade2Curriculum } from './elementary/grade2';
@@ -32,14 +32,3 @@ export const CURRICULUM_BY_GRADE: Record<GradeId, GradeCurriculumPack> = {
   'grade-11': grade11Curriculum,
   'grade-12': grade12Curriculum,
 };
-
-export function getSuggestedMissionForGrade(
-  gradeId: GradeId,
-  missionProgress: Record<string, number>
-): MissionNode {
-  const pack = CURRICULUM_BY_GRADE[gradeId] || CURRICULUM_BY_GRADE['grade-7'];
-  const allMissions = pack.units.flatMap((u) => u.missions);
-
-  const nextUncompleted = allMissions.find((m) => (missionProgress[m.id] || 0) === 0);
-  return nextUncompleted || allMissions[0];
-}
