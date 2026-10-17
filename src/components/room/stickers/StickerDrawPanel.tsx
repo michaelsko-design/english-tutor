@@ -21,12 +21,19 @@ const BRUSHES = [
   { width: 34, labelHe: 'עבה' },
 ];
 
-const ERROR_TEXT: Record<AddStickerError, string> = {
-  'no-pass': 'צריך את כרטיס סטודיו המדבקות מהחנות 🎨',
-  full: 'האלבום מלא — מחקו מדבקה ישנה כדי לשמור חדשה',
-  'bad-name': 'השם צריך להיות באנגלית: מילה אחת עד שלוש, באותיות בלבד',
-  'bad-image': 'משהו השתבש בשמירת הציור — נסו לצייר שוב',
-};
+/** Why a drawing wasn't saved, addressed by gender. */
+function getErrorText(error: AddStickerError, isGirl: boolean): string {
+  switch (error) {
+    case 'no-pass':
+      return 'צריך את כרטיס סטודיו המדבקות מהחנות 🎨';
+    case 'full':
+      return isGirl ? 'האלבום מלא — מחקי מדבקה ישנה כדי לשמור חדשה' : 'האלבום מלא — מחק מדבקה ישנה כדי לשמור חדשה';
+    case 'bad-name':
+      return 'השם צריך להיות באנגלית: מילה אחת עד שלוש, באותיות בלבד';
+    case 'bad-image':
+      return isGirl ? 'משהו השתבש בשמירת הציור — נסי לצייר שוב' : 'משהו השתבש בשמירת הציור — נסה לצייר שוב';
+  }
+}
 
 /** Draw a sticker, give it an English name (typed or spoken), and save it to the album. */
 export const StickerDrawPanel: React.FC<StickerDrawPanelProps> = ({ profile, theme, onUpdateProfile, onSpeakEnglish, onDone }) => {
@@ -52,7 +59,7 @@ export const StickerDrawPanel: React.FC<StickerDrawPanelProps> = ({ profile, the
     if (!canvasRef.current || strokes.length === 0) return;
     const result = addDrawnSticker(profile, name, canvasRef.current.exportPng(), new Date());
     if (result.error) {
-      setError(ERROR_TEXT[result.error]);
+      setError(getErrorText(result.error, isGirl));
       return;
     }
     onUpdateProfile(result.profile);
