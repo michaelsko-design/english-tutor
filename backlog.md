@@ -22,6 +22,7 @@
   3. **Earning & Placing Items** (from former Feature 14): completing a mission with 3 stars awards a furniture or decor item; Reward Shop decor and stickers (Feature 5) also land here. To place any item in the room, the learner must first say or spell its English name correctly (e.g., "sofa"), which reinforces active vocabulary recall.
   4. **Sticker Studio (יצירת מדבקות)** (from former Feature 12, extended): an album of collected stickers that learners can use to decorate the room and the app background. **Premium (פרימיום):** learners can draw their own stickers and then use them; a newly drawn sticker is saved once the learner gives it an English name (typed or spoken).
   5. **Pending**: A detailed breakdown of the missions for each room item will be provided later.
+  - **Progress**: ✅ Phase 1 done — the room, avatar walking, earning items from 3-star missions and shop decor/stickers, placing items by saying or spelling their names, and free starter avatars. Next phases: 🚪 Wardrobe Dress-Up, 📱 Voice Messages, 🛏️ Dream Journal, 📖 Games Book, Sticker Studio.
 
 - [ ] **Feature 20**: Fix Hints (תיקון רמזים) - Some hints repeat the question itself, so they give no real help. Audit the hints in every mission and drill, and rewrite any hint that just restates the prompt so it gives a useful clue without revealing the answer.
 - [ ] **Feature 21**: App Name Change (שינוי שם האפליקציה) - The app name is still TBD. Choose the new name and update every place it appears in the UI, page titles, manifest and docs.

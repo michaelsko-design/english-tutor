@@ -157,6 +157,16 @@ export interface CustomWordList {
   archivedAt?: string;
 }
 
+/** The learner's room layout (Feature 12). Owned room items live in `unlockedRewardIds`. */
+export interface LearnerRoom {
+  /** Maps slotId -> placed room item id */
+  placements: Record<string, string>;
+  /** Items the learner has said or spelled at least once (the first time earns XP) */
+  namedItemIds: string[];
+  /** ISO timestamp of the latest layout change; the newer layout wins on merge */
+  updatedAt: string;
+}
+
 export interface LearnerProfile {
   isOnboarded: boolean;
   name: string;
@@ -186,6 +196,8 @@ export interface LearnerProfile {
   examPrep?: ExamPrepPlan;
   /** Word lists imported from school worksheets, including archived (deleted) ones */
   customWordLists?: CustomWordList[];
+  /** My English Room layout, once the learner has placed or named an item */
+  room?: LearnerRoom;
   createdAt: string;
   /** ISO timestamp of the latest profile update for conflict resolution */
   updatedAt?: string;

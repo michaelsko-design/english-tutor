@@ -68,6 +68,21 @@ export const REWARD_SHOP_ITEMS: RewardShopItem[] = [
     descriptionHe: 'הסמל הרשמי של סטודיו PeachNote!',
     costDiamonds: 0,
   },
+  // Free starter avatars that live in My English Room (Feature 12)
+  ...[
+    { id: 'avatar-starter-girl', emoji: '👧', titleEn: 'Girl', titleHe: 'ילדה' },
+    { id: 'avatar-starter-boy', emoji: '👦', titleEn: 'Boy', titleHe: 'ילד' },
+    { id: 'avatar-starter-dog', emoji: '🐶', titleEn: 'Puppy', titleHe: 'כלבלב' },
+    { id: 'avatar-starter-cat', emoji: '🐱', titleEn: 'Kitten', titleHe: 'חתלתול' },
+    { id: 'avatar-starter-panda', emoji: '🐼', titleEn: 'Panda', titleHe: 'פנדה' },
+  ].map(
+    (starter): RewardShopItem => ({
+      ...starter,
+      category: 'avatar',
+      descriptionHe: 'אווטאר חינמי שגר איתך בחדר האנגלי.',
+      costDiamonds: 0,
+    })
+  ),
   {
     id: 'avatar-kpop-bunny',
     category: 'avatar',

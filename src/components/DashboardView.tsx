@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AuthUserSummary,
   CloudSyncStatus,
@@ -27,6 +27,8 @@ import { applyPlacementToProfile } from '../data/placementTest';
 import { levelForXp, recordDailyActivity } from '../data/progressRewards';
 import { ExamPrepHub } from './examPrep/ExamPrepHub';
 import { WordListsHub } from './wordLists/WordListsHub';
+import { RoomHub } from './room/RoomHub';
+import { RoomItem, getNextRoomReward, getRoomRewardForMission } from '../data/room';
 import { getHebrewCopy, inflectHebrew } from '../utils/hebrewGender';
 import {
   Flame,
@@ -58,6 +60,8 @@ interface DashboardViewProps {
   onEditOnboarding: () => void;
 }
 
+const ROOM_TOAST_MS = 6000;
+
 export const DashboardView: React.FC<DashboardViewProps> = ({
   profile,
   authUser,
@@ -71,6 +75,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [isRewardShopOpen, setIsRewardShopOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isPlacementOpen, setIsPlacementOpen] = useState(false);
+  const [roomRewardToast, setRoomRewardToast] = useState<RoomItem | null>(null);
+
+  useEffect(() => {
+    if (!roomRewardToast) return;
+    const timer = window.setTimeout(() => setRoomRewardToast(null), ROOM_TOAST_MS);
+    return () => window.clearTimeout(timer);
+  }, [roomRewardToast]);
 
   const theme = THEME_REGISTRY[profile.themeId] || THEME_REGISTRY['cozy-studio'];
   const activeAvatarEmoji = profile.equippedAvatarEmoji || theme.avatarEmoji;
@@ -123,9 +134,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       new Date().toISOString().slice(0, 10)
     );
     const newXp = withActivity.stats.xp + result.xpEarned;
+    const roomReward = getRoomRewardForMission(profile, result.missionId, result.starsEarned);
 
     onUpdateProfile({
       ...withActivity,
+      unlockedRewardIds: roomReward
+        ? [...(profile.unlockedRewardIds || []), roomReward.id]
+        : profile.unlockedRewardIds,
       missionProgress: {
         ...(profile.missionProgress || {}),
         [result.missionId]: updatedMissionStars,
@@ -143,6 +158,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     });
 
     setActivePracticeMission(null);
+    if (roomReward) setRoomRewardToast(roomReward);
   };
 
   const handleEarnVocabReward = (xpBonus: number, diamondBonus: number) => {
@@ -617,6 +633,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           onSpeakEnglish={speakEnglish}
         />
 
+        {/* FEATURE 12: MY ENGLISH ROOM */}
+        <RoomHub
+          profile={profile}
+          theme={theme}
+          avatarEmoji={activeAvatarEmoji}
+          onUpdateProfile={onUpdateProfile}
+          onSpeakEnglish={speakEnglish}
+          onOpenShop={() => setIsRewardShopOpen(true)}
+        />
+
         {/* FEATURE 5: DAILY QUESTS & SHABBAT-SAFE WEEKLY STREAK TRACKER */}
         <DailyQuestsCard
           streakDays={profile.stats.streakDays}
@@ -797,6 +823,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           onSpeakEnglish={speakEnglish}
           onCompleteMission={handleCompleteMission}
           onClose={() => setActivePracticeMission(null)}
+          roomRewardPreview={
+            (profile.missionProgress?.[activePracticeMission.id] || 0) < 3 ? getNextRoomReward(profile) : null
+          }
         />
       )}
 
@@ -839,6 +868,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           onEquipAvatar={handleEquipAvatar}
           onClose={() => setIsRewardShopOpen(false)}
         />
+      )}
+
+      {/* FEATURE 12: NEW ROOM ITEM TOAST */}
+      {roomRewardToast && (
+        <div className="fixed inset-x-0 bottom-20 md:bottom-6 z-40 flex justify-center px-4 pointer-events-none" dir="rtl">
+          <button
+            type="button"
+            onClick={() => {
+              setRoomRewardToast(null);
+              scrollToSection('english-room');
+            }}
+            className={`pointer-events-auto px-4 py-3 rounded-2xl shadow-2xl border-2 border-fuchsia-400 flex items-center gap-3 font-extrabold text-sm ${theme.cardBgClass} ${theme.pageBgClass}`}
+            role="status"
+          >
+            <span className="text-2xl leading-none">{roomRewardToast.emoji}</span>
+            <span>🎁 פריט חדש לחדר: {roomRewardToast.nameHe} — לחדר שלי ←</span>
+          </button>
+        </div>
       )}
 
       {/* FEATURE 6: KID-FRIENDLY CLOUD AUTHENTICATION & CROSS-DEVICE SYNC MODAL */}

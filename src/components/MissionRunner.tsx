@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { MissionNode } from '../data/curriculum';
+import { RoomItem } from '../data/room';
 import {
   getExercisesForMission,
   MissionExerciseStep,
@@ -43,6 +44,8 @@ interface MissionRunnerProps {
     wordsLearnedCount: number;
   }) => void;
   onClose: () => void;
+  /** Room item a first 3-star result would earn (Feature 12) */
+  roomRewardPreview?: RoomItem | null;
 }
 
 export const MissionRunner: React.FC<MissionRunnerProps> = ({
@@ -55,6 +58,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   onSpeakEnglish,
   onCompleteMission,
   onClose,
+  roomRewardPreview,
 }) => {
   const isGirl = gender === 'girl';
   // Random salt per mission attempt: shuffles answer options differently on every attempt,
@@ -301,6 +305,24 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
               </div>
             </div>
           </div>
+
+          {starsEarned === 3 && roomRewardPreview && (
+            <div
+              className="p-3.5 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-400/50 flex items-center justify-center gap-3"
+              dir="rtl"
+            >
+              <span className="text-3xl leading-none" aria-hidden="true">
+                {roomRewardPreview.emoji}
+              </span>
+              <div className="text-right">
+                <div className="text-sm font-extrabold">🎁 פריט חדש לחדר האנגלי: {roomRewardPreview.nameHe}</div>
+                <div className="text-xs opacity-80">
+                  {isGirl ? 'אמרי או אייתי' : 'אמור או איית'} &ldquo;<span dir="ltr">{roomRewardPreview.nameEn}</span>&rdquo; כדי
+                  להניח אותו בחדר
+                </div>
+              </div>
+            </div>
+          )}
 
           <button
             type="button"

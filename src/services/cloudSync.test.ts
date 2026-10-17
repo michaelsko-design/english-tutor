@@ -209,3 +209,36 @@ describe('mergeLearnerProfiles customWordLists', () => {
     expect(mergeLearnerProfiles(baseProfile, { customWordLists: lists }).customWordLists).toEqual(lists);
   });
 });
+
+describe('mergeLearnerProfiles room', () => {
+  const olderRoom = {
+    placements: { 'floor-left': 'room-sofa' },
+    namedItemIds: ['room-sofa'],
+    updatedAt: '2026-10-12T08:00:00.000Z',
+  };
+  const newerRoom = {
+    placements: { 'floor-right': 'room-plant' },
+    namedItemIds: ['room-plant'],
+    updatedAt: '2026-10-14T08:00:00.000Z',
+  };
+
+  it('keeps the newer layout from either device', () => {
+    const fromCloud = mergeLearnerProfiles({ ...baseProfile, room: olderRoom }, { room: newerRoom }).room!;
+    const fromLocal = mergeLearnerProfiles({ ...baseProfile, room: newerRoom }, { room: olderRoom }).room!;
+    [fromCloud, fromLocal].forEach((room) => {
+      expect(room.placements).toEqual({ 'floor-right': 'room-plant' });
+      expect(room.updatedAt).toBe(newerRoom.updatedAt);
+    });
+  });
+
+  it('keeps the items named on both devices', () => {
+    const merged = mergeLearnerProfiles({ ...baseProfile, room: olderRoom }, { room: newerRoom }).room!;
+    expect([...merged.namedItemIds].sort()).toEqual(['room-plant', 'room-sofa']);
+  });
+
+  it('keeps a room that exists on only one side and adds none otherwise', () => {
+    expect(mergeLearnerProfiles(baseProfile, { room: olderRoom }).room).toEqual(olderRoom);
+    expect(mergeLearnerProfiles({ ...baseProfile, room: olderRoom }, {}).room).toEqual(olderRoom);
+    expect('room' in mergeLearnerProfiles(baseProfile, baseProfile)).toBe(false);
+  });
+});

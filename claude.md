@@ -158,6 +158,17 @@ Each learning mission consists of 5 pedagogical drill stages:
 - Stored as `customWordLists` on the profile. Deleting a list sets `archivedAt` and empties its items (a small tombstone, so a merge can't bring it back). Merge: union by id; the same list keeps the best score and latest practice, and stays deleted once either device archived it.
 - Voice recognition lives in `hooks/useSpeechRecognition.ts` and `drills/VoiceSpeakDrill.tsx`, shared with `MissionRunner`; letter magnets are `drills/SpellingMagnetDrill.tsx`.
 
+### 4.12. My English Room (`room.ts`, `components/room/`) — Phase 1
+- The "החדר האנגלי שלי" dashboard card (under the word lists card) shows a live preview of the room and opens it full-screen.
+- **The room** (`RoomScene`): a drawn wall/floor scene with fixed slots (wall, sticker board, shelf, desk, floor) and four mission objects: 🛏️ bed, 📱 phone, 🚪 wardrobe, 📖 Games Book. Slot positions and per-theme colours live in `roomLayout.ts`. The equipped shop avatar walks to whatever the learner taps.
+- **Mission objects** show a "coming soon" bubble with their activity until later phases ship.
+- **Items**: 20 room items (`ROOM_ITEMS`) plus the shop decor lamp and the 3 shop stickers (`SHOP_ROOM_ITEMS`). Every learner starts with the 🪴 plant. Ownership reuses `unlockedRewardIds`.
+- **Earning**: a mission's *first* 3-star result awards the next unowned item in `ROOM_REWARD_ORDER` (`getRoomRewardForMission`). The victory screen previews it and the dashboard shows a toast.
+- **Placing** (`NameItemPanel`): pick an item, then a blinking slot of its kind; the learner must **say** the English name (speech recognition) or **spell** it with letter magnets. The first naming of each item gives +5 XP (`namedItemIds`). Tapping a placed item says its name and offers move / put away.
+- **Avatars**: five free starter avatars (girl, boy, puppy, kitten, panda) were added to the shop.
+- Stored as `room` on the profile (`placements` slot → item, `namedItemIds`, `updatedAt`). Merge: the newer layout wins; named items are unioned.
+- Later phases (wardrobe dress-up, phone voice messages, bed dream journal, Games Book word games, Sticker Studio) are tracked under Feature 12 in `backlog.md`.
+
 ---
 
 ## 5. Directory Structure
@@ -177,6 +188,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── PlacementTest.tsx         # Adaptive diagnostic placement test overlay
 │   │   ├── PlacementResultCard.tsx   # Placement result & grade/tier recommendation
 │   │   ├── RewardShopModal.tsx       # Diamond shop (avatars, stickers, shields)
+│   │   ├── room/                     # My English Room: dashboard hub, scene & layout, inventory, name-it-to-place-it panel
 │   │   ├── VocabularyVaultModal.tsx  # Ministry word bank & pronunciation studio
 │   │   └── wordLists/                # School word lists: dashboard card, importer, session runner & result
 │   ├── data/
@@ -193,6 +205,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── milestones.ts             # Boss star gate, mission unlocks, suggested mission & missions counter (+ .test.ts)
 │   │   ├── placementTest.ts          # Placement question generation, staircase & scoring (+ .test.ts)
 │   │   ├── progressRewards.ts        # Shared level formula & daily-activity/streak bookkeeping
+│   │   ├── room.ts                   # Room items & slots, 3-star item rewards, placing & naming rules (+ .test.ts)
 │   │   └── rewardShop.ts             # Daily quest & shop item catalog
 │   ├── hooks/
 │   │   └── useSpeechRecognition.ts   # Web Speech recognition for the voice drills

@@ -5,6 +5,7 @@ import {
   ExamPlanDay,
   ExamPrepPlan,
   LearnerProfile,
+  LearnerRoom,
   PlacementResult,
 } from '../types/learner';
 
@@ -127,6 +128,8 @@ export function mergeLearnerProfiles(
 
   const resolvedWordLists = mergeCustomWordLists(local.customWordLists, cloud.customWordLists);
 
+  const resolvedRoom = mergeRoom(local.room, cloud.room);
+
   const resolvedAvatar = preferCloudPrefs
     ? cloud.equippedAvatarEmoji || local.equippedAvatarEmoji
     : local.equippedAvatarEmoji || cloud.equippedAvatarEmoji;
@@ -152,6 +155,7 @@ export function mergeLearnerProfiles(
     ...(resolvedPlacement ? { placementResult: resolvedPlacement } : {}),
     ...(resolvedExamPrep ? { examPrep: resolvedExamPrep } : {}),
     ...(resolvedWordLists ? { customWordLists: resolvedWordLists } : {}),
+    ...(resolvedRoom ? { room: resolvedRoom } : {}),
     stats: {
       xp: mergedXp,
       level: mergedLevel,
@@ -294,6 +298,24 @@ function mergeCustomWordLists(
     }),
     ...cloud.filter((c) => !localIds.has(c.id)),
   ];
+}
+
+/**
+ * The newer room layout wins (it is a single arrangement, so slots are not mixed), while the
+ * items the learner has already named are kept from both devices.
+ */
+function mergeRoom(
+  local: LearnerRoom | undefined,
+  cloud: LearnerRoom | undefined
+): LearnerRoom | undefined {
+  if (!local || !cloud) return local || cloud;
+  const localTime = Date.parse(local.updatedAt) || 0;
+  const cloudTime = Date.parse(cloud.updatedAt) || 0;
+  const newer = cloudTime > localTime ? cloud : local;
+  return {
+    ...newer,
+    namedItemIds: Array.from(new Set([...(local.namedItemIds || []), ...(cloud.namedItemIds || [])])),
+  };
 }
 
 /**
