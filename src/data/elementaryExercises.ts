@@ -30,6 +30,13 @@ export function buildElementaryExercises(
   const wrongExplain = (w: { wordEn: string; translationHe: string }) =>
     `לא בדיוק — ${w.wordEn} פירושו "${w.translationHe}". נסי שוב!`;
 
+  const isMiddleOrHigh =
+    mission.id.startsWith('g8-') ||
+    mission.id.startsWith('g9-') ||
+    mission.id.startsWith('g10-') ||
+    mission.id.startsWith('g11-') ||
+    mission.id.startsWith('g12-');
+
   if (isExplorer) {
     const opts: MultipleChoiceOption[] = [
       { textEn: v0.wordEn, isCorrect: true, explanationHe: correctExplain },
@@ -40,13 +47,19 @@ export function buildElementaryExercises(
       stepNumber: 1,
       type: 'chat-reply',
       badgeLabelHe: '💬 שלב 1/5: איזו מילה זו?',
-      promptHe: v0.emoji
+      promptHe: isMiddleOrHigh
+        ? `איזו מילה באנגלית פירושה "${v0.translationHe}"? בחרי:`
+        : v0.emoji
         ? 'איזו מילה באנגלית מתאימה לתמונה? בחרי:'
         : `איזו מילה באנגלית פירושה "${v0.translationHe}"? בחרי:`,
       hintHe: `💡 רמז: המילה מתחילה באות ${v0.wordEn.charAt(0).toUpperCase()}`,
       speakerName: 'Word Guide',
       speakerAvatar: mission.icon,
-      questionEn: v0.emoji ? `What is this? ${v0.emoji}` : 'Which word is right?',
+      questionEn: isMiddleOrHigh
+        ? `Which English word means "${v0.translationHe}"?`
+        : v0.emoji
+        ? `What is this? ${v0.emoji}`
+        : 'Which word is right?',
       options: opts,
     };
   } else if (!isMaster) {
