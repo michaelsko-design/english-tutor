@@ -10,6 +10,8 @@ interface ActivityRewardSummaryProps {
   gender: LearnerGender;
   headlineHe: string;
   emptyHe: string;
+  /** Shown instead of the "already rewarded today" line when a smaller reward has another reason */
+  partialHe?: string;
   againLabel: string;
   onAgain: () => void;
   onClose: () => void;
@@ -22,6 +24,7 @@ export const ActivityRewardSummary: React.FC<ActivityRewardSummaryProps> = ({
   gender,
   headlineHe,
   emptyHe,
+  partialHe,
   againLabel,
   onAgain,
   onClose,
@@ -31,7 +34,7 @@ export const ActivityRewardSummary: React.FC<ActivityRewardSummaryProps> = ({
     ? emptyHe
     : reward.isFullReward
       ? `+${reward.xpEarned} XP ו־+${reward.diamondsEarned} 💎 — וזה נספר כמשימה של היום! 🎯`
-      : `+${reward.xpEarned} XP · את הפרס היומי כבר קיבלת היום, ${isGirl ? 'המשיכי' : 'המשך'} להתאמן!`;
+      : partialHe ?? `+${reward.xpEarned} XP · את הפרס היומי כבר קיבלת היום, ${isGirl ? 'המשיכי' : 'המשך'} להתאמן!`;
 
   return (
     <div className="space-y-3 text-center py-2" role="status">

@@ -55,6 +55,17 @@ export function isActivityRewardedToday(profile: LearnerProfile, activityId: Roo
   return getRoom(profile).activityRewardDates?.[activityId] === toLocalDateStr(now);
 }
 
+/** The small XP of a repeat; it doesn't use up the daily reward or count as a mission. */
+export function applyRepeatActivityXp(profile: LearnerProfile): RoomActivityReward {
+  const xp = profile.stats.xp + ROOM_ACTIVITY_REPEAT_XP;
+  return {
+    profile: { ...profile, stats: { ...profile.stats, xp, level: levelForXp(xp, profile.stats.level) } },
+    xpEarned: ROOM_ACTIVITY_REPEAT_XP,
+    diamondsEarned: 0,
+    isFullReward: false,
+  };
+}
+
 /** Rewards a finished room activity: the full reward once a day per activity, a little XP after. */
 export function applyRoomActivityReward(
   profile: LearnerProfile,
@@ -62,15 +73,7 @@ export function applyRoomActivityReward(
   voiceWords: number,
   now: Date
 ): RoomActivityReward {
-  if (isActivityRewardedToday(profile, activityId, now)) {
-    const xp = profile.stats.xp + ROOM_ACTIVITY_REPEAT_XP;
-    return {
-      profile: { ...profile, stats: { ...profile.stats, xp, level: levelForXp(xp, profile.stats.level) } },
-      xpEarned: ROOM_ACTIVITY_REPEAT_XP,
-      diamondsEarned: 0,
-      isFullReward: false,
-    };
-  }
+  if (isActivityRewardedToday(profile, activityId, now)) return applyRepeatActivityXp(profile);
 
   const room = getRoom(profile);
   const marked: LearnerProfile = {

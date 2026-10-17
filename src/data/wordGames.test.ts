@@ -17,10 +17,11 @@ import {
   getSearchDirections,
   isGameUnlocked,
   matchSelection,
+  GAME_FULL_REWARD_MIN_SCORE,
   recordGameResult,
   scorePercent,
 } from './wordGames';
-import { ROOM_ACTIVITY_REPEAT_XP, ROOM_ACTIVITY_XP } from './roomActivities';
+import { ROOM_ACTIVITY_REPEAT_XP, ROOM_ACTIVITY_XP, isActivityRewardedToday } from './roomActivities';
 import { LearnerProfile } from '../types/learner';
 
 const NOW = new Date(2026, 9, 17, 10, 0);
@@ -232,8 +233,22 @@ describe('recordGameResult', () => {
     expect(recordGameResult(baseProfile, 'search', 0, NOW)).toBeNull();
     expect(recordGameResult(baseProfile, 'crossword', 0, NOW)).toBeNull();
 
-    const later = recordGameResult(baseProfile, 'search', 40, NOW);
+    const later = recordGameResult(baseProfile, 'search', 60, NOW);
     expect(later?.isFullReward).toBe(true);
+  });
+
+  it('gives only the repeat XP below the full-reward score and keeps the daily reward open', () => {
+    const low = recordGameResult(baseProfile, 'search', GAME_FULL_REWARD_MIN_SCORE - 1, NOW)!;
+    expect(low.isFullReward).toBe(false);
+    expect(low.xpEarned).toBe(ROOM_ACTIVITY_REPEAT_XP);
+    expect(low.diamondsEarned).toBe(0);
+    expect(low.profile.dailyCounters).toEqual(baseProfile.dailyCounters);
+    expect(isActivityRewardedToday(low.profile, 'game-search', NOW)).toBe(false);
+    expect(getBestGameScore(low.profile, 'search')).toBe(GAME_FULL_REWARD_MIN_SCORE - 1);
+
+    const enough = recordGameResult(low.profile, 'search', GAME_FULL_REWARD_MIN_SCORE, NOW)!;
+    expect(enough.isFullReward).toBe(true);
+    expect(enough.xpEarned).toBe(ROOM_ACTIVITY_XP);
   });
 
   it('scores first-try answers as a percentage', () => {

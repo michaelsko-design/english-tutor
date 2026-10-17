@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { Lock } from 'lucide-react';
-import { RoomActivityReward } from '../../../data/roomActivities';
+import { RoomActivityReward, isActivityRewardedToday } from '../../../data/roomActivities';
 import {
+  GAME_FULL_REWARD_MIN_SCORE,
   WORD_GAMES,
   WordGameId,
   buildCrosswordPuzzle,
@@ -34,7 +35,14 @@ interface GamesBookPanelProps {
 type BookView =
   | { kind: 'menu' }
   | { kind: 'play'; gameId: WordGameId; seed: number }
-  | { kind: 'result'; gameId: WordGameId; score: number; reward: RoomActivityReward | null };
+  | {
+      kind: 'result';
+      gameId: WordGameId;
+      score: number;
+      reward: RoomActivityReward | null;
+      /** The score was too low for today's full reward, which is still open */
+      isBelowRewardScore: boolean;
+    };
 
 const newSeed = () => Math.floor(Math.random() * 1_000_000_000);
 
@@ -47,10 +55,13 @@ export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, 
   const play = (gameId: WordGameId) => setView({ kind: 'play', gameId, seed: newSeed() });
 
   const handleFinish = (gameId: WordGameId, score: number) => {
-    const reward = recordGameResult(profile, gameId, score, new Date());
+    const now = new Date();
+    const isBelowRewardScore =
+      score < GAME_FULL_REWARD_MIN_SCORE && !isActivityRewardedToday(profile, getWordGame(gameId).activityId, now);
+    const reward = recordGameResult(profile, gameId, score, now);
     if (reward) onUpdateProfile(reward.profile);
     if (reward?.isFullReward) confetti({ particleCount: 70, spread: 65, origin: { y: 0.6 } });
-    setView({ kind: 'result', gameId, score, reward });
+    setView({ kind: 'result', gameId, score, reward, isBelowRewardScore });
   };
 
   // Built once per play (the seed), so the puzzle stays the same while the learner solves it.
@@ -110,6 +121,13 @@ export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, 
             profile.gender === 'girl'
               ? 'הפעם לא נפתרו מילים, אז אין פרס. נסי שוב, וכל מילה שתמצאי תיתן ניקוד!'
               : 'הפעם לא נפתרו מילים, אז אין פרס. נסה שוב, וכל מילה שתמצא תיתן ניקוד!'
+          }
+          partialHe={
+            view.isBelowRewardScore && view.reward
+              ? `+${view.reward.xpEarned} XP · הפרס היומי ניתן מ־${GAME_FULL_REWARD_MIN_SCORE}% ומעלה. ${
+                  profile.gender === 'girl' ? 'נסי שוב ופתרי עוד מילים!' : 'נסה שוב ופתור עוד מילים!'
+                }`
+              : undefined
           }
           againLabel="שוב! 🔁"
           onAgain={() => play(view.gameId)}

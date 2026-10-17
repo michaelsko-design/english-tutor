@@ -3,7 +3,12 @@ import { seededShuffle, seededShuffleNotIdentity } from '../utils/shuffle';
 import { CURRICULUM_BY_GRADE } from './curriculum';
 import { getActiveLists } from './customWordLists';
 import { ROOM_ITEMS, getRoom } from './room';
-import { RoomActivityId, RoomActivityReward, applyRoomActivityReward } from './roomActivities';
+import {
+  RoomActivityId,
+  RoomActivityReward,
+  applyRepeatActivityXp,
+  applyRoomActivityReward,
+} from './roomActivities';
 
 /**
  * Feature 12, phase 5 — 📖 Games Book: word games built from the learner's grade vocabulary and
@@ -370,9 +375,13 @@ export function getBestGameScore(profile: LearnerProfile, gameId: WordGameId): n
   return getRoom(profile).gameBestScores?.[gameId];
 }
 
+/** The lowest score that earns a game's full daily reward. */
+export const GAME_FULL_REWARD_MIN_SCORE = 50;
+
 /**
  * Saves the best score and gives the game's daily room-activity reward. A game ended with nothing
- * solved (0%) earns nothing, so tapping "finish" right away can't collect the daily reward.
+ * solved (0%) earns nothing, and below GAME_FULL_REWARD_MIN_SCORE it earns only the repeat XP, so
+ * ending a game after one word can't collect the daily reward.
  */
 export function recordGameResult(
   profile: LearnerProfile,
@@ -387,5 +396,7 @@ export function recordGameResult(
     ...profile,
     room: { ...room, gameBestScores: { ...(room.gameBestScores || {}), [gameId]: best } },
   };
-  return applyRoomActivityReward(withScore, getWordGame(gameId).activityId, 0, now);
+  return score >= GAME_FULL_REWARD_MIN_SCORE
+    ? applyRoomActivityReward(withScore, getWordGame(gameId).activityId, 0, now)
+    : applyRepeatActivityXp(withScore);
 }
