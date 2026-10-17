@@ -53,6 +53,8 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [solved, setSolved] = useState<Record<string, boolean>>({});
   const [missed, setMissed] = useState<Record<string, boolean>>({});
+  /** The latest wrong translation choice per blank, shown until the right one is picked */
+  const [wrongChoices, setWrongChoices] = useState<Record<string, string>>({});
   const [speechEval, setSpeechEval] = useState<SpeechEvaluationResult | null>(null);
   const [wasReadAloud, setWasReadAloud] = useState(false);
   const [speechError, setSpeechError] = useState<string | null>(null);
@@ -71,8 +73,12 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
   const handleChoose = (key: string, choice: string) => {
     if (solved[key]) return;
     onSpeakEnglish(choice, 0.9);
-    if (choice === picks[key].en) setSolved({ ...solved, [key]: true });
-    else setMissed({ ...missed, [key]: true });
+    if (choice === picks[key].en) {
+      setSolved({ ...solved, [key]: true });
+      return;
+    }
+    setMissed({ ...missed, [key]: true });
+    setWrongChoices({ ...wrongChoices, [key]: choice });
   };
 
   const handleCheckTyped = () => {
@@ -114,6 +120,7 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
     setAnswers({});
     setSolved({});
     setMissed({});
+    setWrongChoices({});
     setSpeechEval(null);
     setWasReadAloud(false);
     setReward(null);
@@ -178,11 +185,18 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
                   key={choice}
                   type="button"
                   onClick={() => handleChoose(key, choice)}
-                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold ${theme.secondaryBtnClass}`}
+                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold ${theme.secondaryBtnClass} ${
+                    wrongChoices[key] === choice ? 'ring-2 ring-rose-400 opacity-60' : ''
+                  }`}
                 >
                   {choice}
                 </button>
               ))
+            )}
+            {!solved[key] && !isTyping && wrongChoices[key] && (
+              <span className="text-xs font-bold text-rose-600 dark:text-rose-300" dir="rtl" role="status">
+                {`"${wrongChoices[key]}" ${isGirl ? 'זו לא המילה, נסי שוב' : 'זו לא המילה, נסה שוב'}`}
+              </span>
             )}
           </div>
         );
