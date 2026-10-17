@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { MissionNode } from '../data/curriculum';
 import {
@@ -57,7 +57,13 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   onClose,
 }) => {
   const isGirl = gender === 'girl';
-  const steps = getExercisesForMission(mission, tier, gender);
+  // Random salt per mission attempt: shuffles answer options differently on every attempt,
+  // but keeps them stable across re-renders while a question is being answered.
+  const [shuffleSalt] = useState(() => Math.floor(Math.random() * 1_000_000_000));
+  const steps = useMemo(
+    () => getExercisesForMission(mission, tier, gender, shuffleSalt),
+    [mission, tier, gender, shuffleSalt]
+  );
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [showHint, setShowHint] = useState(false);
 
@@ -126,7 +132,9 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     if (stepCompleted || !currentStep.options) return;
     setSelectedOptionIdx(idx);
     const chosen = currentStep.options[idx];
-    onSpeakEnglish(chosen.textEn, 0.95);
+    if (/[A-Za-z]/.test(chosen.textEn)) {
+      onSpeakEnglish(chosen.textEn, 0.95);
+    }
 
     if (chosen.isCorrect) {
       registerCorrectAnswer(chosen.explanationHe);
@@ -513,10 +521,10 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
               type="button"
               onClick={() =>
                 onSpeakEnglish(
-                  (currentStep.speakTargetEn || currentStep.questionEn).replace(
-                    /_______/g,
-                    'blank'
-                  ),
+                  (currentStep.speakTargetEn || currentStep.questionEn)
+                    .replace(/_______/g, 'blank')
+                    .replace(/\p{Extended_Pictographic}/gu, '')
+                    .trim(),
                   0.92
                 )
               }

@@ -270,6 +270,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="text-lg font-extrabold" dir="ltr">
+                        {item.emoji ? `${item.emoji} ` : ''}
                         {item.wordEn}
                       </span>
                       <span className="text-xs px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 font-semibold">

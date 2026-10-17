@@ -1,6 +1,8 @@
 import { MissionNode } from './curriculum';
 import { LearnerGender, ProficiencyTier } from '../types/learner';
 import { inflectHebrew } from '../utils/hebrewGender';
+import { seededShuffle, seededShuffleNotIdentity } from '../utils/shuffle';
+import { buildElementaryExercises } from './elementaryExercises';
 
 export type DrillType =
   | 'chat-reply'
@@ -60,20 +62,42 @@ function applyGenderToStep(
 
 /**
  * Generates a 5-step interactive mission tailored to the specific MissionNode, ProficiencyTier, and LearnerGender.
+ * Answer options and scrambled sentence chips are shuffled with a seeded shuffle, so the correct
+ * answer is not always first. Pass a per-attempt `salt` to vary the order between attempts while
+ * keeping it stable across re-renders.
  */
 export function getExercisesForMission(
   mission: MissionNode,
   tier: ProficiencyTier,
-  gender: LearnerGender = 'girl'
+  gender: LearnerGender = 'girl',
+  salt: number = 0
 ): MissionExerciseStep[] {
   const steps = getRawExercisesForMission(mission, tier);
-  return steps.map((s) => applyGenderToStep(s, gender));
+  return steps.map((s) => {
+    const gendered = applyGenderToStep(s, gender);
+    const seedKey = `${mission.id}|${tier}|${s.id}|${salt}`;
+    const targetKey = gendered.targetSentenceEn
+      ? gendered.targetSentenceEn.replace(/[.!?",]/g, '').split(/\s+/).filter(Boolean).join('\u0000')
+      : undefined;
+    return {
+      ...gendered,
+      options: gendered.options ? seededShuffle(gendered.options, seedKey) : undefined,
+      scrambledWords: gendered.scrambledWords
+        ? seededShuffleNotIdentity(gendered.scrambledWords, `${seedKey}|words`, targetKey)
+        : undefined,
+    };
+  });
 }
 
 function getRawExercisesForMission(
   mission: MissionNode,
   tier: ProficiencyTier
 ): MissionExerciseStep[] {
+  // Elementary missions (Grades 1–6) are generated from their authored drill seed
+  if (mission.drillSeed) {
+    return buildElementaryExercises(mission, tier);
+  }
+
   // Specialized rich content for 7th Grade Missions, with dynamic fallback for any mission node
   if (mission.id === 'g7-u1-m1') {
     return [
@@ -461,7 +485,7 @@ function getRawExercisesForMission(
       questionEn: 'Tap the words in the right order:',
       targetSentenceEn: cleanWords.join(' '),
       targetSentenceHe: mission.sampleSentenceHe,
-      scrambledWords: [...cleanWords].reverse(),
+      scrambledWords: [...cleanWords],
     },
     {
       id: `${mission.id}-s3`,

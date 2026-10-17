@@ -279,6 +279,7 @@ export const MissionMap: React.FC<MissionMapProps> = ({
                                   className={`px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
                                 >
                                   <Volume2 className="w-3 h-3 shrink-0" />
+                                  {v.emoji && <span aria-hidden="true">{v.emoji}</span>}
                                   <span dir="ltr" className="font-extrabold">{v.wordEn}</span>
                                   <span className="opacity-75">· {v.translationHe}</span>
                                 </button>
@@ -405,6 +406,7 @@ export const MissionMap: React.FC<MissionMapProps> = ({
                             {vocab.translationHe}
                           </span>
                           <span className="font-extrabold text-sm" dir="ltr">
+                            {vocab.emoji && <span aria-hidden="true">{vocab.emoji} </span>}
                             {vocab.wordEn}{' '}
                             <span className="text-xs font-normal opacity-70">
                               ({vocab.partOfSpeech})
