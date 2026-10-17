@@ -4,6 +4,7 @@ import {
   deleteDrawnSticker,
   getActiveDrawnStickers,
   getAlbumStickers,
+  getBackgroundSticker,
   hasStickerPass,
   setBackgroundSticker,
 } from '../../../data/stickers';
@@ -125,7 +126,8 @@ export const StickerStudioPanel: React.FC<StickerStudioPanelProps> = ({
         </ul>
       )}
 
-      {room.backgroundStickerId && (
+      {/* A deleted sticker can stay as the background id after a merge; only offer to remove a shown one */}
+      {getBackgroundSticker(profile) && (
         <button
           type="button"
           onClick={() => onUpdateProfile(setBackgroundSticker(profile, null, new Date()))}
