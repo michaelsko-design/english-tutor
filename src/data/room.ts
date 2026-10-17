@@ -15,6 +15,8 @@ export interface NameableItem {
   /** The English name the learner says or spells (1–2 simple words) */
   nameEn: string;
   nameHe: string;
+  /** A drawn sticker's picture, shown instead of the emoji */
+  imageUrl?: string;
 }
 
 export interface RoomItem extends NameableItem {
@@ -99,8 +101,29 @@ export const ROOM_NAMING_XP = 5;
 
 const ALL_ROOM_ITEMS = [...ROOM_ITEMS, ...SHOP_ROOM_ITEMS];
 
+/** A catalog item (room items, shop decor and stickers); drawn stickers need getRoomItemFor. */
 export function getRoomItem(itemId: string): RoomItem | undefined {
   return ALL_ROOM_ITEMS.find((item) => item.id === itemId);
+}
+
+/** The learner's own drawn stickers (not deleted), as board items. */
+export function getDrawnStickerItems(profile: LearnerProfile): RoomItem[] {
+  return (getRoom(profile).drawnStickers || [])
+    .filter((sticker) => !sticker.archivedAt)
+    .map((sticker) => ({
+      id: sticker.id,
+      emoji: '🎨',
+      nameEn: sticker.nameEn,
+      nameHe: 'המדבקה שלי',
+      slotKind: 'board' as const,
+      imageUrl: sticker.imageDataUrl,
+    }));
+}
+
+/** Any item the learner can have in the room, including their drawn stickers. */
+export function getRoomItemFor(profile: LearnerProfile, itemId: string | undefined): RoomItem | undefined {
+  if (!itemId) return undefined;
+  return getRoomItem(itemId) ?? getDrawnStickerItems(profile).find((item) => item.id === itemId);
 }
 
 export function getRoomSlot(slotId: string): RoomSlot | undefined {
@@ -111,10 +134,19 @@ export function getRoom(profile: LearnerProfile): LearnerRoom {
   return profile.room || { placements: {}, namedItemIds: [], updatedAt: '' };
 }
 
-/** Room items the learner owns: starter items, earned room items and shop decor/stickers. */
+/** Room items the learner owns: starter items, earned room items, shop decor/stickers and drawn stickers. */
 export function getOwnedRoomItems(profile: LearnerProfile): RoomItem[] {
   const owned = new Set([...ROOM_STARTER_ITEM_IDS, ...(profile.unlockedRewardIds || [])]);
-  return ALL_ROOM_ITEMS.filter((item) => owned.has(item.id));
+  return [...ALL_ROOM_ITEMS.filter((item) => owned.has(item.id)), ...getDrawnStickerItems(profile)];
+}
+
+/** Slot id -> the item placed there (skipping items that no longer exist, e.g. a deleted sticker). */
+export function getPlacedRoomItems(profile: LearnerProfile): Record<string, RoomItem> {
+  return Object.fromEntries(
+    Object.entries(getRoom(profile).placements)
+      .map(([slotId, itemId]) => [slotId, getRoomItemFor(profile, itemId)] as const)
+      .filter((entry): entry is readonly [string, RoomItem] => Boolean(entry[1]))
+  );
 }
 
 /** Owned items that are not placed anywhere in the room yet. */
@@ -123,8 +155,8 @@ export function getUnplacedRoomItems(profile: LearnerProfile): RoomItem[] {
   return getOwnedRoomItems(profile).filter((item) => !placed.has(item.id));
 }
 
-export function getPlaceableSlots(itemId: string): RoomSlot[] {
-  const item = getRoomItem(itemId);
+export function getPlaceableSlots(profile: LearnerProfile, itemId: string): RoomSlot[] {
+  const item = getRoomItemFor(profile, itemId);
   return item ? ROOM_SLOTS.filter((slot) => slot.kind === item.slotKind) : [];
 }
 
@@ -143,7 +175,7 @@ export function placeRoomItem(
   now: Date
 ): LearnerProfile {
   const slot = getRoomSlot(slotId);
-  const item = getRoomItem(itemId);
+  const item = getRoomItemFor(profile, itemId);
   if (!slot || !item || slot.kind !== item.slotKind || !isOwned(profile, itemId)) return profile;
 
   const room = getRoom(profile);

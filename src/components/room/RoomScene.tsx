@@ -1,8 +1,9 @@
 import React from 'react';
-import { ROOM_OBJECTS, ROOM_SLOTS, RoomObjectId, getRoomItem } from '../../data/room';
+import { ROOM_OBJECTS, ROOM_SLOTS, RoomItem, RoomObjectId } from '../../data/room';
 import { WardrobeItem } from '../../data/wardrobe';
 import { ThemeId } from '../../types/learner';
 import { DressedAvatar } from './DressedAvatar';
+import { ItemIcon } from './ItemIcon';
 import {
   OBJECT_POSITIONS,
   OBJECT_SIZES,
@@ -23,7 +24,8 @@ interface RoomSceneProps {
   avatarEmoji: string;
   /** What the avatar wears (see getWornItems) */
   worn?: WardrobeItem[];
-  placements: Record<string, string>;
+  /** Slot id -> placed item (see getPlacedRoomItems) */
+  placedItems: Record<string, RoomItem>;
   avatarPos: ScenePoint;
   isAvatarFacingLeft?: boolean;
   /** Empty or filled slots the selected item can go to */
@@ -43,7 +45,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
   themeId,
   avatarEmoji,
   worn = [],
-  placements,
+  placedItems,
   avatarPos,
   isAvatarFacingLeft = false,
   highlightedSlotIds = [],
@@ -82,16 +84,16 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
 
       {/* Placed items and empty highlighted slots */}
       {ROOM_SLOTS.map((slot) => {
-        const itemId = placements[slot.id];
-        const item = itemId ? getRoomItem(itemId) : undefined;
+        const item = placedItems[slot.id];
         const isHighlighted = highlightedSlotIds.includes(slot.id);
         if (!item && !isHighlighted) return null;
 
-        const content = item ? item.emoji : '+';
+
         const highlightRing = isHighlighted
           ? `rounded-full border-[0.4cqw] border-dashed animate-pulse ${palette.highlightClass}`
           : '';
         const size = SLOT_KIND_SIZES[slot.kind];
+        const content = item ? <ItemIcon item={item} size={`${size}cqw`} /> : '+';
         const sizeStyle: React.CSSProperties = {
           ...at(SLOT_POSITIONS[slot.id]),
           fontSize: `${size}cqw`,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getRoom, getUnplacedRoomItems } from '../../data/room';
+import { getPlacedRoomItems, getUnplacedRoomItems } from '../../data/room';
 import { getWornItems } from '../../data/wardrobe';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
@@ -46,7 +46,7 @@ export const RoomHub: React.FC<RoomHubProps> = ({
             themeId={profile.themeId}
             avatarEmoji={avatarEmoji}
             worn={getWornItems(profile, avatarEmoji)}
-            placements={getRoom(profile).placements}
+            placedItems={getPlacedRoomItems(profile)}
             avatarPos={AVATAR_HOME}
           />
         </button>

@@ -10,6 +10,7 @@ import { SpeechEvaluationResult } from '../../utils/speechSimilarity';
 import { seededShuffle, seededShuffleNotIdentity } from '../../utils/shuffle';
 import { getSpeechErrorTextHe, useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { FeedbackBanner, MultipleChoiceOptions, SpellingMagnetDrill, VoiceSpeakDrill } from '../drills';
+import { ItemIcon } from './ItemIcon';
 
 interface NameItemPanelProps {
   item: NameableItem;
@@ -171,9 +172,7 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
     <section aria-label={goalHe} className={`p-4 sm:p-5 rounded-3xl space-y-4 ${theme.cardBgClass}`}>
       <div className="flex items-start justify-between gap-3" dir="rtl">
         <div className="flex items-center gap-3">
-          <span className="text-4xl leading-none" aria-hidden="true">
-            {item.emoji}
-          </span>
+          <ItemIcon item={item} size="2.25rem" />
           <div>
             <h3 className="font-extrabold text-sm sm:text-base">
               {goalHe} — {joinVerbs(modes, isGirl)} את השם באנגלית

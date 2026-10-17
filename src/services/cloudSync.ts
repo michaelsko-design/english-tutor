@@ -2,6 +2,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import {
   CustomWordList,
+  DrawnSticker,
   DreamEntry,
   DressUpDay,
   ExamPlanDay,
@@ -303,6 +304,27 @@ function mergeCustomWordLists(
   ];
 }
 
+/**
+ * Drawn stickers from both devices by id. A sticker deleted on either device stays deleted, with
+ * its picture emptied.
+ */
+function mergeDrawnStickers(
+  local: DrawnSticker[] | undefined,
+  cloud: DrawnSticker[] | undefined
+): DrawnSticker[] | undefined {
+  if (!local || !cloud) return local || cloud;
+  const cloudById = new Map(cloud.map((s) => [s.id, s]));
+  const localIds = new Set(local.map((s) => s.id));
+  return [
+    ...local.map((sticker) => {
+      const match = cloudById.get(sticker.id);
+      const archivedAt = earliestIso(sticker.archivedAt, match?.archivedAt);
+      return archivedAt ? { ...sticker, imageDataUrl: '', archivedAt } : sticker;
+    }),
+    ...cloud.filter((s) => !localIds.has(s.id)),
+  ];
+}
+
 /** Per game, the best score from either device. */
 function mergeBestScores(
   local: Record<string, number> | undefined,
@@ -364,6 +386,7 @@ function mergeRoom(
   const activityRewardDates = mergeLatestDates(local.activityRewardDates, cloud.activityRewardDates);
   const dreamJournal = mergeDreamJournal(local.dreamJournal, cloud.dreamJournal);
   const gameBestScores = mergeBestScores(local.gameBestScores, cloud.gameBestScores);
+  const drawnStickers = mergeDrawnStickers(local.drawnStickers, cloud.drawnStickers);
   return {
     ...newer,
     namedItemIds: Array.from(new Set([...(local.namedItemIds || []), ...(cloud.namedItemIds || [])])),
@@ -371,6 +394,7 @@ function mergeRoom(
     ...(activityRewardDates ? { activityRewardDates } : {}),
     ...(dreamJournal ? { dreamJournal } : {}),
     ...(gameBestScores ? { gameBestScores } : {}),
+    ...(drawnStickers ? { drawnStickers } : {}),
   };
 }
 

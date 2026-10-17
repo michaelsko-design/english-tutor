@@ -66,7 +66,7 @@ describe('getOwnedRoomItems', () => {
 
 describe('getPlaceableSlots', () => {
   it('returns only slots of the item kind', () => {
-    const slots = getPlaceableSlots('room-sofa');
+    const slots = getPlaceableSlots(baseProfile, 'room-sofa');
     expect(slots.length).toBeGreaterThan(0);
     expect(slots.every((s) => s.kind === 'floor')).toBe(true);
   });

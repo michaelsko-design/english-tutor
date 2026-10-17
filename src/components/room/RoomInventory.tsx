@@ -1,5 +1,6 @@
 import React from 'react';
 import { RoomItem } from '../../data/room';
+import { ItemIcon } from './ItemIcon';
 import { LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 
@@ -55,10 +56,8 @@ export const RoomInventory: React.FC<RoomInventoryProps> = ({
                     : 'border-transparent bg-black/5 dark:bg-white/5 hover:border-current/20'
                 }`}
               >
-                <span className="text-2xl leading-none" aria-hidden="true">
-                  {item.emoji}
-                </span>
-                <span className="text-[11px] font-extrabold truncate max-w-full">{item.nameHe}</span>
+                <ItemIcon item={item} size="1.5rem" />
+                <span className="text-[11px] font-extrabold truncate max-w-full">{item.imageUrl ? item.nameEn : item.nameHe}</span>
                 <span className={`text-[10px] font-bold ${isPlaced ? 'text-emerald-600 dark:text-emerald-300' : theme.mutedTextClass}`}>
                   {isPlaced ? '✓ בחדר' : 'חדש'}
                 </span>

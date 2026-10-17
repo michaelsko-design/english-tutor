@@ -289,6 +289,23 @@ describe('mergeLearnerProfiles room', () => {
     expect(merged.gameBestScores).toEqual({ scramble: 80, search: 100, crossword: 40 });
   });
 
+  it('keeps drawn stickers from both devices and a deletion from either', () => {
+    const sticker = (id: string, archivedAt?: string) => ({
+      id,
+      nameEn: id,
+      imageDataUrl: archivedAt ? '' : 'data:image/png;base64,AAA',
+      createdAt: '2026-10-10T08:00:00.000Z',
+      ...(archivedAt ? { archivedAt } : {}),
+    });
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, room: { ...newerRoom, drawnStickers: [sticker('a'), sticker('b')] } },
+      { room: { ...olderRoom, drawnStickers: [sticker('a', '2026-10-15T08:00:00.000Z'), sticker('c')] } }
+    ).room!;
+    expect(merged.drawnStickers?.map((s) => s.id)).toEqual(['a', 'b', 'c']);
+    expect(merged.drawnStickers?.[0]).toMatchObject({ archivedAt: '2026-10-15T08:00:00.000Z', imageDataUrl: '' });
+    expect(merged.drawnStickers?.[1].imageDataUrl).toBe('data:image/png;base64,AAA');
+  });
+
   it('keeps a room that exists on only one side and adds none otherwise', () => {
     expect(mergeLearnerProfiles(baseProfile, { room: olderRoom }).room).toEqual(olderRoom);
     expect(mergeLearnerProfiles({ ...baseProfile, room: olderRoom }, {}).room).toEqual(olderRoom);

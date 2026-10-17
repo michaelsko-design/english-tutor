@@ -179,6 +179,21 @@ export interface DreamEntry {
   noteHe?: string;
 }
 
+/** A sticker the learner drew in the Sticker Studio (Feature 12). */
+export interface DrawnSticker {
+  id: string;
+  /** The English name the learner gave it */
+  nameEn: string;
+  /** Small PNG data URL; emptied when the sticker is deleted */
+  imageDataUrl: string;
+  createdAt: string;
+  /**
+   * ISO timestamp of when the learner deleted it. Stickers are archived instead of removed,
+   * because a removed sticker would come back from another device on the next merge.
+   */
+  archivedAt?: string;
+}
+
 /** The learner's room layout (Feature 12). Owned room items live in `unlockedRewardIds`. */
 export interface LearnerRoom {
   /** Maps slotId -> placed room item id */
@@ -192,6 +207,10 @@ export interface LearnerRoom {
   dreamJournal?: DreamEntry[];
   /** Word game id -> best score (0–100) in the Games Book */
   gameBestScores?: Record<string, number>;
+  /** Stickers drawn in the Sticker Studio, including deleted (archived) ones */
+  drawnStickers?: DrawnSticker[];
+  /** Sticker shown as the app background pattern; saved with the layout */
+  backgroundStickerId?: string;
   /** Items the learner has said or spelled at least once (the first time earns XP) */
   namedItemIds: string[];
   /** ISO timestamp of the latest layout or outfit change; the newer one wins on merge */

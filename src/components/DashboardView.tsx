@@ -28,6 +28,8 @@ import { levelForXp, recordDailyActivity } from '../data/progressRewards';
 import { ExamPrepHub } from './examPrep/ExamPrepHub';
 import { WordListsHub } from './wordLists/WordListsHub';
 import { RoomHub } from './room/RoomHub';
+import { StickerBackground } from './room/StickerBackground';
+import { getBackgroundSticker } from '../data/stickers';
 import { RoomRewardItem, getNextRoomReward, getRoomRewardForMission } from '../data/roomRewards';
 import { getHebrewCopy, inflectHebrew } from '../utils/hebrewGender';
 import {
@@ -85,6 +87,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   const theme = THEME_REGISTRY[profile.themeId] || THEME_REGISTRY['cozy-studio'];
   const activeAvatarEmoji = profile.equippedAvatarEmoji || theme.avatarEmoji;
+  const backgroundSticker = getBackgroundSticker(profile);
   const heb = getHebrewCopy(profile.gender, profile.name);
   const currentGradeMeta =
     SUPPORTED_GRADES.find((g) => g.id === profile.gradeId) || SUPPORTED_GRADES[6];
@@ -255,7 +258,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   return (
-    <div className={`min-h-screen w-full ${theme.pageBgClass} pb-24 md:pb-14 transition-colors duration-300`}>
+    <div className={`relative isolate min-h-screen w-full ${theme.pageBgClass} pb-24 md:pb-14 transition-colors duration-300`}>
+      {/* FEATURE 12: STICKER STUDIO BACKGROUND */}
+      {backgroundSticker && <StickerBackground sticker={backgroundSticker} />}
+
       {/* Compact Single-Row Top Sticky Navigation / HUD */}
       <header className={`sticky top-0 z-30 ${theme.hudBgClass} px-3.5 md:px-8 py-2.5 md:py-3`}>
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">

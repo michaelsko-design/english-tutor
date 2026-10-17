@@ -6,7 +6,8 @@ import {
   getOwnedRoomItems,
   getPlaceableSlots,
   getRoom,
-  getRoomItem,
+  getPlacedRoomItems,
+  getRoomItemFor,
   placeNamedRoomItem,
   removeRoomItem,
 } from '../../data/room';
@@ -19,6 +20,7 @@ import { RoomInventory } from './RoomInventory';
 import { RoomScene, SceneBubble } from './RoomScene';
 import { DreamJournalPanel } from './DreamJournalPanel';
 import { GamesBookPanel } from './games/GamesBookPanel';
+import { StickerStudioPanel } from './stickers/StickerStudioPanel';
 import { PhonePanel } from './PhonePanel';
 import { WardrobePanel } from './WardrobePanel';
 import { AVATAR_HOME, OBJECT_POSITIONS, SLOT_POSITIONS, ScenePoint, getStandingPoint } from './roomLayout';
@@ -36,7 +38,7 @@ interface RoomScreenProps {
 const WALK_MS = 700;
 
 /** Room activities shown in the panel under the scene; the inventory shows when none is open. */
-type RoomPanel = 'wardrobe' | 'phone' | 'journal' | 'games';
+type RoomPanel = 'wardrobe' | 'phone' | 'journal' | 'games' | 'stickers';
 
 /** Mission objects whose activity is ready open a panel; the others show "coming soon". */
 const OBJECT_PANELS: Partial<Record<RoomObjectId, RoomPanel>> = {
@@ -87,7 +89,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     walkTimer.current = window.setTimeout(onArrive, prefersReducedMotion() ? 0 : WALK_MS);
   };
 
-  const highlightedSlotIds = selectedItemId ? getPlaceableSlots(selectedItemId).map((s) => s.id) : [];
+  const highlightedSlotIds = selectedItemId ? getPlaceableSlots(profile, selectedItemId).map((s) => s.id) : [];
 
   const handleSelectItem = (itemId: string) => {
     setFocusedSlotId(null);
@@ -97,7 +99,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
       setStatusText(null);
       return;
     }
-    const item = getRoomItem(itemId);
+    const item = getRoomItemFor(profile, itemId);
     setSelectedItemId(itemId);
     setStatusText(
       isGirl
@@ -114,7 +116,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
       walkTo(point, () => setNaming({ itemId, slotId }));
       return;
     }
-    const item = getRoomItem(room.placements[slotId]);
+    const item = getRoomItemFor(profile, room.placements[slotId]);
     if (!item) return;
     setSelectedItemId(null);
     setStatusText(null);
@@ -147,7 +149,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
 
   const handleNamed = () => {
     if (!naming) return;
-    const item = getRoomItem(naming.itemId);
+    const item = getRoomItemFor(profile, naming.itemId);
     const result = placeNamedRoomItem(profile, naming.slotId, naming.itemId, new Date());
     onUpdateProfile(result.profile);
     confetti({ particleCount: 60, spread: 60, origin: { y: 0.55 } });
@@ -164,7 +166,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   };
 
   const handleRemove = (slotId: string) => {
-    const item = getRoomItem(room.placements[slotId]);
+    const item = getRoomItemFor(profile, room.placements[slotId]);
     onUpdateProfile(removeRoomItem(profile, slotId, new Date()));
     setFocusedSlotId(null);
     setBubble(null);
@@ -176,19 +178,32 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     setBubble(null);
   };
 
-  const focusedItem = focusedSlotId ? getRoomItem(room.placements[focusedSlotId]) : undefined;
-  const namingItem = naming ? getRoomItem(naming.itemId) : undefined;
+  const focusedItem = focusedSlotId ? getRoomItemFor(profile, room.placements[focusedSlotId]) : undefined;
+  const namingItem = naming ? getRoomItemFor(profile, naming.itemId) : undefined;
 
   const header = (
     <div className="flex items-center justify-between gap-2" dir="rtl">
       <h2 className="font-extrabold text-sm sm:text-base truncate">🏠 החדר האנגלי שלי</h2>
       <button
         type="button"
+        onClick={() => {
+          setSelectedItemId(null);
+          setFocusedSlotId(null);
+          setStatusText(null);
+          setActivePanel('stickers');
+        }}
+        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 ${theme.secondaryBtnClass}`}
+      >
+        🎨 מדבקות
+      </button>
+      <button
+        type="button"
         onClick={onOpenShop}
+        aria-label="החלפת אווטאר"
         className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shrink-0 ${theme.secondaryBtnClass}`}
       >
         <span className="text-base leading-none">{avatarEmoji}</span>
-        <span>החלפת אווטאר</span>
+        <span className="hidden sm:inline">החלפת אווטאר</span>
       </button>
     </div>
   );
@@ -200,7 +215,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
           themeId={profile.themeId}
           avatarEmoji={avatarEmoji}
           worn={getWornItems(profile, avatarEmoji)}
-          placements={room.placements}
+          placedItems={getPlacedRoomItems(profile)}
           avatarPos={avatarPos}
           isAvatarFacingLeft={isFacingLeft}
           highlightedSlotIds={naming ? [] : highlightedSlotIds}
@@ -259,6 +274,16 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
             onSpeakEnglish={onSpeakEnglish}
             onClose={closePanel}
           />
+        ) : activePanel === 'stickers' ? (
+          <StickerStudioPanel
+            profile={profile}
+            theme={theme}
+            onUpdateProfile={onUpdateProfile}
+            onSpeakEnglish={onSpeakEnglish}
+            onPlaceSticker={handleSelectItem}
+            onOpenShop={onOpenShop}
+            onClose={closePanel}
+          />
         ) : activePanel === 'phone' ? (
           <PhonePanel
             profile={profile}
@@ -291,7 +316,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
         )}
 
         <p className={`text-[11px] text-center ${theme.mutedTextClass}`} dir="rtl">
-          🚪 ארון: הלבשה · 📱 טלפון: הודעות קוליות · 🛏️ מיטה: יומן חלומות · 📖 ספר המשחקים: משחקי מילים
+          🚪 ארון: הלבשה · 📱 טלפון: הודעות קוליות · 🛏️ מיטה: יומן חלומות · 📖 ספר המשחקים: משחקי מילים · 🎨 מדבקות: אלבום וציור
         </p>
       </div>
     </ExamModalShell>

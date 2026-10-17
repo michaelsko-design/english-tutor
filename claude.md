@@ -158,7 +158,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 - Stored as `customWordLists` on the profile. Deleting a list sets `archivedAt` and empties its items (a small tombstone, so a merge can't bring it back). Merge: union by id; the same list keeps the best score and latest practice, and stays deleted once either device archived it.
 - Voice recognition lives in `hooks/useSpeechRecognition.ts` and `drills/VoiceSpeakDrill.tsx`, shared with `MissionRunner`; letter magnets are `drills/SpellingMagnetDrill.tsx`.
 
-### 4.12. My English Room (`room.ts`, `wardrobe.ts`, `roomRewards.ts`, `roomActivities.ts`, `components/room/`)
+### 4.12. My English Room (`room.ts`, `wardrobe.ts`, `roomRewards.ts`, `roomActivities.ts`, `voiceMessages.ts`, `dreamJournal.ts`, `wordGames.ts`, `stickers.ts`, `components/room/`)
 - The "החדר האנגלי שלי" dashboard card (under the word lists card) shows a live preview of the room and opens it full-screen.
 - **The room** (`RoomScene`): a drawn wall/floor scene with fixed slots (wall, sticker board, shelf, desk, floor) and four mission objects: 🛏️ bed, 📱 phone, 🚪 wardrobe, 📖 Games Book. Slot positions and per-theme colours live in `roomLayout.ts`. The equipped shop avatar walks to whatever the learner taps.
 - **Mission objects** show a "coming soon" bubble with their activity until later phases ship.
@@ -173,9 +173,12 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **📱 Voice Messages** (phase 3, `voiceMessages.ts`, `PhonePanel`): tapping the phone opens a chat. A friend's message is read aloud, and the learner records the English reply (`VoiceSpeakDrill`, scored by `evaluateSpokenSentence`). Each session has 3 messages from the learner's grade band (`getGradeBand`: grades 1–3, 4–6, 7–9, 10–12; 8 messages each, replies grow from 2–4 words to two Band III sentences). Skipped messages are not sent.
 - **🛏️ Dream Journal** (phase 4, `dreamJournal.ts`, `DreamJournalPanel`): guided frames, no AI. Each dream uses 2 sentence frames from the learner's grade band (4 per band, 2 blanks × 4 word choices). Step 1: invent the dream by picking Hebrew words (plus an optional free Hebrew note). Step 2: translate each picked word — Explorer/Challenger choose from 3 English options, Master types it (`isSameTranslation` ignores case and punctuation); first-try accuracy is shown. Step 3: listen and optionally read the English dream aloud. Saving adds it to the journal (`room.dreamJournal`, newest 20) and gives the room-activity reward. The Hebrew frames avoid gendered forms, so the text works for every learner.
 - **📖 Games Book** (phase 5, `wordGames.ts`, `components/room/games/`): four word games built from the learner's word lists and grade vocabulary (single words of 3–8 letters; nearby grades and room item names fill in when a grade has too few). Games unlock with total stars: 🔀 Word Scramble (0 ⭐, letter magnets with the Hebrew clue), 🔍 Word Search / תפזורת (10 ⭐, 9×9 grid; Explorer right/down, Challenger adds diagonals, Master also backwards), ✏️ Crossword (25 ⭐, Hebrew clues, typed answers, greedy crossing generator), 🕵️ Hidden Words (40 ⭐, words hidden in one letter stream, Hebrew clues only). Selections are first + last letter (`matchSelection`). Scores: first-try share (scramble, crossword) or words found minus 5% per wrong selection; the best score per game is kept (`room.gameBestScores`). Each game has its own daily room-activity reward. Generators are pure and seeded (`+ .test.ts`).
+- **🎨 Sticker Studio** (phase 6, `stickers.ts`, `components/room/stickers/`, header button "🎨 מדבקות"): an album of every board sticker the learner owns (shop stickers, earned ⭐🌈❤️ and drawings). Each can go on the room's sticker board (placed by naming it, like any item) or become the dashboard background (`StickerBackground`, a faint repeating pattern; `room.backgroundStickerId`, saved with the layout).
+  - **Premium drawing**: the shop's "Sticker Studio Pass" (`pass-sticker-studio`, 150 💎) unlocks a drawing pad (`StickerCanvas`: 8 colours, 2 brush sizes, eraser, undo, clear). A drawing is saved only with an English name of 1–3 words, typed or spoken; it is stored as a 96px PNG data URL inside the profile (`room.drawnStickers`, at most 12 active, max 60 KB each) so no Firebase Storage is needed. Naming it gives the first-time +5 XP. Deleting archives it (picture emptied) and takes it off the board and the background.
+  - Drawn stickers are items like any other: `getRoomItemFor(profile, id)` / `getPlacedRoomItems` resolve them, and `ItemIcon` shows the picture instead of an emoji.
 - **Room activity rewards** (`roomActivities.ts`): the first finished session of each activity per day (`phone`, `journal`, each word game) gives +10 XP and +2 💎 and counts as a mission for the daily quests and streak; repeats give +2 XP. Dates are kept in `room.activityRewardDates`. Panels share `RoomPanelFrame` and `ActivityRewardSummary`.
-- Stored as `room` on the profile (`placements` slot → item, `outfit` layer → item, `namedItemIds`, `dressUpDay`, `activityRewardDates`, `dreamJournal`, `gameBestScores`, `updatedAt`). Merge: the newer layout and outfit win; named items are unioned; the same day's dress-up progress keeps the highest counts and a given reward stays given; activity reward dates keep the later date per activity; dreams are unioned by id (newest 20); game best scores keep the higher score per game.
-- Later phases (Sticker Studio) are tracked under Feature 12 in `backlog.md`.
+- Stored as `room` on the profile (`placements` slot → item, `outfit` layer → item, `namedItemIds`, `dressUpDay`, `activityRewardDates`, `dreamJournal`, `gameBestScores`, `drawnStickers`, `backgroundStickerId`, `updatedAt`). Merge: the newer layout and outfit win; named items are unioned; the same day's dress-up progress keeps the highest counts and a given reward stays given; activity reward dates keep the later date per activity; dreams are unioned by id (newest 20); game best scores keep the higher score per game; drawn stickers are unioned by id and stay deleted once either device archived one.
+- Every mission object now opens its activity; the per-item missions follow the draft designs in `backlog.md` (Feature 12) until a detailed breakdown replaces them.
 
 ---
 
@@ -196,7 +199,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── PlacementTest.tsx         # Adaptive diagnostic placement test overlay
 │   │   ├── PlacementResultCard.tsx   # Placement result & grade/tier recommendation
 │   │   ├── RewardShopModal.tsx       # Diamond shop (avatars, stickers, shields)
-│   │   ├── room/                     # My English Room: hub, scene & layout, inventory, naming panel, wardrobe, phone, dream journal, games/ (Games Book)
+│   │   ├── room/                     # My English Room: hub, scene & layout, inventory, naming panel, wardrobe, phone, dream journal, games/ (Games Book), stickers/ (Sticker Studio)
 │   │   ├── VocabularyVaultModal.tsx  # Ministry word bank & pronunciation studio
 │   │   └── wordLists/                # School word lists: dashboard card, importer, session runner & result
 │   ├── data/
@@ -219,6 +222,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── voiceMessages.ts          # Phone voice-message prompts by grade band & session reward
 │   │   ├── dreamJournal.ts           # Dream Journal sentence frames, translation checks & journal entries (+ .test.ts)
 │   │   ├── wordGames.ts              # Games Book word source, scramble/search/crossword/hidden-word generators & scores (+ .test.ts)
+│   │   ├── stickers.ts               # Sticker Studio album, drawn stickers (pass, names, PNG limits) & app background (+ .test.ts)
 │   │   ├── wardrobe.ts               # Dress-Up Studio items, outfit rules & daily dress-up reward (+ .test.ts)
 │   │   └── rewardShop.ts             # Daily quest & shop item catalog
 │   ├── hooks/

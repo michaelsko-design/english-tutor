@@ -151,6 +151,15 @@ export const REWARD_SHOP_ITEMS: RewardShopItem[] = [
 
   // Collectible Aesthetic Stickers
   {
+    id: 'pass-sticker-studio',
+    category: 'sticker',
+    emoji: '🎨',
+    titleEn: 'Sticker Studio Pass',
+    titleHe: 'כרטיס לסטודיו המדבקות',
+    descriptionHe: 'פרימיום: ציור מדבקות משלך בחדר האנגלי — עם שם באנגלית לכל מדבקה!',
+    costDiamonds: 150,
+  },
+  {
     id: 'sticker-strawberry-croissant',
     category: 'sticker',
     emoji: '🥐',
