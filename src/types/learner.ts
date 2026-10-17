@@ -84,6 +84,49 @@ export interface PlacementResult {
   totalQuestions: number;
 }
 
+/** A skill area a school exam can test (Feature 18). */
+export type ExamSkill = 'grammar' | 'vocabulary' | 'unseen' | 'sentences';
+
+/** One (unit × skill) slice of the exam material, practised in a study session. */
+export interface ExamFocusBlock {
+  unitNumber: number;
+  skill: ExamSkill;
+}
+
+export interface ExamPlanDay {
+  dayIndex: number;
+  /** Local calendar date, YYYY-MM-DD */
+  dateStr: string;
+  kind: 'practice' | 'mock';
+  /** Material for a practice day; empty means a mixed review of everything */
+  focus: ExamFocusBlock[];
+  /** ISO timestamp of the first completion */
+  completedAt?: string;
+  /** Best score (0–100) reached on this day's session */
+  scorePercent?: number;
+}
+
+/** Personalized exam preparation plan (Feature 18). */
+export interface ExamPrepPlan {
+  id: string;
+  createdAt: string;
+  gradeId: GradeId;
+  /** Local calendar date of the exam, YYYY-MM-DD */
+  examDateStr: string;
+  unitNumbers: number[];
+  skills: ExamSkill[];
+  days: ExamPlanDay[];
+  /** Best mock exam score (0–100) */
+  bestMockScore?: number;
+  /** ISO timestamp of the first mock exam passed with the "Exam Ready" score */
+  certificateEarnedAt?: string;
+  /**
+   * ISO timestamp of when the learner dismissed the plan. Plans are archived instead of removed,
+   * because a removed field would come back from another device on the next merge.
+   */
+  archivedAt?: string;
+}
+
 export interface LearnerProfile {
   isOnboarded: boolean;
   name: string;
@@ -109,6 +152,8 @@ export interface LearnerProfile {
   hasSeenWelcomeGiftModal?: boolean;
   /** Latest diagnostic placement test result, if the learner has taken it */
   placementResult?: PlacementResult;
+  /** Active exam preparation plan, if the learner created one */
+  examPrep?: ExamPrepPlan;
   createdAt: string;
   /** ISO timestamp of the latest profile update for conflict resolution */
   updatedAt?: string;

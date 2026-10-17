@@ -20,12 +20,15 @@ import {
   Volume2,
   Mic,
   Lightbulb,
-  CheckCircle2,
-  AlertCircle,
-  ArrowRight,
-  RotateCcw,
   Trophy,
 } from 'lucide-react';
+import {
+  FeedbackBanner,
+  MultipleChoiceOptions,
+  PassageBox,
+  QuestionBubble,
+  SentenceBuilderDrill,
+} from './drills';
 
 interface MissionRunnerProps {
   mission: MissionNode;
@@ -472,179 +475,47 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
 
           {/* Optional Story / Unseen Passage Box */}
           {currentStep.contextPassageEn && (
-            <div className={`p-4 md:p-5 rounded-2xl ${theme.cardBgClass} space-y-2.5`}>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-extrabold uppercase tracking-wider opacity-75">
-                  📖 Reading Passage · קטע קריאה
-                </span>
-                <button
-                  type="button"
-                  onClick={() => onSpeakEnglish(currentStep.contextPassageEn!, 0.92)}
-                  className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-                >
-                  <Volume2 className="w-3.5 h-3.5" />
-                  <span>Listen to Story 🔊</span>
-                </button>
-              </div>
-              <p className="text-sm md:text-base font-bold leading-relaxed" dir="ltr">
-                {currentStep.contextPassageEn}
-              </p>
-              {tier === 'explorer' && currentStep.contextPassageHe && (
-                <p className={`text-xs ${theme.mutedTextClass} pt-1 border-t border-current/10`} dir="rtl">
-                  {currentStep.contextPassageHe}
-                </p>
-              )}
-            </div>
+            <PassageBox
+              passageEn={currentStep.contextPassageEn}
+              passageHe={currentStep.contextPassageHe}
+              showHebrew={tier === 'explorer'}
+              theme={theme}
+              onSpeakEnglish={onSpeakEnglish}
+            />
           )}
 
           {/* Question Bubble */}
-          <div className={`p-4 md:p-5 rounded-2xl ${theme.cardBgClass} flex items-start justify-between gap-3`}>
-            <div className="flex items-start gap-3">
-              {currentStep.speakerAvatar && (
-                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl shrink-0 ${theme.primaryBtnClass}`}>
-                  {currentStep.speakerAvatar}
-                </div>
-              )}
-              <div>
-                {currentStep.speakerName && (
-                  <div className="text-xs font-bold opacity-75 mb-0.5">
-                    {currentStep.speakerName}
-                  </div>
-                )}
-                <p className="text-base md:text-xl font-extrabold leading-snug" dir="ltr">
-                  {currentStep.questionEn}
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() =>
-                onSpeakEnglish(
-                  (currentStep.speakTargetEn || currentStep.questionEn)
-                    .replace(/_______/g, 'blank')
-                    .replace(/\p{Extended_Pictographic}/gu, '')
-                    .trim(),
-                  0.92
-                )
-              }
-              className={`p-2.5 rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
-              title="Read aloud"
-            >
-              <Volume2 className="w-4 h-4" />
-            </button>
-          </div>
+          <QuestionBubble
+            questionEn={currentStep.questionEn}
+            readAloudText={currentStep.speakTargetEn}
+            speakerAvatar={currentStep.speakerAvatar}
+            speakerName={currentStep.speakerName}
+            theme={theme}
+            onSpeakEnglish={onSpeakEnglish}
+          />
 
           {/* DRILL TYPE 1, 4, 5: MULTIPLE CHOICE OPTIONS */}
           {currentStep.options && (
-            <div className="grid grid-cols-1 gap-2.5">
-              {currentStep.options.map((opt, idx) => {
-                const isPicked = selectedOptionIdx === idx;
-                let borderStyle = theme.cardBgClass;
-                if (isPicked) {
-                  borderStyle = opt.isCorrect
-                    ? 'bg-emerald-500/20 border-2 border-emerald-500'
-                    : 'bg-rose-500/20 border-2 border-rose-500';
-                }
-
-                return (
-                  <button
-                    key={opt.textEn}
-                    type="button"
-                    onClick={() => handleSelectOption(idx)}
-                    className={`w-full text-left p-4 rounded-2xl transition-all flex items-center justify-between gap-3 ${borderStyle}`}
-                  >
-                    <span className="font-extrabold text-sm md:text-base" dir="ltr">
-                      {opt.textEn}
-                    </span>
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-black/10 dark:bg-white/10 shrink-0">
-                      {isPicked
-                        ? opt.isCorrect
-                          ? '✅ Correct'
-                          : '❌ Try Again'
-                        : 'Select'}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+            <MultipleChoiceOptions
+              options={currentStep.options}
+              selectedIdx={selectedOptionIdx}
+              onSelect={handleSelectOption}
+              theme={theme}
+            />
           )}
 
           {/* DRILL TYPE 2: SENTENCE MAGNET BUILDER */}
           {currentStep.type === 'sentence-builder' && currentStep.scrambledWords && (
-            <div className="space-y-4">
-              {currentStep.targetSentenceHe && (
-                <div className="text-sm font-bold opacity-85" dir="rtl">
-                  משפט היעד לתרגום: &ldquo;{currentStep.targetSentenceHe}&rdquo;
-                </div>
-              )}
-
-              {/* Assembled Sentence Tray */}
-              <div
-                className={`min-h-[68px] p-4 rounded-2xl border-2 border-dashed border-purple-400/60 bg-black/5 dark:bg-white/5 flex flex-wrap items-center gap-2`}
-                dir="ltr"
-              >
-                {selectedWordIndices.length === 0 ? (
-                  <span className="text-xs opacity-60">
-                    Tap the English words below in the correct order...
-                  </span>
-                ) : (
-                  selectedWordIndices.map((wordIdx) => (
-                    <button
-                      key={`picked-${wordIdx}`}
-                      type="button"
-                      onClick={() => handleToggleWordTile(wordIdx)}
-                      className={`px-3.5 py-2 rounded-xl text-sm font-extrabold ${theme.primaryBtnClass}`}
-                    >
-                      {currentStep.scrambledWords![wordIdx]}
-                    </button>
-                  ))
-                )}
-              </div>
-
-              {/* Word Bank Tiles */}
-              <div className="flex flex-wrap items-center gap-2" dir="ltr">
-                {currentStep.scrambledWords.map((word, idx) => {
-                  const isUsed = selectedWordIndices.includes(idx);
-                  return (
-                    <button
-                      key={`bank-${idx}-${word}`}
-                      type="button"
-                      disabled={isUsed || stepCompleted}
-                      onClick={() => handleToggleWordTile(idx)}
-                      className={`px-3.5 py-2 rounded-xl text-sm font-extrabold transition-all ${
-                        isUsed
-                          ? 'opacity-30 scale-95 cursor-not-allowed bg-slate-400/20'
-                          : theme.secondaryBtnClass
-                      }`}
-                    >
-                      {word}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {!stepCompleted && (
-                <div className="flex items-center gap-2.5 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedWordIndices([])}
-                    className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span dir="rtl">איפוס מילים</span>
-                  </button>
-                  <button
-                    type="button"
-                    disabled={selectedWordIndices.length === 0}
-                    onClick={handleCheckSentence}
-                    className={`px-6 py-2.5 rounded-xl text-xs md:text-sm font-extrabold ${theme.primaryBtnClass} disabled:opacity-40`}
-                  >
-                    <span dir="rtl">בדיקת משפט ✓</span>
-                  </button>
-                </div>
-              )}
-            </div>
+            <SentenceBuilderDrill
+              scrambledWords={currentStep.scrambledWords}
+              targetSentenceHe={currentStep.targetSentenceHe}
+              selectedIndices={selectedWordIndices}
+              isCompleted={stepCompleted}
+              onToggleWord={handleToggleWordTile}
+              onReset={() => setSelectedWordIndices([])}
+              onCheck={handleCheckSentence}
+              theme={theme}
+            />
           )}
 
           {/* DRILL TYPE 3: TWO-WAY VOICE SPEAKING & PRONUNCIATION MATCHER */}
@@ -747,38 +618,18 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
 
           {/* Instant Hebrew Feedback Banner + Next Step Button */}
           {feedbackHe && (
-            <div
-              className={`p-4 rounded-2xl border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                feedbackHe.isCorrect
-                  ? 'bg-emerald-500/15 border-emerald-500/50'
-                  : 'bg-rose-500/15 border-rose-500/50'
-              }`}
-              dir="rtl"
-            >
-              <div className="flex items-start gap-2.5">
-                {feedbackHe.isCorrect ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                ) : (
-                  <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
-                )}
-                <p className="text-xs md:text-sm font-extrabold">{feedbackHe.text}</p>
-              </div>
-
-              {stepCompleted && (
-                <button
-                  type="button"
-                  onClick={handleNextStep}
-                  className={`px-5 py-2.5 rounded-xl text-xs md:text-sm font-extrabold flex items-center justify-center gap-1.5 shrink-0 ${theme.primaryBtnClass}`}
-                >
-                  <span>
-                    {currentStepIdx + 1 < steps.length
-                      ? 'לשלב הבא'
-                      : 'סיום משימה וקבלת פרסים 🏆'}
-                  </span>
-                  <ArrowRight className="w-4 h-4 rotate-180" />
-                </button>
-              )}
-            </div>
+            <FeedbackBanner
+              isCorrect={feedbackHe.isCorrect}
+              text={feedbackHe.text}
+              showNext={stepCompleted}
+              nextLabel={
+                currentStepIdx + 1 < steps.length
+                  ? 'לשלב הבא'
+                  : 'סיום משימה וקבלת פרסים 🏆'
+              }
+              onNext={handleNextStep}
+              theme={theme}
+            />
           )}
         </div>
       </div>
