@@ -370,13 +370,17 @@ export function getBestGameScore(profile: LearnerProfile, gameId: WordGameId): n
   return getRoom(profile).gameBestScores?.[gameId];
 }
 
-/** Saves the best score and gives the game's daily room-activity reward. */
+/**
+ * Saves the best score and gives the game's daily room-activity reward. A game ended with nothing
+ * solved (0%) earns nothing, so tapping "finish" right away can't collect the daily reward.
+ */
 export function recordGameResult(
   profile: LearnerProfile,
   gameId: WordGameId,
   score: number,
   now: Date
-): RoomActivityReward {
+): RoomActivityReward | null {
+  if (score <= 0) return null;
   const room = getRoom(profile);
   const best = Math.max(room.gameBestScores?.[gameId] ?? 0, score);
   const withScore: LearnerProfile = {

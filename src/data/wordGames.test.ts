@@ -217,15 +217,23 @@ describe('puzzles from real grade words', () => {
 
 describe('recordGameResult', () => {
   it('keeps the best score and rewards the first game of the day', () => {
-    const first = recordGameResult(baseProfile, 'scramble', 80, NOW);
+    const first = recordGameResult(baseProfile, 'scramble', 80, NOW)!;
     expect(first.xpEarned).toBe(ROOM_ACTIVITY_XP);
     expect(getBestGameScore(first.profile, 'scramble')).toBe(80);
 
-    const second = recordGameResult(first.profile, 'scramble', 60, NOW);
+    const second = recordGameResult(first.profile, 'scramble', 60, NOW)!;
     expect(second.xpEarned).toBe(ROOM_ACTIVITY_REPEAT_XP);
     expect(getBestGameScore(second.profile, 'scramble')).toBe(80);
 
-    expect(recordGameResult(second.profile, 'search', 100, NOW).isFullReward).toBe(true);
+    expect(recordGameResult(second.profile, 'search', 100, NOW)?.isFullReward).toBe(true);
+  });
+
+  it('gives nothing for a game ended with no words found, so the daily reward stays open', () => {
+    expect(recordGameResult(baseProfile, 'search', 0, NOW)).toBeNull();
+    expect(recordGameResult(baseProfile, 'crossword', 0, NOW)).toBeNull();
+
+    const later = recordGameResult(baseProfile, 'search', 40, NOW);
+    expect(later?.isFullReward).toBe(true);
   });
 
   it('scores first-try answers as a percentage', () => {

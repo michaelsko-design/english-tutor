@@ -34,7 +34,7 @@ interface GamesBookPanelProps {
 type BookView =
   | { kind: 'menu' }
   | { kind: 'play'; gameId: WordGameId; seed: number }
-  | { kind: 'result'; gameId: WordGameId; score: number; reward: RoomActivityReward };
+  | { kind: 'result'; gameId: WordGameId; score: number; reward: RoomActivityReward | null };
 
 const newSeed = () => Math.floor(Math.random() * 1_000_000_000);
 
@@ -48,8 +48,8 @@ export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, 
 
   const handleFinish = (gameId: WordGameId, score: number) => {
     const reward = recordGameResult(profile, gameId, score, new Date());
-    onUpdateProfile(reward.profile);
-    if (reward.isFullReward) confetti({ particleCount: 70, spread: 65, origin: { y: 0.6 } });
+    if (reward) onUpdateProfile(reward.profile);
+    if (reward?.isFullReward) confetti({ particleCount: 70, spread: 65, origin: { y: 0.6 } });
     setView({ kind: 'result', gameId, score, reward });
   };
 
@@ -106,7 +106,11 @@ export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, 
           theme={theme}
           gender={profile.gender}
           headlineHe={`${game.titleHe}: ${view.score}% 🏆 · שיא: ${getBestGameScore(profile, view.gameId) ?? view.score}%`}
-          emptyHe=""
+          emptyHe={
+            profile.gender === 'girl'
+              ? 'הפעם לא נפתרו מילים, אז אין פרס. נסי שוב, וכל מילה שתמצאי תיתן ניקוד!'
+              : 'הפעם לא נפתרו מילים, אז אין פרס. נסה שוב, וכל מילה שתמצא תיתן ניקוד!'
+          }
           againLabel="שוב! 🔁"
           onAgain={() => play(view.gameId)}
           onClose={onClose}
