@@ -22,12 +22,14 @@ export const LetterGrid: React.FC<LetterGridProps> = ({ grid, foundCells, select
     const key = cellKey(cell);
     const isFound = foundCells.has(key);
     const isStart = selectedStart !== null && cellKey(selectedStart) === key;
+    const [row, col] = cell;
+    const positionHe = isStream ? `אות ${col + 1}` : `שורה ${row + 1} עמודה ${col + 1}`;
     return (
       <button
         key={key}
         type="button"
         onClick={() => onTapCell(cell)}
-        aria-label={`${letter}${isFound ? ' (נמצא)' : ''}`}
+        aria-label={`${letter}, ${positionHe}${isFound ? ' (נמצא)' : ''}`}
         aria-pressed={isStart}
         className={`aspect-square rounded-lg text-sm sm:text-base font-extrabold flex items-center justify-center transition-colors ${
           isStart

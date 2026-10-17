@@ -15,7 +15,16 @@ interface StickerDrawPanelProps {
   onDone: () => void;
 }
 
-const COLORS = ['#111827', '#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
+const COLORS = [
+  { hex: '#111827', nameHe: 'שחור' },
+  { hex: '#ef4444', nameHe: 'אדום' },
+  { hex: '#f97316', nameHe: 'כתום' },
+  { hex: '#facc15', nameHe: 'צהוב' },
+  { hex: '#22c55e', nameHe: 'ירוק' },
+  { hex: '#3b82f6', nameHe: 'כחול' },
+  { hex: '#a855f7', nameHe: 'סגול' },
+  { hex: '#ec4899', nameHe: 'ורוד' },
+];
 const BRUSHES = [
   { width: 14, labelHe: 'דק' },
   { width: 34, labelHe: 'עבה' },
@@ -40,7 +49,7 @@ export const StickerDrawPanel: React.FC<StickerDrawPanelProps> = ({ profile, the
   const isGirl = profile.gender === 'girl';
   const canvasRef = useRef<StickerCanvasHandle>(null);
   const [strokes, setStrokes] = useState<Stroke[]>([]);
-  const [color, setColor] = useState(COLORS[1]);
+  const [color, setColor] = useState(COLORS[1].hex);
   const [brushWidth, setBrushWidth] = useState(BRUSHES[0].width);
   const [isEraser, setIsEraser] = useState(false);
   const [name, setName] = useState('');
@@ -82,18 +91,18 @@ export const StickerDrawPanel: React.FC<StickerDrawPanelProps> = ({ profile, the
       />
 
       <div className="flex flex-wrap justify-center gap-1.5" role="group" aria-label="צבעים">
-        {COLORS.map((c) => (
+        {COLORS.map(({ hex, nameHe }) => (
           <button
-            key={c}
+            key={hex}
             type="button"
             onClick={() => {
-              setColor(c);
+              setColor(hex);
               setIsEraser(false);
             }}
-            aria-label={`צבע ${c}`}
-            aria-pressed={!isEraser && color === c}
-            className={`w-8 h-8 rounded-full border-2 ${!isEraser && color === c ? 'border-fuchsia-500 scale-110' : 'border-white/70'}`}
-            style={{ backgroundColor: c }}
+            aria-label={`צבע ${nameHe}`}
+            aria-pressed={!isEraser && color === hex}
+            className={`w-8 h-8 rounded-full border-2 ${!isEraser && color === hex ? 'border-fuchsia-500 scale-110' : 'border-white/70'}`}
+            style={{ backgroundColor: hex }}
           />
         ))}
       </div>
