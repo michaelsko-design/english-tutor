@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   MAX_DRAWN_STICKERS,
+  MAX_STICKER_DATA_URL_LENGTH,
   STICKER_PASS_ID,
   addDrawnSticker,
   deleteDrawnSticker,
@@ -76,7 +77,9 @@ describe('addDrawnSticker', () => {
     expect(addDrawnSticker({ ...baseProfile, unlockedRewardIds: [] }, 'sun', PNG, NOW).error).toBe('no-pass');
     expect(addDrawnSticker(baseProfile, 'שמש', PNG, NOW).error).toBe('bad-name');
     expect(addDrawnSticker(baseProfile, 'sun', 'data:image/jpeg;base64,AA', NOW).error).toBe('bad-image');
-    expect(addDrawnSticker(baseProfile, 'sun', PNG + 'A'.repeat(70_000), NOW).error).toBe('bad-image');
+    const tooBig = PNG.padEnd(MAX_STICKER_DATA_URL_LENGTH + 1, 'A');
+    expect(addDrawnSticker(baseProfile, 'sun', tooBig, NOW).error).toBe('bad-image');
+    expect(addDrawnSticker(baseProfile, 'sun', tooBig.slice(0, -1), NOW).error).toBeUndefined();
 
     let full = baseProfile;
     for (let i = 0; i < MAX_DRAWN_STICKERS; i++) {

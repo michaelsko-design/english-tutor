@@ -6,6 +6,7 @@ import {
   LearnerProfile,
   PlacementResult,
 } from '../types/learner';
+import { MAX_DRAWN_STICKERS } from '../data/stickers';
 
 vi.mock('./firebase', () => ({ db: null }));
 
@@ -321,6 +322,37 @@ describe('mergeLearnerProfiles room', () => {
     expect(merged.drawnStickers?.map((s) => s.id)).toEqual(['a', 'b', 'c']);
     expect(merged.drawnStickers?.[0]).toMatchObject({ archivedAt: '2026-10-15T08:00:00.000Z', imageDataUrl: '' });
     expect(merged.drawnStickers?.[1].imageDataUrl).toBe('data:image/png;base64,AAA');
+  });
+
+  it('keeps only the newest drawn stickers active when both devices drew a full set', () => {
+    const drawn = (id: string, day: number) => ({
+      id,
+      nameEn: id,
+      imageDataUrl: 'data:image/png;base64,AAA',
+      createdAt: `2026-10-${String(day).padStart(2, '0')}T08:00:00.000Z`,
+    });
+    const days = Array.from({ length: MAX_DRAWN_STICKERS }, (_, i) => i + 1);
+    const local = days.map((day) => drawn(`local-${day}`, day));
+    const cloud = days.map((day) => drawn(`cloud-${day}`, day + MAX_DRAWN_STICKERS));
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, room: { ...newerRoom, drawnStickers: local } },
+      { room: { ...olderRoom, drawnStickers: cloud } }
+    ).room!.drawnStickers!;
+
+    expect(merged).toHaveLength(2 * MAX_DRAWN_STICKERS);
+    const active = merged.filter((s) => !s.archivedAt);
+    expect(active).toHaveLength(MAX_DRAWN_STICKERS);
+    expect(active.map((s) => s.id)).toEqual(cloud.map((s) => s.id));
+    const archived = merged.filter((s) => s.archivedAt);
+    expect(archived.map((s) => s.id)).toEqual(local.map((s) => s.id));
+    expect(archived.every((s) => s.imageDataUrl === '' && s.archivedAt === '2026-10-24T08:00:00.000Z')).toBe(true);
+
+    // The other device computes the same result
+    const reversed = mergeLearnerProfiles(
+      { ...baseProfile, room: { ...newerRoom, drawnStickers: cloud } },
+      { room: { ...olderRoom, drawnStickers: local } }
+    ).room!.drawnStickers!;
+    expect(reversed.filter((s) => s.archivedAt)).toEqual(archived);
   });
 
   it('keeps a room that exists on only one side and adds none otherwise', () => {

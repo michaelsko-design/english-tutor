@@ -11,7 +11,8 @@ export const STICKER_PASS_ID = 'pass-sticker-studio';
 export const MAX_DRAWN_STICKERS = 12;
 /** Drawings are saved as small square PNGs, so the synced profile stays small. */
 export const DRAWN_STICKER_SIZE = 96;
-export const MAX_STICKER_DATA_URL_LENGTH = 60_000;
+/** A real 96px drawing is about 4–15 KB; 12 at the cap stay far below Firestore's 1 MiB per doc. */
+export const MAX_STICKER_DATA_URL_LENGTH = 30_000;
 const PNG_DATA_URL_PREFIX = 'data:image/png;base64,';
 
 export type AddStickerError = 'no-pass' | 'full' | 'bad-name' | 'bad-image';

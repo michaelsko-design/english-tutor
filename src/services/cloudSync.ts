@@ -12,6 +12,7 @@ import {
   PlacementResult,
 } from '../types/learner';
 import { keepNewestEntries } from '../data/dreamJournal';
+import { MAX_DRAWN_STICKERS } from '../data/stickers';
 
 const LEARNERS_COLLECTION = 'learners';
 
@@ -315,14 +316,32 @@ function mergeDrawnStickers(
   if (!local || !cloud) return local || cloud;
   const cloudById = new Map(cloud.map((s) => [s.id, s]));
   const localIds = new Set(local.map((s) => s.id));
-  return [
+  return archiveOverflowStickers([
     ...local.map((sticker) => {
       const match = cloudById.get(sticker.id);
       const archivedAt = earliestIso(sticker.archivedAt, match?.archivedAt);
       return archivedAt ? { ...sticker, imageDataUrl: '', archivedAt } : sticker;
     }),
     ...cloud.filter((s) => !localIds.has(s.id)),
-  ];
+  ]);
+}
+
+/**
+ * Two offline devices can each draw MAX_DRAWN_STICKERS, so the merge keeps only the newest ones
+ * active and archives the rest. archivedAt is the newest createdAt among the active stickers, so
+ * every device computes the same result and the profile stays within Firestore's size limit.
+ */
+function archiveOverflowStickers(stickers: DrawnSticker[]): DrawnSticker[] {
+  const active = stickers.filter((s) => !s.archivedAt);
+  if (active.length <= MAX_DRAWN_STICKERS) return stickers;
+  const newestFirst = [...active].sort(
+    (a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id)
+  );
+  const keptIds = new Set(newestFirst.slice(0, MAX_DRAWN_STICKERS).map((s) => s.id));
+  const archivedAt = newestFirst[0].createdAt;
+  return stickers.map((s) =>
+    s.archivedAt || keptIds.has(s.id) ? s : { ...s, imageDataUrl: '', archivedAt }
+  );
 }
 
 /** Per game, the best score from either device. */
