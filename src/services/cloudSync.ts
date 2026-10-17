@@ -2,6 +2,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import {
   CustomWordList,
+  DressUpDay,
   ExamPlanDay,
   ExamPrepPlan,
   LearnerProfile,
@@ -300,9 +301,24 @@ function mergeCustomWordLists(
   ];
 }
 
+/** The later day wins; the same day keeps the most progress, and a given reward stays given. */
+function mergeDressUpDay(
+  local: DressUpDay | undefined,
+  cloud: DressUpDay | undefined
+): DressUpDay | undefined {
+  if (!local || !cloud) return local || cloud;
+  if (local.dateStr !== cloud.dateStr) return local.dateStr > cloud.dateStr ? local : cloud;
+  return {
+    dateStr: local.dateStr,
+    namedCount: Math.max(local.namedCount, cloud.namedCount),
+    voiceCount: Math.max(local.voiceCount, cloud.voiceCount),
+    isRewarded: local.isRewarded || cloud.isRewarded,
+  };
+}
+
 /**
- * The newer room layout wins (it is a single arrangement, so slots are not mixed), while the
- * items the learner has already named are kept from both devices.
+ * The newer room layout and outfit win (each is a single arrangement, so slots are not mixed),
+ * while the items the learner has already named and today's dress-up progress are kept from both.
  */
 function mergeRoom(
   local: LearnerRoom | undefined,
@@ -312,9 +328,11 @@ function mergeRoom(
   const localTime = Date.parse(local.updatedAt) || 0;
   const cloudTime = Date.parse(cloud.updatedAt) || 0;
   const newer = cloudTime > localTime ? cloud : local;
+  const dressUpDay = mergeDressUpDay(local.dressUpDay, cloud.dressUpDay);
   return {
     ...newer,
     namedItemIds: Array.from(new Set([...(local.namedItemIds || []), ...(cloud.namedItemIds || [])])),
+    ...(dressUpDay ? { dressUpDay } : {}),
   };
 }
 

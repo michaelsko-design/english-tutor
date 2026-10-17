@@ -1,6 +1,8 @@
 import React from 'react';
 import { ROOM_OBJECTS, ROOM_SLOTS, RoomObjectId, getRoomItem } from '../../data/room';
+import { WardrobeItem } from '../../data/wardrobe';
 import { ThemeId } from '../../types/learner';
+import { DressedAvatar } from './DressedAvatar';
 import {
   OBJECT_POSITIONS,
   OBJECT_SIZES,
@@ -19,6 +21,8 @@ export interface SceneBubble {
 interface RoomSceneProps {
   themeId: ThemeId;
   avatarEmoji: string;
+  /** What the avatar wears (see getWornItems) */
+  worn?: WardrobeItem[];
   placements: Record<string, string>;
   avatarPos: ScenePoint;
   isAvatarFacingLeft?: boolean;
@@ -38,6 +42,7 @@ function at(point: ScenePoint): React.CSSProperties {
 export const RoomScene: React.FC<RoomSceneProps> = ({
   themeId,
   avatarEmoji,
+  worn = [],
   placements,
   avatarPos,
   isAvatarFacingLeft = false,
@@ -140,11 +145,15 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
       {/* Avatar */}
       <div
         className={`${centered} pointer-events-none transition-[left,top] duration-700 ease-in-out motion-reduce:transition-none`}
-        style={{ ...at(avatarPos), fontSize: '10cqw' }}
+        style={at(avatarPos)}
         aria-hidden="true"
       >
-        <div className="leading-none drop-shadow-md" style={{ transform: isAvatarFacingLeft ? 'scaleX(-1)' : undefined }}>
-          {avatarEmoji}
+        <div className="drop-shadow-md" style={{ transform: isAvatarFacingLeft ? 'scaleX(-1)' : undefined }}>
+          <DressedAvatar
+            avatarEmoji={avatarEmoji}
+            worn={worn}
+            fontSize={worn.some((item) => item.isHumanOnly) ? '7.5cqw' : '10cqw'}
+          />
         </div>
       </div>
 

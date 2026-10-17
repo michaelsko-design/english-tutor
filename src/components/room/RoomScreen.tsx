@@ -10,12 +10,14 @@ import {
   placeNamedRoomItem,
   removeRoomItem,
 } from '../../data/room';
+import { getWornItems } from '../../data/wardrobe';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { NameItemPanel } from './NameItemPanel';
 import { RoomInventory } from './RoomInventory';
 import { RoomScene, SceneBubble } from './RoomScene';
+import { WardrobePanel } from './WardrobePanel';
 import { AVATAR_HOME, OBJECT_POSITIONS, SLOT_POSITIONS, ScenePoint, getStandingPoint } from './roomLayout';
 
 interface RoomScreenProps {
@@ -56,6 +58,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   const [focusedSlotId, setFocusedSlotId] = useState<string | null>(null);
   const [naming, setNaming] = useState<{ itemId: string; slotId: string } | null>(null);
   const [statusText, setStatusText] = useState<string | null>(null);
+  const [isWardrobeOpen, setIsWardrobeOpen] = useState(false);
   const walkTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(walkTimer.current), []);
@@ -74,6 +77,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
 
   const handleSelectItem = (itemId: string) => {
     setFocusedSlotId(null);
+    setIsWardrobeOpen(false);
     if (selectedItemId === itemId) {
       setSelectedItemId(null);
       setStatusText(null);
@@ -83,8 +87,8 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     setSelectedItemId(itemId);
     setStatusText(
       isGirl
-        ? `לאן נכניס את ה${item?.nameHe}? בחרי מקום מהבהב בחדר ✨`
-        : `לאן נכניס את ה${item?.nameHe}? בחר מקום מהבהב בחדר ✨`
+        ? `${item?.emoji} ${item?.nameHe} — בחרי מקום מהבהב בחדר ✨`
+        : `${item?.emoji} ${item?.nameHe} — בחר מקום מהבהב בחדר ✨`
     );
   };
 
@@ -114,8 +118,14 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     setSelectedItemId(null);
     setFocusedSlotId(null);
     setStatusText(null);
+    setIsWardrobeOpen(false);
     walkTo(point, () => {
       onSpeakEnglish(object.nameEn, 0.9);
+      if (objectId === 'wardrobe') {
+        setBubble({ at: point, textEn: object.nameEn, textHe: object.nameHe });
+        setIsWardrobeOpen(true);
+        return;
+      }
       setBubble({ at: point, textEn: object.nameEn, textHe: `בקרוב: ${object.activityHe}` });
     });
   };
@@ -131,8 +141,8 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     }
     setStatusText(
       result.xpEarned > 0
-        ? `ה${item?.nameHe} בחדר! +${result.xpEarned} XP על מילה חדשה 🌟`
-        : `ה${item?.nameHe} בחדר! 🏠`
+        ? `${item?.emoji} ${item?.nameEn} בחדר! +${result.xpEarned} XP על מילה חדשה 🌟`
+        : `${item?.emoji} ${item?.nameEn} בחדר! 🏠`
     );
     setNaming(null);
     setSelectedItemId(null);
@@ -143,7 +153,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     onUpdateProfile(removeRoomItem(profile, slotId, new Date()));
     setFocusedSlotId(null);
     setBubble(null);
-    setStatusText(`ה${item?.nameHe} חזר לארגז הפריטים 📦`);
+    setStatusText(`${item?.emoji} ${item?.nameEn} חזר לארגז הפריטים 📦`);
   };
 
   const focusedItem = focusedSlotId ? getRoomItem(room.placements[focusedSlotId]) : undefined;
@@ -169,6 +179,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
         <RoomScene
           themeId={profile.themeId}
           avatarEmoji={avatarEmoji}
+          worn={getWornItems(profile, avatarEmoji)}
           placements={room.placements}
           avatarPos={avatarPos}
           isAvatarFacingLeft={isFacingLeft}
@@ -191,7 +202,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
               onClick={() => handleSelectItem(focusedItem.id)}
               className={`px-4 py-2 rounded-xl text-xs font-extrabold ${theme.secondaryBtnClass}`}
             >
-              🔀 הזזת ה{focusedItem.nameHe}
+              🔀 הזזה ({focusedItem.nameEn})
             </button>
             <button
               type="button"
@@ -203,13 +214,23 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
           </div>
         )}
 
-        {naming && namingItem ? (
+        {isWardrobeOpen ? (
+          <WardrobePanel
+            profile={profile}
+            avatarEmoji={avatarEmoji}
+            theme={theme}
+            onUpdateProfile={onUpdateProfile}
+            onSpeakEnglish={onSpeakEnglish}
+            onClose={() => setIsWardrobeOpen(false)}
+          />
+        ) : naming && namingItem ? (
           <NameItemPanel
             key={`${naming.itemId}-${naming.slotId}`}
             item={namingItem}
             gender={profile.gender}
-            tier={profile.preferredTier}
             theme={theme}
+            goalHe={`כדי להניח בחדר: ${namingItem.nameHe}`}
+            nextLabel="להניח בחדר ✨"
             onSpeakEnglish={onSpeakEnglish}
             onNamed={handleNamed}
             onCancel={() => setNaming(null)}
@@ -227,8 +248,8 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
 
         <p className={`text-[11px] text-center ${theme.mutedTextClass}`} dir="rtl">
           {isGirl
-            ? '🛏️ 📱 🚪 📖 — לחצי על המיטה, הטלפון, הארון וספר המשחקים: הפעילויות שלהם מגיעות בקרוב!'
-            : '🛏️ 📱 🚪 📖 — לחץ על המיטה, הטלפון, הארון וספר המשחקים: הפעילויות שלהם מגיעות בקרוב!'}
+            ? '🚪 לחצי על הארון כדי להלביש את האווטאר. 🛏️ 📱 📖 המיטה, הטלפון וספר המשחקים מגיעים בקרוב!'
+            : '🚪 לחץ על הארון כדי להלביש את האווטאר. 🛏️ 📱 📖 המיטה, הטלפון וספר המשחקים מגיעים בקרוב!'}
         </p>
       </div>
     </ExamModalShell>

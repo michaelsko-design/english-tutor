@@ -157,13 +157,28 @@ export interface CustomWordList {
   archivedAt?: string;
 }
 
+/** Today's Dress-Up Studio practice toward the once-a-day reward (Feature 12). */
+export interface DressUpDay {
+  /** Local calendar date, YYYY-MM-DD */
+  dateStr: string;
+  /** Wardrobe items put on today */
+  namedCount: number;
+  /** How many of them were named by voice */
+  voiceCount: number;
+  /** Whether today's dress-up reward was already given */
+  isRewarded: boolean;
+}
+
 /** The learner's room layout (Feature 12). Owned room items live in `unlockedRewardIds`. */
 export interface LearnerRoom {
   /** Maps slotId -> placed room item id */
   placements: Record<string, string>;
+  /** Maps wardrobe layer -> worn wardrobe item id; saved with the layout */
+  outfit?: Record<string, string>;
+  dressUpDay?: DressUpDay;
   /** Items the learner has said or spelled at least once (the first time earns XP) */
   namedItemIds: string[];
-  /** ISO timestamp of the latest layout change; the newer layout wins on merge */
+  /** ISO timestamp of the latest layout or outfit change; the newer one wins on merge */
   updatedAt: string;
 }
 

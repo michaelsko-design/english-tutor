@@ -28,7 +28,7 @@ import { levelForXp, recordDailyActivity } from '../data/progressRewards';
 import { ExamPrepHub } from './examPrep/ExamPrepHub';
 import { WordListsHub } from './wordLists/WordListsHub';
 import { RoomHub } from './room/RoomHub';
-import { RoomItem, getNextRoomReward, getRoomRewardForMission } from '../data/room';
+import { RoomRewardItem, getNextRoomReward, getRoomRewardForMission } from '../data/roomRewards';
 import { getHebrewCopy, inflectHebrew } from '../utils/hebrewGender';
 import {
   Flame,
@@ -75,7 +75,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [isRewardShopOpen, setIsRewardShopOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isPlacementOpen, setIsPlacementOpen] = useState(false);
-  const [roomRewardToast, setRoomRewardToast] = useState<RoomItem | null>(null);
+  const [roomRewardToast, setRoomRewardToast] = useState<RoomRewardItem | null>(null);
 
   useEffect(() => {
     if (!roomRewardToast) return;
@@ -883,7 +883,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             role="status"
           >
             <span className="text-2xl leading-none">{roomRewardToast.emoji}</span>
-            <span>🎁 פריט חדש לחדר: {roomRewardToast.nameHe} — לחדר שלי ←</span>
+            <span>
+              {roomRewardToast.kind === 'wear' ? '🎁 בגד חדש לארון' : '🎁 פריט חדש לחדר'}: {roomRewardToast.nameHe} — לחדר שלי ←
+            </span>
           </button>
         </div>
       )}

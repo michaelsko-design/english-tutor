@@ -1,7 +1,7 @@
 import { DailyActivityCounters, LearnerGender } from '../types/learner';
 import { inflectHebrew } from '../utils/hebrewGender';
 
-export type RewardCategory = 'avatar' | 'sticker' | 'studio-decor' | 'boost';
+export type RewardCategory = 'avatar' | 'accessory' | 'sticker' | 'studio-decor' | 'boost';
 
 export interface RewardShopItem {
   id: string;
@@ -118,6 +118,35 @@ export const REWARD_SHOP_ITEMS: RewardShopItem[] = [
     titleHe: 'פרפר הקריסטל הכחול',
     descriptionHe: 'אווטאר נדיר וזוהר לדשבורד האישי.',
     costDiamonds: 75,
+  },
+
+  // Wardrobe accessories for My English Room (Feature 12); ids match the wardrobe items
+  {
+    id: 'wear-sunglasses',
+    category: 'accessory',
+    emoji: '🕶️',
+    titleEn: 'Sunglasses',
+    titleHe: 'משקפי שמש לארון',
+    descriptionHe: 'אקססורי לאווטאר בחדר האנגלי. כדי ללבוש אותו אומרים או מאייתים "sunglasses".',
+    costDiamonds: 40,
+  },
+  {
+    id: 'wear-graduation-cap',
+    category: 'accessory',
+    emoji: '🎓',
+    titleEn: 'Graduation Cap',
+    titleHe: 'כובע סיום לארון',
+    descriptionHe: 'כובע של אלופי אנגלית! כדי ללבוש אותו אומרים או מאייתים "graduation cap".',
+    costDiamonds: 50,
+  },
+  {
+    id: 'wear-crown',
+    category: 'accessory',
+    emoji: '👑',
+    titleEn: 'Crown',
+    titleHe: 'כתר לארון',
+    descriptionHe: 'כתר מלכותי לאווטאר בחדר. כדי ללבוש אותו אומרים או מאייתים "crown".',
+    costDiamonds: 70,
   },
 
   // Collectible Aesthetic Stickers

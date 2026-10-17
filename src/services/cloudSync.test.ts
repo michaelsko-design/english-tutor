@@ -236,6 +236,30 @@ describe('mergeLearnerProfiles room', () => {
     expect([...merged.namedItemIds].sort()).toEqual(['room-plant', 'room-sofa']);
   });
 
+  it('keeps the newer outfit with the layout', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, room: { ...olderRoom, outfit: { head: 'wear-cap' } } },
+      { room: { ...newerRoom, outfit: { head: 'wear-crown' } } }
+    ).room!;
+    expect(merged.outfit).toEqual({ head: 'wear-crown' });
+  });
+
+  it('keeps the most dress-up progress for the same day and the later day otherwise', () => {
+    const day = { dateStr: '2026-10-14', namedCount: 3, voiceCount: 0, isRewarded: true };
+    const sameDay = mergeLearnerProfiles(
+      { ...baseProfile, room: { ...newerRoom, dressUpDay: { ...day, namedCount: 1, voiceCount: 1, isRewarded: false } } },
+      { room: { ...olderRoom, dressUpDay: day } }
+    ).room!;
+    expect(sameDay.dressUpDay).toEqual({ ...day, voiceCount: 1 });
+
+    const laterDay = { dateStr: '2026-10-15', namedCount: 1, voiceCount: 0, isRewarded: false };
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, room: { ...newerRoom, dressUpDay: day } },
+      { room: { ...olderRoom, dressUpDay: laterDay } }
+    ).room!;
+    expect(merged.dressUpDay).toEqual(laterDay);
+  });
+
   it('keeps a room that exists on only one side and adds none otherwise', () => {
     expect(mergeLearnerProfiles(baseProfile, { room: olderRoom }).room).toEqual(olderRoom);
     expect(mergeLearnerProfiles({ ...baseProfile, room: olderRoom }, {}).room).toEqual(olderRoom);

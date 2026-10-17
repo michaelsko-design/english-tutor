@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { MissionNode } from '../data/curriculum';
-import { RoomItem } from '../data/room';
+import { RoomRewardItem } from '../data/roomRewards';
 import {
   getExercisesForMission,
   MissionExerciseStep,
@@ -45,7 +45,7 @@ interface MissionRunnerProps {
   }) => void;
   onClose: () => void;
   /** Room item a first 3-star result would earn (Feature 12) */
-  roomRewardPreview?: RoomItem | null;
+  roomRewardPreview?: RoomRewardItem | null;
 }
 
 export const MissionRunner: React.FC<MissionRunnerProps> = ({
@@ -315,10 +315,13 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                 {roomRewardPreview.emoji}
               </span>
               <div className="text-right">
-                <div className="text-sm font-extrabold">🎁 פריט חדש לחדר האנגלי: {roomRewardPreview.nameHe}</div>
+                <div className="text-sm font-extrabold">
+                  {roomRewardPreview.kind === 'wear' ? '🎁 בגד חדש לארון בחדר האנגלי' : '🎁 פריט חדש לחדר האנגלי'}:{' '}
+                  {roomRewardPreview.nameHe}
+                </div>
                 <div className="text-xs opacity-80">
-                  {isGirl ? 'אמרי או אייתי' : 'אמור או איית'} &ldquo;<span dir="ltr">{roomRewardPreview.nameEn}</span>&rdquo; כדי
-                  להניח אותו בחדר
+                  {isGirl ? 'אמרי או אייתי' : 'אמור או איית'} &ldquo;<span dir="ltr">{roomRewardPreview.nameEn}</span>&rdquo; כדי{' '}
+                  {roomRewardPreview.kind === 'wear' ? 'ללבוש אותו' : 'להניח אותו בחדר'}
                 </div>
               </div>
             </div>

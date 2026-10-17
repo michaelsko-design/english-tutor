@@ -8,12 +8,16 @@ import { levelForXp } from './progressRewards';
 
 export type RoomSlotKind = 'wall' | 'board' | 'shelf' | 'desk' | 'floor';
 
-export interface RoomItem {
+/** Anything the learner names in English to use it: room items and wardrobe items. */
+export interface NameableItem {
   id: string;
   emoji: string;
-  /** The English name the learner says or spells to place the item (1–2 simple words) */
+  /** The English name the learner says or spells (1–2 simple words) */
   nameEn: string;
   nameHe: string;
+}
+
+export interface RoomItem extends NameableItem {
   slotKind: RoomSlotKind;
 }
 
@@ -90,11 +94,6 @@ export const SHOP_ROOM_ITEMS: RoomItem[] = [
 /** Every learner starts with these, so the room has something to place from day one. */
 export const ROOM_STARTER_ITEM_IDS = ['room-plant'];
 
-/** The order in which first-time 3-star missions award room items. */
-export const ROOM_REWARD_ORDER: string[] = ROOM_ITEMS.map((item) => item.id).filter(
-  (id) => !ROOM_STARTER_ITEM_IDS.includes(id)
-);
-
 /** XP for naming an item for the first time; naming it again gives nothing. */
 export const ROOM_NAMING_XP = 5;
 
@@ -127,27 +126,6 @@ export function getUnplacedRoomItems(profile: LearnerProfile): RoomItem[] {
 export function getPlaceableSlots(itemId: string): RoomSlot[] {
   const item = getRoomItem(itemId);
   return item ? ROOM_SLOTS.filter((slot) => slot.kind === item.slotKind) : [];
-}
-
-/** The item a first 3-star result would award now, or null when every item is owned. */
-export function getNextRoomReward(profile: LearnerProfile): RoomItem | null {
-  const owned = new Set(profile.unlockedRewardIds || []);
-  const nextId = ROOM_REWARD_ORDER.find((id) => !owned.has(id));
-  return nextId ? getRoomItem(nextId) || null : null;
-}
-
-/**
- * The room item a mission result earns: only a mission's first 3-star result awards one,
- * so replaying a mastered mission can't farm items.
- */
-export function getRoomRewardForMission(
-  profile: LearnerProfile,
-  missionId: string,
-  starsEarned: number
-): RoomItem | null {
-  const previousStars = profile.missionProgress?.[missionId] || 0;
-  if (starsEarned < 3 || previousStars >= 3) return null;
-  return getNextRoomReward(profile);
 }
 
 function isOwned(profile: LearnerProfile, itemId: string): boolean {

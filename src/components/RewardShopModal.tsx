@@ -126,6 +126,7 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
             {[
               { id: 'all', label: '🌟 הכל' },
               { id: 'avatar', label: '🐰 אווטארים לדשבורד' },
+              { id: 'accessory', label: '🕶️ אקססוריז לארון' },
               { id: 'sticker', label: '🎀 אלבום מדבקות' },
               { id: 'studio-decor', label: '🌸 עיצוב החדר והסטודיו' },
               { id: 'boost', label: '🛡️ מגני רצף' },

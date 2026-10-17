@@ -1,13 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   ROOM_NAMING_XP,
-  ROOM_REWARD_ORDER,
   ROOM_SLOTS,
   RoomSlotKind,
-  getNextRoomReward,
   getOwnedRoomItems,
   getPlaceableSlots,
-  getRoomRewardForMission,
   getUnplacedRoomItems,
   placeNamedRoomItem,
   placeRoomItem,
@@ -51,34 +48,6 @@ const baseProfile: LearnerProfile = {
 function owning(...ids: string[]): LearnerProfile {
   return { ...baseProfile, unlockedRewardIds: [...baseProfile.unlockedRewardIds, ...ids] };
 }
-
-describe('getRoomRewardForMission', () => {
-  it('awards the first item in order for a first 3-star result', () => {
-    expect(getRoomRewardForMission(baseProfile, 'm1', 3)?.id).toBe(ROOM_REWARD_ORDER[0]);
-  });
-
-  it('awards nothing below 3 stars', () => {
-    expect(getRoomRewardForMission(baseProfile, 'm1', 2)).toBeNull();
-  });
-
-  it('awards nothing when the mission already had 3 stars', () => {
-    const replay = { ...baseProfile, missionProgress: { m1: 3 } };
-    expect(getRoomRewardForMission(replay, 'm1', 3)).toBeNull();
-  });
-
-  it('awards an item when a 2-star mission is improved to 3 stars', () => {
-    const improved = { ...baseProfile, missionProgress: { m1: 2 } };
-    expect(getRoomRewardForMission(improved, 'm1', 3)).not.toBeNull();
-  });
-
-  it('skips items the learner already owns', () => {
-    expect(getNextRoomReward(owning(ROOM_REWARD_ORDER[0]))?.id).toBe(ROOM_REWARD_ORDER[1]);
-  });
-
-  it('awards nothing once every item is owned', () => {
-    expect(getRoomRewardForMission(owning(...ROOM_REWARD_ORDER), 'm1', 3)).toBeNull();
-  });
-});
 
 describe('getOwnedRoomItems', () => {
   it('includes the starter plant for every learner', () => {

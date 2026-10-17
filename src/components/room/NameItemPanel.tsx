@@ -1,24 +1,30 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Lightbulb } from 'lucide-react';
-import { RoomItem } from '../../data/room';
+import { NameableItem } from '../../data/room';
+import { NamingMethod } from '../../data/wardrobe';
 import { getSpellingLetters } from '../../data/customWordLists';
-import { LearnerGender, ProficiencyTier } from '../../types/learner';
+import { MultipleChoiceOption } from '../../data/missionExercises';
+import { LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { SpeechEvaluationResult } from '../../utils/speechSimilarity';
-import { seededShuffleNotIdentity } from '../../utils/shuffle';
+import { seededShuffle, seededShuffleNotIdentity } from '../../utils/shuffle';
 import { getSpeechErrorTextHe, useSpeechRecognition } from '../../hooks/useSpeechRecognition';
-import { FeedbackBanner, SpellingMagnetDrill, VoiceSpeakDrill } from '../drills';
-
-type NameMode = 'say' | 'spell';
+import { FeedbackBanner, MultipleChoiceOptions, SpellingMagnetDrill, VoiceSpeakDrill } from '../drills';
 
 interface NameItemPanelProps {
-  item: RoomItem;
+  item: NameableItem;
   gender: LearnerGender;
-  tier: ProficiencyTier;
   theme: ThemeDefinition;
+  /** Ways the learner may name the item, in tab order; 'choose' needs `distractorNames` */
+  modes?: NamingMethod[];
+  /** Other English names for the 'choose' mode */
+  distractorNames?: string[];
+  /** What naming unlocks, e.g. "כדי להניח בחדר: ספה" */
+  goalHe: string;
+  nextLabel: string;
   onSpeakEnglish: (text: string, rate?: number) => void;
-  /** The learner said or spelled the name; place the item. */
-  onNamed: () => void;
+  /** The learner named the item; `method` says how. */
+  onNamed: (method: NamingMethod) => void;
   onCancel: () => void;
 }
 
@@ -27,42 +33,82 @@ interface Feedback {
   text: string;
 }
 
+const MODE_TABS: Record<NamingMethod, string> = {
+  say: '🎙️ Say it · אמירה',
+  spell: '🧲 Spell it · איות',
+  choose: '👆 Pick it · בחירה',
+};
+
+const MODE_VERBS: Record<NamingMethod, [girl: string, boy: string]> = {
+  say: ['אמרי', 'אמור'],
+  spell: ['אייתי', 'איית'],
+  choose: ['בחרי', 'בחר'],
+};
+
 function hasSpeechRecognition(): boolean {
   const w = window as unknown as { SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown };
   return Boolean(w.SpeechRecognition || w.webkitSpeechRecognition);
 }
 
-/** The gate before placing a room item: say its English name or spell it with letter magnets. */
+/** "אמרי, אייתי או בחרי" — the allowed ways to name the item, addressed by gender. */
+function joinVerbs(modes: NamingMethod[], isGirl: boolean): string {
+  const verbs = modes.map((mode) => MODE_VERBS[mode][isGirl ? 0 : 1]);
+  return verbs.length > 1 ? `${verbs.slice(0, -1).join(', ')} או ${verbs[verbs.length - 1]}` : verbs[0];
+}
+
+/** The gate before using an item: say its English name, spell it with letter magnets, or pick it. */
 export const NameItemPanel: React.FC<NameItemPanelProps> = ({
   item,
   gender,
-  tier,
   theme,
+  modes = ['say', 'spell'],
+  distractorNames = [],
+  goalHe,
+  nextLabel,
   onSpeakEnglish,
   onNamed,
   onCancel,
 }) => {
   const isGirl = gender === 'girl';
-  const [mode, setMode] = useState<NameMode>(() => (hasSpeechRecognition() ? 'say' : 'spell'));
+  const [mode, setMode] = useState<NamingMethod>(
+    () => modes.find((m) => m !== 'say' || hasSpeechRecognition()) ?? modes[0]
+  );
   const [salt] = useState(() => Math.floor(Math.random() * 1_000_000_000));
   const letterTiles = useMemo(
     () => seededShuffleNotIdentity(getSpellingLetters(item.nameEn), `${item.id}-${salt}`),
     [item, salt]
   );
+  const choiceOptions = useMemo<MultipleChoiceOption[]>(
+    () =>
+      seededShuffle(
+        [
+          { textEn: item.nameEn, isCorrect: true, explanationHe: `נכון! ${item.nameHe} = ${item.nameEn}` },
+          ...distractorNames.map((name) => ({
+            textEn: name,
+            isCorrect: false,
+            explanationHe: isGirl ? 'לא זה — הקשיבי שוב ונסי שוב 🔊' : 'לא זה — הקשב שוב ונסה שוב 🔊',
+          })),
+        ],
+        `${item.id}-choose-${salt}`
+      ),
+    [item, distractorNames, isGirl, salt]
+  );
   const [tileIndices, setTileIndices] = useState<number[]>([]);
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [speechEval, setSpeechEval] = useState<SpeechEvaluationResult | null>(null);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isNamed, setIsNamed] = useState(false);
-  const [showHint, setShowHint] = useState(tier === 'explorer');
+  const [showHint, setShowHint] = useState(false);
   const speech = useSpeechRecognition();
   const cancelListening = speech.cancel;
 
   useEffect(() => {
     setTileIndices([]);
+    setSelectedIdx(null);
     setSpeechEval(null);
     setFeedback(null);
     cancelListening();
-    if (mode === 'spell') onSpeakEnglish(item.nameEn, 0.85);
+    if (mode !== 'say') onSpeakEnglish(item.nameEn, 0.85);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, cancelListening]);
 
@@ -90,6 +136,14 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
     }
   };
 
+  const handleChoose = (idx: number) => {
+    if (isNamed) return;
+    setSelectedIdx(idx);
+    const chosen = choiceOptions[idx];
+    if (chosen.isCorrect) succeed(chosen.explanationHe);
+    else setFeedback({ isCorrect: false, text: chosen.explanationHe });
+  };
+
   const handleStartListening = () => {
     if (isNamed) return;
     setFeedback(null);
@@ -111,13 +165,10 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
     });
   };
 
-  const modeTabs: { id: NameMode; label: string }[] = [
-    { id: 'say', label: '🎙️ Say it · אמירה' },
-    { id: 'spell', label: '🧲 Spell it · איות' },
-  ];
+  const fallbackFromSay = modes.find((m) => m !== 'say');
 
   return (
-    <section aria-label={`מניחים ${item.nameHe} בחדר`} className={`p-4 sm:p-5 rounded-3xl space-y-4 ${theme.cardBgClass}`}>
+    <section aria-label={goalHe} className={`p-4 sm:p-5 rounded-3xl space-y-4 ${theme.cardBgClass}`}>
       <div className="flex items-start justify-between gap-3" dir="rtl">
         <div className="flex items-center gap-3">
           <span className="text-4xl leading-none" aria-hidden="true">
@@ -125,7 +176,7 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
           </span>
           <div>
             <h3 className="font-extrabold text-sm sm:text-base">
-              {isGirl ? `כדי להניח את ה${item.nameHe} — אמרי או אייתי את השם באנגלית` : `כדי להניח את ה${item.nameHe} — אמור או איית את השם באנגלית`}
+              {goalHe} — {joinVerbs(modes, isGirl)} את השם באנגלית
             </h3>
             <p className={`text-xs ${theme.mutedTextClass}`}>פירוש: {item.nameHe}</p>
           </div>
@@ -137,19 +188,20 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
         )}
       </div>
 
-      {!isNamed && (
+      {!isNamed && (modes.length > 1 || mode === 'spell') && (
         <div className="flex flex-wrap items-center gap-2" dir="rtl">
-          {modeTabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setMode(tab.id)}
-              aria-pressed={mode === tab.id}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold ${mode === tab.id ? theme.primaryBtnClass : theme.secondaryBtnClass}`}
-            >
-              {tab.label}
-            </button>
-          ))}
+          {modes.length > 1 &&
+            modes.map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setMode(tab)}
+                aria-pressed={mode === tab}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold ${mode === tab ? theme.primaryBtnClass : theme.secondaryBtnClass}`}
+              >
+                {MODE_TABS[tab]}
+              </button>
+            ))}
           {mode === 'spell' && (
             <button
               type="button"
@@ -157,13 +209,13 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
               className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
             >
               <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-              <span>{showHint ? `${item.nameEn}` : 'רמז 💡'}</span>
+              <span>{showHint ? item.nameEn : 'רמז 💡'}</span>
             </button>
           )}
         </div>
       )}
 
-      {mode === 'say' ? (
+      {mode === 'say' && (
         <VoiceSpeakDrill
           targetEn={item.nameEn}
           targetHe={item.nameHe}
@@ -174,9 +226,11 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
           theme={theme}
           onSpeakEnglish={onSpeakEnglish}
           onStartListening={handleStartListening}
-          onSkip={() => setMode('spell')}
+          onSkip={() => fallbackFromSay && setMode(fallbackFromSay)}
         />
-      ) : (
+      )}
+
+      {mode === 'spell' && (
         <SpellingMagnetDrill
           targetEn={item.nameEn}
           letterTiles={letterTiles}
@@ -191,13 +245,17 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
         />
       )}
 
+      {mode === 'choose' && (
+        <MultipleChoiceOptions options={choiceOptions} selectedIdx={selectedIdx} onSelect={handleChoose} theme={theme} />
+      )}
+
       {feedback && (
         <FeedbackBanner
           isCorrect={feedback.isCorrect}
           text={feedback.text}
           showNext={isNamed}
-          nextLabel="להניח בחדר ✨"
-          onNext={onNamed}
+          nextLabel={nextLabel}
+          onNext={() => onNamed(mode)}
           theme={theme}
         />
       )}

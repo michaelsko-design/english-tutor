@@ -54,7 +54,7 @@ export function getStandingPoint(target: ScenePoint): ScenePoint {
   const x = isOnFloor ? target.x + (target.x > 50 ? -9 : 9) : target.x;
   return {
     x: Math.min(92, Math.max(8, x)),
-    y: Math.min(86, Math.max(66, target.y)),
+    y: Math.min(80, Math.max(66, target.y)),
   };
 }
 
