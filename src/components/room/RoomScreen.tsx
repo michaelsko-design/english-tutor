@@ -189,6 +189,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
         onClick={() => {
           setSelectedItemId(null);
           setFocusedSlotId(null);
+          setNaming(null);
           setStatusText(null);
           setActivePanel('stickers');
         }}
