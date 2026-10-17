@@ -169,6 +169,16 @@ export interface DressUpDay {
   isRewarded: boolean;
 }
 
+/** A dream written in the room's Dream Journal (Feature 12). */
+export interface DreamEntry {
+  id: string;
+  createdAt: string;
+  textEn: string;
+  textHe: string;
+  /** Optional free Hebrew note about the dream (not scored) */
+  noteHe?: string;
+}
+
 /** The learner's room layout (Feature 12). Owned room items live in `unlockedRewardIds`. */
 export interface LearnerRoom {
   /** Maps slotId -> placed room item id */
@@ -178,6 +188,8 @@ export interface LearnerRoom {
   dressUpDay?: DressUpDay;
   /** Activity id -> local date (YYYY-MM-DD) of its latest full daily reward */
   activityRewardDates?: Record<string, string>;
+  /** Saved dreams, newest first (at most 20) */
+  dreamJournal?: DreamEntry[];
   /** Items the learner has said or spelled at least once (the first time earns XP) */
   namedItemIds: string[];
   /** ISO timestamp of the latest layout or outfit change; the newer one wins on merge */

@@ -17,6 +17,7 @@ import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { NameItemPanel } from './NameItemPanel';
 import { RoomInventory } from './RoomInventory';
 import { RoomScene, SceneBubble } from './RoomScene';
+import { DreamJournalPanel } from './DreamJournalPanel';
 import { PhonePanel } from './PhonePanel';
 import { WardrobePanel } from './WardrobePanel';
 import { AVATAR_HOME, OBJECT_POSITIONS, SLOT_POSITIONS, ScenePoint, getStandingPoint } from './roomLayout';
@@ -34,12 +35,13 @@ interface RoomScreenProps {
 const WALK_MS = 700;
 
 /** Room activities shown in the panel under the scene; the inventory shows when none is open. */
-type RoomPanel = 'wardrobe' | 'phone';
+type RoomPanel = 'wardrobe' | 'phone' | 'journal';
 
 /** Mission objects whose activity is ready open a panel; the others show "coming soon". */
 const OBJECT_PANELS: Partial<Record<RoomObjectId, RoomPanel>> = {
   wardrobe: 'wardrobe',
   phone: 'phone',
+  bed: 'journal',
 };
 
 function prefersReducedMotion(): boolean {
@@ -239,6 +241,14 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
             onSpeakEnglish={onSpeakEnglish}
             onClose={closePanel}
           />
+        ) : activePanel === 'journal' ? (
+          <DreamJournalPanel
+            profile={profile}
+            theme={theme}
+            onUpdateProfile={onUpdateProfile}
+            onSpeakEnglish={onSpeakEnglish}
+            onClose={closePanel}
+          />
         ) : activePanel === 'phone' ? (
           <PhonePanel
             profile={profile}
@@ -271,9 +281,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
         )}
 
         <p className={`text-[11px] text-center ${theme.mutedTextClass}`} dir="rtl">
-          {isGirl
-            ? '🚪 ארון: להלביש את האווטאר · 📱 טלפון: הודעות קוליות · 🛏️ 📖 המיטה וספר המשחקים מגיעים בקרוב!'
-            : '🚪 ארון: להלביש את האווטאר · 📱 טלפון: הודעות קוליות · 🛏️ 📖 המיטה וספר המשחקים מגיעים בקרוב!'}
+          🚪 ארון: הלבשה · 📱 טלפון: הודעות קוליות · 🛏️ מיטה: יומן חלומות · 📖 ספר המשחקים מגיע בקרוב!
         </p>
       </div>
     </ExamModalShell>

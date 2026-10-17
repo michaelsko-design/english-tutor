@@ -272,6 +272,15 @@ describe('mergeLearnerProfiles room', () => {
     });
   });
 
+  it('keeps dreams from both devices, newest first', () => {
+    const dream = (id: string, createdAt: string) => ({ id, createdAt, textEn: id, textHe: id });
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, room: { ...newerRoom, dreamJournal: [dream('b', '2026-10-14T08:00:00.000Z'), dream('a', '2026-10-10T08:00:00.000Z')] } },
+      { room: { ...olderRoom, dreamJournal: [dream('c', '2026-10-12T08:00:00.000Z'), dream('a', '2026-10-10T08:00:00.000Z')] } }
+    ).room!;
+    expect(merged.dreamJournal?.map((d) => d.id)).toEqual(['b', 'c', 'a']);
+  });
+
   it('keeps a room that exists on only one side and adds none otherwise', () => {
     expect(mergeLearnerProfiles(baseProfile, { room: olderRoom }).room).toEqual(olderRoom);
     expect(mergeLearnerProfiles({ ...baseProfile, room: olderRoom }, {}).room).toEqual(olderRoom);

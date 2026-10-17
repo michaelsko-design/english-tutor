@@ -171,9 +171,10 @@ Each learning mission consists of 5 pedagogical drill stages:
   - An item goes on only after naming it (`NameItemPanel` modes by tier): Explorer can say, pick from 3 written names or spell; Challenger says or spells; Master must spell. Tapping a worn item takes it off. A new item on a layer replaces the old one.
   - Daily reward: putting on 3 items a day (`DRESS_UP_DAILY_GOAL`) gives +10 XP and +2 💎 once a day and counts as a mission for the daily quests and streak (voice namings count as voice words). First naming of each item also gives +5 XP.
 - **📱 Voice Messages** (phase 3, `voiceMessages.ts`, `PhonePanel`): tapping the phone opens a chat. A friend's message is read aloud, and the learner records the English reply (`VoiceSpeakDrill`, scored by `evaluateSpokenSentence`). Each session has 3 messages from the learner's grade band (`getGradeBand`: grades 1–3, 4–6, 7–9, 10–12; 8 messages each, replies grow from 2–4 words to two Band III sentences). Skipped messages are not sent.
+- **🛏️ Dream Journal** (phase 4, `dreamJournal.ts`, `DreamJournalPanel`): guided frames, no AI. Each dream uses 2 sentence frames from the learner's grade band (4 per band, 2 blanks × 4 word choices). Step 1: invent the dream by picking Hebrew words (plus an optional free Hebrew note). Step 2: translate each picked word — Explorer/Challenger choose from 3 English options, Master types it (`isSameTranslation` ignores case and punctuation); first-try accuracy is shown. Step 3: listen and optionally read the English dream aloud. Saving adds it to the journal (`room.dreamJournal`, newest 20) and gives the room-activity reward. The Hebrew frames avoid gendered forms, so the text works for every learner.
 - **Room activity rewards** (`roomActivities.ts`): the first finished session of each activity per day (`phone`, `journal`, each word game) gives +10 XP and +2 💎 and counts as a mission for the daily quests and streak; repeats give +2 XP. Dates are kept in `room.activityRewardDates`. Panels share `RoomPanelFrame` and `ActivityRewardSummary`.
-- Stored as `room` on the profile (`placements` slot → item, `outfit` layer → item, `namedItemIds`, `dressUpDay`, `activityRewardDates`, `updatedAt`). Merge: the newer layout and outfit win; named items are unioned; the same day's dress-up progress keeps the highest counts and a given reward stays given; activity reward dates keep the later date per activity.
-- Later phases (bed dream journal, Games Book word games, Sticker Studio) are tracked under Feature 12 in `backlog.md`.
+- Stored as `room` on the profile (`placements` slot → item, `outfit` layer → item, `namedItemIds`, `dressUpDay`, `activityRewardDates`, `dreamJournal`, `updatedAt`). Merge: the newer layout and outfit win; named items are unioned; the same day's dress-up progress keeps the highest counts and a given reward stays given; activity reward dates keep the later date per activity; dreams are unioned by id (newest 20).
+- Later phases (Games Book word games, Sticker Studio) are tracked under Feature 12 in `backlog.md`.
 
 ---
 
@@ -215,6 +216,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── roomRewards.ts            # 3-star rewards alternating room decor and wardrobe items (+ .test.ts)
 │   │   ├── roomActivities.ts         # Shared daily reward for room activities (+ .test.ts, with voice messages)
 │   │   ├── voiceMessages.ts          # Phone voice-message prompts by grade band & session reward
+│   │   ├── dreamJournal.ts           # Dream Journal sentence frames, translation checks & journal entries (+ .test.ts)
 │   │   ├── wardrobe.ts               # Dress-Up Studio items, outfit rules & daily dress-up reward (+ .test.ts)
 │   │   └── rewardShop.ts             # Daily quest & shop item catalog
 │   ├── hooks/

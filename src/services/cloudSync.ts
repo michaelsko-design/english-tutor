@@ -2,6 +2,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import {
   CustomWordList,
+  DreamEntry,
   DressUpDay,
   ExamPlanDay,
   ExamPrepPlan,
@@ -9,6 +10,7 @@ import {
   LearnerRoom,
   PlacementResult,
 } from '../types/learner';
+import { keepNewestEntries } from '../data/dreamJournal';
 
 const LEARNERS_COLLECTION = 'learners';
 
@@ -301,6 +303,16 @@ function mergeCustomWordLists(
   ];
 }
 
+/** Dreams from both devices by id, newest first, capped like the journal itself. */
+function mergeDreamJournal(
+  local: DreamEntry[] | undefined,
+  cloud: DreamEntry[] | undefined
+): DreamEntry[] | undefined {
+  if (!local || !cloud) return local || cloud;
+  const byId = new Map([...cloud, ...local].map((entry) => [entry.id, entry]));
+  return keepNewestEntries(Array.from(byId.values()));
+}
+
 /** Per key, the later YYYY-MM-DD date, so a daily reward given on either device stays given. */
 function mergeLatestDates(
   local: Record<string, string> | undefined,
@@ -340,11 +352,13 @@ function mergeRoom(
   const newer = cloudTime > localTime ? cloud : local;
   const dressUpDay = mergeDressUpDay(local.dressUpDay, cloud.dressUpDay);
   const activityRewardDates = mergeLatestDates(local.activityRewardDates, cloud.activityRewardDates);
+  const dreamJournal = mergeDreamJournal(local.dreamJournal, cloud.dreamJournal);
   return {
     ...newer,
     namedItemIds: Array.from(new Set([...(local.namedItemIds || []), ...(cloud.namedItemIds || [])])),
     ...(dressUpDay ? { dressUpDay } : {}),
     ...(activityRewardDates ? { activityRewardDates } : {}),
+    ...(dreamJournal ? { dreamJournal } : {}),
   };
 }
 
