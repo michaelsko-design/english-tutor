@@ -142,7 +142,42 @@ describe('daily dress-up reward', () => {
       namedCount: 0,
       voiceCount: 0,
       isRewarded: false,
+      wornItemIds: [],
     });
+  });
+
+  it('counts the same item put on again only once', () => {
+    let profile = putOnAll(baseProfile, ['wear-cap'], 'say');
+    for (let i = 0; i < DRESS_UP_DAILY_GOAL; i++) {
+      profile = takeOffWardrobeLayer(profile, 'head', LATER);
+      const again = putOnWardrobeItem(profile, 'wear-cap', GIRL, 'say', LATER);
+      expect(again.isDailyRewardEarned).toBe(false);
+      expect(again.profile.room?.outfit?.head).toBe('wear-cap');
+      profile = again.profile;
+    }
+    const day = getDressUpDay(profile, LATER);
+    expect(day.namedCount).toBe(1);
+    expect(day.voiceCount).toBe(1);
+    expect(day.wornItemIds).toEqual(['wear-cap']);
+  });
+
+  it('keeps the count of a day saved before item ids were stored', () => {
+    const legacy: LearnerProfile = {
+      ...baseProfile,
+      room: {
+        placements: {},
+        namedItemIds: [],
+        updatedAt: NOW.toISOString(),
+        dressUpDay: { dateStr: '2026-10-17', namedCount: 2, voiceCount: 0, isRewarded: false },
+      },
+    };
+    const first = putOnWardrobeItem(legacy, 'wear-cap', GIRL, 'spell', LATER);
+    expect(getDressUpDay(first.profile, LATER).namedCount).toBe(2);
+    expect(first.isDailyRewardEarned).toBe(false);
+    const second = putOnWardrobeItem(first.profile, 'wear-glasses', GIRL, 'spell', LATER);
+    expect(second.isDailyRewardEarned).toBe(false);
+    const third = putOnWardrobeItem(second.profile, 'wear-scarf', GIRL, 'spell', LATER);
+    expect(third.isDailyRewardEarned).toBe(true);
   });
 });
 

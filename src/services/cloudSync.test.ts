@@ -260,6 +260,23 @@ describe('mergeLearnerProfiles room', () => {
     expect(merged.dressUpDay).toEqual(laterDay);
   });
 
+  it('unions the items worn on the same day on both devices', () => {
+    const day = { dateStr: '2026-10-14', namedCount: 2 };
+    const local = { ...day, voiceCount: 2, isRewarded: false, wornItemIds: ['wear-cap', 'wear-scarf'] };
+    const cloud = { ...day, voiceCount: 0, isRewarded: true, wornItemIds: ['wear-cap', 'wear-shirt'] };
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, room: { ...newerRoom, dressUpDay: local } },
+      { room: { ...olderRoom, dressUpDay: cloud } }
+    ).room!;
+    expect(merged.dressUpDay).toEqual({
+      dateStr: '2026-10-14',
+      namedCount: 3,
+      voiceCount: 2,
+      isRewarded: true,
+      wornItemIds: ['wear-cap', 'wear-scarf', 'wear-shirt'],
+    });
+  });
+
   it('keeps the latest daily reward date per room activity', () => {
     const merged = mergeLearnerProfiles(
       { ...baseProfile, room: { ...newerRoom, activityRewardDates: { phone: '2026-10-14', journal: '2026-10-10' } } },

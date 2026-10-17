@@ -161,8 +161,10 @@ export interface CustomWordList {
 export interface DressUpDay {
   /** Local calendar date, YYYY-MM-DD */
   dateStr: string;
-  /** Wardrobe items put on today */
+  /** Distinct wardrobe items put on today (the length of wornItemIds when it is there) */
   namedCount: number;
+  /** Ids of the wardrobe items put on today; older profiles don't have it */
+  wornItemIds?: string[];
   /** How many of them were named by voice */
   voiceCount: number;
   /** Whether today's dress-up reward was already given */

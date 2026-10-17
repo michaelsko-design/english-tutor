@@ -355,18 +355,26 @@ function mergeLatestDates(
   return Object.fromEntries(keys.map((key) => [key, [local[key] || '', cloud[key] || ''].sort().pop() as string]));
 }
 
-/** The later day wins; the same day keeps the most progress, and a given reward stays given. */
+/**
+ * The later day wins; the same day unions the items worn on both devices, keeps the most voice
+ * namings, and a given reward stays given.
+ */
 function mergeDressUpDay(
   local: DressUpDay | undefined,
   cloud: DressUpDay | undefined
 ): DressUpDay | undefined {
   if (!local || !cloud) return local || cloud;
   if (local.dateStr !== cloud.dateStr) return local.dateStr > cloud.dateStr ? local : cloud;
+  const hasIds = Boolean(local.wornItemIds || cloud.wornItemIds);
+  const wornItemIds = Array.from(new Set([...(local.wornItemIds || []), ...(cloud.wornItemIds || [])]));
+  // A day saved before wornItemIds existed only has its count
+  const legacyCounts = [local, cloud].filter((day) => !day.wornItemIds).map((day) => day.namedCount);
   return {
     dateStr: local.dateStr,
-    namedCount: Math.max(local.namedCount, cloud.namedCount),
+    namedCount: Math.max(wornItemIds.length, ...legacyCounts),
     voiceCount: Math.max(local.voiceCount, cloud.voiceCount),
     isRewarded: local.isRewarded || cloud.isRewarded,
+    ...(hasIds ? { wornItemIds } : {}),
   };
 }
 

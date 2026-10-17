@@ -96,7 +96,27 @@ export function getWardrobeDistractors(item: WardrobeItem, seed: string | number
 export function getDressUpDay(profile: LearnerProfile, now: Date): DressUpDay {
   const todayStr = toLocalDateStr(now);
   const day = getRoom(profile).dressUpDay;
-  return day?.dateStr === todayStr ? day : { dateStr: todayStr, namedCount: 0, voiceCount: 0, isRewarded: false };
+  return day?.dateStr === todayStr
+    ? day
+    : { dateStr: todayStr, namedCount: 0, voiceCount: 0, isRewarded: false, wornItemIds: [] };
+}
+
+/**
+ * Today's progress after putting an item on: only an item not worn yet today counts, so taking
+ * the same item off and on again doesn't reach the daily goal. A day saved before wornItemIds
+ * existed keeps its count until the distinct items catch up.
+ */
+function addWornItem(day: DressUpDay, itemId: string, method: NamingMethod): DressUpDay {
+  const previousIds = day.wornItemIds || [];
+  if (previousIds.includes(itemId)) return day;
+  const wornItemIds = [...previousIds, itemId];
+  const legacyCount = day.wornItemIds ? 0 : day.namedCount;
+  return {
+    ...day,
+    wornItemIds,
+    namedCount: Math.max(legacyCount, wornItemIds.length),
+    voiceCount: day.voiceCount + (method === 'say' ? 1 : 0),
+  };
 }
 
 export interface PutOnResult {
@@ -125,12 +145,7 @@ export function putOnWardrobeItem(
   const isOwned = getOwnedWardrobeItems(profile).some((owned) => owned.id === itemId);
   if (!item || !isOwned || !canWear(item, avatarEmoji) || outfit[item.layer] === itemId) return unchanged;
 
-  const previousDay = getDressUpDay(profile, now);
-  const day: DressUpDay = {
-    ...previousDay,
-    namedCount: previousDay.namedCount + 1,
-    voiceCount: previousDay.voiceCount + (method === 'say' ? 1 : 0),
-  };
+  const day = addWornItem(getDressUpDay(profile, now), itemId, method);
   const isDailyRewardEarned = !day.isRewarded && day.namedCount >= DRESS_UP_DAILY_GOAL;
 
   const dressed: LearnerProfile = {
