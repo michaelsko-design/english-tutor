@@ -36,6 +36,7 @@ export interface MiddleSchoolUnitSpec {
 }
 
 const BASE_XP_BY_GRADE: Record<number, number> = {
+  7: 60,
   8: 70,
   9: 85,
 };

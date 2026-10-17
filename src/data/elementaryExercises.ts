@@ -31,6 +31,7 @@ export function buildElementaryExercises(
     `לא בדיוק — ${w.wordEn} פירושו "${w.translationHe}". נסי שוב!`;
 
   const isMiddleOrHigh =
+    mission.id.startsWith('g7-') ||
     mission.id.startsWith('g8-') ||
     mission.id.startsWith('g9-') ||
     mission.id.startsWith('g10-') ||
