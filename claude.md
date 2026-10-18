@@ -147,7 +147,8 @@ Each learning mission consists of 5 pedagogical drill stages:
 ### 4.10. Star-Gated Boss Missions & Missions Counter (`milestones.ts`)
 - **Boss gate**: a unit's Boss mission unlocks only when the unit's regular missions have earned 2 stars each (`BOSS_STARS_PER_REGULAR_MISSION`, i.e. 4 of 6). This is on top of the sequential rule (a mission opens once the previous one has a star), so the next unit also waits for the Boss. A Boss that already has stars always stays unlocked.
 - **Suggestion**: `getSuggestedMission` returns the first mission without stars; when that is a gated Boss it suggests replaying the unit's weakest regular mission and returns the gate, so the dashboard hero and the mission map explain how many stars are missing.
-- **Metrics**: stars (all grades, 1–3 per mission) measure mastery depth; the "Missions Completed" (משימות הושלמו) tile counts distinct missions with ≥1 star (`countCompletedMissions`). Both are derived from `missionProgress`, so no extra sync fields. `stats.missionsCompleted` (counts replays) is still stored but not shown.
+- **Metrics**: stars (all grades, 1–3 per mission) measure mastery depth; the "Missions Completed" (משימות הושלמו) tile counts distinct missions with ≥1 star (`countCompletedMissions`). The words count on the XP tile (the one that opens the Vocabulary Vault) is the mastered-word count of the weekly report (`countMasteredWords` in `progressReport.ts`): the vocabulary of missions with 3 stars, across all grades, each word once. All three are derived from `missionProgress`, so no extra sync fields. `stats.missionsCompleted` (counts replays) and `stats.wordsMastered` (counts replays and Vault practice) are still stored but not shown.
+- **Vault practice**: a word said in the Vocabulary Vault (`applyVocabPracticeReward` in `progressRewards.ts`) adds a voice word to today's counters (reset on a new day, like every activity) but is not a mission, so it doesn't extend the streak.
 
 ### 4.11. School Word List Importer (`customWordLists.ts`, `components/wordLists/`)
 - The "My Word Lists" (רשימות המילים שלי) dashboard card, under the exam prep card, lets the learner paste a word list from a school worksheet and practise it.
@@ -204,6 +205,15 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Rewards**: finishing gives +10 XP and counts as a mission for the daily quests and streak, for the first 3 contests a day (then +2 XP). A decided contest is recorded once in `friendsHub.contestHistory` (the last 30 days, sized so no record in the 7-day lookback is ever dropped). The history also feeds the record vs. each friend. A win or tie gives 10 💎; a loss, or a friend who never played, gives 3 💎. Diamonds are paid for at most 3 contests per contest day.
 - Merge (`mergeFriendsHub`): the newer toggle wins, the earlier-claimed friend code is kept, contest records are unioned by contest id (newest first, `MAX_CONTEST_HISTORY`), and the same day's finish count keeps the higher value.
 
+### 4.15. Parent / Teacher Weekly Progress Report (`activityLog.ts`, `progressReport.ts`, `components/progressReport/`)
+- The "📊 דוח התקדמות להורים ולמורים" dashboard card (under the friends card) shows this week's practice days (Sunday–Saturday) and opens the full report. It works for every account, on the learner's own device.
+- **Activity log** (`activityLog.ts`): `profile.activityLog` keeps one entry per local day for the last 12 weeks (`ACTIVITY_LOG_DAYS = 84`): sessions (anything that counts as a mission for the quests and streak), voice words, 3-star sessions, XP earned, stars gained, the missions that gained stars (`missionStars`) and the missions that got their first star (`firstCompletedIds`).
+  - It is recorded in one place: `App.tsx` `handleUpdateProfile` calls `recordActivityLog(prev, next, now)`, which diffs the profile before and after each local update (XP, mission stars, `dailyCounters`; drops are ignored). Reward code doesn't need to report activity.
+  - Cloud snapshots are merged with `mergeActivityLog`, never diffed, so nothing is counted twice. Merge: union by date; the same day keeps the higher value of each counter and the higher stars per mission. A day played on two devices therefore shows the busier device, not the sum, so weekly totals can be a little lower than the real activity.
+  - The log only starts when this feature ships; the report says from which date it counts.
+- **Report** (`progressReport.ts`, pure, + `.test.ts`): `buildWeeklyReport(profile, weekStart, todayStr)` gives the week's day statuses (active = a finished session or words said aloud; XP alone, e.g. a quest claim, doesn't count / missed / Shabbat-shielded for observers / future), totals, new missions completed and the words of missions that reached 3 stars that week. The overall part has level, streak, missions completed, a star mastery rating (average stars per completed mission, and stars of the current grade) and the mastered word count. A mission's words count as mastered at 3 stars (`MASTERED_WORD_MIN_STARS`), de-duplicated across grades. `getAvailableWeeks` goes back to the log's first week, at most 12 weeks.
+- **Screen** (`WeeklyReportScreen`): week arrows, the week strip and tiles, overall progress, this week's new words (tap to hear), and sharing. `buildWeeklyReportTextHe` writes a Hebrew text summary about the learner in the third person (gendered), listing up to 10 new words; `ShareTextActions` sends it with the native share sheet, or a WhatsApp link, plus copy. The friend invite panel uses the same component.
+
 ---
 
 ## 5. Directory Structure
@@ -222,6 +232,8 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── MissionRunner.tsx         # 5-step interactive exercise runner
 │   │   ├── OnboardingView.tsx        # Profile setup (name, gender, age, grade, tier)
 │   │   ├── PlacementTest.tsx         # Adaptive diagnostic placement test overlay
+│   │   ├── progressReport/           # Weekly parent / teacher report: dashboard card, week strip, report screen
+│   │   ├── ShareTextActions.tsx      # Share sheet / WhatsApp / copy buttons for a text (report, friend invite)
 │   │   ├── PlacementResultCard.tsx   # Placement result & grade/tier recommendation
 │   │   ├── RewardShopModal.tsx       # Diamond shop (avatars, stickers, shields)
 │   │   ├── room/                     # My English Room: hub, scene & layout, inventory, naming panel, wardrobe, phone, dream journal, games/ (Games Book), stickers/ (Sticker Studio)
@@ -234,6 +246,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   │   ├── highSchool/           # Grades 10 to 12 (builder.ts + 36 missions across grade10..12.ts)
 │   │   │   ├── index.ts              # CURRICULUM_BY_GRADE registry
 │   │   │   └── types.ts              # Unit, MissionNode, VocabularyItem, and DrillSeed types
+│   │   ├── activityLog.ts            # Daily activity log (12 weeks) recorded by diffing profile updates, + merge (+ .test.ts)
 │   │   ├── customWordLists.ts        # School word list parsing, session steps, scoring & rewards (+ .test.ts)
 │   │   ├── elementaryExercises.ts    # Tier-aware 5-step generator for elementary drill seeds
 │   │   ├── missionExercises.ts       # Concrete exercise definitions & seeded option/word shuffler
@@ -243,6 +256,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── milestones.ts             # Boss star gate, mission unlocks, suggested mission & missions counter (+ .test.ts)
 │   │   ├── missionHints.test.ts      # Sweep of every mission × tier: hints never repeat the prompt or reveal the answer
 │   │   ├── placementTest.ts          # Placement question generation, staircase & scoring (+ .test.ts)
+│   │   ├── progressReport.ts         # Weekly report: week days, totals, star mastery, mastered words & share text (+ .test.ts)
 │   │   ├── progressRewards.ts        # Shared level formula & daily-activity/streak bookkeeping
 │   │   ├── room.ts                   # Room items & slots, placing & naming rules (+ .test.ts)
 │   │   ├── roomRewards.ts            # 3-star rewards alternating room decor and wardrobe items (+ .test.ts)

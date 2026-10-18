@@ -44,6 +44,7 @@ export interface LearnerStats {
   diamonds: number;
   streakDays: number;
   shabbatShieldActive: boolean;
+  /** Lifetime counter (counts replays and Vault practice); stored but not shown, see countMasteredWords */
   wordsMastered: number;
   missionsCompleted: number;
 }
@@ -53,6 +54,22 @@ export interface DailyActivityCounters {
   missionsCompletedToday: number;
   voiceWordsPracticedToday: number;
   threeStarMissionsToday: number;
+}
+
+/** One local day of learning activity, kept for the weekly parent report (Feature 9). */
+export interface ActivityLogEntry {
+  /** Local date, YYYY-MM-DD */
+  dateStr: string;
+  /** Activities that count as a mission for the daily quests and streak */
+  sessions: number;
+  voiceWords: number;
+  threeStarSessions: number;
+  xpEarned: number;
+  starsGained: number;
+  /** Missions that gained stars that day -> their new star count */
+  missionStars: Record<string, number>;
+  /** Missions that got their first star that day */
+  firstCompletedIds: string[];
 }
 
 export interface TodaysMissionSuggestion {
@@ -286,6 +303,8 @@ export interface LearnerProfile {
   room?: LearnerRoom;
   /** Friends Hub settings, once the learner opened the hub or changed its toggle */
   friendsHub?: FriendsHubState;
+  /** Daily activity of the last 12 weeks, oldest first, for the weekly parent report */
+  activityLog?: ActivityLogEntry[];
   createdAt: string;
   /** ISO timestamp of the latest profile update for conflict resolution */
   updatedAt?: string;

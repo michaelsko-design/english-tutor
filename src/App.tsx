@@ -17,6 +17,7 @@ import { DashboardView } from './components/DashboardView';
 import { AuthModal } from './components/AuthModal';
 import { PlacementTest } from './components/PlacementTest';
 import { applyPlacementToProfile } from './data/placementTest';
+import { recordActivityLog } from './data/activityLog';
 import { THEME_REGISTRY } from './themes/themeRegistry';
 import { useFriendPresence } from './hooks/useFriendPresence';
 import { usePendingInvite } from './hooks/usePendingInvite';
@@ -205,10 +206,14 @@ export function App() {
 
   // Unified handler that updates local state and pushes to Firestore when logged in
   const handleUpdateProfile = (updated: LearnerProfile) => {
+    const now = new Date();
     const stamped: LearnerProfile = {
-      ...updated,
-      updatedAt: new Date().toISOString(),
+      // Every local change passes here, so the weekly report's log records it once
+      ...recordActivityLog(profileRef.current, updated, now),
+      updatedAt: now.toISOString(),
     };
+    // A second update before the next render then diffs against this one, not the older profile
+    profileRef.current = stamped;
     setProfile(stamped);
 
     if (authUser && isFirebaseConfigured) {

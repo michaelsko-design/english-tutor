@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  ActivityLogEntry,
   ContestRecord,
   CustomWordList,
   ExamPlanDay,
@@ -9,6 +10,7 @@ import {
   PlacementResult,
 } from '../types/learner';
 import { MAX_DRAWN_STICKERS } from '../data/stickers';
+import { toLocalDateStr } from '../data/examPrep';
 
 vi.mock('./firebase', () => ({ db: null }));
 
@@ -429,5 +431,38 @@ describe('mergeLearnerProfiles friendsHub contests', () => {
     expect(
       mergeLearnerProfiles({ ...baseProfile, friendsHub: day('2026-10-18', 1) }, { friendsHub: day('2026-10-17', 3) }).friendsHub?.contestFinishDay
     ).toEqual({ dateStr: '2026-10-18', count: 1 });
+  });
+});
+
+describe('mergeLearnerProfiles activityLog', () => {
+  const today = toLocalDateStr(new Date());
+  const day = (sessions: number): ActivityLogEntry => ({
+    dateStr: today,
+    sessions,
+    voiceWords: 0,
+    threeStarSessions: 0,
+    xpEarned: 0,
+    starsGained: 0,
+    missionStars: {},
+    firstCompletedIds: [],
+  });
+
+  it('keeps a log that only one device has', () => {
+    const merged = mergeLearnerProfiles(baseProfile, { ...baseProfile, activityLog: [day(2)] });
+
+    expect(merged.activityLog).toEqual([day(2)]);
+  });
+
+  it('combines the logs of both devices', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, activityLog: [day(1)] },
+      { ...baseProfile, activityLog: [day(3)] }
+    );
+
+    expect(merged.activityLog).toEqual([day(3)]);
+  });
+
+  it('leaves the field out when neither device has a log', () => {
+    expect(mergeLearnerProfiles(baseProfile, baseProfile)).not.toHaveProperty('activityLog');
   });
 });

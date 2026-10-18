@@ -16,6 +16,8 @@ import {
 import { keepNewestEntries } from '../data/dreamJournal';
 import { MAX_DRAWN_STICKERS } from '../data/stickers';
 import { MAX_CONTEST_HISTORY } from '../data/contests';
+import { mergeActivityLog } from '../data/activityLog';
+import { toLocalDateStr } from '../data/examPrep';
 
 const LEARNERS_COLLECTION = 'learners';
 
@@ -140,6 +142,12 @@ export function mergeLearnerProfiles(
 
   const resolvedFriendsHub = mergeFriendsHub(local.friendsHub, cloud.friendsHub);
 
+  const resolvedActivityLog = mergeActivityLog(
+    local.activityLog,
+    cloud.activityLog,
+    toLocalDateStr(new Date())
+  );
+
   const resolvedAvatar = preferCloudPrefs
     ? cloud.equippedAvatarEmoji || local.equippedAvatarEmoji
     : local.equippedAvatarEmoji || cloud.equippedAvatarEmoji;
@@ -167,6 +175,7 @@ export function mergeLearnerProfiles(
     ...(resolvedWordLists ? { customWordLists: resolvedWordLists } : {}),
     ...(resolvedRoom ? { room: resolvedRoom } : {}),
     ...(resolvedFriendsHub ? { friendsHub: resolvedFriendsHub } : {}),
+    ...(resolvedActivityLog ? { activityLog: resolvedActivityLog } : {}),
     stats: {
       xp: mergedXp,
       level: mergedLevel,

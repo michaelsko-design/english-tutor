@@ -45,3 +45,32 @@ export function recordDailyActivity(
     },
   };
 }
+
+/**
+ * One word said aloud in the Vocabulary Vault: a voice word for today's quests (not a mission,
+ * so no streak), plus the XP and diamonds. `stats.wordsMastered` is a stored lifetime counter
+ * that isn't shown; the dashboard shows `countMasteredWords` instead.
+ */
+export function applyVocabPracticeReward(
+  profile: LearnerProfile,
+  xpBonus: number,
+  diamondBonus: number,
+  todayStr: string
+): LearnerProfile {
+  const withActivity = recordDailyActivity(
+    profile,
+    { missions: 0, voiceWords: 1, threeStarMissions: 0 },
+    todayStr
+  );
+  const xp = withActivity.stats.xp + xpBonus;
+  return {
+    ...withActivity,
+    stats: {
+      ...withActivity.stats,
+      xp,
+      level: levelForXp(xp, withActivity.stats.level),
+      diamonds: withActivity.stats.diamonds + diamondBonus,
+      wordsMastered: withActivity.stats.wordsMastered + 1,
+    },
+  };
+}

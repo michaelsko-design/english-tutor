@@ -24,11 +24,13 @@ import { RewardShopModal } from './RewardShopModal';
 import { AuthModal } from './AuthModal';
 import { PlacementTest } from './PlacementTest';
 import { applyPlacementToProfile } from '../data/placementTest';
-import { levelForXp, recordDailyActivity } from '../data/progressRewards';
+import { applyVocabPracticeReward, levelForXp, recordDailyActivity } from '../data/progressRewards';
+import { countMasteredWords } from '../data/progressReport';
 import { ExamPrepHub } from './examPrep/ExamPrepHub';
 import { WordListsHub } from './wordLists/WordListsHub';
 import { RoomHub } from './room/RoomHub';
 import { FriendsHub } from './friends/FriendsHub';
+import { ProgressReportHub } from './progressReport/ProgressReportHub';
 import { StickerBackground } from './room/StickerBackground';
 import { getBackgroundSticker } from '../data/stickers';
 import { RoomRewardItem, getNextRoomReward, getRoomRewardForMission } from '../data/roomRewards';
@@ -108,6 +110,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     profile.missionProgress || {}
   );
   const missionsCompletedCount = countCompletedMissions(profile.missionProgress || {});
+  const masteredWordCount = countMasteredWords(profile.missionProgress || {});
   const activeTier = TIER_CONFIG[profile.preferredTier];
 
   const calculatedXp = Math.round(todaysMission.baseXp * activeTier.xpMultiplier);
@@ -172,23 +175,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   const handleEarnVocabReward = (xpBonus: number, diamondBonus: number) => {
-    const newXp = profile.stats.xp + xpBonus;
-    const newLevel = Math.max(profile.stats.level, Math.floor(newXp / 150) + 1);
-    onUpdateProfile({
-      ...profile,
-      dailyCounters: {
-        ...profile.dailyCounters,
-        voiceWordsPracticedToday:
-          (profile.dailyCounters?.voiceWordsPracticedToday || 0) + 1,
-      },
-      stats: {
-        ...profile.stats,
-        xp: newXp,
-        level: newLevel,
-        diamonds: profile.stats.diamonds + diamondBonus,
-        wordsMastered: profile.stats.wordsMastered + 1,
-      },
-    });
+    onUpdateProfile(
+      applyVocabPracticeReward(
+        profile,
+        xpBonus,
+        diamondBonus,
+        new Date().toISOString().slice(0, 10)
+      )
+    );
   };
 
   const handleClaimDailyQuest = (quest: DailyQuestDefinition) => {
@@ -518,7 +512,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   {profile.stats.xp} XP
                 </div>
                 <div className={`text-[11px] md:text-xs font-semibold truncate underline ${theme.mutedTextClass}`}>
-                  {profile.stats.wordsMastered} מילים
+                  {masteredWordCount} מילים
                 </div>
               </div>
             </button>
@@ -666,6 +660,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           pendingInviteCode={pendingInviteCode}
           onInviteHandled={onInviteHandled}
         />
+
+        {/* FEATURE 9: PARENT / TEACHER WEEKLY PROGRESS REPORT */}
+        <ProgressReportHub profile={profile} theme={theme} onSpeakEnglish={speakEnglish} />
 
         {/* FEATURE 5: DAILY QUESTS & SHABBAT-SAFE WEEKLY STREAK TRACKER */}
         <DailyQuestsCard
