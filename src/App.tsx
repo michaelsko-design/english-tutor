@@ -18,6 +18,8 @@ import { AuthModal } from './components/AuthModal';
 import { PlacementTest } from './components/PlacementTest';
 import { applyPlacementToProfile } from './data/placementTest';
 import { recordActivityLog } from './data/activityLog';
+import { getFirstLaunchSteps } from './data/homeBase';
+import { FirstLaunchGreeting } from './components/home/FirstLaunchGreeting';
 import { THEME_REGISTRY } from './themes/themeRegistry';
 import { useFriendPresence } from './hooks/useFriendPresence';
 import { usePendingInvite } from './hooks/usePendingInvite';
@@ -241,7 +243,7 @@ export function App() {
       <div
         className={`min-h-screen w-full ${activeTheme.pageBgClass} flex items-center justify-center p-6`}
       >
-        <div className="text-center space-y-3" dir="rtl">
+        <div className="text-center space-y-3">
           <div
             className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl ${activeTheme.primaryBtnClass} animate-bounce`}
           >
@@ -288,7 +290,27 @@ export function App() {
     );
   }
 
-  if (isOfferingPlacement) {
+  // First launch, one screen after another: the companion's greeting with the welcome chest,
+  // then the placement test offer (Feature 27)
+  const firstLaunchSteps = getFirstLaunchSteps({
+    hasSeenWelcomeGift: Boolean(profile.hasSeenWelcomeGiftModal),
+    isOfferingPlacement,
+  });
+
+  if (firstLaunchSteps[0] === 'greeting') {
+    return (
+      <FirstLaunchGreeting
+        theme={activeTheme}
+        gender={profile.gender}
+        name={profile.name}
+        welcomeGems={WELCOME_GIFT_DIAMONDS}
+        hasPlacementNext={firstLaunchSteps.includes('placement')}
+        onDone={() => handleUpdateProfile({ ...profileRef.current, hasSeenWelcomeGiftModal: true })}
+      />
+    );
+  }
+
+  if (firstLaunchSteps[0] === 'placement') {
     return (
       <div className={`min-h-screen w-full ${activeTheme.pageBgClass}`}>
         <PlacementTest

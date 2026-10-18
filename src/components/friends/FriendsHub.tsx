@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Users } from 'lucide-react';
 import { FriendLink, isFriendsHubEnabled, toDisplayName } from '../../data/friends';
 import {
   ContestResult,
@@ -24,6 +23,7 @@ import { FriendsScreen } from './FriendsScreen';
 import { ContestPanel } from './ContestPanel';
 import { ContestRunner } from './ContestRunner';
 import { ContestResultView } from './ContestResultView';
+import { DockTile } from '../home/DockTile';
 
 interface FriendsHubProps {
   profile: LearnerProfile;
@@ -51,9 +51,18 @@ type HubView =
       errorHe: string | null;
     };
 
-const PREVIEW_AVATARS = 5;
+/** Screen-reader text for the tile's dot: waiting friend requests and contest invites. */
+function describeNewsHe(requests: number, contestInvites: number): string {
+  const parts: string[] = [];
+  if (requests > 0) parts.push(requests === 1 ? 'בקשת חברות אחת מחכה' : `${requests} בקשות חברות מחכות`);
+  if (contestInvites > 0) parts.push(contestInvites === 1 ? 'הזמנה לאתגר מחכה' : `${contestInvites} הזמנות לאתגר מחכות`);
+  return parts.join(', ');
+}
 
-/** Feature 19: the Friends Hub dashboard card, plus the hub overlay. Hidden when turned off. */
+/**
+ * Feature 19: the Friends Hub home dock tile (Feature 27), with a dot for waiting requests and
+ * contest invites, plus the hub overlay. Hidden when turned off or for guest accounts.
+ */
 export const FriendsHub: React.FC<FriendsHubProps> = ({
   profile,
   authUser,
@@ -72,7 +81,6 @@ export const FriendsHub: React.FC<FriendsHubProps> = ({
   const [inviteCode, setInviteCode] = useState<string | undefined>(undefined);
   const [busyFriendUid, setBusyFriendUid] = useState<string | null>(null);
   const [contestErrorHe, setContestErrorHe] = useState<string | null>(null);
-  const isGirl = profile.gender === 'girl';
   // Read after an await, so a reward is added to the latest profile
   const profileRef = useRef(profile);
   profileRef.current = profile;
@@ -92,25 +100,8 @@ export const FriendsHub: React.FC<FriendsHubProps> = ({
     if (updated !== profile) onUpdateProfile(updated);
   }, [hub.contests, profile, myUid, onUpdateProfile]);
 
-  if (!isEnabled) return null;
-
-  const cardClass = `rounded-3xl p-4 sm:p-5 ${theme.cardBgClass}`;
-
-  if (!authUser || !myUid) {
-    return (
-      <section aria-label="החברים שלי" className={`${cardClass} flex items-center gap-3`} dir="rtl">
-        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${theme.primaryBtnClass}`}>
-          <Users className="w-5 h-5" />
-        </div>
-        <div>
-          <h2 className="font-extrabold text-sm sm:text-base">👫 מרכז החברים</h2>
-          <p className={`text-xs ${theme.mutedTextClass}`}>
-            כדי להוסיף חברים צריך חשבון קבוע. {isGirl ? 'התחברי' : 'התחבר'} עם Google או עם שם משתמש וקוד.
-          </p>
-        </div>
-      </section>
-    );
-  }
+  // Off in the settings, or a guest account (the hub needs a permanent one): no tile
+  if (!isEnabled || !authUser || !myUid) return null;
 
   const me: FriendIdentity = {
     uid: myUid,
@@ -120,7 +111,6 @@ export const FriendsHub: React.FC<FriendsHubProps> = ({
   };
   const now = new Date();
   const { accepted, incoming } = hub.friendships;
-  const avatars = accepted.slice(0, PREVIEW_AVATARS).map((f) => hub.profiles[f.friendUid]?.avatarEmoji || f.fallbackAvatar);
   const friendUids = new Set(accepted.map((f) => f.friendUid));
   const contestInvites = hub.contests.filter(
     (c) => c.uids.some((uid) => friendUids.has(uid)) && getContestState(c, myUid, now) === 'invited-me'
@@ -198,55 +188,14 @@ export const FriendsHub: React.FC<FriendsHubProps> = ({
 
   return (
     <>
-      <section
-        id="friends-hub"
-        aria-label="כרטיס החברים"
-        className={`${cardClass} flex flex-col sm:flex-row sm:items-center gap-3`}
-        dir="rtl"
-      >
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className={`relative w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${theme.primaryBtnClass}`}>
-            <Users className="w-5 h-5" />
-            {incoming.length + contestInvites > 0 && (
-              <span className="absolute -top-1.5 -left-1.5 min-w-[1.25rem] h-5 px-1 rounded-full bg-rose-500 text-white text-[11px] font-black flex items-center justify-center">
-                {incoming.length + contestInvites}
-              </span>
-            )}
-          </div>
-          <div className="min-w-0">
-            <h2 className="font-extrabold text-sm sm:text-base">👫 החברים שלי</h2>
-            {accepted.length > 0 ? (
-              <p className="text-lg leading-tight tracking-wide" role="img" aria-label={`${accepted.length} חברים`}>
-                {avatars.join(' ')}
-                {accepted.length > PREVIEW_AVATARS && (
-                  <span className={`text-xs font-bold ${theme.mutedTextClass}`}> +{accepted.length - PREVIEW_AVATARS}</span>
-                )}
-              </p>
-            ) : (
-              <p className={`text-xs ${theme.mutedTextClass}`}>
-                {isGirl ? 'הוסיפי' : 'הוסף'} חברים שלומדים באפליקציה, {isGirl ? 'ראי' : 'ראה'} את ההתקדמות שלהם ו{isGirl ? 'הזמיני' : 'הזמן'} אותם לאתגר יומי.
-              </p>
-            )}
-            {incoming.length > 0 && (
-              <p className="text-xs font-extrabold text-fuchsia-600 dark:text-fuchsia-300">
-                📬 {incoming.length === 1 ? 'בקשת חברות אחת מחכה לך' : `${incoming.length} בקשות חברות מחכות לך`}
-              </p>
-            )}
-            {contestInvites > 0 && (
-              <p className="text-xs font-extrabold text-sky-600 dark:text-sky-300">
-                ⚔️ {contestInvites === 1 ? 'הזמנה לאתגר מחכה לך' : `${contestInvites} הזמנות לאתגר מחכות לך`}
-              </p>
-            )}
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setView({ kind: 'hub' })}
-          className={`px-5 py-2.5 rounded-2xl font-extrabold text-sm shrink-0 ${theme.primaryBtnClass}`}
-        >
-          למרכז החברים 👫
-        </button>
-      </section>
+      <DockTile
+        emoji="👫"
+        labelHe="חברים"
+        theme={theme}
+        onClick={() => setView({ kind: 'hub' })}
+        hasNews={incoming.length + contestInvites > 0}
+        newsLabelHe={describeNewsHe(incoming.length, contestInvites)}
+      />
 
       {view.kind === 'hub' && (
         <FriendsScreen

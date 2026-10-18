@@ -176,6 +176,20 @@
 .btn-chunky-correct { --chunky-edge: rgb(5, 150, 105); }
 .btn-chunky-wrong { --chunky-edge: rgb(225, 29, 72); }
 
+/* Feature 27: home base and the first-launch chest */
+@keyframes chestWobble {
+  0%, 70%, 100% { transform: rotate(0deg); }
+  76% { transform: rotate(-6deg); }
+  82% { transform: rotate(5deg); }
+  88% { transform: rotate(-3deg); }
+  94% { transform: rotate(2deg); }
+}
+
+.animate-chest-wobble {
+  animation: chestWobble 2.4s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
 /* Reduced motion everywhere: no movement, the final state at once. */
 @media (prefers-reduced-motion: reduce) {
   *,
