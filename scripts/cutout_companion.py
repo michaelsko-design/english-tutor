@@ -10,10 +10,14 @@ Needs:  Pillow and numpy  (pip install pillow numpy)
 """
 import sys
 
-from process_art import ROOT, Report, process_companion
+from process_art import POSES, ROOT, Report, find_source, process_companion
 
 if __name__ == "__main__":
     theme = sys.argv[1] if len(sys.argv) > 1 else "cozy-studio"
+    source_dir = ROOT / "art-src" / theme
+    missing = [pose for pose in POSES if find_source(source_dir, f"companion-{pose}") is None]
+    if missing:
+        sys.exit(f"Missing source poses in {source_dir}: {', '.join(missing)}")
     report = Report()
     process_companion(theme, ROOT / "art-src", ROOT / "public" / "art", report)
     print(f"\n{len(report.written)} file(s) written, {len(report.skipped)} skipped.")

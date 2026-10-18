@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { ArrowRight, CheckCircle2, AlertCircle, RotateCcw } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { playSfx } from '../../utils/sfx';
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { Companion } from '../companion/Companion';
 
 interface FeedbackSheetProps {
@@ -40,6 +41,8 @@ export const FeedbackSheet: React.FC<FeedbackSheetProps> = ({
   theme,
 }) => {
   const actionRef = useRef<HTMLButtonElement>(null);
+  // With reduced motion the XP stays put instead of floating away (and fading out).
+  const isReducedMotion = usePrefersReducedMotion();
 
   // A new message is a new answer: play its sound and move the focus to the sheet's button
   // (without scrolling the drill behind it).
@@ -60,7 +63,7 @@ export const FeedbackSheet: React.FC<FeedbackSheetProps> = ({
         </div>
         {isCorrect && xpGain > 0 && (
           <span
-            className="absolute -top-9 right-6 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-sm font-extrabold shadow-lg animate-xp-float"
+            className={`absolute -top-9 right-6 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-sm font-extrabold shadow-lg ${isReducedMotion ? '' : 'animate-xp-float'}`}
             dir="ltr"
             aria-hidden="true"
           >

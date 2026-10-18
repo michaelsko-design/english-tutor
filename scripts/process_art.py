@@ -21,7 +21,7 @@ bottom-centred on the same square canvas, so poses swap in place.
 Usage:  python scripts/process_art.py [only ...] [--src DIR] [--out DIR]
         only: theme ids (cozy-studio, neon-pop, starlight-rpg), common, landmarks, stories
         (default: everything found in art-src/)
-Needs:  Pillow and numpy  (pip install pillow numpy)
+Needs:  Python 3.10+, Pillow and numpy  (pip install pillow numpy)
 """
 import argparse
 import sys

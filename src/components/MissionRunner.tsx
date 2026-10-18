@@ -315,7 +315,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
               stepCount={steps.length}
               tier={tier}
               onChangeTier={onChangeTier}
-              isGirl={isGirl}
+              gender={gender}
               theme={theme}
               onStart={() => setHasStarted(true)}
               onClose={onClose}
@@ -456,7 +456,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                 )}
 
                 {/* Room to scroll everything up above the feedback sheet */}
-                {feedbackHe && <div className="h-56" aria-hidden="true" />}
+                {feedbackHe && <div className="h-[55vh]" aria-hidden="true" />}
               </div>
             </>
           )}
