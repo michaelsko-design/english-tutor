@@ -116,6 +116,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 5. **Story Unseen (`story-unseen`)**: Reading comprehension passage with contextual questions and vocabulary reinforcement.
 - Answer options and scrambled word chips are randomized on each attempt via a deterministic seeded shuffle (`src/utils/shuffle.ts`) so the correct option is never fixed in the first slot while remaining stable across React re-renders.
 - Features combo multipliers, sound effects, celebration confetti, and 1–3 star ratings based on exercise accuracy.
+- A mission opens on an intro screen (`mission/MissionIntro.tsx`) where the tier is chosen; the steps have no tier switcher. The runner's look and the companion are described in 4.17.
 
 ### 4.6. Gamification, Streaks & Shabbat Shield
 - **Daily Quests (`DailyQuestsCard.tsx`)**: 3 daily challenges rewarding XP and diamonds (Daily Mission, Voice Practice, 3-Star Mastery).
@@ -218,26 +219,49 @@ Each learning mission consists of 5 pedagogical drill stages:
 - Phase 1 of the Feature 22 redesign. Presentation only: rewards, XP, levels and sync are unchanged.
 - **Staged victory** (`MissionVictory`, used by `MissionRunner`): over about 4 seconds the three star slots land one by one (a missed star lands grey), the XP bar fills from the learner's XP before the mission toward the next level and shows a "רמה חדשה!" badge when a level is crossed, the XP / diamonds / words count up, and the 3-star room item flips in last (its space is kept so nothing jumps). A tap anywhere skips to the end. Everything on screen is derived from one clock (`useAnimationClock`) through the pure `getVictoryFrame(input, elapsedMs)`; `VICTORY_TIMING` holds the schedule. `MissionRunner` takes `startXp` / `startLevel` from the dashboard for the bar.
 - **Header**: the "Lv.N" chip has a bar of the XP toward the next level (`LevelProgressChip`, `getLevelProgress`: a stored level ahead of the XP shows an empty bar), the diamond counters count up when they change (`useCountUp`), and a 🔊 / 🔇 button mutes the sound effects.
-- **Sound effects** (`sfx.ts`): 8 short CC0 Kenney sounds in `public/sfx/` (`tap`, `correct`, `wrong`, `star`, `star-miss`, `coins`, `level-up`, `celebrate`; sources in `public/sfx/CREDITS.md`, swap a sound by replacing its file). Nothing plays before the first tap or key press. The mute setting is saved on the device (`english_tutor_sfx_muted`, not synced). Browsers without Ogg Vorbis (older than iOS Safari 17.4) stay silent. Every `FeedbackBanner` plays the correct / wrong sound, so all drill runners get it; word chips and letter magnets play `tap`.
+- **Sound effects** (`sfx.ts`): 8 short CC0 Kenney sounds in `public/sfx/` (`tap`, `correct`, `wrong`, `star`, `star-miss`, `coins`, `level-up`, `celebrate`; sources in `public/sfx/CREDITS.md`, swap a sound by replacing its file). Nothing plays before the first tap or key press. The mute setting is saved on the device (`english_tutor_sfx_muted`, not synced). Browsers without Ogg Vorbis (older than iOS Safari 17.4) stay silent. Every `FeedbackBanner` (and the mission runner's `FeedbackSheet`) plays the correct / wrong sound, so all drill runners get it; word chips and letter magnets play `tap`.
 - **Celebrations** (`celebrate(size)`): the one place that fires confetti. `small` (quest claim, purchase, vault word, item placed, drawing saved) plays `coins`; `medium` (room activity rewards) and `big` (exam session, certificate, word list session, mission victory) play `celebrate`; `{ isSilent: true }` skips the sound.
 - **Reduced motion** (`utils/motion.ts`, `usePrefersReducedMotion`): no confetti, the victory starts at its final state (one cheer instead of the staged sounds), counters jump, and a global CSS rule in `index.css` stops animations and transitions.
 - **Icons**: Microsoft Fluent Emoji 3D PNGs (MIT, `public/art/emoji/LICENSE`) for the star, gem, flame and trophy (`FluentIcon`), on the victory screen, the dashboard stat tiles and the mobile diamond counter.
+
+### 4.17. Companions, Art Manifest & a Mission Runner That Reacts (`themes/themeArt.ts`, `utils/artStatus.ts`, `components/art/`, `components/companion/`, `components/mission/`, `utils/missionFeedback.ts`, `scripts/process_art.py`)
+- Phase 2 of the Feature 22 redesign (Feature 25). Presentation only: scoring, hints, rewards and sync are unchanged.
+- **Art manifest** (`themeArt.ts`, the `art` block of every `ThemeDefinition`). All generated art is WebP under `public/art/`:
+  - Per theme, `/art/<theme>/`: `companion-<pose>.webp` (512px) and `companion-<pose>@256.webp` for the five poses `idle`, `cheer`, `think`, `oops`, `wave`, plus `map-bg.webp` (Feature 26), `home-scene.webp` (Feature 27) and `room-bg.webp`.
+  - Shared: `/art/common/` (`chest-closed`, `chest-open`, `boss-locked`, `boss-open`, `level-badge`, 512px + `@256`, via `getCommonArt`), `/art/landmarks/g<grade>-u<unit>.webp` (+ `@256`, `getLandmarkArt`) and `/art/stories/<missionId>.webp` (`getStoryArt`).
+  - `pickCutoutSrc` uses the 256px file when it is sharp enough for the size shown (size × device pixel ratio ≤ 256).
+  - Only Mochi (`cozy-studio`) has art so far. Everything else falls back, and lights up as soon as its file is added: no code change needed.
+- **Fallback** (`artStatus.ts`, `useArtStatus`, `ArtImage`): every picture is probed once with `new Image()` and cached for the visit as `loading` / `loaded` / `missing` (a missing file that comes back as the app's HTML page fails to decode, so it is `missing` too). `ArtImage` keeps its box size: empty while loading, the picture when loaded, the caller's fallback when missing. No broken-image icon, no layout jump.
+- **Companion** (`Companion`, props `theme`, `pose`, `size`): CSS motion per pose (idle/wave bob, cheer hops with a squash, oops wiggles, think sways), a soft CSS ground shadow, and no motion with reduced motion. Without art it shows the theme's avatar emoji in a soft white bubble of the same size. It is always `position: relative`; wrap it to place it. `preloadCompanion(theme, poses, size)` loads poses before they are shown: the dashboard preloads the idle pose, the mission runner preloads every pose it uses.
+- **Mission runner**:
+  - Intro screen (`MissionIntro`): the companion waves, the mission title, story hook and length, the three tiers as chunky cards, and a gendered start button. The tier switcher left the step header.
+  - Trail progress (`TrailProgress`, `getTrailSegments`): one segment per step, green once answered, the open step amber, right to left. The combo is a Fluent flame that appears at 2x and grows at 3x and 5x (`getComboFlameLevel`); reaching 3x or 5x fires a silent small `celebrate`.
+  - Chunky answer buttons (`MultipleChoiceOptions`, shared by every runner): a pressed edge (`.btn-chunky` in `index.css`), the answer text only (direction from the text, so Hebrew meanings sit on the right) and a ✓ / ✗ badge with Hebrew screen-reader text. The picked right answer bounces and a wrong one shakes.
+  - Feedback sheet (`drills/FeedbackSheet`, mission runner only; the other runners keep `FeedbackBanner`): slides up from the bottom with the companion's cheer or oops pose on its edge, plays the right / wrong sound, and floats "+XP" for a right answer. The float is the answer's share of the mission XP (`getStepXpGain`: the tier-scaled base XP spread so the shares add up exactly, plus `COMBO_BONUS_XP_PER_STEP` when the best streak grows), so the floats add up to the victory screen's XP. After a wrong answer, a gendered "try again" button closes the sheet. The sheet is rendered outside the blurred overlay (a `backdrop-filter` ancestor would make `position: fixed` scroll with the drill), and focus moves to its button without scrolling.
+  - The companion peeks over the question card's corner (`getPeekCompanionPose`): `think` while the hint is open, `idle` otherwise, and it ducks out of sight while the feedback sheet shows its own companion.
+  - Story step: `/art/stories/<missionId>.webp` above the passage when it exists (preloaded at the mission start), nothing otherwise.
+  - Victory (`MissionVictory`): the companion's cheer pose holds up the trophy.
+- **Art pipeline** (`scripts/process_art.py`, needs Pillow and numpy): reads `art-src/` (gitignored originals; `.jpg`, `.jpeg`, `.png` or `.webp`) and writes `public/art/`. Cut-outs drawn on a white background (companion poses, `art-src/common/*`, `art-src/landmarks/*`) lose the background and the drawn ground shadow by a flood fill from the edges and become transparent bottom-centred squares at 512 and 256px; the five poses of a theme are scaled to the same height so they swap in place. Full-frame pictures are only resized, never enlarged: `map-bg` 1080px wide, `home-scene` 1200, `room-bg` 1600, `art-src/stories/*` 960. Missing files are skipped, and the script lists what it wrote and skipped. `python scripts/process_art.py [theme|common|landmarks|stories ...] [--src DIR] [--out DIR]`; `scripts/cutout_companion.py [theme]` still processes one theme's poses.
 
 ---
 
 ## 5. Directory Structure
 
 ```text
-├── public/                 # Static assets & favicon; sfx/ (Kenney CC0 sounds + CREDITS.md), art/emoji/ (Fluent Emoji, MIT)
+├── public/                 # Static assets & favicon; sfx/ (Kenney CC0 sounds + CREDITS.md), art/emoji/ (Fluent Emoji, MIT), art/<theme>/ etc. (generated WebP art, see 4.17)
+├── scripts/                # process_art.py (art-src/ -> public/art/ WebP pipeline), cutout_companion.py (one theme's poses)
 ├── src/
 │   ├── components/         # React UI Components
+│   │   ├── art/                      # ArtImage: a generated picture with a fallback when the file is missing
 │   │   ├── AuthModal.tsx             # Kid-friendly authentication modal
+│   │   ├── companion/                # Companion: theme companion poses with CSS motion, ground shadow & emoji fallback
 │   │   ├── DailyQuestsCard.tsx       # Daily quest tracker & streak counter
 │   │   ├── DashboardView.tsx         # Main hub screen (HUD, Hero, Maps, Actions)
-│   │   ├── drills/                   # Shared drill UI (options, sentence/letter magnets, voice, passage, feedback)
+│   │   ├── drills/                   # Shared drill UI (chunky options, sentence/letter magnets, voice, passage, feedback banner & sheet, story art)
 │   │   ├── examPrep/                 # Exam prep hub, setup, plan timeline, session runner, certificate
 │   │   ├── hud/                      # Header pieces: level chip with XP bar, sound toggle, Fluent Emoji icons
 │   │   ├── friends/                  # Friends Hub: dashboard card, hub screen, friend card & reactions, add friend, invite code, contest panel/runner/result
+│   │   ├── mission/                  # Mission runner pieces: intro screen with the tier picker, trail progress with the combo flame
 │   │   ├── MissionMap.tsx            # Unit & mission progression node tree
 │   │   ├── MissionRunner.tsx         # 5-step interactive exercise runner
 │   │   ├── OnboardingView.tsx        # Profile setup (name, gender, age, grade, tier)
@@ -247,7 +271,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── PlacementResultCard.tsx   # Placement result & grade/tier recommendation
 │   │   ├── RewardShopModal.tsx       # Diamond shop (avatars, stickers, shields)
 │   │   ├── room/                     # My English Room: hub, scene & layout, inventory, naming panel, wardrobe, phone, dream journal, games/ (Games Book), stickers/ (Sticker Studio)
-│   │   ├── victory/                  # Staged mission victory screen (Feature 24)
+│   │   ├── victory/                  # Staged mission victory screen with the cheering companion (Features 24–25)
 │   │   ├── VocabularyVaultModal.tsx  # Ministry word bank & pronunciation studio
 │   │   └── wordLists/                # School word lists: dashboard card, importer, session runner & result
 │   ├── data/
@@ -280,6 +304,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   └── rewardShop.ts             # Daily quest & shop item catalog
 │   ├── hooks/
 │   │   ├── useAnimationClock.ts      # Per-frame clock with skip, starting at the end for reduced motion
+│   │   ├── useArtStatus.ts           # Whether a generated picture is loading, loaded or missing
 │   │   ├── useCountUp.ts             # Counts a number up from its previous value
 │   │   ├── useFriendsHub.ts          # Live friendships, friends' public profiles & contests
 │   │   ├── useFriendPresence.ts      # Claims the friend code and publishes the public summary
@@ -292,12 +317,15 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── friendsService.ts         # Firestore calls for friends, public profiles & contests
 │   │   └── firebase.ts               # Firebase initialization & auth/db instances
 │   ├── themes/
-│   │   └── themeRegistry.ts          # Pluggable theme visual definitions & tiers
+│   │   ├── themeArt.ts               # Art manifest: companion poses, scene backgrounds, common/landmark/story art paths (+ .test.ts)
+│   │   └── themeRegistry.ts          # Pluggable theme visual definitions, art block & tiers
 │   ├── types/
 │   │   └── learner.ts                # Core domain types (LearnerProfile, Stats, Grades)
 │   ├── utils/
+│   │   ├── artStatus.ts              # Probes each art file once and caches loaded / missing (+ .test.ts)
 │   │   ├── celebrate.ts              # Shared confetti + sound celebration (small / medium / big)
 │   │   ├── hebrewGender.ts           # Hebrew grammatical gender inflection engine
+│   │   ├── missionFeedback.ts        # Mission runner trail, combo flame, per-answer XP float & companion peek pose (+ .test.ts)
 │   │   ├── motion.ts                 # prefers-reduced-motion check
 │   │   ├── rewardFeedback.ts         # Level progress, count-up and victory timeline maths (+ .test.ts)
 │   │   ├── sfx.ts                    # Kenney sound effects, first-gesture unlock & device mute (+ .test.ts)

@@ -5,3 +5,5 @@ export { SentenceBuilderDrill } from './SentenceBuilderDrill';
 export { FeedbackBanner } from './FeedbackBanner';
 export { SpellingMagnetDrill } from './SpellingMagnetDrill';
 export { VoiceSpeakDrill } from './VoiceSpeakDrill';
+export { FeedbackSheet, FEEDBACK_COMPANION_SIZE } from './FeedbackSheet';
+export { StoryArt } from './StoryArt';

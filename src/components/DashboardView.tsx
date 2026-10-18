@@ -40,6 +40,7 @@ import { useCountUp } from '../hooks/useCountUp';
 import { LevelProgressChip } from './hud/LevelProgressChip';
 import { SoundToggle } from './hud/SoundToggle';
 import { FluentIcon } from './hud/FluentIcon';
+import { preloadCompanion } from './companion/Companion';
 import {
   Zap,
   Play,
@@ -71,6 +72,8 @@ interface DashboardViewProps {
 }
 
 const ROOM_TOAST_MS = 6000;
+/** The size the mission runner first shows the companion at (the peek over the question card) */
+const COMPANION_PRELOAD_SIZE = 64;
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   profile,
@@ -97,6 +100,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   const theme = THEME_REGISTRY[profile.themeId] || THEME_REGISTRY['cozy-studio'];
   const diamondsShown = useCountUp(profile.stats.diamonds);
+
+  // The companion's idle pose is the first one a mission shows (Feature 25).
+  useEffect(() => {
+    preloadCompanion(theme, ['idle'], COMPANION_PRELOAD_SIZE);
+  }, [theme]);
   const activeAvatarEmoji = profile.equippedAvatarEmoji || theme.avatarEmoji;
   const backgroundSticker = getBackgroundSticker(profile);
   const heb = getHebrewCopy(profile.gender, profile.name);

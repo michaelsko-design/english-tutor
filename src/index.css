@@ -76,6 +76,106 @@
   animation: cardFlipIn 0.5s ease-out both;
 }
 
+/* Feature 25: companions and a mission runner that reacts */
+@keyframes companionBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4%); }
+}
+
+@keyframes companionShadowBob {
+  0%, 100% { transform: scaleX(1); opacity: 1; }
+  50% { transform: scaleX(0.9); opacity: 0.8; }
+}
+
+@keyframes companionHop {
+  0% { transform: translateY(0) scale(1.1, 0.88); }
+  30% { transform: translateY(-20%) scale(0.94, 1.08); }
+  55% { transform: translateY(-24%) scale(1, 1); }
+  82% { transform: translateY(0) scale(1.08, 0.92); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+@keyframes companionShadowHop {
+  0%, 82%, 100% { transform: scaleX(1); opacity: 1; }
+  30%, 55% { transform: scaleX(0.6); opacity: 0.5; }
+}
+
+@keyframes companionWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-7deg); }
+  45% { transform: rotate(6deg); }
+  70% { transform: rotate(-4deg); }
+  85% { transform: rotate(2deg); }
+}
+
+@keyframes companionSway {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50% { transform: rotate(2.5deg); }
+}
+
+@keyframes answerBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-6px) scale(1.03); }
+  65% { transform: translateY(1px) scale(0.99); }
+}
+
+@keyframes answerShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
+}
+
+@keyframes sheetUp {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes xpFloat {
+  0% { transform: translateY(8px) scale(0.7); opacity: 0; }
+  20% { transform: translateY(0) scale(1.1); opacity: 1; }
+  70% { transform: translateY(-26px) scale(1); opacity: 1; }
+  100% { transform: translateY(-44px) scale(1); opacity: 0; }
+}
+
+@keyframes companionPeek {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes trailPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.animate-companion-bob { animation: companionBob 2.8s ease-in-out infinite; }
+.animate-companion-shadow-bob { animation: companionShadowBob 2.8s ease-in-out infinite; }
+.animate-companion-hop { animation: companionHop 0.7s cubic-bezier(0.3, 0.9, 0.5, 1) 2; }
+.animate-companion-shadow-hop { animation: companionShadowHop 0.7s cubic-bezier(0.3, 0.9, 0.5, 1) 2; }
+.animate-companion-wiggle { animation: companionWiggle 0.6s ease-in-out 2; }
+.animate-companion-sway { animation: companionSway 3.4s ease-in-out infinite; }
+.animate-answer-bounce { animation: answerBounce 0.45s ease-out; }
+.animate-answer-shake { animation: answerShake 0.45s ease-in-out; }
+.animate-sheet-up { animation: sheetUp 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.05) both; }
+.animate-xp-float { animation: xpFloat 1.4s ease-out both; }
+.animate-companion-peek { animation: companionPeek 0.45s cubic-bezier(0.3, 1.3, 0.5, 1) both; }
+.animate-trail-pulse { animation: trailPulse 1.6s ease-in-out infinite; }
+
+/* Chunky answer buttons: a darker edge under the button that the press pushes into */
+.btn-chunky {
+  box-shadow: 0 4px 0 0 var(--chunky-edge, rgba(0, 0, 0, 0.2));
+  transition: transform 80ms ease-out, box-shadow 80ms ease-out;
+}
+
+.btn-chunky:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 0 var(--chunky-edge, rgba(0, 0, 0, 0.2));
+}
+
+.btn-chunky-correct { --chunky-edge: rgb(5, 150, 105); }
+.btn-chunky-wrong { --chunky-edge: rgb(225, 29, 72); }
+
 /* Reduced motion everywhere: no movement, the final state at once. */
 @media (prefers-reduced-motion: reduce) {
   *,
