@@ -1,5 +1,5 @@
 import React from 'react';
-import confetti from 'canvas-confetti';
+import { celebrate } from '../utils/celebrate';
 import { getDailyQuests, DailyQuestDefinition } from '../data/rewardShop';
 import { DailyActivityCounters, LearnerGender } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
@@ -39,7 +39,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
   ];
 
   const handleClaim = (quest: DailyQuestDefinition) => {
-    confetti({ particleCount: 55, spread: 60, origin: { y: 0.7 } });
+    celebrate('small');
     onClaimQuest(quest);
   };
 

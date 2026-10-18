@@ -36,10 +36,11 @@ import { getBackgroundSticker } from '../data/stickers';
 import { RoomRewardItem, getNextRoomReward, getRoomRewardForMission } from '../data/roomRewards';
 import { getHebrewCopy, inflectHebrew } from '../utils/hebrewGender';
 import { usernameFromEmail } from '../utils/username';
+import { useCountUp } from '../hooks/useCountUp';
+import { LevelProgressChip } from './hud/LevelProgressChip';
+import { SoundToggle } from './hud/SoundToggle';
+import { FluentIcon } from './hud/FluentIcon';
 import {
-  Flame,
-  Star,
-  Gem,
   Zap,
   Play,
   Settings,
@@ -95,6 +96,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   }, [roomRewardToast]);
 
   const theme = THEME_REGISTRY[profile.themeId] || THEME_REGISTRY['cozy-studio'];
+  const diamondsShown = useCountUp(profile.stats.diamonds);
   const activeAvatarEmoji = profile.equippedAvatarEmoji || theme.avatarEmoji;
   const backgroundSticker = getBackgroundSticker(profile);
   const heb = getHebrewCopy(profile.gender, profile.name);
@@ -317,9 +319,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       ))}
                     </optgroup>
                   </select>
-                  <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${theme.badgeClass}`}>
-                    Lv.{profile.stats.level}
-                  </span>
+                  <LevelProgressChip xp={profile.stats.xp} level={profile.stats.level} badgeClass={theme.badgeClass} />
                 </div>
               </div>
               <p className={`text-[11px] hidden sm:block truncate ${theme.mutedTextClass}`} dir="rtl">
@@ -337,9 +337,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               className={`md:hidden px-2.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1 ${theme.secondaryBtnClass}`}
               title="Open Reward Shop"
             >
-              <span>💎</span>
-              <span>{profile.stats.diamonds}</span>
+              <FluentIcon name="gem" className="w-4 h-4" />
+              <span className="tabular-nums">{diamondsShown}</span>
             </button>
+
+            <SoundToggle className={theme.secondaryBtnClass} />
 
             {/* CLOUD SYNC STATUS BADGE (Icon-only on mobile, short label on sm+) */}
             <button
@@ -387,7 +389,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
               >
                 <ShoppingBag className="w-3.5 h-3.5" />
-                <span dir="rtl">חנות ({profile.stats.diamonds} 💎)</span>
+                <span dir="rtl">חנות (<span className="tabular-nums">{diamondsShown}</span> 💎)</span>
               </button>
 
               <button
@@ -431,7 +433,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Stat 1: Streak */}
             <div className={`col-span-2 md:col-span-1 rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right`}>
               <div className="w-8 h-8 md:w-11 md:h-11 rounded-xl bg-orange-500/15 border border-orange-400/30 flex items-center justify-center text-orange-500 shrink-0">
-                <Flame className="w-4 h-4 md:w-5 md:h-5 fill-orange-500" />
+                <FluentIcon name="flame" className="w-5 h-5 md:w-7 md:h-7" />
               </div>
               <div className="min-w-0">
                 <div className="text-sm sm:text-base md:text-xl font-extrabold leading-tight">
@@ -449,7 +451,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               title="כוכבים מודדים עומק שליטה: 1–3 כוכבים לכל משימה"
             >
               <div className="w-8 h-8 md:w-11 md:h-11 rounded-xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-amber-500 shrink-0">
-                <Star className="w-4 h-4 md:w-5 md:h-5 fill-amber-400" />
+                <FluentIcon name="star" className="w-5 h-5 md:w-7 md:h-7" />
               </div>
               <div className="min-w-0">
                 <div className="text-sm sm:text-base md:text-xl font-extrabold leading-tight">
@@ -486,11 +488,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               className={`col-span-3 md:col-span-1 rounded-2xl p-2.5 md:p-4 ${theme.cardBgClass} flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-right hover:ring-2 hover:ring-fuchsia-400 transition-all`}
             >
               <div className="w-8 h-8 md:w-11 md:h-11 rounded-xl bg-fuchsia-500/15 border border-fuchsia-400/30 flex items-center justify-center text-fuchsia-500 shrink-0">
-                <Gem className="w-4 h-4 md:w-5 md:h-5" />
+                <FluentIcon name="gem" className="w-5 h-5 md:w-7 md:h-7" />
               </div>
               <div className="min-w-0">
-                <div className="text-sm sm:text-base md:text-xl font-extrabold leading-tight">
-                  {profile.stats.diamonds}
+                <div className="text-sm sm:text-base md:text-xl font-extrabold leading-tight tabular-nums">
+                  {diamondsShown}
                 </div>
                 <div className={`text-[11px] md:text-xs font-semibold truncate underline ${theme.mutedTextClass}`}>
                   {theme.currencyNameHe}
@@ -847,6 +849,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           roomRewardPreview={
             (profile.missionProgress?.[activePracticeMission.id] || 0) < 3 ? getNextRoomReward(profile) : null
           }
+          startXp={profile.stats.xp}
+          startLevel={profile.stats.level}
         />
       )}
 

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import confetti from 'canvas-confetti';
+import { celebrate } from '../../utils/celebrate';
 import { Volume2 } from 'lucide-react';
 import {
   DreamFrame,
@@ -107,7 +107,7 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
     speech.cancel();
     const result = saveDreamEntry(profile, { textEn: dreamEn, textHe: dreamHe, noteHe }, wasReadAloud, new Date());
     onUpdateProfile(result.profile);
-    if (result.isFullReward) confetti({ particleCount: 70, spread: 65, origin: { y: 0.6 } });
+    if (result.isFullReward) celebrate('medium');
     setReward(result);
     setStep('done');
   };

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import confetti from 'canvas-confetti';
+import { celebrate } from '../../utils/celebrate';
 import {
   DRESS_UP_DAILY_GOAL,
   DRESS_UP_REWARD_DIAMONDS,
@@ -77,7 +77,7 @@ export const WardrobePanel: React.FC<WardrobePanelProps> = ({
     if (!namingItem) return;
     const result = putOnWardrobeItem(profile, namingItem.id, avatarEmoji, method, new Date());
     onUpdateProfile(result.profile);
-    if (result.isDailyRewardEarned) confetti({ particleCount: 80, spread: 70, origin: { y: 0.55 } });
+    if (result.isDailyRewardEarned) celebrate('medium');
     const rewards = [
       result.xpEarned > 0 ? `+${result.xpEarned} XP` : '',
       result.diamondsEarned > 0 ? `+${result.diamondsEarned} 💎` : '',

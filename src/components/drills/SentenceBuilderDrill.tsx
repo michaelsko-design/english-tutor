@@ -1,6 +1,7 @@
 import React from 'react';
 import { RotateCcw } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { playSfx } from '../../utils/sfx';
 
 interface SentenceBuilderDrillProps {
   scrambledWords: string[];
@@ -44,7 +45,10 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
           <button
             key={`picked-${wordIdx}`}
             type="button"
-            onClick={() => onToggleWord(wordIdx)}
+            onClick={() => {
+              playSfx('tap');
+              onToggleWord(wordIdx);
+            }}
             className={`px-3.5 py-2 rounded-xl text-sm font-extrabold ${theme.primaryBtnClass}`}
           >
             {scrambledWords[wordIdx]}
@@ -62,7 +66,10 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
             key={`bank-${idx}-${word}`}
             type="button"
             disabled={isUsed || isCompleted}
-            onClick={() => onToggleWord(idx)}
+            onClick={() => {
+              playSfx('tap');
+              onToggleWord(idx);
+            }}
             className={`px-3.5 py-2 rounded-xl text-sm font-extrabold transition-all ${
               isUsed
                 ? 'opacity-30 scale-95 cursor-not-allowed bg-slate-400/20'

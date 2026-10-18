@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import confetti from 'canvas-confetti';
+import { celebrate } from '../../utils/celebrate';
 import { Lightbulb } from 'lucide-react';
 import {
   WordListAnswer,
@@ -177,7 +177,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
       return;
     }
     setIsFinished(true);
-    confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
+    celebrate('big');
   };
 
   if (isFinished) {

@@ -214,12 +214,21 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Report** (`progressReport.ts`, pure, + `.test.ts`): `buildWeeklyReport(profile, weekStart, todayStr)` gives the week's day statuses (active = a finished session or words said aloud; XP alone, e.g. a quest claim, doesn't count / missed / Shabbat-shielded for observers / future), totals, new missions completed and the words of missions that reached 3 stars that week. The overall part has level, streak, missions completed, a star mastery rating (average stars per completed mission, and stars of the current grade) and the mastered word count. A mission's words count as mastered at 3 stars (`MASTERED_WORD_MIN_STARS`), de-duplicated across grades. `getAvailableWeeks` goes back to the log's first week, at most 12 weeks.
 - **Screen** (`WeeklyReportScreen`): week arrows, the week strip and tiles, overall progress, this week's new words (tap to hear), and sharing. `buildWeeklyReportTextHe` writes a Hebrew text summary about the learner in the third person (gendered), listing up to 10 new words; `ShareTextActions` sends it with the native share sheet, or a WhatsApp link, plus copy. The friend invite panel uses the same component.
 
+### 4.16. Reward Feedback Kit (`utils/rewardFeedback.ts`, `utils/celebrate.ts`, `utils/sfx.ts`, `components/victory/`, `components/hud/`)
+- Phase 1 of the Feature 22 redesign. Presentation only: rewards, XP, levels and sync are unchanged.
+- **Staged victory** (`MissionVictory`, used by `MissionRunner`): over about 4 seconds the three star slots land one by one (a missed star lands grey), the XP bar fills from the learner's XP before the mission toward the next level and shows a "רמה חדשה!" badge when a level is crossed, the XP / diamonds / words count up, and the 3-star room item flips in last (its space is kept so nothing jumps). A tap anywhere skips to the end. Everything on screen is derived from one clock (`useAnimationClock`) through the pure `getVictoryFrame(input, elapsedMs)`; `VICTORY_TIMING` holds the schedule. `MissionRunner` takes `startXp` / `startLevel` from the dashboard for the bar.
+- **Header**: the "Lv.N" chip has a bar of the XP toward the next level (`LevelProgressChip`, `getLevelProgress`: a stored level ahead of the XP shows an empty bar), the diamond counters count up when they change (`useCountUp`), and a 🔊 / 🔇 button mutes the sound effects.
+- **Sound effects** (`sfx.ts`): 8 short CC0 Kenney sounds in `public/sfx/` (`tap`, `correct`, `wrong`, `star`, `star-miss`, `coins`, `level-up`, `celebrate`; sources in `public/sfx/CREDITS.md`, swap a sound by replacing its file). Nothing plays before the first tap or key press. The mute setting is saved on the device (`english_tutor_sfx_muted`, not synced). Browsers without Ogg Vorbis (older than iOS Safari 17.4) stay silent. Every `FeedbackBanner` plays the correct / wrong sound, so all drill runners get it; word chips and letter magnets play `tap`.
+- **Celebrations** (`celebrate(size)`): the one place that fires confetti. `small` (quest claim, purchase, vault word, item placed, drawing saved) plays `coins`; `medium` (room activity rewards) and `big` (exam session, certificate, word list session, mission victory) play `celebrate`; `{ isSilent: true }` skips the sound.
+- **Reduced motion** (`utils/motion.ts`, `usePrefersReducedMotion`): no confetti, the victory starts at its final state (one cheer instead of the staged sounds), counters jump, and a global CSS rule in `index.css` stops animations and transitions.
+- **Icons**: Microsoft Fluent Emoji 3D PNGs (MIT, `public/art/emoji/LICENSE`) for the star, gem, flame and trophy (`FluentIcon`), on the victory screen, the dashboard stat tiles and the mobile diamond counter.
+
 ---
 
 ## 5. Directory Structure
 
 ```text
-├── public/                 # Static assets & favicon
+├── public/                 # Static assets & favicon; sfx/ (Kenney CC0 sounds + CREDITS.md), art/emoji/ (Fluent Emoji, MIT)
 ├── src/
 │   ├── components/         # React UI Components
 │   │   ├── AuthModal.tsx             # Kid-friendly authentication modal
@@ -227,6 +236,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── DashboardView.tsx         # Main hub screen (HUD, Hero, Maps, Actions)
 │   │   ├── drills/                   # Shared drill UI (options, sentence/letter magnets, voice, passage, feedback)
 │   │   ├── examPrep/                 # Exam prep hub, setup, plan timeline, session runner, certificate
+│   │   ├── hud/                      # Header pieces: level chip with XP bar, sound toggle, Fluent Emoji icons
 │   │   ├── friends/                  # Friends Hub: dashboard card, hub screen, friend card & reactions, add friend, invite code, contest panel/runner/result
 │   │   ├── MissionMap.tsx            # Unit & mission progression node tree
 │   │   ├── MissionRunner.tsx         # 5-step interactive exercise runner
@@ -237,6 +247,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── PlacementResultCard.tsx   # Placement result & grade/tier recommendation
 │   │   ├── RewardShopModal.tsx       # Diamond shop (avatars, stickers, shields)
 │   │   ├── room/                     # My English Room: hub, scene & layout, inventory, naming panel, wardrobe, phone, dream journal, games/ (Games Book), stickers/ (Sticker Studio)
+│   │   ├── victory/                  # Staged mission victory screen (Feature 24)
 │   │   ├── VocabularyVaultModal.tsx  # Ministry word bank & pronunciation studio
 │   │   └── wordLists/                # School word lists: dashboard card, importer, session runner & result
 │   ├── data/
@@ -268,9 +279,13 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── wardrobe.ts               # Dress-Up Studio items, outfit rules & daily dress-up reward (+ .test.ts)
 │   │   └── rewardShop.ts             # Daily quest & shop item catalog
 │   ├── hooks/
+│   │   ├── useAnimationClock.ts      # Per-frame clock with skip, starting at the end for reduced motion
+│   │   ├── useCountUp.ts             # Counts a number up from its previous value
 │   │   ├── useFriendsHub.ts          # Live friendships, friends' public profiles & contests
 │   │   ├── useFriendPresence.ts      # Claims the friend code and publishes the public summary
 │   │   ├── usePendingInvite.ts       # Friend code from an invite link, kept through sign-in
+│   │   ├── usePrefersReducedMotion.ts # The reduce-motion setting
+│   │   ├── useSfxMuted.ts            # The sound mute setting
 │   │   └── useSpeechRecognition.ts   # Web Speech recognition for the voice drills
 │   ├── services/
 │   │   ├── cloudSync.ts              # LocalStorage <-> Firestore sync & merge logic (+ .test.ts)
@@ -281,7 +296,11 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   ├── types/
 │   │   └── learner.ts                # Core domain types (LearnerProfile, Stats, Grades)
 │   ├── utils/
+│   │   ├── celebrate.ts              # Shared confetti + sound celebration (small / medium / big)
 │   │   ├── hebrewGender.ts           # Hebrew grammatical gender inflection engine
+│   │   ├── motion.ts                 # prefers-reduced-motion check
+│   │   ├── rewardFeedback.ts         # Level progress, count-up and victory timeline maths (+ .test.ts)
+│   │   ├── sfx.ts                    # Kenney sound effects, first-gesture unlock & device mute (+ .test.ts)
 │   │   ├── hints.ts                  # Drill hint builders: word shape, cloze, word order, pronunciation tips, story locator (+ .test.ts)
 │   │   ├── shuffle.ts                # Deterministic seeded shuffle for options & word chips
 │   │   ├── speechSimilarity.ts       # Phonetic & string similarity calculation for voice

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import confetti from 'canvas-confetti';
+import { celebrate } from '../utils/celebrate';
 import { CurriculumUnit, VocabularyItem } from '../data/curriculum';
 import { LearnerGender } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
@@ -92,7 +92,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
           ? `מעולה ${learnerName}! ביטאת את המילה "${vocab.wordEn}" (זוהה: "${transcript}") בצורה מושלמת! (+10 XP · +2 💎)`
           : `מעולה ${learnerName}! ביטאת את המילה "${vocab.wordEn}" (זוהה: "${transcript}") בצורה מושלמת! (+10 XP · +2 💎)`,
       });
-      confetti({ particleCount: 40, spread: 55, origin: { y: 0.7 } });
+      celebrate('small');
     };
 
     if (!SpeechRecognitionApi) {

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import confetti from 'canvas-confetti';
+import { celebrate } from '../../utils/celebrate';
+import { prefersReducedMotion } from '../../utils/motion';
 import {
   ROOM_OBJECTS,
   RoomObjectId,
@@ -47,10 +48,6 @@ const OBJECT_PANELS: Partial<Record<RoomObjectId, RoomPanel>> = {
   bed: 'journal',
   'games-book': 'games',
 };
-
-function prefersReducedMotion(): boolean {
-  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-}
 
 /** Feature 12: the room itself. The avatar walks to what you tap; items are placed by naming them. */
 export const RoomScreen: React.FC<RoomScreenProps> = ({
@@ -152,7 +149,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     const item = getRoomItemFor(profile, naming.itemId);
     const result = placeNamedRoomItem(profile, naming.slotId, naming.itemId, new Date());
     onUpdateProfile(result.profile);
-    confetti({ particleCount: 60, spread: 60, origin: { y: 0.55 } });
+    celebrate('small');
     if (item) {
       setBubble({ at: SLOT_POSITIONS[naming.slotId], textEn: item.nameEn, textHe: item.nameHe });
     }
