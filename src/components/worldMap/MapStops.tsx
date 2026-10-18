@@ -13,7 +13,7 @@ import { hasSeenCastleOpen, rememberCastleOpen } from './castleMemory';
 
 export const COIN_SIZE = 60;
 export const CASTLE_SIZE = 108;
-export const MAP_COMPANION_SIZE = 72;
+export const MAP_COMPANION_SIZE = 66;
 /** How far the companion's feet sink into the top of the coin */
 const COMPANION_FEET_OVERLAP = 12;
 /** The castle stays shut this long before it opens, so the change is seen */
@@ -48,7 +48,8 @@ export const MissionCoinStop: React.FC<StopProps> = ({ stop, mapHeight, theme, g
 
   return (
     <div
-      className="absolute z-[2] -translate-x-1/2 -translate-y-1/2"
+      // The current stop sits one layer down, so its companion never covers the stars of the stop above
+      className={`absolute -translate-x-1/2 -translate-y-1/2 ${isCurrent ? 'z-[1]' : 'z-[2]'}`}
       style={{ ...getPinStyle(stop.position, mapHeight), width: COIN_SIZE, height: COIN_SIZE }}
       data-mission-id={mission.id}
     >

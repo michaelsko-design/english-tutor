@@ -88,21 +88,21 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
           isReducedMotion ? '' : 'animate-sheet-up'
         }`}
       >
-        <div className="sticky top-0 z-10 flex justify-center pt-2 pb-1 bg-inherit" aria-hidden="true">
-          <span className="w-12 h-1.5 rounded-full bg-current opacity-20" />
+        <div className={`sticky top-0 z-10 h-12 flex justify-center pt-2 ${style.sheetBgClass}`}>
+          <span className="w-12 h-1.5 rounded-full bg-current opacity-20" aria-hidden="true" />
+          <button
+            ref={closeRef}
+            type="button"
+            onClick={onClose}
+            className={`absolute top-2 left-3 p-2 rounded-xl ${theme.secondaryBtnClass}`}
+            aria-label="סגירה"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
-        <button
-          ref={closeRef}
-          type="button"
-          onClick={onClose}
-          className={`absolute top-3 left-3 z-20 p-2 rounded-xl ${theme.secondaryBtnClass}`}
-          aria-label="סגירה"
-        >
-          <X className="w-4 h-4" />
-        </button>
 
         <div className="px-4 sm:px-6 pb-4 space-y-4">
-          <header className="space-y-1.5 pe-1 ps-10">
+          <header className="space-y-1.5">
             <span className={`inline-block px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
               {mission.isBoss ? '👑 משימת בוס · ' : ''}
               יחידה {mission.unitNumber} · משימה {mission.missionNumber}
@@ -142,7 +142,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
             <>
               <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/40 flex items-center justify-between gap-2">
                 <span className="text-sm font-extrabold">🎁 פרסים ברמת {tierMeta.labelHe}:</span>
-                <span className={`text-sm font-extrabold ${style.rewardTextClass}`} dir="ltr">
+                <span className={`shrink-0 whitespace-nowrap text-sm font-extrabold ${style.rewardTextClass}`} dir="ltr">
                   +{xp} XP · +{diamonds} 💎
                 </span>
               </div>
