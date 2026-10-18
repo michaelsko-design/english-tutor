@@ -81,7 +81,12 @@ export const Companion: React.FC<CompanionProps> = ({ theme, pose, size, classNa
       )}
       {/* Keyed by pose so each new pose replays its motion */}
       <div key={pose} className={`absolute inset-0 origin-bottom ${motionClass}`}>
-        <ArtImage src={getCompanionSrc(theme, pose, size)} className="w-full h-full" fallback={fallback} />
+        <ArtImage
+          src={getCompanionSrc(theme, pose, size)}
+          className="w-full h-full"
+          imgStyle={theme.art.companionRim ? { filter: theme.art.companionRim } : undefined}
+          fallback={fallback}
+        />
       </div>
     </div>
   );

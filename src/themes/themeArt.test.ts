@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   COMPANION_POSES,
+  LIGHT_COMPANION_RIM,
   buildThemeArt,
   getCommonArt,
   getLandmarkArt,
@@ -24,6 +25,17 @@ describe('buildThemeArt', () => {
     expect(art.mapBg).toBe('/art/starlight-rpg/map-bg.webp');
     expect(art.homeScene).toBe('/art/starlight-rpg/home-scene.webp');
     expect(art.roomBg).toBe('/art/starlight-rpg/room-bg.webp');
+  });
+
+  it('has no companion rim unless the theme asks for one', () => {
+    expect(buildThemeArt('cozy-studio').companionRim).toBeNull();
+    expect(buildThemeArt('starlight-rpg', { companionRim: LIGHT_COMPANION_RIM }).companionRim).toBe(LIGHT_COMPANION_RIM);
+  });
+
+  it('gives Nova a light rim on the dark Starlight theme only', () => {
+    expect(THEME_REGISTRY['starlight-rpg'].art.companionRim).toBe(LIGHT_COMPANION_RIM);
+    expect(THEME_REGISTRY['cozy-studio'].art.companionRim).toBeNull();
+    expect(THEME_REGISTRY['neon-pop'].art.companionRim).toBeNull();
   });
 
   it('is part of every registered theme', () => {

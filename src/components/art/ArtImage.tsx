@@ -6,6 +6,8 @@ interface ArtImageProps {
   /** Size and position classes for the box; the box keeps its size whatever happens. */
   className?: string;
   imgClassName?: string;
+  /** Inline style for the picture only (not the fallback), e.g. a CSS filter */
+  imgStyle?: React.CSSProperties;
   alt?: string;
   /** Shown when the file is missing. Nothing is shown while it loads. */
   fallback?: React.ReactNode;
@@ -16,7 +18,14 @@ interface ArtImageProps {
  * jump. The box is sized by the caller; it stays empty while loading and shows the fallback
  * when the file is missing.
  */
-export const ArtImage: React.FC<ArtImageProps> = ({ src, className = '', imgClassName = '', alt = '', fallback = null }) => {
+export const ArtImage: React.FC<ArtImageProps> = ({
+  src,
+  className = '',
+  imgClassName = '',
+  imgStyle,
+  alt = '',
+  fallback = null,
+}) => {
   const status = useArtStatus(src);
 
   return (
@@ -28,6 +37,7 @@ export const ArtImage: React.FC<ArtImageProps> = ({ src, className = '', imgClas
           aria-hidden={alt === '' ? true : undefined}
           draggable={false}
           decoding="async"
+          style={imgStyle}
           className={`absolute inset-0 w-full h-full object-contain select-none ${imgClassName}`}
         />
       )}

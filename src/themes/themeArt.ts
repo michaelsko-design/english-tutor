@@ -18,6 +18,11 @@ export interface CutoutArt {
 
 export interface ThemeArt {
   companion: Record<CompanionPose, CutoutArt>;
+  /**
+   * CSS filter drawn around the companion art, or null. A dark companion on a dark theme
+   * (Nova on Starlight) gets a soft light rim so it doesn't vanish into the background.
+   */
+  companionRim: string | null;
   /** World map background (Feature 26), 1080px wide */
   mapBg: string;
   /** Home base hero scene (Feature 27), 1200px wide */
@@ -39,12 +44,17 @@ export function getCutoutArt(folder: string, name: string): CutoutArt {
   };
 }
 
-export function buildThemeArt(themeId: ThemeId): ThemeArt {
+/** A soft white edge plus a faint cyan glow, for dark art on a dark background. */
+export const LIGHT_COMPANION_RIM =
+  'drop-shadow(0 0 2px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 10px rgba(127, 214, 255, 0.35))';
+
+export function buildThemeArt(themeId: ThemeId, options: { companionRim?: string } = {}): ThemeArt {
   const companion = Object.fromEntries(
     COMPANION_POSES.map((pose) => [pose, getCutoutArt(themeId, `companion-${pose}`)])
   ) as Record<CompanionPose, CutoutArt>;
   return {
     companion,
+    companionRim: options.companionRim ?? null,
     mapBg: `${ART_ROOT}/${themeId}/map-bg.webp`,
     homeScene: `${ART_ROOT}/${themeId}/home-scene.webp`,
     roomBg: `${ART_ROOT}/${themeId}/room-bg.webp`,

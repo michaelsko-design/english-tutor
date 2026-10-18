@@ -1,5 +1,5 @@
 import { GradeId, ProficiencyTier, ThemeId, TodaysMissionSuggestion } from '../types/learner';
-import { buildThemeArt, ThemeArt } from './themeArt';
+import { buildThemeArt, LIGHT_COMPANION_RIM, ThemeArt } from './themeArt';
 
 export interface ThemeDefinition {
   id: ThemeId;
@@ -119,7 +119,8 @@ export const THEME_REGISTRY: Record<ThemeId, ThemeDefinition> = {
     mutedTextClass: 'text-cyan-200/75',
     inputBgClass:
       'bg-slate-900/90 border border-cyan-400/30 text-cyan-50 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30',
-    art: buildThemeArt('starlight-rpg'),
+    // Nova is dark navy: a light rim keeps her visible on the midnight background
+    art: buildThemeArt('starlight-rpg', { companionRim: LIGHT_COMPANION_RIM }),
   },
 };
 
