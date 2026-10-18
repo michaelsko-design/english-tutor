@@ -1,32 +1,17 @@
-import React, { useState } from 'react';
-import {
-  CurriculumUnit,
-  MissionNode,
-} from '../data/curriculum';
-import {
-  LearnerGender,
-  ProficiencyTier,
-} from '../types/learner';
-import {
-  ThemeDefinition,
-  TIER_CONFIG,
-} from '../themes/themeRegistry';
-import { inflectHebrew } from '../utils/hebrewGender';
-import {
-  getBossGate,
-  getSuggestedMission,
-  isMissionUnlocked,
-} from '../data/milestones';
-import {
-  Star,
-  Lock,
-  Play,
-  Volume2,
-  BookOpen,
-  Sparkles,
-  CheckCircle2,
-  Crown,
-} from 'lucide-react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { LocateFixed } from 'lucide-react';
+import { CurriculumUnit, MissionNode } from '../data/curriculum';
+import { LearnerGender, ProficiencyTier } from '../types/learner';
+import { ThemeDefinition } from '../themes/themeRegistry';
+import { MAP_BG_ASPECT } from '../themes/themeArt';
+import { MapStop, buildWorldMap, getUnitGradeNumber } from '../data/worldMap';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { ArtImage } from './art/ArtImage';
+import { MapPathLayer } from './worldMap/MapPathLayer';
+import { MapLandmark, UnitBanner } from './worldMap/mapPieces';
+import { BossCastleStop, MissionCoinStop } from './worldMap/MapStops';
+import { MissionSheet } from './worldMap/MissionSheet';
+import { WORLD_MAP_STYLES } from './worldMap/worldMapStyles';
 
 interface MissionMapProps {
   units: CurriculumUnit[];
@@ -39,432 +24,169 @@ interface MissionMapProps {
   onSpeakEnglish: (text: string, rate?: number) => void;
 }
 
+/** Where the current mission lands in the map window, as a share of its height from the top */
+const CURRENT_STOP_VIEW_SHARE = 0.55;
+/** The map window: about one phone screen, so the page around it still scrolls */
+const MAP_WINDOW_HEIGHT = 'min(76vh, 760px)';
+
+/**
+ * The World Map (Feature 26): one illustrated region per unit on the theme's map background,
+ * a path through all of them with a coin for every mission and a castle for every Boss. The
+ * companion stands on the next mission, and tapping a stop opens its mission sheet.
+ */
 export const MissionMap: React.FC<MissionMapProps> = ({
   units,
   missionProgress,
   selectedTier,
+  onSelectTier,
   theme,
   gender,
   onStartMission,
   onSpeakEnglish,
 }) => {
-  const nextMission = getSuggestedMission(units, missionProgress).mission;
+  const style = WORLD_MAP_STYLES[theme.id];
+  const isReducedMotion = usePrefersReducedMotion();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [openMissionId, setOpenMissionId] = useState<string | null>(null);
 
-  const [selectedMission, setSelectedMission] = useState<MissionNode>(nextMission);
-
-  // Keep selectedMission synced if grade changes
-  React.useEffect(() => {
-    setSelectedMission(getSuggestedMission(units, missionProgress).mission);
-  }, [units, missionProgress]);
-
+  const layout = useMemo(
+    () => buildWorldMap(units, missionProgress, theme.art.mapPath.centerline, MAP_BG_ASPECT),
+    [units, missionProgress, theme]
+  );
+  const allStops = layout.regions.flatMap((r) => r.stops);
+  const openStop = allStops.find((s) => s.state.mission.id === openMissionId) ?? null;
+  const currentMissionId = layout.currentStop?.state.mission.id ?? null;
   const isGirl = gender === 'girl';
-  const tierMeta = TIER_CONFIG[selectedTier];
-  const currentTierObj = selectedMission?.tierObjectives[selectedTier];
+
+  const scrollToCurrent = useCallback(
+    (behavior: ScrollBehavior) => {
+      const container = scrollRef.current;
+      const canvas = canvasRef.current;
+      if (!container || !canvas || !layout.currentStop) return;
+      const stopY = (layout.currentStop.position.y / layout.height) * canvas.offsetHeight;
+      container.scrollTo({ top: Math.max(0, stopY - container.clientHeight * CURRENT_STOP_VIEW_SHARE), behavior });
+    },
+    [layout]
+  );
+
+  // On open, on a new grade and when the next mission moves: bring the current mission into view
+  useLayoutEffect(() => {
+    scrollToCurrent('auto');
+    // Only these changes should move the map, not every progress update
+  }, [currentMissionId, units]);
+
+  const handleCloseSheet = useCallback(() => setOpenMissionId(null), []);
+  const handleSelectStop = useCallback((stop: MapStop) => setOpenMissionId(stop.state.mission.id), []);
+
+  const previousTitleHe = (() => {
+    if (!openStop) return null;
+    const idx = allStops.indexOf(openStop);
+    return idx > 0 ? allStops[idx - 1].state.mission.titleHe : null;
+  })();
 
   return (
-    <section aria-label="Interactive Story World and Mission Map" className="space-y-4 md:space-y-6">
-      {/* Section Header */}
-      <div className="flex items-center justify-between gap-3 px-1" dir="rtl">
+    <section aria-label="מפת העולם והמשימות" className="space-y-3 md:space-y-4">
+      <div className="flex items-end justify-between gap-3 px-1" dir="rtl">
         <div>
-          <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold flex items-center gap-2">
-            <span>🗺️ מפת העולמות והמשימות</span>
-          </h2>
-          <p className={`text-xs ${theme.mutedTextClass}`}>
-            {isGirl
-              ? 'בחרי משימה פתוחה כדי להאזין לאוצר המילים ולהתחיל לתרגל'
-              : 'בחר משימה פתוחה כדי להאזין לאוצר המילים ולהתחיל לתרגל'}
+          <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold">🗺️ מפת העולם</h2>
+          <p className={`text-xs font-bold ${theme.mutedTextClass}`}>
+            {isGirl ? 'לחצי על מטבע כדי לראות את המשימה ולהתחיל' : 'לחץ על מטבע כדי לראות את המשימה ולהתחיל'}
           </p>
         </div>
-      </div>
-
-      {/* Two-Column Layout on Desktop, Inline Expandable on Mobile */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 items-start">
-        {/* Left 7 Columns: Units & Mission Nodes */}
-        <div className="lg:col-span-7 space-y-4">
-          {units.map((unit) => {
-            const unitStars = unit.missions.reduce(
-              (acc, m) => acc + (missionProgress[m.id] || 0),
-              0
-            );
-            const maxUnitStars = unit.missions.length * 3;
-            const bossGate = getBossGate(unit, missionProgress);
-            const bossMission = unit.missions.find((m) => m.isBoss);
-            const isBossGated = Boolean(
-              bossGate &&
-                !bossGate.isMet &&
-                bossMission &&
-                (missionProgress[bossMission.id] || 0) === 0
-            );
-
-            return (
-              <div
-                key={unit.unitNumber}
-                className={`rounded-3xl p-4 sm:p-5 md:p-6 ${theme.cardBgClass} space-y-3.5`}
-              >
-                {/* Unit Banner */}
-                <div className="flex items-center justify-between gap-3 border-b border-current/10 pb-3" dir="rtl">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div
-                      className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center text-xl md:text-2xl ${theme.primaryBtnClass} shrink-0`}
-                    >
-                      {unit.badgeEmoji}
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="font-extrabold text-sm md:text-base truncate" dir="ltr">
-                        {unit.titleEn}
-                      </h3>
-                      <p className="text-xs font-bold truncate">
-                        {unit.titleHe}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {isBossGated && bossGate && bossGate.earned > 0 && (
-                      <div
-                        className="px-2 py-1 rounded-xl text-xs font-extrabold flex items-center gap-1 bg-amber-400/15 border border-amber-400/50 text-amber-700 dark:text-amber-300"
-                        dir="ltr"
-                        title="כוכבים שנצברו במשימות היחידה לפתיחת משימת הבוס"
-                      >
-                        <Crown className="w-3.5 h-3.5" />
-                        <span>
-                          {bossGate.earned}/{bossGate.required}
-                        </span>
-                      </div>
-                    )}
-                    <div
-                      className={`px-2.5 py-1 rounded-xl text-xs font-extrabold flex items-center gap-1 ${theme.badgeClass}`}
-                      dir="ltr"
-                    >
-                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                      <span>
-                        {unitStars}/{maxUnitStars}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Mission Nodes List */}
-                <div className="space-y-2.5">
-                  {unit.missions.map((mission, missionIdx) => {
-                    const starsEarned = missionProgress[mission.id] || 0;
-                    const unlocked = isMissionUnlocked(units, missionProgress, mission.id);
-                    const isSelected = selectedMission?.id === mission.id;
-                    const isCurrentNext = unlocked && nextMission.id === mission.id;
-                    const prevInUnit = unit.missions[missionIdx - 1];
-                    const isLockedByStars =
-                      mission.isBoss &&
-                      isBossGated &&
-                      Boolean(prevInUnit && (missionProgress[prevInUnit.id] || 0) > 0);
-
-                    return (
-                      <div
-                        key={mission.id}
-                        onClick={() => unlocked && setSelectedMission(mission)}
-                        role="button"
-                        tabIndex={unlocked ? 0 : -1}
-                        onKeyDown={(e) => {
-                          if (unlocked && (e.key === 'Enter' || e.key === ' ')) {
-                            setSelectedMission(mission);
-                          }
-                        }}
-                        className={`rounded-2xl p-3 sm:p-4 transition-all ${
-                          unlocked ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'
-                        } ${
-                          isSelected
-                            ? 'ring-2 ring-purple-500 bg-purple-500/10'
-                            : 'bg-black/5 dark:bg-white/5 hover:bg-purple-500/5'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-2.5">
-                          <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-                            <div
-                              className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center text-xl shrink-0 ${
-                                unlocked
-                                  ? theme.primaryBtnClass
-                                  : 'bg-slate-400/20 text-slate-400'
-                              }`}
-                            >
-                              {unlocked ? mission.icon : <Lock className="w-4 h-4" />}
-                            </div>
-
-                            <div className="min-w-0 space-y-0.5">
-                              <div className="flex flex-wrap items-center gap-1.5">
-                                <span className="font-extrabold text-xs sm:text-sm md:text-base truncate">
-                                  {mission.unitNumber}.{mission.missionNumber}{' '}
-                                  {mission.titleEn}
-                                </span>
-                                {mission.isBoss && (
-                                  <span className="px-1.5 py-0.5 rounded-full bg-amber-400/25 border border-amber-400 text-amber-600 dark:text-amber-300 text-[10px] font-extrabold flex items-center gap-0.5">
-                                    <Crown className="w-2.5 h-2.5" /> BOSS
-                                  </span>
-                                )}
-                                {isCurrentNext && (
-                                  <span className="px-2 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-extrabold" dir="rtl">
-                                    הבא בתור
-                                  </span>
-                                )}
-                              </div>
-
-                              <p className="text-xs font-bold truncate" dir="rtl">
-                                {inflectHebrew(mission.titleHe, gender)}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Stars & Play Action Button */}
-                          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                            <div
-                              className="flex items-center gap-0.5"
-                              title={`${starsEarned} of 3 Stars Earned`}
-                            >
-                              {[1, 2, 3].map((starNum) => (
-                                <Star
-                                  key={starNum}
-                                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${
-                                    starsEarned >= starNum
-                                      ? 'fill-amber-400 text-amber-400'
-                                      : 'text-slate-400/40'
-                                  }`}
-                                />
-                              ))}
-                            </div>
-
-                            {unlocked ? (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedMission(mission);
-                                  onStartMission(mission);
-                                }}
-                                className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-extrabold flex items-center gap-1 ${
-                                  isSelected
-                                    ? theme.primaryBtnClass
-                                    : theme.secondaryBtnClass
-                                }`}
-                              >
-                                <Play className="w-3.5 h-3.5 fill-current" />
-                                <span dir="rtl" className="hidden xs:inline sm:inline">
-                                  {starsEarned > 0
-                                    ? isGirl
-                                      ? 'שוב'
-                                      : 'שוב'
-                                    : isGirl
-                                    ? 'התחילי'
-                                    : 'התחל'}
-                                </span>
-                              </button>
-                            ) : isLockedByStars && bossGate ? (
-                              <span
-                                className="px-2 py-1 rounded-xl text-xs font-extrabold bg-amber-400/15 border border-amber-400/50"
-                                dir="ltr"
-                                title={`${bossGate.earned} מתוך ${bossGate.required} כוכבים`}
-                              >
-                                🔑 {bossGate.earned}/{bossGate.required} ⭐
-                              </span>
-                            ) : (
-                              <span className="text-xs font-bold opacity-60">🔒</span>
-                            )}
-                          </div>
-                        </div>
-
-                        {isLockedByStars && bossGate && (
-                          <p
-                            className="mt-2 text-xs font-extrabold text-amber-700 dark:text-amber-300"
-                            dir="rtl"
-                          >
-                            🔒 עוד {bossGate.missing} ⭐ ביחידה כדי לפתוח את משימת הבוס
-                          </p>
-                        )}
-
-                        {/* Inline Mobile Mission Preview (shown right inside the selected node on <lg screens) */}
-                        {isSelected && unlocked && (
-                          <div
-                            className="lg:hidden mt-3 pt-3 border-t border-current/10 space-y-2.5"
-                            dir="rtl"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <div className="flex items-center justify-between text-xs">
-                              <span className={`font-bold ${theme.mutedTextClass}`}>
-                                {mission.grammarTopic}
-                              </span>
-                              <span className="font-extrabold text-emerald-600 dark:text-emerald-300" dir="ltr">
-                                +{Math.round(mission.baseXp * tierMeta.xpMultiplier)} XP · +
-                                {mission.baseDiamonds + tierMeta.diamondBonus} 💎
-                              </span>
-                            </div>
-
-                            {/* Compact Horizontal / Grid Vocab Chips for Mobile */}
-                            <div className="flex flex-wrap gap-1.5">
-                              {mission.vocabulary.map((v) => (
-                                <button
-                                  key={v.wordEn}
-                                  type="button"
-                                  onClick={() => onSpeakEnglish(v.wordEn, 0.9)}
-                                  className={`px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-                                >
-                                  <Volume2 className="w-3 h-3 shrink-0" />
-                                  {v.emoji && <span aria-hidden="true">{v.emoji}</span>}
-                                  <span dir="ltr" className="font-extrabold">{v.wordEn}</span>
-                                  <span className="opacity-75">· {v.translationHe}</span>
-                                </button>
-                              ))}
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={() => onStartMission(mission)}
-                              className={`w-full py-2.5 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 ${theme.primaryBtnClass}`}
-                            >
-                              <Play className="w-3.5 h-3.5 fill-current" />
-                              <span>
-                                {isGirl
-                                  ? `התחילי משימה ${mission.unitNumber}.${mission.missionNumber}`
-                                  : `התחל משימה ${mission.unitNumber}.${mission.missionNumber}`}
-                              </span>
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Right 5 Columns (Desktop Only): Selected Mission Briefing & Audio Vocabulary Studio */}
-        {selectedMission && (
-          <aside className="hidden lg:block lg:col-span-5 lg:sticky lg:top-20 space-y-4">
-            <div className={`rounded-3xl p-5 md:p-6 ${theme.cardBgClass} space-y-4`}>
-              {/* Mission Header */}
-              <div className="space-y-1.5" dir="rtl">
-                <div className="flex items-center justify-between gap-2">
-                  <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
-                    {selectedMission.icon} משימה {selectedMission.unitNumber}.
-                    {selectedMission.missionNumber}
-                  </span>
-                  <span className="text-xs font-bold opacity-80">
-                    ⏱️ {selectedMission.estimatedMinutes} דקות
-                  </span>
-                </div>
-
-                <h3 className="text-xl font-extrabold" dir="ltr">
-                  {selectedMission.titleEn}
-                </h3>
-                <p className="text-sm font-bold">{inflectHebrew(selectedMission.titleHe, gender)}</p>
-                <p className={`text-xs leading-relaxed ${theme.mutedTextClass}`}>
-                  {inflectHebrew(selectedMission.storyHookHe, gender)}
-                </p>
-              </div>
-
-              {/* Active Proficiency Tier Objective Box */}
-              {currentTierObj && (
-                <div
-                  className="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-400/30 space-y-2"
-                  dir="rtl"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-extrabold flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-purple-500" />
-                      <span>רמת {tierMeta.labelHe}:</span>
-                    </span>
-                    <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-300" dir="ltr">
-                      +{Math.round(selectedMission.baseXp * tierMeta.xpMultiplier)} XP · +
-                      {selectedMission.baseDiamonds + tierMeta.diamondBonus} 💎
-                    </span>
-                  </div>
-                  <p className="text-xs font-semibold">{inflectHebrew(currentTierObj.focusHe, gender)}</p>
-                  <div
-                    className="p-2.5 rounded-xl bg-black/5 dark:bg-black/25 text-xs font-bold flex items-center justify-between gap-2"
-                    dir="ltr"
-                  >
-                    <span>&ldquo;{currentTierObj.samplePromptEn}&rdquo;</span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        onSpeakEnglish(
-                          currentTierObj.samplePromptEn.replace(/_______/g, ''),
-                          0.92
-                        )
-                      }
-                      className={`p-1.5 rounded-lg shrink-0 ${theme.secondaryBtnClass}`}
-                      title="Listen to sample sentence"
-                    >
-                      <Volume2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Target Vocabulary Studio with 1-Tap TTS Pronunciation */}
-              <div className="space-y-2" dir="rtl">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-extrabold flex items-center gap-1.5">
-                    <BookOpen className="w-4 h-4" />
-                    <span>אוצר מילים למשימה ({isGirl ? 'לחצי' : 'לחץ'} להאזנה 🔊):</span>
-                  </h4>
-                  <span className="text-xs opacity-75">
-                    {selectedMission.vocabulary.length} מילים
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  {selectedMission.vocabulary.map((vocab) => (
-                    <div
-                      key={vocab.wordEn}
-                      className="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10 flex items-center justify-between gap-3"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => onSpeakEnglish(`${vocab.wordEn}. ${vocab.exampleEn}`, 0.9)}
-                        className={`p-2 rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
-                        title={`Listen to "${vocab.wordEn}"`}
-                      >
-                        <Volume2 className="w-4 h-4" />
-                      </button>
-
-                      <div className="flex-1 text-right">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs font-bold text-purple-600 dark:text-purple-300">
-                            {vocab.translationHe}
-                          </span>
-                          <span className="font-extrabold text-sm" dir="ltr">
-                            {vocab.emoji && <span aria-hidden="true">{vocab.emoji} </span>}
-                            {vocab.wordEn}{' '}
-                            <span className="text-xs font-normal opacity-70">
-                              ({vocab.partOfSpeech})
-                            </span>
-                          </span>
-                        </div>
-                        <p className="text-xs opacity-80 mt-0.5" dir="ltr">
-                          {vocab.exampleEn}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Start Selected Mission CTA */}
-              <button
-                type="button"
-                onClick={() => onStartMission(selectedMission)}
-                className={`w-full py-3.5 rounded-2xl font-extrabold text-sm md:text-base flex items-center justify-center gap-2 ${theme.primaryBtnClass}`}
-              >
-                <CheckCircle2 className="w-5 h-5" />
-                <span dir="rtl">
-                  {isGirl
-                    ? `התחילי את משימה ${selectedMission.unitNumber}.${selectedMission.missionNumber}`
-                    : `התחל את משימה ${selectedMission.unitNumber}.${selectedMission.missionNumber}`}
-                </span>
-              </button>
-            </div>
-          </aside>
+        {layout.currentStop && (
+          <button
+            type="button"
+            onClick={() => scrollToCurrent(isReducedMotion ? 'auto' : 'smooth')}
+            className={`shrink-0 px-3 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
+          >
+            <LocateFixed className="w-4 h-4" />
+            למשימה הבאה
+          </button>
         )}
       </div>
+
+      <div className="mx-auto w-full max-w-[520px] rounded-[28px] overflow-hidden border-4 border-white/60 shadow-xl">
+        <div ref={scrollRef} className="relative overflow-y-auto overscroll-contain" style={{ height: MAP_WINDOW_HEIGHT }}>
+          <div
+            ref={canvasRef}
+            className={`relative w-full ${style.canvasFallbackClass}`}
+            style={{ aspectRatio: `1 / ${layout.height}` }}
+            dir="ltr"
+          >
+            {layout.regions.map((region) => (
+              <div
+                key={`bg-${region.unit.unitNumber}`}
+                className="absolute inset-x-0"
+                style={{
+                  top: `${(region.top / layout.height) * 100}%`,
+                  height: `${(region.height / layout.height) * 100}%`,
+                }}
+                aria-hidden="true"
+              >
+                <ArtImage src={theme.art.mapBg} className="w-full h-full" imgStyle={{ objectFit: 'fill' }} />
+              </div>
+            ))}
+
+            <MapPathLayer path={layout.path} trail={layout.trail} mapHeight={layout.height} style={theme.art.mapPath} />
+
+            {layout.regions.map((region) => (
+              <MapLandmark
+                key={`landmark-${region.unit.unitNumber}`}
+                unit={region.unit}
+                gradeNumber={getUnitGradeNumber(region.unit)}
+                position={region.landmark.position}
+                mapHeight={layout.height}
+              />
+            ))}
+
+            {allStops.map((stop) => {
+              const StopComponent = stop.state.mission.isBoss ? BossCastleStop : MissionCoinStop;
+              return (
+                <StopComponent
+                  key={stop.state.mission.id}
+                  stop={stop}
+                  mapHeight={layout.height}
+                  theme={theme}
+                  gender={gender}
+                  style={style}
+                  onSelect={handleSelectStop}
+                />
+              );
+            })}
+
+            {layout.regions.map((region) => (
+              <UnitBanner
+                key={`banner-${region.unit.unitNumber}`}
+                unit={region.unit}
+                bannerTop={region.bannerTop}
+                mapHeight={layout.height}
+                starsEarned={region.stops.reduce((acc, s) => acc + s.state.stars, 0)}
+                starsPossible={region.stops.length * 3}
+                style={style}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {openStop && (
+        <MissionSheet
+          stop={openStop}
+          previousTitleHe={previousTitleHe}
+          tier={selectedTier}
+          onSelectTier={onSelectTier}
+          theme={theme}
+          style={style}
+          gender={gender}
+          onStart={() => {
+            setOpenMissionId(null);
+            onStartMission(openStop.state.mission);
+          }}
+          onClose={handleCloseSheet}
+          onSpeakEnglish={onSpeakEnglish}
+        />
+      )}
     </section>
   );
 };

@@ -16,6 +16,31 @@ export interface CutoutArt {
   small: string;
 }
 
+/** A point on the map background: x and y as shares (0–1) of its width and height. */
+export interface MapPoint {
+  x: number;
+  y: number;
+}
+
+/** How the world map path is drawn on a theme's map background (Feature 26). */
+export interface MapPathStyle {
+  /**
+   * The middle of the background's empty winding band, top to bottom. The path follows it
+   * through every unit's copy of the background, so it must start and end near x = 0.5.
+   */
+  centerline: MapPoint[];
+  /** The wide outer stroke (the road's edge) */
+  edgeColor: string;
+  /** The road itself, drawn on the edge */
+  fillColor: string;
+  /** Dashes along the middle of the road */
+  dashColor: string;
+  /** The finished part of the path, up to the current mission */
+  trailColor: string;
+  /** Glow colour around the path, for a light path on a dark band; null for none */
+  glowColor: string | null;
+}
+
 export interface ThemeArt {
   companion: Record<CompanionPose, CutoutArt>;
   /**
@@ -23,8 +48,10 @@ export interface ThemeArt {
    * (Nova on Starlight) gets a soft light rim so it doesn't vanish into the background.
    */
   companionRim: string | null;
-  /** World map background (Feature 26), 1080px wide */
+  /** World map background (Feature 26), 1080px wide, one copy per unit */
   mapBg: string;
+  /** How the world map path runs and looks on this theme's map background */
+  mapPath: MapPathStyle;
   /** Home base hero scene (Feature 27), 1200px wide */
   homeScene: string;
   /** English Room background, 1600px wide */
@@ -44,6 +71,54 @@ export function getCutoutArt(folder: string, name: string): CutoutArt {
   };
 }
 
+/** Height / width of every map background (process_art.py writes them 1080 × 1935). */
+export const MAP_BG_ASPECT = 1935 / 1080;
+
+const toPoints = (pairs: Array<[number, number]>): MapPoint[] => pairs.map(([x, y]) => ({ x, y }));
+
+/**
+ * The world map path of each theme (Feature 26). The centerlines were traced on the map
+ * backgrounds; trace again when a background is replaced. PeachNote's path is a sandy road on
+ * the grass; the dark themes get a light, glowing path so it shows on the near-black band.
+ */
+export const MAP_PATH_BY_THEME: Record<ThemeId, MapPathStyle> = {
+  'cozy-studio': {
+    centerline: toPoints([
+      [0.5, 0], [0.42, 0.08], [0.38, 0.15], [0.42, 0.22], [0.52, 0.28], [0.55, 0.33], [0.47, 0.39],
+      [0.38, 0.46], [0.4, 0.53], [0.5, 0.58], [0.57, 0.63], [0.54, 0.68], [0.44, 0.73], [0.36, 0.8],
+      [0.4, 0.87], [0.48, 0.93], [0.5, 1],
+    ]),
+    edgeColor: '#c9975f',
+    fillColor: '#f8e6c4',
+    dashColor: '#ffffff',
+    trailColor: '#f6b93b',
+    glowColor: null,
+  },
+  'neon-pop': {
+    centerline: toPoints([
+      [0.48, 0], [0.5, 0.05], [0.51, 0.1], [0.47, 0.15], [0.45, 0.2], [0.44, 0.25], [0.48, 0.3],
+      [0.54, 0.35], [0.54, 0.4], [0.47, 0.45], [0.44, 0.5], [0.47, 0.55], [0.55, 0.6], [0.58, 0.65],
+      [0.55, 0.7], [0.47, 0.75], [0.44, 0.8], [0.46, 0.85], [0.49, 0.9], [0.5, 0.95], [0.5, 1],
+    ]),
+    edgeColor: '#22d3ee',
+    fillColor: '#ecfeff',
+    dashColor: '#f472b6',
+    trailColor: '#f472b6',
+    glowColor: '#22d3ee',
+  },
+  'starlight-rpg': {
+    centerline: toPoints([
+      [0.5, 0], [0.57, 0.1], [0.47, 0.2], [0.45, 0.3], [0.47, 0.4], [0.58, 0.5], [0.53, 0.6],
+      [0.41, 0.7], [0.42, 0.8], [0.45, 0.9], [0.5, 1],
+    ]),
+    edgeColor: '#a5b4fc',
+    fillColor: '#eef2ff',
+    dashColor: '#fcd34d',
+    trailColor: '#fcd34d',
+    glowColor: '#7dd3fc',
+  },
+};
+
 /** A soft white edge plus a faint cyan glow, for dark art on a dark background. */
 export const LIGHT_COMPANION_RIM =
   'drop-shadow(0 0 2px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 10px rgba(127, 214, 255, 0.35))';
@@ -56,6 +131,7 @@ export function buildThemeArt(themeId: ThemeId, options: { companionRim?: string
     companion,
     companionRim: options.companionRim ?? null,
     mapBg: `${ART_ROOT}/${themeId}/map-bg.webp`,
+    mapPath: MAP_PATH_BY_THEME[themeId],
     homeScene: `${ART_ROOT}/${themeId}/home-scene.webp`,
     roomBg: `${ART_ROOT}/${themeId}/room-bg.webp`,
   };

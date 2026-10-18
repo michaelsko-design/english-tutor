@@ -243,6 +243,14 @@ Each learning mission consists of 5 pedagogical drill stages:
   - Victory (`MissionVictory`): the companion's cheer pose holds up the trophy.
 - **Art pipeline** (`scripts/process_art.py`, needs Pillow and numpy): reads `art-src/` (gitignored originals; `.jpg`, `.jpeg`, `.png` or `.webp`) and writes `public/art/`. Cut-outs drawn on a white background (companion poses, `art-src/common/*`, `art-src/landmarks/*`) lose the background and the drawn ground shadow by a flood fill from the edges and become transparent bottom-centred squares at 512 and 256px; the five poses of a theme are scaled to the same height so they swap in place. Full-frame pictures are only resized, never enlarged: `map-bg` 1080px wide, `home-scene` 1200, `room-bg` 1600, `art-src/stories/*` 960. Missing files are skipped, and the script lists what it wrote and skipped. `python scripts/process_art.py [theme|common|landmarks|stories ...] [--src DIR] [--out DIR]`; `scripts/cutout_companion.py [theme]` still processes one theme's poses.
 
+### 4.18. World Map (`data/worldMap.ts`, `components/MissionMap.tsx`, `components/worldMap/`)
+- Phase 3 of the Feature 22 redesign (Feature 26). `MissionMap` (still embedded by the dashboard, same props) is an illustrated map of the learner's grade. Unlocks, the Boss gate and rewards are unchanged: every stop's state comes from `milestones.ts`.
+- **Layout** (`buildWorldMap`, pure, + `.test.ts`): all lengths are in map widths, so the map scales with the screen. Each unit is one region drawn on one copy of the theme's map background (`art.mapBg`, 1080 × 1935, `MAP_BG_ASPECT`, about one phone screen). The copies don't tile, so each unit's banner (`UnitBanner`: badge, `יחידה N`, Hebrew and English titles, the unit's stars) is centred on the join above its region (`MAP_BANNER_HEIGHT`; half a banner of space above the first region). The stops sit at equal distances along the path between the banner above and the one below (`getStopPositions`), and the landmark goes between the first two stops on the side away from the path (`getLandmarkPlacement`).
+- **Path** (`MapPathLayer`): one SVG over the backgrounds in the same coordinates as the stops. It follows `art.mapPath.centerline`, points traced on each theme's background along its empty winding band (`MAP_PATH_BY_THEME` in `themeArt.ts`; trace again if a background is replaced), smoothed with Catmull-Rom (`sampleCenterline`). The colours are in the same manifest: a sandy road on PeachNote's grass; a light path with a cyan glow on the near-black VibeLingua band and the deep-navy Starlight band. The walked part (top to the current mission) is drawn in the trail colour.
+- **Stops** (`MapStops`): coins, gold with 1–3 stars when done, the theme colour when open, grey with a lock when locked. The suggested mission (`getSuggestedMission`, so a gated Boss sends the companion to the weakest regular mission) pulses and has the companion (idle pose) standing on it. The Boss is a castle (`/art/common/boss-locked.webp` / `boss-open.webp`, fallback a 🏰 tile) with the stars toward its gate (`👑 3/4 ⭐`); when the gate is met it opens with an animation once per device (`castleMemory.ts`, `english_tutor_opened_castles_v1`, not synced). Landmarks (`/art/landmarks/g<grade>-u<unit>.webp`, grade read from the mission ids) show the unit's badge emoji in a bubble until the file exists.
+- **Mission sheet** (`MissionSheet`, rendered into `<body>`): tapping any stop opens a bottom sheet with the full title (no truncation), story hook, length and topic, stars, the rewards for the chosen tier, the tier choice (`mission/TierChoice`, shared with `MissionIntro`), the tier's focus and sample sentence, the words (tap to hear) and Start / Play again. A locked stop says why (the missing Boss stars, or the mission to finish first) and has no Start. Escape or the backdrop closes it.
+- The map is a scroll window (`min(76vh, 760px)`, centred, at most 520px wide on desktop) so the dashboard around it still scrolls; it scrolls to the current mission when it opens, on a grade change and when the next mission moves, and the "למשימה הבאה" button scrolls back. Per-theme banner, coin and sheet styles are in `worldMap/worldMapStyles.ts`. With reduced motion there is no pulse, the castle is simply open and the sheet doesn't slide.
+
 ---
 
 ## 5. Directory Structure
@@ -261,8 +269,8 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── examPrep/                 # Exam prep hub, setup, plan timeline, session runner, certificate
 │   │   ├── hud/                      # Header pieces: level chip with XP bar, sound toggle, Fluent Emoji icons
 │   │   ├── friends/                  # Friends Hub: dashboard card, hub screen, friend card & reactions, add friend, invite code, contest panel/runner/result
-│   │   ├── mission/                  # Mission runner pieces: intro screen with the tier picker, trail progress with the combo flame
-│   │   ├── MissionMap.tsx            # Unit & mission progression node tree
+│   │   ├── mission/                  # Mission runner pieces: intro screen, tier choice (shared with the map sheet), trail progress with the combo flame
+│   │   ├── MissionMap.tsx            # World map of the grade: regions, path, stops, banners & mission sheet (Feature 26)
 │   │   ├── MissionRunner.tsx         # 5-step interactive exercise runner
 │   │   ├── OnboardingView.tsx        # Profile setup (name, gender, age, grade, tier)
 │   │   ├── PlacementTest.tsx         # Adaptive diagnostic placement test overlay
@@ -273,6 +281,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── room/                     # My English Room: hub, scene & layout, inventory, naming panel, wardrobe, phone, dream journal, games/ (Games Book), stickers/ (Sticker Studio)
 │   │   ├── victory/                  # Staged mission victory screen with the cheering companion (Features 24–25)
 │   │   ├── VocabularyVaultModal.tsx  # Ministry word bank & pronunciation studio
+│   │   ├── worldMap/                 # World map pieces: SVG path, coin & castle stops, banners, landmarks, mission sheet, per-theme styles
 │   │   └── wordLists/                # School word lists: dashboard card, importer, session runner & result
 │   ├── data/
 │   │   ├── curriculum/               # Grade-specific curriculum packs
@@ -289,6 +298,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── friends.ts                # Friend codes, requests, public summary, reactions & invite links (+ .test.ts)
 │   │   ├── contests.ts               # Daily contest questions by grade, deciding & rewards (+ .test.ts)
 │   │   ├── milestones.ts             # Boss star gate, mission unlocks, suggested mission & missions counter (+ .test.ts)
+│   │   ├── worldMap.ts               # World map layout: regions, path sampling, stop & landmark positions, stop states (+ .test.ts)
 │   │   ├── missionHints.test.ts      # Sweep of every mission × tier: hints never repeat the prompt or reveal the answer
 │   │   ├── placementTest.ts          # Placement question generation, staircase & scoring (+ .test.ts)
 │   │   ├── progressReport.ts         # Weekly report: week days, totals, star mastery, mastered words & share text (+ .test.ts)
@@ -317,7 +327,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── friendsService.ts         # Firestore calls for friends, public profiles & contests
 │   │   └── firebase.ts               # Firebase initialization & auth/db instances
 │   ├── themes/
-│   │   ├── themeArt.ts               # Art manifest: companion poses, scene backgrounds, common/landmark/story art paths (+ .test.ts)
+│   │   ├── themeArt.ts               # Art manifest: companion poses, scene backgrounds, map path per theme, common/landmark/story art paths (+ .test.ts)
 │   │   └── themeRegistry.ts          # Pluggable theme visual definitions, art block & tiers
 │   ├── types/
 │   │   └── learner.ts                # Core domain types (LearnerProfile, Stats, Grades)
