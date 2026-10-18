@@ -34,7 +34,7 @@ export const WordListsCard: React.FC<WordListsCardProps> = ({
 
   if (lists.length === 0) {
     return (
-      <section aria-label="רשימות המילים שלי" className={`${cardClass} flex flex-col sm:flex-row sm:items-center gap-3`} dir="rtl">
+      <section aria-label="רשימות המילים שלי" className={`${cardClass} flex flex-col sm:flex-row sm:items-center gap-3`}>
         <div className="flex items-center gap-3 flex-1">
           <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${theme.primaryBtnClass}`}>
             <ClipboardList className="w-5 h-5" />
@@ -58,7 +58,7 @@ export const WordListsCard: React.FC<WordListsCardProps> = ({
   const shown = isExpanded ? lists : lists.slice(0, COLLAPSED_COUNT);
 
   return (
-    <section aria-label="רשימות המילים שלי" className={`${cardClass} space-y-3`} dir="rtl">
+    <section aria-label="רשימות המילים שלי" className={`${cardClass} space-y-3`}>
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-extrabold text-base sm:text-lg">📋 רשימות המילים שלי</h2>
         <button
@@ -71,7 +71,7 @@ export const WordListsCard: React.FC<WordListsCardProps> = ({
         </button>
       </div>
       {!canAdd && (
-        <p className={`text-[11px] ${theme.mutedTextClass}`}>
+        <p className={`text-xs ${theme.mutedTextClass}`}>
           אפשר לשמור עד {MAX_ACTIVE_LISTS} רשימות. {isGirl ? 'מחקי' : 'מחק'} רשימה ישנה כדי להוסיף חדשה.
         </p>
       )}
@@ -81,7 +81,7 @@ export const WordListsCard: React.FC<WordListsCardProps> = ({
           <li key={list.id} className="flex items-center gap-2 p-2.5 rounded-2xl bg-black/5 dark:bg-white/5">
             <div className="flex-1 min-w-0">
               <p className="font-extrabold text-sm truncate">{list.title}</p>
-              <p className={`text-[11px] font-bold ${theme.mutedTextClass}`}>
+              <p className={`text-xs font-bold ${theme.mutedTextClass}`}>
                 {list.items.length} פריטים
                 {list.bestScore !== undefined && ` · שיא ${list.bestScore}%`}
               </p>

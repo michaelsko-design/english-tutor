@@ -175,7 +175,7 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
         )}
 
         {phase === 'intro' && (
-          <div className="p-5 sm:p-7 space-y-5 text-center" dir="rtl">
+          <div className="p-5 sm:p-7 space-y-5 text-center">
             <div
               className={`w-16 h-16 rounded-3xl mx-auto flex items-center justify-center ${theme.primaryBtnClass} animate-float`}
             >
@@ -234,7 +234,7 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
         {phase === 'question' && (
           <div className="p-4 sm:p-6 space-y-4">
             <div className="space-y-2">
-              <p className={`text-xs sm:text-sm font-bold ${theme.mutedTextClass}`} dir="rtl">
+              <p className={`text-xs sm:text-sm font-bold ${theme.mutedTextClass}`}>
                 {question.promptHe}
               </p>
               <h2 className="text-lg sm:text-xl font-extrabold leading-snug" dir="auto">
@@ -260,14 +260,14 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
               ))}
             </div>
 
-            <p role="status" aria-live="polite" className="text-sm font-bold min-h-[1.25rem]" dir="rtl">
+            <p role="status" aria-live="polite" className="text-sm font-bold min-h-[1.25rem]">
               {isAnswered &&
                 (isPendingCorrect
                   ? 'נכון! 🎉'
                   : `התשובה הנכונה: ${correctOption?.text ?? ''}`)}
             </p>
 
-            <div className="flex items-center justify-between gap-2.5" dir="rtl">
+            <div className="flex items-center justify-between gap-2.5">
               <button
                 type="button"
                 disabled={isAnswered}

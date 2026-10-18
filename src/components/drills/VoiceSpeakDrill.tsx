@@ -40,7 +40,7 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
   return (
     <div className={`p-5 rounded-3xl ${theme.cardBgClass} space-y-4 text-center`}>
       {targetHe && (
-        <p className="text-xs font-bold opacity-80" dir="rtl">
+        <p className="text-xs font-bold opacity-80">
           תרגום: &ldquo;{targetHe}&rdquo;
         </p>
       )}
@@ -74,7 +74,7 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
           className={`px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
         >
           <Volume2 className="w-4 h-4" />
-          <span>🔊 Listen (רגיל)</span>
+          <span>🔊 <bdi>Listen</bdi> (רגיל)</span>
         </button>
         <button
           type="button"
@@ -82,7 +82,7 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
           className={`px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
         >
           <Volume2 className="w-4 h-4" />
-          <span>🐢 Listen Slow (איטי)</span>
+          <span>🐢 <bdi>Listen Slow</bdi> (איטי)</span>
         </button>
         <button
           type="button"
@@ -93,21 +93,23 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
           }`}
         >
           <Mic className="w-4 h-4" />
-          <span dir="rtl">
+          <span>
             {isListening
               ? isGirl
                 ? 'מקשיב לך... קראי את המשפט באנגלית!'
                 : 'מקשיב לך... קרא את המשפט באנגלית!'
-              : isGirl
-              ? '🎙️ לחצי והקליטי בקול (Speak Aloud)'
-              : '🎙️ לחץ והקלט בקול (Speak Aloud)'}
+              : (
+                <>
+                  {isGirl ? '🎙️ לחצי והקליטי בקול' : '🎙️ לחץ והקלט בקול'} <bdi>(Speak Aloud)</bdi>
+                </>
+              )}
           </span>
         </button>
       </div>
 
       {!isCompleted && (
         <div className="pt-1">
-          <button type="button" onClick={onSkip} className="text-xs underline opacity-70 hover:opacity-100" dir="rtl">
+          <button type="button" onClick={onSkip} className="text-xs underline opacity-70 hover:opacity-100">
             {isGirl
               ? 'אני במקום שקט ולא יכולה לדבר כרגע (מעבר להאזנה בלבד)'
               : 'אני במקום שקט ולא יכול לדבר כרגע (מעבר להאזנה בלבד)'}

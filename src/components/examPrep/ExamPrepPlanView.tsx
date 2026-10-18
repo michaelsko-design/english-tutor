@@ -60,7 +60,7 @@ export const ExamPrepPlanView: React.FC<ExamPrepPlanViewProps> = ({
       labelHe="תוכנית ההכנה למבחן"
       onClose={onClose}
       header={
-        <div className="flex items-center gap-2" dir="rtl">
+        <div className="flex items-center gap-2">
           <div
             role="progressbar"
             aria-label="התקדמות בתוכנית"
@@ -80,7 +80,7 @@ export const ExamPrepPlanView: React.FC<ExamPrepPlanViewProps> = ({
         </div>
       }
     >
-      <div className="p-4 sm:p-6 space-y-4" dir="rtl">
+      <div className="p-4 sm:p-6 space-y-4">
         <div className="space-y-1.5">
           <p className={`text-xs font-bold ${theme.accentTextClass}`}>
             מבחן ב{formatExamDate(plan.examDateStr)}
@@ -88,12 +88,12 @@ export const ExamPrepPlanView: React.FC<ExamPrepPlanViewProps> = ({
           <h2 className="text-xl sm:text-2xl font-extrabold">{getCountdownHe(daysLeft)}</h2>
           <div className="flex flex-wrap gap-1.5">
             {plan.unitNumbers.map((u) => (
-              <span key={u} className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${theme.badgeClass}`}>
+              <span key={u} className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${theme.badgeClass}`}>
                 יחידה {u}
               </span>
             ))}
             {plan.skills.map((s) => (
-              <span key={s} className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${theme.badgeClass}`}>
+              <span key={s} className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${theme.badgeClass}`}>
                 {EXAM_SKILL_META[s].emoji} {EXAM_SKILL_META[s].labelHe}
               </span>
             ))}
@@ -127,11 +127,11 @@ export const ExamPrepPlanView: React.FC<ExamPrepPlanViewProps> = ({
                 <div className="flex-1 min-w-0 space-y-1">
                   <div className="flex flex-wrap items-center gap-1.5">
                     <span className="text-xs font-extrabold">{formatExamDate(day.dateStr)}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${badge.className}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-extrabold ${badge.className}`}>
                       {badge.label}
                     </span>
                     {day.scorePercent !== undefined && (
-                      <span className="text-[11px] font-bold opacity-80" dir="ltr">
+                      <span className="text-xs font-bold opacity-80" dir="ltr">
                         {day.scorePercent}%
                       </span>
                     )}
@@ -156,7 +156,7 @@ export const ExamPrepPlanView: React.FC<ExamPrepPlanViewProps> = ({
                   </button>
                 ) : (
                   <span
-                    className={`px-2.5 py-2 rounded-xl text-[11px] font-bold shrink-0 flex items-center gap-1 ${theme.mutedTextClass}`}
+                    className={`px-2.5 py-2 rounded-xl text-xs font-bold shrink-0 flex items-center gap-1 ${theme.mutedTextClass}`}
                   >
                     <Lock className="w-3.5 h-3.5" />
                     {day.kind === 'mock' ? 'אחרי התרגולים' : 'בקרוב'}

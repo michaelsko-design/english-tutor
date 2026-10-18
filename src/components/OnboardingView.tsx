@@ -108,7 +108,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
             <Sparkles className="w-3.5 h-3.5" />
             <span>{activeTheme.name}</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight" dir="rtl">
+          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
             {onCancel
               ? 'הגדרות פרופיל, כיתה ועיצוב ⚙️'
               : name.trim()
@@ -117,14 +117,14 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
               ? 'ברוכה הבאה לסטודיו לאנגלית! ✨'
               : 'ברוך הבא לסטודיו לאנגלית! ✨'}
           </h1>
-          <p className={`text-xs sm:text-sm ${activeTheme.mutedTextClass}`} dir="rtl">
+          <p className={`text-xs sm:text-sm ${activeTheme.mutedTextClass}`}>
             {heb.onboardingSubtitle}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* 1. Name Input */}
-          <div className="space-y-1.5" dir="rtl">
+          <div className="space-y-1.5">
             <label className="block text-xs sm:text-sm font-bold">
               איך קוראים לך?
             </label>
@@ -145,7 +145,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           </div>
 
           {/* 2. Gender & Age Row */}
-          <div className="grid grid-cols-2 gap-3" dir="rtl">
+          <div className="grid grid-cols-2 gap-3">
             {/* Gender Selection */}
             <div className="space-y-1.5">
               <label className="block text-xs sm:text-sm font-bold">
@@ -197,20 +197,20 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           </div>
 
           {/* 3. Multi-Grade Curriculum Pack Selection (All 12 Grades grouped) */}
-          <div className="space-y-2.5" dir="rtl">
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
                 <GraduationCap className="w-4 h-4" />
                 <span>שכבת לימוד (מותאם אוטומטית לפי הגיל):</span>
               </label>
-              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
                 {SUPPORTED_GRADES.find((g) => g.id === gradeId)?.labelHe} · {SUPPORTED_GRADES.find((g) => g.id === gradeId)?.ministryBand}
               </span>
             </div>
 
             {/* Elementary School: Grades 1-6 */}
             <div className="space-y-1">
-              <div className="text-[11px] font-extrabold opacity-75">🏫 יסודי (כיתות א׳–ו׳)</div>
+              <div className="text-xs font-extrabold opacity-75">🏫 יסודי (כיתות א׳–ו׳)</div>
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
                 {SUPPORTED_GRADES.slice(0, 6).map((g) => {
                   const isSelected = g.id === gradeId;
@@ -226,7 +226,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                       }`}
                     >
                       <div className="font-extrabold text-xs">{g.labelHe}</div>
-                      <div className="text-[10px] opacity-80 truncate">{g.labelEn}</div>
+                      <div className="text-xs opacity-80 truncate">{g.labelEn}</div>
                     </button>
                   );
                 })}
@@ -237,7 +237,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {/* Middle School: Grades 7-9 */}
               <div className="space-y-1">
-                <div className="text-[11px] font-extrabold opacity-75">🎒 חטיבת ביניים (כיתות ז׳–ט׳)</div>
+                <div className="text-xs font-extrabold opacity-75">🎒 חטיבת ביניים (כיתות ז׳–ט׳)</div>
                 <div className="grid grid-cols-3 gap-1.5">
                   {SUPPORTED_GRADES.slice(6, 9).map((g) => {
                     const isSelected = g.id === gradeId;
@@ -253,7 +253,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                         }`}
                       >
                         <div className="font-extrabold text-xs">{g.labelHe}</div>
-                        <div className="text-[10px] opacity-80 truncate">{g.labelEn}</div>
+                        <div className="text-xs opacity-80 truncate">{g.labelEn}</div>
                       </button>
                     );
                   })}
@@ -262,7 +262,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
 
               {/* High School: Grades 10-12 */}
               <div className="space-y-1">
-                <div className="text-[11px] font-extrabold opacity-75">🎓 תיכון ובגרות (כיתות י׳–י״ב)</div>
+                <div className="text-xs font-extrabold opacity-75">🎓 תיכון ובגרות (כיתות י׳–י״ב)</div>
                 <div className="grid grid-cols-3 gap-1.5">
                   {SUPPORTED_GRADES.slice(9, 12).map((g) => {
                     const isSelected = g.id === gradeId;
@@ -278,7 +278,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                         }`}
                       >
                         <div className="font-extrabold text-xs">{g.labelHe}</div>
-                        <div className="text-[10px] opacity-80 truncate">{g.labelEn}</div>
+                        <div className="text-xs opacity-80 truncate">{g.labelEn}</div>
                       </button>
                     );
                   })}
@@ -288,7 +288,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           </div>
 
           {/* 4. Pluggable UI Style Switcher */}
-          <div className="space-y-1.5" dir="rtl">
+          <div className="space-y-1.5">
             <label className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
               <Palette className="w-4 h-4" />
               <span>ערכת עיצוב:</span>
@@ -309,7 +309,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                     }`}
                   >
                     <span className="text-base">{tItem.avatarEmoji}</span>
-                    <span className="font-extrabold text-[11px] sm:text-xs truncate max-w-full">
+                    <span className="font-extrabold text-xs sm:text-xs truncate max-w-full">
                       {tItem.name}
                     </span>
                   </button>
@@ -319,7 +319,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           </div>
 
           {/* 5. Shabbat Observance Setting */}
-          <div className="space-y-1.5" dir="rtl">
+          <div className="space-y-1.5">
             <label className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
               <span>מגן שבת וחג:</span>
@@ -346,7 +346,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                 <div className="font-extrabold text-xs sm:text-sm flex items-center gap-2">
                   <span>{gender === 'girl' ? 'שומרת שבת' : 'שומר שבת'}</span>
                   {isShabbatObserver && (
-                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-bold">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-bold">
                       פעיל
                     </span>
                   )}
@@ -362,7 +362,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
 
           {/* 6. Friends Hub (Feature 19), in the settings only */}
           {onCancel && (
-            <div className="space-y-1.5" dir="rtl">
+            <div className="space-y-1.5">
               <label className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
                 <Users className="w-4 h-4 text-sky-500" />
                 <span>מרכז החברים:</span>
@@ -399,7 +399,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           )}
 
           {/* Submit CTA */}
-          <div className="flex items-center gap-2.5 pt-1" dir="rtl">
+          <div className="flex items-center gap-2.5 pt-1">
             <button
               type="submit"
               className={`flex-1 py-3.5 rounded-2xl font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 transition-transform ${activeTheme.primaryBtnClass}`}

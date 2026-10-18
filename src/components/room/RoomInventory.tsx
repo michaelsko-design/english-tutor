@@ -26,11 +26,11 @@ export const RoomInventory: React.FC<RoomInventoryProps> = ({
   const unplacedCount = items.filter((item) => !placedItemIds.includes(item.id)).length;
 
   return (
-    <section aria-label="הפריטים שלי" className={`p-4 rounded-3xl space-y-3 ${theme.cardBgClass}`} dir="rtl">
+    <section aria-label="הפריטים שלי" className={`p-4 rounded-3xl space-y-3 ${theme.cardBgClass}`}>
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-extrabold text-sm sm:text-base">🎁 הפריטים שלי</h3>
         {unplacedCount > 0 && (
-          <span className={`px-2.5 py-1 rounded-full text-[11px] font-extrabold ${theme.badgeClass}`}>
+          <span className={`px-2.5 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
             {unplacedCount} מחכים למקום
           </span>
         )}
@@ -57,8 +57,8 @@ export const RoomInventory: React.FC<RoomInventoryProps> = ({
                 }`}
               >
                 <ItemIcon item={item} size="1.5rem" />
-                <span className="text-[11px] font-extrabold truncate max-w-full">{item.imageUrl ? item.nameEn : item.nameHe}</span>
-                <span className={`text-[10px] font-bold ${isPlaced ? 'text-emerald-600 dark:text-emerald-300' : theme.mutedTextClass}`}>
+                <span className="text-xs font-extrabold truncate max-w-full">{item.imageUrl ? item.nameEn : item.nameHe}</span>
+                <span className={`text-xs font-bold ${isPlaced ? 'text-emerald-600 dark:text-emerald-300' : theme.mutedTextClass}`}>
                   {isPlaced ? '✓ בחדר' : 'חדש'}
                 </span>
               </button>

@@ -34,10 +34,11 @@ interface StatTileProps {
   labelHe: string;
   theme: ThemeDefinition;
   titleHe?: string;
+  className?: string;
   onClick?: () => void;
 }
 
-const StatTile: React.FC<StatTileProps> = ({ icon, value, labelHe, theme, titleHe, onClick }) => {
+const StatTile: React.FC<StatTileProps> = ({ icon, value, labelHe, theme, titleHe, className: extraClass = '', onClick }) => {
   const content = (
     <>
       <span className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/10 flex items-center justify-center shrink-0">{icon}</span>
@@ -47,7 +48,7 @@ const StatTile: React.FC<StatTileProps> = ({ icon, value, labelHe, theme, titleH
       </span>
     </>
   );
-  const className = `rounded-2xl p-3 flex items-center gap-2.5 ${theme.cardBgClass}`;
+  const className = `rounded-2xl p-3 flex items-center gap-2.5 ${theme.cardBgClass} ${extraClass}`;
   if (!onClick) {
     return (
       <div className={className} title={titleHe}>
@@ -139,7 +140,9 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
             theme={theme}
             icon={<Zap className="w-6 h-6 text-indigo-500 fill-indigo-400" />}
             value={<bdi>{profile.stats.xp} XP</bdi>}
-            labelHe={`${masteredWords} מילים · למאגר המילים`}
+            labelHe={`${masteredWords} מילים · מאגר המילים 🎙️`}
+            titleHe="מילים של משימות עם 3 כוכבים · פתיחת מאגר המילים"
+            className="col-span-2"
             onClick={onOpenVault}
           />
         </div>

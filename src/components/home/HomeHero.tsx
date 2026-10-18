@@ -70,7 +70,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           draggable={false}
           decoding="async"
           // The building is on the left: keep it in view when a phone crops the sides
-          className="absolute inset-0 -z-10 w-full h-full object-cover object-[28%_50%] sm:object-center select-none"
+          className="absolute inset-0 -z-10 w-full h-full object-cover object-[12%_50%] sm:object-center select-none"
         />
       )}
       {/* Keeps the mission card readable over any picture */}
@@ -80,7 +80,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         {/* Companion on the right (start), speech bubble beside it */}
         <div className="flex items-end gap-1.5 sm:gap-3">
           <Companion theme={theme} pose="wave" size={companionSize} />
-          <div className="relative mb-[22%] max-w-[13.5rem] sm:max-w-xs rounded-2xl rounded-br-md bg-white/95 text-slate-800 px-3.5 py-2.5 shadow-lg ring-1 ring-black/5">
+          <div className="relative mb-16 sm:mb-24 max-w-[13.5rem] sm:max-w-xs rounded-2xl rounded-br-md bg-white/95 text-slate-800 px-3.5 py-2.5 shadow-lg ring-1 ring-black/5">
             <p className="text-sm sm:text-base font-extrabold leading-snug">{greetingHe}</p>
           </div>
         </div>
@@ -94,8 +94,11 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${theme.badgeClass}`}>
               ⏱️ {mission.estimatedMinutes} דק׳
             </span>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-400/40">
-              <bdi>+{xpReward} XP</bdi> · +{diamondReward} 💎
+            <span
+              className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-500 text-white"
+              dir="ltr"
+            >
+              +{xpReward} XP · +{diamondReward} 💎
             </span>
           </div>
 

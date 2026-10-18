@@ -23,10 +23,10 @@ export const MapPeek: React.FC<MapPeekProps> = ({ peek, gradeLabelHe, theme, onO
     </span>
     <span className="flex-1 min-w-0">
       <span className="block font-extrabold text-sm truncate">
-        🗺️ המפה שלי · יחידה {peek.unitNumber}: {peek.unitTitleHe}
+        יחידה {peek.unitNumber}: {peek.unitTitleHe}
       </span>
-      <span className={`block text-xs font-bold ${theme.mutedTextClass}`}>
-        {gradeLabelHe} · {peek.missionsCompleted}/{peek.missionsTotal} משימות
+      <span className={`block text-xs font-bold truncate ${theme.mutedTextClass}`}>
+        🗺️ המפה שלי · {gradeLabelHe} · {peek.missionsCompleted}/{peek.missionsTotal} משימות
       </span>
     </span>
     <span className="flex items-center gap-1 text-sm font-extrabold shrink-0">

@@ -20,6 +20,7 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { DressedAvatar } from './DressedAvatar';
 import { NameItemPanel } from './NameItemPanel';
 import { RoomPanelFrame } from './RoomPanelFrame';
+import { formatGainLtr } from '../../utils/bidi';
 
 interface WardrobePanelProps {
   profile: LearnerProfile;
@@ -79,8 +80,8 @@ export const WardrobePanel: React.FC<WardrobePanelProps> = ({
     onUpdateProfile(result.profile);
     if (result.isDailyRewardEarned) celebrate('medium');
     const rewards = [
-      result.xpEarned > 0 ? `+${result.xpEarned} XP` : '',
-      result.diamondsEarned > 0 ? `+${result.diamondsEarned} 💎` : '',
+      result.xpEarned > 0 ? formatGainLtr(result.xpEarned, 'XP') : '',
+      result.diamondsEarned > 0 ? formatGainLtr(result.diamondsEarned, '💎') : '',
     ]
       .filter(Boolean)
       .join(' ');
@@ -94,7 +95,7 @@ export const WardrobePanel: React.FC<WardrobePanelProps> = ({
 
   const progressText = day.isRewarded
     ? '✓ קיבלת היום את פרס ההלבשה. אפשר להמשיך להתלבש בכיף!'
-    : `היום: ${Math.min(day.namedCount, DRESS_UP_DAILY_GOAL)}/${DRESS_UP_DAILY_GOAL} פריטים — פרס יומי +${DRESS_UP_REWARD_XP} XP ו-${DRESS_UP_REWARD_DIAMONDS} 💎`;
+    : `היום: ${Math.min(day.namedCount, DRESS_UP_DAILY_GOAL)}/${DRESS_UP_DAILY_GOAL} פריטים — פרס יומי ${formatGainLtr(DRESS_UP_REWARD_XP, 'XP')} ו־${DRESS_UP_REWARD_DIAMONDS} 💎`;
 
   if (namingItem) {
     return (
@@ -157,8 +158,8 @@ export const WardrobePanel: React.FC<WardrobePanelProps> = ({
                 <span className="text-2xl leading-none" aria-hidden="true">
                   {item.emoji}
                 </span>
-                <span className="text-[11px] font-extrabold truncate max-w-full">{item.nameHe}</span>
-                <span className={`text-[10px] font-bold ${isWorn ? 'text-emerald-600 dark:text-emerald-300' : theme.mutedTextClass}`}>
+                <span className="text-xs font-extrabold truncate max-w-full">{item.nameHe}</span>
+                <span className={`text-xs font-bold ${isWorn ? 'text-emerald-600 dark:text-emerald-300' : theme.mutedTextClass}`}>
                   {isWorn ? '✓ לבוש' : isWearable ? 'ללבוש' : 'רק לילד/ה'}
                 </span>
               </button>
@@ -167,7 +168,7 @@ export const WardrobePanel: React.FC<WardrobePanelProps> = ({
         })}
       </ul>
 
-      <p className={`text-[11px] ${theme.mutedTextClass}`}>
+      <p className={`text-xs ${theme.mutedTextClass}`}>
         🎁 עוד בגדים ואקססוריז: משימות עם 3 כוכבים, ו־🕶️ אקססוריז מיוחדים בחנות.
       </p>
     </RoomPanelFrame>

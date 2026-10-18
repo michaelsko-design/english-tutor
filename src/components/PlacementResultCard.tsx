@@ -32,7 +32,7 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
   const isSameAsCurrent = !isGradeChange && result.recommendedTier === profile.preferredTier;
 
   return (
-    <div className="p-5 sm:p-7 space-y-5 text-center" dir="rtl">
+    <div className="p-5 sm:p-7 space-y-5 text-center">
       <div className="space-y-2">
         <div
           className={`w-16 h-16 rounded-3xl mx-auto flex items-center justify-center text-3xl ${theme.primaryBtnClass}`}
@@ -66,20 +66,20 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
         </div>
         <div className="grid grid-cols-2 gap-2.5">
           <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 space-y-0.5">
-            <div className={`text-[11px] font-bold ${theme.mutedTextClass}`}>שכבת לימוד</div>
+            <div className={`text-xs font-bold ${theme.mutedTextClass}`}>שכבת לימוד</div>
             <div className="font-extrabold">{recommendedGrade.labelHe}</div>
             {isGradeChange && (
-              <div className={`text-[11px] ${theme.mutedTextClass}`}>
+              <div className={`text-xs ${theme.mutedTextClass}`}>
                 (במקום {currentGrade.labelHe})
               </div>
             )}
           </div>
           <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5 space-y-0.5">
-            <div className={`text-[11px] font-bold ${theme.mutedTextClass}`}>רמת קושי</div>
+            <div className={`text-xs font-bold ${theme.mutedTextClass}`}>רמת קושי</div>
             <div className="font-extrabold">
               {tier.badgeEmoji} {tier.labelHe}
             </div>
-            <div className={`text-[11px] ${theme.mutedTextClass}`} dir="ltr">
+            <div className={`text-xs ${theme.mutedTextClass}`} dir="ltr">
               {tier.labelEn}
             </div>
           </div>

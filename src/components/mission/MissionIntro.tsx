@@ -36,7 +36,7 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
 }) => {
   const isGirl = gender === 'girl';
   return (
-    <div className="relative px-4 sm:px-8 pt-4 pb-6 space-y-5" dir="rtl">
+    <div className="relative px-4 sm:px-8 pt-4 pb-6 space-y-5">
       <button
         type="button"
         onClick={onClose}
@@ -91,7 +91,7 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
               <span className="flex-1 min-w-0">
                 <span className="flex items-center gap-2 font-extrabold text-base">
                   {meta.labelHe}
-                  <span className={`px-2 py-0.5 rounded-md text-[11px] ${theme.badgeClass}`} dir="ltr">
+                  <span className={`px-2 py-0.5 rounded-md text-xs ${theme.badgeClass}`} dir="ltr">
                     {meta.labelEn}
                   </span>
                 </span>

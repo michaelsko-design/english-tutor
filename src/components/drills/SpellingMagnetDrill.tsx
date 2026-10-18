@@ -70,7 +70,7 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3" dir="rtl">
+      <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={onListen}
@@ -116,7 +116,7 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
       </div>
 
       {!isCompleted && (
-        <div className="flex items-center gap-2.5 pt-1" dir="rtl">
+        <div className="flex items-center gap-2.5 pt-1">
           <button
             type="button"
             onClick={onReset}

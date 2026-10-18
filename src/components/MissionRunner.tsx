@@ -343,7 +343,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
               {/* Main Exercise Body */}
               <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
                 {/* Badge & Hebrew Prompt */}
-                <div className="flex flex-wrap items-center justify-between gap-2" dir="rtl">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
                     {currentStep.badgeLabelHe}
                   </span>
@@ -357,14 +357,13 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                   </button>
                 </div>
 
-                <p className="text-base md:text-lg font-extrabold" dir="rtl">
+                <p className="text-base md:text-lg font-extrabold">
                   {currentStep.promptHe}
                 </p>
 
                 {showHint && (
                   <div
                     className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-xs md:text-sm font-bold"
-                    dir="rtl"
                   >
                     {currentStep.hintHe}
                   </div>

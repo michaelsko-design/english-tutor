@@ -76,9 +76,9 @@ export const ExamPrepSetup: React.FC<ExamPrepSetupProps> = ({ profile, theme, on
       theme={theme}
       labelHe="הכנה למבחן"
       onClose={onClose}
-      header={<span className="font-extrabold text-sm" dir="rtl">📅 הכנה למבחן · {gradeLabel}</span>}
+      header={<span className="font-extrabold text-sm">📅 הכנה למבחן · {gradeLabel}</span>}
     >
-      <div className="p-4 sm:p-6 space-y-5" dir="rtl">
+      <div className="p-4 sm:p-6 space-y-5">
         <div className="space-y-1">
           <h2 className="text-xl sm:text-2xl font-extrabold">
             {isGirl ? 'יש לך מבחן באנגלית? בואי נתכונן! 💪' : 'יש לך מבחן באנגלית? בוא נתכונן! 💪'}
@@ -125,7 +125,7 @@ export const ExamPrepSetup: React.FC<ExamPrepSetupProps> = ({ profile, theme, on
                   <div className="font-extrabold text-sm">
                     {u.badgeEmoji} יחידה {u.unitNumber}: {u.titleHe}
                   </div>
-                  <div className={`text-[11px] mt-0.5 line-clamp-2 ${theme.mutedTextClass}`} dir="ltr">
+                  <div className={`text-xs mt-0.5 line-clamp-2 ${theme.mutedTextClass}`} dir="ltr">
                     {u.topics.join(' · ')}
                   </div>
                 </button>
@@ -151,7 +151,7 @@ export const ExamPrepSetup: React.FC<ExamPrepSetupProps> = ({ profile, theme, on
                   <div className="font-extrabold text-sm">
                     {meta.emoji} {meta.labelHe}
                   </div>
-                  <div className={`text-[11px] mt-0.5 ${theme.mutedTextClass}`}>{meta.descriptionHe}</div>
+                  <div className={`text-xs mt-0.5 ${theme.mutedTextClass}`}>{meta.descriptionHe}</div>
                 </button>
               );
             })}

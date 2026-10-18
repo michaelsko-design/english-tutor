@@ -36,15 +36,21 @@ flowchart TD
     AuthGate -- No --> AuthModal[AuthModal.tsx - Login / Register Gate]
     AuthGate -- Yes --> OnboardingCheck{Profile Complete?}
     OnboardingCheck -- No --> OnboardingView[OnboardingView.tsx - Setup & Gender/Grade]
-    OnboardingCheck -- Yes --> DashboardView[DashboardView.tsx - Main Hub]
+    OnboardingCheck -- Yes --> FirstLaunch{First launch?}
+    FirstLaunch -- Yes --> FirstLaunchSeq[home/FirstLaunchGreeting.tsx - Companion & Welcome Chest, then PlacementTest.tsx offer]
+    FirstLaunch -- No --> DashboardView[DashboardView.tsx - Home Base]
+    FirstLaunchSeq --> DashboardView
 
-    DashboardView --> HeaderHUD[Header HUD: Streaks, Diamonds, Level, Theme, Grade, Sync Status]
-    DashboardView --> DailyQuests[DailyQuestsCard.tsx - Quests & Daily Counters]
-    DashboardView --> TodayHero[Today's Recommended Mission Card]
+    DashboardView --> HomeHud[home/HomeHud.tsx - Avatar in Level Ring, Streak, Gems, Sound, Sync]
+    HomeHud --> StatsSheet[home/StatsSheet.tsx - Stat Tiles, Grade, Placement Test]
+    DashboardView --> HomeHero[home/HomeHero.tsx - Home Scene, Companion Greeting, Play Button]
+    DashboardView --> QuestRings[home/QuestRings.tsx - 3 Quest Rings, opens DailyQuestsCard.tsx]
+    DashboardView --> Dock[Dock: Room, Exam Prep, Word Lists, Friends, Report tiles]
+    DashboardView --> MapPeek[home/MapPeek.tsx - Current Unit Strip]
     DashboardView --> MissionMap[MissionMap.tsx - Units & Multi-Node Progression Tree]
     DashboardView --> VocabModal[VocabularyVaultModal.tsx - Searchable Ministry Word Bank]
     DashboardView --> ShopModal[RewardShopModal.tsx - Avatars, Stickers, Decor, Boosts]
-    DashboardView --> MissionRunner[MissionRunner.tsx - 5-Step Mission Drill Engine]
+    HomeHero --> MissionRunner[MissionRunner.tsx - 5-Step Mission Drill Engine]
 
     subgraph CloudSyncEngine [Services & Persistence]
         FirebaseService[services/firebase.ts]
@@ -131,7 +137,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 
 ### 4.8. Diagnostic Level Placement Test (`PlacementTest.tsx`, `placementTest.ts`)
 - A 10-question adaptive test (מבחן רמה) that estimates the learner's English level and recommends a grade and proficiency tier.
-- **Offered** once right after first-time onboarding (skippable), and on demand from the dashboard link under the tier selector (retakes allowed).
+- **Offered** once right after first-time onboarding (skippable), and on demand from the stats sheet (the avatar in the HUD, retakes allowed).
 - **Questions are generated from the curriculum**: each mission yields a grammar-rule item (`drillSeed.rule`) and a vocabulary-meaning item (`vocabulary[0]` + `drillSeed.wrongWords`). Options are shuffled with the seeded shuffle and a per-attempt salt.
 - **Adaptive staircase**: starts one grade below the school grade; a correct answer moves up and a wrong answer or "לא יודע/ת" moves down (±2 for the first 3 questions, then ±1), clamped to grades 1–12.
 - **Estimate**: rounded mean mastery evidence of questions 5–10 (correct at grade g → g, wrong → g−1, correct at grade 12 → 13). Tier: below school grade → Explorer, equal → Challenger, above → Master. A different grade is recommended only when the estimate is 2+ grades away.
@@ -152,7 +158,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Vault practice**: a word said in the Vocabulary Vault (`applyVocabPracticeReward` in `progressRewards.ts`) adds a voice word to today's counters (reset on a new day, like every activity) but is not a mission, so it doesn't extend the streak.
 
 ### 4.11. School Word List Importer (`customWordLists.ts`, `components/wordLists/`)
-- The "My Word Lists" (רשימות המילים שלי) dashboard card, under the exam prep card, lets the learner paste a word list from a school worksheet and practise it.
+- The "My Word Lists" (רשימות המילים שלי) home dock tile opens the lists card in a sheet, which lets the learner paste a word list from a school worksheet and practise it.
 - **Parsing** (`parseWordListText`): one item per line; numbering and bullets are stripped; a Hebrew translation can come before or after the English, separated by a dash, `=`, `:` or a tab; comma lists of short words are split. Lines of 1–2 words are words, longer lines are sentences (max 15 words). Duplicates and lines without English are reported with a Hebrew reason. A word without a translation gets one from the curriculum vocabulary when it is there (📚).
 - **Limits**: 3–30 items per list, up to 10 active lists.
 - **Sessions** (`buildWordListSteps`): up to 5 items per session in three rounds: meaning match (words with a translation, options are other list words), magnets (letter tiles for words with spaces/punctuation kept fixed, word chips for sentences), then voice. Practice allows hints and retries and scores the first try; a skipped voice step ("quiet place") is left out of the score.
@@ -161,7 +167,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 - Voice recognition lives in `hooks/useSpeechRecognition.ts` and `drills/VoiceSpeakDrill.tsx`, shared with `MissionRunner`; letter magnets are `drills/SpellingMagnetDrill.tsx`.
 
 ### 4.12. My English Room (`room.ts`, `wardrobe.ts`, `roomRewards.ts`, `roomActivities.ts`, `voiceMessages.ts`, `dreamJournal.ts`, `wordGames.ts`, `stickers.ts`, `components/room/`)
-- The "החדר האנגלי שלי" dashboard card (under the word lists card) shows a live preview of the room and opens it full-screen.
+- The "החדר שלי" home dock tile opens the room full-screen; its dot shows while an earned item waits to be placed.
 - **The room** (`RoomScene`): a drawn wall/floor scene with fixed slots (wall, sticker board, shelf, desk, floor) and four mission objects: 🛏️ bed, 📱 phone, 🚪 wardrobe, 📖 Games Book. Slot positions and per-theme colours live in `roomLayout.ts`. The equipped shop avatar walks to whatever the learner taps.
 - **Mission objects** show a "coming soon" bubble with their activity until later phases ship.
 - **Items**: 20 room items (`ROOM_ITEMS`) plus the shop decor lamp and the 3 shop stickers (`SHOP_ROOM_ITEMS`). Every learner starts with the 🪴 plant. Ownership reuses `unlockedRewardIds`.
@@ -193,7 +199,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 - Word lists reuse the same helpers (meaning: word shape, magnets: `getSpellingHintHe` / sentence order, voice: pronunciation tip). The room naming panel's spell hint shows the first letter and the letter count, not the name.
 
 ### 4.14. Friends Hub & Daily Contests (`friends.ts`, `contests.ts`, `services/friendsService.ts`, `components/friends/`)
-- The "👫 החברים שלי" dashboard card (under the room card) opens the hub. It is only for signed-in, non-guest accounts. The settings screen (`OnboardingView` in edit mode) has an on/off toggle (`friendsHub.isEnabled`, on by default). When it is off, the card is hidden, no listeners run, and the public summary, friend code entry and username entry are deleted.
+- The "👫 חברים" home dock tile opens the hub; its dot shows waiting friend requests and contest invites. It is only for signed-in, non-guest accounts (guests get no tile). The settings screen (`OnboardingView` in edit mode) has an on/off toggle (`friendsHub.isEnabled`, on by default). When it is off, the tile is hidden, no listeners run, and the public summary, friend code entry and username entry are deleted.
 - **Firestore** (all access rules in `firestore.rules`; client-only, no Cloud Functions):
   - `friendCodes/{CODE}` and `usernames/{slug}` → `{uid, displayName, avatarEmoji}`. They can be read one at a time (no listing). Each learner owns exactly one code, recorded in `friendCodeOwners/{uid}` in the same write; another device recovers it from there. A username can be claimed or changed only by the account whose sign-in email is `<slug>@peachnote.tutor.local` (`utils/username.ts`). A lookup returns both the code match and the username match, labelled, when both exist.
   - Every avatar field must be emoji only (no letters or digits). Timestamps are bounded strings.
@@ -207,7 +213,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 - Merge (`mergeFriendsHub`): the newer toggle wins, the earlier-claimed friend code is kept, contest records are unioned by contest id (newest first, `MAX_CONTEST_HISTORY`), and the same day's finish count keeps the higher value.
 
 ### 4.15. Parent / Teacher Weekly Progress Report (`activityLog.ts`, `progressReport.ts`, `components/progressReport/`)
-- The "📊 דוח התקדמות להורים ולמורים" dashboard card (under the friends card) shows this week's practice days (Sunday–Saturday) and opens the full report. It works for every account, on the learner's own device.
+- The "📊 דוח להורים" home dock tile opens the full report (this week first, Sunday–Saturday). It works for every account, on the learner's own device.
 - **Activity log** (`activityLog.ts`): `profile.activityLog` keeps one entry per local day for the last 12 weeks (`ACTIVITY_LOG_DAYS = 84`): sessions (anything that counts as a mission for the quests and streak), voice words, 3-star sessions, XP earned, stars gained, the missions that gained stars (`missionStars`) and the missions that got their first star (`firstCompletedIds`).
   - It is recorded in one place: `App.tsx` `handleUpdateProfile` calls `recordActivityLog(prev, next, now)`, which diffs the profile before and after each local update (XP, mission stars, `dailyCounters`; drops are ignored). Reward code doesn't need to report activity.
   - Cloud snapshots are merged with `mergeActivityLog`, never diffed, so nothing is counted twice. Merge: union by date; the same day keeps the higher value of each counter and the higher stars per mission. A day played on two devices therefore shows the busier device, not the sum, so weekly totals can be a little lower than the real activity.
@@ -218,11 +224,11 @@ Each learning mission consists of 5 pedagogical drill stages:
 ### 4.16. Reward Feedback Kit (`utils/rewardFeedback.ts`, `utils/celebrate.ts`, `utils/sfx.ts`, `components/victory/`, `components/hud/`)
 - Phase 1 of the Feature 22 redesign. Presentation only: rewards, XP, levels and sync are unchanged.
 - **Staged victory** (`MissionVictory`, used by `MissionRunner`): over about 4 seconds the three star slots land one by one (a missed star lands grey), the XP bar fills from the learner's XP before the mission toward the next level and shows a "רמה חדשה!" badge when a level is crossed, the XP / diamonds / words count up, and the 3-star room item flips in last (its space is kept so nothing jumps). A tap anywhere skips to the end. Everything on screen is derived from one clock (`useAnimationClock`) through the pure `getVictoryFrame(input, elapsedMs)`; `VICTORY_TIMING` holds the schedule. `MissionRunner` takes `startXp` / `startLevel` from the dashboard for the bar.
-- **Header**: the "Lv.N" chip has a bar of the XP toward the next level (`LevelProgressChip`, `getLevelProgress`: a stored level ahead of the XP shows an empty bar), the diamond counters count up when they change (`useCountUp`), and a 🔊 / 🔇 button mutes the sound effects.
+- **Header**: the level ring around the avatar shows the XP toward the next level (`getLevelProgress`: a stored level ahead of the XP shows an empty ring; see 4.18), the diamond counters count up when they change (`useCountUp`), and a 🔊 / 🔇 button mutes the sound effects.
 - **Sound effects** (`sfx.ts`): 8 short CC0 Kenney sounds in `public/sfx/` (`tap`, `correct`, `wrong`, `star`, `star-miss`, `coins`, `level-up`, `celebrate`; sources in `public/sfx/CREDITS.md`, swap a sound by replacing its file). Nothing plays before the first tap or key press. The mute setting is saved on the device (`english_tutor_sfx_muted`, not synced). Browsers without Ogg Vorbis (older than iOS Safari 17.4) stay silent. Every `FeedbackBanner` (and the mission runner's `FeedbackSheet`) plays the correct / wrong sound, so all drill runners get it; word chips and letter magnets play `tap`.
 - **Celebrations** (`celebrate(size)`): the one place that fires confetti. `small` (quest claim, purchase, vault word, item placed, drawing saved) plays `coins`; `medium` (room activity rewards) and `big` (exam session, certificate, word list session, mission victory) play `celebrate`; `{ isSilent: true }` skips the sound.
 - **Reduced motion** (`utils/motion.ts`, `usePrefersReducedMotion`): no confetti, the victory starts at its final state (one cheer instead of the staged sounds), counters jump, and a global CSS rule in `index.css` stops animations and transitions.
-- **Icons**: Microsoft Fluent Emoji 3D PNGs (MIT, `public/art/emoji/LICENSE`) for the star, gem, flame and trophy (`FluentIcon`), on the victory screen, the dashboard stat tiles and the mobile diamond counter.
+- **Icons**: Microsoft Fluent Emoji 3D PNGs (MIT, `public/art/emoji/LICENSE`) for the star, gem, flame and trophy (`FluentIcon`), on the victory screen, the stat tiles of the stats sheet and the HUD streak and diamond counters.
 
 ### 4.17. Companions, Art Manifest & a Mission Runner That Reacts (`themes/themeArt.ts`, `utils/artStatus.ts`, `components/art/`, `components/companion/`, `components/mission/`, `utils/missionFeedback.ts`, `scripts/process_art.py`)
 - Phase 2 of the Feature 22 redesign (Feature 25). Presentation only: scoring, hints, rewards and sync are unchanged.
@@ -243,6 +249,19 @@ Each learning mission consists of 5 pedagogical drill stages:
   - Victory (`MissionVictory`): the companion's cheer pose holds up the trophy.
 - **Art pipeline** (`scripts/process_art.py`, needs Pillow and numpy): reads `art-src/` (gitignored originals; `.jpg`, `.jpeg`, `.png` or `.webp`) and writes `public/art/`. Cut-outs drawn on a white background (companion poses, `art-src/common/*`, `art-src/landmarks/*`) lose the background and the drawn ground shadow by a flood fill from the edges and become transparent bottom-centred squares at 512 and 256px; the five poses of a theme are scaled to the same height so they swap in place. Full-frame pictures are only resized, never enlarged: `map-bg` 1080px wide, `home-scene` 1200, `room-bg` 1600, `art-src/stories/*` 960. Missing files are skipped, and the script lists what it wrote and skipped. `python scripts/process_art.py [theme|common|landmarks|stories ...] [--src DIR] [--out DIR]`; `scripts/cutout_companion.py [theme]` still processes one theme's poses.
 
+### 4.18. Home Base Dashboard (`DashboardView.tsx`, `components/home/`, `data/homeBase.ts`, `utils/bidi.ts`)
+- Phase 4 of the Feature 22 redesign (Feature 27). The home screen has one focus, top to bottom: HUD, hero with one Play button, quest rings, dock, map peek, then the full `MissionMap` (unchanged). The bottom nav stays on phones.
+- **HUD** (`HomeHud`), one row: the avatar inside a ring of the XP toward the next level with the level number under it (`ProgressRing`, `getLevelProgress`) opens the **stats sheet**; the 🔥 streak opens the daily quests sheet; the 💎 count (count-up) opens the shop; then the sound toggle and the cloud sync button. Desktop adds the vault, shop and settings buttons.
+- **Stats sheet** (`StatsSheet`): level, the five stat tiles that left the home screen (streak, stars, missions completed, diamonds → shop, XP and mastered words → Vocabulary Vault), the grade selector, the Shabbat shield and the placement test link, plus profile settings.
+- **Hero** (`HomeHero`): the theme's `art.homeScene` (16:9, `object-fit: cover`; on phones it keeps the left side, where the building is), with the hero card gradient as the fallback. The companion waves on the right with a speech bubble (`getHomeGreetingHe`: by name and gender; first adventure / Boss stars missing / mission done today / ready). Today's mission card shows the tier-scaled XP and 💎, the Hebrew and English titles, the Boss-gate replay line (`getSuggestedMission`), and one big Play button (`getPlayLabelHe`: "בואי נשחק!" or "שפרי כוכבים" for the replay). The tier is chosen on the mission intro (4.17).
+- **Quest rings** (`QuestRings`, `getQuestRings`): the three daily quests as small rings (pink in progress, amber pulsing when the reward waits, green when claimed). A tap opens the full `DailyQuestsCard` (quests and Shabbat-safe streak week) in a sheet.
+- **Dock** (`DockTile`): each hub renders its own tile and keeps its overlays. 🏠 Room (dot: an unplaced item; the dashboard owns its open state so the new-item toast opens it), 📅 Exam prep (sheet with `ExamPrepCard`; dot: a study session waits today), 📝 Word lists (sheet with `WordListsCard`), 👫 Friends (only when the hub is on and the account is not a guest; dot: requests or contest invites), 📊 Report (opens `WeeklyReportScreen`). Sheets reuse `ExamModalShell`.
+- **Map peek** (`MapPeek`, `getMapPeek`): the current unit (first one with a mission without stars), the grade's missions and stars; a tap scrolls to the map.
+- **First launch** (`App.tsx`, `getFirstLaunchSteps`): one sequence instead of two modals. `FirstLaunchGreeting` (once per profile, `hasSeenWelcomeGiftModal`): the companion says hello and hands over the welcome chest (`/art/common/chest-closed.webp` → `chest-open.webp`, emoji fallbacks); a tap opens it with a big celebration and counts up the 50 welcome gems. Then, right after first-time onboarding, the placement test offer. The old welcome modal is gone.
+- **Right-to-left**: `index.html` is `<html lang="he" dir="rtl">`, so per-element `dir="rtl"` was removed (it stays only inside English `dir="ltr"` blocks). English text is marked `dir="ltr"` (blocks, word chips, letter grids, inputs), `dir="auto"` (answer options, mixed search) or `<bdi>` (English inside Hebrew lines, e.g. the login title). Plain strings use `isolateLtr` / `formatGainLtr` (`utils/bidi.ts`), so "+10 XP" doesn't show as "XP 10+".
+- **Text size**: nothing is smaller than 12px (`text-xs`); `text-[10px]` and `text-[11px]` are gone (except in `MissionMap.tsx`, rebuilt by Feature 26).
+- Reduced motion: no chest wobble or confetti, the gems show at once, the companion stands still.
+
 ---
 
 ## 5. Directory Structure
@@ -256,24 +275,25 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── AuthModal.tsx             # Kid-friendly authentication modal
 │   │   ├── companion/                # Companion: theme companion poses with CSS motion, ground shadow & emoji fallback
 │   │   ├── DailyQuestsCard.tsx       # Daily quest tracker & streak counter
-│   │   ├── DashboardView.tsx         # Main hub screen (HUD, Hero, Maps, Actions)
+│   │   ├── DashboardView.tsx         # Home base: HUD, hero, quest rings, dock, map peek, map, sheets & modals
 │   │   ├── drills/                   # Shared drill UI (chunky options, sentence/letter magnets, voice, passage, feedback banner & sheet, story art)
 │   │   ├── examPrep/                 # Exam prep hub, setup, plan timeline, session runner, certificate
-│   │   ├── hud/                      # Header pieces: level chip with XP bar, sound toggle, Fluent Emoji icons
-│   │   ├── friends/                  # Friends Hub: dashboard card, hub screen, friend card & reactions, add friend, invite code, contest panel/runner/result
+│   │   ├── home/                     # Home base: HUD with level ring, hero scene, quest rings, dock tile, map peek, stats sheet, first-launch greeting & chest
+│   │   ├── hud/                      # Header pieces: sound toggle, Fluent Emoji icons
+│   │   ├── friends/                  # Friends Hub: dock tile, hub screen, friend card & reactions, add friend, invite code, contest panel/runner/result
 │   │   ├── mission/                  # Mission runner pieces: intro screen with the tier picker, trail progress with the combo flame
 │   │   ├── MissionMap.tsx            # Unit & mission progression node tree
 │   │   ├── MissionRunner.tsx         # 5-step interactive exercise runner
 │   │   ├── OnboardingView.tsx        # Profile setup (name, gender, age, grade, tier)
 │   │   ├── PlacementTest.tsx         # Adaptive diagnostic placement test overlay
-│   │   ├── progressReport/           # Weekly parent / teacher report: dashboard card, week strip, report screen
+│   │   ├── progressReport/           # Weekly parent / teacher report: dock tile, week strip, report screen
 │   │   ├── ShareTextActions.tsx      # Share sheet / WhatsApp / copy buttons for a text (report, friend invite)
 │   │   ├── PlacementResultCard.tsx   # Placement result & grade/tier recommendation
 │   │   ├── RewardShopModal.tsx       # Diamond shop (avatars, stickers, shields)
 │   │   ├── room/                     # My English Room: hub, scene & layout, inventory, naming panel, wardrobe, phone, dream journal, games/ (Games Book), stickers/ (Sticker Studio)
 │   │   ├── victory/                  # Staged mission victory screen with the cheering companion (Features 24–25)
 │   │   ├── VocabularyVaultModal.tsx  # Ministry word bank & pronunciation studio
-│   │   └── wordLists/                # School word lists: dashboard card, importer, session runner & result
+│   │   └── wordLists/                # School word lists: dock tile, lists card, importer, session runner & result
 │   ├── data/
 │   │   ├── curriculum/               # Grade-specific curriculum packs
 │   │   │   ├── elementary/           # Grades 1 to 6 (builder.ts + 72 missions across grade1..6.ts)
@@ -283,6 +303,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   │   └── types.ts              # Unit, MissionNode, VocabularyItem, and DrillSeed types
 │   │   ├── activityLog.ts            # Daily activity log (12 weeks) recorded by diffing profile updates, + merge (+ .test.ts)
 │   │   ├── customWordLists.ts        # School word list parsing, session steps, scoring & rewards (+ .test.ts)
+│   │   ├── homeBase.ts               # Home base: quest rings, companion greeting, Play label, map peek, first-launch steps (+ .test.ts)
 │   │   ├── elementaryExercises.ts    # Tier-aware 5-step generator for elementary drill seeds
 │   │   ├── missionExercises.ts       # Concrete exercise definitions & seeded option/word shuffler
 │   │   ├── examPrep.ts               # Exam study plan building, session/mock steps & scoring (+ .test.ts)
@@ -329,6 +350,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── motion.ts                 # prefers-reduced-motion check
 │   │   ├── rewardFeedback.ts         # Level progress, count-up and victory timeline maths (+ .test.ts)
 │   │   ├── sfx.ts                    # Kenney sound effects, first-gesture unlock & device mute (+ .test.ts)
+│   │   ├── bidi.ts                   # Left-to-right isolates for English inside Hebrew strings (+ .test.ts)
 │   │   ├── hints.ts                  # Drill hint builders: word shape, cloze, word order, pronunciation tips, story locator (+ .test.ts)
 │   │   ├── shuffle.ts                # Deterministic seeded shuffle for options & word chips
 │   │   ├── speechSimilarity.ts       # Phonetic & string similarity calculation for voice

@@ -89,14 +89,14 @@ export const FriendCard: React.FC<FriendCardProps> = ({
                 {s.icon}
                 {s.value}
               </dd>
-              <dt className={`text-[10px] font-bold ${theme.mutedTextClass}`}>{s.labelHe}</dt>
+              <dt className={`text-xs font-bold ${theme.mutedTextClass}`}>{s.labelHe}</dt>
             </div>
           ))}
         </dl>
       )}
 
       <div className="flex items-center gap-1.5 flex-wrap" role="group" aria-label={`עידוד ל${name}`}>
-        <span className={`text-[11px] font-bold ${theme.mutedTextClass}`}>{isGirl ? 'שלחי עידוד:' : 'שלח עידוד:'}</span>
+        <span className={`text-xs font-bold ${theme.mutedTextClass}`}>{isGirl ? 'שלחי עידוד:' : 'שלח עידוד:'}</span>
         {FRIEND_REACTIONS.map((r) => {
           const isSent = friend.myReaction?.emoji === r.emoji;
           return (

@@ -92,7 +92,7 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
             >
               <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <div className="min-w-0" dir="rtl">
+            <div className="min-w-0">
               <h2 className="text-sm sm:text-lg md:text-xl font-extrabold truncate">
                 🛍️ {theme.shopTitleHe}
               </h2>
@@ -121,7 +121,7 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
         </div>
 
         {/* Category Filter Tabs */}
-        <div className="px-4 sm:px-6 pt-3 pb-2 space-y-2.5 shrink-0" dir="rtl">
+        <div className="px-4 sm:px-6 pt-3 pb-2 space-y-2.5 shrink-0">
           <div className="flex items-center gap-1.5 flex-wrap">
             {[
               { id: 'all', label: '🌟 הכל' },
@@ -155,7 +155,7 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
         </div>
 
         {/* Items Grid */}
-        <div className="p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" dir="rtl">
+        <div className="p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => {
             const isUnlocked =
               item.costDiamonds === 0 || unlockedRewardIds.includes(item.id);

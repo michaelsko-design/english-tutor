@@ -104,7 +104,7 @@ export const AddFriendPanel: React.FC<AddFriendPanelProps> = ({ gender, theme, i
                 <span className="text-3xl" aria-hidden="true">{entry.avatarEmoji}</span>
                 <div className="flex-1 min-w-0">
                   <p className="font-extrabold truncate" dir="auto">{entry.displayName}</p>
-                  <p className={`text-[11px] ${theme.mutedTextClass}`}>{via === 'code' ? 'לפי קוד חבר' : 'לפי שם משתמש'}</p>
+                  <p className={`text-xs ${theme.mutedTextClass}`}>{via === 'code' ? 'לפי קוד חבר' : 'לפי שם משתמש'}</p>
                 </div>
                 <button
                   type="button"

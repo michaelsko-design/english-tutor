@@ -138,7 +138,7 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
 
   const shownMs = finishedMs ?? elapsedMs;
   const header = (
-    <div className="flex items-center gap-2" dir="rtl">
+    <div className="flex items-center gap-2">
       <span className="text-xs font-extrabold shrink-0 truncate">⚔️ מול {friendName}</span>
       <div
         role="progressbar"
@@ -163,7 +163,7 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
   if (!step) {
     return (
       <ExamModalShell theme={theme} labelHe="אתגר יומי" onClose={onClose}>
-        <p className="p-6 text-center font-bold" dir="rtl">
+        <p className="p-6 text-center font-bold">
           לא נמצאו שאלות לאתגר הזה.
         </p>
       </ExamModalShell>
@@ -174,7 +174,7 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
     <ExamModalShell theme={theme} labelHe="אתגר יומי" onClose={handleLeave} maxWidthClass="max-w-3xl" header={header}>
       <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
         {isConfirmingLeave && (
-          <div className="rounded-2xl p-3.5 bg-amber-500/15 border border-amber-400/40 space-y-2" role="alert" dir="rtl">
+          <div className="rounded-2xl p-3.5 bg-amber-500/15 border border-amber-400/40 space-y-2" role="alert">
             <p className="text-xs sm:text-sm font-bold">
               {isGirl ? 'בטוחה' : 'בטוח'} שרוצים לצאת? האתגר יסתיים עם התשובות עד עכשיו, ואי אפשר לשחק בו שוב.
             </p>
@@ -192,14 +192,14 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
             </div>
           </div>
         )}
-        <div className="flex flex-wrap items-center justify-between gap-2" dir="rtl">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>{step.badgeLabelHe}</span>
-          <span className={`text-[11px] font-bold ${theme.mutedTextClass}`}>
+          <span className={`text-xs font-bold ${theme.mutedTextClass}`}>
             {stepIdx + 1}/{steps.length} · בלי רמזים, ניסיון אחד לכל שאלה
           </span>
         </div>
 
-        <p className="text-base md:text-lg font-extrabold" dir="rtl">
+        <p className="text-base md:text-lg font-extrabold">
           {step.promptHe}
         </p>
 

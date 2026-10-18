@@ -50,7 +50,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
     >
       {/* Left 7 Cols: 3 Daily Quests */}
       <div className={`lg:col-span-7 rounded-3xl p-4 sm:p-5 md:p-6 ${theme.cardBgClass} space-y-3`}>
-        <div className="flex items-center justify-between gap-2" dir="rtl">
+        <div className="flex items-center justify-between gap-2">
           <h3 className="text-base md:text-lg font-extrabold flex items-center gap-2">
             <span>🎯 אתגרים יומיים</span>
           </h3>
@@ -59,7 +59,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
           </span>
         </div>
 
-        <div className="space-y-2.5" dir="rtl">
+        <div className="space-y-2.5">
           {quests.map((quest) => {
             const currentVal = quest.getCurrentCount(dailyCounters);
             const progressRatio = Math.min(1, currentVal / quest.targetCount);
@@ -80,7 +80,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
                       <span className="font-extrabold text-xs md:text-sm truncate">
                         {quest.titleHe}
                       </span>
-                      <span className="text-[11px] font-bold opacity-75 shrink-0" dir="ltr">
+                      <span className="text-xs font-bold opacity-75 shrink-0" dir="ltr">
                         {Math.min(currentVal, quest.targetCount)}/{quest.targetCount}
                       </span>
                     </div>
@@ -109,10 +109,10 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
                       className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1 animate-pulse ${theme.primaryBtnClass}`}
                     >
                       <Gift className="w-3.5 h-3.5" />
-                      <span>+{quest.rewardDiamonds} 💎</span>
+                      <span dir="ltr">+{quest.rewardDiamonds} 💎</span>
                     </button>
                   ) : (
-                    <span className={`px-2.5 py-1 rounded-xl text-[11px] font-bold ${theme.badgeClass}`} dir="ltr">
+                    <span className={`px-2.5 py-1 rounded-xl text-xs font-bold ${theme.badgeClass}`} dir="ltr">
                       +{quest.rewardDiamonds} 💎
                     </span>
                   )}
@@ -126,7 +126,6 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
       {/* Right 5 Cols: Compact Weekly Streak Calendar */}
       <div
         className={`lg:col-span-5 rounded-3xl p-4 sm:p-5 md:p-6 ${theme.cardBgClass} flex flex-col justify-between gap-3`}
-        dir="rtl"
       >
         <div className="flex items-center justify-between gap-2">
           <h3 className="text-base md:text-lg font-extrabold flex items-center gap-1.5">
@@ -158,7 +157,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
                     : 'border-current/10 bg-black/5 dark:bg-white/5'
                 }`}
               >
-                <span className="text-[11px] font-extrabold">{d.label}</span>
+                <span className="text-xs font-extrabold">{d.label}</span>
                 <span className="text-sm">
                   {d.isShabbatSafe ? '🛡️' : isPastOrToday ? '🔥' : '⚪'}
                 </span>
@@ -167,7 +166,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
           })}
         </div>
 
-        <p className={`text-[11px] ${theme.mutedTextClass}`}>
+        <p className={`text-xs ${theme.mutedTextClass}`}>
           {isShabbatObserver
             ? 'בימי שישי, שבת וחגים הרצף שלך מוגן אוטומטית 🛡️'
             : 'השלימו משימה קצרה מדי יום כדי לשמור על הרצף 🔥'}

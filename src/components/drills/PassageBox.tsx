@@ -28,14 +28,14 @@ export const PassageBox: React.FC<PassageBoxProps> = ({
         className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
       >
         <Volume2 className="w-3.5 h-3.5" />
-        <span>Listen to Story 🔊</span>
+        <span dir="ltr">Listen to Story 🔊</span>
       </button>
     </div>
     <p className="text-sm md:text-base font-bold leading-relaxed" dir="ltr">
       {passageEn}
     </p>
     {showHebrew && passageHe && (
-      <p className={`text-xs ${theme.mutedTextClass} pt-1 border-t border-current/10`} dir="rtl">
+      <p className={`text-xs ${theme.mutedTextClass} pt-1 border-t border-current/10`}>
         {passageHe}
       </p>
     )}

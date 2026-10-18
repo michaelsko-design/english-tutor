@@ -92,7 +92,7 @@ export const FriendsScreen: React.FC<FriendsScreenProps> = ({
       maxWidthClass="max-w-2xl"
       header={<h2 className="font-extrabold text-base sm:text-lg">👫 מרכז החברים</h2>}
     >
-      <div className="p-3 sm:p-5 space-y-4" dir="rtl">
+      <div className="p-3 sm:p-5 space-y-4">
         <p className={`text-xs ${theme.mutedTextClass}`}>
           🛡️ חברים רואים רק את השם, הדמות וההתקדמות שלך. אין כאן צ׳אט, רק עידודים מוכנים מראש.
         </p>
@@ -233,7 +233,7 @@ const RequestRow: React.FC<RequestRowProps> = ({ request, theme, textHe, childre
     <span className="text-2xl" aria-hidden="true">{request.fallbackAvatar}</span>
     <div className="flex-1 min-w-0">
       <p className="font-extrabold text-sm truncate" dir="auto">{request.fallbackName}</p>
-      <p className={`text-[11px] ${theme.mutedTextClass}`}>{textHe}</p>
+      <p className={`text-xs ${theme.mutedTextClass}`}>{textHe}</p>
     </div>
     <div className="flex gap-1.5 shrink-0">{children}</div>
   </li>

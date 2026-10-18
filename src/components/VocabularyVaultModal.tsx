@@ -13,6 +13,10 @@ import {
   CheckCircle2,
   Sparkles,
 } from 'lucide-react';
+import { isolateLtr } from '../utils/bidi';
+
+/** The reward inside a Hebrew sentence, isolated so "+10 XP" doesn't flip */
+const VAULT_REWARD_LABEL = isolateLtr('+10 XP · +2 💎');
 
 interface VocabularyVaultModalProps {
   units: CurriculumUnit[];
@@ -89,8 +93,8 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
       setFeedbackMsg({
         isCorrect: true,
         text: isGirl
-          ? `מעולה ${learnerName}! ביטאת את המילה "${vocab.wordEn}" (זוהה: "${transcript}") בצורה מושלמת! (+10 XP · +2 💎)`
-          : `מעולה ${learnerName}! ביטאת את המילה "${vocab.wordEn}" (זוהה: "${transcript}") בצורה מושלמת! (+10 XP · +2 💎)`,
+          ? `מעולה ${learnerName}! ביטאת את המילה "${vocab.wordEn}" (זוהה: "${transcript}") בצורה מושלמת! (${VAULT_REWARD_LABEL})`
+          : `מעולה ${learnerName}! ביטאת את המילה "${vocab.wordEn}" (זוהה: "${transcript}") בצורה מושלמת! (${VAULT_REWARD_LABEL})`,
       });
       celebrate('small');
     };
@@ -168,9 +172,9 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
             >
               <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <div className="min-w-0" dir="rtl">
+            <div className="min-w-0">
               <h2 className="text-sm sm:text-lg md:text-xl font-extrabold truncate">
-                📚 מאגר מילים והגייה · {gradeLabel || ''} {ministryBand ? `(${ministryBand})` : ''} ({allVocabWithUnit.length})
+                📚 מאגר מילים והגייה · {gradeLabel || ''} {ministryBand && <bdi>({ministryBand})</bdi>} ({allVocabWithUnit.length})
               </h2>
               <p className={`text-xs hidden sm:block ${theme.mutedTextClass}`}>
                 {isGirl
@@ -191,7 +195,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="px-4 sm:px-6 pt-3 pb-2 space-y-2.5 shrink-0" dir="rtl">
+        <div className="px-4 sm:px-6 pt-3 pb-2 space-y-2.5 shrink-0">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
             {/* Unit Filter Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
@@ -230,6 +234,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="חיפוש מילה באנגלית או בעברית..."
+                dir="auto"
                 className={`w-full pr-9 pl-3 py-2 rounded-xl text-xs font-bold outline-none ${theme.inputBgClass}`}
               />
             </div>
@@ -280,12 +285,12 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                         <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                       )}
                     </div>
-                    <p className="text-sm font-bold text-purple-600 dark:text-purple-300 mt-0.5" dir="rtl">
+                    <p className="text-sm font-bold text-purple-600 dark:text-purple-300 mt-0.5">
                       {item.translationHe}
                     </p>
                   </div>
 
-                  <span className={`text-xs px-2.5 py-1 rounded-lg font-bold ${theme.badgeClass}`} dir="rtl">
+                  <span className={`text-xs px-2.5 py-1 rounded-lg font-bold ${theme.badgeClass}`}>
                     פרק {item.unitNumber}
                   </span>
                 </div>
@@ -294,7 +299,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                   <p className="font-bold" dir="ltr">
                     &ldquo;{item.exampleEn}&rdquo;
                   </p>
-                  <p className="opacity-80" dir="rtl">
+                  <p className="opacity-80">
                     {item.exampleHe}
                   </p>
                 </div>
@@ -317,6 +322,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                       onClick={() => onSpeakEnglish(item.wordEn, 0.65)}
                       className={`px-2.5 py-1.5 rounded-xl text-xs font-bold ${theme.secondaryBtnClass}`}
                       title="Listen Slowly"
+                      dir="ltr"
                     >
                       🐢 Slow
                     </button>
@@ -332,16 +338,18 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                     }`}
                   >
                     <Mic className="w-3.5 h-3.5" />
-                    <span dir="rtl">
+                    <span>
                       {isRecordingThis
                         ? isGirl
                           ? 'אמרי את המילה...'
                           : 'אמור את המילה...'
                         : isMastered
                         ? 'תורגל בהצלחה ✓'
-                        : isGirl
-                        ? 'תרגלי הגייה (+10 XP)'
-                        : 'תרגל הגייה (+10 XP)'}
+                        : (
+                          <>
+                            {isGirl ? 'תרגלי הגייה' : 'תרגל הגייה'} (<bdi>+10 XP</bdi>)
+                          </>
+                        )}
                     </span>
                   </button>
                 </div>

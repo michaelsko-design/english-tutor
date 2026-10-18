@@ -65,7 +65,7 @@ export const WeeklyReportScreen: React.FC<WeeklyReportScreenProps> = ({
   const weekLabel = `${formatShortDateHe(report.weekStart)}–${formatShortDateHe(report.weekEnd)}`;
 
   const header = (
-    <div className="flex items-center justify-between gap-2" dir="rtl">
+    <div className="flex items-center justify-between gap-2">
       <h2 className="font-extrabold text-sm sm:text-base truncate">
         📊 <span className="sm:hidden">דוח שבועי</span>
         <span className="hidden sm:inline">דוח התקדמות שבועי</span>
@@ -100,7 +100,7 @@ export const WeeklyReportScreen: React.FC<WeeklyReportScreenProps> = ({
 
   return (
     <ExamModalShell theme={theme} labelHe="דוח התקדמות שבועי" onClose={onClose} header={header}>
-      <div className="p-3.5 sm:p-5 space-y-4" dir="rtl">
+      <div className="p-3.5 sm:p-5 space-y-4">
         <div>
           <p className="font-extrabold text-base sm:text-lg">
             {profile.name || (isGirl ? 'הלומדת' : 'הלומד')} · {getGradeLabelHe(profile)}
@@ -152,7 +152,7 @@ export const WeeklyReportScreen: React.FC<WeeklyReportScreenProps> = ({
                 {overall.gradeStarsEarned}/{overall.gradeStarsPossible} ⭐
               </span>
             </div>
-            <p className={`text-[11px] ${theme.mutedTextClass}`}>כוכבים שנאספו במשימות של {getGradeLabelHe(profile)}</p>
+            <p className={`text-xs ${theme.mutedTextClass}`}>כוכבים שנאספו במשימות של {getGradeLabelHe(profile)}</p>
           </div>
         </section>
 

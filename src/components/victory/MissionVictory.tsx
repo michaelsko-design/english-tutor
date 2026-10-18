@@ -115,7 +115,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
           <FluentIcon name="trophy" className="absolute -bottom-1 -right-6 w-12 h-12 drop-shadow-md" />
         </div>
 
-        <div className="space-y-1.5" dir="rtl">
+        <div className="space-y-1.5">
           <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 text-xs font-extrabold">
             MISSION COMPLETE · משימה הושלמה!
           </span>
@@ -127,7 +127,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
           </p>
         </div>
 
-        <p className="sr-only" dir="rtl">
+        <p className="sr-only">
           {`${starsEarned} מתוך 3 כוכבים, ${xpEarned} נקודות XP, ${diamondsEarned} ${currencyNameHe}, ${wordsLearned} מילים`}
           {frame.hasLeveledUp ? `, עלייה לרמה ${frame.level}` : ''}
         </p>
@@ -184,7 +184,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
             <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap" dir="ltr">
               +{frame.xpShown} XP
             </div>
-            <div className="text-xs opacity-75" dir="rtl">
+            <div className="text-xs opacity-75">
               כולל בונוס {maxCombo}x רצף
             </div>
           </div>
@@ -193,16 +193,16 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
             <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap" dir="ltr">
               +{frame.diamondsShown}
             </div>
-            <div className="text-xs opacity-75" dir="rtl">
+            <div className="text-xs opacity-75">
               {currencyNameHe}
             </div>
           </div>
           <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
             <Trophy className="w-5 h-5 text-emerald-500 mx-auto mb-1" />
-            <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap" dir="rtl">
+            <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap">
               <bdi dir="ltr">+{frame.wordsShown}</bdi> מילים
             </div>
-            <div className="text-xs opacity-75" dir="rtl">
+            <div className="text-xs opacity-75">
               נוספו לאוצר המילים
             </div>
           </div>
@@ -214,7 +214,6 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
             className={`p-3.5 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-400/50 flex items-center justify-center gap-3 ${
               frame.isItemRevealed ? 'animate-card-flip' : 'invisible'
             }`}
-            dir="rtl"
             aria-hidden={!frame.isItemRevealed}
           >
             <span className="text-3xl leading-none" aria-hidden="true">
@@ -238,10 +237,10 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
           onClick={handleCollect}
           className={`w-full py-4 rounded-2xl font-extrabold text-base flex items-center justify-center gap-2 ${theme.primaryBtnClass}`}
         >
-          <span dir="rtl">איסוף פרסים וחזרה לדשבורד 🚀</span>
+          <span>איסוף פרסים וחזרה לדשבורד 🚀</span>
         </button>
 
-        <p className={`text-xs ${theme.mutedTextClass} ${frame.isDone ? 'invisible' : ''}`} dir="rtl" aria-hidden="true">
+        <p className={`text-xs ${theme.mutedTextClass} ${frame.isDone ? 'invisible' : ''}`} aria-hidden="true">
           הקשה על המסך מדלגת לסוף ⏩
         </p>
       </div>

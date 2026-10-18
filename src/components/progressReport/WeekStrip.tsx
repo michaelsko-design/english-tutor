@@ -32,14 +32,14 @@ export const WeekStrip: React.FC<WeekStripProps> = ({ days, todayStr, isCompact 
             day.sessions > 0 ? ` (${day.sessions} תרגולים)` : ''
           }`}
         >
-          <span className="block text-[10px] sm:text-[11px] font-extrabold" aria-hidden="true">
+          <span className="block text-xs sm:text-xs font-extrabold" aria-hidden="true">
             {DAY_LETTERS[index]}
           </span>
           <span className={`block leading-none ${isCompact ? 'text-sm h-4' : 'text-base sm:text-lg h-5 sm:h-6'}`} aria-hidden="true">
             {meta.icon}
           </span>
           {!isCompact && (
-            <span className="block text-[10px] font-bold opacity-70" aria-hidden="true">
+            <span className="block text-xs font-bold opacity-70" aria-hidden="true">
               {formatShortDateHe(day.dateStr)}
             </span>
           )}

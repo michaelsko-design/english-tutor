@@ -29,13 +29,13 @@ export const ExamReadyCertificate: React.FC<ExamReadyCertificateProps> = ({
 
   return (
     <ExamModalShell theme={theme} labelHe="תעודת מוכנות למבחן" onClose={onClose} maxWidthClass="max-w-lg">
-      <div className="p-5 sm:p-7" dir="rtl">
+      <div className="p-5 sm:p-7">
         <div className="rounded-3xl border-4 border-double border-amber-400 bg-amber-400/10 p-5 sm:p-7 text-center space-y-4">
           <div className="text-5xl animate-float" aria-hidden="true">
             🏅
           </div>
           <div className="space-y-1">
-            <p className="text-[11px] font-extrabold tracking-[0.2em] uppercase opacity-75" dir="ltr">
+            <p className="text-xs font-extrabold tracking-[0.2em] uppercase opacity-75" dir="ltr">
               Exam Ready Certificate
             </p>
             <h2 className="text-2xl sm:text-3xl font-extrabold">תעודת &quot;מוכנים למבחן&quot;</h2>
@@ -47,7 +47,7 @@ export const ExamReadyCertificate: React.FC<ExamReadyCertificateProps> = ({
           </p>
           <div className="flex flex-wrap justify-center gap-1.5">
             {plan.skills.map((s) => (
-              <span key={s} className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${theme.badgeClass}`}>
+              <span key={s} className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${theme.badgeClass}`}>
                 {EXAM_SKILL_META[s].emoji} {EXAM_SKILL_META[s].labelHe}
               </span>
             ))}

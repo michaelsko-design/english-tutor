@@ -32,7 +32,6 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
           ? 'bg-emerald-500/15 border-emerald-500/50'
           : 'bg-rose-500/15 border-rose-500/50'
       }`}
-      dir="rtl"
     >
       <div className="flex items-start gap-2.5">
         {isCorrect ? (
