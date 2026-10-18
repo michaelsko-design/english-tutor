@@ -8,6 +8,7 @@ import { celebrate } from '../../utils/celebrate';
 import { getVictoryDurationMs, getVictoryFrame, VictoryFrame } from '../../utils/rewardFeedback';
 import { playSfx } from '../../utils/sfx';
 import { FluentIcon } from '../hud/FluentIcon';
+import { LevelBadge } from '../hud/LevelBadge';
 import { Companion } from '../companion/Companion';
 
 interface MissionVictoryProps {
@@ -32,6 +33,7 @@ interface MissionVictoryProps {
 
 const STAR_SLOTS = [0, 1, 2];
 export const VICTORY_COMPANION_SIZE = 120;
+const LEVEL_BADGE_SIZE = 64;
 
 /** Sounds and confetti for what changed between two frames of the victory sequence. */
 function playFrameEffects(prev: VictoryFrame, next: VictoryFrame, starsEarned: number): void {
@@ -158,13 +160,18 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
           })}
         </div>
 
-        {/* XP bar toward the next level */}
-        <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10 space-y-2" aria-hidden="true">
+        {/* XP bar toward the next level; a level-up pins the level badge to its corner */}
+        <div className="relative p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10 space-y-2" aria-hidden="true">
+          {frame.hasLeveledUp && (
+            <div className="absolute -top-10 -right-4 animate-reward-pop">
+              <LevelBadge level={frame.level} size={LEVEL_BADGE_SIZE} />
+            </div>
+          )}
           <div className="flex items-center justify-between text-xs font-extrabold" dir="ltr">
             <span>Lv.{frame.level}</span>
             {frame.hasLeveledUp && (
               <span className="px-3 py-0.5 rounded-full bg-amber-400 text-slate-950 text-sm animate-reward-pop" dir="rtl">
-                ⬆️ רמה חדשה! <bdi dir="ltr">Lv.{frame.level}</bdi>
+                רמה חדשה! <bdi dir="ltr">Lv.{frame.level}</bdi>
               </span>
             )}
             <span className="opacity-70">Lv.{frame.level + 1}</span>

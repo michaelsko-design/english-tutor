@@ -6,7 +6,10 @@ import { getLevelProgress } from '../../utils/rewardFeedback';
 import { useCountUp } from '../../hooks/useCountUp';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { FluentIcon } from '../hud/FluentIcon';
+import { LevelBadge } from '../hud/LevelBadge';
 import { ProgressRing } from './ProgressRing';
+
+const STATS_LEVEL_BADGE_SIZE = 52;
 
 interface StatsSheetProps {
   profile: LearnerProfile;
@@ -105,6 +108,7 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
               רמה {level.level} · עוד <bdi>{level.xpToNextLevel} XP</bdi> לרמה {level.level + 1}
             </p>
           </div>
+          <LevelBadge level={level.level} size={STATS_LEVEL_BADGE_SIZE} className="ms-auto" />
         </div>
 
         {/* The five stat tiles */}
