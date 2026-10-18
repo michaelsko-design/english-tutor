@@ -57,7 +57,9 @@ export const RoomInventory: React.FC<RoomInventoryProps> = ({
                 }`}
               >
                 <ItemIcon item={item} size="1.5rem" />
-                <span className="text-xs font-extrabold truncate max-w-full">{item.imageUrl ? item.nameEn : item.nameHe}</span>
+                <span className="text-xs font-extrabold truncate max-w-full" dir={item.imageUrl ? 'ltr' : undefined}>
+                  {item.imageUrl ? item.nameEn : item.nameHe}
+                </span>
                 <span className={`text-xs font-bold ${isPlaced ? 'text-emerald-600 dark:text-emerald-300' : theme.mutedTextClass}`}>
                   {isPlaced ? '✓ בחדר' : 'חדש'}
                 </span>

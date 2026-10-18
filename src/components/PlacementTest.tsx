@@ -12,6 +12,7 @@ import {
   nextDifficulty,
   pickNextQuestion,
 } from '../data/placementTest';
+import { isolateLtr } from '../utils/bidi';
 import { inflectHebrew } from '../utils/hebrewGender';
 import { PlacementResultCard } from './PlacementResultCard';
 import { ArrowLeft, Target, X } from 'lucide-react';
@@ -264,7 +265,7 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
               {isAnswered &&
                 (isPendingCorrect
                   ? 'נכון! 🎉'
-                  : `התשובה הנכונה: ${correctOption?.text ?? ''}`)}
+                  : `התשובה הנכונה: ${isolateLtr(correctOption?.text ?? '')}`)}
             </p>
 
             <div className="flex items-center justify-between gap-2.5">

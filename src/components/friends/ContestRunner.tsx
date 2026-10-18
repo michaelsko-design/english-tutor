@@ -5,6 +5,7 @@ import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { FeedbackBanner, MultipleChoiceOptions, QuestionBubble, SentenceBuilderDrill } from '../drills';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
+import { isolateLtr } from '../../utils/bidi';
 
 interface ContestRunnerProps {
   contest: ContestDoc;
@@ -108,7 +109,7 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
     const built = wordIndices.map((i) => step.scrambledWords![i]).join(' ');
     const isCorrect = normalizeSentence(built) === normalizeSentence(step.targetSentenceEn);
     if (isCorrect) onSpeakEnglish(step.targetSentenceEn, 0.95);
-    resolveStep(isCorrect, isCorrect ? 'מעולה! המשפט בנוי בסדר הנכון 🧩' : `המשפט הנכון: ${step.targetSentenceEn}`);
+    resolveStep(isCorrect, isCorrect ? 'מעולה! המשפט בנוי בסדר הנכון 🧩' : `המשפט הנכון: ${isolateLtr(step.targetSentenceEn)}`);
   };
 
   const handleNext = () => {

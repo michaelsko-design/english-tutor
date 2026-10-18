@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { isolateLtr } from '../../utils/bidi';
 import { celebrate } from '../../utils/celebrate';
 import { Lightbulb } from 'lucide-react';
 import {
@@ -117,7 +118,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
     if (/[A-Za-z]/.test(chosen.textEn)) onSpeakEnglish(chosen.textEn, 0.95);
     const correct = step.options.find((o) => o.isCorrect);
     if (chosen.isCorrect) resolveStep(true, chosen.explanationHe);
-    else handleWrong(chosen.explanationHe, `התשובה הנכונה: ${correct?.textEn ?? ''}`);
+    else handleWrong(chosen.explanationHe, `התשובה הנכונה: ${isolateLtr(correct?.textEn ?? '')}`);
   };
 
   const handleToggleWord = (idx: number) => {
@@ -139,7 +140,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
     } else {
       handleWrong(
         isGirl ? 'עדיין לא בסדר הנכון — בדקי את מיקום הפועל.' : 'עדיין לא בסדר הנכון — בדוק את מיקום הפועל.',
-        `המשפט הנכון: ${step.targetSentenceEn}`
+        `המשפט הנכון: ${isolateLtr(step.targetSentenceEn)}`
       );
     }
   };

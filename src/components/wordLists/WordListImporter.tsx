@@ -67,7 +67,7 @@ export const WordListImporter: React.FC<WordListImporterProps> = ({ gender, them
             placeholder={PLACEHOLDER}
             rows={7}
             dir="auto"
-            className="w-full px-3.5 py-2.5 rounded-xl text-sm font-bold bg-black/5 dark:bg-white/10 border border-current/15 outline-none focus:border-purple-400 resize-y"
+            className="w-full px-3.5 py-2.5 rounded-xl text-sm font-bold [unicode-bidi:plaintext] bg-black/5 dark:bg-white/10 border border-current/15 outline-none focus:border-purple-400 resize-y"
           />
         </label>
 
