@@ -258,6 +258,11 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Mission sheet** (`MissionSheet`, rendered into `<body>`): tapping any stop opens a bottom sheet with the full title (no truncation), story hook, length and topic, stars, the rewards for the chosen tier, the tier choice (`mission/TierChoice`, shared with `MissionIntro`), the tier's focus and sample sentence, the words (tap to hear) and Start / Play again. A locked stop says why (the missing Boss stars, or the mission to finish first) and has no Start. Escape or the backdrop closes it.
 - The map is a scroll window (`min(76vh, 760px)`, centred, at most 520px wide on desktop) so the dashboard around it still scrolls; it scrolls to the current mission when it opens, on a grade change and when the next mission moves, and the "למשימה הבאה" button scrolls back. Per-theme banner, coin and sheet styles are in `worldMap/worldMapStyles.ts`. With reduced motion there is no pulse, the castle is simply open and the sheet doesn't slide.
 
+### 4.20. Read-Aloud Voice (`utils/ttsVoice.ts`)
+- Feature 23. All English text-to-speech goes through `speakWithVoice` (called by `speakEnglish` in `DashboardView`). `pickVoice` chooses the best English voice of the learner's `voicePreference` (`female` default, or `male`) by name (neural/"Natural" voices and en-US first); with no match the browser default voice is used. Voices load asynchronously, so `watchVoices()` (called in `main.tsx`) caches them on `voiceschanged`.
+- The choice (with a "שמעו דוגמה" preview) is in the settings screen (`OnboardingView` in edit mode) and stored as `voicePreference` on the profile; a missing value means female. Merge: same rule as `themeId`.
+- Which voices exist depends on the device, so the result is the best voice available there.
+
 ### 4.19. Home Base Dashboard (`DashboardView.tsx`, `components/home/`, `data/homeBase.ts`, `utils/bidi.ts`)
 - Phase 4 of the Feature 22 redesign (Feature 27). The home screen has one focus, top to bottom: HUD, hero with one Play button, quest rings, dock, map peek, then the world map (`MissionMap`, 4.18). The bottom nav stays on phones.
 - **HUD** (`HomeHud`), one row: the avatar inside a ring of the XP toward the next level with the level number under it (`ProgressRing`, `getLevelProgress`) opens the **stats sheet**; the 🔥 streak opens the daily quests sheet; the 💎 count (count-up) opens the shop; then the sound toggle and the cloud sync button. Desktop adds the vault, shop and settings buttons.
@@ -363,6 +368,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── sfx.ts                    # Kenney sound effects, first-gesture unlock & device mute (+ .test.ts)
 │   │   ├── bidi.ts                   # Left-to-right isolates for English inside Hebrew strings (+ .test.ts)
 │   │   ├── hints.ts                  # Drill hint builders: word shape, cloze, word order, pronunciation tips, story locator (+ .test.ts)
+│   │   ├── ttsVoice.ts               # Read-aloud voice choice (female default / male) and speech helper (+ .test.ts)
 │   │   ├── shuffle.ts                # Deterministic seeded shuffle for options & word chips
 │   │   ├── speechSimilarity.ts       # Phonetic & string similarity calculation for voice
 │   │   └── username.ts               # Username <-> sign-in email slug (auth, lookup and rules)
