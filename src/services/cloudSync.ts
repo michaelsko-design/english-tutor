@@ -152,6 +152,10 @@ export function mergeLearnerProfiles(
     ? cloud.equippedAvatarEmoji || local.equippedAvatarEmoji
     : local.equippedAvatarEmoji || cloud.equippedAvatarEmoji;
 
+  const resolvedVoice = preferCloudPrefs
+    ? cloud.voicePreference ?? local.voicePreference
+    : local.voicePreference ?? cloud.voicePreference;
+
   const merged: LearnerProfile = {
     isOnboarded: Boolean(local.isOnboarded || cloud.isOnboarded),
     name:
@@ -169,6 +173,7 @@ export function mergeLearnerProfiles(
       preferCloudPrefs
         ? (cloud.isShabbatObserver ?? local.isShabbatObserver ?? true)
         : (local.isShabbatObserver ?? cloud.isShabbatObserver ?? true),
+    ...(resolvedVoice ? { voicePreference: resolvedVoice } : {}),
     ...(resolvedAvatar ? { equippedAvatarEmoji: resolvedAvatar } : {}),
     ...(resolvedPlacement ? { placementResult: resolvedPlacement } : {}),
     ...(resolvedExamPrep ? { examPrep: resolvedExamPrep } : {}),

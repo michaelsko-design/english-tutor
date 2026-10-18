@@ -9,7 +9,14 @@ import {
 } from '../types/learner';
 import { THEME_REGISTRY } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
-import { Sparkles, UserCheck, GraduationCap, Palette, ShieldCheck, Users, X } from 'lucide-react';
+import { Sparkles, UserCheck, GraduationCap, Palette, ShieldCheck, Users, Volume2, X } from 'lucide-react';
+import { DEFAULT_VOICE_PREFERENCE, speakWithVoice, type VoicePreference } from '../utils/ttsVoice';
+
+const VOICE_PREVIEW_TEXT = "Hello! Let's learn English.";
+const VOICE_OPTIONS: { id: VoicePreference; labelHe: string }[] = [
+  { id: 'female', labelHe: '👩 קול נשי' },
+  { id: 'male', labelHe: '👨 קול גברי' },
+];
 import { isFriendsHubEnabled, setFriendsHubEnabled } from '../data/friends';
 import { APP_NAME } from '../config/appInfo';
 
@@ -39,6 +46,9 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
       : true
   );
   const [isFriendsHubOn, setIsFriendsHubOn] = useState<boolean>(isFriendsHubEnabled(initialProfile));
+  const [voicePreference, setVoicePreference] = useState<VoicePreference>(
+    initialProfile.voicePreference ?? DEFAULT_VOICE_PREFERENCE
+  );
   const [errorMsg, setErrorMsg] = useState('');
 
   const activeTheme = THEME_REGISTRY[themeId];
@@ -73,6 +83,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
       gradeId,
       themeId,
       isShabbatObserver,
+      voicePreference,
       stats: {
         ...initialProfile.stats,
         shabbatShieldActive: isShabbatObserver,
@@ -395,6 +406,40 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                       : 'הכרטיס מוסתר וחברים לא רואים את ההתקדמות 🔒'}
                   </p>
                 </div>
+              </button>
+            </div>
+          )}
+
+          {/* 7. Read-aloud voice (Feature 23), in the settings only */}
+          {onCancel && (
+            <div className="space-y-1.5">
+              <label className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
+                <Volume2 className="w-4 h-4 text-pink-500" />
+                <span>קול ההקראה:</span>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {VOICE_OPTIONS.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => setVoicePreference(option.id)}
+                    aria-pressed={voicePreference === option.id}
+                    className={`p-3 rounded-2xl border font-extrabold text-xs sm:text-sm transition-all ${
+                      voicePreference === option.id
+                        ? 'border-pink-500/60 bg-pink-500/10'
+                        : 'border-current/10 bg-black/5 dark:bg-white/5 opacity-80'
+                    }`}
+                  >
+                    {option.labelHe}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => speakWithVoice(VOICE_PREVIEW_TEXT, 0.95, voicePreference)}
+                className={`w-full p-2.5 rounded-2xl text-xs sm:text-sm font-bold ${activeTheme.secondaryBtnClass}`}
+              >
+                🔊 שמעו דוגמה
               </button>
             </div>
           )}

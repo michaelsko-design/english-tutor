@@ -291,6 +291,8 @@ export interface LearnerProfile {
   dailyCounters: DailyActivityCounters;
   /** Whether the user observes Shabbat and has streak protected on weekends */
   isShabbatObserver?: boolean;
+  /** Read-aloud voice; a missing value means the female voice */
+  voicePreference?: 'female' | 'male';
   /** Whether the new user has seen and acknowledged the complimentary welcome diamonds modal */
   hasSeenWelcomeGiftModal?: boolean;
   /** Latest diagnostic placement test result, if the learner has taken it */

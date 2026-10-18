@@ -10,6 +10,7 @@ import {
   SUPPORTED_GRADES,
 } from '../types/learner';
 import { THEME_REGISTRY, TIER_CONFIG } from '../themes/themeRegistry';
+import { DEFAULT_VOICE_PREFERENCE, speakWithVoice } from '../utils/ttsVoice';
 import { CURRICULUM_BY_GRADE, MissionNode } from '../data/curriculum';
 import { countCompletedMissions, getSuggestedMission } from '../data/milestones';
 import { DailyQuestDefinition, RewardShopItem, getDailyQuests } from '../data/rewardShop';
@@ -128,12 +129,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   // Built-in Web Speech API Text-to-Speech (TTS)
   const speakEnglish = (text: string, rate = 0.95) => {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.rate = rate;
-    window.speechSynthesis.speak(utterance);
+    speakWithVoice(text, rate, profile.voicePreference ?? DEFAULT_VOICE_PREFERENCE);
   };
 
   const handleLaunchMission = (mission: MissionNode) => {

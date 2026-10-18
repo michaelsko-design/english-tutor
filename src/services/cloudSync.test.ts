@@ -90,6 +90,17 @@ describe('mergeLearnerProfiles placementResult', () => {
   });
 });
 
+describe('mergeLearnerProfiles voicePreference', () => {
+  it('keeps a voice chosen on only one side', () => {
+    const merged = mergeLearnerProfiles(baseProfile, { ...baseProfile, voicePreference: 'male' });
+    expect(merged.voicePreference).toBe('male');
+  });
+
+  it('leaves the field out when neither side chose', () => {
+    expect('voicePreference' in mergeLearnerProfiles(baseProfile, baseProfile)).toBe(false);
+  });
+});
+
 function makeExamPlan(id: string, createdAt: string, days: ExamPlanDay[] = []): ExamPrepPlan {
   return {
     id,
