@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import confetti from 'canvas-confetti';
+import { celebrate } from '../utils/celebrate';
 import {
   getRewardShopItems,
   RewardCategory,
@@ -68,7 +68,7 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
       return;
     }
 
-    confetti({ particleCount: 70, spread: 65, origin: { y: 0.65 } });
+    celebrate('small');
     onBuyReward(item);
     setStatusMessage(
       isGirl

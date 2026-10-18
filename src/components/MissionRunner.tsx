@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import confetti from 'canvas-confetti';
 import { MissionNode } from '../data/curriculum';
 import { RoomRewardItem } from '../data/roomRewards';
 import {
@@ -10,15 +9,7 @@ import { LearnerGender, ProficiencyTier } from '../types/learner';
 import { ThemeDefinition, TIER_CONFIG } from '../themes/themeRegistry';
 import { SpeechEvaluationResult } from '../utils/speechSimilarity';
 import { getSpeechErrorTextHe, useSpeechRecognition } from '../hooks/useSpeechRecognition';
-import {
-  X,
-  Flame,
-  Star,
-  Gem,
-  Zap,
-  Lightbulb,
-  Trophy,
-} from 'lucide-react';
+import { X, Flame, Lightbulb } from 'lucide-react';
 import {
   FeedbackBanner,
   MultipleChoiceOptions,
@@ -27,6 +18,7 @@ import {
   SentenceBuilderDrill,
   VoiceSpeakDrill,
 } from './drills';
+import { MissionVictory } from './victory/MissionVictory';
 
 interface MissionRunnerProps {
   mission: MissionNode;
@@ -46,6 +38,9 @@ interface MissionRunnerProps {
   onClose: () => void;
   /** Room item a first 3-star result would earn (Feature 12) */
   roomRewardPreview?: RoomRewardItem | null;
+  /** The learner's XP and level before this mission, for the victory XP bar (Feature 24) */
+  startXp: number;
+  startLevel: number;
 }
 
 export const MissionRunner: React.FC<MissionRunnerProps> = ({
@@ -59,6 +54,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   onCompleteMission,
   onClose,
   roomRewardPreview,
+  startXp,
+  startLevel,
 }) => {
   const isGirl = gender === 'girl';
   // Random salt per mission attempt: shuffles answer options differently on every attempt,
@@ -216,7 +213,6 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
       setCurrentStepIdx(currentStepIdx + 1);
     } else {
       setIsMissionFinished(true);
-      confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
     }
   };
 
@@ -234,116 +230,31 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
 
   if (isMissionFinished) {
     return (
-      <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-        <div
-          className={`w-full max-w-lg rounded-3xl p-6 md:p-8 ${theme.cardBgClass} ${theme.pageBgClass} text-center space-y-6 shadow-2xl border-2 border-amber-400`}
-        >
-          <div className="w-20 h-20 rounded-3xl mx-auto bg-amber-400/20 border-2 border-amber-400 flex items-center justify-center text-4xl animate-float">
-            🏆
-          </div>
-
-          <div className="space-y-1.5" dir="rtl">
-            <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 text-xs font-extrabold">
-              MISSION COMPLETE · משימה הושלמה!
-            </span>
-            <h2 className="text-2xl md:text-3xl font-extrabold">
-              {isGirl
-                ? `כל הכבוד, ${learnerName}! את אלופה! 🎉`
-                : `כל הכבוד, ${learnerName}! אתה אלוף! 🎉`}
-            </h2>
-            <p className={`text-sm ${theme.mutedTextClass}`}>
-              סיימת את משימה {mission.unitNumber}.{mission.missionNumber}:{' '}
-              <b>{mission.titleHe}</b> ברמת {tierMeta.labelEn}
-            </p>
-          </div>
-
-          {/* 1-3 Stars Display */}
-          <div className="flex items-center justify-center gap-3 py-2">
-            {[1, 2, 3].map((s) => (
-              <div
-                key={s}
-                className={`p-3 rounded-2xl border ${
-                  starsEarned >= s
-                    ? 'bg-amber-400/20 border-amber-400 scale-110'
-                    : 'bg-black/10 border-current/10 opacity-40'
-                } transition-all`}
-              >
-                <Star
-                  className={`w-9 h-9 ${
-                    starsEarned >= s
-                      ? 'fill-amber-400 text-amber-400'
-                      : 'text-slate-400'
-                  }`}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Earned Currencies Grid */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
-              <Zap className="w-5 h-5 text-indigo-500 mx-auto mb-1" />
-              <div className="text-lg font-extrabold">+{totalXpEarned} XP</div>
-              <div className="text-xs opacity-75" dir="rtl">
-                כולל בונוס {maxCombo}x רצף
-              </div>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
-              <Gem className="w-5 h-5 text-fuchsia-500 mx-auto mb-1" />
-              <div className="text-lg font-extrabold">+{totalDiamondsEarned} 💎</div>
-              <div className="text-xs opacity-75" dir="rtl">
-                {theme.currencyNameHe}
-              </div>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
-              <Trophy className="w-5 h-5 text-emerald-500 mx-auto mb-1" />
-              <div className="text-lg font-extrabold">
-                +{mission.vocabulary.length} מילים
-              </div>
-              <div className="text-xs opacity-75" dir="rtl">
-                נוספו לאוצר המילים
-              </div>
-            </div>
-          </div>
-
-          {starsEarned === 3 && roomRewardPreview && (
-            <div
-              className="p-3.5 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-400/50 flex items-center justify-center gap-3"
-              dir="rtl"
-            >
-              <span className="text-3xl leading-none" aria-hidden="true">
-                {roomRewardPreview.emoji}
-              </span>
-              <div className="text-right">
-                <div className="text-sm font-extrabold">
-                  {roomRewardPreview.kind === 'wear' ? '🎁 בגד חדש לארון בחדר האנגלי' : '🎁 פריט חדש לחדר האנגלי'}:{' '}
-                  {roomRewardPreview.nameHe}
-                </div>
-                <div className="text-xs opacity-80">
-                  {isGirl ? 'אמרי או אייתי' : 'אמור או איית'} &ldquo;<span dir="ltr">{roomRewardPreview.nameEn}</span>&rdquo; כדי{' '}
-                  {roomRewardPreview.kind === 'wear' ? 'ללבוש אותו' : 'להניח אותו בחדר'}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={() =>
-              onCompleteMission({
-                missionId: mission.id,
-                starsEarned,
-                xpEarned: totalXpEarned,
-                diamondsEarned: totalDiamondsEarned,
-                wordsLearnedCount: mission.vocabulary.length,
-              })
-            }
-            className={`w-full py-4 rounded-2xl font-extrabold text-base flex items-center justify-center gap-2 ${theme.primaryBtnClass}`}
-          >
-            <span dir="rtl">איסוף פרסים וחזרה לדשבורד 🚀</span>
-          </button>
-        </div>
-      </div>
+      <MissionVictory
+        mission={mission}
+        tierLabelEn={tierMeta.labelEn}
+        starsEarned={starsEarned}
+        xpEarned={totalXpEarned}
+        maxCombo={maxCombo}
+        diamondsEarned={totalDiamondsEarned}
+        wordsLearned={mission.vocabulary.length}
+        startXp={startXp}
+        startLevel={startLevel}
+        roomReward={starsEarned === 3 ? roomRewardPreview ?? null : null}
+        isGirl={isGirl}
+        learnerName={learnerName}
+        currencyNameHe={theme.currencyNameHe}
+        theme={theme}
+        onCollect={() =>
+          onCompleteMission({
+            missionId: mission.id,
+            starsEarned,
+            xpEarned: totalXpEarned,
+            diamondsEarned: totalDiamondsEarned,
+            wordsLearnedCount: mission.vocabulary.length,
+          })
+        }
+      />
     );
   }
 

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import confetti from 'canvas-confetti';
+import { celebrate } from '../../../utils/celebrate';
 import { Mic } from 'lucide-react';
 import { AddStickerError, addDrawnSticker, isValidStickerName } from '../../../data/stickers';
 import { LearnerProfile } from '../../../types/learner';
@@ -73,7 +73,7 @@ export const StickerDrawPanel: React.FC<StickerDrawPanelProps> = ({ profile, the
     }
     onUpdateProfile(result.profile);
     onSpeakEnglish(name.trim(), 0.9);
-    confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
+    celebrate('small');
     onDone();
   };
 

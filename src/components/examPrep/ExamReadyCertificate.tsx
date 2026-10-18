@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import confetti from 'canvas-confetti';
+import { celebrate } from '../../utils/celebrate';
 import { ExamPrepPlan, LearnerProfile, SUPPORTED_GRADES } from '../../types/learner';
 import { EXAM_SKILL_META } from '../../data/examPrep';
 import { ThemeDefinition } from '../../themes/themeRegistry';
@@ -24,7 +24,7 @@ export const ExamReadyCertificate: React.FC<ExamReadyCertificateProps> = ({
   const gradeLabel = SUPPORTED_GRADES.find((g) => g.id === plan.gradeId)?.labelHe ?? '';
 
   useEffect(() => {
-    confetti({ particleCount: 120, spread: 90, origin: { y: 0.55 } });
+    celebrate('big');
   }, []);
 
   return (

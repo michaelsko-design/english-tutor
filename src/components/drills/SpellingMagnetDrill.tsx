@@ -1,6 +1,7 @@
 import React from 'react';
 import { RotateCcw, Volume2 } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { playSfx } from '../../utils/sfx';
 
 interface SpellingMagnetDrillProps {
   /** The word or phrase to spell; spaces, hyphens and apostrophes are shown, not spelled */
@@ -56,7 +57,10 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
         key={`slot-${idx}`}
         type="button"
         disabled={isCompleted}
-        onClick={() => onToggleTile(tileIdx)}
+        onClick={() => {
+          playSfx('tap');
+          onToggleTile(tileIdx);
+        }}
         className={`w-9 h-11 rounded-xl text-lg font-extrabold ${theme.primaryBtnClass}`}
       >
         {letterTiles[tileIdx]}
@@ -96,7 +100,10 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
               key={`tile-${idx}-${letter}`}
               type="button"
               disabled={isUsed || isCompleted}
-              onClick={() => onToggleTile(idx)}
+              onClick={() => {
+                playSfx('tap');
+                onToggleTile(idx);
+              }}
               aria-label={`letter ${letter}`}
               className={`w-11 h-11 rounded-xl text-lg font-extrabold transition-all ${
                 isUsed ? 'opacity-30 scale-95 cursor-not-allowed bg-slate-400/20' : theme.secondaryBtnClass

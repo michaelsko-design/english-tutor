@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import confetti from 'canvas-confetti';
+import { celebrate } from '../../../utils/celebrate';
 import { Lock } from 'lucide-react';
 import { RoomActivityReward, isActivityRewardedToday } from '../../../data/roomActivities';
 import {
@@ -60,7 +60,7 @@ export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, 
       score < GAME_FULL_REWARD_MIN_SCORE && !isActivityRewardedToday(profile, getWordGame(gameId).activityId, now);
     const reward = recordGameResult(profile, gameId, score, now);
     if (reward) onUpdateProfile(reward.profile);
-    if (reward?.isFullReward) confetti({ particleCount: 70, spread: 65, origin: { y: 0.6 } });
+    if (reward?.isFullReward) celebrate('medium');
     setView({ kind: 'result', gameId, score, reward, isBelowRewardScore });
   };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import confetti from 'canvas-confetti';
+import { celebrate } from '../../utils/celebrate';
 import { Volume2 } from 'lucide-react';
 import { RoomActivityReward } from '../../data/roomActivities';
 import { applyPhoneSessionResult, buildPhoneSession } from '../../data/voiceMessages';
@@ -87,7 +87,7 @@ export const PhonePanel: React.FC<PhonePanelProps> = ({ profile, theme, onUpdate
     const result = applyPhoneSessionResult(profile, sentCount, new Date());
     if (result) {
       onUpdateProfile(result.profile);
-      if (result.isFullReward) confetti({ particleCount: 70, spread: 65, origin: { y: 0.6 } });
+      if (result.isFullReward) celebrate('medium');
     }
     setReward(result);
   };
