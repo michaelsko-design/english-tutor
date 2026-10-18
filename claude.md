@@ -224,7 +224,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 ### 4.16. Reward Feedback Kit (`utils/rewardFeedback.ts`, `utils/celebrate.ts`, `utils/sfx.ts`, `components/victory/`, `components/hud/`)
 - Phase 1 of the Feature 22 redesign. Presentation only: rewards, XP, levels and sync are unchanged.
 - **Staged victory** (`MissionVictory`, used by `MissionRunner`): over about 4 seconds the three star slots land one by one (a missed star lands grey), the XP bar fills from the learner's XP before the mission toward the next level and shows a "רמה חדשה!" badge when a level is crossed, the XP / diamonds / words count up, and the 3-star room item flips in last (its space is kept so nothing jumps). A tap anywhere skips to the end. Everything on screen is derived from one clock (`useAnimationClock`) through the pure `getVictoryFrame(input, elapsedMs)`; `VICTORY_TIMING` holds the schedule. `MissionRunner` takes `startXp` / `startLevel` from the dashboard for the bar.
-- **Header**: the level ring around the avatar shows the XP toward the next level (`getLevelProgress`: a stored level ahead of the XP shows an empty ring; see 4.18), the diamond counters count up when they change (`useCountUp`), and a 🔊 / 🔇 button mutes the sound effects.
+- **Header**: the level ring around the avatar shows the XP toward the next level (`getLevelProgress`: a stored level ahead of the XP shows an empty ring; see 4.19), the diamond counters count up when they change (`useCountUp`), and a 🔊 / 🔇 button mutes the sound effects.
 - **Sound effects** (`sfx.ts`): 8 short CC0 Kenney sounds in `public/sfx/` (`tap`, `correct`, `wrong`, `star`, `star-miss`, `coins`, `level-up`, `celebrate`; sources in `public/sfx/CREDITS.md`, swap a sound by replacing its file). Nothing plays before the first tap or key press. The mute setting is saved on the device (`english_tutor_sfx_muted`, not synced). Browsers without Ogg Vorbis (older than iOS Safari 17.4) stay silent. Every `FeedbackBanner` (and the mission runner's `FeedbackSheet`) plays the correct / wrong sound, so all drill runners get it; word chips and letter magnets play `tap`.
 - **Celebrations** (`celebrate(size)`): the one place that fires confetti. `small` (quest claim, purchase, vault word, item placed, drawing saved) plays `coins`; `medium` (room activity rewards) and `big` (exam session, certificate, word list session, mission victory) play `celebrate`; `{ isSilent: true }` skips the sound.
 - **Reduced motion** (`utils/motion.ts`, `usePrefersReducedMotion`): no confetti, the victory starts at its final state (one cheer instead of the staged sounds), counters jump, and a global CSS rule in `index.css` stops animations and transitions.
@@ -249,8 +249,16 @@ Each learning mission consists of 5 pedagogical drill stages:
   - Victory (`MissionVictory`): the companion's cheer pose holds up the trophy.
 - **Art pipeline** (`scripts/process_art.py`, needs Pillow and numpy): reads `art-src/` (gitignored originals; `.jpg`, `.jpeg`, `.png` or `.webp`) and writes `public/art/`. Cut-outs drawn on a white background (companion poses, `art-src/common/*`, `art-src/landmarks/*`) lose the background and the drawn ground shadow by a flood fill from the edges and become transparent bottom-centred squares at 512 and 256px; the five poses of a theme are scaled to the same height so they swap in place. Full-frame pictures are only resized, never enlarged: `map-bg` 1080px wide, `home-scene` 1200, `room-bg` 1600, `art-src/stories/*` 960. Missing files are skipped, and the script lists what it wrote and skipped. `python scripts/process_art.py [theme|common|landmarks|stories ...] [--src DIR] [--out DIR]`; `scripts/cutout_companion.py [theme]` still processes one theme's poses.
 
-### 4.18. Home Base Dashboard (`DashboardView.tsx`, `components/home/`, `data/homeBase.ts`, `utils/bidi.ts`)
-- Phase 4 of the Feature 22 redesign (Feature 27). The home screen has one focus, top to bottom: HUD, hero with one Play button, quest rings, dock, map peek, then the full `MissionMap` (unchanged). The bottom nav stays on phones.
+### 4.18. World Map (`data/worldMap.ts`, `components/MissionMap.tsx`, `components/worldMap/`)
+- Phase 3 of the Feature 22 redesign (Feature 26). `MissionMap` (still embedded by the dashboard, same props) is an illustrated map of the learner's grade. Unlocks, the Boss gate and rewards are unchanged: every stop's state comes from `milestones.ts`.
+- **Layout** (`buildWorldMap`, pure, + `.test.ts`): all lengths are in map widths, so the map scales with the screen. Each unit is one region drawn on one copy of the theme's map background (`art.mapBg`, 1080 × 1935, `MAP_BG_ASPECT`, about one phone screen). The copies don't tile, so each unit's banner (`UnitBanner`: badge, `יחידה N`, Hebrew and English titles, the unit's stars) is centred on the join above its region (`MAP_BANNER_HEIGHT`; half a banner of space above the first region). The stops sit at equal distances along the path between the banner above and the one below (`getStopPositions`), and the landmark goes between the first two stops on the side away from the path (`getLandmarkPlacement`).
+- **Path** (`MapPathLayer`): one SVG over the backgrounds in the same coordinates as the stops. It follows `art.mapPath.centerline`, points traced on each theme's background along its empty winding band (`MAP_PATH_BY_THEME` in `themeArt.ts`; trace again if a background is replaced), smoothed with Catmull-Rom (`sampleCenterline`). The colours are in the same manifest: a sandy road on PeachNote's grass; a light path with a cyan glow on the near-black VibeLingua band and the deep-navy Starlight band. The walked part (top to the current mission) is drawn in the trail colour.
+- **Stops** (`MapStops`): coins, gold with 1–3 stars when done, the theme colour when open, grey with a lock when locked. The suggested mission (`getSuggestedMission`, so a gated Boss sends the companion to the weakest regular mission) pulses and has the companion (idle pose) standing on it. The Boss is a castle (`/art/common/boss-locked.webp` / `boss-open.webp`, fallback a 🏰 tile) with the stars toward its gate (`👑 3/4 ⭐`); when the gate is met it opens with an animation once per device (`castleMemory.ts`, `english_tutor_opened_castles_v1`, not synced). Landmarks (`/art/landmarks/g<grade>-u<unit>.webp`, grade read from the mission ids) show the unit's badge emoji in a bubble until the file exists.
+- **Mission sheet** (`MissionSheet`, rendered into `<body>`): tapping any stop opens a bottom sheet with the full title (no truncation), story hook, length and topic, stars, the rewards for the chosen tier, the tier choice (`mission/TierChoice`, shared with `MissionIntro`), the tier's focus and sample sentence, the words (tap to hear) and Start / Play again. A locked stop says why (the missing Boss stars, or the mission to finish first) and has no Start. Escape or the backdrop closes it.
+- The map is a scroll window (`min(76vh, 760px)`, centred, at most 520px wide on desktop) so the dashboard around it still scrolls; it scrolls to the current mission when it opens, on a grade change and when the next mission moves, and the "למשימה הבאה" button scrolls back. Per-theme banner, coin and sheet styles are in `worldMap/worldMapStyles.ts`. With reduced motion there is no pulse, the castle is simply open and the sheet doesn't slide.
+
+### 4.19. Home Base Dashboard (`DashboardView.tsx`, `components/home/`, `data/homeBase.ts`, `utils/bidi.ts`)
+- Phase 4 of the Feature 22 redesign (Feature 27). The home screen has one focus, top to bottom: HUD, hero with one Play button, quest rings, dock, map peek, then the world map (`MissionMap`, 4.18). The bottom nav stays on phones.
 - **HUD** (`HomeHud`), one row: the avatar inside a ring of the XP toward the next level with the level number under it (`ProgressRing`, `getLevelProgress`) opens the **stats sheet**; the 🔥 streak opens the daily quests sheet; the 💎 count (count-up) opens the shop; then the sound toggle and the cloud sync button. Desktop adds the vault, shop and settings buttons.
 - **Stats sheet** (`StatsSheet`): level, the five stat tiles that left the home screen (streak, stars, missions completed, diamonds → shop, XP and mastered words → Vocabulary Vault), the grade selector, the Shabbat shield and the placement test link, plus profile settings.
 - **Hero** (`HomeHero`): the theme's `art.homeScene` (16:9, `object-fit: cover`; on phones it keeps the left side, where the building is), with the hero card gradient as the fallback. The companion waves on the right with a speech bubble (`getHomeGreetingHe`: by name and gender; first adventure / Boss stars missing / mission done today / ready). Today's mission card shows the tier-scaled XP and 💎, the Hebrew and English titles, the Boss-gate replay line (`getSuggestedMission`), and one big Play button (`getPlayLabelHe`: "בואי נשחק!" or "שפרי כוכבים" for the replay). The tier is chosen on the mission intro (4.17).
@@ -259,7 +267,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Map peek** (`MapPeek`, `getMapPeek`): the current unit (first one with a mission without stars), the grade's missions and stars; a tap scrolls to the map.
 - **First launch** (`App.tsx`, `getFirstLaunchSteps`): one sequence instead of two modals. `FirstLaunchGreeting` (once per profile, `hasSeenWelcomeGiftModal`): the companion says hello and hands over the welcome chest (`/art/common/chest-closed.webp` → `chest-open.webp`, emoji fallbacks); a tap opens it with a big celebration and counts up the 50 welcome gems. Then, right after first-time onboarding, the placement test offer. The old welcome modal is gone.
 - **Right-to-left**: `index.html` is `<html lang="he" dir="rtl">`, so per-element `dir="rtl"` was removed (it stays only inside English `dir="ltr"` blocks). English text is marked `dir="ltr"` (blocks, word chips, letter grids, inputs), `dir="auto"` (answer options, mixed search) or `<bdi>` (English inside Hebrew lines, e.g. the login title). Plain strings use `isolateLtr` / `formatGainLtr` (`utils/bidi.ts`), so "+10 XP" doesn't show as "XP 10+".
-- **Text size**: nothing is smaller than 12px (`text-xs`); `text-[10px]` and `text-[11px]` are gone (except in `MissionMap.tsx`, rebuilt by Feature 26).
+- **Text size**: nothing is smaller than 12px (`text-xs`); `text-[10px]` and `text-[11px]` are gone.
 - Reduced motion: no chest wobble or confetti, the gems show at once, the companion stands still.
 
 ---
@@ -281,8 +289,8 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── home/                     # Home base: HUD with level ring, hero scene, quest rings, dock tile, map peek, stats sheet, first-launch greeting & chest
 │   │   ├── hud/                      # Header pieces: sound toggle, Fluent Emoji icons
 │   │   ├── friends/                  # Friends Hub: dock tile, hub screen, friend card & reactions, add friend, invite code, contest panel/runner/result
-│   │   ├── mission/                  # Mission runner pieces: intro screen with the tier picker, trail progress with the combo flame
-│   │   ├── MissionMap.tsx            # Unit & mission progression node tree
+│   │   ├── mission/                  # Mission runner pieces: intro screen, tier choice (shared with the map sheet), trail progress with the combo flame
+│   │   ├── MissionMap.tsx            # World map of the grade: regions, path, stops, banners & mission sheet (Feature 26)
 │   │   ├── MissionRunner.tsx         # 5-step interactive exercise runner
 │   │   ├── OnboardingView.tsx        # Profile setup (name, gender, age, grade, tier)
 │   │   ├── PlacementTest.tsx         # Adaptive diagnostic placement test overlay
@@ -293,6 +301,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── room/                     # My English Room: hub, scene & layout, inventory, naming panel, wardrobe, phone, dream journal, games/ (Games Book), stickers/ (Sticker Studio)
 │   │   ├── victory/                  # Staged mission victory screen with the cheering companion (Features 24–25)
 │   │   ├── VocabularyVaultModal.tsx  # Ministry word bank & pronunciation studio
+│   │   ├── worldMap/                 # World map pieces: SVG path, coin & castle stops, banners, landmarks, mission sheet, per-theme styles
 │   │   └── wordLists/                # School word lists: dock tile, lists card, importer, session runner & result
 │   ├── data/
 │   │   ├── curriculum/               # Grade-specific curriculum packs
@@ -310,6 +319,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── friends.ts                # Friend codes, requests, public summary, reactions & invite links (+ .test.ts)
 │   │   ├── contests.ts               # Daily contest questions by grade, deciding & rewards (+ .test.ts)
 │   │   ├── milestones.ts             # Boss star gate, mission unlocks, suggested mission & missions counter (+ .test.ts)
+│   │   ├── worldMap.ts               # World map layout: regions, path sampling, stop & landmark positions, stop states (+ .test.ts)
 │   │   ├── missionHints.test.ts      # Sweep of every mission × tier: hints never repeat the prompt or reveal the answer
 │   │   ├── placementTest.ts          # Placement question generation, staircase & scoring (+ .test.ts)
 │   │   ├── progressReport.ts         # Weekly report: week days, totals, star mastery, mastered words & share text (+ .test.ts)
@@ -338,7 +348,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── friendsService.ts         # Firestore calls for friends, public profiles & contests
 │   │   └── firebase.ts               # Firebase initialization & auth/db instances
 │   ├── themes/
-│   │   ├── themeArt.ts               # Art manifest: companion poses, scene backgrounds, common/landmark/story art paths (+ .test.ts)
+│   │   ├── themeArt.ts               # Art manifest: companion poses, scene backgrounds, map path per theme, common/landmark/story art paths (+ .test.ts)
 │   │   └── themeRegistry.ts          # Pluggable theme visual definitions, art block & tiers
 │   ├── types/
 │   │   └── learner.ts                # Core domain types (LearnerProfile, Stats, Grades)

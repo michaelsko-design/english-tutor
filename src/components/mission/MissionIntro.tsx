@@ -3,8 +3,9 @@ import { X, Clock } from 'lucide-react';
 import { MissionNode } from '../../data/curriculum';
 import { LearnerGender, ProficiencyTier } from '../../types/learner';
 import { inflectHebrew } from '../../utils/hebrewGender';
-import { ThemeDefinition, TIER_CONFIG } from '../../themes/themeRegistry';
+import { ThemeDefinition } from '../../themes/themeRegistry';
 import { Companion } from '../companion/Companion';
+import { TierChoice } from './TierChoice';
 
 interface MissionIntroProps {
   mission: MissionNode;
@@ -17,7 +18,6 @@ interface MissionIntroProps {
   onClose: () => void;
 }
 
-const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
 export const INTRO_COMPANION_SIZE = 120;
 
 /**
@@ -70,37 +70,7 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
         </p>
       </div>
 
-      <fieldset className="space-y-2.5">
-        <legend className="text-sm font-extrabold mb-2">{isGirl ? 'בחרי רמת אתגר:' : 'בחר רמת אתגר:'}</legend>
-        {TIERS.map((tierId) => {
-          const meta = TIER_CONFIG[tierId];
-          const isSelected = tier === tierId;
-          return (
-            <button
-              key={tierId}
-              type="button"
-              onClick={() => onChangeTier(tierId)}
-              aria-pressed={isSelected}
-              className={`btn-chunky w-full text-start p-3.5 rounded-2xl flex items-center gap-3 ${
-                isSelected ? 'bg-emerald-500/15 border-2 border-emerald-500 btn-chunky-correct' : theme.cardBgClass
-              }`}
-            >
-              <span className="text-2xl leading-none" aria-hidden="true">
-                {meta.badgeEmoji}
-              </span>
-              <span className="flex-1 min-w-0">
-                <span className="flex items-center gap-2 font-extrabold text-base">
-                  {meta.labelHe}
-                  <span className={`px-2 py-0.5 rounded-md text-xs ${theme.badgeClass}`} dir="ltr">
-                    {meta.labelEn}
-                  </span>
-                </span>
-                <span className={`block text-xs font-bold mt-0.5 ${theme.mutedTextClass}`}>{meta.descriptionHe}</span>
-              </span>
-            </button>
-          );
-        })}
-      </fieldset>
+      <TierChoice tier={tier} onChangeTier={onChangeTier} gender={gender} theme={theme} />
 
       <button
         type="button"
