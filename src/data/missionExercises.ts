@@ -186,7 +186,7 @@ function getRawExercisesForMission(
         {
           textEn: v1.exampleEn,
           isCorrect: true,
-          explanationHe: `כל הכבוד! המשפט "${v1.exampleEn}" כתוב ללא שגיאות!`,
+          explanationHe: `כל הכבוד! המשפט "${isolateLtr(v1.exampleEn)}" כתוב ללא שגיאות!`,
         },
         {
           textEn: 'She are going yesterday to the school.',

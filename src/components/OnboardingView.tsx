@@ -204,7 +204,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                 <span>שכבת לימוד (מותאם אוטומטית לפי הגיל):</span>
               </label>
               <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                {SUPPORTED_GRADES.find((g) => g.id === gradeId)?.labelHe} · {SUPPORTED_GRADES.find((g) => g.id === gradeId)?.ministryBand}
+                {SUPPORTED_GRADES.find((g) => g.id === gradeId)?.labelHe} · <bdi>{SUPPORTED_GRADES.find((g) => g.id === gradeId)?.ministryBand}</bdi>
               </span>
             </div>
 
@@ -226,7 +226,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                       }`}
                     >
                       <div className="font-extrabold text-xs">{g.labelHe}</div>
-                      <div className="text-xs opacity-80 truncate">{g.labelEn}</div>
+                      <div className="text-xs opacity-80 truncate" dir="ltr">{g.labelEn}</div>
                     </button>
                   );
                 })}
@@ -253,7 +253,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                         }`}
                       >
                         <div className="font-extrabold text-xs">{g.labelHe}</div>
-                        <div className="text-xs opacity-80 truncate">{g.labelEn}</div>
+                        <div className="text-xs opacity-80 truncate" dir="ltr">{g.labelEn}</div>
                       </button>
                     );
                   })}
@@ -278,7 +278,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                         }`}
                       >
                         <div className="font-extrabold text-xs">{g.labelHe}</div>
-                        <div className="text-xs opacity-80 truncate">{g.labelEn}</div>
+                        <div className="text-xs opacity-80 truncate" dir="ltr">{g.labelEn}</div>
                       </button>
                     );
                   })}
@@ -309,7 +309,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                     }`}
                   >
                     <span className="text-base">{tItem.avatarEmoji}</span>
-                    <span className="font-extrabold text-xs sm:text-xs truncate max-w-full">
+                    <span className="font-extrabold text-xs sm:text-xs truncate max-w-full" dir="ltr">
                       {tItem.name}
                     </span>
                   </button>
