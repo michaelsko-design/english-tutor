@@ -23,6 +23,7 @@ import { RoomPanelFrame } from '../RoomPanelFrame';
 import { CrosswordGame } from './CrosswordGame';
 import { ScrambleGame } from './ScrambleGame';
 import { WordHuntGame } from './WordHuntGame';
+import { formatGainLtr } from '../../../utils/bidi';
 
 interface GamesBookPanelProps {
   profile: LearnerProfile;
@@ -124,7 +125,7 @@ export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, 
           }
           partialHe={
             view.isBelowRewardScore && view.reward
-              ? `+${view.reward.xpEarned} XP · הפרס היומי ניתן מ־${GAME_FULL_REWARD_MIN_SCORE}% ומעלה. ${
+              ? `${formatGainLtr(view.reward.xpEarned, 'XP')} · הפרס היומי ניתן מ־${GAME_FULL_REWARD_MIN_SCORE}% ומעלה. ${
                   profile.gender === 'girl' ? 'נסי שוב ופתרי עוד מילים!' : 'נסה שוב ופתור עוד מילים!'
                 }`
               : undefined
@@ -161,7 +162,7 @@ export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, 
                   <span className="block font-extrabold text-sm">
                     {game.titleHe} · <span dir="ltr">{game.titleEn}</span>
                   </span>
-                  <span className={`block text-[11px] ${theme.mutedTextClass}`}>
+                  <span className={`block text-xs ${theme.mutedTextClass}`}>
                     {isUnlocked
                       ? best !== undefined
                         ? `שיא: ${best}%`

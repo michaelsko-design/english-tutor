@@ -113,7 +113,7 @@ export const ContestPanel: React.FC<ContestPanelProps> = ({
         return (
           <div className="space-y-0.5">
             <p className="text-xs font-extrabold">{getOutcomeTextHe(state, friendName)}</p>
-            <p className={`text-[11px] ${theme.mutedTextClass}`} dir="rtl">
+            <p className={`text-xs ${theme.mutedTextClass}`}>
               {mine && `${isGirl ? 'את' : 'אתה'}: ${getScorePercent(mine)}%`}
               {theirs && ` · ${friendName}: ${getScorePercent(theirs)}%`}
               {diamondsEarned ? ` · +${diamondsEarned} 💎` : ''}
@@ -127,7 +127,7 @@ export const ContestPanel: React.FC<ContestPanelProps> = ({
     <div className={`rounded-xl p-2.5 space-y-2 ${theme.inputBgClass}`} aria-label={`אתגר יומי מול ${friendName}`} role="group" aria-live="polite">
       {body}
       {hasRecord && (
-        <p className={`text-[11px] font-bold ${theme.mutedTextClass}`}>
+        <p className={`text-xs font-bold ${theme.mutedTextClass}`}>
           המאזן מול {friendName}: 🏆 {record.wins} · 🤝 {record.ties} · {record.losses} הפסדים
         </p>
       )}

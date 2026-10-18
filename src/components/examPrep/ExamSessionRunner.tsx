@@ -154,7 +154,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
   };
 
   const progressHeader = (
-    <div className="flex items-center gap-2" dir="rtl">
+    <div className="flex items-center gap-2">
       <span className="text-xs font-extrabold shrink-0">{isMock ? '🎓 סימולציה' : '📅 תרגול'}</span>
       <div
         role="progressbar"
@@ -195,7 +195,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
   if (!step) {
     return (
       <ExamModalShell theme={theme} labelHe="תרגול" onClose={onClose}>
-        <p className="p-6 text-center font-bold" dir="rtl">
+        <p className="p-6 text-center font-bold">
           לא נמצאו תרגילים לנושאים שנבחרו.
         </p>
       </ExamModalShell>
@@ -205,7 +205,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
   return (
     <ExamModalShell theme={theme} labelHe={isMock ? 'סימולציית מבחן' : 'תרגול למבחן'} onClose={onClose} maxWidthClass="max-w-3xl" header={progressHeader}>
       <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-2" dir="rtl">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>{step.badgeLabelHe}</span>
           {!isMock && (
             <button
@@ -219,12 +219,12 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
           )}
         </div>
 
-        <p className="text-base md:text-lg font-extrabold" dir="rtl">
+        <p className="text-base md:text-lg font-extrabold">
           {step.promptHe}
         </p>
 
         {showHint && !isMock && (
-          <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-xs md:text-sm font-bold" dir="rtl">
+          <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-xs md:text-sm font-bold">
             {step.hintHe}
           </div>
         )}

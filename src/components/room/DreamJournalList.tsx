@@ -35,9 +35,9 @@ export const DreamJournalList: React.FC<DreamJournalListProps> = ({ entries, the
               <p className="text-xs font-bold" dir="ltr">
                 {entry.textEn}
               </p>
-              <p className={`text-[11px] ${theme.mutedTextClass}`}>{entry.textHe}</p>
-              {entry.noteHe && <p className={`text-[11px] italic ${theme.mutedTextClass}`}>✍️ {entry.noteHe}</p>}
-              <p className={`text-[10px] ${theme.mutedTextClass}`}>{new Date(entry.createdAt).toLocaleDateString('he-IL')}</p>
+              <p className={`text-xs ${theme.mutedTextClass}`}>{entry.textHe}</p>
+              {entry.noteHe && <p className={`text-xs italic ${theme.mutedTextClass}`}>✍️ {entry.noteHe}</p>}
+              <p className={`text-xs ${theme.mutedTextClass}`}>{new Date(entry.createdAt).toLocaleDateString('he-IL')}</p>
             </div>
           </li>
         ))}

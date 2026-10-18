@@ -171,7 +171,7 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
 
   return (
     <section aria-label={goalHe} className={`p-4 sm:p-5 rounded-3xl space-y-4 ${theme.cardBgClass}`}>
-      <div className="flex items-start justify-between gap-3" dir="rtl">
+      <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <ItemIcon item={item} size="2.25rem" />
           <div>
@@ -189,7 +189,7 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
       </div>
 
       {!isNamed && (modes.length > 1 || mode === 'spell') && (
-        <div className="flex flex-wrap items-center gap-2" dir="rtl">
+        <div className="flex flex-wrap items-center gap-2">
           {modes.length > 1 &&
             modes.map((tab) => (
               <button

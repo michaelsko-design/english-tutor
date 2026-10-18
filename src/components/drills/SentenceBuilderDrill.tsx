@@ -26,7 +26,7 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
 }) => (
   <div className="space-y-4">
     {targetSentenceHe && (
-      <div className="text-sm font-bold opacity-85" dir="rtl">
+      <div className="text-sm font-bold opacity-85">
         משפט היעד לתרגום: &ldquo;{targetSentenceHe}&rdquo;
       </div>
     )}
@@ -90,7 +90,7 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
           className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
         >
           <RotateCcw className="w-3.5 h-3.5" />
-          <span dir="rtl">איפוס מילים</span>
+          <span>איפוס מילים</span>
         </button>
         <button
           type="button"
@@ -98,7 +98,7 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
           onClick={onCheck}
           className={`px-6 py-2.5 rounded-xl text-xs md:text-sm font-extrabold ${theme.primaryBtnClass} disabled:opacity-40`}
         >
-          <span dir="rtl">בדיקת משפט ✓</span>
+          <span>בדיקת משפט ✓</span>
         </button>
       </div>
     )}

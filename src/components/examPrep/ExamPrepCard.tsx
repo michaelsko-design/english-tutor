@@ -35,7 +35,7 @@ export const ExamPrepCard: React.FC<ExamPrepCardProps> = ({
 
   if (!plan) {
     return (
-      <section aria-label="הכנה למבחן" className={`${cardClass} flex flex-col sm:flex-row sm:items-center gap-3`} dir="rtl">
+      <section aria-label="הכנה למבחן" className={`${cardClass} flex flex-col sm:flex-row sm:items-center gap-3`}>
         <div className="flex items-center gap-3 flex-1">
           <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${theme.primaryBtnClass}`}>
             <CalendarDays className="w-5 h-5" />
@@ -66,7 +66,7 @@ export const ExamPrepCard: React.FC<ExamPrepCardProps> = ({
 
   if (isExamPast(plan, todayStr)) {
     return (
-      <section aria-label="הכנה למבחן" className={`${cardClass} space-y-3`} dir="rtl">
+      <section aria-label="הכנה למבחן" className={`${cardClass} space-y-3`}>
         <h2 className="font-extrabold text-sm sm:text-base">איך היה המבחן? 🍀</h2>
         <p className={`text-xs ${theme.mutedTextClass}`}>
           השלמת {doneCount} מתוך {plan.days.length} שלבי הכנה. כל הכבוד על ההשקעה!
@@ -89,10 +89,10 @@ export const ExamPrepCard: React.FC<ExamPrepCardProps> = ({
   }
 
   return (
-    <section aria-label="הכנה למבחן" className={`${cardClass} space-y-3 border-2 border-purple-400/50`} dir="rtl">
+    <section aria-label="הכנה למבחן" className={`${cardClass} space-y-3 border-2 border-purple-400/50`}>
       <div className="flex items-start justify-between gap-2">
         <div className="space-y-0.5">
-          <span className="px-2.5 py-0.5 rounded-full bg-purple-500/15 text-[11px] font-extrabold">
+          <span className="px-2.5 py-0.5 rounded-full bg-purple-500/15 text-xs font-extrabold">
             📅 הכנה למבחן
           </span>
           <h2 className="font-extrabold text-base sm:text-lg">{getCountdownHe(daysLeft)}</h2>

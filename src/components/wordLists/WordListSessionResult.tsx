@@ -43,7 +43,7 @@ export const WordListSessionResult: React.FC<WordListSessionResultProps> = ({
     : 'עוד סיבוב אחד ואתה שם 💪';
 
   return (
-    <div className="p-5 sm:p-7 space-y-5" dir="rtl">
+    <div className="p-5 sm:p-7 space-y-5">
       <div className="text-center space-y-2">
         <div className="text-5xl" aria-hidden="true">
           {isGreat ? '🏆' : '📋'}

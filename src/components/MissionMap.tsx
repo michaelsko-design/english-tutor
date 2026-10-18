@@ -87,7 +87,7 @@ export const MissionMap: React.FC<MissionMapProps> = ({
 
   return (
     <section aria-label="מפת העולם והמשימות" className="space-y-3 md:space-y-4">
-      <div className="flex items-end justify-between gap-3 px-1" dir="rtl">
+      <div className="flex items-end justify-between gap-3 px-1">
         <div>
           <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold">🗺️ מפת העולם</h2>
           <p className={`text-xs font-bold ${theme.mutedTextClass}`}>

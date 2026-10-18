@@ -36,7 +36,6 @@ export const TrailProgress: React.FC<TrailProgressProps> = ({
     <div className="flex-1 flex items-center gap-2 min-w-0">
       <div
         className="flex-1 flex items-center gap-1.5"
-        dir="rtl"
         role="progressbar"
         aria-label="התקדמות במשימה"
         aria-valuemin={0}

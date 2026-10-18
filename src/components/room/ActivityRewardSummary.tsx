@@ -2,6 +2,7 @@ import React from 'react';
 import { RoomActivityReward } from '../../data/roomActivities';
 import { LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { formatGainLtr } from '../../utils/bidi';
 
 interface ActivityRewardSummaryProps {
   /** null when nothing was earned (e.g. no message was sent) */
@@ -33,8 +34,8 @@ export const ActivityRewardSummary: React.FC<ActivityRewardSummaryProps> = ({
   const rewardText = !reward
     ? emptyHe
     : reward.isFullReward
-      ? `+${reward.xpEarned} XP ו־+${reward.diamondsEarned} 💎 — וזה נספר כמשימה של היום! 🎯`
-      : partialHe ?? `+${reward.xpEarned} XP · את הפרס היומי כבר קיבלת היום, ${isGirl ? 'המשיכי' : 'המשך'} להתאמן!`;
+      ? `${formatGainLtr(reward.xpEarned, 'XP')} ו־${formatGainLtr(reward.diamondsEarned, '💎')} — וזה נספר כמשימה של היום! 🎯`
+      : partialHe ?? `${formatGainLtr(reward.xpEarned, 'XP')} · את הפרס היומי כבר קיבלת היום, ${isGirl ? 'המשיכי' : 'המשך'} להתאמן!`;
 
   return (
     <div className="space-y-3 text-center py-2" role="status">

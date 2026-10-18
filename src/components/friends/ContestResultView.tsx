@@ -31,7 +31,7 @@ export const ContestResultView: React.FC<ContestResultViewProps> = ({
 
   return (
     <ExamModalShell theme={theme} labelHe="תוצאת האתגר" maxWidthClass="max-w-md">
-      <div className="p-5 sm:p-7 space-y-4 text-center" dir="rtl">
+      <div className="p-5 sm:p-7 space-y-4 text-center">
         <div className="text-5xl" aria-hidden="true">{percent >= 70 ? '🏆' : '⚔️'}</div>
         <h2 className="text-xl font-black">סיימת את האתגר!</h2>
         <div className="grid grid-cols-2 gap-2">
@@ -59,7 +59,7 @@ export const ContestResultView: React.FC<ContestResultViewProps> = ({
           <>
             {xpEarned !== null && (
               <p className="inline-block px-4 py-1.5 rounded-full text-sm font-extrabold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
-                +{xpEarned} XP{isFullReward ? ' · נספר כמשימה של היום! 🎯' : ''}
+                <bdi>+{xpEarned} XP</bdi>{isFullReward ? ' · נספר כמשימה של היום! 🎯' : ''}
               </p>
             )}
             <p className={`text-xs ${theme.mutedTextClass}`}>

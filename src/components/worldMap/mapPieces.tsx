@@ -48,7 +48,6 @@ export const UnitBanner: React.FC<UnitBannerProps> = ({ unit, bannerTop, mapHeig
     <div className={`absolute inset-x-0 top-[24%] bottom-[24%] ${style.bannerRibbonClass}`} aria-hidden="true" />
     <div
       className={`relative w-[88%] h-[86%] rounded-2xl px-3 flex items-center gap-2.5 ${style.bannerSignClass}`}
-      dir="rtl"
     >
       <span
         className={`w-11 h-11 shrink-0 rounded-2xl flex items-center justify-center text-2xl shadow-md ${style.bannerBadgeClass}`}
@@ -57,9 +56,9 @@ export const UnitBanner: React.FC<UnitBannerProps> = ({ unit, bannerTop, mapHeig
         {unit.badgeEmoji}
       </span>
       <span className="flex-1 min-w-0 leading-tight">
-        <span className="block text-[11px] font-extrabold opacity-75">יחידה {unit.unitNumber}</span>
+        <span className="block text-xs font-extrabold opacity-75">יחידה {unit.unitNumber}</span>
         <span className="block text-sm sm:text-base font-extrabold line-clamp-2">{unit.titleHe}</span>
-        <span className="block text-[11px] font-bold opacity-80 truncate" dir="ltr">
+        <span className="block text-xs font-bold opacity-80 truncate" dir="ltr">
           {unit.titleEn}
         </span>
       </span>

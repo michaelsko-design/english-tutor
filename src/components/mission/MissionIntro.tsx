@@ -36,7 +36,7 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
 }) => {
   const isGirl = gender === 'girl';
   return (
-    <div className="relative px-4 sm:px-8 pt-4 pb-6 space-y-5" dir="rtl">
+    <div className="relative px-4 sm:px-8 pt-4 pb-6 space-y-5">
       <button
         type="button"
         onClick={onClose}

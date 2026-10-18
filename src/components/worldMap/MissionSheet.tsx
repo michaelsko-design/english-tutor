@@ -83,7 +83,6 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="mission-sheet-title"
-        dir="rtl"
         className={`relative w-full max-w-lg max-h-[88vh] overflow-y-auto overscroll-contain rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.35)] ${style.sheetBgClass} ${style.sheetEdgeClass} ${
           isReducedMotion ? '' : 'animate-sheet-up'
         }`}

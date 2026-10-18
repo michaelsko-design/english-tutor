@@ -71,7 +71,7 @@ export const TierChoice: React.FC<TierChoiceProps> = ({ tier, onChangeTier, gend
             <span className="flex-1 min-w-0">
               <span className="flex items-center gap-2 font-extrabold text-base">
                 {meta.labelHe}
-                <span className={`px-2 py-0.5 rounded-md text-[11px] ${theme.badgeClass}`} dir="ltr">
+                <span className={`px-2 py-0.5 rounded-md text-xs ${theme.badgeClass}`} dir="ltr">
                   {meta.labelEn}
                 </span>
               </span>

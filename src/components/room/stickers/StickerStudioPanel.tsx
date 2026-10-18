@@ -84,7 +84,7 @@ export const StickerStudioPanel: React.FC<StickerStudioPanelProps> = ({
                   <button
                     type="button"
                     onClick={() => onPlaceSticker(item.id)}
-                    className={`px-2 py-1 rounded-lg text-[11px] font-bold ${isOnBoard ? 'bg-emerald-500/20' : theme.secondaryBtnClass}`}
+                    className={`px-2 py-1 rounded-lg text-xs font-bold ${isOnBoard ? 'bg-emerald-500/20' : theme.secondaryBtnClass}`}
                   >
                     {isOnBoard ? '✓ על הלוח' : '🧷 ללוח'}
                   </button>
@@ -92,7 +92,7 @@ export const StickerStudioPanel: React.FC<StickerStudioPanelProps> = ({
                     type="button"
                     onClick={() => onUpdateProfile(setBackgroundSticker(profile, isBackground ? null : item.id, new Date()))}
                     aria-pressed={isBackground}
-                    className={`px-2 py-1 rounded-lg text-[11px] font-bold ${isBackground ? theme.primaryBtnClass : theme.secondaryBtnClass}`}
+                    className={`px-2 py-1 rounded-lg text-xs font-bold ${isBackground ? theme.primaryBtnClass : theme.secondaryBtnClass}`}
                   >
                     {isBackground ? '✓ רקע' : '🖼️ רקע'}
                   </button>
@@ -105,7 +105,7 @@ export const StickerStudioPanel: React.FC<StickerStudioPanelProps> = ({
                           setConfirmDeleteId(null);
                         }}
                         onBlur={() => setConfirmDeleteId(null)}
-                        className="px-2 py-1 rounded-lg text-[11px] font-bold bg-rose-500 text-white"
+                        className="px-2 py-1 rounded-lg text-xs font-bold bg-rose-500 text-white"
                       >
                         למחוק?
                       </button>
@@ -114,7 +114,7 @@ export const StickerStudioPanel: React.FC<StickerStudioPanelProps> = ({
                         type="button"
                         onClick={() => setConfirmDeleteId(item.id)}
                         aria-label={`מחיקת ${item.nameEn}`}
-                        className={`px-2 py-1 rounded-lg text-[11px] font-bold ${theme.secondaryBtnClass}`}
+                        className={`px-2 py-1 rounded-lg text-xs font-bold ${theme.secondaryBtnClass}`}
                       >
                         🗑️
                       </button>

@@ -37,7 +37,7 @@ export const WordListImporter: React.FC<WordListImporterProps> = ({ gender, them
 
   return (
     <ExamModalShell theme={theme} labelHe="ייבוא רשימת מילים" onClose={onClose} maxWidthClass="max-w-2xl">
-      <div className="p-5 sm:p-7 space-y-4" dir="rtl">
+      <div className="p-5 sm:p-7 space-y-4">
         <div className="space-y-1">
           <h2 className="text-xl font-extrabold">📋 ייבוא רשימת מילים מבית הספר</h2>
           <p className={`text-xs sm:text-sm ${theme.mutedTextClass}`}>
@@ -96,7 +96,7 @@ export const WordListImporter: React.FC<WordListImporterProps> = ({ gender, them
               ))}
             </ul>
             {parsed.items.some((i) => i.isTranslationFromBank) && (
-              <p className={`text-[11px] ${theme.mutedTextClass}`}>📚 = תרגום ממאגר המילים של משרד החינוך</p>
+              <p className={`text-xs ${theme.mutedTextClass}`}>📚 = תרגום ממאגר המילים של משרד החינוך</p>
             )}
           </div>
         )}

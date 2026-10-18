@@ -25,6 +25,7 @@ import { StickerStudioPanel } from './stickers/StickerStudioPanel';
 import { PhonePanel } from './PhonePanel';
 import { WardrobePanel } from './WardrobePanel';
 import { AVATAR_HOME, OBJECT_POSITIONS, SLOT_POSITIONS, ScenePoint, getStandingPoint } from './roomLayout';
+import { formatGainLtr } from '../../utils/bidi';
 
 interface RoomScreenProps {
   profile: LearnerProfile;
@@ -155,7 +156,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     }
     setStatusText(
       result.xpEarned > 0
-        ? `${item?.emoji} ${item?.nameEn} בחדר! +${result.xpEarned} XP על מילה חדשה 🌟`
+        ? `${item?.emoji} ${item?.nameEn} בחדר! ${formatGainLtr(result.xpEarned, 'XP')} על מילה חדשה 🌟`
         : `${item?.emoji} ${item?.nameEn} בחדר! 🏠`
     );
     setNaming(null);
@@ -179,7 +180,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   const namingItem = naming ? getRoomItemFor(profile, naming.itemId) : undefined;
 
   const header = (
-    <div className="flex items-center justify-between gap-2" dir="rtl">
+    <div className="flex items-center justify-between gap-2">
       <h2 className="font-extrabold text-sm sm:text-base truncate">🏠 החדר האנגלי שלי</h2>
       <button
         type="button"
@@ -223,13 +224,13 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
         />
 
         {statusText && (
-          <p className="text-xs sm:text-sm font-extrabold text-center" dir="rtl" role="status">
+          <p className="text-xs sm:text-sm font-extrabold text-center" role="status">
             {statusText}
           </p>
         )}
 
         {focusedSlotId && focusedItem && !naming && (
-          <div className="flex flex-wrap items-center justify-center gap-2" dir="rtl">
+          <div className="flex flex-wrap items-center justify-center gap-2">
             <button
               type="button"
               onClick={() => handleSelectItem(focusedItem.id)}
@@ -313,7 +314,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
           />
         )}
 
-        <p className={`text-[11px] text-center ${theme.mutedTextClass}`} dir="rtl">
+        <p className={`text-xs text-center ${theme.mutedTextClass}`}>
           🚪 ארון: הלבשה · 📱 טלפון: הודעות קוליות · 🛏️ מיטה: יומן חלומות · 📖 ספר המשחקים: משחקי מילים · 🎨 מדבקות: אלבום וציור
         </p>
       </div>

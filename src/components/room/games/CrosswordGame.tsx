@@ -95,7 +95,7 @@ export const CrosswordGame: React.FC<CrosswordGameProps> = ({ puzzle, gender, th
                 activeCells.has(key) ? 'border-fuchsia-500 bg-fuchsia-500/15' : 'border-current/20 bg-white/70 dark:bg-white/10'
               }`}
             >
-              {numbers.has(key) && <span className="absolute top-0 left-0.5 text-[8px] font-bold opacity-70">{numbers.get(key)}</span>}
+              {numbers.has(key) && <span className="absolute top-0 left-0.5 text-xs leading-none font-bold opacity-70">{numbers.get(key)}</span>}
               {letters.get(key) ?? ''}
             </span>
           );
@@ -105,7 +105,7 @@ export const CrosswordGame: React.FC<CrosswordGameProps> = ({ puzzle, gender, th
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {clueGroups.map((group) => (
           <div key={group.direction} className="space-y-1">
-            <h4 className="text-[11px] font-extrabold opacity-80">{group.title}</h4>
+            <h4 className="text-xs font-extrabold opacity-80">{group.title}</h4>
             {puzzle.entries
               .filter((entry) => entry.direction === group.direction)
               .map((entry) => (

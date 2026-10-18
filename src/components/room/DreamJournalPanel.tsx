@@ -175,6 +175,7 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
                 onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
                 aria-label={`התרגום של ${picked.he}`}
                 className={`px-2.5 py-1.5 rounded-xl text-sm font-bold w-44 ${theme.inputBgClass} ${missed[key] ? 'ring-2 ring-rose-400' : ''}`}
+                dir="ltr"
                 autoCapitalize="off"
                 autoCorrect="off"
                 spellCheck={false}

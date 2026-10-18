@@ -126,9 +126,9 @@ export const PhonePanel: React.FC<PhonePanelProps> = ({ profile, theme, onUpdate
                   {message.fromEmoji}
                 </span>
                 <div className="rounded-2xl rounded-bl-sm px-3 py-2 bg-white/15">
-                  <div className="text-[10px] font-bold opacity-70">{message.fromName}</div>
+                  <div className="text-xs font-bold opacity-70">{message.fromName}</div>
                   <div className="text-sm font-bold">{message.incomingEn}</div>
-                  <div className="text-[11px] opacity-70" dir="rtl">
+                  <div className="text-xs opacity-70" dir="rtl">
                     {message.incomingHe}
                   </div>
                 </div>
@@ -144,7 +144,7 @@ export const PhonePanel: React.FC<PhonePanelProps> = ({ profile, theme, onUpdate
               {outcomes[idx] === 'sent' && (
                 <div className="flex justify-end">
                   <div className="rounded-2xl rounded-br-sm px-3 py-2 bg-emerald-500 max-w-[85%]">
-                    <div className="text-[10px] font-bold opacity-80">🎤 Voice message</div>
+                    <div className="text-xs font-bold opacity-80">🎤 Voice message</div>
                     <div className="text-sm font-bold">{message.replyEn}</div>
                   </div>
                 </div>

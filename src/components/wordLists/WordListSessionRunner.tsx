@@ -198,7 +198,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   if (!step) {
     return (
       <ExamModalShell theme={theme} labelHe={list.title} onClose={onClose}>
-        <p className="p-6 text-center font-bold" dir="rtl">
+        <p className="p-6 text-center font-bold">
           אין ברשימה הזאת פריטים לתרגול.
         </p>
       </ExamModalShell>
@@ -206,7 +206,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   }
 
   const progressHeader = (
-    <div className="flex items-center gap-2" dir="rtl">
+    <div className="flex items-center gap-2">
       <span className="text-xs font-extrabold shrink-0 truncate max-w-[40%]">📋 {list.title}</span>
       <div
         role="progressbar"
@@ -230,7 +230,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   return (
     <ExamModalShell theme={theme} labelHe="תרגול רשימת מילים" onClose={onClose} maxWidthClass="max-w-3xl" header={progressHeader}>
       <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-2" dir="rtl">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>{step.badgeLabelHe}</span>
           <button
             type="button"
@@ -242,12 +242,12 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
           </button>
         </div>
 
-        <p className="text-base md:text-lg font-extrabold" dir="rtl">
+        <p className="text-base md:text-lg font-extrabold">
           {step.promptHe}
         </p>
 
         {showHint && (
-          <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-xs md:text-sm font-bold" dir="rtl">
+          <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-xs md:text-sm font-bold">
             {step.hintHe}
           </div>
         )}

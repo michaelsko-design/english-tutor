@@ -217,11 +217,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <LogIn className="w-5 h-5" />
               )}
             </div>
-            <div dir="rtl">
+            <div>
               <h2 className="text-base md:text-lg font-extrabold">
-                {isMandatory && !authUser
-                  ? '🔐 התחברות לסטודיו לאנגלית (Sign In Required)'
-                  : '☁️ סנכרון ענן וחשבון רב-מכשירים (Cloud Sync)'}
+                {isMandatory && !authUser ? '🔐 התחברות לסטודיו לאנגלית' : '☁️ סנכרון ענן וחשבון רב-מכשירים'}
+                {/* English on its own isolated line, so it can't flip or wrap into the Hebrew title */}
+                <bdi className="block text-xs font-bold opacity-70 text-right">
+                  {isMandatory && !authUser ? 'Sign In Required' : 'Cloud Sync'}
+                </bdi>
               </h2>
               <p className={`text-xs ${theme.mutedTextClass}`}>
                 {authUser
@@ -244,7 +246,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {/* Modal Content */}
-        <div className="p-6 space-y-5" dir="rtl">
+        <div className="p-6 space-y-5">
           <p className={`text-xs md:text-sm ${theme.mutedTextClass}`}>
             {isMandatory && !authUser
               ? 'ברוכים הבאים! התחברו עם חשבון Google או עם שם משתמש וקוד סודי כדי לשמור ולסנכרן את כל הכוכבים, היהלומים וההתקדמות שלכם.'
@@ -273,7 +275,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div className="space-y-0.5">
                   <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>מסונכרן בזמן אמת (Real-time Firestore Sync)</span>
+                    <span>מסונכרן בזמן אמת <bdi>(Real-time Firestore Sync)</bdi></span>
                   </span>
                   <div className="text-base font-extrabold" dir="ltr">
                     Logged in as: {formatUserLabel(authUser)}
@@ -297,7 +299,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 className={`w-full py-3 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 ${theme.secondaryBtnClass}`}
               >
                 <LogOut className="w-4 h-4" />
-                <span>התנתקות מהענן (Log Out)</span>
+                <span>התנתקות מהענן <bdi>(Log Out)</bdi></span>
               </button>
             </div>
           )}
@@ -358,7 +360,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <form onSubmit={handleUsernameOrEmailAuth} className="space-y-3">
                 <div>
                   <label className="block text-xs font-bold mb-1">
-                    שם משתמש באנגלית או אימייל (Username or Email):
+                    שם משתמש באנגלית או אימייל <bdi>(Username or Email)</bdi>:
                   </label>
                   <input
                     type="text"
@@ -404,7 +406,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     onClick={handleAnonymousCloudSync}
                     className="text-xs underline opacity-75 hover:opacity-100"
                   >
-                    המשך עם גיבוי ענן מהיר ללא סיסמה (Guest Cloud)
+                    המשך עם גיבוי ענן מהיר ללא סיסמה <bdi>(Guest Cloud)</bdi>
                   </button>
                 </div>
               )}

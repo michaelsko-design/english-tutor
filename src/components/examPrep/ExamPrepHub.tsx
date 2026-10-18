@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { ExamAnswer, applyExamResultToProfile, toLocalDateStr } from '../../data/examPrep';
+import { ExamAnswer, applyExamResultToProfile, getNextSession, isExamPast, toLocalDateStr } from '../../data/examPrep';
 import { ExamPrepPlan, LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { DockTile } from '../home/DockTile';
+import { ExamModalShell } from './ExamModalShell';
 import { ExamPrepCard } from './ExamPrepCard';
 import { ExamPrepPlanView } from './ExamPrepPlanView';
 import { ExamPrepSetup } from './ExamPrepSetup';
@@ -17,12 +19,16 @@ interface ExamPrepHubProps {
 
 type HubView =
   | { kind: 'none' }
+  | { kind: 'card' }
   | { kind: 'setup' }
   | { kind: 'plan' }
   | { kind: 'session'; dayIndex: number; runId: number }
   | { kind: 'certificate' };
 
-/** Feature 18: the dashboard card plus the setup, plan, session and certificate overlays. */
+/**
+ * Feature 18: the home dock tile (Feature 27), the card in a sheet, plus the setup, plan,
+ * session and certificate overlays. The tile's dot marks a study session waiting today.
+ */
 export const ExamPrepHub: React.FC<ExamPrepHubProps> = ({
   profile,
   theme,
@@ -56,24 +62,41 @@ export const ExamPrepHub: React.FC<ExamPrepHubProps> = ({
     else setView({ kind: 'plan' });
   };
 
+  const hasSessionWaiting = Boolean(plan && !isExamPast(plan, todayStr) && getNextSession(plan, todayStr));
+
   const sessionDay = view.kind === 'session' ? plan?.days.find((d) => d.dayIndex === view.dayIndex) : undefined;
 
   return (
     <>
-      <ExamPrepCard
-        plan={plan}
-        gender={profile.gender}
+      <DockTile
+        emoji="📅"
+        labelHe="הכנה למבחן"
         theme={theme}
-        todayStr={todayStr}
-        onCreatePlan={() => setView({ kind: 'setup' })}
-        onOpenPlan={() => setView({ kind: 'plan' })}
-        onStartDay={startDay}
-        onShowCertificate={() => setView({ kind: 'certificate' })}
-        onArchive={handleArchive}
+        onClick={() => setView({ kind: 'card' })}
+        hasNews={hasSessionWaiting}
+        newsLabelHe="תרגול של היום מחכה"
       />
 
+      {view.kind === 'card' && (
+        <ExamModalShell theme={theme} labelHe="הכנה למבחן" onClose={close} header={<h2 className="font-extrabold text-base sm:text-lg">📅 הכנה למבחן</h2>}>
+          <div className="p-3 sm:p-4">
+            <ExamPrepCard
+              plan={plan}
+              gender={profile.gender}
+              theme={theme}
+              todayStr={todayStr}
+              onCreatePlan={() => setView({ kind: 'setup' })}
+              onOpenPlan={() => setView({ kind: 'plan' })}
+              onStartDay={startDay}
+              onShowCertificate={() => setView({ kind: 'certificate' })}
+              onArchive={handleArchive}
+            />
+          </div>
+        </ExamModalShell>
+      )}
+
       {view.kind === 'setup' && (
-        <ExamPrepSetup profile={profile} theme={theme} onCreate={handleCreate} onClose={close} />
+        <ExamPrepSetup profile={profile} theme={theme} onCreate={handleCreate} onClose={() => setView({ kind: 'card' })} />
       )}
 
       {view.kind === 'plan' && plan && (

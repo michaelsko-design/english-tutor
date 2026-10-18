@@ -73,7 +73,6 @@ export const FeedbackSheet: React.FC<FeedbackSheetProps> = ({
 
         <div
           className={`rounded-t-3xl border-t-4 shadow-[0_-8px_30px_rgba(0,0,0,0.25)] px-4 sm:px-6 pt-4 pb-5 space-y-3.5 ${sheetStyle}`}
-          dir="rtl"
         >
           <div className="flex items-start gap-2.5 max-h-[38vh] overflow-y-auto" role="status" aria-live="polite">
             {isCorrect ? (
