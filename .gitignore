@@ -10,3 +10,6 @@ dist-ssr
 
 .vercel
 .env*
+
+# AI art sources (large originals; WebP exports live in public/art)
+art-src/
