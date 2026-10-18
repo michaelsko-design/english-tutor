@@ -1,7 +1,7 @@
-# English Tutor App — Architecture & System Documentation
+# EnglishVibe — Architecture & System Documentation
 
 ## 1. Overview & Vision
-The **English Tutor App** is an interactive, gamified English-learning web application specifically tailored for Israeli students across Grades 1–12 (יסודי, חטיבת ביניים, וחטיבה עליונה). The app aligns with the Israeli Ministry of Education English Curriculum Bands (Pre-Foundation, Foundation, Band I, Band II, and Band III).
+**EnglishVibe** (`APP_NAME` in `src/config/appInfo.ts`; formerly "English Tutor App") is an interactive, gamified English-learning web application specifically tailored for Israeli students across Grades 1–12 (יסודי, חטיבת ביניים, וחטיבה עליונה). The app aligns with the Israeli Ministry of Education English Curriculum Bands (Pre-Foundation, Foundation, Band I, Band II, and Band III).
 
 It provides an engaging, Duolingo-meets-aesthetic-studio learning experience featuring:
 - **Hebrew Instructions with Dynamic Gender Inflection**: Automatically adjusts Hebrew grammatical forms (verbs, imperatives, congratulations) based on whether the learner is a girl (`girl`) or a boy (`boy`).
@@ -84,6 +84,7 @@ flowchart TD
 - `inflectHebrew(text, gender)` applies regex-based grammatical inflection to mission prompts, hints, daily quests, and explanations (e.g., turning "השלימי" into "השלם", "קראי" into "קרא").
 
 ### 4.3. Pluggable Theming System (`themeRegistry.ts`)
+- The app is always called EnglishVibe; theme names appear only in the theme picker in settings. Internal ids (`english_tutor_*` storage keys, the `english-tutor-il-7` Firebase project, the `@peachnote.tutor.local` sign-in domain) keep their old names so existing accounts and data keep working.
 - Supports 3 complete visual design themes switchable on-the-fly:
   1. **PeachNote Studio (`cozy-studio`)** *(Default)*: Pastel rose/purple tones, warm café aesthetic, Mochi the cat companion.
   2. **VibeLingua (`neon-pop`)**: Vibrant dark mode with neon cyan and fuchsia cyber accents.

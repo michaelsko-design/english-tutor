@@ -8,6 +8,7 @@ import { useCountUp } from '../../hooks/useCountUp';
 import { FluentIcon } from '../hud/FluentIcon';
 import { SoundToggle } from '../hud/SoundToggle';
 import { ProgressRing } from './ProgressRing';
+import { APP_NAME } from '../../config/appInfo';
 
 interface HomeHudProps {
   profile: LearnerProfile;
@@ -92,7 +93,7 @@ export const HomeHud: React.FC<HomeHudProps> = ({
         </button>
 
         <div className="hidden sm:block min-w-0">
-          <p className="font-extrabold text-sm truncate">{profile.name || theme.name}</p>
+          <p className="font-extrabold text-sm truncate">{profile.name || APP_NAME}</p>
           <p className={`text-xs truncate ${theme.mutedTextClass}`}>
             עוד <bdi>{level.xpToNextLevel} XP</bdi> לרמה {level.level + 1}
           </p>

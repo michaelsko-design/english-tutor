@@ -1,4 +1,4 @@
-const CACHE_NAME = 'peachnote-tutor-v1';
+const CACHE_NAME = 'englishvibe-v1';
 const APP_SHELL = [
   '/',
   '/index.html',

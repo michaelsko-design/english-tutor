@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "PeachNote Studio · English Tutor",
-  "short_name": "PeachNote",
+  "name": "EnglishVibe",
+  "short_name": "EnglishVibe",
   "description": "אפליקציה אינטראקטיבית ללימוד אנגלית לתלמידי ישראל (כיתות ה׳–ט׳)",
   "start_url": "/",
   "scope": "/",

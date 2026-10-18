@@ -1,9 +1,9 @@
-# English Tutor App - Product Backlog
+# EnglishVibe - Product Backlog
 
 ## Future / Next Up Ideas
 *Sorted by significance to the app's development (highest priority first). Feature numbers are stable IDs, not priority.*
 
-- [ ] **Feature 21**: App Name Change (שינוי שם האפליקציה) - The app name is still TBD. Choose the new name and update every place it appears in the UI, page titles, manifest and docs.
+- [x] **Feature 21**: App Name Change - The app name is "EnglishVibe" (`APP_NAME`; tab title, install name, onboarding, login, home header; theme names only in settings; storage keys, Firebase ids and the sign-in email domain unchanged on purpose)
 - [ ] **Feature 23**: Add a female voice pack, make it default and allow choice in the profile settings.
 
 ## Completed Features

@@ -65,7 +65,7 @@ export const REWARD_SHOP_ITEMS: RewardShopItem[] = [
     emoji: '🧋',
     titleEn: 'Seoul Boba Tea',
     titleHe: 'בובה-טי מסיאול (ברירת מחדל)',
-    descriptionHe: 'הסמל הרשמי של סטודיו PeachNote!',
+    descriptionHe: 'הסמל הרשמי של EnglishVibe!',
     costDiamonds: 0,
   },
   // Free starter avatars that live in My English Room (Feature 12)

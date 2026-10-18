@@ -11,6 +11,7 @@ import { THEME_REGISTRY } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
 import { Sparkles, UserCheck, GraduationCap, Palette, ShieldCheck, Users, X } from 'lucide-react';
 import { isFriendsHubEnabled, setFriendsHubEnabled } from '../data/friends';
+import { APP_NAME } from '../config/appInfo';
 
 interface OnboardingViewProps {
   initialProfile: LearnerProfile;
@@ -106,7 +107,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           </div>
           <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>{activeTheme.name}</span>
+            <span>{APP_NAME}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
             {onCancel
@@ -114,8 +115,8 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
               : name.trim()
               ? heb.welcomeTitle
               : gender === 'girl'
-              ? 'ברוכה הבאה לסטודיו לאנגלית! ✨'
-              : 'ברוך הבא לסטודיו לאנגלית! ✨'}
+              ? <>ברוכה הבאה ל־<bdi>{APP_NAME}</bdi>! ✨</>
+              : <>ברוך הבא ל־<bdi>{APP_NAME}</bdi>! ✨</>}
           </h1>
           <p className={`text-xs sm:text-sm ${activeTheme.mutedTextClass}`}>
             {heb.onboardingSubtitle}

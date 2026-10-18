@@ -17,6 +17,7 @@ import {
 import { ThemeDefinition } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
 import { normalizeIdentifierToEmail, usernameFromEmail } from '../utils/username';
+import { APP_NAME } from '../config/appInfo';
 import {
   X,
   Cloud,
@@ -219,7 +220,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
             <div>
               <h2 className="text-base md:text-lg font-extrabold">
-                {isMandatory && !authUser ? '🔐 התחברות לסטודיו לאנגלית' : '☁️ סנכרון ענן וחשבון רב-מכשירים'}
+                {isMandatory && !authUser ? <>🔐 התחברות ל־<bdi>{APP_NAME}</bdi></> :'☁️ סנכרון ענן וחשבון רב-מכשירים'}
                 {/* English on its own isolated line, so it can't flip or wrap into the Hebrew title */}
                 <bdi className="block text-xs font-bold opacity-70 text-right">
                   {isMandatory && !authUser ? 'Sign In Required' : 'Cloud Sync'}
