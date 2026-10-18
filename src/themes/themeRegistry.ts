@@ -1,4 +1,5 @@
 import { GradeId, ProficiencyTier, ThemeId, TodaysMissionSuggestion } from '../types/learner';
+import { buildThemeArt, LIGHT_COMPANION_RIM, ThemeArt } from './themeArt';
 
 export interface ThemeDefinition {
   id: ThemeId;
@@ -22,6 +23,8 @@ export interface ThemeDefinition {
   accentTextClass: string;
   mutedTextClass: string;
   inputBgClass: string;
+  /** Generated art for this theme: companion poses and scene backgrounds (Feature 25) */
+  art: ThemeArt;
 }
 
 export const THEME_REGISTRY: Record<ThemeId, ThemeDefinition> = {
@@ -54,6 +57,7 @@ export const THEME_REGISTRY: Record<ThemeId, ThemeDefinition> = {
     mutedTextClass: 'text-slate-600',
     inputBgClass:
       'bg-white border border-purple-200 text-slate-800 focus:border-purple-500 focus:ring-2 focus:ring-purple-200',
+    art: buildThemeArt('cozy-studio'),
   },
   'neon-pop': {
     id: 'neon-pop',
@@ -84,6 +88,7 @@ export const THEME_REGISTRY: Record<ThemeId, ThemeDefinition> = {
     mutedTextClass: 'text-purple-200/80',
     inputBgClass:
       'bg-black/30 border border-white/25 text-white focus:border-pink-400 focus:ring-2 focus:ring-pink-500/30',
+    art: buildThemeArt('neon-pop'),
   },
   'starlight-rpg': {
     id: 'starlight-rpg',
@@ -114,6 +119,8 @@ export const THEME_REGISTRY: Record<ThemeId, ThemeDefinition> = {
     mutedTextClass: 'text-cyan-200/75',
     inputBgClass:
       'bg-slate-900/90 border border-cyan-400/30 text-cyan-50 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30',
+    // Nova is dark navy: a light rim keeps her visible on the midnight background
+    art: buildThemeArt('starlight-rpg', { companionRim: LIGHT_COMPANION_RIM }),
   },
 };
 

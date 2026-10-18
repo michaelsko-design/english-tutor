@@ -8,6 +8,7 @@ import { celebrate } from '../../utils/celebrate';
 import { getVictoryDurationMs, getVictoryFrame, VictoryFrame } from '../../utils/rewardFeedback';
 import { playSfx } from '../../utils/sfx';
 import { FluentIcon } from '../hud/FluentIcon';
+import { Companion } from '../companion/Companion';
 
 interface MissionVictoryProps {
   mission: MissionNode;
@@ -30,6 +31,7 @@ interface MissionVictoryProps {
 }
 
 const STAR_SLOTS = [0, 1, 2];
+export const VICTORY_COMPANION_SIZE = 120;
 
 /** Sounds and confetti for what changed between two frames of the victory sequence. */
 function playFrameEffects(prev: VictoryFrame, next: VictoryFrame, starsEarned: number): void {
@@ -107,8 +109,10 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
         aria-modal="true"
         aria-labelledby="mission-victory-title"
       >
-        <div className="w-20 h-20 rounded-3xl mx-auto bg-amber-400/20 border-2 border-amber-400 flex items-center justify-center animate-float">
-          <FluentIcon name="trophy" className="w-14 h-14" />
+        {/* The companion cheers (Feature 25), holding up the trophy */}
+        <div className="relative w-fit mx-auto">
+          <Companion theme={theme} pose="cheer" size={VICTORY_COMPANION_SIZE} />
+          <FluentIcon name="trophy" className="absolute -bottom-1 -right-6 w-12 h-12 drop-shadow-md" />
         </div>
 
         <div className="space-y-1.5" dir="rtl">
