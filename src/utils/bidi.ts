@@ -14,11 +14,11 @@ export function isolateLtr(text: string): string {
 }
 
 /**
- * An English run: words joined by spaces, commas, slashes, plus signs, hyphens or colons, from
+ * An English run: words joined by spaces, commas, slashes, plus signs, hyphens, colons or arrows, from
  * its first letter to its last letter or digit ("sh, ch, s, x", "es: watches, goes", "he / she / it").
  * Punctuation after the last word belongs to the Hebrew sentence.
  */
-const ENGLISH_RUN = /[A-Za-z][A-Za-z0-9'’]*(?:[\s,/+:-]+[A-Za-z0-9][A-Za-z0-9'’]*)*/g;
+const ENGLISH_RUN = /[A-Za-z][A-Za-z0-9'’]*(?:[\s,/+:→-]+[A-Za-z0-9][A-Za-z0-9'’]*)*/g;
 
 /**
  * Hebrew text with every English run isolated left-to-right. Without it, the commas and colons

@@ -10,9 +10,20 @@ import type { LessonPack, MiniLesson } from './curriculum/lessons/types';
 
 export type { LessonExample, LessonPack, LessonQuickTry, MiniLesson } from './curriculum/lessons/types';
 
-/** Grades that have lessons so far; the others start their missions without one. */
+/** Every grade's lessons; a grade missing here would start its missions without one. */
 export const LESSON_PACK_LOADERS: Partial<Record<number, () => Promise<LessonPack>>> = {
+  1: () => import('./curriculum/lessons/grade1').then((m) => m.GRADE_1_LESSONS),
+  2: () => import('./curriculum/lessons/grade2').then((m) => m.GRADE_2_LESSONS),
+  3: () => import('./curriculum/lessons/grade3').then((m) => m.GRADE_3_LESSONS),
+  4: () => import('./curriculum/lessons/grade4').then((m) => m.GRADE_4_LESSONS),
+  5: () => import('./curriculum/lessons/grade5').then((m) => m.GRADE_5_LESSONS),
+  6: () => import('./curriculum/lessons/grade6').then((m) => m.GRADE_6_LESSONS),
   7: () => import('./curriculum/lessons/grade7').then((m) => m.GRADE_7_LESSONS),
+  8: () => import('./curriculum/lessons/grade8').then((m) => m.GRADE_8_LESSONS),
+  9: () => import('./curriculum/lessons/grade9').then((m) => m.GRADE_9_LESSONS),
+  10: () => import('./curriculum/lessons/grade10').then((m) => m.GRADE_10_LESSONS),
+  11: () => import('./curriculum/lessons/grade11').then((m) => m.GRADE_11_LESSONS),
+  12: () => import('./curriculum/lessons/grade12').then((m) => m.GRADE_12_LESSONS),
 };
 
 /** Mission ids are `g<grade>-u<unit>-m<mission>`. */

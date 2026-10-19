@@ -85,7 +85,7 @@ The lesson examples are new fixed English, so:
 - `getMiniLesson` returns `null` when the import fails.
 
 ## Status
-Step 1 is done: engine, runner flow, 📖 review button and the grade 7 lessons (CLAUDE.md 4.24). Waiting on the step 2 review.
+Done. Steps 1–4 shipped: the engine, runner flow, 📖 review button and lessons for all 12 grades, with Boss lessons where a Boss adds new grammar (CLAUDE.md 4.24).
 
 ## Build order
 1. **Engine + one grade.** Types, `miniLessons.ts` (loader, Boss recap, `shouldAutoShowLesson`) with tests, `MiniLesson.tsx`, the runner `phase`, the HUD 📖 sheet, the intro link. Content for **grade 7** (8 regular missions) to prove the format. Check it in the emulator app (section 8) in all three themes and on a phone width.

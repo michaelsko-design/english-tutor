@@ -40,6 +40,10 @@ describe('isolateEnglishRuns', () => {
     expect(isolateEnglishRuns('ו-mustn’t? אסור!')).toBe(`ו-${ltr('mustn’t')}? אסור!`);
   });
 
+  it('keeps an arrow between English words inside the run, so it points the reading way', () => {
+    expect(isolateEnglishRuns('מוסיפים ed: play → played.')).toBe(`מוסיפים ${ltr('ed: play → played')}.`);
+  });
+
   it('leaves Hebrew-only text unchanged', () => {
     expect(isolateEnglishRuns('שלום לכולם!')).toBe('שלום לכולם!');
   });

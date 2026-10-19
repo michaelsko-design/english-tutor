@@ -101,8 +101,10 @@ function addMiniLessons(corpus: CorpusBuilder): void {
     for (const lesson of Object.values(pack)) {
       lesson.examples.forEach((example) => corpus.add(example.en));
       if (lesson.quickTry) {
-        corpus.add(lesson.quickTry.correct);
-        corpus.add(lesson.quickTry.wrong);
+        // Hebrew options (a word's meaning) are never read aloud
+        [lesson.quickTry.correct, lesson.quickTry.wrong]
+          .filter((option) => /[A-Za-z]/.test(option))
+          .forEach((option) => corpus.add(option));
       }
     }
   }

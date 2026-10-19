@@ -130,7 +130,9 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
             pickedIdx={quickTryPick}
             onPick={(idx) => {
               setQuickTryPick(idx);
-              onSpeakEnglish(quickTryOptions[idx].textEn, LESSON_SPEAK_RATE);
+              // A Hebrew option (a word's meaning) isn't read with the English voice
+              const { textEn } = quickTryOptions[idx];
+              if (/[A-Za-z]/.test(textEn)) onSpeakEnglish(textEn, LESSON_SPEAK_RATE);
             }}
             theme={theme}
             headingRef={headingRef}

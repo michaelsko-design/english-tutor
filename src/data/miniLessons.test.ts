@@ -67,6 +67,10 @@ function hebrewTextsOf(lesson: MiniLesson): string[] {
 const LESSON_GRADES = Object.keys(ALL_LESSON_PACKS).map(Number);
 
 describe('mini-lessons (Feature 42)', () => {
+  it('has lessons for all 12 grades', () => {
+    expect([...LESSON_GRADES].sort((a, b) => a - b)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+  });
+
   it('lists the same grades for the app loader and the tests', () => {
     expect(Object.keys(LESSON_PACK_LOADERS).map(Number).sort()).toEqual(LESSON_GRADES.sort());
   });
@@ -113,7 +117,8 @@ describe('mini-lessons (Feature 42)', () => {
           expect(example.he.trim(), id).not.toBe('');
         }
         expect(lesson.quickTry, id).toBeDefined();
-        expect(normalize(lesson.quickTry!.correct), id).not.toBe(normalize(lesson.quickTry!.wrong));
+        // Plain comparison: options can be Hebrew meanings, which `normalize` would empty
+        expect(lesson.quickTry!.correct.trim().toLowerCase(), id).not.toBe(lesson.quickTry!.wrong.trim().toLowerCase());
         expect(lesson.recapParts, id).toBeUndefined();
       }
     }
