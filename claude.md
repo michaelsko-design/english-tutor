@@ -24,7 +24,9 @@ It provides an engaging, Duolingo-meets-aesthetic-studio learning experience fea
 | **Speech & Audio** | Azure Neural read-aloud (rendered MP3 clips + `/api/tts` Vercel Function), Web Speech API `SpeechSynthesis` as fallback, `SpeechRecognition` / `webkitSpeechRecognition` |
 | **Backend & Auth** | [Firebase](https://firebase.google.com/) (Authentication & Cloud Firestore) |
 | **Testing** | [Vitest](https://vitest.dev/) unit tests (`npm test`) |
-| **Deployment & Hosting** | [Vercel](https://vercel.com/) & Firebase Hosting configuration |
+| **Deployment & Hosting** | [Vercel](https://vercel.com/) (project `english-tutor`, team `clear-shield`; a push to `main` deploys to production). Firebase hosts only Auth and Firestore (project `english-tutor-il-7`). |
+
+**Production URL:** https://english-tutor-nine-ebon.vercel.app/ (`english-tutor-clear-shield.vercel.app` is the team alias behind Vercel's login, and `english-tutor.vercel.app` is someone else's app).
 
 ---
 
@@ -288,7 +290,7 @@ Each learning mission consists of 5 pedagogical drill stages:
   - `scripts/tts/corpus.ts` builds the corpus from the real generators: every mission × tier step, vocabulary, room and wardrobe names, voice messages, dream words and the demo phrases. **Add new fixed spoken text there and re-render after curriculum changes.** In dev builds, text read without a clip is collected in `window.__ttsMisses`.
 - Voices and SSML (Jenny / Guy, prosody, a 200 ms leading break) live only in `api/_lib/azureTts.ts`. **Changing them means bumping `TTS_AUDIO_VERSION` in `ttsText.ts` and re-rendering.** The new clip folder and query make every cache (browser, service worker, CDN) fetch the new sound. `api/` imports use `.js` extensions, because the package is ESM.
 - **Playback** (`audioUnlock.ts`): one shared `<audio>` element, unlocked with a moment of silence on `touchend` / `click` / `keydown`. A touch `pointerdown` doesn't count on iOS. The unlock retries on each gesture until a sound has played. A system pause (a call) ends the current `speak`, and a manifest that fails to load is tried again on the next one. Clips are fetched into object URLs, because Safari won't play media a service worker answers without byte ranges. `public/sw.js` serves `/tts/*.mp3` cache-first (`englishvibe-tts-v1`), skips `/api/`, and keeps `englishvibe-tts-*` caches.
-- **Dev server:** a plugin in `vite.config.ts` serves `/api/tts` with the `.env.local` key. **Production** (Vercel project `english-tutor`, scope `clear-shield`):
+- **Dev server:** a plugin in `vite.config.ts` serves `/api/tts` with the `.env.local` key. **Production** (https://english-tutor-nine-ebon.vercel.app/, Vercel project `english-tutor`, scope `clear-shield`):
   - `AZURE_SPEECH_REGION` (`germanywestcentral`, Frankfurt) and the sensitive `AZURE_SPEECH_KEY` are project environment variables (Production + Preview).
   - The Firewall rule "Rate limit online voice" allows 100 requests a minute per IP on `/api/tts`. The app answers its 429 by pausing the online voice.
   - `vercel.json` pins functions to `fra1` (Frankfurt), the same city as the Azure Speech resource.
