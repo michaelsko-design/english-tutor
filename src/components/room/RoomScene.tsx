@@ -2,6 +2,8 @@ import React from 'react';
 import { ROOM_OBJECTS, ROOM_SLOTS, RoomItem, RoomObjectId } from '../../data/room';
 import { WardrobeItem } from '../../data/wardrobe';
 import { ThemeId } from '../../types/learner';
+import { THEME_REGISTRY } from '../../themes/themeRegistry';
+import { useArtStatus } from '../../hooks/useArtStatus';
 import { DressedAvatar } from './DressedAvatar';
 import { ItemIcon } from './ItemIcon';
 import {
@@ -55,6 +57,8 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
 }) => {
   const palette = SCENE_PALETTES[themeId] || SCENE_PALETTES['cozy-studio'];
   const isInteractive = Boolean(onTapSlot && onTapObject);
+  const roomBgSrc = (THEME_REGISTRY[themeId] || THEME_REGISTRY['cozy-studio']).art.roomBg;
+  const hasRoomArt = useArtStatus(roomBgSrc) === 'loaded';
   const centered = 'absolute -translate-x-1/2 -translate-y-1/2';
 
   return (
@@ -63,18 +67,32 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
       style={{ containerType: 'inline-size' }}
       dir="ltr"
     >
-      {/* Wall, baseboard and floor */}
-      <div className={`absolute inset-x-0 top-0 h-[60%] ${palette.wallClass}`} />
-      <div className={`absolute inset-x-0 top-[60%] h-[1.5%] ${palette.baseboardClass}`} />
-      <div className={`absolute inset-x-0 bottom-0 h-[38.5%] ${palette.floorClass}`} />
+      {/* Wall, baseboard and floor: the generated room picture, or the drawn fallback */}
+      {hasRoomArt ? (
+        <img
+          src={roomBgSrc}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <>
+          <div className={`absolute inset-x-0 top-0 h-[60%] ${palette.wallClass}`} />
+          <div className={`absolute inset-x-0 top-[60%] h-[1.5%] ${palette.baseboardClass}`} />
+          <div className={`absolute inset-x-0 bottom-0 h-[38.5%] ${palette.floorClass}`} />
+        </>
+      )}
 
       {/* Window, shelf, sticker board and desk outlines */}
-      <div
-        className={`absolute left-[34%] top-[8%] w-[20%] h-[26%] rounded-lg border-[0.8cqw] ${palette.windowClass} flex items-center justify-center text-[5cqw]`}
-        aria-hidden="true"
-      >
-        {palette.windowView}
-      </div>
+      {!hasRoomArt && (
+        <div
+          className={`absolute left-[34%] top-[8%] w-[20%] h-[26%] rounded-lg border-[0.8cqw] ${palette.windowClass} flex items-center justify-center text-[5cqw]`}
+          aria-hidden="true"
+        >
+          {palette.windowView}
+        </div>
+      )}
       <div className={`absolute left-[32%] top-[34%] w-[24%] h-[2%] rounded-sm border ${palette.furnitureClass}`} />
       <div className={`absolute left-[6%] top-[42%] w-[22%] h-[2.2%] rounded-sm border ${palette.furnitureClass}`} />
       <div className={`absolute left-[59%] top-[26%] w-[26%] h-[15%] rounded-lg border-[0.5cqw] ${palette.boardClass}`} />
