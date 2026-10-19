@@ -280,7 +280,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Dev server:** a plugin in `vite.config.ts` serves `/api/tts` with the `.env.local` key. **Production** (Vercel project `english-tutor`, scope `clear-shield`):
   - `AZURE_SPEECH_REGION` (`qatarcentral`) and the sensitive `AZURE_SPEECH_KEY` are project environment variables (Production + Preview).
   - The Firewall rule "Rate limit online voice" allows 100 requests a minute per IP on `/api/tts`. The app answers its 429 by pausing the online voice.
-  - `vercel.json` pins functions to `dxb1` (Dubai), close to the `qatarcentral` Azure resource and to Israel.
+  - `vercel.json` pins functions to `fra1` (Frankfurt). Dubai (`dxb1`) would be closer to the `qatarcentral` Azure resource, but Vercel reported it unavailable (2026-10-19).
 - **Settings:** the voice choice and the voice lab (`components/settings/VoiceLabCard.tsx`) are in the settings screen (`OnboardingView` in edit mode). The voice lab plays a slow word, a sentence and typed text, and shows which tier read it and how long it took to start. The choice is stored as `voicePreference` on the profile; a missing value means female. Merge: same rule as `themeId`.
 
 ### 4.19. Home Base Dashboard (`DashboardView.tsx`, `components/home/`, `data/homeBase.ts`, `utils/bidi.ts`)
