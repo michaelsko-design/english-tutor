@@ -26,7 +26,8 @@ interface VocabularyVaultModalProps {
   gradeLabel?: string;
   ministryBand?: string;
   onSpeakEnglish: (text: string, rate?: number) => void;
-  onEarnPracticeReward: (xp: number, diamonds: number) => void;
+  /** Rewards a word once per word per day; false when it earned nothing */
+  onEarnPracticeReward: (wordEn: string, xp: number, diamonds: number) => boolean;
   onClose: () => void;
 }
 
@@ -86,15 +87,13 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
 
     const completeWordMastery = (transcript: string) => {
       setPracticingWord(null);
-      if (!masteredWordsSession[vocab.wordEn]) {
-        setMasteredWordsSession((prev) => ({ ...prev, [vocab.wordEn]: true }));
-        onEarnPracticeReward(10, 2);
-      }
+      const isRewarded = onEarnPracticeReward(vocab.wordEn, 10, 2);
+      setMasteredWordsSession((prev) => ({ ...prev, [vocab.wordEn]: true }));
+      // The reward comes once per word a day (and for up to 20 words a day)
+      const rewardNote = isRewarded ? `(${VAULT_REWARD_LABEL})` : '(הפרס על המילה הזו כבר נאסף היום)';
       setFeedbackMsg({
         isCorrect: true,
-        text: isGirl
-          ? `מעולה ${learnerName}! ביטאת את המילה "${vocab.wordEn}" (זוהה: "${transcript}") בצורה מושלמת! (${VAULT_REWARD_LABEL})`
-          : `מעולה ${learnerName}! ביטאת את המילה "${vocab.wordEn}" (זוהה: "${transcript}") בצורה מושלמת! (${VAULT_REWARD_LABEL})`,
+        text: `מעולה ${learnerName}! ביטאת את המילה "${vocab.wordEn}" (זוהה: "${transcript}") בצורה מושלמת! ${rewardNote}`,
       });
       celebrate('small');
     };

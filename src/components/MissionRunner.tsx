@@ -27,6 +27,8 @@ import { TrailProgress } from './mission/TrailProgress';
 import { getStoryArt } from '../themes/themeArt';
 import { preloadArt } from '../utils/artStatus';
 import { celebrate } from '../utils/celebrate';
+import { getMissionReward, isFullMissionReward } from '../data/missionRewards';
+import { toLocalDateStr } from '../utils/dates';
 import {
   COMBO_BONUS_XP_PER_STEP,
   getComboFlameLevel,
@@ -53,8 +55,15 @@ interface MissionRunnerProps {
     xpEarned: number;
     diamondsEarned: number;
     wordsLearnedCount: number;
+    /** False for a replay that only earns the repeat XP (data/missionRewards.ts) */
+    isFullReward: boolean;
+    /** The learner skipped the voice step ("quiet place") */
+    isVoiceSkipped: boolean;
   }) => void;
   onClose: () => void;
+  /** The mission's stars and last full-reward date before this attempt, to size the reward */
+  previousStars: number;
+  lastRewardDateStr?: string;
   /** Room item a first 3-star result would earn (Feature 12) */
   roomRewardPreview?: RoomRewardItem | null;
   /** The learner's XP and level before this mission, for the victory XP bar (Feature 24) */
@@ -75,6 +84,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   roomRewardPreview,
   startXp,
   startLevel,
+  previousStars,
+  lastRewardDateStr,
 }) => {
   const isGirl = gender === 'girl';
   // Random salt per mission attempt: shuffles answer options differently on every attempt,
@@ -93,6 +104,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   const [combo, setCombo] = useState(0);
   const [maxCombo, setMaxCombo] = useState(0);
   const [firstTryCorrectCount, setFirstTryCorrectCount] = useState(0);
+  // Steps skipped without an answer (the voice step in a quiet place) are left out of the score
+  const [skippedStepCount, setSkippedStepCount] = useState(0);
   const [attemptedCurrentStep, setAttemptedCurrentStep] = useState(false);
   const [stepCompleted, setStepCompleted] = useState(false);
   const [feedbackHe, setFeedbackHe] = useState<{
@@ -161,6 +174,20 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     if (!attemptedCurrentStep) {
       setFirstTryCorrectCount((prev) => prev + 1);
     }
+    setStepCompleted(true);
+    setFeedbackHe({ isCorrect: true, text: explanationHe, xpGain });
+  };
+
+  /** A skipped step: no first-try credit and no combo change, and it doesn't count toward the stars. */
+  const registerSkippedStep = (explanationHe: string) => {
+    const xpGain = getStepXpGain({
+      baseXpTotal,
+      stepCount: steps.length,
+      stepIdx: currentStepIdx,
+      newCombo: combo,
+      previousMaxCombo: maxCombo,
+    });
+    setSkippedStepCount((prev) => prev + 1);
     setStepCompleted(true);
     setFeedbackHe({ isCorrect: true, text: explanationHe, xpGain });
   };
@@ -261,15 +288,23 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   };
 
   // Calculate final rewards
-  const accuracyRatio = firstTryCorrectCount / steps.length;
+  const scoredStepCount = Math.max(1, steps.length - skippedStepCount);
+  const accuracyRatio = firstTryCorrectCount / scoredStepCount;
   const starsEarned: 1 | 2 | 3 =
     accuracyRatio >= 0.8 ? 3 : accuracyRatio >= 0.5 ? 2 : 1;
   const comboBonusXp = maxCombo * COMBO_BONUS_XP_PER_STEP;
-  const totalXpEarned = baseXpTotal + comboBonusXp;
-  const totalDiamondsEarned =
-    mission.baseDiamonds +
-    tierMeta.diamondBonus +
-    (starsEarned === 3 ? 5 : 0);
+  // A replay of a mastered mission, or a second replay today, earns only the repeat XP
+  const isFullReward = isFullMissionReward({
+    previousStars,
+    starsEarned,
+    lastRewardDateStr,
+    todayStr: toLocalDateStr(new Date()),
+  });
+  const { xp: totalXpEarned, diamonds: totalDiamondsEarned } = getMissionReward(
+    baseXpTotal + comboBonusXp,
+    mission.baseDiamonds + tierMeta.diamondBonus + (starsEarned === 3 ? 5 : 0),
+    isFullReward
+  );
 
   if (isMissionFinished) {
     return (
@@ -295,6 +330,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
             xpEarned: totalXpEarned,
             diamondsEarned: totalDiamondsEarned,
             wordsLearnedCount: mission.vocabulary.length,
+            isFullReward,
+            isVoiceSkipped: skippedStepCount > 0,
           })
         }
       />
@@ -445,7 +482,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     onSpeakEnglish={onSpeakEnglish}
                     onStartListening={handleStartSpeechRecognition}
                     onSkip={() =>
-                      registerCorrectAnswer(
+                      registerSkippedStep(
                         isGirl
                           ? 'דילגת על מיקרופון במצב שקט — ממשיכות לשלב הבא!'
                           : 'דילגת על מיקרופון במצב שקט — ממשיכים לשלב הבא!'

@@ -37,6 +37,7 @@ const baseProfile: LearnerProfile = {
     maxPossibleStars: 36,
     diamonds: 50,
     streakDays: 3,
+    streakLastDateStr: '2026-10-16',
     shabbatShieldActive: true,
     wordsMastered: 0,
     missionsCompleted: 0,

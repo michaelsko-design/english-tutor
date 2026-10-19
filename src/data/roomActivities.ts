@@ -37,7 +37,7 @@ export function grantDailyActivityReward(
   const withActivity = recordDailyActivity(
     profile,
     { missions: 1, voiceWords: reward.voiceWords, threeStarMissions: 0 },
-    now.toISOString().slice(0, 10)
+    toLocalDateStr(now)
   );
   const xp = withActivity.stats.xp + reward.xp;
   return {

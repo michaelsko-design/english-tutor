@@ -6,6 +6,7 @@ import {
   RewardShopItem,
 } from '../data/rewardShop';
 import { LearnerGender } from '../types/learner';
+import { STREAK_SHIELD_ITEM_ID } from '../data/streak';
 import { ThemeDefinition } from '../themes/themeRegistry';
 import { X, Gem, CheckCircle2, Sparkles, ShoppingBag, Lock } from 'lucide-react';
 
@@ -13,6 +14,8 @@ interface RewardShopModalProps {
   diamonds: number;
   unlockedRewardIds: string[];
   equippedAvatarEmoji: string;
+  /** Streak shields owned and not used up yet; shields can be bought again */
+  streakShieldsLeft: number;
   gender: LearnerGender;
   learnerName: string;
   theme: ThemeDefinition;
@@ -25,6 +28,7 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
   diamonds,
   unlockedRewardIds,
   equippedAvatarEmoji,
+  streakShieldsLeft,
   gender,
   learnerName,
   theme,
@@ -41,9 +45,12 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
     (item) => selectedCategory === 'all' || item.category === selectedCategory
   );
 
+  /** Owned for good; a streak shield is used up, so it is never "owned" */
+  const isOwned = (item: RewardShopItem): boolean =>
+    item.id !== STREAK_SHIELD_ITEM_ID && (item.costDiamonds === 0 || unlockedRewardIds.includes(item.id));
+
   const handleBuyOrEquip = (item: RewardShopItem) => {
-    const isUnlocked =
-      item.costDiamonds === 0 || unlockedRewardIds.includes(item.id);
+    const isUnlocked = isOwned(item);
 
     if (isUnlocked) {
       if (item.category === 'avatar') {
@@ -157,8 +164,7 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
         {/* Items Grid */}
         <div className="p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => {
-            const isUnlocked =
-              item.costDiamonds === 0 || unlockedRewardIds.includes(item.id);
+            const isUnlocked = isOwned(item);
             const isEquipped =
               item.category === 'avatar' && equippedAvatarEmoji === item.emoji;
             const canAfford = isUnlocked || diamonds >= item.costDiamonds;
@@ -206,6 +212,9 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
                   <p className={`text-xs ${theme.mutedTextClass} mt-1`}>
                     {item.descriptionHe}
                   </p>
+                  {item.id === STREAK_SHIELD_ITEM_ID && streakShieldsLeft > 0 && (
+                    <p className="text-xs font-extrabold mt-1">🛡️ יש לך {streakShieldsLeft} מגני רצף</p>
+                  )}
                 </div>
 
                 <button

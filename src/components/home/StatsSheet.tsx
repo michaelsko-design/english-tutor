@@ -3,6 +3,8 @@ import { CheckCircle2, Settings, ShieldCheck, Target, Zap } from 'lucide-react';
 import { GradeId, LearnerProfile, SUPPORTED_GRADES } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { getLevelProgress } from '../../utils/rewardFeedback';
+import { getCurrentStreak } from '../../data/streak';
+import { toLocalDateStr } from '../../utils/dates';
 import { useCountUp } from '../../hooks/useCountUp';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { FluentIcon } from '../hud/FluentIcon';
@@ -116,7 +118,7 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
           <StatTile
             theme={theme}
             icon={<FluentIcon name="flame" className="w-7 h-7" />}
-            value={profile.stats.streakDays}
+            value={getCurrentStreak(profile, toLocalDateStr(new Date()))}
             labelHe="ימי רצף"
           />
           <StatTile

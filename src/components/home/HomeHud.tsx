@@ -3,6 +3,8 @@ import { BookOpen, Cloud, CloudOff, RefreshCw, Settings, ShoppingBag } from 'luc
 import { AuthUserSummary, CloudSyncStatus, LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { getLevelProgress } from '../../utils/rewardFeedback';
+import { getCurrentStreak } from '../../data/streak';
+import { toLocalDateStr } from '../../utils/dates';
 import { usernameFromEmail } from '../../utils/username';
 import { useCountUp } from '../../hooks/useCountUp';
 import { FluentIcon } from '../hud/FluentIcon';
@@ -62,6 +64,7 @@ export const HomeHud: React.FC<HomeHudProps> = ({
   onEditProfile,
 }) => {
   const diamondsShown = useCountUp(profile.stats.diamonds);
+  const streakDays = getCurrentStreak(profile, toLocalDateStr(new Date()));
   const level = getLevelProgress(profile.stats.xp, profile.stats.level);
   const levelLabel = `רמה ${level.level}: עוד ${level.xpToNextLevel} XP לרמה ${level.level + 1}. פתיחת הנתונים שלי`;
   const pillClass = `h-9 px-2.5 rounded-xl text-sm font-extrabold flex items-center gap-1 ${theme.secondaryBtnClass}`;
@@ -105,11 +108,11 @@ export const HomeHud: React.FC<HomeHudProps> = ({
           type="button"
           onClick={onOpenQuests}
           className={pillClass}
-          aria-label={`${profile.stats.streakDays} ימי רצף. פתיחת האתגרים היומיים`}
+          aria-label={`${streakDays} ימי רצף. פתיחת האתגרים היומיים`}
           title="ימי רצף ואתגרים יומיים"
         >
           <FluentIcon name="flame" className="w-5 h-5" />
-          <span className="tabular-nums">{profile.stats.streakDays}</span>
+          <span className="tabular-nums">{streakDays}</span>
         </button>
 
         <button

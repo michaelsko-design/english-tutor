@@ -41,8 +41,17 @@ export interface LearnerStats {
   level: number;
   stars: number;
   maxPossibleStars: number;
+  /** The spendable balance: always the balance of `LearnerProfile.diamondLedger` once it exists */
   diamonds: number;
+  /** Consecutive learning days up to `streakLastDateStr`; read it with getCurrentStreak (data/streak.ts) */
   streakDays: number;
+  /** Local date of the last day that counted for the streak */
+  streakLastDateStr?: string;
+  /** Streak shields bought in the shop and used up on missed days (both only grow) */
+  streakShieldsBought?: number;
+  streakShieldsUsed?: number;
+  /** Days with at least one finished session, ever (the old streak number became this) */
+  totalActiveDays?: number;
   shabbatShieldActive: boolean;
   /** Lifetime counter (counts replays and Vault practice); stored but not shown, see countMasteredWords */
   wordsMastered: number;
@@ -54,6 +63,21 @@ export interface DailyActivityCounters {
   missionsCompletedToday: number;
   voiceWordsPracticedToday: number;
   threeStarMissionsToday: number;
+}
+
+/** Diamonds earned and spent on one device. Both only grow, so devices merge by taking the max. */
+export interface DiamondLedgerEntry {
+  earned: number;
+  spent: number;
+}
+
+/** Device id -> its diamond totals; the balance is the sum of earned minus spent (data/diamondLedger.ts) */
+export type DiamondLedger = Record<string, DiamondLedgerEntry>;
+
+/** Words said in the Vocabulary Vault that earned a reward today */
+export interface VaultPracticeDay {
+  dateStr: string;
+  words: string[];
 }
 
 /** One local day of learning activity, kept for the weekly parent report (Feature 9). */
@@ -307,6 +331,12 @@ export interface LearnerProfile {
   friendsHub?: FriendsHubState;
   /** Daily activity of the last 12 weeks, oldest first, for the weekly parent report */
   activityLog?: ActivityLogEntry[];
+  /** Per-device diamond totals; `stats.diamonds` is their balance */
+  diamondLedger?: DiamondLedger;
+  /** Mission id -> local date of its last full reward, so replays can't farm diamonds */
+  missionRewardDates?: Record<string, string>;
+  /** Vault words rewarded today */
+  vaultPractice?: VaultPracticeDay;
   createdAt: string;
   /** ISO timestamp of the latest profile update for conflict resolution */
   updatedAt?: string;

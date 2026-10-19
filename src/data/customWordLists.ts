@@ -475,7 +475,7 @@ export function applyWordListResultToProfile(
       voiceWords: reward.isFullReward ? answers.filter((a) => a.type === 'voice-speak' && !a.isSkipped).length : 0,
       threeStarMissions: reward.isFullReward && score.scorePercent >= WORD_LIST_HIGH_SCORE ? 1 : 0,
     },
-    nowIso.slice(0, 10)
+    toLocalDateStr(now)
   );
   const xp = withActivity.stats.xp + reward.xp;
 

@@ -1,4 +1,5 @@
 import { CURRICULUM_BY_GRADE } from './curriculum';
+import { addDays, daysBetween, parseDateStr, toLocalDateStr } from '../utils/dates';
 import { DrillType, MissionExerciseStep, getExercisesForMission } from './missionExercises';
 import { levelForXp, recordDailyActivity } from './progressRewards';
 import {
@@ -118,33 +119,9 @@ export interface ExamPlanInput {
 
 export type ExamDayStatus = 'done' | 'today' | 'missed' | 'upcoming';
 
-// ---- Dates (local calendar days) -------------------------------------------------------
+// ---- Dates (local calendar days): src/utils/dates.ts, re-exported for existing imports ----
 
-function pad2(n: number): string {
-  return String(n).padStart(2, '0');
-}
-
-export function toLocalDateStr(date: Date): string {
-  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
-}
-
-/** Noon avoids daylight-saving edge cases when stepping across days. */
-export function parseDateStr(dateStr: string): Date {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  return new Date(y, m - 1, d, 12);
-}
-
-export function addDays(dateStr: string, days: number): string {
-  const date = parseDateStr(dateStr);
-  date.setDate(date.getDate() + days);
-  return toLocalDateStr(date);
-}
-
-export function daysBetween(fromStr: string, toStr: string): number {
-  const [fy, fm, fd] = fromStr.split('-').map(Number);
-  const [ty, tm, td] = toStr.split('-').map(Number);
-  return Math.round((Date.UTC(ty, tm - 1, td) - Date.UTC(fy, fm - 1, fd)) / 86_400_000);
-}
+export { addDays, daysBetween, parseDateStr, toLocalDateStr };
 
 /**
  * Study days run from today to the day before the exam, skipping Saturdays for Shabbat
@@ -398,7 +375,7 @@ export function applyExamResultToProfile(
   const withActivity = recordDailyActivity(
     profile,
     { missions: 1, voiceWords: 0, threeStarMissions: scorePercent >= THREE_STAR_SCORE ? 1 : 0 },
-    nowIso.slice(0, 10)
+    toLocalDateStr(now)
   );
   const xp = withActivity.stats.xp + xpGain;
 

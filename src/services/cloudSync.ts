@@ -12,12 +12,15 @@ import {
   LearnerProfile,
   LearnerRoom,
   PlacementResult,
+  VaultPracticeDay,
 } from '../types/learner';
 import { keepNewestEntries } from '../data/dreamJournal';
 import { MAX_DRAWN_STICKERS } from '../data/stickers';
 import { MAX_CONTEST_HISTORY } from '../data/contests';
 import { mergeActivityLog } from '../data/activityLog';
-import { toLocalDateStr } from '../data/examPrep';
+import { toLocalDateStr } from '../utils/dates';
+import { getLedgerBalance, mergeDiamondLedgers } from '../data/diamondLedger';
+import { mergeStreakStats } from '../data/streak';
 
 const LEARNERS_COLLECTION = 'learners';
 
@@ -67,8 +70,8 @@ export function mergeLearnerProfiles(
     ])
   );
 
-  // Merge daily counters for today's date
-  const todayStr = new Date().toISOString().slice(0, 10);
+  // Merge daily counters for today's (local) date
+  const todayStr = toLocalDateStr(new Date());
   const localDaily =
     local.dailyCounters?.dateStr === todayStr
       ? local.dailyCounters
@@ -148,6 +151,15 @@ export function mergeLearnerProfiles(
     toLocalDateStr(new Date())
   );
 
+  // Diamonds: per-device totals once either side has them (data/diamondLedger.ts)
+  const resolvedLedger = mergeDiamondLedgers(local.diamondLedger, cloud.diamondLedger);
+  const mergedDiamonds = resolvedLedger
+    ? getLedgerBalance(resolvedLedger)
+    : Math.max(local.stats?.diamonds || 0, cloud.stats?.diamonds || 0);
+
+  const resolvedRewardDates = mergeLatestDates(local.missionRewardDates, cloud.missionRewardDates);
+  const resolvedVaultPractice = mergeVaultPractice(local.vaultPractice, cloud.vaultPractice);
+
   const resolvedAvatar = preferCloudPrefs
     ? cloud.equippedAvatarEmoji || local.equippedAvatarEmoji
     : local.equippedAvatarEmoji || cloud.equippedAvatarEmoji;
@@ -181,6 +193,9 @@ export function mergeLearnerProfiles(
     ...(resolvedRoom ? { room: resolvedRoom } : {}),
     ...(resolvedFriendsHub ? { friendsHub: resolvedFriendsHub } : {}),
     ...(resolvedActivityLog ? { activityLog: resolvedActivityLog } : {}),
+    ...(resolvedLedger ? { diamondLedger: resolvedLedger } : {}),
+    ...(resolvedRewardDates ? { missionRewardDates: resolvedRewardDates } : {}),
+    ...(resolvedVaultPractice ? { vaultPractice: resolvedVaultPractice } : {}),
     stats: {
       xp: mergedXp,
       level: mergedLevel,
@@ -189,14 +204,8 @@ export function mergeLearnerProfiles(
         local.stats?.maxPossibleStars || 36,
         cloud.stats?.maxPossibleStars || 36
       ),
-      diamonds: Math.max(
-        local.stats?.diamonds || 0,
-        cloud.stats?.diamonds || 0
-      ),
-      streakDays: Math.max(
-        local.stats?.streakDays ?? 0,
-        cloud.stats?.streakDays ?? 0
-      ),
+      diamonds: mergedDiamonds,
+      ...mergeStreakStats(local.stats, cloud.stats),
       shabbatShieldActive: preferCloudPrefs
         ? (cloud.isShabbatObserver ?? local.isShabbatObserver ?? true)
         : (local.isShabbatObserver ?? cloud.isShabbatObserver ?? true),
@@ -221,6 +230,16 @@ export function mergeLearnerProfiles(
   };
 
   return merged;
+}
+
+/** The later day's rewarded Vault words; the same day unions both devices' words. */
+function mergeVaultPractice(
+  local: VaultPracticeDay | undefined,
+  cloud: VaultPracticeDay | undefined
+): VaultPracticeDay | undefined {
+  if (!local || !cloud) return local || cloud;
+  if (local.dateStr !== cloud.dateStr) return local.dateStr > cloud.dateStr ? local : cloud;
+  return { dateStr: local.dateStr, words: Array.from(new Set([...local.words, ...cloud.words])) };
 }
 
 /** Keeps the most recently completed placement test result from either device. */
@@ -504,6 +523,22 @@ function sanitizeForFirestore<T>(obj: T): T {
 }
 
 /**
+ * The profile after sign-in when the cloud already has one. The fresh default only fills gaps:
+ * its welcome diamonds must not count, or every sign-in would top a spent-down balance up to
+ * the welcome gift (the merge keeps the larger plain balance while there is no ledger).
+ */
+export function buildLoginProfile(
+  cleanDefaultProfile: LearnerProfile,
+  cloudData: Partial<LearnerProfile>
+): LearnerProfile {
+  const base: LearnerProfile = {
+    ...cleanDefaultProfile,
+    stats: { ...cleanDefaultProfile.stats, diamonds: 0 },
+  };
+  return mergeLearnerProfiles(base, cloudData);
+}
+
+/**
  * Loads or initializes the learner profile when signing in:
  * - If a cloud document exists for this user, loads it as the source of truth.
  * - If this is a brand-new user (no cloud document yet), initializes a clean-slate profile.
@@ -517,8 +552,7 @@ export async function migrateAndSyncProfileOnLogin(
   const docRef = doc(db, LEARNERS_COLLECTION, uid);
   const snapshot = await getDoc(docRef);
   if (snapshot.exists()) {
-    const cloudData = snapshot.data() as Partial<LearnerProfile>;
-    return mergeLearnerProfiles(cleanDefaultProfile, cloudData);
+    return buildLoginProfile(cleanDefaultProfile, snapshot.data() as Partial<LearnerProfile>);
   }
 
   const sanitized = sanitizeForFirestore(cleanDefaultProfile);

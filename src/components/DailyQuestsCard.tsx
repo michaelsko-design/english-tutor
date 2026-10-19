@@ -4,9 +4,12 @@ import { getDailyQuests, DailyQuestDefinition } from '../data/rewardShop';
 import { DailyActivityCounters, LearnerGender } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
 import { Flame, CheckCircle2, Gift, ShieldCheck } from 'lucide-react';
+import { addDays, toLocalDateStr } from '../utils/dates';
 
 interface DailyQuestsCardProps {
   streakDays: number;
+  /** Local dates with a finished session (from the activity log) */
+  activeDates: string[];
   dailyCounters: DailyActivityCounters;
   claimedQuestIds: string[];
   gender: LearnerGender;
@@ -18,6 +21,7 @@ interface DailyQuestsCardProps {
 
 export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
   streakDays,
+  activeDates,
   dailyCounters,
   claimedQuestIds,
   gender,
@@ -26,7 +30,11 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
   onClaimQuest,
 }) => {
   const quests = getDailyQuests(gender);
-  const todayDayIdx = new Date().getDay();
+  const today = new Date();
+  const todayDayIdx = today.getDay();
+  const todayStr = toLocalDateStr(today);
+  const activeDateSet = new Set(activeDates);
+  if (dailyCounters.missionsCompletedToday > 0) activeDateSet.add(todayStr);
 
   const weekDays = [
     { label: 'א׳', dayIndex: 0, isShabbatSafe: false },
@@ -144,7 +152,10 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
         <div className="grid grid-cols-7 gap-1.5">
           {weekDays.map((d) => {
             const isToday = d.dayIndex === todayDayIdx;
-            const isPastOrToday = d.dayIndex <= todayDayIdx;
+            const isPast = d.dayIndex < todayDayIdx;
+            const isActive = activeDateSet.has(addDays(todayStr, d.dayIndex - todayDayIdx));
+            // 🔥 a learning day, 🛡️ a protected day, 💤 a missed day, ⚪ still to come (or today)
+            const icon = isActive ? '🔥' : d.isShabbatSafe ? '🛡️' : isPast ? '💤' : '⚪';
 
             return (
               <div
@@ -158,8 +169,8 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
                 }`}
               >
                 <span className="text-xs font-extrabold">{d.label}</span>
-                <span className="text-sm">
-                  {d.isShabbatSafe ? '🛡️' : isPastOrToday ? '🔥' : '⚪'}
+                <span className="text-sm" aria-label={isActive ? 'יום למידה' : d.isShabbatSafe ? 'יום מוגן' : isPast ? 'יום בלי למידה' : 'עוד לא'}>
+                  {icon}
                 </span>
               </div>
             );
@@ -168,7 +179,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
 
         <p className={`text-xs ${theme.mutedTextClass}`}>
           {isShabbatObserver
-            ? 'בימי שישי, שבת וחגים הרצף שלך מוגן אוטומטית 🛡️'
+            ? 'בימי שישי ושבת הרצף שלך מוגן אוטומטית 🛡️'
             : 'השלימו משימה קצרה מדי יום כדי לשמור על הרצף 🔥'}
         </p>
       </div>

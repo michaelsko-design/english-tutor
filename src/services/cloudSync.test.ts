@@ -14,7 +14,7 @@ import { toLocalDateStr } from '../data/examPrep';
 
 vi.mock('./firebase', () => ({ db: null }));
 
-const { mergeLearnerProfiles } = await import('./cloudSync');
+const { buildLoginProfile, mergeLearnerProfiles } = await import('./cloudSync');
 
 function makePlacement(completedAt: string, grade: 'grade-4' | 'grade-6'): PlacementResult {
   return {
@@ -475,5 +475,102 @@ describe('mergeLearnerProfiles activityLog', () => {
 
   it('leaves the field out when neither device has a log', () => {
     expect(mergeLearnerProfiles(baseProfile, baseProfile)).not.toHaveProperty('activityLog');
+  });
+});
+
+describe('mergeLearnerProfiles diamonds', () => {
+  it('keeps a purchase made on one device when another device earned diamonds', () => {
+    const phone: LearnerProfile = {
+      ...baseProfile,
+      stats: { ...baseProfile.stats, diamonds: 70 },
+      diamondLedger: { legacy: { earned: 100, spent: 0 }, phone: { earned: 0, spent: 30 } },
+    };
+    const tablet: LearnerProfile = {
+      ...baseProfile,
+      stats: { ...baseProfile.stats, diamonds: 110 },
+      diamondLedger: { legacy: { earned: 100, spent: 0 }, tablet: { earned: 10, spent: 0 } },
+    };
+
+    const merged = mergeLearnerProfiles(phone, tablet);
+
+    expect(merged.stats.diamonds).toBe(80);
+    expect(mergeLearnerProfiles(tablet, phone).stats.diamonds).toBe(80);
+  });
+
+  it('does not refund a purchase when the other copy still has the old balance', () => {
+    const afterPurchase: LearnerProfile = {
+      ...baseProfile,
+      stats: { ...baseProfile.stats, diamonds: 20 },
+      diamondLedger: { legacy: { earned: 50, spent: 0 }, phone: { earned: 0, spent: 30 } },
+    };
+    const stale: LearnerProfile = { ...baseProfile, diamondLedger: { legacy: { earned: 50, spent: 0 } } };
+
+    expect(mergeLearnerProfiles(stale, afterPurchase).stats.diamonds).toBe(20);
+  });
+
+  it('ignores the plain balance of a copy without a ledger once the other has one', () => {
+    const withLedger: LearnerProfile = {
+      ...baseProfile,
+      stats: { ...baseProfile.stats, diamonds: 20 },
+      diamondLedger: { legacy: { earned: 50, spent: 0 }, phone: { earned: 0, spent: 30 } },
+    };
+
+    expect(mergeLearnerProfiles(withLedger, { ...baseProfile, stats: { ...baseProfile.stats, diamonds: 50 } }).stats.diamonds).toBe(20);
+  });
+
+  it('keeps the larger balance while neither copy has a ledger', () => {
+    const merged = mergeLearnerProfiles(baseProfile, { ...baseProfile, stats: { ...baseProfile.stats, diamonds: 75 } });
+    expect(merged.stats.diamonds).toBe(75);
+    expect('diamondLedger' in merged).toBe(false);
+  });
+});
+
+describe('mergeLearnerProfiles streak and replay rewards', () => {
+  it('keeps the streak of the device that learned last', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, stats: { ...baseProfile.stats, streakDays: 9, streakLastDateStr: '2026-10-10' } },
+      { ...baseProfile, stats: { ...baseProfile.stats, streakDays: 1, streakLastDateStr: '2026-10-17' } }
+    );
+    expect(merged.stats.streakDays).toBe(1);
+    expect(merged.stats.streakLastDateStr).toBe('2026-10-17');
+  });
+
+  it('keeps the later reward date per mission', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, missionRewardDates: { a: '2026-10-17', b: '2026-10-01' } },
+      { ...baseProfile, missionRewardDates: { b: '2026-10-16', c: '2026-10-15' } }
+    );
+    expect(merged.missionRewardDates).toEqual({ a: '2026-10-17', b: '2026-10-16', c: '2026-10-15' });
+  });
+
+  it('unions the Vault words rewarded on the same day', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, vaultPractice: { dateStr: '2026-10-17', words: ['cat'] } },
+      { ...baseProfile, vaultPractice: { dateStr: '2026-10-17', words: ['dog', 'cat'] } }
+    );
+    expect(merged.vaultPractice).toEqual({ dateStr: '2026-10-17', words: ['cat', 'dog'] });
+  });
+});
+
+describe('buildLoginProfile', () => {
+  const freshDefault: LearnerProfile = {
+    ...baseProfile,
+    isOnboarded: false,
+    name: '',
+    stats: { ...baseProfile.stats, diamonds: 50 },
+    createdAt: new Date(0).toISOString(),
+    updatedAt: new Date(0).toISOString(),
+  };
+
+  it('keeps a spent-down balance instead of the welcome gift (no ledger yet)', () => {
+    const cloud = { ...baseProfile, stats: { ...baseProfile.stats, diamonds: 10 } };
+    expect(buildLoginProfile(freshDefault, cloud).stats.diamonds).toBe(10);
+  });
+
+  it('uses the cloud profile’s name, grade and onboarding', () => {
+    const loaded = buildLoginProfile(freshDefault, baseProfile);
+    expect(loaded.isOnboarded).toBe(true);
+    expect(loaded.name).toBe('Ido');
+    expect(loaded.gradeId).toBe('grade-5');
   });
 });

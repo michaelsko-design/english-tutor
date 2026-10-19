@@ -202,8 +202,8 @@ export const REWARD_SHOP_ITEMS: RewardShopItem[] = [
     category: 'boost',
     emoji: '🛡️',
     titleEn: 'Extra Weekday Streak Shield',
-    titleHe: 'מגן רצף נוסף לימי חול + בונוס יום ברצף',
-    descriptionHe: 'שומר על הרצף שלך גם אם פספסת יום לימודים עמוס ומוסיף +1 לרצף!',
+    titleHe: 'מגן רצף לימי חול',
+    descriptionHe: 'שומר על הרצף שלך ביום לימודים שפספסת. כל מגן שומר על יום אחד, ואפשר לקנות עוד.',
     costDiamonds: 50,
   },
 ];

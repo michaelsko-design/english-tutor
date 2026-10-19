@@ -43,6 +43,7 @@ const baseProfile: LearnerProfile = {
     maxPossibleStars: 36,
     diamonds: 10,
     streakDays: 4,
+    streakLastDateStr: '2026-10-17',
     shabbatShieldActive: true,
     wordsMastered: 0,
     missionsCompleted: 9,
@@ -143,7 +144,7 @@ describe('getPairId', () => {
 
 describe('buildPublicProfile', () => {
   it('shows only the display name, avatar and progress', () => {
-    expect(buildPublicProfile(baseProfile, '🐱')).toEqual({
+    expect(buildPublicProfile(baseProfile, '🐱', '2026-10-17')).toEqual({
       displayName: 'Noa',
       avatarEmoji: '🐱',
       level: 3,
@@ -160,7 +161,7 @@ describe('buildPublicProfile', () => {
   });
 
   it('compares summaries so unchanged progress is not written again', () => {
-    const summary = buildPublicProfile(baseProfile, '🐱');
+    const summary = buildPublicProfile(baseProfile, '🐱', '2026-10-17');
     expect(isSamePublicProfile({ ...summary }, summary)).toBe(true);
     expect(isSamePublicProfile({ ...summary, stars: 8 }, summary)).toBe(false);
     expect(isSamePublicProfile(null, summary)).toBe(false);

@@ -14,6 +14,7 @@ import {
   removeLookupEntries,
   removePublicProfile,
 } from '../services/friendsService';
+import { toLocalDateStr } from '../utils/dates';
 
 interface FriendPresenceOptions {
   authUser: AuthUserSummary | null;
@@ -102,7 +103,7 @@ export function useFriendPresence({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, identityKey, identityTick]);
 
-  const summary = buildPublicProfile(profile, avatarEmoji);
+  const summary = buildPublicProfile(profile, avatarEmoji, toLocalDateStr(new Date()));
   const summaryKey = JSON.stringify(summary);
 
   // Publish the summary when it changes; a failed write is retried on the next change

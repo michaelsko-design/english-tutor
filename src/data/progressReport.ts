@@ -2,6 +2,7 @@ import { ActivityLogEntry, LearnerProfile, SUPPORTED_GRADES } from '../types/lea
 import { CURRICULUM_BY_GRADE, MissionNode } from './curriculum';
 import { addDays, parseDateStr } from './examPrep';
 import { countCompletedMissions } from './milestones';
+import { getCurrentStreak } from './streak';
 
 /**
  * Weekly progress report for parents and teachers (Feature 9).
@@ -125,7 +126,7 @@ export function countMasteredWords(progress: Record<string, number>): number {
   return collectMissionWords(getMasteredMissionIds(progress)).length;
 }
 
-export function getOverallProgress(profile: LearnerProfile): OverallProgress {
+export function getOverallProgress(profile: LearnerProfile, todayStr: string): OverallProgress {
   const progress = profile.missionProgress || {};
   const missionsCompleted = countCompletedMissions(progress);
   const totalStars = Object.values(progress).reduce((sum, stars) => sum + Math.max(0, stars), 0);
@@ -134,7 +135,7 @@ export function getOverallProgress(profile: LearnerProfile): OverallProgress {
   const gradeStarsPossible = gradeMissions.length * 3;
   return {
     level: profile.stats.level,
-    streakDays: profile.stats.streakDays,
+    streakDays: getCurrentStreak(profile, todayStr),
     missionsCompleted,
     totalStars,
     averageStars: missionsCompleted > 0 ? Math.round((totalStars / missionsCompleted) * 10) / 10 : 0,
@@ -198,7 +199,7 @@ export function buildWeeklyReport(profile: LearnerProfile, weekStart: string, to
     newMissionsCompleted: newMissionIds.size,
     newMasteredWords: collectMissionWords(masteredThisWeek),
     trackingStartDateStr: log[0]?.dateStr,
-    overall: getOverallProgress(profile),
+    overall: getOverallProgress(profile, todayStr),
   };
 }
 

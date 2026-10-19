@@ -34,6 +34,7 @@ const baseProfile: LearnerProfile = {
     maxPossibleStars: 36,
     diamonds: 50,
     streakDays: 4,
+    streakLastDateStr: TODAY,
     shabbatShieldActive: true,
     wordsMastered: 0,
     missionsCompleted: 0,
@@ -202,7 +203,7 @@ describe('getOverallProgress', () => {
   it('rates star mastery across all grades and for the current grade', () => {
     const profile = { ...baseProfile, missionProgress: { 'g5-u1-m1': 3, 'g5-u1-m2': 2, 'g6-u1-m1': 2, 'g5-u1-m3': 0 } };
 
-    expect(getOverallProgress(profile)).toEqual({
+    expect(getOverallProgress(profile, TODAY)).toEqual({
       level: 3,
       streakDays: 4,
       missionsCompleted: 3,
@@ -216,7 +217,7 @@ describe('getOverallProgress', () => {
   });
 
   it('has a zero average before any mission is completed', () => {
-    expect(getOverallProgress(baseProfile).averageStars).toBe(0);
+    expect(getOverallProgress(baseProfile, TODAY).averageStars).toBe(0);
   });
 });
 
@@ -226,7 +227,7 @@ describe('countMasteredWords', () => {
 
     expect(countMasteredWords(progress)).toBe(3);
     expect(countMasteredWords(progress)).toBe(
-      getOverallProgress({ ...baseProfile, missionProgress: progress }).masteredWordCount
+      getOverallProgress({ ...baseProfile, missionProgress: progress }, TODAY).masteredWordCount
     );
   });
 

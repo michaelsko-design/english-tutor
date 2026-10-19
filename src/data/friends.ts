@@ -1,5 +1,6 @@
 import { LearnerGender, LearnerProfile } from '../types/learner';
 import { countCompletedMissions } from './milestones';
+import { getCurrentStreak } from './streak';
 import { toUsernameSlug } from '../utils/username';
 
 /**
@@ -155,12 +156,13 @@ export function toDisplayName(name: string): string {
   return (trimmed || 'Learner').slice(0, MAX_DISPLAY_NAME_LENGTH);
 }
 
-export function buildPublicProfile(profile: LearnerProfile, avatarEmoji: string): PublicProfile {
+/** `todayStr` is the learner's local date: a streak with a missed day shows 0. */
+export function buildPublicProfile(profile: LearnerProfile, avatarEmoji: string, todayStr: string): PublicProfile {
   return {
     displayName: toDisplayName(profile.name),
     avatarEmoji,
     level: profile.stats.level,
-    streakDays: profile.stats.streakDays,
+    streakDays: getCurrentStreak(profile, todayStr),
     stars: profile.stats.stars,
     missionsCompleted: countCompletedMissions(profile.missionProgress || {}),
   };

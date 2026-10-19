@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import {
   AuthUserSummary,
@@ -8,10 +8,14 @@ import {
 } from './types/learner';
 import { auth, db, isFirebaseConfigured } from './services/firebase';
 import {
+  buildLoginProfile,
   mergeLearnerProfiles,
   migrateAndSyncProfileOnLogin,
   saveProfileToFirestore,
 } from './services/cloudSync';
+import { recordDiamondChange } from './data/diamondLedger';
+import { getDeviceId } from './utils/deviceId';
+import { toLocalDateStr } from './utils/dates';
 import { OnboardingView } from './components/OnboardingView';
 import { DashboardView } from './components/DashboardView';
 import { AuthModal } from './components/AuthModal';
@@ -23,6 +27,7 @@ import { FirstLaunchGreeting } from './components/home/FirstLaunchGreeting';
 import { THEME_REGISTRY } from './themes/themeRegistry';
 import { useFriendPresence } from './hooks/useFriendPresence';
 import { usePendingInvite } from './hooks/usePendingInvite';
+import { CloudLoadErrorScreen } from './components/CloudLoadErrorScreen';
 
 const STORAGE_KEY = 'english_tutor_learner_profile_v2';
 export const WELCOME_GIFT_DIAMONDS = 50;
@@ -51,7 +56,7 @@ export const DEFAULT_PROFILE: LearnerProfile = {
   equippedAvatarEmoji: undefined,
   claimedDailyQuestIds: [],
   dailyCounters: {
-    dateStr: new Date().toISOString().slice(0, 10),
+    dateStr: toLocalDateStr(new Date()),
     missionsCompletedToday: 0,
     voiceWordsPracticedToday: 0,
     threeStarMissionsToday: 0,
@@ -100,6 +105,10 @@ export function App() {
   const [authUser, setAuthUser] = useState<AuthUserSummary | null>(null);
   const [isAuthInitializing, setIsAuthInitializing] = useState<boolean>(isFirebaseConfigured);
   const [syncStatus, setSyncStatus] = useState<CloudSyncStatus>('local-only');
+  /** The first cloud read after sign-in failed: nothing is saved until it succeeds */
+  const [isCloudLoadFailed, setIsCloudLoadFailed] = useState<boolean>(false);
+  const isCloudLoadedRef = useRef<boolean>(false);
+  const retryCloudLoadRef = useRef<(() => void) | null>(null);
   const [pendingInviteCode, clearPendingInvite] = usePendingInvite();
 
   const profileRef = useRef<LearnerProfile>(profile);
@@ -129,12 +138,20 @@ export function App() {
     }
 
     let unsubscribeSnapshot: (() => void) | null = null;
+    // Each sign-in change bumps this, so a slow load of an earlier account is ignored
+    let authGeneration = 0;
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      authGeneration += 1;
+      const generation = authGeneration;
+      const isCurrent = () => generation === authGeneration;
       if (unsubscribeSnapshot) {
         unsubscribeSnapshot();
         unsubscribeSnapshot = null;
       }
+      isCloudLoadedRef.current = false;
+      retryCloudLoadRef.current = null;
+      setIsCloudLoadFailed(false);
 
       if (!firebaseUser) {
         setAuthUser(null);
@@ -157,28 +174,39 @@ export function App() {
         isAnonymous: firebaseUser.isAnonymous,
       };
       setAuthUser(summary);
-      setIsAuthInitializing(true);
-      setSyncStatus('syncing');
 
-      try {
-        // 1. Load user's cloud profile or initialize a clean-slate profile for new users
-        const freshDefault: LearnerProfile = {
-          ...DEFAULT_PROFILE,
-          name: firebaseUser.displayName?.split(' ')[0] || '',
-          createdAt: new Date(0).toISOString(),
-          updatedAt: new Date(0).toISOString(),
-        };
-        const loadedProfile = await migrateAndSyncProfileOnLogin(
-          firebaseUser.uid,
-          freshDefault
-        );
-        setProfile(loadedProfile);
-        setSyncStatus('synced');
-      } catch {
-        setSyncStatus('offline-error');
-      } finally {
-        setIsAuthInitializing(false);
-      }
+      // A clean-slate profile for new users; for existing ones it only fills gaps
+      const freshDefault: LearnerProfile = {
+        ...DEFAULT_PROFILE,
+        name: firebaseUser.displayName?.split(' ')[0] || '',
+        createdAt: new Date(0).toISOString(),
+        updatedAt: new Date(0).toISOString(),
+      };
+
+      // 1. Load the cloud profile. If that fails, the learner sees a retry screen: a default
+      // profile must never reach onboarding, or finishing it would overwrite the cloud progress.
+      const loadCloudProfile = async () => {
+        setIsAuthInitializing(true);
+        setSyncStatus('syncing');
+        try {
+          const loadedProfile = await migrateAndSyncProfileOnLogin(firebaseUser.uid, freshDefault);
+          if (!isCurrent()) return;
+          isCloudLoadedRef.current = true;
+          setProfile(loadedProfile);
+          setIsCloudLoadFailed(false);
+          setSyncStatus('synced');
+        } catch (error) {
+          if (!isCurrent()) return;
+          console.warn('Loading the cloud profile failed:', (error as { code?: string })?.code ?? error);
+          setIsCloudLoadFailed(true);
+          setSyncStatus('offline-error');
+        } finally {
+          if (isCurrent()) setIsAuthInitializing(false);
+        }
+      };
+      retryCloudLoadRef.current = () => void loadCloudProfile();
+      await loadCloudProfile();
+      if (!isCurrent()) return;
 
       // 2. Real-time cross-device sync via Firestore onSnapshot
       if (db) {
@@ -186,15 +214,22 @@ export function App() {
         unsubscribeSnapshot = onSnapshot(
           learnerDocRef,
           (snapshot) => {
-            if (!snapshot.exists()) return;
+            if (!isCurrent() || !snapshot.exists()) return;
             const cloudData = snapshot.data() as Partial<LearnerProfile>;
-            setProfile((currentLocal) =>
-              mergeLearnerProfiles(currentLocal, cloudData)
-            );
-            setSyncStatus('synced');
+            if (!isCloudLoadedRef.current) {
+              // The first load failed but the document arrived now (back online)
+              isCloudLoadedRef.current = true;
+              setIsCloudLoadFailed(false);
+              setProfile(buildLoginProfile(freshDefault, cloudData));
+            } else {
+              setProfile((currentLocal) => mergeLearnerProfiles(currentLocal, cloudData));
+            }
+            // Local writes fire a snapshot at once; the save itself reports "synced" once the
+            // server has them
+            setSyncStatus(snapshot.metadata.hasPendingWrites ? 'syncing' : 'synced');
           },
           () => {
-            setSyncStatus('offline-error');
+            if (isCurrent()) setSyncStatus('offline-error');
           }
         );
       }
@@ -209,20 +244,27 @@ export function App() {
   // Unified handler that updates local state and pushes to Firestore when logged in
   const handleUpdateProfile = (updated: LearnerProfile) => {
     const now = new Date();
+    const previous = profileRef.current;
+    // Every local change passes here, so the weekly report's log and this device's diamond
+    // ledger record it once (cloud snapshots are merged, never recorded)
+    const withLog = recordActivityLog(previous, updated, now);
     const stamped: LearnerProfile = {
-      // Every local change passes here, so the weekly report's log records it once
-      ...recordActivityLog(profileRef.current, updated, now),
+      ...recordDiamondChange(previous, withLog, getDeviceId()),
       updatedAt: now.toISOString(),
     };
     // A second update before the next render then diffs against this one, not the older profile
     profileRef.current = stamped;
     setProfile(stamped);
 
-    if (authUser && isFirebaseConfigured) {
+    // Never save before the cloud profile loaded: a default profile would overwrite it
+    if (authUser && isFirebaseConfigured && isCloudLoadedRef.current) {
       setSyncStatus('syncing');
       saveProfileToFirestore(authUser.uid, stamped)
         .then(() => setSyncStatus('synced'))
-        .catch(() => setSyncStatus('offline-error'));
+        .catch((error) => {
+          console.warn('Saving the profile failed:', (error as { code?: string })?.code ?? error);
+          setSyncStatus('offline-error');
+        });
     }
   };
 
@@ -270,6 +312,18 @@ export function App() {
           isMandatory={true}
         />
       </div>
+    );
+  }
+
+  if (isCloudLoadFailed) {
+    return (
+      <CloudLoadErrorScreen
+        theme={activeTheme}
+        onRetry={() => retryCloudLoadRef.current?.()}
+        onSignOut={() => {
+          if (auth) void signOut(auth);
+        }}
+      />
     );
   }
 

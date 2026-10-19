@@ -24,7 +24,9 @@ import { RewardShopModal } from './RewardShopModal';
 import { AuthModal } from './AuthModal';
 import { PlacementTest } from './PlacementTest';
 import { applyPlacementToProfile } from '../data/placementTest';
-import { applyVocabPracticeReward, levelForXp, recordDailyActivity } from '../data/progressRewards';
+import { applyVocabPracticeReward, getTodayCounters, levelForXp, recordDailyActivity } from '../data/progressRewards';
+import { STREAK_SHIELD_ITEM_ID, addStreakShield, getCurrentStreak, getStreakShieldsLeft } from '../data/streak';
+import { toLocalDateStr } from '../utils/dates';
 import { countMasteredWords } from '../data/progressReport';
 import { ExamPrepHub } from './examPrep/ExamPrepHub';
 import { ExamModalShell } from './examPrep/ExamModalShell';
@@ -111,20 +113,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const calculatedXp = Math.round(todaysMission.baseXp * activeTier.xpMultiplier);
   const calculatedDiamonds = todaysMission.baseDiamonds + activeTier.diamondBonus;
 
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const dailyCounters: DailyActivityCounters = profile.dailyCounters || {
-    dateStr: todayStr,
-    missionsCompletedToday: 0,
-    voiceWordsPracticedToday: 0,
-    threeStarMissionsToday: 0,
-  };
-  const questRings = getQuestRings(getDailyQuests(profile.gender), dailyCounters, profile.claimedDailyQuestIds || []);
+  const todayStr = toLocalDateStr(new Date());
+  // Counters from an earlier day (a tab left open past midnight) count as zero
+  const { counters: dailyCounters, claimedQuestIds } = getTodayCounters(profile, todayStr);
+  const currentStreak = getCurrentStreak(profile, todayStr);
+  const questRings = getQuestRings(getDailyQuests(profile.gender), dailyCounters, claimedQuestIds);
   const mapPeek = getMapPeek(gradeCurriculum.units, profile.missionProgress || {});
   const greetingHe = getHomeGreetingHe({
     gender: profile.gender,
     name: profile.name,
     bossGate: todaysBossGate,
-    missionsToday: dailyCounters.dateStr === todayStr ? dailyCounters.missionsCompletedToday : 0,
+    missionsToday: dailyCounters.missionsCompletedToday,
     isFirstMission: missionsCompletedCount === 0,
   });
 
@@ -143,15 +142,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     xpEarned: number;
     diamondsEarned: number;
     wordsLearnedCount: number;
+    isFullReward: boolean;
+    isVoiceSkipped: boolean;
   }) => {
     const prevStarsForMission = profile.missionProgress?.[result.missionId] || 0;
     const updatedMissionStars = Math.max(prevStarsForMission, result.starsEarned);
     const starDelta = Math.max(0, updatedMissionStars - prevStarsForMission);
+    const missionTodayStr = toLocalDateStr(new Date());
 
     const withActivity = recordDailyActivity(
       profile,
-      { missions: 1, voiceWords: 1, threeStarMissions: result.starsEarned === 3 ? 1 : 0 },
-      new Date().toISOString().slice(0, 10)
+      {
+        missions: 1,
+        // A skipped voice step earns no voice-word credit
+        voiceWords: result.isVoiceSkipped ? 0 : 1,
+        threeStarMissions: result.isFullReward && result.starsEarned === 3 ? 1 : 0,
+      },
+      missionTodayStr
     );
     const newXp = withActivity.stats.xp + result.xpEarned;
     const roomReward = getRoomRewardForMission(profile, result.missionId, result.starsEarned);
@@ -165,13 +172,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         ...(profile.missionProgress || {}),
         [result.missionId]: updatedMissionStars,
       },
+      ...(result.isFullReward
+        ? { missionRewardDates: { ...(profile.missionRewardDates || {}), [result.missionId]: missionTodayStr } }
+        : {}),
       stats: {
         ...withActivity.stats,
         xp: newXp,
         level: levelForXp(newXp, withActivity.stats.level),
         stars: profile.stats.stars + starDelta,
         maxPossibleStars: totalGradeStarsPossible,
-        diamonds: profile.stats.diamonds + result.diamondsEarned,
+        diamonds: withActivity.stats.diamonds + result.diamondsEarned,
         wordsMastered: profile.stats.wordsMastered + result.wordsLearnedCount,
         missionsCompleted: profile.stats.missionsCompleted + 1,
       },
@@ -181,29 +191,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     if (roomReward) setRoomRewardToast(roomReward);
   };
 
-  const handleEarnVocabReward = (xpBonus: number, diamondBonus: number) => {
-    onUpdateProfile(
-      applyVocabPracticeReward(
-        profile,
-        xpBonus,
-        diamondBonus,
-        new Date().toISOString().slice(0, 10)
-      )
-    );
+  /** Rewards a word said in the Vault, once per word per day; false when it earned nothing. */
+  const handleEarnVocabReward = (wordEn: string, xpBonus: number, diamondBonus: number): boolean => {
+    const result = applyVocabPracticeReward(profile, wordEn, xpBonus, diamondBonus, toLocalDateStr(new Date()));
+    if (result.isRewarded) onUpdateProfile(result.profile);
+    return result.isRewarded;
   };
 
   const handleClaimDailyQuest = (quest: DailyQuestDefinition) => {
-    if (profile.claimedDailyQuestIds?.includes(quest.id)) return;
+    const today = getTodayCounters(profile, toLocalDateStr(new Date()));
+    if (today.claimedQuestIds.includes(quest.id)) return;
+    if (quest.getCurrentCount(today.counters) < quest.targetCount) return;
     const newXp = profile.stats.xp + quest.rewardXp;
-    const newLevel = Math.max(profile.stats.level, Math.floor(newXp / 150) + 1);
 
     onUpdateProfile({
       ...profile,
-      claimedDailyQuestIds: [...(profile.claimedDailyQuestIds || []), quest.id],
+      dailyCounters: today.counters,
+      claimedDailyQuestIds: [...today.claimedQuestIds, quest.id],
       stats: {
         ...profile.stats,
         xp: newXp,
-        level: newLevel,
+        level: levelForXp(newXp, profile.stats.level),
         diamonds: profile.stats.diamonds + quest.rewardDiamonds,
       },
     });
@@ -211,6 +219,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   const handleBuyReward = (item: RewardShopItem) => {
     if (profile.stats.diamonds < item.costDiamonds) return;
+    // A streak shield is used up on a missed day, so it can be bought again
+    if (item.id === STREAK_SHIELD_ITEM_ID) {
+      onUpdateProfile({
+        ...profile,
+        stats: { ...addStreakShield(profile), diamonds: profile.stats.diamonds - item.costDiamonds },
+      });
+      return;
+    }
     const nextUnlocked = Array.from(
       new Set([...(profile.unlockedRewardIds || []), item.id])
     );
@@ -223,10 +239,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       stats: {
         ...profile.stats,
         diamonds: profile.stats.diamonds - item.costDiamonds,
-        streakDays:
-          item.id === 'boost-streak-shield'
-            ? profile.stats.streakDays + 1
-            : profile.stats.streakDays,
       },
     });
   };
@@ -438,9 +450,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         >
           <div className="p-3 sm:p-4">
             <DailyQuestsCard
-              streakDays={profile.stats.streakDays}
+              streakDays={currentStreak}
+              activeDates={(profile.activityLog || []).filter((e) => e.sessions > 0).map((e) => e.dateStr)}
               dailyCounters={dailyCounters}
-              claimedQuestIds={profile.claimedDailyQuestIds || []}
+              claimedQuestIds={claimedQuestIds}
               gender={profile.gender}
               theme={theme}
               isShabbatObserver={profile.isShabbatObserver !== false}
@@ -468,6 +481,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           }
           startXp={profile.stats.xp}
           startLevel={profile.stats.level}
+          previousStars={profile.missionProgress?.[activePracticeMission.id] || 0}
+          lastRewardDateStr={profile.missionRewardDates?.[activePracticeMission.id]}
         />
       )}
 
@@ -503,6 +518,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           diamonds={profile.stats.diamonds}
           unlockedRewardIds={profile.unlockedRewardIds || ['avatar-boba-cat']}
           equippedAvatarEmoji={activeAvatarEmoji}
+          streakShieldsLeft={getStreakShieldsLeft(profile)}
           gender={profile.gender}
           learnerName={profile.name}
           theme={theme}
