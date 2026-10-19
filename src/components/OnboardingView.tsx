@@ -117,6 +117,8 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
       age,
       gender,
       gradeId,
+      // The grade picked here is the school grade (placement tests may move the practice grade)
+      schoolGradeId: gradeId,
       themeId,
       isShabbatObserver,
       voicePreference,

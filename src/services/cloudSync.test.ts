@@ -552,6 +552,17 @@ describe('mergeLearnerProfiles streak and replay rewards', () => {
   });
 });
 
+describe('mergeLearnerProfiles fields added by the audit', () => {
+  it('keeps the parent’s first consent and the school grade', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, parentalConsentAt: '2026-10-12T00:00:00.000Z', schoolGradeId: 'grade-5' },
+      { ...baseProfile, parentalConsentAt: '2026-10-15T00:00:00.000Z' }
+    );
+    expect(merged.parentalConsentAt).toBe('2026-10-12T00:00:00.000Z');
+    expect(merged.schoolGradeId).toBe('grade-5');
+  });
+});
+
 describe('buildLoginProfile', () => {
   const freshDefault: LearnerProfile = {
     ...baseProfile,

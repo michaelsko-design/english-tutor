@@ -6,6 +6,7 @@ import {
   PLACEMENT_REWARD_XP,
   PlacementAnswer,
   applyPlacementToProfile,
+  getSchoolGradeId,
   buildPlacementPool,
   computePlacementResult,
   getStartingDifficulty,
@@ -149,11 +150,11 @@ describe('pickNextQuestion', () => {
 describe('computePlacementResult', () => {
   const completedAt = '2026-10-17T10:00:00.000Z';
 
-  it('recommends master and a higher grade when every answer is correct', () => {
+  it('recommends a higher grade at its middle tier when every answer is correct (not also the hardest tier)', () => {
     const result = computePlacementResult(simulateTest(4, () => true), 4, completedAt);
     expect(result.correctCount).toBe(PLACEMENT_QUESTION_COUNT);
     expect(result.totalQuestions).toBe(PLACEMENT_QUESTION_COUNT);
-    expect(result.recommendedTier).toBe('master');
+    expect(result.recommendedTier).toBe('challenger');
     expect(gradeIdToNumber(result.estimatedGradeId)).toBeGreaterThanOrEqual(6);
     expect(result.recommendedGradeId).toBe(result.estimatedGradeId);
     expect(result.completedAt).toBe(completedAt);
@@ -246,6 +247,14 @@ describe('applyPlacementToProfile', () => {
     },
     createdAt: '2026-10-01T00:00:00.000Z',
   };
+
+  it('keeps the school grade when a test moves the practice grade', () => {
+    const moved = applyPlacementToProfile(profile, result, true);
+    expect(moved.gradeId).toBe('grade-5');
+    expect(getSchoolGradeId(moved)).toBe('grade-7');
+    // A later test still starts from the school grade
+    expect(getSchoolGradeId(applyPlacementToProfile(moved, result, true))).toBe('grade-7');
+  });
 
   it('applies the recommended grade and tier when asked', () => {
     const updated = applyPlacementToProfile(profile, result, true);

@@ -164,6 +164,12 @@ export function mergeLearnerProfiles(
     ? cloud.equippedAvatarEmoji || local.equippedAvatarEmoji
     : local.equippedAvatarEmoji || cloud.equippedAvatarEmoji;
 
+  const resolvedSchoolGrade = preferCloudPrefs
+    ? cloud.schoolGradeId ?? local.schoolGradeId
+    : local.schoolGradeId ?? cloud.schoolGradeId;
+  // The first consent stays (an earlier ISO time sorts first)
+  const resolvedConsent = [local.parentalConsentAt, cloud.parentalConsentAt].filter(Boolean).sort()[0];
+
   const resolvedVoice = preferCloudPrefs
     ? cloud.voicePreference ?? local.voicePreference
     : local.voicePreference ?? cloud.voicePreference;
@@ -186,6 +192,8 @@ export function mergeLearnerProfiles(
         ? (cloud.isShabbatObserver ?? local.isShabbatObserver ?? true)
         : (local.isShabbatObserver ?? cloud.isShabbatObserver ?? true),
     ...(resolvedVoice ? { voicePreference: resolvedVoice } : {}),
+    ...(resolvedSchoolGrade ? { schoolGradeId: resolvedSchoolGrade } : {}),
+    ...(resolvedConsent ? { parentalConsentAt: resolvedConsent } : {}),
     ...(resolvedAvatar ? { equippedAvatarEmoji: resolvedAvatar } : {}),
     ...(resolvedPlacement ? { placementResult: resolvedPlacement } : {}),
     ...(resolvedExamPrep ? { examPrep: resolvedExamPrep } : {}),

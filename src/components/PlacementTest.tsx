@@ -7,6 +7,7 @@ import {
   PLACEMENT_REWARD_XP,
   PlacementAnswer,
   computePlacementResult,
+  getSchoolGradeId,
   getStartingDifficulty,
   gradeIdToNumber,
   nextDifficulty,
@@ -39,7 +40,7 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
   onClose,
 }) => {
   const isGirl = profile.gender === 'girl';
-  const schoolGrade = gradeIdToNumber(profile.gradeId);
+  const schoolGrade = gradeIdToNumber(getSchoolGradeId(profile));
   const isFirstTest = !profile.placementResult;
 
   const [phase, setPhase] = useState<Phase>('intro');

@@ -303,7 +303,10 @@ export interface LearnerProfile {
   name: string;
   age: number;
   gender: LearnerGender;
+  /** The grade the learner practises (a placement test may move it) */
   gradeId: GradeId;
+  /** The grade the learner is in at school, kept as the base of placement tests */
+  schoolGradeId?: GradeId;
   preferredTier: ProficiencyTier;
   themeId: ThemeId;
   stats: LearnerStats;

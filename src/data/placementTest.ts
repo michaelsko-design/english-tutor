@@ -141,8 +141,9 @@ export function pickNextQuestion(
   };
 }
 
-function recommendTier(estimate: number, schoolGrade: number): ProficiencyTier {
-  const diff = estimate - schoolGrade;
+/** The tier within the recommended grade, so a learner moved to an easier grade isn't also given the easiest tier. */
+function recommendTier(estimate: number, recommendedGrade: number): ProficiencyTier {
+  const diff = estimate - recommendedGrade;
   if (diff <= -1) return 'explorer';
   if (diff === 0) return 'challenger';
   return 'master';
@@ -182,10 +183,15 @@ export function computePlacementResult(
     completedAt,
     estimatedGradeId: gradeNumberToId(estimate),
     recommendedGradeId: gradeNumberToId(recommendedGrade),
-    recommendedTier: recommendTier(rawEstimate, schoolGrade),
+    recommendedTier: recommendTier(rawEstimate, recommendedGrade),
     correctCount: answers.filter((a) => a.isCorrect).length,
     totalQuestions: answers.length,
   };
+}
+
+/** The learner's school grade: set at onboarding, before a placement test changed the practice grade. */
+export function getSchoolGradeId(profile: LearnerProfile): GradeId {
+  return profile.schoolGradeId ?? profile.gradeId;
 }
 
 /**
@@ -203,6 +209,8 @@ export function applyPlacementToProfile(
   return {
     ...profile,
     placementResult: result,
+    // The grade the learner is in at school stays the base of later tests
+    schoolGradeId: getSchoolGradeId(profile),
     gradeId: applyRecommendation ? result.recommendedGradeId : profile.gradeId,
     preferredTier: applyRecommendation ? result.recommendedTier : profile.preferredTier,
     stats: {
