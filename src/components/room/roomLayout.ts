@@ -7,15 +7,15 @@ export interface ScenePoint {
   y: number;
 }
 
-/** Where each slot's item sits in the scene. The wall ends at 60% height. */
+/** Where each slot's item sits in the scene. The wall ends at about 60% height (the room pictures put the floor line at about 72%); the window is at 35-65% across, 14-52% down, the sticker board on the right wall. */
 export const SLOT_POSITIONS: Record<string, ScenePoint> = {
   'wall-left': { x: 13, y: 15 },
-  'wall-right': { x: 72, y: 11 },
-  'board-1': { x: 64, y: 33 },
-  'board-2': { x: 72, y: 33 },
-  'board-3': { x: 80, y: 33 },
+  'wall-right': { x: 80, y: 13 },
+  'board-1': { x: 72.5, y: 30 },
+  'board-2': { x: 80, y: 30 },
+  'board-3': { x: 87.5, y: 30 },
   shelf: { x: 17, y: 37 },
-  'window-sill': { x: 44, y: 29.5 },
+  'window-sill': { x: 50, y: 49 },
   'desk-top': { x: 62, y: 51 },
   'floor-left': { x: 37, y: 70 },
   'floor-center': { x: 57, y: 79 },

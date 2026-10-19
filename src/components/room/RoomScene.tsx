@@ -87,15 +87,15 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
       {/* Window, shelf, sticker board and desk outlines */}
       {!hasRoomArt && (
         <div
-          className={`absolute left-[34%] top-[8%] w-[20%] h-[26%] rounded-lg border-[0.8cqw] ${palette.windowClass} flex items-center justify-center text-[5cqw]`}
+          className={`absolute left-[35%] top-[14%] w-[30%] h-[38%] rounded-lg border-[0.8cqw] ${palette.windowClass} flex items-center justify-center text-[5cqw]`}
           aria-hidden="true"
         >
           {palette.windowView}
         </div>
       )}
-      <div className={`absolute left-[32%] top-[34%] w-[24%] h-[2%] rounded-sm border ${palette.furnitureClass}`} />
+      <div className={`absolute left-[33%] top-[52%] w-[34%] h-[2%] rounded-sm border ${palette.furnitureClass}`} />
       <div className={`absolute left-[6%] top-[42%] w-[22%] h-[2.2%] rounded-sm border ${palette.furnitureClass}`} />
-      <div className={`absolute left-[59%] top-[26%] w-[26%] h-[15%] rounded-lg border-[0.5cqw] ${palette.boardClass}`} />
+      <div className={`absolute left-[68%] top-[22%] w-[24%] h-[15%] rounded-lg border-[0.5cqw] ${palette.boardClass}`} />
       <div className={`absolute left-[55%] top-[55%] w-[26%] h-[3%] rounded-md border ${palette.furnitureClass}`} />
       <div className={`absolute left-[57%] top-[58%] w-[1.5%] h-[12%] ${palette.furnitureClass}`} />
       <div className={`absolute left-[77.5%] top-[58%] w-[1.5%] h-[12%] ${palette.furnitureClass}`} />
