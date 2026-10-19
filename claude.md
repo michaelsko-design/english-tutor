@@ -414,6 +414,18 @@ Detailed feature tracking and future planned enhancements are managed in [`backl
 ---
 
 ## 8. Local Testing with the Firebase Emulators
-- `npm run emulators` starts the Auth (9099) and Firestore (8080) emulators under the demo project `demo-english-vibe` (needs Java 21+; data is kept in the gitignored `.emulator-data/`). `npm run dev:emu` (or the `vite-emu` preview config, port 5174) runs Vite in `emulator` mode: `services/firebase.ts` then points Auth and Firestore at the emulators, only on localhost, so nothing reaches the live project.
-- A local test learner (`emutest`, credentials in the gitignored `.claude/test-user-emulator.md`) can be signed in by Claude and re-created at any time through the Auth emulator. Never put credentials in this file.
-- Against the live project, sign in by hand; `.claude/test-user.md` (gitignored) holds that account.
+Use the emulators to try new features and fixes in the real app, signed in, without touching the live Firebase project (`english-tutor-il-7`). Claude may create and sign in with accounts here, because everything stays on localhost; against the live project it must not (sign in by hand, see `.claude/test-user.md`, gitignored).
+
+**How it works**
+- `npm run emulators` starts the Auth (9099) and Firestore (8080) emulators under the demo project `demo-english-vibe`, with the rules in `firestore.rules`. It needs Java 21+ (Microsoft OpenJDK 21 is installed; put its `bin` on `PATH` if `java` isn't found) and the CLI downloads the Firestore emulator jar once.
+- `npm run dev:emu` runs Vite in `emulator` mode (port 5173; the `vite-emu` preview config in `.claude/launch.json` uses port 5174). `services/firebase.ts` then points Auth and Firestore at the emulators, only on `localhost` / `127.0.0.1`, with a demo project id and key. A normal `npm run dev` or production build never uses them.
+- Data lives in memory and is saved to the gitignored `.emulator-data/` only when the emulators exit cleanly (Ctrl+C). If they are killed, the accounts and profiles are gone: just re-create the test user.
+
+**Process for testing a feature or fix**
+1. Start the emulators (a background process, or a terminal tab) and wait until `127.0.0.1:9099` and `:8080` answer.
+2. Create the test learner through the Auth emulator (skip if it was exported before): `POST http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signUp?key=demo-api-key` with `{"email":"emutest@peachnote.tutor.local","password":"<PIN>","returnSecureToken":true}`. The username `emutest` signs in as `emutest@peachnote.tutor.local` (`utils/username.ts`). Keep the PIN in the gitignored `.claude/test-user-emulator.md`, never in this file.
+3. Start the app in emulator mode (`vite-emu` preview or `npm run dev:emu`), sign in with the username and PIN, and finish onboarding once (name, grade, theme). A new profile also gets the welcome chest and the placement-test offer (skip it).
+4. Exercise the change and check it: screenshots, `read_page`, console messages, and the network tab, which must show only `127.0.0.1` requests for Auth and Firestore. Try the other themes (settings > theme) when the change is visual; theme changes apply live.
+5. Stop the dev server and the emulators when done (a clean stop with Ctrl+C keeps `.emulator-data/`). Run `npm test` and `npm run build` before committing; the emulators don't replace them.
+
+**Limits**: Google sign-in and anything needing real Firebase services (Hosting, Storage) don't work in emulator mode. Friends and contests need a second emulator account, created the same way. Dock tiles can scroll under the sticky header, so click them with a script (`button[aria-label^="..."]`) if a coordinate click misses.
