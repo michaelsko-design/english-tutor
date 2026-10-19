@@ -12,7 +12,9 @@
     "tts:corpus": "vite-node scripts/tts/collectCorpus.ts",
     "tts:render": "vite-node scripts/tts/renderClips.ts --",
     "tts:check": "vite-node scripts/tts/checkClips.ts --",
-    "emulators": "firebase emulators:start --only auth,firestore --project demo-english-vibe --import=.emulator-data --export-on-exit"
+    "emulators": "firebase emulators:start --only auth,firestore --project demo-english-vibe --import=.emulator-data --export-on-exit",
+    "lint": "eslint .",
+    "typecheck": "tsc -b"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.3",
@@ -22,15 +24,21 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/canvas-confetti": "^1.9.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "eslint": "^10.13.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
     "typescript": "~5.6.2",
+    "typescript-eslint": "^8.71.2",
     "vite": "^6.0.3",
-    "vitest": "^3.2.7"
+    "vite-node": "^3.2.4",
+    "vitest": "^5.0.5"
   }
 }

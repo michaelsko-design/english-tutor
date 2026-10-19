@@ -1,4 +1,10 @@
-const CACHE_NAME = 'englishvibe-v1';
+// Both are filled in at build time by the sw-precache plugin in vite.config.ts: a hash of the
+// build and the built JS/CSS files. The dev server serves this file unchanged.
+const BUILD_ID = 'dev';
+const PRECACHE_ASSETS = [];
+
+// One app cache per build; activate deletes the caches of older builds.
+const CACHE_NAME = `englishvibe-${BUILD_ID}`;
 // Read-aloud clips are named by their text, so a cached clip never goes stale.
 const TTS_CLIP_CACHE = 'englishvibe-tts-v1';
 // Caches owned by the read-aloud service (src/services/tts) are kept on activate.
@@ -14,8 +20,9 @@ const APP_SHELL = [
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
+  // If any file fails to download, the install fails and the previous worker stays in charge.
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)).catch(() => {})
+    caches.open(CACHE_NAME).then((cache) => cache.addAll([...APP_SHELL, ...PRECACHE_ASSETS]))
   );
 });
 
@@ -25,21 +32,27 @@ self.addEventListener('activate', (event) => {
       .keys()
       .then((keys) =>
         Promise.all(
-          keys.map((key) => {
-            if (key !== CACHE_NAME && !key.startsWith(TTS_CACHE_PREFIX)) {
-              return caches.delete(key);
-            }
-            return Promise.resolve();
-          })
+          keys
+            .filter((key) => key !== CACHE_NAME && !key.startsWith(TTS_CACHE_PREFIX))
+            .map((key) => caches.delete(key))
         )
       )
       .then(() => self.clients.claim())
   );
 });
 
+function putInCache(cacheName, request, response) {
+  if (response && response.status === 200 && response.type === 'basic') {
+    const copy = response.clone();
+    caches.open(cacheName).then((cache) => cache.put(request, copy));
+  }
+  return response;
+}
+
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  const url = new URL(event.request.url);
+  const { request } = event;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
   // The online voice is cached by the page itself.
   if (url.pathname.startsWith('/api/')) return;
@@ -47,11 +60,11 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname.startsWith('/tts/') && url.pathname.endsWith('.mp3')) {
     event.respondWith(
       caches.open(TTS_CLIP_CACHE).then((cache) =>
-        cache.match(event.request).then(
+        cache.match(request).then(
           (cached) =>
             cached ||
-            fetch(event.request).then((response) => {
-              if (response && response.status === 200) cache.put(event.request, response.clone());
+            fetch(request).then((response) => {
+              if (response && response.status === 200) cache.put(request, response.clone());
               return response;
             })
         )
@@ -60,18 +73,34 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first with cache fallback so updates arrive immediately while supporting offline launch
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        if (response && response.status === 200 && response.type === 'basic') {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-        }
-        return response;
-      })
-      .catch(() =>
-        caches.match(event.request).then((cached) => cached || caches.match('/index.html'))
+  // Page loads: network first so updates arrive at once; offline, this build's app shell.
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).catch(() =>
+        caches
+          .open(CACHE_NAME)
+          .then((cache) => cache.match('/index.html'))
+          .then((cached) => cached || Response.error())
       )
+    );
+    return;
+  }
+
+  // Built files have a content hash in their name, so a cached copy is always right.
+  if (url.pathname.startsWith('/assets/')) {
+    event.respondWith(
+      caches
+        .match(request)
+        .then((cached) => cached || fetch(request).then((response) => putInCache(CACHE_NAME, request, response)))
+    );
+    return;
+  }
+
+  // Everything else (art, sounds, icons): network first, the cached copy when offline. A file
+  // that isn't cached fails like any missing file instead of answering with the HTML page.
+  event.respondWith(
+    fetch(request)
+      .then((response) => putInCache(CACHE_NAME, request, response))
+      .catch(() => caches.match(request).then((cached) => cached || Response.error()))
   );
 });

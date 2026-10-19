@@ -19,3 +19,6 @@ art-src/
 .emulator-data/
 .claude/test-user-emulator.md
 *-debug.log
+
+# TypeScript incremental build state
+*.tsbuildinfo

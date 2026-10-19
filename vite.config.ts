@@ -1,4 +1,7 @@
-import { defineConfig, loadEnv, type Plugin } from 'vite';
+import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { defineConfig, loadEnv, type Plugin, type ResolvedConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 /**
@@ -28,6 +31,47 @@ function ttsApiDevPlugin(env: Record<string, string>): Plugin {
   };
 }
 
+const SW_BUILD_ID_LINE = "const BUILD_ID = 'dev';";
+const SW_PRECACHE_LINE = 'const PRECACHE_ASSETS = [];';
+
+/**
+ * Fills in the build id and the built JS/CSS list in dist/sw.js (copied from public/sw.js), so
+ * every build gets its own app cache and the app starts offline without visiting each screen.
+ */
+function swPrecachePlugin(): Plugin {
+  let config: ResolvedConfig;
+  return {
+    name: 'sw-precache',
+    apply: 'build',
+    configResolved(resolved) {
+      config = resolved;
+    },
+    writeBundle(options, bundle) {
+      const files = Object.keys(bundle).sort();
+      const assets = files.filter((file) => /\.(js|css)$/.test(file)).map((file) => `${config.base}${file}`);
+      const hash = createHash('sha256');
+      for (const file of files) {
+        const output = bundle[file];
+        hash.update(file);
+        if (output.type === 'asset') hash.update(output.source);
+      }
+      const buildId = hash.digest('hex').slice(0, 12);
+
+      const swPath = join(options.dir ?? config.build.outDir, 'sw.js');
+      const source = readFileSync(swPath, 'utf8');
+      if (!source.includes(SW_BUILD_ID_LINE) || !source.includes(SW_PRECACHE_LINE)) {
+        throw new Error('sw-precache: public/sw.js no longer has the BUILD_ID / PRECACHE_ASSETS lines');
+      }
+      writeFileSync(
+        swPath,
+        source
+          .replace(SW_BUILD_ID_LINE, `const BUILD_ID = '${buildId}';`)
+          .replace(SW_PRECACHE_LINE, `const PRECACHE_ASSETS = ${JSON.stringify(assets)};`),
+      );
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), ttsApiDevPlugin(loadEnv(mode, process.cwd(), 'AZURE_'))],
+  plugins: [react(), ttsApiDevPlugin(loadEnv(mode, process.cwd(), 'AZURE_')), swPrecachePlugin()],
 }));
