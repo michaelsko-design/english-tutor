@@ -9,7 +9,7 @@ import { ROOM_ITEMS, ROOM_OBJECTS, SHOP_ROOM_ITEMS } from '../../src/data/room';
 import { WARDROBE_ITEMS } from '../../src/data/wardrobe';
 import { VOICE_MESSAGES } from '../../src/data/voiceMessages';
 import { DREAM_FRAMES } from '../../src/data/dreamJournal';
-import { DEMO_SENTENCE, DEMO_SENTENCE_RATE, DEMO_WORD, DEMO_WORD_RATE } from '../../src/services/tts/demoPhrases';
+import { DEMO_SENTENCE, DEMO_SENTENCE_RATE } from '../../src/services/tts/demoPhrases';
 import {
   getClipKey,
   getClipSpeed,
@@ -111,7 +111,6 @@ export function collectCorpus(): CorpusPhrase[] {
   const corpus = new CorpusBuilder();
   addCurriculum(corpus);
   addRoom(corpus);
-  corpus.add(DEMO_WORD, DEMO_WORD_RATE);
   corpus.add(DEMO_SENTENCE, DEMO_SENTENCE_RATE);
   return corpus.list();
 }

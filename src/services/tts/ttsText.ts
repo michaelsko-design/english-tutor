@@ -112,5 +112,14 @@ export function getClipKey(text: string, speed: TtsSpeed): string {
  * (extra parameters, another order or encoding), so each phrase has one CDN cache entry.
  */
 export function buildLiveTtsQuery(text: string, voice: VoicePreference, speed: TtsSpeed): string {
-  return `?a=${TTS_AUDIO_VERSION}&v=${voice}&s=${speed}&t=${encodeURIComponent(normalizeTtsText(text))}`;
+  return `?a=${TTS_AUDIO_VERSION}&v=${voice}&s=${speed}&t=${encodeQueryValue(normalizeTtsText(text))}`;
+}
+
+/**
+ * encodeURIComponent leaves ! ' ( ) * as they are, but URL parsers (browsers, the Vercel runtime)
+ * rewrite ' as %27. Encoding them all keeps the URL the client sends identical to the one the
+ * server parses, so text like "I'm" passes the canonical check.
+ */
+function encodeQueryValue(value: string): string {
+  return encodeURIComponent(value).replace(/[!'()*]/g, (ch) => `%${ch.charCodeAt(0).toString(16).toUpperCase()}`);
 }

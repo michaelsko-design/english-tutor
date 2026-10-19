@@ -261,7 +261,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 - The map is a scroll window (`min(76vh, 760px)`, centred, at most 520px wide on desktop) so the dashboard around it still scrolls; it scrolls to the current mission when it opens, on a grade change and when the next mission moves, and the "למשימה הבאה" button scrolls back. Per-theme banner, coin and sheet styles are in `worldMap/worldMapStyles.ts`. With reduced motion there is no pulse, the castle is simply open and the sheet doesn't slide.
 
 ### 4.20. Read-Aloud Voice (`services/tts/`, `api/tts.ts`, `scripts/tts/`, `utils/ttsVoice.ts`)
-- Features 23 and 28. All English read-aloud goes through `getTtsService().speak(text, { rate, voice })` (called by `speakEnglish` in `DashboardView` and the settings voice lab), which implements `TextToSpeechService` (`speak` / `stop` / `isReady`). Each new `speak` stops the last one. The evaluation and decision are in `docs/tts-evaluation.md`.
+- Features 23 and 28. All English read-aloud goes through `getTtsService().speak(text, { rate, voice })` (called by `speakEnglish` in `DashboardView` and the settings voice preview), which implements `TextToSpeechService` (`speak` / `stop` / `isReady`). Each new `speak` stops the last one. The evaluation and decision are in `docs/tts-evaluation.md`.
 - **Three tiers** (`hybridTtsService.ts`, + `.test.ts`):
   1. **Rendered clip.** An Azure Neural MP3 in `public/tts/v<N>/<voice>/<key>.mp3`, listed in `public/tts/manifest.json`. Only the default female voice is rendered, to keep git small.
   2. **Online voice.** `/api/tts?a=&v=&s=&t=` (Vercel Function, `api/tts.ts`) for any other plain English text up to 200 characters: word lists, sticker names, dreams, the male voice.
@@ -281,7 +281,7 @@ Each learning mission consists of 5 pedagogical drill stages:
   - `AZURE_SPEECH_REGION` (`qatarcentral`) and the sensitive `AZURE_SPEECH_KEY` are project environment variables (Production + Preview).
   - The Firewall rule "Rate limit online voice" allows 100 requests a minute per IP on `/api/tts`. The app answers its 429 by pausing the online voice.
   - `vercel.json` pins functions to `fra1` (Frankfurt). Dubai (`dxb1`) would be closer to the `qatarcentral` Azure resource, but Vercel reported it unavailable (2026-10-19).
-- **Settings:** the voice choice and the voice lab (`components/settings/VoiceLabCard.tsx`) are in the settings screen (`OnboardingView` in edit mode). The voice lab plays a slow word, a sentence and typed text, and shows which tier read it and how long it took to start. The choice is stored as `voicePreference` on the profile; a missing value means female. Merge: same rule as `themeId`.
+- **Settings:** the voice choice and its preview (`components/settings/VoiceLabCard.tsx`: one "🔊 שמעו דוגמה" button with a rendered sample sentence, plus a field to hear any typed text) are in the settings screen (`OnboardingView` in edit mode). The choice is stored as `voicePreference` on the profile; a missing value means female. Merge: same rule as `themeId`.
 
 ### 4.19. Home Base Dashboard (`DashboardView.tsx`, `components/home/`, `data/homeBase.ts`, `utils/bidi.ts`)
 - Phase 4 of the Feature 22 redesign (Feature 27). The home screen has one focus, top to bottom: HUD, hero with one Play button, quest rings, dock, map peek, then the world map (`MissionMap`, 4.18). The bottom nav stays on phones.
@@ -431,7 +431,7 @@ npm run preview
 ```
 
 ### When English text changes: render the read-aloud clips
-Every fixed English phrase the app reads aloud has a pre-rendered Azure clip (4.20). That covers curriculum missions and generated drill steps, vocabulary, room and wardrobe item names, voice messages, dream journal words and the voice lab phrases. A changed or new phrase has no clip, so the online voice reads it. That costs Azure quota on every new device, and the device voice reads it offline. After changing any of that text, in the same commit:
+Every fixed English phrase the app reads aloud has a pre-rendered Azure clip (4.20). That covers curriculum missions and generated drill steps, vocabulary, room and wardrobe item names, voice messages, dream journal words and the settings sample sentence. A changed or new phrase has no clip, so the online voice reads it. That costs Azure quota on every new device, and the device voice reads it offline. After changing any of that text, in the same commit:
 1. **New kinds of spoken text** (a new data file, or a new `onSpeakEnglish(...)` call on fixed text) go into `scripts/tts/corpus.ts`. Text the learner types does not.
 2. Run `npm run tts:check`. It lists phrases without a clip.
 3. Run `npm run tts:render`. It renders only the missing clips (`AZURE_SPEECH_KEY` / `AZURE_SPEECH_REGION` in `.env.local`) and rewrites `public/tts/manifest.json`. Clips of removed text stay on disk but leave the manifest; they can be deleted.

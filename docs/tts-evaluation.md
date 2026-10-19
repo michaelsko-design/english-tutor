@@ -56,9 +56,6 @@ Each phrase tries three tiers in order (`src/services/tts/hybridTtsService.ts`):
 - A rendered clip (`/tts/v1/female/*.mp3`, ~28 KB): **0.46 s** on a CDN miss.
 - A non-canonical query (`&x=1`) is rejected with 400.
 
-## Still to measure
+## Still to check
 
-- On a real Android phone over 4G, the demo card in settings shows the voice used and the time from tap to sound, for:
-  - a slow word
-  - a sentence
-  - typed text: the first time, then again
+- On real Android and iPhone devices, the settings preview (a sample sentence, then typed text twice) should sound natural, with the first play of typed text quick enough. An iPhone also checks the audio unlock (`audioUnlock.ts`).

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildLiveTtsQuery,
   getClipKey,
   getClipSpeed,
   getClipText,
@@ -82,5 +83,13 @@ describe('getClipKey', () => {
 
   it('uses the normal clip for a slow sentence', () => {
     expect(getClipKey('a big cat', 'slow')).toBe(getClipKey('a big cat', 'normal'));
+  });
+});
+
+describe('buildLiveTtsQuery', () => {
+  it('survives URL parsing unchanged, apostrophes included', () => {
+    const query = buildLiveTtsQuery("Don't stop (now)!", 'male', 'normal');
+    expect(new URL(`https://app.test/api/tts${query}`).search).toBe(query);
+    expect(new URL(`https://app.test/api/tts${query}`).searchParams.get('t')).toBe("Don't stop (now)!");
   });
 });

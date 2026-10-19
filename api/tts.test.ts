@@ -34,6 +34,14 @@ describe('handleTtsRequest', () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
+  it("accepts text with an apostrophe after URL parsing rewrites it", async () => {
+    const fetchImpl = vi.fn(async () => new Response(new Uint8Array([1]), { status: 200 }));
+    const text = "Hi! After school I'm going (maybe) to the park?";
+    const response = await handleTtsRequest(canonical(text), ENV, fetchImpl as typeof fetch);
+    expect(response.status).toBe(200);
+    expect(fetchImpl).toHaveBeenCalledOnce();
+  });
+
   it('answers 503 without a key, and never caches it', async () => {
     const response = await handleTtsRequest(canonical('hello'), {});
     expect(response.status).toBe(503);
