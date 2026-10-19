@@ -31,9 +31,12 @@ export async function handleTtsRequest(
   if (!isCloudSpeakable(text) || !isTtsVoice(voice) || !isTtsSpeed(speed)) {
     return errorResponse(400, 'Unsupported text, voice or speed');
   }
-  // Only the canonical spelling is served, so extra parameters can't create new cache entries
-  // that each call Azure; this also rejects an old audio version.
-  if (url.search !== buildLiveTtsQuery(text, voice, speed)) {
+  // Only the canonical request is served (the parameters a, v, s, t in that order, the current
+  // audio version, normalized text), so extra parameters or spacing can't create new cache entries
+  // that each call Azure. The parsed values are compared, not the raw query: platforms rewrite
+  // percent-encoding (Vercel turns %21 into !).
+  const canonical = new URLSearchParams(buildLiveTtsQuery(text, voice, speed));
+  if ([...url.searchParams].join('&') !== [...canonical].join('&')) {
     return errorResponse(400, 'Non-canonical request');
   }
 

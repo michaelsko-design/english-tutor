@@ -26,7 +26,6 @@ describe('handleTtsRequest', () => {
       'a=1&v=female&s=normal&t=hello&x=1',
       'v=female&a=1&s=normal&t=hello',
       'a=1&v=female&s=normal&t=hello%20%20world',
-      'a=1&v=female&s=normal&t=hello+world',
       'a=0&v=female&s=normal&t=hello',
     ]) {
       expect((await handleTtsRequest(request(query), ENV, fetchImpl)).status).toBe(400);
@@ -40,6 +39,13 @@ describe('handleTtsRequest', () => {
     const response = await handleTtsRequest(canonical(text), ENV, fetchImpl as typeof fetch);
     expect(response.status).toBe(200);
     expect(fetchImpl).toHaveBeenCalledOnce();
+  });
+
+  it('accepts any percent-encoding of the canonical text (platforms rewrite it)', async () => {
+    const fetchImpl = vi.fn(async () => new Response(new Uint8Array([1]), { status: 200 }));
+    for (const query of ['a=1&v=male&s=normal&t=Hi!%20there', 'a=1&v=male&s=normal&t=Hi%21%20there', 'a=1&v=male&s=normal&t=Hi!+there']) {
+      expect((await handleTtsRequest(request(query), ENV, fetchImpl as typeof fetch)).status).toBe(200);
+    }
   });
 
   it('answers 503 without a key, and never caches it', async () => {
