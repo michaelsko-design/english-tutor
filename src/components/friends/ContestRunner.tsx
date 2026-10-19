@@ -6,6 +6,7 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { FeedbackBanner, MultipleChoiceOptions, QuestionBubble, SentenceBuilderDrill } from '../drills';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { isolateLtr } from '../../utils/bidi';
+import { MagnetChange } from '../../utils/magnetOrder';
 
 interface ContestRunnerProps {
   contest: ContestDoc;
@@ -94,14 +95,10 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
     resolveStep(chosen.isCorrect, chosen.explanationHe);
   };
 
-  const handleToggleWord = (idx: number) => {
+  const handleWordOrderChange = (nextIndices: number[], change: MagnetChange) => {
     if (isResolved || !step.scrambledWords) return;
-    if (wordIndices.includes(idx)) {
-      setWordIndices(wordIndices.filter((i) => i !== idx));
-      return;
-    }
-    setWordIndices([...wordIndices, idx]);
-    onSpeakEnglish(step.scrambledWords[idx], 0.95);
+    setWordIndices(nextIndices);
+    if (change.kind === 'add') onSpeakEnglish(step.scrambledWords[change.idx], 0.95);
   };
 
   const handleCheckSentence = () => {
@@ -228,7 +225,7 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
             targetSentenceHe={step.targetSentenceHe}
             selectedIndices={wordIndices}
             isCompleted={isResolved}
-            onToggleWord={handleToggleWord}
+            onChangeOrder={handleWordOrderChange}
             onReset={() => setWordIndices([])}
             onCheck={handleCheckSentence}
             theme={theme}

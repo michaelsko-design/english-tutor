@@ -21,6 +21,7 @@ It provides an engaging, Duolingo-meets-aesthetic-studio learning experience fea
 | **Build Tool & Bundler** | [Vite 6](https://vitejs.dev/) |
 | **Styling & Design System** | [Tailwind CSS 3](https://tailwindcss.com/) with custom CSS variables, gradients, and backdrop blurs |
 | **Icons & Visual Effects** | [Lucide React](https://lucide.dev/), [canvas-confetti](https://www.npmjs.com/package/canvas-confetti) |
+| **Drag & Drop** | [@dnd-kit](https://dndkit.com/) (`core` + `sortable`) for the word and letter magnets |
 | **Speech & Audio** | Azure Neural read-aloud (rendered MP3 clips + `/api/tts` Vercel Function), Web Speech API `SpeechSynthesis` as fallback, `SpeechRecognition` / `webkitSpeechRecognition` |
 | **Backend & Auth** | [Firebase](https://firebase.google.com/) (Authentication & Cloud Firestore) |
 | **Testing** | [Vitest](https://vitest.dev/) unit tests (`npm test`) |
@@ -124,7 +125,7 @@ The curriculum is organized into modular grade packs covering Grades 1 to 12:
 ### 4.5. 5-Step Interactive Mission Engine (`MissionRunner.tsx`)
 Each learning mission consists of 5 pedagogical drill stages:
 1. **Chat Reply Simulation / Vocabulary Match (`chat-reply`)**: Conversational English or tier-scaled picture/translation word matching in elementary grades.
-2. **Sentence Magnet Builder (`sentence-builder`)**: Interactive chip builder to assemble scrambled words into grammatically correct English sentences.
+2. **Sentence Magnet Builder (`sentence-builder`)**: Interactive chip builder to assemble scrambled words into grammatically correct English sentences. Words are tapped in order or dragged (see 4.23).
 3. **Voice Studio Drill (`voice-speak`)**: Speech-to-Text pronunciation exercise with Levenshtein-based similarity scoring and real-time pronunciation feedback.
 4. **Grammar Detective (`grammar-detective`)**: Multiple-choice rule or phonics analysis with in-depth Hebrew explanations.
 5. **Story Unseen (`story-unseen`)**: Reading comprehension passage with contextual questions and vocabulary reinforcement.
@@ -176,7 +177,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Sessions** (`buildWordListSteps`): up to 5 items per session in three rounds: meaning match (words with a translation, options are other list words), magnets (letter tiles for words with spaces/punctuation kept fixed, word chips for sentences), then voice. Practice allows hints and retries and scores the first try; a skipped voice step ("quiet place") is left out of the score.
 - **Rewards**: the full reward (15 XP, 2 💎, +3 💎 at 80%+) once per list per day, for up to 3 lists a day (`lastRewardedDateStr`); otherwise 3 XP. Every session counts as a mission for the daily quests and streak; voice-word and 3-star quest credit come only from rewarded sessions. There are no mission stars.
 - Stored as `customWordLists` on the profile. Deleting a list sets `archivedAt` and empties its items (a small tombstone, so a merge can't bring it back). Merge: union by id; the same list keeps the best score and latest practice, and stays deleted once either device archived it.
-- Voice recognition lives in `hooks/useSpeechRecognition.ts` and `drills/VoiceSpeakDrill.tsx`, shared with `MissionRunner`; letter magnets are `drills/SpellingMagnetDrill.tsx`.
+- Voice recognition lives in `hooks/useSpeechRecognition.ts` and `drills/VoiceSpeakDrill.tsx`, shared with `MissionRunner`; letter magnets are `drills/SpellingMagnetDrill.tsx` (tap or drag, 4.23).
 
 ### 4.12. My English Room (`room.ts`, `wardrobe.ts`, `roomRewards.ts`, `roomActivities.ts`, `voiceMessages.ts`, `dreamJournal.ts`, `wordGames.ts`, `stickers.ts`, `components/room/`)
 - The "החדר שלי" home dock tile opens the room full-screen; its dot shows while an earned item waits to be placed.
@@ -318,12 +319,19 @@ Each learning mission consists of 5 pedagogical drill stages:
 
 ### 4.22. App Shell, Accessibility & Security Headers
 - **Error boundary** (`AppErrorBoundary` in `main.tsx`): a render error shows the companion's oops pose with "try again" and reload, not a blank page.
-- **Lazy screens**: dialogs and hub screens load on first open (`utils/lazyNamed.ts` + `Suspense` with `ScreenLoading`); Firebase and React are their own chunks, whose hashes survive releases. The service worker precaches every chunk of a build. Loading only the learner's grade of the curriculum is not done yet (every module reads `CURRICULUM_BY_GRADE` synchronously).
+- **Lazy screens**: dialogs and hub screens load on first open (`utils/lazyNamed.ts` + `Suspense` with `ScreenLoading`), and so do the four drill runners, so the drills and @dnd-kit stay out of the first download; Firebase and React are their own chunks, whose hashes survive releases. The service worker precaches every chunk of a build. Loading only the learner's grade of the curriculum is not done yet (every module reads `CURRICULUM_BY_GRADE` synchronously).
 - **Dialogs** use `hooks/useDialog.ts`: focus moves in and is trapped, Escape closes only the top dialog, focus returns, the page behind doesn't scroll. `ExamModalShell` is the shared shell; the mission runner, shop, Vault, sign-in panel, placement test and victory screen use the hook directly.
 - **Screen readers**: English text carries `lang="en"` with `dir="ltr"` (and `getTextLang` for answer options that may be English or Hebrew), so it is read with an English voice. Answer feedback is `role="alert"`. Icon buttons have Hebrew `aria-label`s. A `:focus-visible` ring shows keyboard focus.
 - **Phones**: pinch-zoom is allowed (inputs are 16px on small screens so iOS doesn't zoom into them); `viewport-fit=cover` with `env(safe-area-inset-*)` padding on the bottom nav, sheets and header; sheets use `dvh`. Grades 1–3 hear each question when it opens; a mission started from the map sheet skips the intro's tier choice.
 - **Fonts** are bundled (`@fontsource-variable/rubik`, `@fontsource-variable/plus-jakarta-sans`), not loaded from Google Fonts.
 - **Headers** (`vercel.json`): `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy` (microphone only for the app). The Content Security Policy is enforced (it ran Report-Only first; Google sign-in and a mission produced no reports). A new third-party origin (script, API, iframe) must be added to it, or the browser blocks it.
+
+### 4.23. Drag-and-Drop Magnets (`drills/magnetDrag.tsx`, `utils/magnetOrder.ts`)
+- Feature 40. The sentence magnets (`SentenceBuilderDrill`: missions, exam prep, word lists, contests) and the letter magnets (`SpellingMagnetDrill`: word lists, Word Scramble, room naming) take a tap **or** a drag. Checking is unchanged: the runner still builds the answer from the placed bank indices in order.
+- **Moves**: drag a bank chip to any spot in the tray (it lands before or after the chip it is dropped on, by the dragged chip's centre); drag a placed chip to another spot; drag it back onto the bank to take it out. A tap still appends or takes back. A drop outside the drill changes nothing. Both drills report `onChangeOrder(next, change)` (`MagnetChange`: `add` / `remove` / `move` + the bank index); the sentence runners speak a word when it is added.
+- **Pure order** (`magnetOrder.ts`, + `.test.ts`): `addMagnet`, `removeMagnet`, `moveMagnet`, `toggleMagnet`, `describeMagnetChange`, and the drag ids `magnet-<idx>` (the same id in the bank and the tray, so a chip keeps its identity while it changes zone).
+- **`useMagnetDrag`** keeps a preview order while dragging (bank ↔ tray moves change the preview, moves inside the tray are shown by the sortable list) and reports one change on drop. Sensors: mouse after 5 px; touch after a 150 ms hold (a quick swipe still scrolls); keyboard on placed chips (Space picks up and drops, arrows move, Escape cancels, Enter still taps). Bank chips start drags only by pointer, so Enter/Space there is a tap. The click a browser fires right after a drop is ignored. Announcements and instructions are in Hebrew.
+- The chip under the finger (`MagnetDragOverlay`) is rendered on `<body>`, because the mission runner's `backdrop-filter` would make its `position: fixed` scroll. Reduced motion: no sliding and no drop animation.
 
 ---
 
@@ -343,7 +351,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── companion/                # Companion: theme companion poses with CSS motion, ground shadow & emoji fallback
 │   │   ├── DailyQuestsCard.tsx       # Daily quest tracker & streak counter
 │   │   ├── DashboardView.tsx         # Home base: HUD, hero, quest rings, dock, map peek, map, sheets & modals
-│   │   ├── drills/                   # Shared drill UI (chunky options, sentence/letter magnets, voice, passage, feedback banner & sheet, story art)
+│   │   ├── drills/                   # Shared drill UI (chunky options, sentence/letter magnets with magnetDrag.tsx drag-and-drop, voice, passage, feedback banner & sheet, story art)
 │   │   ├── examPrep/                 # Exam prep hub, setup, plan timeline, session runner, certificate
 │   │   ├── home/                     # Home base: HUD with level ring, hero scene, quest rings, dock tile, map peek, stats sheet, first-launch greeting & chest
 │   │   ├── hud/                      # Header pieces: sound toggle, Fluent Emoji icons
@@ -436,6 +444,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── hints.ts                  # Drill hint builders: word shape, cloze, word order, pronunciation tips, story locator (+ .test.ts)
 │   │   ├── ttsVoice.ts               # Device voice: choice (female default / male) and speechSynthesis helper (+ .test.ts)
 │   │   ├── shuffle.ts                # Deterministic seeded shuffle for options & word chips
+│   │   ├── magnetOrder.ts            # Order of placed word/letter magnets: add, remove, move, drag ids (+ .test.ts)
 │   │   ├── lazyNamed.ts              # React.lazy for named exports
 │   │   ├── speechSimilarity.ts       # Phonetic & string similarity calculation for voice
 │   │   └── username.ts               # Username <-> sign-in email slug (auth, lookup and rules)

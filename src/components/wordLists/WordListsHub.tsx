@@ -9,7 +9,7 @@ import {
 } from '../../data/customWordLists';
 import { CustomWordList, LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
-import { WordListSessionNext, WordListSessionRunner } from './WordListSessionRunner';
+import type { WordListSessionNext } from './WordListSessionRunner';
 import { WordListsCard } from './WordListsCard';
 import { DockTile } from '../home/DockTile';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
@@ -17,6 +17,7 @@ import { lazyNamed } from '../../utils/lazyNamed';
 import { ScreenLoading } from '../ScreenLoading';
 
 const WordListImporter = lazyNamed(() => import('./WordListImporter'), 'WordListImporter');
+const WordListSessionRunner = lazyNamed(() => import('./WordListSessionRunner'), 'WordListSessionRunner');
 
 interface WordListsHubProps {
   profile: LearnerProfile;
@@ -79,15 +80,17 @@ export const WordListsHub: React.FC<WordListsHubProps> = ({ profile, theme, onUp
       )}
 
       {view.kind === 'session' && sessionList && (
-        <WordListSessionRunner
-          key={view.runId}
-          list={sessionList}
-          profile={profile}
-          theme={theme}
-          onSpeakEnglish={onSpeakEnglish}
-          onFinish={(answers, next) => handleFinish(sessionList.id, answers, next)}
-          onClose={() => setView({ kind: 'card' })}
-        />
+        <Suspense fallback={<ScreenLoading />}>
+          <WordListSessionRunner
+            key={view.runId}
+            list={sessionList}
+            profile={profile}
+            theme={theme}
+            onSpeakEnglish={onSpeakEnglish}
+            onFinish={(answers, next) => handleFinish(sessionList.id, answers, next)}
+            onClose={() => setView({ kind: 'card' })}
+          />
+        </Suspense>
       )}
     </>
   );

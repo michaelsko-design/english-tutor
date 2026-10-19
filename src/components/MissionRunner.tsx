@@ -32,6 +32,7 @@ import { preloadArt } from '../utils/artStatus';
 import { celebrate } from '../utils/celebrate';
 import { getMissionReward, isFullMissionReward } from '../data/missionRewards';
 import { toLocalDateStr } from '../utils/dates';
+import { MagnetChange } from '../utils/magnetOrder';
 import {
   COMBO_BONUS_XP_PER_STEP,
   getComboFlameLevel,
@@ -234,15 +235,10 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   };
 
   // Handler for Sentence Magnet Builder
-  const handleToggleWordTile = (wordIdx: number) => {
+  const handleWordOrderChange = (nextIndices: number[], change: MagnetChange) => {
     if (stepCompleted || !currentStep.scrambledWords) return;
-    if (selectedWordIndices.includes(wordIdx)) {
-      setSelectedWordIndices(selectedWordIndices.filter((i) => i !== wordIdx));
-    } else {
-      const nextIndices = [...selectedWordIndices, wordIdx];
-      setSelectedWordIndices(nextIndices);
-      onSpeakEnglish(currentStep.scrambledWords[wordIdx], 0.95);
-    }
+    setSelectedWordIndices(nextIndices);
+    if (change.kind === 'add') onSpeakEnglish(currentStep.scrambledWords[change.idx], 0.95);
   };
 
   const handleCheckSentence = () => {
@@ -489,7 +485,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     targetSentenceHe={currentStep.targetSentenceHe}
                     selectedIndices={selectedWordIndices}
                     isCompleted={stepCompleted}
-                    onToggleWord={handleToggleWordTile}
+                    onChangeOrder={handleWordOrderChange}
                     onReset={() => setSelectedWordIndices([])}
                     onCheck={handleCheckSentence}
                     theme={theme}

@@ -121,9 +121,9 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
     setFeedback({ isCorrect: true, text });
   };
 
-  const handleToggleTile = (idx: number) => {
+  const handleTileOrderChange = (nextIndices: number[]) => {
     if (isNamed) return;
-    setTileIndices((prev) => (prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]));
+    setTileIndices(nextIndices);
   };
 
   const handleCheckSpelling = () => {
@@ -237,7 +237,7 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
           translationHe={item.nameHe}
           selectedIndices={tileIndices}
           isCompleted={isNamed}
-          onToggleTile={handleToggleTile}
+          onChangeOrder={handleTileOrderChange}
           onReset={() => setTileIndices([])}
           onCheck={handleCheckSpelling}
           onListen={() => onSpeakEnglish(item.nameEn, 0.85)}

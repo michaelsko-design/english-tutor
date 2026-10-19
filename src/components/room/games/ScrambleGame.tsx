@@ -25,9 +25,9 @@ export const ScrambleGame: React.FC<ScrambleGameProps> = ({ rounds, gender, them
   const round = rounds[idx];
   const isLast = idx === rounds.length - 1;
 
-  const handleToggle = (tileIdx: number) => {
+  const handleOrderChange = (nextTiles: number[]) => {
     if (isSolved) return;
-    setTiles((prev) => (prev.includes(tileIdx) ? prev.filter((i) => i !== tileIdx) : [...prev, tileIdx]));
+    setTiles(nextTiles);
   };
 
   const handleCheck = () => {
@@ -67,7 +67,7 @@ export const ScrambleGame: React.FC<ScrambleGameProps> = ({ rounds, gender, them
         translationHe={round.word.he}
         selectedIndices={tiles}
         isCompleted={isSolved}
-        onToggleTile={handleToggle}
+        onChangeOrder={handleOrderChange}
         onReset={() => setTiles([])}
         onCheck={handleCheck}
         onListen={() => onSpeakEnglish(round.word.word.toLowerCase(), 0.8)}

@@ -21,7 +21,6 @@ import { AuthUserSummary, LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 
 import { ContestPanel } from './ContestPanel';
-import { ContestRunner } from './ContestRunner';
 
 import { DockTile } from '../home/DockTile';
 import { lazyNamed } from '../../utils/lazyNamed';
@@ -29,6 +28,7 @@ import { ScreenLoading } from '../ScreenLoading';
 
 const FriendsScreen = lazyNamed(() => import('./FriendsScreen'), 'FriendsScreen');
 const ContestResultView = lazyNamed(() => import('./ContestResultView'), 'ContestResultView');
+const ContestRunner = lazyNamed(() => import('./ContestRunner'), 'ContestRunner');
 
 interface FriendsHubProps {
   profile: LearnerProfile;
@@ -222,16 +222,18 @@ export const FriendsHub: React.FC<FriendsHubProps> = ({
       )}
 
       {view.kind === 'contest' && activeContest && (
-        <ContestRunner
-          key={view.runId}
-          contest={activeContest}
-          friendName={view.friendName}
-          profile={profile}
-          theme={theme}
-          onSpeakEnglish={onSpeakEnglish}
-          onFinish={(answers, timeMs) => handleFinishContest(activeContest.id, view.friendName, answers, timeMs)}
-          onClose={() => setView({ kind: 'hub' })}
-        />
+        <Suspense fallback={<ScreenLoading />}>
+          <ContestRunner
+            key={view.runId}
+            contest={activeContest}
+            friendName={view.friendName}
+            profile={profile}
+            theme={theme}
+            onSpeakEnglish={onSpeakEnglish}
+            onFinish={(answers, timeMs) => handleFinishContest(activeContest.id, view.friendName, answers, timeMs)}
+            onClose={() => setView({ kind: 'hub' })}
+          />
+        </Suspense>
       )}
 
       {view.kind === 'contest-result' && (

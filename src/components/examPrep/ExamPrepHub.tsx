@@ -5,13 +5,14 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { DockTile } from '../home/DockTile';
 import { ExamModalShell } from './ExamModalShell';
 import { ExamPrepCard } from './ExamPrepCard';
-import { ExamSessionNext, ExamSessionRunner } from './ExamSessionRunner';
+import type { ExamSessionNext } from './ExamSessionRunner';
 import { lazyNamed } from '../../utils/lazyNamed';
 import { ScreenLoading } from '../ScreenLoading';
 
 const ExamPrepSetup = lazyNamed(() => import('./ExamPrepSetup'), 'ExamPrepSetup');
 const ExamPrepPlanView = lazyNamed(() => import('./ExamPrepPlanView'), 'ExamPrepPlanView');
 const ExamReadyCertificate = lazyNamed(() => import('./ExamReadyCertificate'), 'ExamReadyCertificate');
+const ExamSessionRunner = lazyNamed(() => import('./ExamSessionRunner'), 'ExamSessionRunner');
 
 interface ExamPrepHubProps {
   profile: LearnerProfile;
@@ -121,16 +122,18 @@ export const ExamPrepHub: React.FC<ExamPrepHubProps> = ({
       )}
 
       {view.kind === 'session' && plan && sessionDay && (
-        <ExamSessionRunner
-          key={view.runId}
-          plan={plan}
-          day={sessionDay}
-          profile={profile}
-          theme={theme}
-          onSpeakEnglish={onSpeakEnglish}
-          onFinish={(answers, next) => handleFinishSession(sessionDay.dayIndex, answers, next)}
-          onClose={() => setView({ kind: 'plan' })}
-        />
+        <Suspense fallback={<ScreenLoading />}>
+          <ExamSessionRunner
+            key={view.runId}
+            plan={plan}
+            day={sessionDay}
+            profile={profile}
+            theme={theme}
+            onSpeakEnglish={onSpeakEnglish}
+            onFinish={(answers, next) => handleFinishSession(sessionDay.dayIndex, answers, next)}
+            onClose={() => setView({ kind: 'plan' })}
+          />
+        </Suspense>
       )}
 
       {view.kind === 'certificate' && plan && (

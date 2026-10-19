@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { celebrate } from '../../utils/celebrate';
+import { MagnetChange } from '../../utils/magnetOrder';
 import { Lightbulb } from 'lucide-react';
 import {
   WordListAnswer,
@@ -118,15 +119,15 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
     else handleWrong(chosen.explanationHe);
   };
 
-  const handleToggleTile = (idx: number) => {
+  const handleLetterOrderChange = (nextIndices: number[]) => {
     if (isResolved) return;
-    const tiles = step.letterTiles || step.scrambledWords || [];
-    if (tileIndices.includes(idx)) {
-      setTileIndices(tileIndices.filter((i) => i !== idx));
-      return;
-    }
-    setTileIndices([...tileIndices, idx]);
-    if (step.type === 'sentence-builder') onSpeakEnglish(tiles[idx], 0.95);
+    setTileIndices(nextIndices);
+  };
+
+  const handleWordOrderChange = (nextIndices: number[], change: MagnetChange) => {
+    if (isResolved || !step.scrambledWords) return;
+    setTileIndices(nextIndices);
+    if (change.kind === 'add') onSpeakEnglish(step.scrambledWords[change.idx], 0.95);
   };
 
   const handleCheckSpelling = () => {
@@ -267,7 +268,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
             translationHe={step.translationHe}
             selectedIndices={tileIndices}
             isCompleted={isResolved}
-            onToggleTile={handleToggleTile}
+            onChangeOrder={handleLetterOrderChange}
             onReset={() => setTileIndices([])}
             onCheck={handleCheckSpelling}
             onListen={() => onSpeakEnglish(step.textEn, 0.85)}
@@ -281,7 +282,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
             targetSentenceHe={step.translationHe}
             selectedIndices={tileIndices}
             isCompleted={isResolved}
-            onToggleWord={handleToggleTile}
+            onChangeOrder={handleWordOrderChange}
             onReset={() => setTileIndices([])}
             onCheck={handleCheckSentence}
             theme={theme}

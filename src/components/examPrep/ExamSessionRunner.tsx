@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { isolateLtr } from '../../utils/bidi';
 import { celebrate } from '../../utils/celebrate';
+import { MagnetChange } from '../../utils/magnetOrder';
 import { Lightbulb } from 'lucide-react';
 import {
   ExamAnswer,
@@ -121,14 +122,10 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
     else handleWrong(chosen.explanationHe, `התשובה הנכונה: ${isolateLtr(correct?.textEn ?? '')}`);
   };
 
-  const handleToggleWord = (idx: number) => {
+  const handleWordOrderChange = (nextIndices: number[], change: MagnetChange) => {
     if (isResolved || !step.scrambledWords) return;
-    if (wordIndices.includes(idx)) {
-      setWordIndices(wordIndices.filter((i) => i !== idx));
-      return;
-    }
-    setWordIndices([...wordIndices, idx]);
-    onSpeakEnglish(step.scrambledWords[idx], 0.95);
+    setWordIndices(nextIndices);
+    if (change.kind === 'add') onSpeakEnglish(step.scrambledWords[change.idx], 0.95);
   };
 
   const handleCheckSentence = () => {
@@ -264,7 +261,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
             targetSentenceHe={step.targetSentenceHe}
             selectedIndices={wordIndices}
             isCompleted={isResolved}
-            onToggleWord={handleToggleWord}
+            onChangeOrder={handleWordOrderChange}
             onReset={() => setWordIndices([])}
             onCheck={handleCheckSentence}
             theme={theme}
