@@ -50,10 +50,15 @@ Each phrase tries three tiers in order (`src/services/tts/hybridTtsService.ts`):
   - Vercel Hobby is for non-commercial use.
   - Check Microsoft's terms for redistributing synthesized audio.
 
+## Measured in production (2026-10-19, from Israel, Vercel edge `fra1`)
+
+- `/api/tts`, first request for a phrase (function cold start + Azure `qatarcentral`): **2.1 s**, then `X-Vercel-Cache: HIT` at **0.33–0.49 s**. On the device, a repeat is served from CacheStorage.
+- A rendered clip (`/tts/v1/female/*.mp3`, ~28 KB): **0.46 s** on a CDN miss.
+- A non-canonical query (`&x=1`) is rejected with 400.
+
 ## Still to measure
 
 - On a real Android phone over 4G, the demo card in settings shows the voice used and the time from tap to sound, for:
   - a slow word
   - a sentence
   - typed text: the first time, then again
-- After deploying, request the same `/api/tts` URL twice: `x-vercel-cache` should go from `MISS` to `HIT`.
