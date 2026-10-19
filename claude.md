@@ -21,7 +21,7 @@ It provides an engaging, Duolingo-meets-aesthetic-studio learning experience fea
 | **Build Tool & Bundler** | [Vite 6](https://vitejs.dev/) |
 | **Styling & Design System** | [Tailwind CSS 3](https://tailwindcss.com/) with custom CSS variables, gradients, and backdrop blurs |
 | **Icons & Visual Effects** | [Lucide React](https://lucide.dev/), [canvas-confetti](https://www.npmjs.com/package/canvas-confetti) |
-| **Speech & Audio** | Native Web Speech API (`SpeechSynthesis` and `SpeechRecognition` / `webkitSpeechRecognition`) |
+| **Speech & Audio** | Azure Neural read-aloud (rendered MP3 clips + `/api/tts` Vercel Function), Web Speech API `SpeechSynthesis` as fallback, `SpeechRecognition` / `webkitSpeechRecognition` |
 | **Backend & Auth** | [Firebase](https://firebase.google.com/) (Authentication & Cloud Firestore) |
 | **Testing** | [Vitest](https://vitest.dev/) unit tests (`npm test`) |
 | **Deployment & Hosting** | [Vercel](https://vercel.com/) & Firebase Hosting configuration |
@@ -133,7 +133,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 ### 4.7. Interactive Vocabulary Vault (`VocabularyVaultModal.tsx`)
 - Searchable directory of Israeli Ministry of Education curriculum words (with picture emojis for elementary vocabulary).
 - Filters by grade and unit.
-- One-tap audio pronunciation via Text-to-Speech (`window.speechSynthesis`).
+- One-tap audio pronunciation via the read-aloud service (4.20).
 - Interactive microphone drill to test spoken pronunciation against target vocabulary words.
 
 ### 4.8. Diagnostic Level Placement Test (`PlacementTest.tsx`, `placementTest.ts`)
@@ -258,10 +258,25 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Mission sheet** (`MissionSheet`, rendered into `<body>`): tapping any stop opens a bottom sheet with the full title (no truncation), story hook, length and topic, stars, the rewards for the chosen tier, the tier choice (`mission/TierChoice`, shared with `MissionIntro`), the tier's focus and sample sentence, the words (tap to hear) and Start / Play again. A locked stop says why (the missing Boss stars, or the mission to finish first) and has no Start. Escape or the backdrop closes it.
 - The map is a scroll window (`min(76vh, 760px)`, centred, at most 520px wide on desktop) so the dashboard around it still scrolls; it scrolls to the current mission when it opens, on a grade change and when the next mission moves, and the "למשימה הבאה" button scrolls back. Per-theme banner, coin and sheet styles are in `worldMap/worldMapStyles.ts`. With reduced motion there is no pulse, the castle is simply open and the sheet doesn't slide.
 
-### 4.20. Read-Aloud Voice (`utils/ttsVoice.ts`)
-- Feature 23. All English text-to-speech goes through `speakWithVoice` (called by `speakEnglish` in `DashboardView`). `pickVoice` chooses the best English voice of the learner's `voicePreference` (`female` default, or `male`) by name (neural/"Natural" voices and en-US first); with no match the browser default voice is used. Voices load asynchronously, so `watchVoices()` (called in `main.tsx`) caches them on `voiceschanged`.
-- The choice (with a "שמעו דוגמה" preview) is in the settings screen (`OnboardingView` in edit mode) and stored as `voicePreference` on the profile; a missing value means female. Merge: same rule as `themeId`.
-- Which voices exist depends on the device, so the result is the best voice available there.
+### 4.20. Read-Aloud Voice (`services/tts/`, `api/tts.ts`, `scripts/tts/`, `utils/ttsVoice.ts`)
+- Features 23 and 28. All English read-aloud goes through `getTtsService().speak(text, { rate, voice })` (called by `speakEnglish` in `DashboardView` and the settings voice lab), which implements `TextToSpeechService` (`speak` / `stop` / `isReady`). Each new `speak` stops the last one. The evaluation and decision are in `docs/tts-evaluation.md`.
+- **Three tiers** (`hybridTtsService.ts`, + `.test.ts`):
+  1. **Rendered clip.** An Azure Neural MP3 in `public/tts/v<N>/<voice>/<key>.mp3`, listed in `public/tts/manifest.json`. Only the default female voice is rendered, to keep git small.
+  2. **Online voice.** `/api/tts?a=&v=&s=&t=` (Vercel Function, `api/tts.ts`) for any other plain English text up to 200 characters: word lists, sticker names, dreams, the male voice.
+     - Only the canonical query from `buildLiveTtsQuery` is accepted, so extra parameters can't bust the CDN cache.
+     - The CDN caches answers for a year (`s-maxage`), and the page keeps the newest 300 in CacheStorage `englishvibe-tts-live-v1`.
+     - A 429 or 503 pauses it for 10 minutes; it has 3 s to answer.
+  3. **Device voice.** `speakWithVoice` in `ttsVoice.ts`: `pickVoice` chooses the best English device voice of the learner's `voicePreference`. Voices load asynchronously, so `watchVoices()` (in `main.tsx`) caches them.
+- **Clip keys** (`ttsText.ts`, shared by the app, the proxy and the scripts): `getClipKey(text, speed)` hashes the clip text (`getClipText`: a single word is lowercased without edge punctuation, so a word chip and a vocabulary word share a clip). A rate of 0.8 or below is `slow`. Only single words have slow clips; a slow sentence plays the normal clip with `playbackRate`.
+- **Rendering** (needs `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION` in `.env.local`, server only, no `VITE_`):
+  - `npm run tts:corpus`: the size of the corpus.
+  - `npm run tts:render -- [--voice female|male] [--limit N]`: renders missing clips and rewrites the manifest; it resumes where it stopped.
+  - `npm run tts:check`: phrases without a clip.
+  - `scripts/tts/corpus.ts` builds the corpus from the real generators: every mission × tier step, vocabulary, room and wardrobe names, voice messages, dream words and the demo phrases. **Add new fixed spoken text there and re-render after curriculum changes.** In dev builds, text read without a clip is collected in `window.__ttsMisses`.
+- Voices and SSML (Jenny / Guy, prosody, a 200 ms leading break) live only in `api/_lib/azureTts.ts`. **Changing them means bumping `TTS_AUDIO_VERSION` in `ttsText.ts` and re-rendering.** The new clip folder and query make every cache (browser, service worker, CDN) fetch the new sound. `api/` imports use `.js` extensions, because the package is ESM.
+- **Playback** (`audioUnlock.ts`): one shared `<audio>` element, unlocked with a moment of silence on `touchend` / `click` / `keydown`. A touch `pointerdown` doesn't count on iOS. The unlock retries on each gesture until a sound has played. A system pause (a call) ends the current `speak`, and a manifest that fails to load is tried again on the next one. Clips are fetched into object URLs, because Safari won't play media a service worker answers without byte ranges. `public/sw.js` serves `/tts/*.mp3` cache-first (`englishvibe-tts-v1`), skips `/api/`, and keeps `englishvibe-tts-*` caches.
+- **Dev server:** a plugin in `vite.config.ts` serves `/api/tts` with the `.env.local` key. **Production:** set the two Azure variables in Vercel and add a Firewall rate-limit rule on `/api/tts`; `vercel.json` pins functions to `fra1`.
+- **Settings:** the voice choice and the voice lab (`components/settings/VoiceLabCard.tsx`) are in the settings screen (`OnboardingView` in edit mode). The voice lab plays a slow word, a sentence and typed text, and shows which tier read it and how long it took to start. The choice is stored as `voicePreference` on the profile; a missing value means female. Merge: same rule as `themeId`.
 
 ### 4.19. Home Base Dashboard (`DashboardView.tsx`, `components/home/`, `data/homeBase.ts`, `utils/bidi.ts`)
 - Phase 4 of the Feature 22 redesign (Feature 27). The home screen has one focus, top to bottom: HUD, hero with one Play button, quest rings, dock, map peek, then the world map (`MissionMap`, 4.18). The bottom nav stays on phones.
@@ -281,8 +296,10 @@ Each learning mission consists of 5 pedagogical drill stages:
 ## 5. Directory Structure
 
 ```text
-├── public/                 # Static assets & favicon; sfx/ (Kenney CC0 sounds + CREDITS.md), art/emoji/ (Fluent Emoji, MIT), art/<theme>/ etc. (generated WebP art, see 4.17)
-├── scripts/                # process_art.py (art-src/ -> public/art/ WebP pipeline), cutout_companion.py (one theme's poses)
+├── api/                    # Vercel Functions: tts.ts (online Azure voice), _lib/azureTts.ts (SSML & Azure call, shared with scripts/tts)
+├── docs/                   # tts-evaluation.md (read-aloud voice decision)
+├── public/                 # Static assets & favicon; tts/ (rendered read-aloud clips + manifest.json, see 4.20); sfx/ (Kenney CC0 sounds + CREDITS.md), art/emoji/ (Fluent Emoji, MIT), art/<theme>/ etc. (generated WebP art, see 4.17)
+├── scripts/                # process_art.py (art-src/ -> public/art/ WebP pipeline), cutout_companion.py (one theme's poses), tts/ (read-aloud corpus, clip render & check)
 ├── src/
 │   ├── components/         # React UI Components
 │   │   ├── art/                      # ArtImage: a generated picture with a fallback when the file is missing
@@ -304,6 +321,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── ShareTextActions.tsx      # Share sheet / WhatsApp / copy buttons for a text (report, friend invite)
 │   │   ├── PlacementResultCard.tsx   # Placement result & grade/tier recommendation
 │   │   ├── RewardShopModal.tsx       # Diamond shop (avatars, stickers, shields)
+│   │   ├── settings/                 # VoiceLabCard: tries the read-aloud tiers in settings
 │   │   ├── room/                     # My English Room: hub, scene & layout, inventory, naming panel, wardrobe, phone, dream journal, games/ (Games Book), stickers/ (Sticker Studio)
 │   │   ├── victory/                  # Staged mission victory screen with the cheering companion (Features 24–25)
 │   │   ├── VocabularyVaultModal.tsx  # Ministry word bank & pronunciation studio
@@ -350,6 +368,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── useSfxMuted.ts            # The sound mute setting
 │   │   └── useSpeechRecognition.ts   # Web Speech recognition for the voice drills
 │   ├── services/
+│   │   ├── tts/                      # Read-aloud: hybrid service (clip / online / device), clip keys, audio unlock, demo phrases (+ tests)
 │   │   ├── cloudSync.ts              # LocalStorage <-> Firestore sync & merge logic (+ .test.ts)
 │   │   ├── friendsService.ts         # Firestore calls for friends, public profiles & contests
 │   │   └── firebase.ts               # Firebase initialization & auth/db instances
@@ -368,7 +387,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── sfx.ts                    # Kenney sound effects, first-gesture unlock & device mute (+ .test.ts)
 │   │   ├── bidi.ts                   # Left-to-right isolates for English inside Hebrew strings (+ .test.ts)
 │   │   ├── hints.ts                  # Drill hint builders: word shape, cloze, word order, pronunciation tips, story locator (+ .test.ts)
-│   │   ├── ttsVoice.ts               # Read-aloud voice choice (female default / male) and speech helper (+ .test.ts)
+│   │   ├── ttsVoice.ts               # Device voice: choice (female default / male) and speechSynthesis helper (+ .test.ts)
 │   │   ├── shuffle.ts                # Deterministic seeded shuffle for options & word chips
 │   │   ├── speechSimilarity.ts       # Phonetic & string similarity calculation for voice
 │   │   └── username.ts               # Username <-> sign-in email slug (auth, lookup and rules)

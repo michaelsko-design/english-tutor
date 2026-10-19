@@ -77,8 +77,14 @@ export function describeVoices(preference: VoicePreference): { picked: string | 
   };
 }
 
-export function speakWithVoice(text: string, rate: number, preference: VoicePreference): void {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+/** Reads the text with the device's own voice; resolves when it ends, fails or is stopped. */
+export function speakWithVoice(
+  text: string,
+  rate: number,
+  preference: VoicePreference,
+  onStart?: () => void,
+): Promise<void> {
+  if (!isDeviceVoiceAvailable()) return Promise.resolve();
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'en-US';
@@ -89,5 +95,18 @@ export function speakWithVoice(text: string, rate: number, preference: VoicePref
     utterance.lang = voice.lang;
   }
   utterance.pitch = getFallbackPitch(preference, voice !== null);
-  window.speechSynthesis.speak(utterance);
+  return new Promise((resolve) => {
+    utterance.onstart = () => onStart?.();
+    utterance.onend = () => resolve();
+    utterance.onerror = () => resolve();
+    window.speechSynthesis.speak(utterance);
+  });
+}
+
+export function isDeviceVoiceAvailable(): boolean {
+  return typeof window !== 'undefined' && 'speechSynthesis' in window;
+}
+
+export function stopDeviceVoice(): void {
+  if (isDeviceVoiceAvailable()) window.speechSynthesis.cancel();
 }

@@ -10,9 +10,9 @@ import {
 import { THEME_REGISTRY } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
 import { Sparkles, UserCheck, GraduationCap, Palette, ShieldCheck, Users, Volume2, X } from 'lucide-react';
-import { DEFAULT_VOICE_PREFERENCE, describeVoices, speakWithVoice, type VoicePreference } from '../utils/ttsVoice';
+import { DEFAULT_VOICE_PREFERENCE, type VoicePreference } from '../utils/ttsVoice';
+import { VoiceLabCard } from './settings/VoiceLabCard';
 
-const VOICE_PREVIEW_TEXT = "Hello! Let's learn English.";
 const VOICE_OPTIONS: { id: VoicePreference; labelHe: string }[] = [
   { id: 'female', labelHe: '👩 קול נשי' },
   { id: 'male', labelHe: '👨 קול גברי' },
@@ -49,7 +49,6 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
   const [voicePreference, setVoicePreference] = useState<VoicePreference>(
     initialProfile.voicePreference ?? DEFAULT_VOICE_PREFERENCE
   );
-  const [voiceDetails, setVoiceDetails] = useState<ReturnType<typeof describeVoices> | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
 
   const activeTheme = THEME_REGISTRY[themeId];
@@ -435,21 +434,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                   </button>
                 ))}
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  speakWithVoice(VOICE_PREVIEW_TEXT, 0.95, voicePreference);
-                  setVoiceDetails(describeVoices(voicePreference));
-                }}
-                className={`w-full p-2.5 rounded-2xl text-xs sm:text-sm font-bold ${activeTheme.secondaryBtnClass}`}
-              >
-                🔊 שמעו דוגמה
-              </button>
-              {voiceDetails && (
-                <p dir="ltr" className="text-xs opacity-70 break-words">
-                  {voiceDetails.picked ?? 'default voice'} · {voiceDetails.english.join(', ')}
-                </p>
-              )}
+              <VoiceLabCard voicePreference={voicePreference} theme={activeTheme} />
             </div>
           )}
 

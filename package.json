@@ -9,6 +9,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "dev:emu": "vite --mode emulator",
+    "tts:corpus": "vite-node scripts/tts/collectCorpus.ts",
+    "tts:render": "vite-node scripts/tts/renderClips.ts --",
+    "tts:check": "vite-node scripts/tts/checkClips.ts --",
     "emulators": "firebase emulators:start --only auth,firestore --project demo-english-vibe --import=.emulator-data --export-on-exit"
   },
   "dependencies": {

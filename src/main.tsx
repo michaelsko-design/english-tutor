@@ -3,8 +3,11 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { watchVoices } from './utils/ttsVoice';
+import { getTtsService } from './services/tts';
 
 watchVoices();
+// Created early so the clip list loads on the first tap
+getTtsService();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

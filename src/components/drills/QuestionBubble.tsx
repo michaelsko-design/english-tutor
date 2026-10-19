@@ -1,6 +1,7 @@
 import React from 'react';
 import { Volume2 } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { toSpeakableText } from '../../services/tts/ttsText';
 
 interface QuestionBubbleProps {
   questionEn: string;
@@ -11,13 +12,6 @@ interface QuestionBubbleProps {
   theme: ThemeDefinition;
   onSpeakEnglish: (text: string, rate?: number) => void;
 }
-
-// Blanks are read as "blank" and emoji are stripped so text-to-speech doesn't read them out.
-const toSpeakableText = (text: string): string =>
-  text
-    .replace(/_______/g, 'blank')
-    .replace(/\p{Extended_Pictographic}/gu, '')
-    .trim();
 
 export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
   questionEn,
