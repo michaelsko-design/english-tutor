@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "dev:emu": "vite --mode emulator",
+    "emulators": "firebase emulators:start --only auth,firestore --project demo-english-vibe --import=.emulator-data --export-on-exit"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.3",

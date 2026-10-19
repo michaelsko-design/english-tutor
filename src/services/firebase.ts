@@ -1,14 +1,29 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, Auth } from 'firebase/auth';
+import { getAuth, connectAuthEmulator, GoogleAuthProvider, Auth } from 'firebase/auth';
 import {
   initializeFirestore,
   getFirestore,
+  connectFirestoreEmulator,
   persistentLocalCache,
   persistentMultipleTabManager,
   Firestore,
 } from 'firebase/firestore';
 
-const firebaseConfig = {
+/**
+ * `npm run dev:emu` runs Vite in "emulator" mode: Auth and Firestore talk to the local Firebase
+ * emulators (`npm run emulators`) under a demo project, never to the live project. Only honoured
+ * on localhost, so a production build can't be pointed at an emulator.
+ */
+const isEmulatorMode: boolean =
+  import.meta.env.MODE === 'emulator' &&
+  typeof window !== 'undefined' &&
+  ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+const EMULATOR_HOST = '127.0.0.1';
+const EMULATOR_AUTH_PORT = 9099;
+const EMULATOR_FIRESTORE_PORT = 8080;
+
+const liveFirebaseConfig = {
   apiKey:
     import.meta.env.VITE_FIREBASE_API_KEY?.trim() ||
     'AIzaSyAXCksnrNURhcvq5Z2VhMaQ1oBL4uB9fC8',
@@ -28,6 +43,16 @@ const firebaseConfig = {
     import.meta.env.VITE_FIREBASE_APP_ID?.trim() ||
     '1:1003230297590:web:740118a4daff206b391bd7',
 };
+
+const firebaseConfig = isEmulatorMode
+  ? {
+      ...liveFirebaseConfig,
+      apiKey: 'demo-api-key',
+      authDomain: 'localhost',
+      projectId: 'demo-english-vibe',
+      storageBucket: 'demo-english-vibe.appspot.com',
+    }
+  : liveFirebaseConfig;
 
 /**
  * Checks whether valid Firebase environment variables have been provided.
@@ -49,6 +74,9 @@ if (isFirebaseConfigured) {
   try {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
     auth = getAuth(app);
+    if (isEmulatorMode) {
+      connectAuthEmulator(auth, `http://${EMULATOR_HOST}:${EMULATOR_AUTH_PORT}`, { disableWarnings: true });
+    }
     googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: 'select_account' });
 
@@ -64,6 +92,13 @@ if (isFirebaseConfigured) {
     } catch {
       // Fallback if Firestore was already initialized during HMR
       db = getFirestore(app);
+    }
+    if (isEmulatorMode && db) {
+      try {
+        connectFirestoreEmulator(db, EMULATOR_HOST, EMULATOR_FIRESTORE_PORT);
+      } catch {
+        // Already connected during HMR
+      }
     }
   } catch (err) {
     console.warn('Firebase initialization skipped or failed; falling back to localStorage:', err);

@@ -410,3 +410,10 @@ npm run preview
 
 ## 7. Product Backlog & Roadmap
 Detailed feature tracking and future planned enhancements are managed in [`backlog.md`](file:///c:/Development/English%20Tutor/backlog.md).
+
+---
+
+## 8. Local Testing with the Firebase Emulators
+- `npm run emulators` starts the Auth (9099) and Firestore (8080) emulators under the demo project `demo-english-vibe` (needs Java 21+; data is kept in the gitignored `.emulator-data/`). `npm run dev:emu` (or the `vite-emu` preview config, port 5174) runs Vite in `emulator` mode: `services/firebase.ts` then points Auth and Firestore at the emulators, only on localhost, so nothing reaches the live project.
+- A local test learner (`emutest`, credentials in the gitignored `.claude/test-user-emulator.md`) can be signed in by Claude and re-created at any time through the Auth emulator. Never put credentials in this file.
+- Against the live project, sign in by hand; `.claude/test-user.md` (gitignored) holds that account.

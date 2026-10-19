@@ -13,3 +13,8 @@ dist-ssr
 
 # AI art sources (large originals; WebP exports live in public/art)
 art-src/
+
+# Local test credentials (never commit)
+.claude/test-user.md
+.emulator-data/
+.claude/test-user-emulator.md
