@@ -1,6 +1,6 @@
 import { MissionNode } from './curriculum';
 import { LearnerGender, ProficiencyTier } from '../types/learner';
-import { inflectHebrew } from '../utils/hebrewGender';
+import { hebrewTemplate, inflectHebrew } from '../utils/hebrewGender';
 import { seededShuffle, seededShuffleNotIdentity } from '../utils/shuffle';
 import { buildElementaryExercises } from './elementaryExercises';
 import {
@@ -47,30 +47,12 @@ export interface MissionExerciseStep {
   focusWordEn?: string;
 }
 
-function applyGenderToStep(
-  step: MissionExerciseStep,
-  gender: LearnerGender
-): MissionExerciseStep {
-  return {
-    ...step,
-    badgeLabelHe: inflectHebrew(step.badgeLabelHe, gender),
-    promptHe: inflectHebrew(step.promptHe, gender),
-    hintHe: inflectHebrew(step.hintHe, gender),
-    contextPassageHe: step.contextPassageHe
-      ? inflectHebrew(step.contextPassageHe, gender)
-      : undefined,
-    options: step.options?.map((opt) => ({
-      ...opt,
-      explanationHe: inflectHebrew(opt.explanationHe, gender),
-    })),
-  };
-}
-
 /**
  * Generates a 5-step interactive mission tailored to the specific MissionNode, ProficiencyTier, and LearnerGender.
  * Answer options and scrambled sentence chips are shuffled with a seeded shuffle, so the correct
  * answer is not always first. Pass a per-attempt `salt` to vary the order between attempts while
- * keeping it stable across re-renders.
+ * keeping it stable across re-renders. Only the instruction templates follow the learner's gender;
+ * story passages, questions and answer options read the same for every learner.
  */
 export function getExercisesForMission(
   mission: MissionNode,
@@ -78,18 +60,17 @@ export function getExercisesForMission(
   gender: LearnerGender = 'girl',
   salt: number = 0
 ): MissionExerciseStep[] {
-  const steps = getRawExercisesForMission(mission, tier);
-  return steps.map((s) => {
-    const gendered = applyGenderToStep(s, gender);
-    const seedKey = `${mission.id}|${tier}|${s.id}|${salt}`;
-    const targetKey = gendered.targetSentenceEn
-      ? gendered.targetSentenceEn.replace(/[.!?",]/g, '').split(/\s+/).filter(Boolean).join('\u0000')
+  const steps = getRawExercisesForMission(mission, tier, gender);
+  return steps.map((step) => {
+    const seedKey = `${mission.id}|${tier}|${step.id}|${salt}`;
+    const targetKey = step.targetSentenceEn
+      ? step.targetSentenceEn.replace(/[.!?",]/g, '').split(/\s+/).filter(Boolean).join('\u0000')
       : undefined;
     return {
-      ...gendered,
-      options: gendered.options ? seededShuffle(gendered.options, seedKey) : undefined,
-      scrambledWords: gendered.scrambledWords
-        ? seededShuffleNotIdentity(gendered.scrambledWords, `${seedKey}|words`, targetKey)
+      ...step,
+      options: step.options ? seededShuffle(step.options, seedKey) : undefined,
+      scrambledWords: step.scrambledWords
+        ? seededShuffleNotIdentity(step.scrambledWords, `${seedKey}|words`, targetKey)
         : undefined,
     };
   });
@@ -97,11 +78,12 @@ export function getExercisesForMission(
 
 function getRawExercisesForMission(
   mission: MissionNode,
-  tier: ProficiencyTier
+  tier: ProficiencyTier,
+  gender: LearnerGender
 ): MissionExerciseStep[] {
   // All missions across Grades 1 through 12 with drillSeed delegate to the structured generator
   if (mission.drillSeed) {
-    return buildElementaryExercises(mission, tier);
+    return buildElementaryExercises(mission, tier, gender);
   }
 
   // Graceful fallback for any dynamic mission node missing drillSeed
@@ -113,6 +95,7 @@ function getRawExercisesForMission(
     exampleHe: mission.sampleSentenceHe,
   };
   const v1 = mission.vocabulary[1] || v0;
+  const he = hebrewTemplate(gender);
   const tierObj = mission.tierObjectives[tier];
   const storyPassageEn = `${mission.sampleSentenceEn} ${v0.exampleEn} ${v1.exampleEn}`;
   const storySentence = findAnswerSentenceNumber(storyPassageEn, v1.wordEn, '');
@@ -126,9 +109,9 @@ function getRawExercisesForMission(
       id: `${mission.id}-s1`,
       stepNumber: 1,
       type: 'chat-reply',
-      badgeLabelHe: '💬 שלב 1/5: אתגר אוצר מילים בהקשר',
-      promptHe: `בחרי את המשמעות הנכונה של המילה "${v0.wordEn}" מתוך הסיפור:`,
-      hintHe: `💡 כדאי לקרוא את המילה בתוך משפט: "${isolateLtr(v0.exampleEn)}"`,
+      badgeLabelHe: he`💬 שלב 1/5: אתגר אוצר מילים בהקשר`,
+      promptHe: he`בחרי את המשמעות הנכונה של המילה "${v0.wordEn}" מתוך הסיפור:`,
+      hintHe: he`💡 כדאי לקרוא את המילה בתוך משפט: "${isolateLtr(v0.exampleEn)}"`,
       speakerName: 'Studio Guide',
       speakerAvatar: mission.icon,
       questionEn: `In the sentence "${v0.exampleEn}", what does "${v0.wordEn}" mean?`,
@@ -136,17 +119,17 @@ function getRawExercisesForMission(
         {
           textEn: `${v0.translationHe} (${v0.wordEn})`,
           isCorrect: true,
-          explanationHe: `מעולה! המילה "${v0.wordEn}" פירושה "${v0.translationHe}".`,
+          explanationHe: he`מעולה! המילה "${v0.wordEn}" פירושה "${v0.translationHe}".`,
         },
         {
           textEn: 'לרוץ מהר מאוד (to sprint)',
           isCorrect: false,
-          explanationHe: `לא בדיוק — בדקי את הרמז: "${v0.exampleHe}".`,
+          explanationHe: he`לא בדיוק — בדקי את הרמז: "${v0.exampleHe}".`,
         },
         {
           textEn: 'לסגור את הדלת (to lock)',
           isCorrect: false,
-          explanationHe: `נסי שוב! המשמעות של "${v0.wordEn}" היא "${v0.translationHe}".`,
+          explanationHe: he`נסי שוב! המשמעות של "${v0.wordEn}" היא "${v0.translationHe}".`,
         },
       ],
     },
@@ -154,8 +137,8 @@ function getRawExercisesForMission(
       id: `${mission.id}-s2`,
       stepNumber: 2,
       type: 'sentence-builder',
-      badgeLabelHe: '🧩 שלב 2/5: הרכבת משפט המפתח',
-      promptHe: 'לחצי על המילים לפי הסדר הנכון כדי להרכיב את משפט המפתח של המשימה:',
+      badgeLabelHe: he`🧩 שלב 2/5: הרכבת משפט המפתח`,
+      promptHe: he`לחצי על המילים לפי הסדר הנכון כדי להרכיב את משפט המפתח של המשימה:`,
       hintHe: `💡 ${getSentenceOrderHintHe(cleanWords)}`,
       questionEn: 'Tap the words in the right order:',
       targetSentenceEn: cleanWords.join(' '),
@@ -166,8 +149,8 @@ function getRawExercisesForMission(
       id: `${mission.id}-s3`,
       stepNumber: 3,
       type: 'voice-speak',
-      badgeLabelHe: '🎙️ שלב 3/5: אימון קריאה ודיבור (Voice Recognition)',
-      promptHe: 'האזיני למשפט (רגיל או איטי) ואז הקליטי את עצמך קוראת אותו בקול:',
+      badgeLabelHe: he`🎙️ שלב 3/5: אימון קריאה ודיבור (Voice Recognition)`,
+      promptHe: he`האזיני למשפט (רגיל או איטי) ואז הקליטי את עצמך קוראת אותו בקול:`,
       hintHe: `💡 ${getPronunciationTipHe(mission.sampleSentenceEn)}`,
       questionEn: 'Speak this sentence aloud:',
       speakTargetEn: mission.sampleSentenceEn,
@@ -178,15 +161,15 @@ function getRawExercisesForMission(
       id: `${mission.id}-s4`,
       stepNumber: 4,
       type: 'grammar-detective',
-      badgeLabelHe: '🕵️‍♀️ שלב 4/5: מיקוד דקדוק ורמת קושי',
-      promptHe: tierObj.focusHe,
+      badgeLabelHe: he`🕵️‍♀️ שלב 4/5: מיקוד דקדוק ורמת קושי`,
+      promptHe: inflectHebrew(tierObj.focusHe, gender),
       hintHe: '💡 כדאי לבדוק בכל משפט שהנושא והפועל מתאימים זה לזה, ושכל הפעלים באותו זמן.',
       questionEn: `Which sentence matches our "${mission.grammarTopic}" rule best?`,
       options: [
         {
           textEn: v1.exampleEn,
           isCorrect: true,
-          explanationHe: `כל הכבוד! המשפט "${isolateLtr(v1.exampleEn)}" כתוב ללא שגיאות!`,
+          explanationHe: he`כל הכבוד! המשפט "${isolateLtr(v1.exampleEn)}" כתוב ללא שגיאות!`,
         },
         {
           textEn: 'She are going yesterday to the school.',
@@ -204,9 +187,9 @@ function getRawExercisesForMission(
       id: `${mission.id}-s5`,
       stepNumber: 5,
       type: 'story-unseen',
-      badgeLabelHe: '📖 שלב 5/5: שאלת הבנה מסכמת',
-      promptHe: 'קראי את משפטי המשימה ובחרי את התשובה הנכונה לסיום:',
-      hintHe: `💡 כדאי למצוא את "${v1.wordEn}" בסיפור${storySentence ? ` (משפט מספר ${storySentence})` : ''} ולהבין אותה מתוך המשפט.`,
+      badgeLabelHe: he`📖 שלב 5/5: שאלת הבנה מסכמת`,
+      promptHe: he`קראי את משפטי המשימה ובחרי את התשובה הנכונה לסיום:`,
+      hintHe: he`💡 כדאי למצוא את "${v1.wordEn}" בסיפור${storySentence ? ` (משפט מספר ${storySentence})` : ''} ולהבין אותה מתוך המשפט.`,
       contextPassageEn: storyPassageEn,
       contextPassageHe: `${mission.sampleSentenceHe} ${v0.exampleHe}`,
       questionEn: `Which Hebrew meaning matches the word "${v1.wordEn}" from our story?`,
@@ -214,17 +197,17 @@ function getRawExercisesForMission(
         {
           textEn: v1.translationHe,
           isCorrect: true,
-          explanationHe: `אלופה! סיימת את כל שלבי המשימה בהצלחה! 🎉`,
+          explanationHe: he`אלופה! סיימת את כל שלבי המשימה בהצלחה! 🎉`,
         },
         {
           textEn: 'מחשב נייד ישן',
           isCorrect: false,
-          explanationHe: `בדקי שוב את המשפט: "${v1.exampleHe}".`,
+          explanationHe: he`בדקי שוב את המשפט: "${v1.exampleHe}".`,
         },
         {
           textEn: 'מזג אוויר סוער',
           isCorrect: false,
-          explanationHe: `לא בדיוק — המשמעות של "${v1.wordEn}" היא "${v1.translationHe}".`,
+          explanationHe: he`לא בדיוק — המשמעות של "${v1.wordEn}" היא "${v1.translationHe}".`,
         },
       ],
     },

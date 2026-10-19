@@ -1,5 +1,5 @@
 import { MissionNode } from './curriculum';
-import { ProficiencyTier } from '../types/learner';
+import { LearnerGender, ProficiencyTier } from '../types/learner';
 import type { MissionExerciseStep, MultipleChoiceOption } from './missionExercises';
 import {
   findAnswerSentenceNumber,
@@ -9,6 +9,7 @@ import {
   isolateLtr,
   toClozeSentence,
 } from '../utils/hints';
+import { hebrewTemplate } from '../utils/hebrewGender';
 
 /**
  * Generates the 5-step mission for elementary missions (Grades 1–6) from the
@@ -19,11 +20,15 @@ import {
  *  - Master:     Hebrew → English word (3 options), full sentence, story without Hebrew translation.
  *
  * Options are returned in authored order (correct first); the caller shuffles them.
+ * Only the instruction templates follow the learner's gender (`he`); story text, questions and
+ * other authored data are put in as written.
  */
 export function buildElementaryExercises(
   mission: MissionNode,
-  tier: ProficiencyTier
+  tier: ProficiencyTier,
+  gender: LearnerGender = 'girl'
 ): MissionExerciseStep[] {
+  const he = hebrewTemplate(gender);
   const seed = mission.drillSeed;
   if (!seed) return [];
 
@@ -34,9 +39,9 @@ export function buildElementaryExercises(
 
   // ---- Step 1: vocabulary match -------------------------------------------------
   let step1: MissionExerciseStep;
-  const correctExplain = `מעולה! ${v0.emoji ? `${v0.emoji} ` : ''}${v0.wordEn} פירושו "${v0.translationHe}".`;
+  const correctExplain = he`מעולה! ${v0.emoji ? `${v0.emoji} ` : ''}${v0.wordEn} פירושו "${v0.translationHe}".`;
   const wrongExplain = (w: { wordEn: string; translationHe: string }) =>
-    `לא בדיוק — ${w.wordEn} פירושו "${w.translationHe}". נסי שוב!`;
+    he`לא בדיוק — ${w.wordEn} פירושו "${w.translationHe}". נסי שוב!`;
 
   const isMiddleOrHigh =
     mission.id.startsWith('g7-') ||
@@ -51,7 +56,7 @@ export function buildElementaryExercises(
   const cloze = toClozeSentence(v0.exampleEn, v0.wordEn);
   const englishOptionHint = (others: string[]) =>
     cloze
-      ? `💡 איזו מילה משלימה את המשפט? "${isolateLtr(cloze)}"`
+      ? he`💡 איזו מילה משלימה את המשפט? "${isolateLtr(cloze)}"`
       : `💡 ${getWordShapeHintHe(v0.wordEn, others)}`;
 
   if (isExplorer) {
@@ -63,12 +68,12 @@ export function buildElementaryExercises(
       id: `${mission.id}-s1`,
       stepNumber: 1,
       type: 'chat-reply',
-      badgeLabelHe: '💬 שלב 1/5: איזו מילה זו?',
+      badgeLabelHe: he`💬 שלב 1/5: איזו מילה זו?`,
       promptHe: isMiddleOrHigh
-        ? `איזו מילה באנגלית פירושה "${v0.translationHe}"? בחרי:`
+        ? he`איזו מילה באנגלית פירושה "${v0.translationHe}"? בחרי:`
         : v0.emoji
-        ? 'איזו מילה באנגלית מתאימה לתמונה? בחרי:'
-        : `איזו מילה באנגלית פירושה "${v0.translationHe}"? בחרי:`,
+        ? he`איזו מילה באנגלית מתאימה לתמונה? בחרי:`
+        : he`איזו מילה באנגלית פירושה "${v0.translationHe}"? בחרי:`,
       hintHe: englishOptionHint([wrongA.wordEn]),
       speakerName: 'Word Guide',
       speakerAvatar: mission.icon,
@@ -84,9 +89,9 @@ export function buildElementaryExercises(
       id: `${mission.id}-s1`,
       stepNumber: 1,
       type: 'chat-reply',
-      badgeLabelHe: '💬 שלב 1/5: מה פירוש המילה?',
-      promptHe: 'מה המשמעות של המילה באנגלית? בחרי את התרגום הנכון:',
-      hintHe: `💡 כדאי לקרוא את המילה בתוך משפט: "${isolateLtr(v0.exampleEn)}"`,
+      badgeLabelHe: he`💬 שלב 1/5: מה פירוש המילה?`,
+      promptHe: he`מה המשמעות של המילה באנגלית? בחרי את התרגום הנכון:`,
+      hintHe: he`💡 כדאי לקרוא את המילה בתוך משפט: "${isolateLtr(v0.exampleEn)}"`,
       speakerName: 'Word Guide',
       speakerAvatar: mission.icon,
       questionEn: `What does "${v0.wordEn}" mean?`,
@@ -101,8 +106,8 @@ export function buildElementaryExercises(
       id: `${mission.id}-s1`,
       stepNumber: 1,
       type: 'chat-reply',
-      badgeLabelHe: '💬 שלב 1/5: איך אומרים באנגלית?',
-      promptHe: `איך אומרים באנגלית "${v0.translationHe}"? בחרי את המילה הנכונה:`,
+      badgeLabelHe: he`💬 שלב 1/5: איך אומרים באנגלית?`,
+      promptHe: he`איך אומרים באנגלית "${v0.translationHe}"? בחרי את המילה הנכונה:`,
       hintHe: englishOptionHint([wrongA.wordEn, wrongB.wordEn]),
       speakerName: 'Word Guide',
       speakerAvatar: mission.icon,
@@ -127,8 +132,8 @@ export function buildElementaryExercises(
     id: `${mission.id}-s2`,
     stepNumber: 2,
     type: 'sentence-builder',
-    badgeLabelHe: '🧩 שלב 2/5: הרכבת משפט',
-    promptHe: 'לחצי על המילים לפי הסדר הנכון כדי להרכיב את המשפט:',
+    badgeLabelHe: he`🧩 שלב 2/5: הרכבת משפט`,
+    promptHe: he`לחצי על המילים לפי הסדר הנכון כדי להרכיב את המשפט:`,
     hintHe: `💡 ${getSentenceOrderHintHe(cleanWords)}`,
     questionEn: 'Tap the words in the right order:',
     targetSentenceEn: sentenceEn,
@@ -141,8 +146,8 @@ export function buildElementaryExercises(
     id: `${mission.id}-s3`,
     stepNumber: 3,
     type: 'voice-speak',
-    badgeLabelHe: '🎙️ שלב 3/5: אימון קריאה ודיבור',
-    promptHe: 'האזיני למשפט (רגיל או איטי) ואז הקליטי את עצמך קוראת אותו בקול:',
+    badgeLabelHe: he`🎙️ שלב 3/5: אימון קריאה ודיבור`,
+    promptHe: he`האזיני למשפט (רגיל או איטי) ואז הקליטי את עצמך קוראת אותו בקול:`,
     hintHe: `💡 ${getPronunciationTipHe(sentenceEn)}`,
     questionEn: 'Speak this sentence aloud:',
     speakTargetEn: sentenceEn,
@@ -155,29 +160,29 @@ export function buildElementaryExercises(
     {
       textEn: seed.rule.correct,
       isCorrect: true,
-      explanationHe: `כל הכבוד! ${seed.rule.explainHe}`,
+      explanationHe: he`כל הכבוד! ${seed.rule.explainHe}`,
     },
     {
       textEn: seed.rule.wrong[0],
       isCorrect: false,
-      explanationHe: `כמעט! ${seed.rule.explainHe}`,
+      explanationHe: he`כמעט! ${seed.rule.explainHe}`,
     },
   ];
   if (!isExplorer) {
     ruleOpts.push({
       textEn: seed.rule.wrong[1],
       isCorrect: false,
-      explanationHe: `לא בדיוק. ${seed.rule.explainHe}`,
+      explanationHe: he`לא בדיוק. ${seed.rule.explainHe}`,
     });
   }
   const step4: MissionExerciseStep = {
     id: `${mission.id}-s4`,
     stepNumber: 4,
     type: 'grammar-detective',
-    badgeLabelHe: '🕵️‍♀️ שלב 4/5: בלשית הדקדוק',
+    badgeLabelHe: he`🕵️‍♀️ שלב 4/5: בלשית הדקדוק`,
     promptHe: isExplorer
-      ? 'בחרי את התשובה הנכונה (יש רק שתי אפשרויות):'
-      : 'בחרי את התשובה הנכונה:',
+      ? he`בחרי את התשובה הנכונה (יש רק שתי אפשרויות):`
+      : he`בחרי את התשובה הנכונה:`,
     hintHe: `💡 ${seed.rule.hintHe}`,
     questionEn: seed.rule.questionEn,
     options: ruleOpts,
@@ -188,29 +193,29 @@ export function buildElementaryExercises(
     {
       textEn: seed.story.correct,
       isCorrect: true,
-      explanationHe: 'אלופה! סיימת את כל שלבי המשימה בהצלחה! 🎉',
+      explanationHe: he`אלופה! סיימת את כל שלבי המשימה בהצלחה! 🎉`,
     },
     {
       textEn: seed.story.wrong[0],
       isCorrect: false,
-      explanationHe: 'נסי שוב — חפשי את התשובה בסיפור 🔍',
+      explanationHe: he`נסי שוב — חפשי את התשובה בסיפור 🔍`,
     },
   ];
   if (!isExplorer) {
     storyOpts.push({
       textEn: seed.story.wrong[1],
       isCorrect: false,
-      explanationHe: 'כמעט! קראי שוב את הסיפור ובדקי 🔍',
+      explanationHe: he`כמעט! קראי שוב את הסיפור ובדקי 🔍`,
     });
   }
   const step5: MissionExerciseStep = {
     id: `${mission.id}-s5`,
     stepNumber: 5,
     type: 'story-unseen',
-    badgeLabelHe: '📖 שלב 5/5: סיפור קצר והבנת הנקרא',
+    badgeLabelHe: he`📖 שלב 5/5: סיפור קצר והבנת הנקרא`,
     promptHe: isExplorer
-      ? `קראי את הסיפור הקצר. ${seed.story.questionHe}`
-      : 'קראי את הסיפור ובחרי את התשובה הנכונה:',
+      ? he`קראי את הסיפור הקצר. ${seed.story.questionHe}`
+      : he`קראי את הסיפור ובחרי את התשובה הנכונה:`,
     hintHe: getStoryHintHe(seed.story, isExplorer),
     contextPassageEn: seed.story.passageEn,
     contextPassageHe: isMaster ? undefined : seed.story.passageHe,

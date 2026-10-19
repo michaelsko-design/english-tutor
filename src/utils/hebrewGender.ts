@@ -88,7 +88,9 @@ export function inflectHebrew(text: string, gender: LearnerGender): string {
     result = result.replace(pattern, replacement);
   }
 
-  // Exact single-word boundaries (using Hebrew character range lookarounds)
+  // Exact single-word boundaries (using Hebrew character range lookarounds).
+  // Leave out forms that are also common nouns or adjectives: שלבי (stages of), עברי (Hebrew),
+  // גלי (waves of), עני (poor). Instruction templates don't use them as imperatives.
   const wordReplacements: [string, string][] = [
     ['אלופה', 'אלוף'],
     ['בחרי', 'בחר'],
@@ -102,15 +104,12 @@ export function inflectHebrew(text: string, gender: LearnerGender): string {
     ['בדקי', 'בדוק'],
     ['סמני', 'סמן'],
     ['הרכיבי', 'הרכב'],
-    ['עני', 'ענה'],
-    ['גלי', 'גלה'],
     ['זכרי', 'זכור'],
     ['פתרי', 'פתור'],
     ['תרגלי', 'תרגל'],
     ['בואי', 'בוא'],
     ['סיימי', 'סיים'],
     ['אמרי', 'אמור'],
-    ['שלבי', 'שלב'],
     ['זכי', 'זכה'],
     ['חפשי', 'חפש'],
     ['השיגי', 'השג'],
@@ -119,7 +118,6 @@ export function inflectHebrew(text: string, gender: LearnerGender): string {
     ['מחוברת', 'מחובר'],
     ['מוכנה', 'מוכן'],
     ['יכולה', 'יכול'],
-    ['עברי', 'עבור'],
     ['בלשית', 'בלש'],
     ['מתכננות', 'מתכננים'],
     ['תתחדשי', 'תתחדש'],
@@ -137,4 +135,17 @@ export function inflectHebrew(text: string, gender: LearnerGender): string {
   result = result.replace(/🕵️‍♀️/g, '🕵️‍♂️');
 
   return result;
+}
+
+/**
+ * Tagged template that inflects only the literal template text, never the values put into it,
+ * so learner-facing instructions follow the gender while story text and authored data stay as written.
+ * With `const he = hebrewTemplate(gender)`, he`קראי את הסיפור. ${questionHe}` inflects "קראי" only.
+ */
+export function hebrewTemplate(gender: LearnerGender) {
+  return (strings: TemplateStringsArray, ...values: unknown[]): string =>
+    strings.reduce(
+      (text, part, i) => `${text}${inflectHebrew(part, gender)}${i < values.length ? String(values[i]) : ''}`,
+      ''
+    );
 }
