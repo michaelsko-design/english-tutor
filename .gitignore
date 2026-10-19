@@ -18,3 +18,4 @@ art-src/
 .claude/test-user.md
 .emulator-data/
 .claude/test-user-emulator.md
+*-debug.log
