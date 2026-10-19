@@ -67,6 +67,16 @@ export function watchVoices(): void {
   });
 }
 
+/** The English voices of this device and the one chosen for the preference, for diagnosing a wrong-sounding voice. */
+export function describeVoices(preference: VoicePreference): { picked: string | null; english: string[] } {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return { picked: null, english: [] };
+  const voices = loadVoices();
+  return {
+    picked: pickVoice(voices, preference)?.name ?? null,
+    english: voices.filter((voice) => /^en([-_]|$)/i.test(voice.lang)).map((voice) => `${voice.name} (${voice.lang})`),
+  };
+}
+
 export function speakWithVoice(text: string, rate: number, preference: VoicePreference): void {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
