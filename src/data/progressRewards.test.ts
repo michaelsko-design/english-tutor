@@ -150,7 +150,7 @@ describe('applyVocabPracticeReward', () => {
   it('does not change the profile it was given', () => {
     const snapshot = JSON.stringify(baseProfile);
 
-    applyVocabPracticeReward(baseProfile, 'apple', 10, 1, TODAY).profile;
+    applyVocabPracticeReward(baseProfile, 'apple', 10, 1, TODAY);
 
     expect(JSON.stringify(baseProfile)).toBe(snapshot);
   });

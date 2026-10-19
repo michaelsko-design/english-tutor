@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   AuthUserSummary,
   CloudSyncStatus,
-  DailyActivityCounters,
   GradeId,
   LearnerProfile,
   PlacementResult,
