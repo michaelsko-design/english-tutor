@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', '"Rubik"', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans Variable"', '"Rubik Variable"', 'system-ui', '-apple-system', 'sans-serif'],
       },
     },
   },

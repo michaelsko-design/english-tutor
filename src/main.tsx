@@ -1,6 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+// Fonts are bundled with the app (not loaded from Google), so they work offline and send no requests out
+import '@fontsource-variable/plus-jakarta-sans';
+import '@fontsource-variable/rubik';
 import './index.css';
 import { watchVoices } from './utils/ttsVoice';
 import { getTtsService } from './services/tts';

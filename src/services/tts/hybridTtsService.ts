@@ -8,6 +8,7 @@
 import { DEFAULT_VOICE_PREFERENCE, type VoicePreference } from '../../utils/ttsVoice';
 import { CLIP_MANIFEST_URL, getClipUrl, type ClipManifest } from './clipManifestTypes';
 import {
+  TTS_TOKEN_HEADER,
   buildLiveTtsQuery,
   CLIP_BASE_RATE,
   getClipKey,
@@ -36,6 +37,8 @@ export interface HybridTtsDeps {
   caches: CacheStorage | null;
   now: () => number;
   isOnline: () => boolean;
+  /** The signed-in learner's Firebase ID token; /api/tts serves only signed-in learners. */
+  getAuthToken?: () => Promise<string | null>;
   /** Called with text that had no rendered clip (dev builds record these to find corpus gaps). */
   onClipMiss?: (text: string) => void;
 }
@@ -132,7 +135,8 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
     const cached = await cache?.match(url);
     let response = cached;
     if (!response) {
-      response = await deps.fetch(url, { signal });
+      const token = await deps.getAuthToken?.().catch(() => null);
+      response = await deps.fetch(url, { signal, ...(token ? { headers: { [TTS_TOKEN_HEADER]: token } } : {}) });
       if (response.status === 429 || response.status === 503) livePausedUntil = deps.now() + LIVE_PAUSE_MS;
       if (!isAudioResponse(response)) return null;
       // Storing is best effort: a full or blocked cache just means fetching again next time.
@@ -203,7 +207,7 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
 
     const audio = deps.getAudio();
     if (audio) {
-      let playable: Playable | null = null;
+      let playable: Playable | null;
       // The online voice gets LIVE_TIMEOUT_MS; a slower answer is dropped for the device voice.
       const timer = setTimeout(() => controller.abort(), LIVE_TIMEOUT_MS);
       try {

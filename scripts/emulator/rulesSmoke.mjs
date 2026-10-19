@@ -82,5 +82,14 @@ await expect('the owner can delete their friend-code record', true, () =>
   deleteDoc(doc(a.db, 'friendCodeOwners', ua.uid)));
 await expect('someone else cannot delete a learner profile', false, () => deleteDoc(doc(b.db, 'learners', ua.uid)));
 
+const publicProfile = (stars) => ({
+  displayName: 'Noa', avatarEmoji: '🐱', level: 1, streakDays: 0, stars, missionsCompleted: 0,
+  updatedAt: new Date().toISOString(),
+});
+await expect('a public profile with possible stars is allowed', true, () =>
+  setDoc(doc(a.db, 'publicProfiles', ua.uid), publicProfile(432)));
+await expect('a public profile with impossible stars is denied', false, () =>
+  setDoc(doc(a.db, 'publicProfiles', ua.uid), publicProfile(5000)));
+
 for (const [status, label, detail] of results) console.log(`${status}  ${label}${detail ? `  (${detail})` : ''}`);
 process.exit(results.some(([s]) => s === 'FAIL') ? 1 : 0);

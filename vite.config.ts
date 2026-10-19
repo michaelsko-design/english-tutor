@@ -17,7 +17,9 @@ function ttsApiDevPlugin(env: Record<string, string>): Plugin {
         try {
           const { handleTtsRequest } = await server.ssrLoadModule('/api/tts.ts');
           const url = `http://${req.headers.host ?? 'localhost'}${req.originalUrl ?? req.url ?? ''}`;
-          const response: Response = await handleTtsRequest(new Request(url), env);
+          // Emulator sign-ins aren't signed by Google, so the dev server skips the sign-in check
+          const request = new Request(url, { headers: { 'X-Firebase-Token': String(req.headers['x-firebase-token'] ?? '') } });
+          const response: Response = await handleTtsRequest(request, { ...env, TTS_AUTH: 'off' });
           res.statusCode = response.status;
           response.headers.forEach((value, key) => res.setHeader(key, value));
           res.end(Buffer.from(await response.arrayBuffer()));

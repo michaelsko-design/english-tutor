@@ -163,6 +163,13 @@ describe('buildPublicProfile', () => {
     expect(toDisplayName('Dana')).toBe('Dana');
   });
 
+  it('caps the numbers at what the rules accept', () => {
+    const inflated = { ...baseProfile, stats: { ...baseProfile.stats, stars: 9000, level: 5000 } };
+    const summary = buildPublicProfile(inflated, '🐱', '2026-10-17');
+    expect(summary.stars).toBe(432);
+    expect(summary.level).toBe(1000);
+  });
+
   it('trims long or empty names', () => {
     expect(toDisplayName('  ')).toBe('Learner');
     expect(toDisplayName('a'.repeat(40))).toHaveLength(MAX_DISPLAY_NAME_LENGTH);

@@ -50,7 +50,9 @@ const manifestWith = (keys: string[]) => new Response(JSON.stringify({ version: 
 const mp3 = () => new Response(new Uint8Array([1, 2, 3]), { status: 200, headers: { 'Content-Type': 'audio/mpeg' } });
 const html = () => new Response('<!doctype html>', { status: 200, headers: { 'Content-Type': 'text/html' } });
 
-function setup(options: { clipKeys?: string[]; liveStatus?: number; manifestFails?: number; clipsAreHtml?: boolean } = {}) {
+function setup(
+  options: { clipKeys?: string[]; liveStatus?: number; manifestFails?: number; clipsAreHtml?: boolean; authToken?: string } = {}
+) {
   let manifestFailures = options.manifestFails ?? 0;
   const audio = new FakeAudio();
   const caches = new FakeCaches();
@@ -80,6 +82,7 @@ function setup(options: { clipKeys?: string[]; liveStatus?: number; manifestFail
     caches: caches as unknown as CacheStorage,
     now: () => now,
     isOnline: () => true,
+    ...(options.authToken ? { getAuthToken: async () => options.authToken ?? null } : {}),
   };
   const advance = (ms: number) => {
     now += ms;
@@ -119,6 +122,13 @@ describe('hybrid read-aloud service', () => {
     expect(caches.stores.get(LIVE_CACHE_NAME)?.size).toBe(1);
     expect(await engineOf(service, 'My own word list sentence')).toBe('live');
     expect(liveCalls(fetchMock)).toBe(1);
+  });
+
+  it('sends the signed-in learner’s token with an online voice request', async () => {
+    const { service, fetchMock } = setup({ authToken: 'id-token' });
+    await engineOf(service, 'My own word list sentence');
+    const liveCall = fetchMock.mock.calls.find(([url]) => String(url).startsWith('/api/tts')) as unknown[];
+    expect(liveCall[1]).toMatchObject({ headers: { 'X-Firebase-Token': 'id-token' } });
   });
 
   it('uses the device voice for text the online voice does not read', async () => {

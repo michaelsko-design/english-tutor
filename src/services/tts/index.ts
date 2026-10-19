@@ -2,6 +2,7 @@ import { getSharedAudio, onFirstGesture } from './audioUnlock';
 import { deviceTtsService } from './deviceTtsService';
 import { createHybridTtsService } from './hybridTtsService';
 import type { TextToSpeechService } from './types';
+import { auth } from '../firebase';
 
 export type { SpeakOptions, TextToSpeechService, TtsEngine } from './types';
 
@@ -30,6 +31,7 @@ export function getTtsService(): TextToSpeechService {
       caches: typeof caches === 'undefined' ? null : caches,
       now: () => Date.now(),
       isOnline: () => typeof navigator === 'undefined' || navigator.onLine !== false,
+      getAuthToken: async () => (auth?.currentUser ? auth.currentUser.getIdToken() : null),
       onClipMiss: recordClipMiss,
     });
     onFirstGesture(created.preload);

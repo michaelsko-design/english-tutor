@@ -2,10 +2,47 @@ import { describe, expect, it, vi } from 'vitest';
 import { handleTtsRequest } from './tts';
 import { buildLiveTtsQuery } from '../src/services/tts/ttsText';
 
-const ENV = { AZURE_SPEECH_KEY: 'secret', AZURE_SPEECH_REGION: 'westeurope' };
+// The sign-in check has its own tests below; the others run with it off
+const ENV = { AZURE_SPEECH_KEY: 'secret', AZURE_SPEECH_REGION: 'westeurope', TTS_AUTH: 'off' };
+const AUTH_ENV = { AZURE_SPEECH_KEY: 'secret', AZURE_SPEECH_REGION: 'westeurope' };
 const request = (query: string) => new Request(`https://app.test/api/tts?${query}`);
 const canonical = (text: string, voice: 'female' | 'male' = 'female', speed: 'normal' | 'slow' = 'normal') =>
   new Request(`https://app.test/api/tts${buildLiveTtsQuery(text, voice, speed)}`);
+
+describe('handleTtsRequest sign-in check', () => {
+  const audio = () => vi.fn(async () => new Response(new Uint8Array([1]), { status: 200 }));
+  const withToken = (token: string) => {
+    const req = canonical('hello');
+    return new Request(req.url, { headers: { 'X-Firebase-Token': token } });
+  };
+
+  it('refuses a request without a token before calling Azure', async () => {
+    const fetchImpl = audio();
+    const response = await handleTtsRequest(canonical('hello'), AUTH_ENV, fetchImpl as typeof fetch, async () => true);
+    expect(response.status).toBe(401);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('refuses a token that does not verify', async () => {
+    const fetchImpl = audio();
+    const response = await handleTtsRequest(withToken('bad'), AUTH_ENV, fetchImpl as typeof fetch, async () => false);
+    expect(response.status).toBe(401);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('serves a signed-in learner, checking the token against the project', async () => {
+    const fetchImpl = audio();
+    const verify = vi.fn(async () => true);
+    const response = await handleTtsRequest(
+      withToken('good'),
+      { ...AUTH_ENV, FIREBASE_PROJECT_ID: 'my-project' },
+      fetchImpl as typeof fetch,
+      verify
+    );
+    expect(response.status).toBe(200);
+    expect(verify).toHaveBeenCalledWith('good', 'my-project');
+  });
+});
 
 describe('handleTtsRequest', () => {
   it('rejects text the online voice does not read', async () => {
@@ -49,7 +86,7 @@ describe('handleTtsRequest', () => {
   });
 
   it('answers 503 without a key, and never caches it', async () => {
-    const response = await handleTtsRequest(canonical('hello'), {});
+    const response = await handleTtsRequest(canonical('hello'), { TTS_AUTH: 'off' });
     expect(response.status).toBe(503);
     expect(response.headers.get('Cache-Control')).toBe('no-store');
   });

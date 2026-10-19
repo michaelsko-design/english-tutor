@@ -123,3 +123,6 @@ export function buildLiveTtsQuery(text: string, voice: VoicePreference, speed: T
 function encodeQueryValue(value: string): string {
   return encodeURIComponent(value).replace(/[!'()*]/g, (ch) => `%${ch.charCodeAt(0).toString(16).toUpperCase()}`);
 }
+
+/** The header carrying the learner's Firebase ID token to /api/tts (the CDN cache key ignores it). */
+export const TTS_TOKEN_HEADER = 'X-Firebase-Token';

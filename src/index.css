@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    font-family: 'Plus Jakarta Sans', 'Rubik', system-ui, -apple-system, sans-serif;
+    font-family: 'Plus Jakarta Sans Variable', 'Rubik Variable', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
   }
 }

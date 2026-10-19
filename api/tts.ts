@@ -6,9 +6,11 @@
  */
 // Explicit .js extensions: the package is ESM ("type": "module"), so Node needs them at runtime.
 import { AzureTtsError, readAzureConfig, synthesize } from './_lib/azureTts.js';
-import { buildLiveTtsQuery, isCloudSpeakable, isTtsSpeed, isTtsVoice } from '../src/services/tts/ttsText.js';
+import { verifyFirebaseIdToken } from './_lib/firebaseToken.js';
+import { TTS_TOKEN_HEADER, buildLiveTtsQuery, isCloudSpeakable, isTtsSpeed, isTtsVoice } from '../src/services/tts/ttsText.js';
 
 const AZURE_TIMEOUT_MS = 8_000;
+const DEFAULT_FIREBASE_PROJECT_ID = 'english-tutor-il-7';
 // s-maxage lets the Vercel CDN share the answer; max-age lets the browser keep it.
 const AUDIO_CACHE_CONTROL = 'public, max-age=31536000, s-maxage=31536000, immutable';
 
@@ -19,10 +21,16 @@ function errorResponse(status: number, message: string): Response {
   });
 }
 
+/**
+ * Only signed-in learners reach Azure: without that, anyone could use up the free quota for every
+ * learner. A phrase already in the CDN cache is served without reaching this function at all.
+ * `TTS_AUTH=off` turns the check off for the local dev server, whose emulator tokens aren't signed.
+ */
 export async function handleTtsRequest(
   request: Request,
   env: Record<string, string | undefined>,
   fetchImpl: typeof fetch = fetch,
+  verifyToken: (token: string, projectId: string) => Promise<boolean> = verifyFirebaseIdToken,
 ): Promise<Response> {
   const url = new URL(request.url);
   const text = url.searchParams.get('t') ?? '';
@@ -38,6 +46,12 @@ export async function handleTtsRequest(
   const canonical = new URLSearchParams(buildLiveTtsQuery(text, voice, speed));
   if ([...url.searchParams].join('&') !== [...canonical].join('&')) {
     return errorResponse(400, 'Non-canonical request');
+  }
+
+  if (env.TTS_AUTH !== 'off') {
+    const token = request.headers.get(TTS_TOKEN_HEADER) ?? '';
+    const projectId = env.FIREBASE_PROJECT_ID || DEFAULT_FIREBASE_PROJECT_ID;
+    if (!token || !(await verifyToken(token, projectId))) return errorResponse(401, 'Sign in to use the online voice');
   }
 
   const config = readAzureConfig(env);

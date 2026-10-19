@@ -113,6 +113,8 @@ service cloud.firestore {
     }
 
     // What friends can see: display name, avatar and progress. No age, grade, email or school.
+    // The numbers are capped at what the curriculum allows, so a changed client can't show friends
+    // an impossible level or star count.
     function isPublicProfile(data) {
       let keys = ['displayName', 'avatarEmoji', 'level', 'streakDays', 'stars', 'missionsCompleted', 'updatedAt'];
       return data.keys().hasOnly(keys)
@@ -120,9 +122,14 @@ service cloud.firestore {
         && isShortString(data.displayName, 24)
         && isAvatar(data.avatarEmoji)
         && isCount(data.level)
+        && data.level <= 1000
         && isCount(data.streakDays)
+        && data.streakDays <= 3650
+        // 144 missions (12 grades × 12) with up to 3 stars each; raise these if the curriculum grows
         && isCount(data.stars)
+        && data.stars <= 432
         && isCount(data.missionsCompleted)
+        && data.missionsCompleted <= 144
         && isIsoTime(data.updatedAt);
     }
 

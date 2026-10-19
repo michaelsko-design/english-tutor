@@ -215,15 +215,21 @@ export function toDisplayName(name: string): string {
   return trimmed.slice(0, MAX_DISPLAY_NAME_LENGTH);
 }
 
+/** The largest values firestore.rules accepts on a public profile (isPublicProfile) */
+export const PUBLIC_PROFILE_LIMITS = { level: 1000, streakDays: 3650, stars: 432, missionsCompleted: 144 } as const;
+
+const capped = (value: number, max: number): number => Math.max(0, Math.min(max, Math.floor(value) || 0));
+
 /** `todayStr` is the learner's local date: a streak with a missed day shows 0. */
 export function buildPublicProfile(profile: LearnerProfile, avatarEmoji: string, todayStr: string): PublicProfile {
   return {
     displayName: toDisplayName(profile.name),
     avatarEmoji,
-    level: profile.stats.level,
-    streakDays: getCurrentStreak(profile, todayStr),
-    stars: profile.stats.stars,
-    missionsCompleted: countCompletedMissions(profile.missionProgress || {}),
+    // Capped like the rules, so an inflated stored number can't block publishing
+    level: capped(profile.stats.level, PUBLIC_PROFILE_LIMITS.level),
+    streakDays: capped(getCurrentStreak(profile, todayStr), PUBLIC_PROFILE_LIMITS.streakDays),
+    stars: capped(profile.stats.stars, PUBLIC_PROFILE_LIMITS.stars),
+    missionsCompleted: capped(countCompletedMissions(profile.missionProgress || {}), PUBLIC_PROFILE_LIMITS.missionsCompleted),
   };
 }
 
