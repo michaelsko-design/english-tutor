@@ -323,7 +323,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Screen readers**: English text carries `lang="en"` with `dir="ltr"` (and `getTextLang` for answer options that may be English or Hebrew), so it is read with an English voice. Answer feedback is `role="alert"`. Icon buttons have Hebrew `aria-label`s. A `:focus-visible` ring shows keyboard focus.
 - **Phones**: pinch-zoom is allowed (inputs are 16px on small screens so iOS doesn't zoom into them); `viewport-fit=cover` with `env(safe-area-inset-*)` padding on the bottom nav, sheets and header; sheets use `dvh`. Grades 1–3 hear each question when it opens; a mission started from the map sheet skips the intro's tier choice.
 - **Fonts** are bundled (`@fontsource-variable/rubik`, `@fontsource-variable/plus-jakarta-sans`), not loaded from Google Fonts.
-- **Headers** (`vercel.json`): `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy` (microphone only for the app). The Content Security Policy is still **Report-Only**: check the console on a preview deploy (Google sign-in, Firestore, read-aloud), then rename the header to `Content-Security-Policy`.
+- **Headers** (`vercel.json`): `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy` (microphone only for the app). The Content Security Policy is enforced (it ran Report-Only first; Google sign-in and a mission produced no reports). A new third-party origin (script, API, iframe) must be added to it, or the browser blocks it.
 
 ---
 

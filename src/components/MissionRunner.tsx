@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { ModalPortal } from './ModalPortal';
 import { useDialog } from '../hooks/useDialog';
 import { toSpeakableText } from '../services/tts/ttsText';
 import { MissionNode } from '../data/curriculum';
@@ -364,6 +365,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   const peekPose = getPeekCompanionPose(showHint, feedbackHe !== null);
 
   return (
+    <ModalPortal>
     <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`משימה: ${mission.titleHe}`} className="contents">
       <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-start sm:items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto">
         <div
@@ -540,5 +542,6 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
         />
       )}
     </div>
+    </ModalPortal>
   );
 };

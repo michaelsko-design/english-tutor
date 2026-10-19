@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ModalPortal } from './ModalPortal';
 import { useDialog } from '../hooks/useDialog';
 import { LearnerProfile, PlacementResult, SUPPORTED_GRADES } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
@@ -114,6 +115,7 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
   };
 
   return (
+    <ModalPortal>
     <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto">
       <div
         ref={dialogRef}
@@ -290,5 +292,6 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
         )}
       </div>
     </div>
+    </ModalPortal>
   );
 };

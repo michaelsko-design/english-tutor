@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { ModalPortal } from './ModalPortal';
 import { useDialog } from '../hooks/useDialog';
 import { celebrate } from '../utils/celebrate';
 import { CurriculumUnit, VocabularyItem } from '../data/curriculum';
@@ -167,6 +168,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
   };
 
   return (
+    <ModalPortal>
     <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-3 md:p-6 overflow-y-auto">
       <div
         ref={dialogRef}
@@ -374,5 +376,6 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
         </div>
       </div>
     </div>
+    </ModalPortal>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { ModalPortal } from './ModalPortal';
 import { useDialog } from '../hooks/useDialog';
 import {
   signInWithPopup,
@@ -235,6 +236,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
+    <ModalPortal>
     <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-3 md:p-6 overflow-y-auto">
       <div
         ref={dialogRef}
@@ -529,5 +531,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       </div>
       {isPrivacyOpen && <PrivacyNoticeDialog theme={theme} onClose={() => setIsPrivacyOpen(false)} />}
     </div>
+    </ModalPortal>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { ModalPortal } from '../ModalPortal';
 import { useDialog } from '../../hooks/useDialog';
 import { X } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
@@ -27,6 +28,7 @@ export const ExamModalShell: React.FC<ExamModalShellProps> = ({
   useDialog(dialogRef, { onClose });
 
   return (
+    <ModalPortal>
     <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto">
       <div
         ref={dialogRef}
@@ -55,5 +57,6 @@ export const ExamModalShell: React.FC<ExamModalShellProps> = ({
         {children}
       </div>
     </div>
+    </ModalPortal>
   );
 };

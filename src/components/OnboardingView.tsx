@@ -134,7 +134,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
       className={`min-h-screen w-full ${activeTheme.pageBgClass} flex items-center justify-center p-3 sm:p-6 md:p-8 transition-colors duration-300`}
     >
       <div
-        className={`w-full max-w-xl rounded-3xl p-5 sm:p-6 md:p-8 ${activeTheme.cardBgClass} space-y-5 relative`}
+        className={`w-full max-w-xl lg:max-w-5xl rounded-3xl p-5 sm:p-6 md:p-8 ${activeTheme.cardBgClass} space-y-5 relative`}
       >
         {onCancel && (
           <button
@@ -173,7 +173,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:gap-y-5 lg:items-start">
           {/* 1. Name Input */}
           <div className="space-y-1.5">
             <label className="block text-xs sm:text-sm font-bold">
@@ -248,7 +248,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           </div>
 
           {/* 3. Multi-Grade Curriculum Pack Selection (All 12 Grades grouped) */}
-          <div className="space-y-2.5">
+          <div className="space-y-2.5 lg:col-span-2">
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
                 <GraduationCap className="w-4 h-4" />
@@ -508,7 +508,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
 
           {/* 8. Privacy, data download and account deletion, in the settings only */}
           {onCancel && (
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 lg:col-span-2">
               <span className="block text-xs sm:text-sm font-bold">פרטיות וחשבון:</span>
               <AccountPrivacyCard profile={initialProfile} theme={activeTheme} />
             </div>
@@ -516,7 +516,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
 
           {/* A parent's consent when a learner under 13 starts */}
           {!onCancel && isChild && (
-            <label className="flex items-start gap-2 p-3 rounded-2xl border border-current/15 text-xs sm:text-sm font-bold">
+            <label className="lg:col-span-2 flex items-start gap-2 p-3 rounded-2xl border border-current/15 text-xs sm:text-sm font-bold">
               <input
                 type="checkbox"
                 checked={hasParentConsent}
@@ -534,7 +534,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           )}
 
           {/* Submit CTA */}
-          <div className="flex items-center gap-2.5 pt-1">
+          <div className="lg:col-span-2 flex items-center gap-2.5 pt-1">
             <button
               type="submit"
               className={`flex-1 py-3.5 rounded-2xl font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 transition-transform ${activeTheme.primaryBtnClass}`}

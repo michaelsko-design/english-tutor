@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { ModalPortal } from '../ModalPortal';
 import { useDialog } from '../../hooks/useDialog';
 import { Trophy, Zap } from 'lucide-react';
 import { MissionNode } from '../../data/curriculum';
@@ -106,6 +107,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
   };
 
   return (
+    <ModalPortal>
     <div
       className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
       onClick={handleSkip}
@@ -259,5 +261,6 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
         </p>
       </div>
     </div>
+    </ModalPortal>
   );
 };
