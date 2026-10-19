@@ -46,7 +46,7 @@ export const GRADE_7_LESSONS: LessonPack = {
   'g7-u2-m1': {
     titleHe: 'עכשיו או תמיד? ⏱️',
     ideaHe:
-      'מה שקורה ממש עכשיו: am / is / are ופועל עם ing. הרגל קבוע: Present Simple. מילים כמו now ו-Look! מסמנות עכשיו, ו-every day מסמנת הרגל.',
+      'מה שקורה ממש עכשיו: am / is / are ופועל עם ing. הרגל קבוע: Present Simple. מילים כמו now ו-Look מסמנות עכשיו, ו-every day מסמנת הרגל.',
     pattern: 'am / is / are + verb-ing',
     examples: [
       { en: 'Look! The baby is laughing.', he: 'תראו! התינוק צוחק.', highlight: 'is laughing' },

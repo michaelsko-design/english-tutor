@@ -12,6 +12,7 @@ import { MultipleChoiceOption } from '../../data/missionExercises';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { CompanionPose } from '../../themes/themeArt';
 import { seededShuffle } from '../../utils/shuffle';
+import { isolateEnglishRuns } from '../../utils/bidi';
 import { Companion } from '../companion/Companion';
 import { FeedbackBanner, MultipleChoiceOptions } from '../drills';
 
@@ -198,9 +199,9 @@ interface CardProps {
 const IdeaCard: React.FC<CardProps & { lesson: MiniLessonData }> = ({ lesson, theme, headingRef }) => (
   <>
     <h2 ref={headingRef} tabIndex={-1} className="text-2xl md:text-3xl font-extrabold leading-tight text-center outline-none">
-      {lesson.titleHe}
+      {isolateEnglishRuns(lesson.titleHe)}
     </h2>
-    <p className="text-base md:text-lg font-bold leading-relaxed text-center max-w-xl mx-auto">{lesson.ideaHe}</p>
+    <p className="text-base md:text-lg font-bold leading-relaxed text-center max-w-xl mx-auto">{isolateEnglishRuns(lesson.ideaHe)}</p>
     {lesson.pattern && (
       <div className="flex justify-center">
         <span
@@ -216,7 +217,7 @@ const IdeaCard: React.FC<CardProps & { lesson: MiniLessonData }> = ({ lesson, th
       <ul className="space-y-2 max-w-md mx-auto">
         {lesson.recapParts.map((part) => (
           <li key={part.titleHe} className={`p-3 rounded-2xl ${theme.cardBgClass} flex flex-wrap items-center justify-between gap-2`}>
-            <span className="font-extrabold text-sm">{part.titleHe}</span>
+            <span className="font-extrabold text-sm">{isolateEnglishRuns(part.titleHe)}</span>
             {part.pattern && (
               <span dir="ltr" lang="en" className={`text-sm font-extrabold ${theme.accentTextClass}`}>
                 {part.pattern}
@@ -229,7 +230,7 @@ const IdeaCard: React.FC<CardProps & { lesson: MiniLessonData }> = ({ lesson, th
     {lesson.tipHe && (
       <p className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-sm font-bold max-w-xl mx-auto">
         <span className="font-extrabold">⚠️ טעות נפוצה: </span>
-        {lesson.tipHe}
+        {isolateEnglishRuns(lesson.tipHe)}
       </p>
     )}
   </>
@@ -288,7 +289,7 @@ const QuickTryCard: React.FC<
   return (
     <>
       <h2 ref={headingRef} tabIndex={-1} className="text-lg md:text-xl font-extrabold text-center outline-none">
-        {quickTry.promptHe}
+        {isolateEnglishRuns(quickTry.promptHe)}
       </h2>
       {quickTry.questionEn && (
         <p
@@ -303,7 +304,7 @@ const QuickTryCard: React.FC<
       {picked && (
         <FeedbackBanner
           isCorrect={picked.isCorrect}
-          text={quickTry.explainHe}
+          text={isolateEnglishRuns(quickTry.explainHe)}
           showNext={false}
           nextLabel=""
           onNext={() => undefined}
