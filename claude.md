@@ -131,7 +131,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 5. **Story Unseen (`story-unseen`)**: Reading comprehension passage with contextual questions and vocabulary reinforcement.
 - Answer options and scrambled word chips are randomized on each attempt via a deterministic seeded shuffle (`src/utils/shuffle.ts`) so the correct option is never fixed in the first slot while remaining stable across React re-renders.
 - Features combo multipliers, sound effects, celebration confetti, and 1–3 star ratings based on exercise accuracy.
-- A mission opens on an intro screen (`mission/MissionIntro.tsx`) where the tier is chosen; the steps have no tier switcher. The runner's look and the companion are described in 4.17.
+- A mission opens on an intro screen (`mission/MissionIntro.tsx`) where the tier is chosen; the steps have no tier switcher. A first play then shows the mission's mini-lesson (4.24). The runner's look and the companion are described in 4.17.
 
 ### 4.6. Gamification, Streaks & Shabbat Shield
 - **Daily Quests (`DailyQuestsCard.tsx`)**: 3 daily challenges rewarding XP and diamonds (Daily Mission, Voice Practice, 3-Star Mastery).
@@ -335,6 +335,13 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **`useMagnetDrag`** (words) keeps a preview order while dragging (bank ↔ tray moves change the preview, moves inside the tray are shown by the sortable list) and reports one change on drop. **`useLetterSlotDrag`** (letters) has a droppable per slot (`LetterSlot`) and no preview; the hovered slot lights up. Both share `useMagnetSensors`, `useDragClickGuard`, the announcements and `DraggableMagnet`. Sensors: mouse after 5 px; touch after a 150 ms hold (a quick swipe still scrolls); keyboard on placed chips (Space picks up and drops, arrows move, to the next chip for words and the next slot or the bank for letters, Escape cancels, Enter still taps). Bank chips start drags only by pointer, so Enter/Space there is a tap. The click a browser fires right after a drop is ignored. Announcements and instructions are in Hebrew.
 - The chip under the finger (`MagnetDragOverlay`) is rendered on `<body>`, because the mission runner's `backdrop-filter` would make its `position: fixed` scroll. Reduced motion: no sliding and no drop animation.
 
+### 4.24. Mini-Lessons Before a Mission (`data/miniLessons.ts`, `data/curriculum/lessons/`, `mission/MiniLesson.tsx`, `hooks/useMiniLesson.ts`)
+- Feature 42 (plan: `docs/feature-42-mini-lessons.md`). **Only grade 7 has lessons so far**; the other grades start their missions as before.
+- **Flow**: `MissionRunner` has three phases, `intro` → `lesson` → `steps`. On a first play (`shouldAutoShowLesson`: no stars yet) Start opens the lesson. A mission started from the map sheet goes straight to the lesson. On replays the intro offers "תזכורת קצרה". During the steps a 📖 button in the header reopens the lesson over the step (a wrong-answer sheet closes, like "try again", and the step keeps its state; hidden once the step is answered). Nothing in a lesson is scored or rewarded.
+- **Screen** (`MiniLesson`): up to three cards with dots: the idea (title, `ideaHe`, the `pattern` chip, a "⚠️ טעות נפוצה" tip), examples (tap to hear, the `highlight` part underlined in the theme colour) and one quick try (two chunky options, the companion cheers or says oops, `explainHe` either way). "דילוג" skips to the steps. Grades 1–3 hear the first example by themselves.
+- **Data**: `lessons/grade<N>.ts` exports a `LessonPack` keyed by mission id (`MiniLesson` in `lessons/types.ts`). It loads only when a mission opens (`LESSON_PACK_LOADERS`, a dynamic `import()` per grade); `lessons/index.ts` (`ALL_LESSON_PACKS`) is for the tests and the clip corpus, so **a new grade goes in both lists**. A Boss without its own lesson gets `buildBossRecap` (the unit's topics and patterns, one example from each, no quick try). `useMiniLesson` gives up after 3 s (`LESSON_LOAD_TIMEOUT_MS`), and a failed load starts the steps, so a lesson never blocks a mission.
+- **Writing a lesson**: Hebrew in gender-neutral plural forms ("שימו לב", "בואו"); `inflectHebrew` must leave it unchanged. Examples are new sentences, never a mission's own answers. `miniLessons.test.ts` checks every regular mission of a grade with lessons, the length caps, the highlights, gender neutrality and that no example or quick-try answer repeats a step answer of the mission in any tier. Examples and quick-try answers are in `scripts/tts/corpus.ts`, so render the clips after adding lessons.
+
 ---
 
 ## 5. Directory Structure
@@ -358,7 +365,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── home/                     # Home base: HUD with level ring, hero scene, quest rings, dock tile, map peek, stats sheet, first-launch greeting & chest
 │   │   ├── hud/                      # Header pieces: sound toggle, Fluent Emoji icons
 │   │   ├── friends/                  # Friends Hub: dock tile, hub screen, friend card & reactions, add friend, invite code, contest panel/runner/result
-│   │   ├── mission/                  # Mission runner pieces: intro screen, tier choice (shared with the map sheet), trail progress with the combo flame
+│   │   ├── mission/                  # Mission runner pieces: intro screen, mini-lesson cards (Feature 42), tier choice (shared with the map sheet), trail progress with the combo flame
 │   │   ├── MissionMap.tsx            # World map of the grade: regions, path, stops, banners & mission sheet (Feature 26)
 │   │   ├── MissionRunner.tsx         # 5-step interactive exercise runner
 │   │   ├── OnboardingView.tsx        # Profile setup (name, gender, age, grade, tier)
@@ -380,6 +387,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   │   ├── elementary/           # Grades 1 to 6 (builder.ts + 72 missions across grade1..6.ts)
 │   │   │   ├── middleSchool/         # Grades 7 to 9 (builder.ts + 36 missions across grade7..9.ts)
 │   │   │   ├── highSchool/           # Grades 10 to 12 (builder.ts + 36 missions across grade10..12.ts)
+│   │   │   ├── lessons/              # Mini-lessons by grade (Feature 42; grade 7 so far), loaded when a mission opens
 │   │   │   ├── index.ts              # CURRICULUM_BY_GRADE registry
 │   │   │   └── types.ts              # Unit, MissionNode, VocabularyItem, and DrillSeed types
 │   │   ├── activityLog.ts            # Daily activity log (12 weeks) recorded by diffing profile updates, + merge (+ .test.ts)
@@ -395,6 +403,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── missionRewards.ts         # Full reward vs. repeat XP for mission replays (+ .test.ts)
 │   │   ├── worldMap.ts               # World map layout: regions, path sampling, stop & landmark positions, stop states (+ .test.ts)
 │   │   ├── missionHints.test.ts      # Sweep of every mission × tier: hints never repeat the prompt or reveal the answer
+│   │   ├── miniLessons.ts            # Mini-lesson loading, Boss recap & when the lesson opens (+ .test.ts: coverage, giveaways, gender)
 │   │   ├── placementTest.ts          # Placement question generation, staircase & scoring (+ .test.ts)
 │   │   ├── progressReport.ts         # Weekly report: week days, totals, star mastery, mastered words & share text (+ .test.ts)
 │   │   ├── progressRewards.ts        # Shared level formula & daily-activity/streak bookkeeping
@@ -416,6 +425,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── useCountUp.ts             # Counts a number up from its previous value
 │   │   ├── useFriendsHub.ts          # Live friendships, friends' public profiles & contests
 │   │   ├── useFriendPresence.ts      # Claims the friend code and publishes the public summary
+│   │   ├── useMiniLesson.ts          # Loads a mission's mini-lesson, giving up after 3 s
 │   │   ├── usePendingInvite.ts       # Friend code from an invite link, kept through sign-in
 │   │   ├── usePrefersReducedMotion.ts # The reduce-motion setting
 │   │   ├── useSfxMuted.ts            # The sound mute setting

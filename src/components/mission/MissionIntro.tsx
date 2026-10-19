@@ -1,11 +1,20 @@
 import React from 'react';
-import { X, Clock } from 'lucide-react';
+import { X, Clock, BookOpen } from 'lucide-react';
 import { MissionNode } from '../../data/curriculum';
 import { LearnerGender, ProficiencyTier } from '../../types/learner';
 import { inflectHebrew } from '../../utils/hebrewGender';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { Companion } from '../companion/Companion';
 import { TierChoice } from './TierChoice';
+
+/**
+ * The mission's mini-lesson (Feature 42): it opens by itself after Start on a first play ('auto'),
+ * is offered as a reminder on replays ('optional'), or the mission has none yet.
+ */
+export type LessonOffer = 'auto' | 'optional' | 'none';
+
+/** About how long the mini-lesson adds to the mission */
+const LESSON_MINUTES = 1;
 
 interface MissionIntroProps {
   mission: MissionNode;
@@ -14,6 +23,8 @@ interface MissionIntroProps {
   onChangeTier: (tier: ProficiencyTier) => void;
   gender: LearnerGender;
   theme: ThemeDefinition;
+  lessonOffer: LessonOffer;
+  onOpenLesson: () => void;
   onStart: () => void;
   onClose: () => void;
 }
@@ -31,10 +42,13 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
   onChangeTier,
   gender,
   theme,
+  lessonOffer,
+  onOpenLesson,
   onStart,
   onClose,
 }) => {
   const isGirl = gender === 'girl';
+  const minutes = mission.estimatedMinutes + (lessonOffer === 'auto' ? LESSON_MINUTES : 0);
   return (
     <div className="relative px-4 sm:px-8 pt-4 pb-6 space-y-5">
       <button
@@ -65,12 +79,24 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
         <p className={`text-xs font-bold flex items-center gap-1.5 ${theme.mutedTextClass}`}>
           <Clock className="w-3.5 h-3.5" />
           <span>
-            {stepCount} שלבים · כ-{mission.estimatedMinutes} דקות
+            {lessonOffer === 'auto' ? 'שיעור קצרצר + ' : ''}
+            {stepCount} שלבים · כ-{minutes} דקות
           </span>
         </p>
       </div>
 
       <TierChoice tier={tier} onChangeTier={onChangeTier} gender={gender} theme={theme} />
+
+      {lessonOffer === 'optional' && (
+        <button
+          type="button"
+          onClick={onOpenLesson}
+          className={`w-full min-h-12 py-3 rounded-2xl text-sm font-extrabold flex items-center justify-center gap-2 ${theme.secondaryBtnClass}`}
+        >
+          <BookOpen className="w-4 h-4" aria-hidden="true" />
+          <span>תזכורת קצרה לפני שמתחילים</span>
+        </button>
+      )}
 
       <button
         type="button"

@@ -178,6 +178,12 @@
   100% { transform: scale(1.6); opacity: 0; }
 }
 
+/* A mini-lesson card slides in from the reading side (Feature 42) */
+@keyframes lessonCardIn {
+  0% { transform: translateX(-24px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
 @keyframes trailPulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.55; }
@@ -198,6 +204,7 @@
 .animate-coin-pulse { animation: coinPulse 1.6s ease-out infinite; }
 .animate-castle-open { animation: castleOpen 0.9s cubic-bezier(0.3, 1.2, 0.5, 1) both; }
 .animate-castle-sparkle { animation: castleSparkle 1.1s ease-out both; }
+.animate-lesson-card { animation: lessonCardIn 0.3s ease-out both; }
 
 /* Chunky answer buttons: a darker edge under the button that the press pushes into */
 .btn-chunky {

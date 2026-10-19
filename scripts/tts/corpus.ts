@@ -5,6 +5,7 @@
  */
 import { CURRICULUM_BY_GRADE } from '../../src/data/curriculum';
 import { getExercisesForMission } from '../../src/data/missionExercises';
+import { ALL_LESSON_PACKS } from '../../src/data/curriculum/lessons';
 import { ROOM_ITEMS, ROOM_OBJECTS, SHOP_ROOM_ITEMS } from '../../src/data/room';
 import { WARDROBE_ITEMS } from '../../src/data/wardrobe';
 import { VOICE_MESSAGES } from '../../src/data/voiceMessages';
@@ -94,6 +95,19 @@ function addCurriculum(corpus: CorpusBuilder): void {
   }
 }
 
+/** Mini-lesson examples and quick-try answers (Feature 42); Boss recaps reuse these examples. */
+function addMiniLessons(corpus: CorpusBuilder): void {
+  for (const pack of Object.values(ALL_LESSON_PACKS)) {
+    for (const lesson of Object.values(pack)) {
+      lesson.examples.forEach((example) => corpus.add(example.en));
+      if (lesson.quickTry) {
+        corpus.add(lesson.quickTry.correct);
+        corpus.add(lesson.quickTry.wrong);
+      }
+    }
+  }
+}
+
 function addRoom(corpus: CorpusBuilder): void {
   [...ROOM_ITEMS, ...SHOP_ROOM_ITEMS, ...ROOM_OBJECTS, ...WARDROBE_ITEMS].forEach((item) => corpus.addWord(item.nameEn));
   Object.values(VOICE_MESSAGES)
@@ -110,6 +124,7 @@ function addRoom(corpus: CorpusBuilder): void {
 export function collectCorpus(): CorpusPhrase[] {
   const corpus = new CorpusBuilder();
   addCurriculum(corpus);
+  addMiniLessons(corpus);
   addRoom(corpus);
   corpus.add(DEMO_SENTENCE, DEMO_SENTENCE_RATE);
   return corpus.list();

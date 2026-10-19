@@ -12,7 +12,7 @@ import { LearnerGender, ProficiencyTier } from '../types/learner';
 import { ThemeDefinition, TIER_CONFIG } from '../themes/themeRegistry';
 import { SpeechEvaluationResult } from '../utils/speechSimilarity';
 import { getSpeechErrorTextHe, useSpeechRecognition } from '../hooks/useSpeechRecognition';
-import { X, Lightbulb } from 'lucide-react';
+import { X, Lightbulb, BookOpen } from 'lucide-react';
 import {
   FEEDBACK_COMPANION_SIZE,
   FeedbackSheet,
@@ -25,7 +25,10 @@ import {
 } from './drills';
 import { MissionVictory, VICTORY_COMPANION_SIZE } from './victory/MissionVictory';
 import { Companion, preloadCompanion } from './companion/Companion';
-import { MissionIntro, INTRO_COMPANION_SIZE } from './mission/MissionIntro';
+import { MissionIntro, INTRO_COMPANION_SIZE, LessonOffer } from './mission/MissionIntro';
+import { MiniLesson, LESSON_COMPANION_SIZE } from './mission/MiniLesson';
+import { useMiniLesson } from '../hooks/useMiniLesson';
+import { shouldAutoShowLesson } from '../data/miniLessons';
 import { TrailProgress } from './mission/TrailProgress';
 import { getStoryArt } from '../themes/themeArt';
 import { preloadArt } from '../utils/artStatus';
@@ -44,6 +47,9 @@ import {
 const PEEK_COMPANION_SIZE = 64;
 /** How much of the peeking companion shows above the card */
 const PEEK_VISIBLE_SHARE = 0.72;
+
+/** The intro (tier choice), the mini-lesson (Feature 42), then the steps */
+type MissionPhase = 'intro' | 'lesson' | 'steps';
 
 interface MissionRunnerProps {
   mission: MissionNode;
@@ -105,8 +111,18 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     () => getExercisesForMission(mission, tier, gender, shuffleSalt),
     [mission, tier, gender, shuffleSalt]
   );
-  // The tier is chosen on the intro screen before the first step (Feature 25).
-  const [hasStarted, setHasStarted] = useState(isTierChosen);
+  // The tier is chosen on the intro screen (Feature 25); a first play then opens the mini-lesson (Feature 42).
+  const isLessonFirst = shouldAutoShowLesson(previousStars);
+  const startPhase: MissionPhase = isLessonFirst ? 'lesson' : 'steps';
+  const [phase, setPhase] = useState<MissionPhase>(isTierChosen ? startPhase : 'intro');
+  const lessonState = useMiniLesson(mission);
+  const lesson = lessonState.lesson;
+  // A mission without a lesson (its grade has none yet, or it didn't load) goes straight to the steps
+  const shownPhase: MissionPhase = phase === 'lesson' && lessonState.status === 'ready' && !lesson ? 'steps' : phase;
+  const isInSteps = shownPhase === 'steps';
+  const lessonOffer: LessonOffer = !lesson ? 'none' : isLessonFirst ? 'auto' : 'optional';
+  // The lesson opened again from the steps' header; the step keeps its state underneath
+  const [isLessonReviewOpen, setIsLessonReviewOpen] = useState(false);
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [showHint, setShowHint] = useState(false);
 
@@ -151,18 +167,19 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     preloadCompanion(theme, ['idle', 'think'], PEEK_COMPANION_SIZE);
     preloadCompanion(theme, ['cheer', 'oops'], FEEDBACK_COMPANION_SIZE);
     preloadCompanion(theme, ['cheer'], VICTORY_COMPANION_SIZE);
+    preloadCompanion(theme, ['think', 'idle', 'wave', 'cheer', 'oops'], LESSON_COMPANION_SIZE);
     preloadArt(getStoryArt(mission.id));
   }, [theme, mission.id]);
 
   // Early readers hear each question as it opens (the start tap already unlocked the audio)
   useEffect(() => {
-    if (!readsQuestionsAloud || !hasStarted) return;
+    if (!readsQuestionsAloud || !isInSteps) return;
     const step = steps[currentStepIdx];
     const text = step?.speakTargetEn || step?.questionEn;
     if (text) onSpeakEnglish(toSpeakableText(text), 0.92);
     // Only when a new step opens, not on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStepIdx, hasStarted, readsQuestionsAloud]);
+  }, [currentStepIdx, isInSteps, readsQuestionsAloud]);
 
   // Reset step state when step or tier changes
   useEffect(() => {
@@ -369,7 +386,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
           tabIndex={-1}
           className={`outline-none w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
         >
-          {!hasStarted ? (
+          {shownPhase === 'intro' ? (
             <MissionIntro
               mission={mission}
               stepCount={steps.length}
@@ -377,8 +394,40 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
               onChangeTier={onChangeTier}
               gender={gender}
               theme={theme}
-              onStart={() => setHasStarted(true)}
+              lessonOffer={lessonOffer}
+              onOpenLesson={() => setPhase('lesson')}
+              onStart={() => setPhase(startPhase)}
               onClose={onClose}
+            />
+          ) : shownPhase === 'lesson' ? (
+            lesson ? (
+              <MiniLesson
+                lesson={lesson}
+                seed={`${mission.id}-${shuffleSalt}`}
+                theme={theme}
+                onSpeakEnglish={onSpeakEnglish}
+                readsAloud={readsQuestionsAloud}
+                doneLabel="יאללה לתרגול! 🚀"
+                onDone={() => setPhase('steps')}
+                onClose={onClose}
+                closeLabel="יציאה מהמשימה"
+              />
+            ) : (
+              <div className="flex items-center justify-center py-24" role="status" aria-label="טוען את השיעור…">
+                <div className="w-10 h-10 rounded-full border-4 border-current/25 border-t-current animate-spin" />
+              </div>
+            )
+          ) : isLessonReviewOpen && lesson ? (
+            <MiniLesson
+              lesson={lesson}
+              seed={`${mission.id}-${shuffleSalt}`}
+              theme={theme}
+              onSpeakEnglish={onSpeakEnglish}
+              doneLabel="חזרה לשאלה ↩"
+              isReview
+              onDone={() => setIsLessonReviewOpen(false)}
+              onClose={() => setIsLessonReviewOpen(false)}
+              closeLabel="סגירת השיעור"
             />
           ) : (
             <>
@@ -398,6 +447,22 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                   isCurrentStepCompleted={stepCompleted}
                   combo={combo}
                 />
+                {lesson && !stepCompleted && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Like "try again": the wrong-answer sheet closes, and the learner comes back to retry
+                      cancelListening();
+                      setFeedbackHe(null);
+                      setIsLessonReviewOpen(true);
+                    }}
+                    className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
+                    aria-label="השיעור הקצר"
+                    title="השיעור הקצר"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               {/* Main Exercise Body */}
@@ -524,7 +589,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
 
       {/* Instant Hebrew feedback sheet + next step button. Outside the overlay: its backdrop
           blur would make the sheet's fixed position scroll with the drill. */}
-      {hasStarted && feedbackHe && (
+      {isInSteps && !isLessonReviewOpen && feedbackHe && (
         <FeedbackSheet
           isCorrect={feedbackHe.isCorrect}
           text={feedbackHe.text}
