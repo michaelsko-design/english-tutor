@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import {
   AuthUserSummary,
   CloudSyncStatus,
@@ -16,12 +16,11 @@ import { countCompletedMissions, getSuggestedMission } from '../data/milestones'
 import { DailyQuestDefinition, RewardShopItem, getDailyQuests } from '../data/rewardShop';
 import { getHomeGreetingHe, getMapPeek, getQuestRings } from '../data/homeBase';
 import { MissionMap } from './MissionMap';
-import { MissionRunner } from './MissionRunner';
-import { VocabularyVaultModal } from './VocabularyVaultModal';
+
 import { DailyQuestsCard } from './DailyQuestsCard';
-import { RewardShopModal } from './RewardShopModal';
+
 import { AuthModal } from './AuthModal';
-import { PlacementTest } from './PlacementTest';
+
 import { applyPlacementToProfile } from '../data/placementTest';
 import { applyVocabPracticeReward, getTodayCounters, levelForXp, recordDailyActivity } from '../data/progressRewards';
 import { STREAK_SHIELD_ITEM_ID, addStreakShield, getCurrentStreak, getStreakShieldsLeft } from '../data/streak';
@@ -43,6 +42,13 @@ import { QuestRings } from './home/QuestRings';
 import { MapPeek } from './home/MapPeek';
 import { StatsSheet } from './home/StatsSheet';
 import { BookOpen, Home, Map as MapIcon, Settings, ShoppingBag } from 'lucide-react';
+import { lazyNamed } from '../utils/lazyNamed';
+import { ScreenLoading } from './ScreenLoading';
+
+const MissionRunner = lazyNamed(() => import('./MissionRunner'), 'MissionRunner');
+const VocabularyVaultModal = lazyNamed(() => import('./VocabularyVaultModal'), 'VocabularyVaultModal');
+const RewardShopModal = lazyNamed(() => import('./RewardShopModal'), 'RewardShopModal');
+const PlacementTest = lazyNamed(() => import('./PlacementTest'), 'PlacementTest');
 
 interface DashboardViewProps {
   profile: LearnerProfile;
@@ -465,66 +471,74 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* FEATURE 3: FULL INTERACTIVE 5-STEP MISSION RUNNER MODAL */}
       {activePracticeMission && (
-        <MissionRunner
-          mission={activePracticeMission}
-          tier={profile.preferredTier}
-          onChangeTier={handleSelectTier}
-          gender={profile.gender}
-          learnerName={profile.name}
-          theme={theme}
-          onSpeakEnglish={speakEnglish}
-          onCompleteMission={handleCompleteMission}
-          onClose={() => setActivePracticeMission(null)}
-          roomRewardPreview={
-            (profile.missionProgress?.[activePracticeMission.id] || 0) < 3 ? getNextRoomReward(profile) : null
-          }
-          startXp={profile.stats.xp}
-          startLevel={profile.stats.level}
-          previousStars={profile.missionProgress?.[activePracticeMission.id] || 0}
-          lastRewardDateStr={profile.missionRewardDates?.[activePracticeMission.id]}
-        />
+        <Suspense fallback={<ScreenLoading />}>
+          <MissionRunner
+            mission={activePracticeMission}
+            tier={profile.preferredTier}
+            onChangeTier={handleSelectTier}
+            gender={profile.gender}
+            learnerName={profile.name}
+            theme={theme}
+            onSpeakEnglish={speakEnglish}
+            onCompleteMission={handleCompleteMission}
+            onClose={() => setActivePracticeMission(null)}
+            roomRewardPreview={
+              (profile.missionProgress?.[activePracticeMission.id] || 0) < 3 ? getNextRoomReward(profile) : null
+            }
+            startXp={profile.stats.xp}
+            startLevel={profile.stats.level}
+            previousStars={profile.missionProgress?.[activePracticeMission.id] || 0}
+            lastRewardDateStr={profile.missionRewardDates?.[activePracticeMission.id]}
+          />
+        </Suspense>
       )}
 
       {/* FEATURE 11: DIAGNOSTIC LEVEL PLACEMENT TEST */}
       {isPlacementOpen && (
-        <PlacementTest
-          profile={profile}
-          theme={theme}
-          mode="on-demand"
-          onFinish={handleFinishPlacement}
-          onClose={() => setIsPlacementOpen(false)}
-        />
+        <Suspense fallback={<ScreenLoading />}>
+          <PlacementTest
+            profile={profile}
+            theme={theme}
+            mode="on-demand"
+            onFinish={handleFinishPlacement}
+            onClose={() => setIsPlacementOpen(false)}
+          />
+        </Suspense>
       )}
 
       {/* FEATURE 4: INTERACTIVE VOCABULARY & SPEAKING STUDIO */}
       {isVocabVaultOpen && (
-        <VocabularyVaultModal
-          units={gradeCurriculum.units}
-          gender={profile.gender}
-          learnerName={profile.name}
-          theme={theme}
-          gradeLabel={currentGradeMeta.labelHe}
-          ministryBand={currentGradeMeta.ministryBand}
-          onSpeakEnglish={speakEnglish}
-          onEarnPracticeReward={handleEarnVocabReward}
-          onClose={() => setIsVocabVaultOpen(false)}
-        />
+        <Suspense fallback={<ScreenLoading />}>
+          <VocabularyVaultModal
+            units={gradeCurriculum.units}
+            gender={profile.gender}
+            learnerName={profile.name}
+            theme={theme}
+            gradeLabel={currentGradeMeta.labelHe}
+            ministryBand={currentGradeMeta.ministryBand}
+            onSpeakEnglish={speakEnglish}
+            onEarnPracticeReward={handleEarnVocabReward}
+            onClose={() => setIsVocabVaultOpen(false)}
+          />
+        </Suspense>
       )}
 
       {/* FEATURE 5: INTERACTIVE DIAMOND REWARD SHOP & STICKER ALBUM */}
       {isRewardShopOpen && (
-        <RewardShopModal
-          diamonds={profile.stats.diamonds}
-          unlockedRewardIds={profile.unlockedRewardIds || ['avatar-boba-cat']}
-          equippedAvatarEmoji={activeAvatarEmoji}
-          streakShieldsLeft={getStreakShieldsLeft(profile)}
-          gender={profile.gender}
-          learnerName={profile.name}
-          theme={theme}
-          onBuyReward={handleBuyReward}
-          onEquipAvatar={handleEquipAvatar}
-          onClose={() => setIsRewardShopOpen(false)}
-        />
+        <Suspense fallback={<ScreenLoading />}>
+          <RewardShopModal
+            diamonds={profile.stats.diamonds}
+            unlockedRewardIds={profile.unlockedRewardIds || ['avatar-boba-cat']}
+            equippedAvatarEmoji={activeAvatarEmoji}
+            streakShieldsLeft={getStreakShieldsLeft(profile)}
+            gender={profile.gender}
+            learnerName={profile.name}
+            theme={theme}
+            onBuyReward={handleBuyReward}
+            onEquipAvatar={handleEquipAvatar}
+            onClose={() => setIsRewardShopOpen(false)}
+          />
+        </Suspense>
       )}
 
       {/* FEATURE 12: NEW ROOM ITEM TOAST */}

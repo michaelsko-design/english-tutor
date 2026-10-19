@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { getUnplacedRoomItems } from '../../data/room';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { DockTile } from '../home/DockTile';
-import { RoomScreen } from './RoomScreen';
+import { lazyNamed } from '../../utils/lazyNamed';
+import { ScreenLoading } from '../ScreenLoading';
+
+const RoomScreen = lazyNamed(() => import('./RoomScreen'), 'RoomScreen');
 
 interface RoomHubProps {
   profile: LearnerProfile;
@@ -44,15 +47,17 @@ export const RoomHub: React.FC<RoomHubProps> = ({
       />
 
       {isOpen && (
-        <RoomScreen
-          profile={profile}
-          theme={theme}
-          avatarEmoji={avatarEmoji}
-          onUpdateProfile={onUpdateProfile}
-          onSpeakEnglish={onSpeakEnglish}
-          onOpenShop={onOpenShop}
-          onClose={onClose}
-        />
+        <Suspense fallback={<ScreenLoading />}>
+          <RoomScreen
+            profile={profile}
+            theme={theme}
+            avatarEmoji={avatarEmoji}
+            onUpdateProfile={onUpdateProfile}
+            onSpeakEnglish={onSpeakEnglish}
+            onOpenShop={onOpenShop}
+            onClose={onClose}
+          />
+        </Suspense>
       )}
     </>
   );

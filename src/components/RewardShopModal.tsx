@@ -213,7 +213,9 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
                     {item.descriptionHe}
                   </p>
                   {item.id === STREAK_SHIELD_ITEM_ID && streakShieldsLeft > 0 && (
-                    <p className="text-xs font-extrabold mt-1">🛡️ יש לך {streakShieldsLeft} מגני רצף</p>
+                    <p className="text-xs font-extrabold mt-1">
+                      🛡️ {streakShieldsLeft === 1 ? 'יש לך מגן רצף אחד' : `יש לך ${streakShieldsLeft} מגני רצף`}
+                    </p>
                   )}
                 </div>
 

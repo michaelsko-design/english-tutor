@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { toLocalDateStr } from '../../data/examPrep';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { DockTile } from '../home/DockTile';
-import { WeeklyReportScreen } from './WeeklyReportScreen';
+import { lazyNamed } from '../../utils/lazyNamed';
+import { ScreenLoading } from '../ScreenLoading';
+
+const WeeklyReportScreen = lazyNamed(() => import('./WeeklyReportScreen'), 'WeeklyReportScreen');
 
 interface ProgressReportHubProps {
   profile: LearnerProfile;
@@ -19,13 +22,15 @@ export const ProgressReportHub: React.FC<ProgressReportHubProps> = ({ profile, t
     <>
       <DockTile emoji="📊" labelHe="דוח להורים" theme={theme} onClick={() => setIsReportOpen(true)} />
       {isReportOpen && (
-        <WeeklyReportScreen
-          profile={profile}
-          theme={theme}
-          todayStr={toLocalDateStr(new Date())}
-          onSpeakEnglish={onSpeakEnglish}
-          onClose={() => setIsReportOpen(false)}
-        />
+        <Suspense fallback={<ScreenLoading />}>
+          <WeeklyReportScreen
+            profile={profile}
+            theme={theme}
+            todayStr={toLocalDateStr(new Date())}
+            onSpeakEnglish={onSpeakEnglish}
+            onClose={() => setIsReportOpen(false)}
+          />
+        </Suspense>
       )}
     </>
   );

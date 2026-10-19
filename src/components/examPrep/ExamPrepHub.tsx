@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { ExamAnswer, applyExamResultToProfile, getNextSession, isExamPast, toLocalDateStr } from '../../data/examPrep';
 import { ExamPrepPlan, LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { DockTile } from '../home/DockTile';
 import { ExamModalShell } from './ExamModalShell';
 import { ExamPrepCard } from './ExamPrepCard';
-import { ExamPrepPlanView } from './ExamPrepPlanView';
-import { ExamPrepSetup } from './ExamPrepSetup';
-import { ExamReadyCertificate } from './ExamReadyCertificate';
 import { ExamSessionNext, ExamSessionRunner } from './ExamSessionRunner';
+import { lazyNamed } from '../../utils/lazyNamed';
+import { ScreenLoading } from '../ScreenLoading';
+
+const ExamPrepSetup = lazyNamed(() => import('./ExamPrepSetup'), 'ExamPrepSetup');
+const ExamPrepPlanView = lazyNamed(() => import('./ExamPrepPlanView'), 'ExamPrepPlanView');
+const ExamReadyCertificate = lazyNamed(() => import('./ExamReadyCertificate'), 'ExamReadyCertificate');
 
 interface ExamPrepHubProps {
   profile: LearnerProfile;
@@ -96,21 +99,25 @@ export const ExamPrepHub: React.FC<ExamPrepHubProps> = ({
       )}
 
       {view.kind === 'setup' && (
-        <ExamPrepSetup profile={profile} theme={theme} onCreate={handleCreate} onClose={() => setView({ kind: 'card' })} />
+        <Suspense fallback={<ScreenLoading />}>
+          <ExamPrepSetup profile={profile} theme={theme} onCreate={handleCreate} onClose={() => setView({ kind: 'card' })} />
+        </Suspense>
       )}
 
       {view.kind === 'plan' && plan && (
-        <ExamPrepPlanView
-          plan={plan}
-          gender={profile.gender}
-          theme={theme}
-          todayStr={todayStr}
-          onStartDay={startDay}
-          onShowCertificate={() => setView({ kind: 'certificate' })}
-          onNewPlan={() => setView({ kind: 'setup' })}
-          onArchive={handleArchive}
-          onClose={close}
-        />
+        <Suspense fallback={<ScreenLoading />}>
+          <ExamPrepPlanView
+            plan={plan}
+            gender={profile.gender}
+            theme={theme}
+            todayStr={todayStr}
+            onStartDay={startDay}
+            onShowCertificate={() => setView({ kind: 'certificate' })}
+            onNewPlan={() => setView({ kind: 'setup' })}
+            onArchive={handleArchive}
+            onClose={close}
+          />
+        </Suspense>
       )}
 
       {view.kind === 'session' && plan && sessionDay && (
@@ -127,7 +134,9 @@ export const ExamPrepHub: React.FC<ExamPrepHubProps> = ({
       )}
 
       {view.kind === 'certificate' && plan && (
-        <ExamReadyCertificate plan={plan} profile={profile} theme={theme} onClose={() => setView({ kind: 'plan' })} />
+        <Suspense fallback={<ScreenLoading />}>
+          <ExamReadyCertificate plan={plan} profile={profile} theme={theme} onClose={() => setView({ kind: 'plan' })} />
+        </Suspense>
       )}
     </>
   );

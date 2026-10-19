@@ -74,6 +74,19 @@ function swPrecachePlugin(): Plugin {
   };
 }
 
+/**
+ * Libraries in their own chunks: their file names (content hashes) stay the same between releases,
+ * so returning learners download only the app code that changed.
+ */
+function vendorChunk(id: string): string | undefined {
+  if (/node_modules[\/](firebase|@firebase)[\/]/.test(id)) return 'firebase';
+  if (/node_modules[\/](react|react-dom|scheduler)[\/]/.test(id)) return 'react';
+  return undefined;
+}
+
 export default defineConfig(({ mode }) => ({
   plugins: [react(), ttsApiDevPlugin(loadEnv(mode, process.cwd(), 'AZURE_')), swPrecachePlugin()],
+  build: {
+    rollupOptions: { output: { manualChunks: vendorChunk } },
+  },
 }));

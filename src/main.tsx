@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { AppErrorBoundary } from './components/AppErrorBoundary';
 // Fonts are bundled with the app (not loaded from Google), so they work offline and send no requests out
 import '@fontsource-variable/plus-jakarta-sans';
 import '@fontsource-variable/rubik';
@@ -22,6 +23,8 @@ if ('serviceWorker' in navigator) {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <AppErrorBoundary>
+      <App />
+    </AppErrorBoundary>
   </React.StrictMode>
 );

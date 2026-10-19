@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import {
@@ -14,22 +14,29 @@ import {
   saveProfileToFirestore,
 } from './services/cloudSync';
 import { recordDiamondChange } from './data/diamondLedger';
+import { createProfileSaveQueue } from './services/profileSaveQueue';
 import { getDeviceId } from './utils/deviceId';
 import { toLocalDateStr } from './utils/dates';
-import { OnboardingView } from './components/OnboardingView';
 import { DashboardView } from './components/DashboardView';
 import { AuthModal } from './components/AuthModal';
-import { PlacementTest } from './components/PlacementTest';
 import { applyPlacementToProfile } from './data/placementTest';
 import { recordActivityLog } from './data/activityLog';
 import { getFirstLaunchSteps } from './data/homeBase';
-import { FirstLaunchGreeting } from './components/home/FirstLaunchGreeting';
 import { THEME_REGISTRY } from './themes/themeRegistry';
 import { useFriendPresence } from './hooks/useFriendPresence';
 import { usePendingInvite } from './hooks/usePendingInvite';
 import { CloudLoadErrorScreen } from './components/CloudLoadErrorScreen';
+import { ScreenLoading } from './components/ScreenLoading';
+import { lazyNamed } from './utils/lazyNamed';
+
+// Screens most visits never open load in their own chunks
+const OnboardingView = lazyNamed(() => import('./components/OnboardingView'), 'OnboardingView');
+const PlacementTest = lazyNamed(() => import('./components/PlacementTest'), 'PlacementTest');
+const FirstLaunchGreeting = lazyNamed(() => import('./components/home/FirstLaunchGreeting'), 'FirstLaunchGreeting');
 
 const STORAGE_KEY = 'english_tutor_learner_profile_v2';
+/** A burst of changes is saved to the cloud this long after the last one */
+const SAVE_DELAY_MS = 1000;
 export const WELCOME_GIFT_DIAMONDS = 50;
 
 export const DEFAULT_PROFILE: LearnerProfile = {
@@ -112,6 +119,21 @@ export function App() {
   const [pendingInviteCode, clearPendingInvite] = usePendingInvite();
 
   const profileRef = useRef<LearnerProfile>(profile);
+  // One cloud write per burst of changes; flushed when the app is hidden or closed
+  const saveQueueRef = useRef(createProfileSaveQueue(saveProfileToFirestore, SAVE_DELAY_MS, setSyncStatus));
+
+  useEffect(() => {
+    const flush = () => saveQueueRef.current.flush();
+    const flushWhenHidden = () => {
+      if (document.visibilityState === 'hidden') flush();
+    };
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', flushWhenHidden);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      document.removeEventListener('visibilitychange', flushWhenHidden);
+    };
+  }, []);
   profileRef.current = profile;
 
   // Always mirror profile to localStorage when logged in for instant offline access
@@ -142,6 +164,8 @@ export function App() {
     let authGeneration = 0;
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      // The previous account's waiting changes go out before anything switches
+      saveQueueRef.current.flush();
       authGeneration += 1;
       const generation = authGeneration;
       const isCurrent = () => generation === authGeneration;
@@ -258,13 +282,7 @@ export function App() {
 
     // Never save before the cloud profile loaded: a default profile would overwrite it
     if (authUser && isFirebaseConfigured && isCloudLoadedRef.current) {
-      setSyncStatus('syncing');
-      saveProfileToFirestore(authUser.uid, stamped)
-        .then(() => setSyncStatus('synced'))
-        .catch((error) => {
-          console.warn('Saving the profile failed:', (error as { code?: string })?.code ?? error);
-          setSyncStatus('offline-error');
-        });
+      saveQueueRef.current.schedule(authUser.uid, stamped);
     }
   };
 
@@ -329,6 +347,7 @@ export function App() {
 
   if (!profile.isOnboarded || isEditingOnboarding) {
     return (
+      <Suspense fallback={<ScreenLoading />}>
       <OnboardingView
         initialProfile={profile}
         onComplete={(updated) => {
@@ -341,6 +360,7 @@ export function App() {
           profile.isOnboarded ? () => setIsEditingOnboarding(false) : undefined
         }
       />
+      </Suspense>
     );
   }
 
@@ -353,6 +373,7 @@ export function App() {
 
   if (firstLaunchSteps[0] === 'greeting') {
     return (
+      <Suspense fallback={<ScreenLoading />}>
       <FirstLaunchGreeting
         theme={activeTheme}
         gender={profile.gender}
@@ -361,12 +382,14 @@ export function App() {
         hasPlacementNext={firstLaunchSteps.includes('placement')}
         onDone={() => handleUpdateProfile({ ...profileRef.current, hasSeenWelcomeGiftModal: true })}
       />
+      </Suspense>
     );
   }
 
   if (firstLaunchSteps[0] === 'placement') {
     return (
       <div className={`min-h-screen w-full ${activeTheme.pageBgClass}`}>
+        <Suspense fallback={<ScreenLoading />}>
         <PlacementTest
           profile={profile}
           theme={activeTheme}
@@ -379,6 +402,7 @@ export function App() {
           }}
           onClose={() => setIsOfferingPlacement(false)}
         />
+        </Suspense>
       </div>
     );
   }

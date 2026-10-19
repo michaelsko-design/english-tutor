@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import {
   WordListAnswer,
   addWordList,
@@ -9,11 +9,14 @@ import {
 } from '../../data/customWordLists';
 import { CustomWordList, LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
-import { WordListImporter } from './WordListImporter';
 import { WordListSessionNext, WordListSessionRunner } from './WordListSessionRunner';
 import { WordListsCard } from './WordListsCard';
 import { DockTile } from '../home/DockTile';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
+import { lazyNamed } from '../../utils/lazyNamed';
+import { ScreenLoading } from '../ScreenLoading';
+
+const WordListImporter = lazyNamed(() => import('./WordListImporter'), 'WordListImporter');
 
 interface WordListsHubProps {
   profile: LearnerProfile;
@@ -70,7 +73,9 @@ export const WordListsHub: React.FC<WordListsHubProps> = ({ profile, theme, onUp
       )}
 
       {view.kind === 'import' && (
-        <WordListImporter gender={profile.gender} theme={theme} onSave={handleSave} onClose={() => setView({ kind: 'card' })} />
+        <Suspense fallback={<ScreenLoading />}>
+          <WordListImporter gender={profile.gender} theme={theme} onSave={handleSave} onClose={() => setView({ kind: 'card' })} />
+        </Suspense>
       )}
 
       {view.kind === 'session' && sessionList && (

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { FriendLink, isFriendsHubEnabled, toDisplayName } from '../../data/friends';
 import {
   ContestResult,
@@ -19,11 +19,16 @@ import {
 } from '../../services/friendsService';
 import { AuthUserSummary, LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
-import { FriendsScreen } from './FriendsScreen';
+
 import { ContestPanel } from './ContestPanel';
 import { ContestRunner } from './ContestRunner';
-import { ContestResultView } from './ContestResultView';
+
 import { DockTile } from '../home/DockTile';
+import { lazyNamed } from '../../utils/lazyNamed';
+import { ScreenLoading } from '../ScreenLoading';
+
+const FriendsScreen = lazyNamed(() => import('./FriendsScreen'), 'FriendsScreen');
+const ContestResultView = lazyNamed(() => import('./ContestResultView'), 'ContestResultView');
 
 interface FriendsHubProps {
   profile: LearnerProfile;
@@ -198,20 +203,22 @@ export const FriendsHub: React.FC<FriendsHubProps> = ({
       />
 
       {view.kind === 'hub' && (
-        <FriendsScreen
-          profile={profile}
-          me={me}
-          hub={hub}
-          theme={theme}
-          initialInviteCode={inviteCode}
-          contestErrorHe={contestErrorHe}
-          renderFriendExtras={renderContest}
-          onClose={() => {
-            setView({ kind: 'closed' });
-            setInviteCode(undefined);
-            setContestErrorHe(null);
-          }}
-        />
+        <Suspense fallback={<ScreenLoading />}>
+          <FriendsScreen
+            profile={profile}
+            me={me}
+            hub={hub}
+            theme={theme}
+            initialInviteCode={inviteCode}
+            contestErrorHe={contestErrorHe}
+            renderFriendExtras={renderContest}
+            onClose={() => {
+              setView({ kind: 'closed' });
+              setInviteCode(undefined);
+              setContestErrorHe(null);
+            }}
+          />
+        </Suspense>
       )}
 
       {view.kind === 'contest' && activeContest && (
@@ -228,16 +235,18 @@ export const FriendsHub: React.FC<FriendsHubProps> = ({
       )}
 
       {view.kind === 'contest-result' && (
-        <ContestResultView
-          result={view.result}
-          friendName={view.friendName}
-          isSaving={view.isSaving}
-          xpEarned={view.xpEarned}
-          isFullReward={view.isFullReward}
-          errorHe={view.errorHe}
-          theme={theme}
-          onDone={() => setView({ kind: 'hub' })}
-        />
+        <Suspense fallback={<ScreenLoading />}>
+          <ContestResultView
+            result={view.result}
+            friendName={view.friendName}
+            isSaving={view.isSaving}
+            xpEarned={view.xpEarned}
+            isFullReward={view.isFullReward}
+            errorHe={view.errorHe}
+            theme={theme}
+            onDone={() => setView({ kind: 'hub' })}
+          />
+        </Suspense>
       )}
     </>
   );
