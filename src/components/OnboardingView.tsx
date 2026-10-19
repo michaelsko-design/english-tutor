@@ -17,7 +17,17 @@ const VOICE_OPTIONS: { id: VoicePreference; labelHe: string }[] = [
   { id: 'female', labelHe: '👩 קול נשי' },
   { id: 'male', labelHe: '👨 קול גברי' },
 ];
-import { isFriendsHubEnabled, setFriendsHubEnabled } from '../data/friends';
+import {
+  PARENT_APPROVAL_AGE,
+  isFriendsHubEnabled,
+  isUsernameSearchable,
+  setFriendsHubEnabled,
+  setUsernameSearchable,
+} from '../data/friends';
+import { AccountPrivacyCard } from './settings/AccountPrivacyCard';
+import { PrivacyNoticeDialog } from './privacy/PrivacyNoticeDialog';
+import { auth } from '../services/firebase';
+import { usernameFromEmail } from '../utils/username';
 import { APP_NAME } from '../config/appInfo';
 
 interface OnboardingViewProps {
@@ -46,6 +56,15 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
       : true
   );
   const [isFriendsHubOn, setIsFriendsHubOn] = useState<boolean>(isFriendsHubEnabled(initialProfile));
+  const [isUsernameSearchOn, setIsUsernameSearchOn] = useState<boolean>(isUsernameSearchable(initialProfile));
+  // A parent approves turning the Friends Hub on for a learner under 13
+  const [isParentApprovingFriends, setIsParentApprovingFriends] = useState(false);
+  // A parent agrees to the privacy notice when a learner under 13 starts
+  const [hasParentConsent, setHasParentConsent] = useState(Boolean(initialProfile.parentalConsentAt));
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const isChild = age < PARENT_APPROVAL_AGE;
+  const isTurningFriendsOnForChild = isChild && isFriendsHubOn && !isFriendsHubEnabled(initialProfile);
+  const hasUsername = Boolean(usernameFromEmail(auth?.currentUser?.email ?? null));
   const [voicePreference, setVoicePreference] = useState<VoicePreference>(
     initialProfile.voicePreference ?? DEFAULT_VOICE_PREFERENCE
   );
@@ -70,12 +89,29 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
       return;
     }
 
+    if (!onCancel && isChild && !hasParentConsent) {
+      setErrorMsg('מתחת לגיל 13 צריך שהורה יאשר את מדיניות הפרטיות (סמנו את התיבה למטה).');
+      return;
+    }
+    if (isTurningFriendsOnForChild && !isParentApprovingFriends) {
+      setErrorMsg('כדי להפעיל את מרכז החברים מתחת לגיל 13 צריך אישור של הורה (סמנו את התיבה).');
+      return;
+    }
+
+    const now = new Date();
     const withFriendsHub =
       isFriendsHubOn === isFriendsHubEnabled(initialProfile)
         ? initialProfile
-        : setFriendsHubEnabled(initialProfile, isFriendsHubOn, new Date());
+        : setFriendsHubEnabled({ ...initialProfile, age }, isFriendsHubOn, now);
+    const withUsernameSearch =
+      isUsernameSearchOn === isUsernameSearchable(withFriendsHub)
+        ? withFriendsHub
+        : setUsernameSearchable(withFriendsHub, isUsernameSearchOn, now);
     onComplete({
-      ...withFriendsHub,
+      ...withUsernameSearch,
+      ...(isChild && hasParentConsent && !initialProfile.parentalConsentAt
+        ? { parentalConsentAt: now.toISOString() }
+        : {}),
       isOnboarded: true,
       name: name.trim(),
       age,
@@ -403,10 +439,39 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                   <p className={`text-xs ${activeTheme.mutedTextClass}`}>
                     {isFriendsHubOn
                       ? 'חברים רואים את השם, הדמות וההתקדמות. אין צ׳אט 👫'
-                      : 'הכרטיס מוסתר וחברים לא רואים את ההתקדמות 🔒'}
+                      : isChild
+                        ? 'מתחת לגיל 13 הורה מפעיל את מרכז החברים 🔒'
+                        : 'הכרטיס מוסתר וחברים לא רואים את ההתקדמות 🔒'}
                   </p>
                 </div>
               </button>
+              {isTurningFriendsOnForChild && (
+                <label className="flex items-start gap-2 p-3 rounded-2xl border border-amber-500/50 bg-amber-500/10 text-xs sm:text-sm font-bold">
+                  <input
+                    type="checkbox"
+                    checked={isParentApprovingFriends}
+                    onChange={(e) => setIsParentApprovingFriends(e.target.checked)}
+                    className="mt-0.5 w-5 h-5 shrink-0"
+                  />
+                  <span>אני הורה ומאשר/ת שהילד/ה יוסיפו חברים. חברים יראו שם פרטי, דמות והתקדמות, בלי צ׳אט.</span>
+                </label>
+              )}
+              {isFriendsHubOn && hasUsername && (
+                <label className="flex items-start gap-2 p-3 rounded-2xl border border-current/10 text-xs sm:text-sm font-bold">
+                  <input
+                    type="checkbox"
+                    checked={isUsernameSearchOn}
+                    onChange={(e) => setIsUsernameSearchOn(e.target.checked)}
+                    className="mt-0.5 w-5 h-5 shrink-0"
+                  />
+                  <span>
+                    אפשר למצוא אותי לפי שם המשתמש
+                    <span className={`block font-normal ${activeTheme.mutedTextClass}`}>
+                      כשזה כבוי, חברים מוסיפים רק עם קוד החבר שלך.
+                    </span>
+                  </span>
+                </label>
+              )}
             </div>
           )}
 
@@ -438,6 +503,33 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
             </div>
           )}
 
+          {/* 8. Privacy, data download and account deletion, in the settings only */}
+          {onCancel && (
+            <div className="space-y-1.5">
+              <span className="block text-xs sm:text-sm font-bold">פרטיות וחשבון:</span>
+              <AccountPrivacyCard profile={initialProfile} theme={activeTheme} />
+            </div>
+          )}
+
+          {/* A parent's consent when a learner under 13 starts */}
+          {!onCancel && isChild && (
+            <label className="flex items-start gap-2 p-3 rounded-2xl border border-current/15 text-xs sm:text-sm font-bold">
+              <input
+                type="checkbox"
+                checked={hasParentConsent}
+                onChange={(e) => setHasParentConsent(e.target.checked)}
+                className="mt-0.5 w-5 h-5 shrink-0"
+              />
+              <span>
+                אני הורה וקראתי את{' '}
+                <button type="button" onClick={() => setIsPrivacyOpen(true)} className="underline font-extrabold">
+                  מדיניות הפרטיות
+                </button>
+                . אני מסכים/ה שההתקדמות תישמר בענן.
+              </span>
+            </label>
+          )}
+
           {/* Submit CTA */}
           <div className="flex items-center gap-2.5 pt-1">
             <button
@@ -461,6 +553,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           </div>
         </form>
       </div>
+      {isPrivacyOpen && <PrivacyNoticeDialog theme={activeTheme} onClose={() => setIsPrivacyOpen(false)} />}
     </div>
   );
 };

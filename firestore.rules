@@ -79,6 +79,8 @@ service cloud.firestore {
     // Each learner owns exactly one friend code, recorded here when it is first claimed
     match /friendCodeOwners/{userId} {
       allow get: if isRealAccount() && request.auth.uid == userId;
+      // Deleting the account removes it
+      allow delete: if isRealAccount() && request.auth.uid == userId;
       allow create: if isRealAccount()
         && request.auth.uid == userId
         && request.resource.data.keys().hasOnly(['code'])
@@ -133,6 +135,38 @@ service cloud.firestore {
       allow delete: if isRealAccount() && request.auth.uid == userId;
     }
 
+    // At most 10 friend requests a day per learner. The counter only ever goes up by one (or
+    // starts again at 1 on a later day) and can't be deleted, so it can't be reset; every new
+    // request must raise it in the same write (isCountedFriendRequest).
+    function isNextRequestCount(data) {
+      return data.keys().hasOnly(['dateStr', 'count'])
+        && data.dateStr is string
+        && isNearToday(data.dateStr)
+        && data.count is int
+        && data.count >= 1
+        && data.count <= 10;
+    }
+
+    match /friendRequestCounts/{userId} {
+      allow get: if isRealAccount() && request.auth.uid == userId;
+      allow create: if isRealAccount()
+        && request.auth.uid == userId
+        && isNextRequestCount(request.resource.data)
+        && request.resource.data.count == 1;
+      allow update: if isRealAccount()
+        && request.auth.uid == userId
+        && isNextRequestCount(request.resource.data)
+        && ((request.resource.data.dateStr == resource.data.dateStr
+              && request.resource.data.count == resource.data.count + 1)
+            || (request.resource.data.dateStr > resource.data.dateStr
+              && request.resource.data.count == 1));
+    }
+
+    function isCountedFriendRequest() {
+      let path = docPath('friendRequestCounts', request.auth.uid);
+      return existsAfter(path) && (!exists(path) || getAfter(path).data != get(path).data);
+    }
+
     // A friend request becomes a friendship only when the invited learner accepts it.
     // The requester's name and avatar must be the ones on their own public profile.
     function isNewFriendRequest(data, friendshipId) {
@@ -180,7 +214,9 @@ service cloud.firestore {
 
     match /friendships/{friendshipId} {
       allow read: if isRealAccount() && request.auth.uid in resource.data.uids;
-      allow create: if isRealAccount() && isNewFriendRequest(request.resource.data, friendshipId);
+      allow create: if isRealAccount()
+        && isNewFriendRequest(request.resource.data, friendshipId)
+        && isCountedFriendRequest();
       allow update: if isRealAccount()
         && request.auth.uid in resource.data.uids
         && (isAcceptance() || isOwnReaction());
@@ -264,6 +300,8 @@ service cloud.firestore {
         && isContestOpen()
         && areFriends(resource.data.uids[0], resource.data.uids[1])
         && (isContestResponse() || isOwnContestResult());
+      // A player deleting their account removes the pair's contests
+      allow delete: if isRealAccount() && request.auth.uid in resource.data.uids;
     }
   }
 }

@@ -18,6 +18,8 @@ import { ThemeDefinition } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
 import { normalizeIdentifierToEmail, usernameFromEmail } from '../utils/username';
 import { APP_NAME } from '../config/appInfo';
+import { saveGuestWithGoogle, saveGuestWithUsername } from '../services/accountService';
+import { PrivacyNoticeDialog } from './privacy/PrivacyNoticeDialog';
 import {
   X,
   Cloud,
@@ -57,6 +59,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
   const [successHe, setSuccessHe] = useState<string | null>(null);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  // A guest signing out loses the account for good, so it asks first
+  const [isConfirmingGuestSignOut, setIsConfirmingGuestSignOut] = useState(false);
+  const [guestUsername, setGuestUsername] = useState('');
+  const [guestPin, setGuestPin] = useState('');
+  // Linking doesn't fire a sign-in change, so the saved state is kept here until the next load
+  const [isGuestSaved, setIsGuestSaved] = useState(false);
+  const isGuest = Boolean(authUser?.isAnonymous) && !isGuestSaved;
 
   const handleGoogleSignIn = async () => {
     if (!auth || !googleProvider) return;
@@ -170,7 +180,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setErrorHe(null);
     try {
       await signInAnonymously(auth);
-      setSuccessHe('חשבון אורח בענן הופעל! ניתן לקשר אותו לאימייל או Google בהמשך.');
+      setSuccessHe('חשבון אורח הופעל! כדי לא לאבד את ההתקדמות, כדאי לשמור אותו עם Google או שם משתמש.');
     } catch {
       setErrorHe('לא ניתן להפעיל חשבון אורח כרגע.');
     } finally {
@@ -178,13 +188,33 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
+  const handleSaveGuest = async (method: 'google' | 'username') => {
+    setIsBusy(true);
+    setErrorHe(null);
+    setSuccessHe(null);
+    const result =
+      method === 'google' ? await saveGuestWithGoogle() : await saveGuestWithUsername(guestUsername, guestPin, learnerName);
+    setIsBusy(false);
+    if (result.ok) {
+      setIsGuestSaved(true);
+      setIsConfirmingGuestSignOut(false);
+      setSuccessHe('החשבון נשמר! מעכשיו אפשר להיכנס אליו מכל מכשיר, וכל ההתקדמות נשארה ☁️');
+    } else {
+      setErrorHe(result.errorHe);
+    }
+  };
+
   const handleLogOut = async () => {
     if (!auth) return;
+    if (isGuest && !isConfirmingGuestSignOut) {
+      setIsConfirmingGuestSignOut(true);
+      return;
+    }
     setIsBusy(true);
     setErrorHe(null);
     try {
+      // The progress stays in the cloud and comes back at the next sign-in (a guest's is gone)
       await signOut(auth);
-      setSuccessHe('התנתקת מהענן. ההתקדמות שלך ממשיכה להישמר על המכשיר הנוכחי.');
     } catch {
       setErrorHe('אירעה שגיאה בהתנתקות.');
     } finally {
@@ -293,6 +323,68 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   : 'תוכל להיכנס עם אותו החשבון מהטלפון או מהמחשב הנייד, וכל הכוכבים והיהלומים שלך יופיעו מיד!'}
               </p>
 
+              {isGuest && (
+                <div className="p-3.5 rounded-2xl border border-amber-500/50 bg-amber-500/10 space-y-2.5">
+                  <p className="text-xs sm:text-sm font-extrabold">
+                    זה חשבון אורח: אם תתנתקו או תחליפו מכשיר בלי לשמור אותו, ההתקדמות תאבד.
+                  </p>
+                  <button
+                    type="button"
+                    disabled={isBusy}
+                    onClick={() => handleSaveGuest('google')}
+                    className={`w-full min-h-11 rounded-xl text-xs sm:text-sm font-extrabold ${theme.primaryBtnClass}`}
+                  >
+                    🌐 שמירה עם חשבון Google
+                  </button>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSaveGuest('username');
+                    }}
+                    className="space-y-2"
+                  >
+                    <label className="block text-xs font-bold">
+                      או שם משתמש באנגלית:
+                      <input
+                        type="text"
+                        dir="ltr"
+                        lang="en"
+                        autoComplete="username"
+                        autoCapitalize="none"
+                        spellCheck={false}
+                        value={guestUsername}
+                        onChange={(e) => setGuestUsername(e.target.value)}
+                        className={`mt-1 w-full px-3 py-2.5 rounded-xl text-base font-bold outline-none ${theme.inputBgClass}`}
+                      />
+                    </label>
+                    <label className="block text-xs font-bold">
+                      וקוד סודי (לפחות 6 תווים):
+                      <input
+                        type="password"
+                        dir="ltr"
+                        autoComplete="new-password"
+                        value={guestPin}
+                        onChange={(e) => setGuestPin(e.target.value)}
+                        className={`mt-1 w-full px-3 py-2.5 rounded-xl text-base font-bold outline-none ${theme.inputBgClass}`}
+                      />
+                    </label>
+                    <button
+                      type="submit"
+                      disabled={isBusy}
+                      className={`w-full min-h-11 rounded-xl text-xs sm:text-sm font-extrabold ${theme.secondaryBtnClass}`}
+                    >
+                      שמירה עם שם משתמש וקוד סודי
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {isConfirmingGuestSignOut && (
+                <p role="alert" className="text-xs sm:text-sm font-extrabold text-rose-700 dark:text-rose-300">
+                  בטוח? חשבון אורח שלא נשמר נמחק בהתנתקות, עם כל ההתקדמות. לחיצה נוספת תנתק.
+                </p>
+              )}
+
               <button
                 type="button"
                 disabled={isBusy}
@@ -300,7 +392,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 className={`w-full py-3 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 ${theme.secondaryBtnClass}`}
               >
                 <LogOut className="w-4 h-4" />
-                <span>התנתקות מהענן <bdi>(Log Out)</bdi></span>
+                <span>{isConfirmingGuestSignOut ? 'להתנתק בכל זאת' : 'התנתקות מהחשבון'}</span>
               </button>
             </div>
           )}
@@ -399,6 +491,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </button>
               </form>
 
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsPrivacyOpen(true)}
+                  className="text-xs underline opacity-75 hover:opacity-100"
+                >
+                  🔒 פרטיות ומידע להורים
+                </button>
+              </div>
+
               {!isMandatory && (
                 <div className="pt-1 text-center">
                   <button
@@ -415,6 +517,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           )}
         </div>
       </div>
+      {isPrivacyOpen && <PrivacyNoticeDialog theme={theme} onClose={() => setIsPrivacyOpen(false)} />}
     </div>
   );
 };

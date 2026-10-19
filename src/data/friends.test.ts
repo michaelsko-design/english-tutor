@@ -15,7 +15,10 @@ import {
   getPairId,
   isFriendCode,
   isFriendsHubEnabled,
+  isUsernameSearchable,
+  needsParentApproval,
   setFriendsHubEnabled,
+  setUsernameSearchable,
   withFriendCode,
   isPresetReaction,
   isSamePublicProfile,
@@ -154,6 +157,12 @@ describe('buildPublicProfile', () => {
     });
   });
 
+  it('replaces a rude name with a neutral one', () => {
+    expect(toDisplayName('Stupid Dan')).toBe('Learner');
+    expect(toDisplayName('מטומטם')).toBe('Learner');
+    expect(toDisplayName('Dana')).toBe('Dana');
+  });
+
   it('trims long or empty names', () => {
     expect(toDisplayName('  ')).toBe('Learner');
     expect(toDisplayName('a'.repeat(40))).toHaveLength(MAX_DISPLAY_NAME_LENGTH);
@@ -271,22 +280,48 @@ describe('invite links', () => {
 describe('hub toggle and friend code on the profile', () => {
   const NOW = new Date(2026, 9, 17, 10, 0);
 
-  it('is on by default and remembers when it was turned off', () => {
-    expect(isFriendsHubEnabled(baseProfile)).toBe(true);
-    const off = setFriendsHubEnabled(baseProfile, false, NOW);
+  const teen: LearnerProfile = { ...baseProfile, age: 14 };
+
+  it('is on by default from age 13 and remembers when it was turned off', () => {
+    expect(isFriendsHubEnabled(teen)).toBe(true);
+    const off = setFriendsHubEnabled(teen, false, NOW);
     expect(isFriendsHubEnabled(off)).toBe(false);
     expect(off.friendsHub?.updatedAt).toBe(NOW.toISOString());
   });
 
+  it('is off by default under 13, and turning it on records the parent’s approval', () => {
+    expect(needsParentApproval(baseProfile)).toBe(true);
+    expect(isFriendsHubEnabled(baseProfile)).toBe(false);
+    const on = setFriendsHubEnabled(baseProfile, true, NOW);
+    expect(isFriendsHubEnabled(on)).toBe(true);
+    expect(on.friendsHub?.parentApprovedAt).toBe(NOW.toISOString());
+    expect(setFriendsHubEnabled(teen, true, NOW).friendsHub?.parentApprovedAt).toBeUndefined();
+  });
+
+  it('keeps an existing child’s stored choice', () => {
+    const child: LearnerProfile = {
+      ...baseProfile,
+      friendsHub: { isEnabled: true, updatedAt: new Date(0).toISOString() },
+    };
+    expect(isFriendsHubEnabled(child)).toBe(true);
+  });
+
+  it('finds the learner by username only after opting in', () => {
+    expect(isUsernameSearchable(teen)).toBe(false);
+    const searchable = setUsernameSearchable(teen, true, NOW);
+    expect(isUsernameSearchable(searchable)).toBe(true);
+    expect(searchable.friendsHub?.updatedAt).toBe(NOW.toISOString());
+  });
+
   it('stores a claimed code without changing the toggle time', () => {
-    const fresh = withFriendCode(baseProfile, 'K7MP2Q', NOW);
+    const fresh = withFriendCode(teen, 'K7MP2Q', NOW);
     expect(fresh.friendsHub).toEqual({
       isEnabled: true,
       updatedAt: new Date(0).toISOString(),
       friendCode: 'K7MP2Q',
       friendCodeCreatedAt: NOW.toISOString(),
     });
-    const off = setFriendsHubEnabled(baseProfile, false, new Date(2026, 9, 16));
+    const off = setFriendsHubEnabled(teen, false, new Date(2026, 9, 16));
     const withCode = withFriendCode(off, 'K7MP2Q', NOW);
     expect(withCode.friendsHub?.isEnabled).toBe(false);
     expect(withCode.friendsHub?.updatedAt).toBe(off.friendsHub?.updatedAt);

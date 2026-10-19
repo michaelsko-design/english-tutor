@@ -5,6 +5,7 @@ import {
   buildPublicProfile,
   isFriendsHubEnabled,
   isSamePublicProfile,
+  isUsernameSearchable,
   toDisplayName,
   withFriendCode,
 } from '../data/friends';
@@ -54,7 +55,8 @@ export function useFriendPresence({
   const isActive = isReady && isEnabled;
   const friendCode = profile.friendsHub?.friendCode;
   const displayName = toDisplayName(profile.name);
-  const identityKey = `${uid}|${email}|${displayName}|${avatarEmoji}|${friendCode}`;
+  const isSearchable = isUsernameSearchable(profile);
+  const identityKey = `${uid}|${email}|${displayName}|${avatarEmoji}|${friendCode}|${isSearchable}`;
 
   const onUpdateRef = useRef(onUpdateProfile);
   onUpdateRef.current = onUpdateProfile;
@@ -85,10 +87,12 @@ export function useFriendPresence({
     isClaimingRef.current = true;
     const startedKey = identityKey;
     let retryTimer: number | undefined;
-    ensureFriendIdentity({ uid, email, displayName, avatarEmoji }, friendCode)
+    let isCancelled = false;
+    ensureFriendIdentity({ uid, email, displayName, avatarEmoji }, friendCode, isSearchable)
       .then((result) => {
         if (!result.ok) {
-          retryTimer = window.setTimeout(() => setIdentityTick((t) => t + 1), CLAIM_RETRY_MS);
+          // Not after cleanup: the effect runs again on its own then
+          if (!isCancelled) retryTimer = window.setTimeout(() => setIdentityTick((t) => t + 1), CLAIM_RETRY_MS);
           return;
         }
         const latest = getLatestRef.current();
@@ -98,8 +102,11 @@ export function useFriendPresence({
         isClaimingRef.current = false;
         if (identityKeyRef.current !== startedKey) setIdentityTick((t) => t + 1);
       });
-    return () => window.clearTimeout(retryTimer);
-    // identityKey covers uid, email, name, avatar and code
+    return () => {
+      isCancelled = true;
+      window.clearTimeout(retryTimer);
+    };
+    // identityKey covers uid, email, name, avatar, code and username search
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, identityKey, identityTick]);
 

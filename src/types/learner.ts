@@ -290,6 +290,10 @@ export interface FriendsHubState {
   contestFinishDay?: { dateStr: string; count: number };
   /** Decided contests, newest first (at most 50) */
   contestHistory?: ContestRecord[];
+  /** Whether others can find the learner by username (off unless turned on); the friend code always works */
+  isUsernameSearchable?: boolean;
+  /** When a parent approved turning the hub on for a learner under 13 */
+  parentApprovedAt?: string;
   /** ISO timestamp of the latest toggle change; the newer one wins on merge */
   updatedAt: string;
 }
@@ -317,6 +321,8 @@ export interface LearnerProfile {
   isShabbatObserver?: boolean;
   /** Read-aloud voice; a missing value means the female voice */
   voicePreference?: 'female' | 'male';
+  /** When a parent agreed to the privacy notice at onboarding (learners under 13) */
+  parentalConsentAt?: string;
   /** Whether the new user has seen and acknowledged the complimentary welcome diamonds modal */
   hasSeenWelcomeGiftModal?: boolean;
   /** Latest diagnostic placement test result, if the learner has taken it */

@@ -89,14 +89,53 @@ export interface ClassifiedFriendships {
   outgoing: FriendLink[];
 }
 
-/** The hub is on unless the learner turned it off in the settings. */
-export function isFriendsHubEnabled(profile: LearnerProfile): boolean {
-  return profile.friendsHub?.isEnabled ?? true;
+/** Learners younger than this need a parent's approval for the Friends Hub. */
+export const PARENT_APPROVAL_AGE = 13;
+
+export function needsParentApproval(profile: Pick<LearnerProfile, 'age'>): boolean {
+  return profile.age < PARENT_APPROVAL_AGE;
 }
 
-/** Turns the hub on or off; the toggle time decides the merge between devices. */
+/**
+ * The learner's choice in the settings; without one, the hub is on from age 13 and off for
+ * younger learners until a parent turns it on.
+ */
+export function isFriendsHubEnabled(profile: LearnerProfile): boolean {
+  return profile.friendsHub?.isEnabled ?? !needsParentApproval(profile);
+}
+
+/**
+ * Turns the hub on or off; the toggle time decides the merge between devices. Turning it on for a
+ * learner under 13 is the parent's approval (the settings ask for it), so its time is kept.
+ */
 export function setFriendsHubEnabled(profile: LearnerProfile, isEnabled: boolean, now: Date): LearnerProfile {
-  return { ...profile, friendsHub: { ...profile.friendsHub, isEnabled, updatedAt: now.toISOString() } };
+  const isParentApproval = isEnabled && needsParentApproval(profile);
+  return {
+    ...profile,
+    friendsHub: {
+      ...profile.friendsHub,
+      isEnabled,
+      ...(isParentApproval ? { parentApprovedAt: now.toISOString() } : {}),
+      updatedAt: now.toISOString(),
+    },
+  };
+}
+
+/** Others can find the learner by username only after the learner turned it on. */
+export function isUsernameSearchable(profile: LearnerProfile): boolean {
+  return profile.friendsHub?.isUsernameSearchable ?? false;
+}
+
+export function setUsernameSearchable(profile: LearnerProfile, isSearchable: boolean, now: Date): LearnerProfile {
+  return {
+    ...profile,
+    friendsHub: {
+      isEnabled: isFriendsHubEnabled(profile),
+      ...profile.friendsHub,
+      isUsernameSearchable: isSearchable,
+      updatedAt: now.toISOString(),
+    },
+  };
 }
 
 /**
@@ -150,10 +189,30 @@ export function getPairId(a: string, b: string): string {
   return a < b ? `${a}_${b}` : `${b}_${a}`;
 }
 
-/** The learner's first name, trimmed to what the public profile allows. */
+/**
+ * Whole words that make a name unfit to show to other children. Matched per word, so names that
+ * merely contain the letters (Assaf, Dickens) still pass. Friends see only the name and avatar,
+ * so this is the one place free text could carry an insult.
+ */
+const BLOCKED_NAME_WORDS = new Set([
+  'stupid', 'idiot', 'dumb', 'loser', 'ugly', 'fat', 'hate', 'kill', 'die', 'sex', 'sexy',
+  'fuck', 'shit', 'bitch', 'ass', 'dick', 'porn', 'nazi',
+  'מטומטם', 'מטומטמת', 'טיפש', 'טיפשה', 'אידיוט', 'אידיוטית', 'דביל', 'דבילית', 'מפגר', 'מפגרת',
+  'סתום', 'סתומה', 'זונה', 'שרמוטה', 'מניאק', 'מניאקית', 'חרא', 'מכוער', 'מכוערת', 'לוזר', 'נאצי',
+]);
+
+function isBlockedName(name: string): boolean {
+  return name
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}]+/u)
+    .some((word) => BLOCKED_NAME_WORDS.has(word));
+}
+
+/** The learner's first name, trimmed to what the public profile allows; a rude name becomes "Learner". */
 export function toDisplayName(name: string): string {
   const trimmed = name.trim().replace(/\s+/g, ' ');
-  return (trimmed || 'Learner').slice(0, MAX_DISPLAY_NAME_LENGTH);
+  if (!trimmed || isBlockedName(trimmed)) return 'Learner';
+  return trimmed.slice(0, MAX_DISPLAY_NAME_LENGTH);
 }
 
 /** `todayStr` is the learner's local date: a streak with a missed day shows 0. */

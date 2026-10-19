@@ -10,6 +10,7 @@ import {
   setDoc,
   updateDoc,
   where,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import {
@@ -22,6 +23,7 @@ import {
 } from '../data/friends';
 import { ContestDoc, ContestResult } from '../data/contests';
 import { toUsernameSlug, usernameFromEmail } from '../utils/username';
+import { toLocalDateStr } from '../utils/dates';
 
 /**
  * Feature 19: Firestore access for the Friends Hub. The data model and who may read or write
@@ -33,13 +35,19 @@ const FRIEND_CODE_OWNERS = 'friendCodeOwners';
 const USERNAMES = 'usernames';
 const PUBLIC_PROFILES = 'publicProfiles';
 const FRIENDSHIPS = 'friendships';
+const FRIEND_REQUEST_COUNTS = 'friendRequestCounts';
+/** The rules allow this many friend requests a day (firestore.rules isNextRequestCount) */
+export const MAX_FRIEND_REQUESTS_PER_DAY = 10;
 const CODE_CLAIM_ATTEMPTS = 5;
 
 export type ServiceResult<T> = { ok: true; value: T } | { ok: false; errorHe: string };
 
 const NOT_CONFIGURED_HE = 'החיבור לענן לא זמין כרגע.';
 
+class DailyRequestLimitError extends Error {}
+
 function describeError(error: unknown): string {
+  if (error instanceof DailyRequestLimitError) return 'שלחת היום הרבה בקשות חברות. אפשר לשלוח עוד מחר 🙂';
   const code = (error as FirestoreError | undefined)?.code;
   if (code === 'permission-denied') return 'אין הרשאה לפעולה הזו.';
   if (code === 'unavailable') return 'אין חיבור לאינטרנט. כדאי לנסות שוב בעוד רגע.';
@@ -108,19 +116,29 @@ async function upsertLookupEntry(collectionName: string, id: string, identity: F
 }
 
 /**
- * Makes sure the learner can be found: claims (or recovers) the friend code, refreshes the name and
- * avatar it shows, and claims the username of a username+PIN account.
+ * Makes sure the learner can be found: claims (or recovers) the friend code and refreshes the name
+ * and avatar it shows. The username of a username+PIN account finds the learner only when they
+ * turned that on (usernames are easy to guess, so strangers could otherwise reach a child).
  * Returns the friend code to keep on the profile.
  */
 export function ensureFriendIdentity(
   identity: FriendIdentity,
-  existingCode: string | undefined
+  existingCode: string | undefined,
+  isUsernameSearchable: boolean
 ): Promise<ServiceResult<string>> {
   return attempt(async () => {
     const code = existingCode || (await claimFriendCode(identity));
     await upsertLookupEntry(FRIEND_CODES, code, identity);
     const username = usernameFromEmail(identity.email);
-    if (username) await upsertLookupEntry(USERNAMES, toUsernameSlug(username), identity);
+    if (username) {
+      const slug = toUsernameSlug(username);
+      if (isUsernameSearchable) {
+        await upsertLookupEntry(USERNAMES, slug, identity);
+      } else {
+        const nameRef = doc(requireDb(), USERNAMES, slug);
+        if ((await getDoc(nameRef)).exists()) await deleteDoc(nameRef);
+      }
+    }
     return code;
   });
 }
@@ -182,12 +200,22 @@ export function lookupFriend(input: string): Promise<ServiceResult<FriendLookupM
   });
 }
 
+/** Sends a request together with the daily request counter the rules require. */
 export function sendFriendRequest(
   me: FriendIdentity,
   target: FriendLookupEntry
 ): Promise<ServiceResult<void>> {
-  return attempt(() =>
-    setDoc(doc(requireDb(), FRIENDSHIPS, getPairId(me.uid, target.uid)), {
+  return attempt(async () => {
+    const firestore = requireDb();
+    const counterRef = doc(firestore, FRIEND_REQUEST_COUNTS, me.uid);
+    const counter = await getDoc(counterRef);
+    const todayStr = toLocalDateStr(new Date());
+    const current = counter.exists() ? (counter.data() as { dateStr: string; count: number }) : null;
+    const count = current && current.dateStr === todayStr ? current.count + 1 : 1;
+    if (count > MAX_FRIEND_REQUESTS_PER_DAY) throw new DailyRequestLimitError();
+
+    const batch = writeBatch(firestore);
+    batch.set(doc(firestore, FRIENDSHIPS, getPairId(me.uid, target.uid)), {
       uids: [me.uid, target.uid],
       requesterUid: me.uid,
       requesterName: me.displayName,
@@ -196,8 +224,10 @@ export function sendFriendRequest(
       addresseeAvatar: target.avatarEmoji,
       status: 'pending',
       createdAt: new Date().toISOString(),
-    })
-  );
+    });
+    batch.set(counterRef, { dateStr: todayStr, count });
+    await batch.commit();
+  });
 }
 
 export function acceptFriendRequest(friendshipId: string): Promise<ServiceResult<void>> {
