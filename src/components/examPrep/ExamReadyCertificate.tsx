@@ -35,7 +35,7 @@ export const ExamReadyCertificate: React.FC<ExamReadyCertificateProps> = ({
             🏅
           </div>
           <div className="space-y-1">
-            <p className="text-xs font-extrabold tracking-[0.2em] uppercase opacity-75" dir="ltr">
+            <p className="text-xs font-extrabold tracking-[0.2em] uppercase opacity-75" dir="ltr" lang="en">
               Exam Ready Certificate
             </p>
             <h2 className="text-2xl sm:text-3xl font-extrabold">תעודת &quot;מוכנים למבחן&quot;</h2>
@@ -55,7 +55,7 @@ export const ExamReadyCertificate: React.FC<ExamReadyCertificateProps> = ({
           <div className="grid grid-cols-2 gap-2 text-xs font-bold">
             <div className="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5">
               ציון בסימולציה
-              <div className="text-xl font-extrabold" dir="ltr">
+              <div className="text-xl font-extrabold" dir="ltr" lang="en">
                 {plan.bestMockScore ?? 0}%
               </div>
             </div>

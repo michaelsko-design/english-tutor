@@ -112,7 +112,7 @@ export const MissionMap: React.FC<MissionMapProps> = ({
             ref={canvasRef}
             className={`relative w-full ${style.canvasFallbackClass}`}
             style={{ aspectRatio: `1 / ${layout.height}` }}
-            dir="ltr"
+            dir="ltr" lang="en"
           >
             {layout.regions.map((region) => (
               <div

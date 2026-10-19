@@ -2,7 +2,9 @@
 <html lang="he" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- Zoom stays allowed (WCAG 1.4.4); inputs use 16px text so iOS does not zoom into them. viewport-fit=cover
+         lets the safe-area insets (iPhone home indicator) be read with env(). -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#9333ea" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />

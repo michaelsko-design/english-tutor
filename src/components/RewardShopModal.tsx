@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { useDialog } from '../hooks/useDialog';
 import { celebrate } from '../utils/celebrate';
 import {
   getRewardShopItems,
@@ -49,6 +50,9 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
   const isOwned = (item: RewardShopItem): boolean =>
     item.id !== STREAK_SHIELD_ITEM_ID && (item.costDiamonds === 0 || unlockedRewardIds.includes(item.id));
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialog(dialogRef, { onClose: onClose });
+
   const handleBuyOrEquip = (item: RewardShopItem) => {
     const isUnlocked = isOwned(item);
 
@@ -87,7 +91,12 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-3 md:p-6 overflow-y-auto">
       <div
-        className={`w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
+        ref={dialogRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-label="חנות הפרסים"
+        className={`outline-none w-full max-w-4xl max-h-[90dvh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
       >
         {/* Header */}
         <div
@@ -120,7 +129,8 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
               type="button"
               onClick={onClose}
               className={`p-2 sm:p-2.5 rounded-xl ${theme.secondaryBtnClass}`}
-              title="Close Shop"
+              aria-label="סגירה"
+              title="סגירה"
             >
               <X className="w-5 h-5" />
             </button>
@@ -206,7 +216,7 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
                   <h3 className="font-extrabold text-sm md:text-base">
                     {item.titleHe}
                   </h3>
-                  <p className="text-xs opacity-70" dir="ltr">
+                  <p className="text-xs opacity-70" dir="ltr" lang="en">
                     {item.titleEn}
                   </p>
                   <p className={`text-xs ${theme.mutedTextClass} mt-1`}>

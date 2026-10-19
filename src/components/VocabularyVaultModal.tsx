@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useDialog } from '../hooks/useDialog';
 import { celebrate } from '../utils/celebrate';
 import { CurriculumUnit, VocabularyItem } from '../data/curriculum';
 import { LearnerGender } from '../types/learner';
@@ -72,6 +73,13 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
       item.exampleEn.toLowerCase().includes(q)
     );
   });
+
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialog(dialogRef, { onClose });
+
+  // Closing the Vault mid-word stops listening, so no result arrives after it closed
+  const recognitionRef = useRef<{ abort: () => void } | null>(null);
+  useEffect(() => () => recognitionRef.current?.abort(), []);
 
   const handlePracticeWord = (vocab: VocabularyItem) => {
     setPracticingWord(vocab.wordEn);
@@ -153,13 +161,20 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
       }
     };
 
+    recognitionRef.current?.abort();
+    recognitionRef.current = recognition;
     recognition.start();
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-3 md:p-6 overflow-y-auto">
       <div
-        className={`w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
+        ref={dialogRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-label="כספת המילים"
+        className={`outline-none w-full max-w-4xl max-h-[90dvh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
       >
         {/* Modal Header */}
         <div
@@ -187,7 +202,8 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
             type="button"
             onClick={onClose}
             className={`p-2 sm:p-2.5 rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
-            title="Close Vocabulary Studio"
+            aria-label="סגירה"
+              title="סגירה"
           >
             <X className="w-5 h-5" />
           </button>
@@ -273,7 +289,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-extrabold" dir="ltr">
+                      <span className="text-lg font-extrabold" dir="ltr" lang="en">
                         {item.emoji ? `${item.emoji} ` : ''}
                         {item.wordEn}
                       </span>
@@ -295,7 +311,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                 </div>
 
                 <div className="p-3 rounded-xl bg-black/5 dark:bg-black/20 text-xs space-y-1">
-                  <p className="font-bold" dir="ltr">
+                  <p className="font-bold" dir="ltr" lang="en">
                     &ldquo;{item.exampleEn}&rdquo;
                   </p>
                   <p className="opacity-80">
@@ -321,7 +337,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                       onClick={() => onSpeakEnglish(item.wordEn, 0.65)}
                       className={`px-2.5 py-1.5 rounded-xl text-xs font-bold ${theme.secondaryBtnClass}`}
                       title="Listen Slowly"
-                      dir="ltr"
+                      dir="ltr" lang="en"
                     >
                       🐢 Slow
                     </button>

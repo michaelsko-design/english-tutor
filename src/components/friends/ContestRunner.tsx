@@ -154,7 +154,7 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
           style={{ width: `${Math.round((answers.length / Math.max(1, steps.length)) * 100)}%` }}
         />
       </div>
-      <span className="text-xs font-extrabold shrink-0 flex items-center gap-1" dir="ltr" role="timer" aria-label={`זמן: ${formatDuration(shownMs)}`}>
+      <span className="text-xs font-extrabold shrink-0 flex items-center gap-1" dir="ltr" lang="en" role="timer" aria-label={`זמן: ${formatDuration(shownMs)}`}>
         <Timer className="w-3.5 h-3.5" />
         {formatDuration(shownMs)}
       </span>

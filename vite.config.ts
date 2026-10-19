@@ -79,8 +79,8 @@ function swPrecachePlugin(): Plugin {
  * so returning learners download only the app code that changed.
  */
 function vendorChunk(id: string): string | undefined {
-  if (/node_modules[\/](firebase|@firebase)[\/]/.test(id)) return 'firebase';
-  if (/node_modules[\/](react|react-dom|scheduler)[\/]/.test(id)) return 'react';
+  if (/node_modules[\\/](firebase|@firebase)[\\/]/.test(id)) return 'firebase';
+  if (/node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)) return 'react';
   return undefined;
 }
 

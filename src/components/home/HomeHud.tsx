@@ -70,7 +70,7 @@ export const HomeHud: React.FC<HomeHudProps> = ({
   const pillClass = `h-9 px-2.5 rounded-xl text-sm font-extrabold flex items-center gap-1 ${theme.secondaryBtnClass}`;
 
   return (
-    <header className={`sticky top-0 z-30 ${theme.hudBgClass} px-3 md:px-8 py-2`}>
+    <header className={`sticky top-0 z-30 ${theme.hudBgClass} px-3 md:px-8 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top))]`}>
       <div className="max-w-6xl mx-auto flex items-center gap-2">
         {/* Avatar in the level ring */}
         <button

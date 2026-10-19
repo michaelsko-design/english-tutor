@@ -4,6 +4,10 @@ import { buildThemeArt, LIGHT_COMPANION_RIM, ThemeArt } from './themeArt';
 export interface ThemeDefinition {
   id: ThemeId;
   name: string;
+  /** A dark page: the `dark:` colours apply (tailwind darkMode 'class', set by App) */
+  isDark: boolean;
+  /** The browser bar colour (meta theme-color) */
+  themeColor: string;
   optionLabel: string;
   taglineEn: string;
   taglineHe: string;
@@ -30,6 +34,8 @@ export interface ThemeDefinition {
 export const THEME_REGISTRY: Record<ThemeId, ThemeDefinition> = {
   'cozy-studio': {
     id: 'cozy-studio',
+    isDark: false,
+    themeColor: '#9333ea',
     name: 'PeachNote Studio',
     optionLabel: 'Option B: Cozy Pastel Studio (Default)',
     taglineEn: 'Aesthetic Journal, Café Quests & Sticker Studio',
@@ -61,6 +67,8 @@ export const THEME_REGISTRY: Record<ThemeId, ThemeDefinition> = {
   },
   'neon-pop': {
     id: 'neon-pop',
+    isDark: true,
+    themeColor: '#4a044e',
     name: 'VibeLingua',
     optionLabel: 'Option A: Neon Pop & Social Quest',
     taglineEn: 'Backstage Pass, Group Chats & Pop Music Quests',
@@ -92,6 +100,8 @@ export const THEME_REGISTRY: Record<ThemeId, ThemeDefinition> = {
   },
   'starlight-rpg': {
     id: 'starlight-rpg',
+    isDark: true,
+    themeColor: '#020617',
     name: 'Astraia Academy',
     optionLabel: 'Option C: Starlight Academy RPG',
     taglineEn: 'Cosmic Mysteries, Spell Codes & Pet Evolution',

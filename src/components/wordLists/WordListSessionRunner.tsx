@@ -221,7 +221,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
           style={{ width: `${Math.round((answers.length / steps.length) * 100)}%` }}
         />
       </div>
-      <span className="text-xs font-extrabold shrink-0" dir="ltr">
+      <span className="text-xs font-extrabold shrink-0" dir="ltr" lang="en">
         {stepIdx + 1}/{steps.length}
       </span>
     </div>

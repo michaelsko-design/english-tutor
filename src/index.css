@@ -7,6 +7,22 @@
     font-family: 'Plus Jakarta Sans Variable', 'Rubik Variable', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
   }
+
+  /* A clear ring for keyboard users on every theme (mouse and touch clicks don't show it) */
+  :focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 2px;
+  }
+}
+
+/* Phones zoom into a text field under 16px when it is tapped; zoom stays allowed, so fields are
+   16px on small screens instead of blocking zoom for everyone. */
+@media (max-width: 640px) {
+  input:not([type='checkbox']):not([type='radio']),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
 }
 
 @keyframes floatSlow {

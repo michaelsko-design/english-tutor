@@ -34,7 +34,7 @@ export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
             {speakerName}
           </div>
         )}
-        <p className="text-base md:text-xl font-extrabold leading-snug" dir="ltr">
+        <p className="text-base md:text-xl font-extrabold leading-snug" dir="ltr" lang="en">
           {questionEn}
         </p>
       </div>
@@ -43,10 +43,11 @@ export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
     <button
       type="button"
       onClick={() => onSpeakEnglish(toSpeakableText(readAloudText || questionEn), 0.92)}
-      className={`p-2.5 rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
-      title="Read aloud"
+      className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
+      aria-label="השמעת השאלה"
+      title="השמעת השאלה"
     >
-      <Volume2 className="w-4 h-4" />
+      <Volume2 className="w-4 h-4" aria-hidden="true" />
     </button>
   </div>
 );

@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useDialog } from '../hooks/useDialog';
+import { toSpeakableText } from '../services/tts/ttsText';
 import { MissionNode } from '../data/curriculum';
 import { RoomRewardItem } from '../data/roomRewards';
 import {
@@ -61,6 +63,10 @@ interface MissionRunnerProps {
     isVoiceSkipped: boolean;
   }) => void;
   onClose: () => void;
+  /** The tier was already chosen (on the map's mission sheet): start without the intro */
+  isTierChosen?: boolean;
+  /** Read each question aloud when it opens (grades 1–3, who may not read yet) */
+  readsQuestionsAloud?: boolean;
   /** The mission's stars and last full-reward date before this attempt, to size the reward */
   previousStars: number;
   lastRewardDateStr?: string;
@@ -86,6 +92,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   startLevel,
   previousStars,
   lastRewardDateStr,
+  isTierChosen = false,
+  readsQuestionsAloud = false,
 }) => {
   const isGirl = gender === 'girl';
   // Random salt per mission attempt: shuffles answer options differently on every attempt,
@@ -96,7 +104,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     [mission, tier, gender, shuffleSalt]
   );
   // The tier is chosen on the intro screen before the first step (Feature 25).
-  const [hasStarted, setHasStarted] = useState(false);
+  const [hasStarted, setHasStarted] = useState(isTierChosen);
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [showHint, setShowHint] = useState(false);
 
@@ -143,6 +151,16 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     preloadCompanion(theme, ['cheer'], VICTORY_COMPANION_SIZE);
     preloadArt(getStoryArt(mission.id));
   }, [theme, mission.id]);
+
+  // Early readers hear each question as it opens (the start tap already unlocked the audio)
+  useEffect(() => {
+    if (!readsQuestionsAloud || !hasStarted) return;
+    const step = steps[currentStepIdx];
+    const text = step?.speakTargetEn || step?.questionEn;
+    if (text) onSpeakEnglish(toSpeakableText(text), 0.92);
+    // Only when a new step opens, not on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStepIdx, hasStarted, readsQuestionsAloud]);
 
   // Reset step state when step or tier changes
   useEffect(() => {
@@ -287,6 +305,11 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     }
   };
 
+  // The overlay and the feedback sheet beside it are one dialog (useDialog); Escape leaves the mission
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  useDialog(dialogRef, { onClose, initialFocusRef: cardRef });
+
   // Calculate final rewards
   const scoredStepCount = Math.max(1, steps.length - skippedStepCount);
   const accuracyRatio = firstTryCorrectCount / scoredStepCount;
@@ -341,10 +364,12 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   const peekPose = getPeekCompanionPose(showHint, feedbackHe !== null);
 
   return (
-    <>
+    <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`משימה: ${mission.titleHe}`} className="contents">
       <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-start sm:items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto">
         <div
-          className={`w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
+          ref={cardRef}
+          tabIndex={-1}
+          className={`outline-none w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
         >
           {!hasStarted ? (
             <MissionIntro
@@ -364,7 +389,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className={`p-2 rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
+                  className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
                   aria-label="יציאה מהמשימה"
                 >
                   <X className="w-4 h-4" />
@@ -492,7 +517,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                 )}
 
                 {/* Room to scroll everything up above the feedback sheet */}
-                {feedbackHe && <div className="h-[55vh]" aria-hidden="true" />}
+                {feedbackHe && <div className="h-[55dvh]" aria-hidden="true" />}
               </div>
             </>
           )}
@@ -514,6 +539,6 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
           theme={theme}
         />
       )}
-    </>
+    </div>
   );
 };

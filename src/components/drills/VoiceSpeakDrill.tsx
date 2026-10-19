@@ -46,7 +46,7 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
       )}
 
       {/* Word-by-word interactive display (highlights green after speaking!) */}
-      <div className="flex flex-wrap items-center justify-center gap-2 py-2" dir="ltr">
+      <div className="flex flex-wrap items-center justify-center gap-2 py-2" dir="ltr" lang="en">
         {words.map((item, idx) => (
           <button
             key={`${item.targetWord}-${idx}`}

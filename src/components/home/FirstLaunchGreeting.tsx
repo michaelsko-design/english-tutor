@@ -108,7 +108,7 @@ export const FirstLaunchGreeting: React.FC<FirstLaunchGreetingProps> = ({
             fallback={chestFallback(isOpen ? '💎' : '🎁')}
           />
           {isOpen && (
-            <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-fuchsia-500 text-white text-xl font-black shadow-lg animate-reward-pop tabular-nums whitespace-nowrap" dir="ltr">
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-fuchsia-500 text-white text-xl font-black shadow-lg animate-reward-pop tabular-nums whitespace-nowrap" dir="ltr" lang="en">
               +{gemsShown} 💎
             </span>
           )}

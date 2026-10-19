@@ -97,7 +97,7 @@ export const ExamPrepCard: React.FC<ExamPrepCardProps> = ({
           </span>
           <h2 className="font-extrabold text-base sm:text-lg">{getCountdownHe(daysLeft)}</h2>
         </div>
-        <span className="text-xs font-extrabold shrink-0 pt-1" dir="ltr">
+        <span className="text-xs font-extrabold shrink-0 pt-1" dir="ltr" lang="en">
           {doneCount}/{plan.days.length} ✅
         </span>
       </div>

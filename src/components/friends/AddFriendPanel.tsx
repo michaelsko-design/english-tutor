@@ -69,7 +69,7 @@ export const AddFriendPanel: React.FC<AddFriendPanelProps> = ({ gender, theme, i
             setLookup({ kind: 'idle' });
           }}
           maxLength={40}
-          dir="ltr"
+          dir="ltr" lang="en"
           autoCapitalize="characters"
           autoComplete="off"
           spellCheck={false}

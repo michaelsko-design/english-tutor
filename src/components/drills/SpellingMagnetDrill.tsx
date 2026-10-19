@@ -87,12 +87,12 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
       </div>
 
       {/* Letter slots */}
-      <div className="min-h-[68px] p-3 rounded-2xl bg-black/5 dark:bg-white/5 flex flex-wrap items-center justify-center gap-1.5" dir="ltr">
+      <div className="min-h-[68px] p-3 rounded-2xl bg-black/5 dark:bg-white/5 flex flex-wrap items-center justify-center gap-1.5" dir="ltr" lang="en">
         {slots}
       </div>
 
       {/* Letter tiles */}
-      <div className="flex flex-wrap items-center justify-center gap-2" dir="ltr">
+      <div className="flex flex-wrap items-center justify-center gap-2" dir="ltr" lang="en">
         {letterTiles.map((letter, idx) => {
           const isUsed = selectedIndices.includes(idx);
           return (

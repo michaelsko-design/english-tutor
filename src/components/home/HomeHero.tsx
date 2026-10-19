@@ -96,7 +96,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             </span>
             <span
               className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-500 text-white"
-              dir="ltr"
+              dir="ltr" lang="en"
             >
               +{xpReward} XP · +{diamondReward} 💎
             </span>
@@ -104,7 +104,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
           <div>
             <h2 className="text-lg sm:text-xl font-extrabold leading-tight">{inflectHebrew(mission.titleHe, gender)}</h2>
-            <p className={`text-xs sm:text-sm font-bold text-right ${theme.accentTextClass}`} dir="ltr">
+            <p className={`text-xs sm:text-sm font-bold text-right ${theme.accentTextClass}`} dir="ltr" lang="en">
               Mission {mission.unitNumber}.{mission.missionNumber}: {mission.titleEn}
             </p>
           </div>

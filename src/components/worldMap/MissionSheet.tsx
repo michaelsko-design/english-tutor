@@ -83,7 +83,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="mission-sheet-title"
-        className={`relative w-full max-w-lg max-h-[88vh] overflow-y-auto overscroll-contain rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.35)] ${style.sheetBgClass} ${style.sheetEdgeClass} ${
+        className={`relative w-full max-w-lg max-h-[88dvh] overflow-y-auto overscroll-contain rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.35)] ${style.sheetBgClass} ${style.sheetEdgeClass} ${
           isReducedMotion ? '' : 'animate-sheet-up'
         }`}
       >
@@ -93,7 +93,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
             ref={closeRef}
             type="button"
             onClick={onClose}
-            className={`absolute top-2 left-3 p-2 rounded-xl ${theme.secondaryBtnClass}`}
+            className={`absolute top-2 left-3 min-w-11 min-h-11 flex items-center justify-center rounded-xl ${theme.secondaryBtnClass}`}
             aria-label="סגירה"
           >
             <X className="w-4 h-4" />
@@ -112,7 +112,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
               </span>
               {inflectHebrew(mission.titleHe, gender)}
             </h3>
-            <p className="text-sm font-bold opacity-80" dir="ltr">
+            <p className="text-sm font-bold opacity-80" dir="ltr" lang="en">
               {mission.titleEn}
             </p>
           </header>
@@ -123,7 +123,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
             <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full ${style.sheetChipClass}`}>
               <Clock className="w-3.5 h-3.5" /> כ-{mission.estimatedMinutes} דקות
             </span>
-            <span className={`px-2.5 py-1 rounded-full ${style.sheetChipClass}`} dir="ltr">
+            <span className={`px-2.5 py-1 rounded-full ${style.sheetChipClass}`} dir="ltr" lang="en">
               {mission.grammarTopic}
             </span>
             {status === 'done' && (
@@ -141,7 +141,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
             <>
               <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/40 flex items-center justify-between gap-2">
                 <span className="text-sm font-extrabold">🎁 פרסים ברמת {tierMeta.labelHe}:</span>
-                <span className={`shrink-0 whitespace-nowrap text-sm font-extrabold ${style.rewardTextClass}`} dir="ltr">
+                <span className={`shrink-0 whitespace-nowrap text-sm font-extrabold ${style.rewardTextClass}`} dir="ltr" lang="en">
                   +{xp} XP · +{diamonds} 💎
                 </span>
               </div>
@@ -156,7 +156,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
                     <Sparkles className="w-3.5 h-3.5 text-purple-500" />
                     {inflectHebrew(tierObjective.focusHe, gender)}
                   </p>
-                  <div className="p-2.5 rounded-xl bg-black/10 text-sm font-bold flex items-center justify-between gap-2" dir="ltr">
+                  <div className="p-2.5 rounded-xl bg-black/10 text-sm font-bold flex items-center justify-between gap-2" dir="ltr" lang="en">
                     <span>&ldquo;{tierObjective.samplePromptEn}&rdquo;</span>
                     <button
                       type="button"
@@ -191,12 +191,12 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
                     <span className="flex-1 min-w-0">
                       <span className="flex items-center justify-between gap-2">
                         <span className="text-sm font-bold">{word.translationHe}</span>
-                        <span className="font-extrabold text-sm" dir="ltr">
+                        <span className="font-extrabold text-sm" dir="ltr" lang="en">
                           {word.emoji && <span aria-hidden="true">{word.emoji} </span>}
                           {word.wordEn}
                         </span>
                       </span>
-                      <span className="block text-xs opacity-75 mt-0.5" dir="ltr">
+                      <span className="block text-xs opacity-75 mt-0.5" dir="ltr" lang="en">
                         {word.exampleEn}
                       </span>
                     </span>
@@ -208,7 +208,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
         </div>
 
         {status !== 'locked' && (
-          <div className={`sticky bottom-0 px-4 sm:px-6 pt-2 pb-4 ${style.sheetBgClass}`}>
+          <div className={`sticky bottom-0 px-4 sm:px-6 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))] ${style.sheetBgClass}`}>
             <button
               type="button"
               onClick={onStart}

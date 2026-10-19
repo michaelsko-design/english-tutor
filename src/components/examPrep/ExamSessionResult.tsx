@@ -68,7 +68,7 @@ export const ExamSessionResult: React.FC<ExamSessionResultProps> = ({
           {isMock ? (isReady ? '🏆' : '📚') : '⭐'}
         </div>
         <h2 className="text-xl sm:text-2xl font-extrabold">{headline}</h2>
-        <p className="text-4xl font-extrabold" dir="ltr">
+        <p className="text-4xl font-extrabold" dir="ltr" lang="en">
           {summary.scorePercent}%
         </p>
         <p className={`text-xs font-bold ${theme.mutedTextClass}`}>
@@ -87,7 +87,7 @@ export const ExamSessionResult: React.FC<ExamSessionResultProps> = ({
                 <span>
                   {EXAM_SKILL_META[skill].emoji} {EXAM_SKILL_META[skill].labelHe}
                 </span>
-                <span dir="ltr">
+                <span dir="ltr" lang="en">
                   {s.correct}/{s.total}
                 </span>
               </div>
@@ -112,11 +112,11 @@ export const ExamSessionResult: React.FC<ExamSessionResultProps> = ({
       </div>
 
       <div className="px-4 py-2 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold text-center">
-        🎁 <span dir="ltr">+{xp} XP</span>
+        🎁 <span dir="ltr" lang="en">+{xp} XP</span>
         {diamonds > 0 && (
           <>
             {' · '}
-            <span dir="ltr">+{diamonds} 💎</span>
+            <span dir="ltr" lang="en">+{diamonds} 💎</span>
           </>
         )}
         {earnsCertificate && ' · 🏅 תעודת "מוכנים למבחן"'}

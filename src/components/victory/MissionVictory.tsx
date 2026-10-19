@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useDialog } from '../../hooks/useDialog';
 import { Trophy, Zap } from 'lucide-react';
 import { MissionNode } from '../../data/curriculum';
 import { RoomRewardItem } from '../../data/roomRewards';
@@ -95,6 +96,10 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
     skip();
   };
 
+  // Focus moves to the result (read by screen readers); there's no Escape: the rewards are collected
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialog(dialogRef);
+
   const handleCollect = (event: React.MouseEvent) => {
     event.stopPropagation();
     onCollect();
@@ -106,7 +111,9 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
       onClick={handleSkip}
     >
       <div
-        className={`w-full max-w-lg rounded-3xl p-6 md:p-8 ${theme.cardBgClass} ${theme.pageBgClass} text-center space-y-5 shadow-2xl border-2 border-amber-400`}
+        ref={dialogRef}
+        tabIndex={-1}
+        className={`outline-none w-full max-w-lg rounded-3xl p-6 md:p-8 ${theme.cardBgClass} ${theme.pageBgClass} text-center space-y-5 shadow-2xl border-2 border-amber-400`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="mission-victory-title"
@@ -167,16 +174,16 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
               <LevelBadge level={frame.level} size={LEVEL_BADGE_SIZE} />
             </div>
           )}
-          <div className="flex items-center justify-between text-xs font-extrabold" dir="ltr">
+          <div className="flex items-center justify-between text-xs font-extrabold" dir="ltr" lang="en">
             <span>Lv.{frame.level}</span>
             {frame.hasLeveledUp && (
               <span className="px-3 py-0.5 rounded-full bg-amber-400 text-slate-950 text-sm animate-reward-pop" dir="rtl">
-                רמה חדשה! <bdi dir="ltr">Lv.{frame.level}</bdi>
+                רמה חדשה! <bdi dir="ltr" lang="en">Lv.{frame.level}</bdi>
               </span>
             )}
             <span className="opacity-70">Lv.{frame.level + 1}</span>
           </div>
-          <div className="h-3.5 rounded-full bg-black/15 dark:bg-white/15 overflow-hidden" dir="ltr">
+          <div className="h-3.5 rounded-full bg-black/15 dark:bg-white/15 overflow-hidden" dir="ltr" lang="en">
             <div
               className="h-full rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-amber-400"
               style={{ width: `${Math.round(frame.levelRatio * 100)}%` }}
@@ -188,7 +195,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
         <div className="grid grid-cols-3 gap-3" aria-hidden="true">
           <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
             <Zap className="w-5 h-5 text-indigo-500 mx-auto mb-1" />
-            <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap" dir="ltr">
+            <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap" dir="ltr" lang="en">
               +{frame.xpShown} XP
             </div>
             <div className="text-xs opacity-75">
@@ -197,7 +204,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
           </div>
           <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
             <FluentIcon name="gem" className="w-6 h-6 mx-auto mb-1" />
-            <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap" dir="ltr">
+            <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap" dir="ltr" lang="en">
               +{frame.diamondsShown}
             </div>
             <div className="text-xs opacity-75">
@@ -207,7 +214,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
           <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
             <Trophy className="w-5 h-5 text-emerald-500 mx-auto mb-1" />
             <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap">
-              <bdi dir="ltr">+{frame.wordsShown}</bdi> מילים
+              <bdi dir="ltr" lang="en">+{frame.wordsShown}</bdi> מילים
             </div>
             <div className="text-xs opacity-75">
               נוספו לאוצר המילים
@@ -232,7 +239,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
                 {roomReward.nameHe}
               </div>
               <div className="text-xs opacity-80">
-                {isGirl ? 'אמרי או אייתי' : 'אמור או איית'} &ldquo;<span dir="ltr">{roomReward.nameEn}</span>&rdquo; כדי{' '}
+                {isGirl ? 'אמרי או אייתי' : 'אמור או איית'} &ldquo;<span dir="ltr" lang="en">{roomReward.nameEn}</span>&rdquo; כדי{' '}
                 {roomReward.kind === 'wear' ? 'ללבוש אותו' : 'להניח אותו בחדר'}
               </div>
             </div>

@@ -74,7 +74,7 @@ export const ExamPrepPlanView: React.FC<ExamPrepPlanViewProps> = ({
               style={{ width: `${Math.round((doneCount / plan.days.length) * 100)}%` }}
             />
           </div>
-          <span className="text-xs font-extrabold shrink-0" dir="ltr">
+          <span className="text-xs font-extrabold shrink-0" dir="ltr" lang="en">
             {doneCount}/{plan.days.length}
           </span>
         </div>
@@ -131,7 +131,7 @@ export const ExamPrepPlanView: React.FC<ExamPrepPlanViewProps> = ({
                       {badge.label}
                     </span>
                     {day.scorePercent !== undefined && (
-                      <span className="text-xs font-bold opacity-80" dir="ltr">
+                      <span className="text-xs font-bold opacity-80" dir="ltr" lang="en">
                         {day.scorePercent}%
                       </span>
                     )}
@@ -169,8 +169,8 @@ export const ExamPrepPlanView: React.FC<ExamPrepPlanViewProps> = ({
 
         {plan.bestMockScore !== undefined && !plan.certificateEarnedAt && (
           <p className={`text-xs font-bold ${theme.mutedTextClass}`}>
-            הציון הכי טוב בסימולציה: <span dir="ltr">{plan.bestMockScore}%</span> · צריך{' '}
-            <span dir="ltr">{EXAM_READY_SCORE}%</span> לתעודת &quot;מוכנים למבחן&quot;
+            הציון הכי טוב בסימולציה: <span dir="ltr" lang="en">{plan.bestMockScore}%</span> · צריך{' '}
+            <span dir="ltr" lang="en">{EXAM_READY_SCORE}%</span> לתעודת &quot;מוכנים למבחן&quot;
           </p>
         )}
 

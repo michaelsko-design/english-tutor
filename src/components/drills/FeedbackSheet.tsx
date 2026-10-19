@@ -64,7 +64,7 @@ export const FeedbackSheet: React.FC<FeedbackSheetProps> = ({
         {isCorrect && xpGain > 0 && (
           <span
             className={`absolute -top-9 right-6 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-sm font-extrabold shadow-lg ${isReducedMotion ? '' : 'animate-xp-float'}`}
-            dir="ltr"
+            dir="ltr" lang="en"
             aria-hidden="true"
           >
             +{xpGain} XP
@@ -72,15 +72,19 @@ export const FeedbackSheet: React.FC<FeedbackSheetProps> = ({
         )}
 
         <div
-          className={`rounded-t-3xl border-t-4 shadow-[0_-8px_30px_rgba(0,0,0,0.25)] px-4 sm:px-6 pt-4 pb-5 space-y-3.5 ${sheetStyle}`}
+          className={`rounded-t-3xl border-t-4 shadow-[0_-8px_30px_rgba(0,0,0,0.25)] px-4 sm:px-6 pt-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] space-y-3.5 ${sheetStyle}`}
         >
-          <div className="flex items-start gap-2.5 max-h-[38vh] overflow-y-auto" role="status" aria-live="polite">
+          <div className="flex items-start gap-2.5 max-h-[38dvh] overflow-y-auto">
             {isCorrect ? (
               <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
             ) : (
               <AlertCircle className="w-6 h-6 text-rose-600 shrink-0" />
             )}
-            <p className="text-sm md:text-base font-extrabold leading-relaxed">{text}</p>
+            {/* Announced as it appears; focus then moves to the button, which reads only its own name */}
+            <p className="text-sm md:text-base font-extrabold leading-relaxed" role="alert">
+              <span className="sr-only">{isCorrect ? 'נכון! ' : 'לא נכון. '}</span>
+              {text}
+            </p>
           </div>
 
           {showNext ? (

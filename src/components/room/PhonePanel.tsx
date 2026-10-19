@@ -120,7 +120,7 @@ export const PhonePanel: React.FC<PhonePanelProps> = ({ profile, theme, onUpdate
             </p>
 
             {/* Chat */}
-            <div className="rounded-3xl p-3 space-y-2 bg-slate-900/90 text-white" dir="ltr">
+            <div className="rounded-3xl p-3 space-y-2 bg-slate-900/90 text-white" dir="ltr" lang="en">
               <div className="flex items-end gap-2 max-w-[85%]">
                 <span className="text-2xl leading-none" aria-hidden="true">
                   {message.fromEmoji}

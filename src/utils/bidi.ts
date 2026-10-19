@@ -17,3 +17,11 @@ export function isolateLtr(text: string): string {
 export function formatGainLtr(amount: number, unit: string): string {
   return isolateLtr(`+${amount} ${unit}`);
 }
+
+/**
+ * The language to mark on text that may be English or Hebrew (answer options), so screen readers
+ * read English with an English voice. Mixed text stays with the page's Hebrew.
+ */
+export function getTextLang(text: string): 'en' | undefined {
+  return /[A-Za-z]/.test(text) && !/[֐-׿]/.test(text) ? 'en' : undefined;
+}

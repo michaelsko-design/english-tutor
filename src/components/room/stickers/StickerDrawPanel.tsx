@@ -155,7 +155,7 @@ export const StickerDrawPanel: React.FC<StickerDrawPanelProps> = ({ profile, the
             value={name}
             onChange={(e) => setName(e.target.value.replace(/[^A-Za-z ]/g, '').slice(0, 20))}
             placeholder="e.g. happy sun"
-            dir="ltr"
+            dir="ltr" lang="en"
             autoCapitalize="off"
             autoCorrect="off"
             spellCheck={false}

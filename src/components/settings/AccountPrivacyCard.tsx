@@ -89,7 +89,7 @@ export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile,
               הקוד הסודי של החשבון:
               <input
                 type="password"
-                dir="ltr"
+                dir="ltr" lang="en"
                 autoComplete="current-password"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}

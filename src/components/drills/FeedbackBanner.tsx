@@ -39,7 +39,11 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
         ) : (
           <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
         )}
-        <p className="text-xs md:text-sm font-extrabold">{text}</p>
+        {/* An alert is announced when it appears with the answer, unlike a status region added with its text */}
+        <p className="text-xs md:text-sm font-extrabold" role="alert">
+          <span className="sr-only">{isCorrect ? 'נכון! ' : 'לא נכון. '}</span>
+          {text}
+        </p>
       </div>
 
       {showNext && (
@@ -49,7 +53,7 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
           className={`px-5 py-2.5 rounded-xl text-xs md:text-sm font-extrabold flex items-center justify-center gap-1.5 shrink-0 ${theme.primaryBtnClass}`}
         >
           <span>{nextLabel}</span>
-          <ArrowRight className="w-4 h-4 rotate-180" />
+          <ArrowRight className="w-4 h-4 rotate-180" aria-hidden="true" />
         </button>
       )}
     </div>

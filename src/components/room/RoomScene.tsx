@@ -65,7 +65,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
     <div
       className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden select-none shadow-inner border border-current/10"
       style={{ containerType: 'inline-size' }}
-      dir="ltr"
+      dir="ltr" lang="en"
     >
       {/* Wall, baseboard and floor: the generated room picture, or the drawn fallback */}
       {hasRoomArt ? (

@@ -83,7 +83,7 @@ export const CrosswordGame: React.FC<CrosswordGameProps> = ({ puzzle, gender, th
       <div
         className="grid gap-0.5 mx-auto"
         style={{ gridTemplateColumns: `repeat(${puzzle.width}, minmax(0, 2.1rem))`, width: 'fit-content', maxWidth: '100%' }}
-        dir="ltr"
+        dir="ltr" lang="en"
       >
         {Array.from({ length: puzzle.height * puzzle.width }, (_, i) => {
           const key = `${Math.floor(i / puzzle.width)},${i % puzzle.width}`;
@@ -119,7 +119,7 @@ export const CrosswordGame: React.FC<CrosswordGameProps> = ({ puzzle, gender, th
                   } disabled:opacity-60`}
                 >
                   {entry.number}. {entry.word.emoji} {entry.word.he} ({entry.word.word.length})
-                  {solved[entryId(entry)] && <span dir="ltr"> ✓ {entry.word.word}</span>}
+                  {solved[entryId(entry)] && <span dir="ltr" lang="en"> ✓ {entry.word.word}</span>}
                 </button>
               ))}
           </div>
@@ -135,7 +135,7 @@ export const CrosswordGame: React.FC<CrosswordGameProps> = ({ puzzle, gender, th
             aria-label={`התשובה ל־${active.number}: ${active.word.he}`}
             placeholder={`${active.number}. ${active.word.he}`}
             className={`flex-1 min-w-[8rem] px-3 py-2 rounded-xl text-sm font-extrabold uppercase tracking-widest ${theme.inputBgClass}`}
-            dir="ltr"
+            dir="ltr" lang="en"
             autoCapitalize="characters"
             autoCorrect="off"
             spellCheck={false}

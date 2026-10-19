@@ -83,7 +83,7 @@ export const WordListImporter: React.FC<WordListImporterProps> = ({ gender, them
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.cardBgClass}`}
                 >
                   <span aria-hidden="true">{item.kind === 'word' ? '🔤' : '🧩'}</span>
-                  <span dir="ltr">{item.textEn}</span>
+                  <span dir="ltr" lang="en">{item.textEn}</span>
                   {item.translationHe && (
                     <span className="opacity-75">
                       · {item.translationHe}

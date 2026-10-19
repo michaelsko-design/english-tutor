@@ -23,7 +23,7 @@ export function getPinStyle(point: MapPoint, mapHeight: number): React.CSSProper
 
 /** Three stars, earned ones in colour. */
 export const StarRow: React.FC<{ stars: number; sizeClass?: string }> = ({ stars, sizeClass = 'w-4 h-4' }) => (
-  <span className="flex items-center gap-px" dir="ltr">
+  <span className="flex items-center gap-px" dir="ltr" lang="en">
     {[1, 2, 3].map((n) => (
       <FluentIcon key={n} name="star" className={sizeClass} isGreyed={stars < n} />
     ))}
@@ -58,13 +58,13 @@ export const UnitBanner: React.FC<UnitBannerProps> = ({ unit, bannerTop, mapHeig
       <span className="flex-1 min-w-0 leading-tight">
         <span className="block text-xs font-extrabold opacity-75">יחידה {unit.unitNumber}</span>
         <span className="block text-sm sm:text-base font-extrabold line-clamp-2">{unit.titleHe}</span>
-        <span className="block text-xs font-bold opacity-80 truncate" dir="ltr">
+        <span className="block text-xs font-bold opacity-80 truncate" dir="ltr" lang="en">
           {unit.titleEn}
         </span>
       </span>
       <span
         className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-xl bg-black/10 text-xs font-extrabold"
-        dir="ltr"
+        dir="ltr" lang="en"
         aria-label={`${starsEarned} מתוך ${starsPossible} כוכבים ביחידה`}
       >
         <FluentIcon name="star" className="w-4 h-4" />

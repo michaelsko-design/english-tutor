@@ -31,7 +31,7 @@ export const MyFriendCodePanel: React.FC<MyFriendCodePanelProps> = ({ friendCode
       <h3 className="font-extrabold text-sm sm:text-base">🎟️ קוד החבר שלי</h3>
       <p
         className={`text-center text-2xl sm:text-3xl font-black tracking-[0.3em] py-2 rounded-xl ${theme.inputBgClass}`}
-        dir="ltr"
+        dir="ltr" lang="en"
         aria-label={`קוד החבר: ${friendCode.split('').join(' ')}`}
       >
         {friendCode}

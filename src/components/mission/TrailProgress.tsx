@@ -52,7 +52,7 @@ export const TrailProgress: React.FC<TrailProgressProps> = ({
         {flameLevel > 0 && (
           <span key={flameLevel} className="flex items-center gap-0.5 animate-reward-pop">
             <FluentIcon name="flame" className={FLAME_SIZE_BY_LEVEL[flameLevel]} />
-            <span className="text-xs font-extrabold tabular-nums" dir="ltr">
+            <span className="text-xs font-extrabold tabular-nums" dir="ltr" lang="en">
               {combo}x
             </span>
             <span className="sr-only">רצף תשובות נכונות</span>

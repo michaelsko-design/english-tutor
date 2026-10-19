@@ -102,7 +102,7 @@ export const ExamPrepSetup: React.FC<ExamPrepSetupProps> = ({ profile, theme, on
             max={maxDateStr}
             onChange={(e) => setExamDateStr(e.target.value)}
             className={`w-full sm:w-60 px-3 py-2.5 rounded-xl font-bold outline-none ${theme.inputBgClass}`}
-            dir="ltr"
+            dir="ltr" lang="en"
           />
           <p role="status" className={`text-xs font-bold ${isDateValid ? theme.accentTextClass : 'text-rose-600'}`}>
             {previewText}
@@ -125,7 +125,7 @@ export const ExamPrepSetup: React.FC<ExamPrepSetupProps> = ({ profile, theme, on
                   <div className="font-extrabold text-sm">
                     {u.badgeEmoji} יחידה {u.unitNumber}: {u.titleHe}
                   </div>
-                  <div className={`text-xs mt-0.5 line-clamp-2 ${theme.mutedTextClass}`} dir="ltr">
+                  <div className={`text-xs mt-0.5 line-clamp-2 ${theme.mutedTextClass}`} dir="ltr" lang="en">
                     {u.topics.join(' · ')}
                   </div>
                 </button>

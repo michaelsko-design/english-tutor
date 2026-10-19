@@ -25,6 +25,9 @@ import { applyPlacementToProfile } from '../data/placementTest';
 import { applyVocabPracticeReward, getTodayCounters, levelForXp, recordDailyActivity } from '../data/progressRewards';
 import { STREAK_SHIELD_ITEM_ID, addStreakShield, getCurrentStreak, getStreakShieldsLeft } from '../data/streak';
 import { toLocalDateStr } from '../utils/dates';
+
+/** Learners who may not read yet: each question is read aloud when it opens */
+const EARLY_READER_GRADES: GradeId[] = ['grade-1', 'grade-2', 'grade-3'];
 import { countMasteredWords } from '../data/progressReport';
 import { ExamPrepHub } from './examPrep/ExamPrepHub';
 import { ExamModalShell } from './examPrep/ExamModalShell';
@@ -137,7 +140,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     void getTtsService().speak(text, { rate, voice: profile.voicePreference ?? DEFAULT_VOICE_PREFERENCE });
   };
 
-  const handleLaunchMission = (mission: MissionNode) => {
+  // A mission started from the map's sheet already has its tier, so its intro is skipped
+  const [isMissionFromMap, setIsMissionFromMap] = useState(false);
+  const handleLaunchMission = (mission: MissionNode, isFromMap = false) => {
+    setIsMissionFromMap(isFromMap);
     setActivePracticeMission(mission);
   };
 
@@ -365,7 +371,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             onSelectTier={handleSelectTier}
             theme={theme}
             gender={profile.gender}
-            onStartMission={handleLaunchMission}
+            onStartMission={(mission) => handleLaunchMission(mission, true)}
             onSpeakEnglish={speakEnglish}
           />
         </div>
@@ -374,7 +380,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* MOBILE BOTTOM NAVIGATION BAR (Thumb-Friendly, Hidden on Desktop) */}
       <nav
         aria-label="ניווט ראשי"
-        className={`md:hidden fixed bottom-0 inset-x-0 z-30 ${theme.hudBgClass} border-t border-current/10 px-2 py-1.5 backdrop-blur-md`}
+        className={`md:hidden fixed bottom-0 inset-x-0 z-30 ${theme.hudBgClass} border-t border-current/10 px-2 pt-1.5 pb-[calc(0.375rem+env(safe-area-inset-bottom))] backdrop-blur-md`}
       >
         <div className="grid grid-cols-5 gap-1 max-w-md mx-auto">
           <button
@@ -488,6 +494,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             startXp={profile.stats.xp}
             startLevel={profile.stats.level}
             previousStars={profile.missionProgress?.[activePracticeMission.id] || 0}
+          isTierChosen={isMissionFromMap}
+          readsQuestionsAloud={EARLY_READER_GRADES.includes(profile.gradeId)}
             lastRewardDateStr={profile.missionRewardDates?.[activePracticeMission.id]}
           />
         </Suspense>
@@ -543,7 +551,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* FEATURE 12: NEW ROOM ITEM TOAST */}
       {roomRewardToast && (
-        <div className="fixed inset-x-0 bottom-20 md:bottom-6 z-40 flex justify-center px-4 pointer-events-none">
+        <div className="fixed inset-x-0 bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6 z-40 flex justify-center px-4 pointer-events-none">
           <button
             type="button"
             onClick={() => {

@@ -2,6 +2,7 @@ import React from 'react';
 import { Check, X } from 'lucide-react';
 import { MultipleChoiceOption } from '../../data/missionExercises';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { getTextLang } from '../../utils/bidi';
 
 interface MultipleChoiceOptionsProps {
   options: MultipleChoiceOption[];
@@ -53,7 +54,7 @@ export const MultipleChoiceOptions: React.FC<MultipleChoiceOptionsProps> = ({
             dir="auto"
             className={`btn-chunky w-full text-start px-4 py-3.5 min-h-[56px] rounded-2xl flex items-center justify-between gap-3 ${stateStyle} ${motionStyle}`}
           >
-            <span className="font-extrabold text-base md:text-lg leading-snug">
+            <span className="font-extrabold text-base md:text-lg leading-snug" lang={getTextLang(opt.textEn)}>
               {opt.textEn}
             </span>
             {isShownCorrect && (

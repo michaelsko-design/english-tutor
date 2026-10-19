@@ -31,7 +31,7 @@ interface StatTileProps {
 const StatTile: React.FC<StatTileProps> = ({ emoji, labelHe, value }) => (
   <div className="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 text-xs font-bold">
     <span aria-hidden="true">{emoji}</span> {labelHe}
-    <div className="text-xl font-extrabold" dir="ltr">
+    <div className="text-xl font-extrabold" dir="ltr" lang="en">
       {value}
     </div>
   </div>
@@ -148,7 +148,7 @@ export const WeeklyReportScreen: React.FC<WeeklyReportScreenProps> = ({
               >
                 <div className="h-full rounded-full bg-amber-400" style={{ width: `${overall.gradeStarPercent}%` }} />
               </div>
-              <span className="text-xs font-extrabold shrink-0" dir="ltr">
+              <span className="text-xs font-extrabold shrink-0" dir="ltr" lang="en">
                 {overall.gradeStarsEarned}/{overall.gradeStarsPossible} ⭐
               </span>
             </div>
@@ -169,7 +169,7 @@ export const WeeklyReportScreen: React.FC<WeeklyReportScreenProps> = ({
                     aria-label={`השמעת ${word.wordEn}: ${word.translationHe}`}
                   >
                     {word.emoji && <span aria-hidden="true">{word.emoji}</span>}
-                    <span dir="ltr">{word.wordEn}</span>
+                    <span dir="ltr" lang="en">{word.wordEn}</span>
                     <span className="opacity-75">– {word.translationHe}</span>
                     <Volume2 className="w-3 h-3 opacity-60" aria-hidden="true" />
                   </button>

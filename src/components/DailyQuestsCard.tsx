@@ -88,7 +88,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
                       <span className="font-extrabold text-xs md:text-sm truncate">
                         {quest.titleHe}
                       </span>
-                      <span className="text-xs font-bold opacity-75 shrink-0" dir="ltr">
+                      <span className="text-xs font-bold opacity-75 shrink-0" dir="ltr" lang="en">
                         {Math.min(currentVal, quest.targetCount)}/{quest.targetCount}
                       </span>
                     </div>
@@ -117,10 +117,10 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
                       className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1 animate-pulse ${theme.primaryBtnClass}`}
                     >
                       <Gift className="w-3.5 h-3.5" />
-                      <span dir="ltr">+{quest.rewardDiamonds} 💎</span>
+                      <span dir="ltr" lang="en">+{quest.rewardDiamonds} 💎</span>
                     </button>
                   ) : (
-                    <span className={`px-2.5 py-1 rounded-xl text-xs font-bold ${theme.badgeClass}`} dir="ltr">
+                    <span className={`px-2.5 py-1 rounded-xl text-xs font-bold ${theme.badgeClass}`} dir="ltr" lang="en">
                       +{quest.rewardDiamonds} 💎
                     </span>
                   )}

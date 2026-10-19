@@ -40,7 +40,7 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
       <button
         type="button"
         onClick={onClose}
-        className={`absolute top-3 left-3 p-2 rounded-xl ${theme.secondaryBtnClass}`}
+        className={`absolute top-3 left-3 min-w-11 min-h-11 flex items-center justify-center rounded-xl ${theme.secondaryBtnClass}`}
         aria-label="יציאה מהמשימה"
       >
         <X className="w-4 h-4" />
@@ -58,7 +58,7 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
           </span>
           {inflectHebrew(mission.titleHe, gender)}
         </h2>
-        <p className={`text-sm font-bold ${theme.mutedTextClass}`} dir="ltr">
+        <p className={`text-sm font-bold ${theme.mutedTextClass}`} dir="ltr" lang="en">
           {mission.titleEn}
         </p>
         <p className="text-sm font-bold max-w-md">{inflectHebrew(mission.storyHookHe, gender)}</p>

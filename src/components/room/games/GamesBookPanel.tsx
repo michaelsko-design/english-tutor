@@ -160,7 +160,7 @@ export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, 
                 </span>
                 <span className="flex-1 min-w-0">
                   <span className="block font-extrabold text-sm">
-                    {game.titleHe} · <span dir="ltr">{game.titleEn}</span>
+                    {game.titleHe} · <span dir="ltr" lang="en">{game.titleEn}</span>
                   </span>
                   <span className={`block text-xs ${theme.mutedTextClass}`}>
                     {isUnlocked

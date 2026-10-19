@@ -32,7 +32,7 @@ export const DreamJournalList: React.FC<DreamJournalListProps> = ({ entries, the
               <Volume2 className="w-3.5 h-3.5" />
             </button>
             <div className="min-w-0 space-y-0.5">
-              <p className="text-xs font-bold" dir="ltr">
+              <p className="text-xs font-bold" dir="ltr" lang="en">
                 {entry.textEn}
               </p>
               <p className={`text-xs ${theme.mutedTextClass}`}>{entry.textHe}</p>

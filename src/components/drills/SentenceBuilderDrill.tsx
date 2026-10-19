@@ -34,7 +34,7 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
     {/* Assembled Sentence Tray */}
     <div
       className={`min-h-[68px] p-4 rounded-2xl border-2 border-dashed border-purple-400/60 bg-black/5 dark:bg-white/5 flex flex-wrap items-center gap-2`}
-      dir="ltr"
+      dir="ltr" lang="en"
     >
       {selectedIndices.length === 0 ? (
         <span className="text-xs opacity-60">
@@ -58,7 +58,7 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
     </div>
 
     {/* Word Bank Tiles */}
-    <div className="flex flex-wrap items-center gap-2" dir="ltr">
+    <div className="flex flex-wrap items-center gap-2" dir="ltr" lang="en">
       {scrambledWords.map((word, idx) => {
         const isUsed = selectedIndices.includes(idx);
         return (

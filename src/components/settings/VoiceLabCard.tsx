@@ -32,7 +32,7 @@ export const VoiceLabCard: React.FC<VoiceLabCardProps> = ({ voicePreference, the
       {/* Not a <form>: the card sits inside the settings form, and Enter must not save the settings. */}
       <div className="flex gap-2">
         <input
-          dir="ltr"
+          dir="ltr" lang="en"
           value={customText}
           maxLength={MAX_TTS_CHARS}
           onChange={(event) => setCustomText(event.target.value)}

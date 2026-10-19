@@ -289,6 +289,12 @@ export function App() {
   const activeTheme =
     THEME_REGISTRY[profile.themeId] || THEME_REGISTRY['cozy-studio'];
 
+  // Dark themes switch on the dark: colours, and the browser bar follows the theme
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', activeTheme.isDark);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', activeTheme.themeColor);
+  }, [activeTheme]);
+
   useFriendPresence({
     authUser,
     profile,

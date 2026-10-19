@@ -140,7 +140,8 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           <button
             type="button"
             onClick={onCancel}
-            className={`absolute top-4 left-4 p-2 rounded-xl ${activeTheme.secondaryBtnClass}`}
+            className={`absolute top-4 left-4 min-w-11 min-h-11 flex items-center justify-center rounded-xl ${activeTheme.secondaryBtnClass}`}
+            aria-label="חזרה לדשבורד"
             title="חזרה לדשבורד"
           >
             <X className="w-5 h-5" />
@@ -276,7 +277,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                       }`}
                     >
                       <div className="font-extrabold text-xs">{g.labelHe}</div>
-                      <div className="text-xs opacity-80 truncate" dir="ltr">{g.labelEn}</div>
+                      <div className="text-xs opacity-80 truncate" dir="ltr" lang="en">{g.labelEn}</div>
                     </button>
                   );
                 })}
@@ -303,7 +304,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                         }`}
                       >
                         <div className="font-extrabold text-xs">{g.labelHe}</div>
-                        <div className="text-xs opacity-80 truncate" dir="ltr">{g.labelEn}</div>
+                        <div className="text-xs opacity-80 truncate" dir="ltr" lang="en">{g.labelEn}</div>
                       </button>
                     );
                   })}
@@ -328,7 +329,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                         }`}
                       >
                         <div className="font-extrabold text-xs">{g.labelHe}</div>
-                        <div className="text-xs opacity-80 truncate" dir="ltr">{g.labelEn}</div>
+                        <div className="text-xs opacity-80 truncate" dir="ltr" lang="en">{g.labelEn}</div>
                       </button>
                     );
                   })}
@@ -359,7 +360,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                     }`}
                   >
                     <span className="text-base">{tItem.avatarEmoji}</span>
-                    <span className="font-extrabold text-xs sm:text-xs truncate max-w-full" dir="ltr">
+                    <span className="font-extrabold text-xs sm:text-xs truncate max-w-full" dir="ltr" lang="en">
                       {tItem.name}
                     </span>
                   </button>

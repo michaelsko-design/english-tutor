@@ -89,7 +89,7 @@ export const MissionCoinStop: React.FC<StopProps> = ({ stop, mapHeight, theme, g
             <StarRow stars={stars} />
           </span>
         ) : (
-          <span className={`px-2 py-0.5 rounded-full text-xs font-extrabold ${style.stopLabelClass}`} dir="ltr">
+          <span className={`px-2 py-0.5 rounded-full text-xs font-extrabold ${style.stopLabelClass}`} dir="ltr" lang="en">
             {mission.unitNumber}.{mission.missionNumber}
           </span>
         )}
@@ -191,7 +191,7 @@ export const BossCastleStop: React.FC<StopProps> = ({ stop, mapHeight, theme, ge
         ) : bossGate && !bossGate.isMet ? (
           <span
             className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-extrabold bg-amber-400 text-amber-950 border-2 border-amber-600 shadow"
-            dir="ltr"
+            dir="ltr" lang="en"
           >
             👑 {bossGate.earned}/{bossGate.required} ⭐
           </span>

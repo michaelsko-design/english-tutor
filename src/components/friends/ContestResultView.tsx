@@ -42,7 +42,7 @@ export const ContestResultView: React.FC<ContestResultViewProps> = ({
             <p className={`text-xs font-bold ${theme.mutedTextClass}`}>תשובות נכונות</p>
           </div>
           <div className={`rounded-2xl p-3 ${theme.cardBgClass}`}>
-            <p className="text-2xl font-black" dir="ltr">{formatDuration(result.timeMs)}</p>
+            <p className="text-2xl font-black" dir="ltr" lang="en">{formatDuration(result.timeMs)}</p>
             <p className={`text-xs font-bold ${theme.mutedTextClass}`}>זמן</p>
           </div>
         </div>

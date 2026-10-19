@@ -153,7 +153,7 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
   const renderTranslate = (frame: DreamFrame, f: number) => (
     <div key={frame.id} className="space-y-2 p-3 rounded-2xl bg-black/5 dark:bg-white/5">
       <p className="text-xs font-bold">{fillFrame(frame.he, wordsOf(f, 'he'))}</p>
-      <p className="text-sm font-extrabold" dir="ltr">
+      <p className="text-sm font-extrabold" dir="ltr" lang="en">
         {fillFrame(
           frame.en,
           frame.blanks.map((_, b) => (solved[blankKey(f, b)] ? picks[blankKey(f, b)].en : undefined))
@@ -163,7 +163,7 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
         const key = blankKey(f, b);
         const picked = picks[key];
         return (
-          <div key={key} className="flex flex-wrap items-center gap-1.5" dir="ltr">
+          <div key={key} className="flex flex-wrap items-center gap-1.5" dir="ltr" lang="en">
             <span className="text-xs font-bold" dir="rtl">
               {picked.emoji} {picked.he} =
             </span>
@@ -175,7 +175,7 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
                 onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
                 aria-label={`התרגום של ${picked.he}`}
                 className={`px-2.5 py-1.5 rounded-xl text-sm font-bold w-44 ${theme.inputBgClass} ${missed[key] ? 'ring-2 ring-rose-400' : ''}`}
-                dir="ltr"
+                dir="ltr" lang="en"
                 autoCapitalize="off"
                 autoCorrect="off"
                 spellCheck={false}
@@ -272,7 +272,7 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
             type="button"
             onClick={() => onSpeakEnglish(dreamEn, 0.85)}
             className={`w-full p-3 rounded-2xl text-sm font-extrabold flex items-center gap-2 ${theme.secondaryBtnClass}`}
-            dir="ltr"
+            dir="ltr" lang="en"
           >
             <Volume2 className="w-4 h-4 shrink-0" />
             <span className="text-left">{dreamEn}</span>

@@ -46,7 +46,7 @@ export const LetterGrid: React.FC<LetterGridProps> = ({ grid, foundCells, select
 
   if (isStream) {
     return (
-      <div className="flex flex-wrap justify-center gap-1" dir="ltr">
+      <div className="flex flex-wrap justify-center gap-1" dir="ltr" lang="en">
         {grid[0].map((letter, col) => renderCell(letter, [0, col]))}
       </div>
     );
@@ -56,7 +56,7 @@ export const LetterGrid: React.FC<LetterGridProps> = ({ grid, foundCells, select
     <div
       className="grid gap-1 mx-auto w-full max-w-sm"
       style={{ gridTemplateColumns: `repeat(${grid[0]?.length || 1}, minmax(0, 1fr))` }}
-      dir="ltr"
+      dir="ltr" lang="en"
     >
       {grid.flatMap((row, r) => row.map((letter, c) => renderCell(letter, [r, c])))}
     </div>

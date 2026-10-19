@@ -79,7 +79,7 @@ export const WordHuntGame: React.FC<WordHuntGameProps> = ({
                 {p.word.emoji} {p.word.he}
               </span>
               {(showEnglishList || isWordFound) && (
-                <span dir="ltr" className="font-extrabold">
+                <span dir="ltr" lang="en" className="font-extrabold">
                   {p.word.word}
                 </span>
               )}

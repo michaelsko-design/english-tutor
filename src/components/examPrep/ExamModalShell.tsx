@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
+import { useDialog } from '../../hooks/useDialog';
 import { X } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 
@@ -13,7 +14,7 @@ interface ExamModalShellProps {
   children: React.ReactNode;
 }
 
-/** Overlay dialog used by the exam-prep screens: focus on open, Escape to close. */
+/** The app's modal dialog (exam prep, sheets, hubs): focus trap, Escape, focus return, no page scroll (useDialog). */
 export const ExamModalShell: React.FC<ExamModalShellProps> = ({
   theme,
   labelHe,
@@ -23,21 +24,7 @@ export const ExamModalShell: React.FC<ExamModalShellProps> = ({
   children,
 }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
-  // Parents pass an inline onClose, so read the latest one through a ref.
-  const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
-
-  useEffect(() => {
-    dialogRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCloseRef.current?.();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  useDialog(dialogRef, { onClose });
 
   return (
     <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto">
@@ -55,7 +42,7 @@ export const ExamModalShell: React.FC<ExamModalShellProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className={`p-2 rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
+                className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
                 aria-label="סגירה"
                 title="סגירה"
               >

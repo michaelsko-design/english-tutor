@@ -170,7 +170,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
           style={{ width: `${Math.round((answers.length / Math.max(1, steps.length)) * 100)}%` }}
         />
       </div>
-      <span className="text-xs font-extrabold shrink-0" dir="ltr">
+      <span className="text-xs font-extrabold shrink-0" dir="ltr" lang="en">
         {Math.min(stepIdx + 1, steps.length)}/{steps.length}
       </span>
     </div>

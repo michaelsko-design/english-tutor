@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useDialog } from '../hooks/useDialog';
 import { LearnerProfile, PlacementResult, SUPPORTED_GRADES } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
 import {
@@ -73,24 +74,8 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
   const isPendingCorrect =
     typeof pendingPick === 'number' && question.options[pendingPick].isCorrect;
 
-  // Parents pass an inline onClose, so read the latest one through a ref.
-  const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
-
-  // Move focus into the dialog once, when it opens.
-  useEffect(() => {
-    dialogRef.current?.focus();
-  }, []);
-
   // Escape closes the test, except on the result screen, where closing would drop the result.
-  useEffect(() => {
-    if (phase === 'result') return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCloseRef.current();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [phase]);
+  useDialog(dialogRef, { onClose, isEscapeEnabled: phase !== 'result' });
 
   // Answering disables the option buttons, so hand keyboard focus to "Next".
   useEffect(() => {
@@ -168,7 +153,7 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
                     }}
                   />
                 </div>
-                <span className="text-xs font-extrabold shrink-0" dir="ltr">
+                <span className="text-xs font-extrabold shrink-0" dir="ltr" lang="en">
                   {answers.length + 1}/{PLACEMENT_QUESTION_COUNT}
                 </span>
               </>
@@ -199,7 +184,7 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
 
             {isFirstTest ? (
               <div className="px-4 py-2 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold">
-                🎁 בסיום: <span dir="ltr">+{PLACEMENT_REWARD_XP} XP</span> ו-
+                🎁 בסיום: <span dir="ltr" lang="en">+{PLACEMENT_REWARD_XP} XP</span> ו-
                 {PLACEMENT_REWARD_DIAMONDS} 💎
               </div>
             ) : (

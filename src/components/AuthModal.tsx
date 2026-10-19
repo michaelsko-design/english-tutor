@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { useDialog } from '../hooks/useDialog';
 import {
   signInWithPopup,
   signInWithRedirect,
@@ -67,6 +68,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   // Linking doesn't fire a sign-in change, so the saved state is kept here until the next load
   const [isGuestSaved, setIsGuestSaved] = useState(false);
   const isGuest = Boolean(authUser?.isAnonymous) && !isGuestSaved;
+
+  const dialogRef = useRef<HTMLDivElement>(null);
+  // The sign-in gate can't be dismissed; the cloud panel closes with Escape
+  useDialog(dialogRef, { onClose: isMandatory ? undefined : onClose });
 
   const handleGoogleSignIn = async () => {
     if (!auth || !googleProvider) return;
@@ -232,7 +237,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-3 md:p-6 overflow-y-auto">
       <div
-        className={`w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
+        ref={dialogRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-label={isMandatory && !authUser ? 'התחברות' : 'חשבון וסנכרון'}
+        className={`outline-none w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
       >
         {/* Top Modal Header */}
         <div
@@ -269,7 +279,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               type="button"
               onClick={onClose}
               className={`p-2 rounded-xl ${theme.secondaryBtnClass}`}
-              title="Close Cloud Sync Modal"
+              aria-label="סגירה"
+              title="סגירה"
             >
               <X className="w-5 h-5" />
             </button>
@@ -308,7 +319,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     <CheckCircle2 className="w-4 h-4" />
                     <span>מסונכרן בזמן אמת <bdi>(Real-time Firestore Sync)</bdi></span>
                   </span>
-                  <div className="text-base font-extrabold" dir="ltr">
+                  <div className="text-base font-extrabold" dir="ltr" lang="en">
                     Logged in as: {formatUserLabel(authUser)}
                   </div>
                 </div>
@@ -347,8 +358,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       או שם משתמש באנגלית:
                       <input
                         type="text"
-                        dir="ltr"
-                        lang="en"
+                        dir="ltr" lang="en"
                         autoComplete="username"
                         autoCapitalize="none"
                         spellCheck={false}
@@ -361,7 +371,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       וקוד סודי (לפחות 6 תווים):
                       <input
                         type="password"
-                        dir="ltr"
+                        dir="ltr" lang="en"
                         autoComplete="new-password"
                         value={guestPin}
                         onChange={(e) => setGuestPin(e.target.value)}
@@ -457,7 +467,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   </label>
                   <input
                     type="text"
-                    dir="ltr"
+                    dir="ltr" lang="en"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     placeholder="e.g. noa12 or noa@example.com"
@@ -472,7 +482,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   </label>
                   <input
                     type="password"
-                    dir="ltr"
+                    dir="ltr" lang="en"
                     value={secretPin}
                     onChange={(e) => setSecretPin(e.target.value)}
                     placeholder="••••••"

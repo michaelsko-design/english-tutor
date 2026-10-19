@@ -44,7 +44,7 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
         </h2>
         <p className={`text-sm font-bold ${theme.mutedTextClass}`}>
           ענית נכון על{' '}
-          <span dir="ltr">
+          <span dir="ltr" lang="en">
             {result.correctCount}/{result.totalQuestions}
           </span>{' '}
           שאלות
@@ -54,7 +54,7 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
       <div className={`p-4 rounded-2xl ${theme.cardBgClass} space-y-1`}>
         <div className={`text-xs font-bold ${theme.mutedTextClass}`}>הרמה שלך באנגלית</div>
         <div className="text-2xl font-extrabold">{estimated.labelHe}</div>
-        <div className={`text-xs font-bold ${theme.accentTextClass}`} dir="ltr">
+        <div className={`text-xs font-bold ${theme.accentTextClass}`} dir="ltr" lang="en">
           {estimated.ministryBand}
         </div>
       </div>
@@ -79,7 +79,7 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
             <div className="font-extrabold">
               {tier.badgeEmoji} {tier.labelHe}
             </div>
-            <div className={`text-xs ${theme.mutedTextClass}`} dir="ltr">
+            <div className={`text-xs ${theme.mutedTextClass}`} dir="ltr" lang="en">
               {tier.labelEn}
             </div>
           </div>
@@ -89,7 +89,7 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
 
       {isFirstTest && (
         <div className="px-4 py-2.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-sm font-extrabold">
-          🎁 קיבלת <span dir="ltr">+{PLACEMENT_REWARD_XP} XP</span> ו-
+          🎁 קיבלת <span dir="ltr" lang="en">+{PLACEMENT_REWARD_XP} XP</span> ו-
           {PLACEMENT_REWARD_DIAMONDS} 💎 על השלמת המבחן!
         </div>
       )}
