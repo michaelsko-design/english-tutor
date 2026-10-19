@@ -278,9 +278,9 @@ Each learning mission consists of 5 pedagogical drill stages:
 - Voices and SSML (Jenny / Guy, prosody, a 200 ms leading break) live only in `api/_lib/azureTts.ts`. **Changing them means bumping `TTS_AUDIO_VERSION` in `ttsText.ts` and re-rendering.** The new clip folder and query make every cache (browser, service worker, CDN) fetch the new sound. `api/` imports use `.js` extensions, because the package is ESM.
 - **Playback** (`audioUnlock.ts`): one shared `<audio>` element, unlocked with a moment of silence on `touchend` / `click` / `keydown`. A touch `pointerdown` doesn't count on iOS. The unlock retries on each gesture until a sound has played. A system pause (a call) ends the current `speak`, and a manifest that fails to load is tried again on the next one. Clips are fetched into object URLs, because Safari won't play media a service worker answers without byte ranges. `public/sw.js` serves `/tts/*.mp3` cache-first (`englishvibe-tts-v1`), skips `/api/`, and keeps `englishvibe-tts-*` caches.
 - **Dev server:** a plugin in `vite.config.ts` serves `/api/tts` with the `.env.local` key. **Production** (Vercel project `english-tutor`, scope `clear-shield`):
-  - `AZURE_SPEECH_REGION` (`qatarcentral`) and the sensitive `AZURE_SPEECH_KEY` are project environment variables (Production + Preview).
+  - `AZURE_SPEECH_REGION` (`germanywestcentral`, Frankfurt) and the sensitive `AZURE_SPEECH_KEY` are project environment variables (Production + Preview).
   - The Firewall rule "Rate limit online voice" allows 100 requests a minute per IP on `/api/tts`. The app answers its 429 by pausing the online voice.
-  - `vercel.json` pins functions to `fra1` (Frankfurt). Dubai (`dxb1`) would be closer to the `qatarcentral` Azure resource, but Vercel reported it unavailable (2026-10-19).
+  - `vercel.json` pins functions to `fra1` (Frankfurt), the same city as the Azure Speech resource.
 - **Settings:** the voice choice and its preview (`components/settings/VoiceLabCard.tsx`: one "🔊 שמעו דוגמה" button with a rendered sample sentence, plus a field to hear any typed text) are in the settings screen (`OnboardingView` in edit mode). The choice is stored as `voicePreference` on the profile; a missing value means female. Merge: same rule as `themeId`.
 
 ### 4.19. Home Base Dashboard (`DashboardView.tsx`, `components/home/`, `data/homeBase.ts`, `utils/bidi.ts`)

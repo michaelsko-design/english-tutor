@@ -52,7 +52,10 @@ Each phrase tries three tiers in order (`src/services/tts/hybridTtsService.ts`):
 
 ## Measured in production (2026-10-19, from Israel, Vercel edge `fra1`)
 
-- `/api/tts`, first request for a phrase (function cold start + Azure `qatarcentral`): **2.1 s**, then `X-Vercel-Cache: HIT` at **0.33–0.49 s**. On the device, a repeat is served from CacheStorage.
+- `/api/tts`, first request for a phrase:
+  - with Azure in `qatarcentral`: **2.1 s**
+  - after moving Azure to `germanywestcentral` (the same city as the `fra1` function): **0.72–0.96 s**, the first request after a fresh deploy included
+- Repeats hit the CDN (`X-Vercel-Cache: HIT`) at **0.33–0.63 s**. On the device, a repeat is served from CacheStorage.
 - A rendered clip (`/tts/v1/female/*.mp3`, ~28 KB): **0.46 s** on a CDN miss.
 - A non-canonical query (`&x=1`) is rejected with 400.
 
