@@ -92,6 +92,8 @@ flowchart TD
 - Each theme defines layout tokens: `pageBgClass`, `cardBgClass`, `heroCardClass`, `primaryBtnClass`, `hudBgClass`, and companion metadata.
 
 ### 4.4. Multi-Grade Curriculum Framework (`src/data/curriculum/`)
+> **After any change to English text, render the read-aloud clips again.** See "When English text changes" in section 6.
+
 The curriculum is organized into modular grade packs covering Grades 1 to 12:
 - **Elementary School (Grades 1–6 — Deep Content Active: 4 units × 3 missions = 12 missions per grade, 72 total)**:
   - **Grades 1–2 (Pre-Foundation)**: Phonics, alphabet sounds, CVC rhyming word families, sight words, colors, numbers, family, healthy snacks, farm/pet animals, home, clothes, and classroom objects, with picture-emoji vocabulary matching and Hebrew-first instructions.
@@ -275,7 +277,10 @@ Each learning mission consists of 5 pedagogical drill stages:
   - `scripts/tts/corpus.ts` builds the corpus from the real generators: every mission × tier step, vocabulary, room and wardrobe names, voice messages, dream words and the demo phrases. **Add new fixed spoken text there and re-render after curriculum changes.** In dev builds, text read without a clip is collected in `window.__ttsMisses`.
 - Voices and SSML (Jenny / Guy, prosody, a 200 ms leading break) live only in `api/_lib/azureTts.ts`. **Changing them means bumping `TTS_AUDIO_VERSION` in `ttsText.ts` and re-rendering.** The new clip folder and query make every cache (browser, service worker, CDN) fetch the new sound. `api/` imports use `.js` extensions, because the package is ESM.
 - **Playback** (`audioUnlock.ts`): one shared `<audio>` element, unlocked with a moment of silence on `touchend` / `click` / `keydown`. A touch `pointerdown` doesn't count on iOS. The unlock retries on each gesture until a sound has played. A system pause (a call) ends the current `speak`, and a manifest that fails to load is tried again on the next one. Clips are fetched into object URLs, because Safari won't play media a service worker answers without byte ranges. `public/sw.js` serves `/tts/*.mp3` cache-first (`englishvibe-tts-v1`), skips `/api/`, and keeps `englishvibe-tts-*` caches.
-- **Dev server:** a plugin in `vite.config.ts` serves `/api/tts` with the `.env.local` key. **Production:** set the two Azure variables in Vercel and add a Firewall rate-limit rule on `/api/tts`; `vercel.json` pins functions to `fra1`.
+- **Dev server:** a plugin in `vite.config.ts` serves `/api/tts` with the `.env.local` key. **Production** (Vercel project `english-tutor`, scope `clear-shield`):
+  - `AZURE_SPEECH_REGION` (`qatarcentral`) and the sensitive `AZURE_SPEECH_KEY` are project environment variables (Production + Preview).
+  - The Firewall rule "Rate limit online voice" allows 100 requests a minute per IP on `/api/tts`. The app answers its 429 by pausing the online voice.
+  - `vercel.json` pins functions to `dxb1` (Dubai), close to the `qatarcentral` Azure resource and to Israel.
 - **Settings:** the voice choice and the voice lab (`components/settings/VoiceLabCard.tsx`) are in the settings screen (`OnboardingView` in edit mode). The voice lab plays a slow word, a sentence and typed text, and shows which tier read it and how long it took to start. The choice is stored as `voicePreference` on the profile; a missing value means female. Merge: same rule as `themeId`.
 
 ### 4.19. Home Base Dashboard (`DashboardView.tsx`, `components/home/`, `data/homeBase.ts`, `utils/bidi.ts`)
@@ -424,6 +429,16 @@ npm run build
 # Preview production build locally
 npm run preview
 ```
+
+### When English text changes: render the read-aloud clips
+Every fixed English phrase the app reads aloud has a pre-rendered Azure clip (4.20). That covers curriculum missions and generated drill steps, vocabulary, room and wardrobe item names, voice messages, dream journal words and the voice lab phrases. A changed or new phrase has no clip, so the online voice reads it. That costs Azure quota on every new device, and the device voice reads it offline. After changing any of that text, in the same commit:
+1. **New kinds of spoken text** (a new data file, or a new `onSpeakEnglish(...)` call on fixed text) go into `scripts/tts/corpus.ts`. Text the learner types does not.
+2. Run `npm run tts:check`. It lists phrases without a clip.
+3. Run `npm run tts:render`. It renders only the missing clips (`AZURE_SPEECH_KEY` / `AZURE_SPEECH_REGION` in `.env.local`) and rewrites `public/tts/manifest.json`. Clips of removed text stay on disk but leave the manifest; they can be deleted.
+4. Run `npm run tts:check` again (it must report every phrase), then commit the new `public/tts/v<N>/female/*.mp3` files with `manifest.json`.
+5. Optional: in `npm run dev`, play the changed screens. `window.__ttsMisses` in the console lists text read without a clip; it should stay empty.
+
+Changing the **voice or SSML** (`api/_lib/azureTts.ts`) is different. Bump `TTS_AUDIO_VERSION` in `src/services/tts/ttsText.ts`, render everything into the new `v<N>` folder (~140K characters, about 35 minutes), and delete the old folder. The old URLs stay cached forever, so reusing them would serve the old sound.
 
 ---
 
