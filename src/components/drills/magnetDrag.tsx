@@ -10,6 +10,7 @@ import {
   DragOverEvent,
   DragOverlay,
   DragStartEvent,
+  KeyboardCoordinateGetter,
   KeyboardSensor,
   MouseSensor,
   Over,
@@ -50,8 +51,6 @@ const CLICK_AFTER_DRAG_MS = 300;
 
 /** Space picks up and drops; Enter stays a tap (add or take back). */
 const KEYBOARD_CODES = { start: ['Space'], cancel: ['Escape'], end: ['Space'] };
-
-const ROLE_DESCRIPTION_HE = 'מגנט שאפשר לגרור';
 
 /** The magnet a drop over a chip in the tray lands after it, judged by the dragged chip's centre. */
 const isAfterOver = (active: Active, over: Over): boolean => {
@@ -97,6 +96,47 @@ export interface MagnetDrag {
   shouldIgnoreClick: () => boolean;
 }
 
+/** Mouse, touch (after a short hold) and keyboard sensors shared by the magnet drills. */
+export function useMagnetSensors(coordinateGetter: KeyboardCoordinateGetter) {
+  return useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: MOUSE_DRAG_DISTANCE_PX } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: TOUCH_DRAG_DELAY_MS, tolerance: TOUCH_DRAG_TOLERANCE_PX },
+    }),
+    useSensor(KeyboardSensor, { coordinateGetter, keyboardCodes: KEYBOARD_CODES })
+  );
+}
+
+/** Tells a real tap from the click a browser fires at the end of a drag. */
+export function useDragClickGuard() {
+  const isDraggingRef = useRef(false);
+  const lastDragEndRef = useRef(0);
+  return {
+    markDragStart: () => {
+      isDraggingRef.current = true;
+    },
+    markDragEnd: () => {
+      isDraggingRef.current = false;
+      lastDragEndRef.current = performance.now();
+    },
+    shouldIgnoreClick: () => isDraggingRef.current || performance.now() - lastDragEndRef.current < CLICK_AFTER_DRAG_MS,
+  };
+}
+
+/** Hebrew screen-reader announcements; `labelOf` names a magnet or a drop zone. */
+export const buildMagnetAnnouncements = (labelOf: (id: UniqueIdentifier) => string): Announcements => ({
+  onDragStart: ({ active }) => `הרמת את ${labelOf(active.id)}`,
+  onDragOver: ({ active, over }) =>
+    over ? `${labelOf(active.id)} מעל ${labelOf(over.id)}` : `${labelOf(active.id)} מחוץ לתרגיל`,
+  onDragEnd: ({ active, over }) =>
+    over ? `שחררת את ${labelOf(active.id)} ליד ${labelOf(over.id)}` : `שחררת את ${labelOf(active.id)} מחוץ לתרגיל`,
+  onDragCancel: () => 'ההזזה בוטלה',
+});
+
+export const MAGNET_SCREEN_READER_INSTRUCTIONS = {
+  draggable: 'רווח מרים את המגנט, החיצים מזיזים אותו ורווח נוסף משחרר אותו. Escape מבטל, ו-Enter מוסיף אותו או מחזיר אותו.',
+};
+
 export function useMagnetDrag({
   order,
   isDisabled,
@@ -107,22 +147,13 @@ export function useMagnetDrag({
 }: UseMagnetDragOptions): MagnetDrag {
   const [preview, setPreview] = useState<number[] | null>(null);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
-  const isDraggingRef = useRef(false);
-  const lastDragEndRef = useRef(0);
-
-  const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: MOUSE_DRAG_DISTANCE_PX } }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: TOUCH_DRAG_DELAY_MS, tolerance: TOUCH_DRAG_TOLERANCE_PX },
-    }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates, keyboardCodes: KEYBOARD_CODES })
-  );
+  const clickGuard = useDragClickGuard();
+  const sensors = useMagnetSensors(sortableKeyboardCoordinates);
 
   const currentOrder = preview ?? order;
 
   const finishDrag = () => {
-    isDraggingRef.current = false;
-    lastDragEndRef.current = performance.now();
+    clickGuard.markDragEnd();
     setPreview(null);
     setActiveIdx(null);
   };
@@ -130,7 +161,7 @@ export function useMagnetDrag({
   const handleDragStart = ({ active }: DragStartEvent) => {
     const idx = fromMagnetId(active.id);
     if (idx === null || isDisabled) return;
-    isDraggingRef.current = true;
+    clickGuard.markDragStart();
     setActiveIdx(idx);
     setPreview(order);
     playSfx('tap');
@@ -180,15 +211,6 @@ export function useMagnetDrag({
     return idx === null ? '' : getLabel(idx);
   };
 
-  const announcements: Announcements = {
-    onDragStart: ({ active }) => `הרמת את ${labelOf(active.id)}`,
-    onDragOver: ({ active, over }) =>
-      over ? `${labelOf(active.id)} מעל ${labelOf(over.id)}` : `${labelOf(active.id)} מחוץ לתרגיל`,
-    onDragEnd: ({ active, over }) =>
-      over ? `שחררת את ${labelOf(active.id)} ליד ${labelOf(over.id)}` : `שחררת את ${labelOf(active.id)} מחוץ לתרגיל`,
-    onDragCancel: () => 'ההזזה בוטלה',
-  };
-
   return {
     order: currentOrder,
     activeIdx,
@@ -200,22 +222,21 @@ export function useMagnetDrag({
       onDragEnd: handleDragEnd,
       onDragCancel: finishDrag,
       accessibility: {
-        announcements,
-        screenReaderInstructions: {
-          draggable: 'רווח מרים את המגנט, החיצים מזיזים אותו ורווח נוסף משחרר אותו. Escape מבטל, ו-Enter מוסיף אותו או מחזיר אותו.',
-        },
+        announcements: buildMagnetAnnouncements(labelOf),
+        screenReaderInstructions: MAGNET_SCREEN_READER_INSTRUCTIONS,
       },
     },
-    shouldIgnoreClick: () => isDraggingRef.current || performance.now() - lastDragEndRef.current < CLICK_AFTER_DRAG_MS,
+    shouldIgnoreClick: clickGuard.shouldIgnoreClick,
   };
 }
 
-type MagnetButtonProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
+export type MagnetButtonProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
   idx: number;
   isDragDisabled: boolean;
 };
 
-const DRAG_SOURCE_OPACITY = 0.35;
+export const DRAG_SOURCE_OPACITY = 0.35;
+export const MAGNET_ROLE_DESCRIPTION_HE = 'מגנט שאפשר לגרור';
 
 /** A placed magnet: tap to take it back, drag to move it inside the tray or back to the bank. */
 export function TrayMagnet({ idx, isDragDisabled, style, ...buttonProps }: MagnetButtonProps) {
@@ -223,7 +244,7 @@ export function TrayMagnet({ idx, isDragDisabled, style, ...buttonProps }: Magne
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: toMagnetId(idx),
     disabled: isDragDisabled,
-    attributes: { roleDescription: ROLE_DESCRIPTION_HE },
+    attributes: { roleDescription: MAGNET_ROLE_DESCRIPTION_HE },
     ...(isReducedMotion ? { transition: null } : {}),
   });
   return (
@@ -244,23 +265,27 @@ export function TrayMagnet({ idx, isDragDisabled, style, ...buttonProps }: Magne
   );
 }
 
-/** A magnet in the bank: tap to place it at the end, drag it to any spot in the tray. */
-export function BankMagnet({ idx, isDragDisabled, style, ...buttonProps }: MagnetButtonProps) {
+type DraggableMagnetProps = MagnetButtonProps & {
+  /** Space picks it up. Off for bank magnets: there Enter and Space are a tap that places it. */
+  isKeyboardDraggable?: boolean;
+};
+
+/** A draggable magnet that isn't in a sortable list: a bank chip, or a letter placed in a slot. */
+export function DraggableMagnet({ idx, isDragDisabled, isKeyboardDraggable = false, style, ...buttonProps }: DraggableMagnetProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: toMagnetId(idx),
     disabled: isDragDisabled,
-    attributes: { roleDescription: ROLE_DESCRIPTION_HE },
+    attributes: { roleDescription: MAGNET_ROLE_DESCRIPTION_HE },
   });
-  // Keyboard users place bank magnets with Enter or Space (a tap), so only the pointer starts a drag here.
-  const pointerListeners = Object.fromEntries(
-    Object.entries(listeners ?? {}).filter(([eventName]) => eventName !== 'onKeyDown')
-  );
+  const activeListeners = isKeyboardDraggable
+    ? listeners
+    : Object.fromEntries(Object.entries(listeners ?? {}).filter(([eventName]) => eventName !== 'onKeyDown'));
   return (
     <button
       ref={setNodeRef}
       type="button"
       {...attributes}
-      {...pointerListeners}
+      {...activeListeners}
       {...buttonProps}
       style={{ ...style, opacity: isDragging ? DRAG_SOURCE_OPACITY : undefined, touchAction: 'manipulation' }}
     />
@@ -268,7 +293,7 @@ export function BankMagnet({ idx, isDragDisabled, style, ...buttonProps }: Magne
 }
 
 interface MagnetDropZoneProps extends React.HTMLAttributes<HTMLDivElement> {
-  id: typeof MAGNET_TRAY_ID | typeof MAGNET_BANK_ID;
+  id: string;
   /** Added while a magnet is dragged over the zone */
   overClassName?: string;
 }

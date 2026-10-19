@@ -9,6 +9,7 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { SpeechEvaluationResult } from '../../utils/speechSimilarity';
 import { seededShuffle, seededShuffleNotIdentity } from '../../utils/shuffle';
 import { getSpellingHintHe } from '../../utils/hints';
+import { spellSlots } from '../../utils/letterSlots';
 import { getSpeechErrorTextHe, useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { FeedbackBanner, MultipleChoiceOptions, SpellingMagnetDrill, VoiceSpeakDrill } from '../drills';
 import { ItemIcon } from './ItemIcon';
@@ -95,7 +96,7 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
       ),
     [item, distractorNames, isGirl, salt]
   );
-  const [tileIndices, setTileIndices] = useState<number[]>([]);
+  const [letterSlots, setLetterSlots] = useState<(number | null)[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [speechEval, setSpeechEval] = useState<SpeechEvaluationResult | null>(null);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
@@ -105,7 +106,7 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
   const cancelListening = speech.cancel;
 
   useEffect(() => {
-    setTileIndices([]);
+    setLetterSlots([]);
     setSelectedIdx(null);
     setSpeechEval(null);
     setFeedback(null);
@@ -121,13 +122,13 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
     setFeedback({ isCorrect: true, text });
   };
 
-  const handleTileOrderChange = (nextIndices: number[]) => {
+  const handleLetterSlotsChange = (nextSlots: (number | null)[]) => {
     if (isNamed) return;
-    setTileIndices(nextIndices);
+    setLetterSlots(nextSlots);
   };
 
   const handleCheckSpelling = () => {
-    const built = tileIndices.map((i) => letterTiles[i]).join('');
+    const built = spellSlots(letterSlots, letterTiles);
     if (built.toLowerCase() === getSpellingLetters(item.nameEn).join('').toLowerCase()) {
       succeed(`מעולה! ${item.nameEn} מאוית נכון 🧲`);
     } else {
@@ -235,10 +236,10 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
           targetEn={item.nameEn}
           letterTiles={letterTiles}
           translationHe={item.nameHe}
-          selectedIndices={tileIndices}
+          slots={letterSlots}
           isCompleted={isNamed}
-          onChangeOrder={handleTileOrderChange}
-          onReset={() => setTileIndices([])}
+          onChangeSlots={handleLetterSlotsChange}
+          onReset={() => setLetterSlots([])}
           onCheck={handleCheckSpelling}
           onListen={() => onSpeakEnglish(item.nameEn, 0.85)}
           theme={theme}

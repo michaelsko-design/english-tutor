@@ -6,7 +6,7 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { MagnetChange, toggleMagnet, toMagnetId } from '../../utils/magnetOrder';
 import { playSfx } from '../../utils/sfx';
 import {
-  BankMagnet,
+  DraggableMagnet,
   MAGNET_BANK_ID,
   MAGNET_TRAY_ID,
   MagnetDragOverlay,
@@ -116,7 +116,7 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
                 {word}
               </button>
             ) : (
-              <BankMagnet
+              <DraggableMagnet
                 key={`bank-${idx}-${word}`}
                 idx={idx}
                 isDragDisabled={isCompleted}
@@ -125,7 +125,7 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
                 className={`${CHIP_CLASS} transition-all ${theme.secondaryBtnClass}`}
               >
                 {word}
-              </BankMagnet>
+              </DraggableMagnet>
             )
           )}
         </MagnetDropZone>

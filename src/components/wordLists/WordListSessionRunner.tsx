@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { celebrate } from '../../utils/celebrate';
+import { spellSlots } from '../../utils/letterSlots';
 import { MagnetChange } from '../../utils/magnetOrder';
 import { Lightbulb } from 'lucide-react';
 import {
@@ -69,6 +70,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [tileIndices, setTileIndices] = useState<number[]>([]);
+  const [letterSlots, setLetterSlots] = useState<(number | null)[]>([]);
   const [speechEval, setSpeechEval] = useState<SpeechEvaluationResult | null>(null);
   const [showHint, setShowHint] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
@@ -84,6 +86,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
     setFeedback(null);
     setSelectedIdx(null);
     setTileIndices([]);
+    setLetterSlots([]);
     setSpeechEval(null);
     setShowHint(profile.preferredTier === 'explorer');
     cancelListening();
@@ -119,9 +122,9 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
     else handleWrong(chosen.explanationHe);
   };
 
-  const handleLetterOrderChange = (nextIndices: number[]) => {
+  const handleLetterSlotsChange = (nextSlots: (number | null)[]) => {
     if (isResolved) return;
-    setTileIndices(nextIndices);
+    setLetterSlots(nextSlots);
   };
 
   const handleWordOrderChange = (nextIndices: number[], change: MagnetChange) => {
@@ -131,7 +134,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   };
 
   const handleCheckSpelling = () => {
-    const built = tileIndices.map((i) => step.letterTiles![i]).join('');
+    const built = spellSlots(letterSlots, step.letterTiles ?? []);
     if (built.toLowerCase() === getSpellingLetters(step.textEn).join('').toLowerCase()) {
       onSpeakEnglish(step.textEn, 0.95);
       resolveStep(true, `מעולה! ${step.textEn} מאוית נכון 🧲`);
@@ -266,10 +269,10 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
             targetEn={step.textEn}
             letterTiles={step.letterTiles}
             translationHe={step.translationHe}
-            selectedIndices={tileIndices}
+            slots={letterSlots}
             isCompleted={isResolved}
-            onChangeOrder={handleLetterOrderChange}
-            onReset={() => setTileIndices([])}
+            onChangeSlots={handleLetterSlotsChange}
+            onReset={() => setLetterSlots([])}
             onCheck={handleCheckSpelling}
             onListen={() => onSpeakEnglish(step.textEn, 0.85)}
             theme={theme}

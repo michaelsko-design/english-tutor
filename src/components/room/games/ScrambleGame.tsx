@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ScrambleRound, scorePercent } from '../../../data/wordGames';
 import { LearnerGender } from '../../../types/learner';
 import { ThemeDefinition } from '../../../themes/themeRegistry';
+import { spellSlots } from '../../../utils/letterSlots';
 import { FeedbackBanner, SpellingMagnetDrill } from '../../drills';
 
 interface ScrambleGameProps {
@@ -16,7 +17,7 @@ interface ScrambleGameProps {
 export const ScrambleGame: React.FC<ScrambleGameProps> = ({ rounds, gender, theme, onSpeakEnglish, onFinish }) => {
   const isGirl = gender === 'girl';
   const [idx, setIdx] = useState(0);
-  const [tiles, setTiles] = useState<number[]>([]);
+  const [slots, setSlots] = useState<(number | null)[]>([]);
   const [isSolved, setIsSolved] = useState(false);
   const [hasMissed, setHasMissed] = useState(false);
   const [firstTryCount, setFirstTryCount] = useState(0);
@@ -25,13 +26,13 @@ export const ScrambleGame: React.FC<ScrambleGameProps> = ({ rounds, gender, them
   const round = rounds[idx];
   const isLast = idx === rounds.length - 1;
 
-  const handleOrderChange = (nextTiles: number[]) => {
+  const handleSlotsChange = (nextSlots: (number | null)[]) => {
     if (isSolved) return;
-    setTiles(nextTiles);
+    setSlots(nextSlots);
   };
 
   const handleCheck = () => {
-    const built = tiles.map((i) => round.letterTiles[i]).join('');
+    const built = spellSlots(slots, round.letterTiles);
     if (built === round.word.word) {
       onSpeakEnglish(round.word.word.toLowerCase(), 0.9);
       setIsSolved(true);
@@ -49,7 +50,7 @@ export const ScrambleGame: React.FC<ScrambleGameProps> = ({ rounds, gender, them
       return;
     }
     setIdx(idx + 1);
-    setTiles([]);
+    setSlots([]);
     setIsSolved(false);
     setHasMissed(false);
     setFeedback(null);
@@ -65,10 +66,10 @@ export const ScrambleGame: React.FC<ScrambleGameProps> = ({ rounds, gender, them
         targetEn={round.word.word}
         letterTiles={round.letterTiles}
         translationHe={round.word.he}
-        selectedIndices={tiles}
+        slots={slots}
         isCompleted={isSolved}
-        onChangeOrder={handleOrderChange}
-        onReset={() => setTiles([])}
+        onChangeSlots={handleSlotsChange}
+        onReset={() => setSlots([])}
         onCheck={handleCheck}
         onListen={() => onSpeakEnglish(round.word.word.toLowerCase(), 0.8)}
         theme={theme}

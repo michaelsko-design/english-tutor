@@ -1,19 +1,11 @@
 import React from 'react';
 import { DndContext } from '@dnd-kit/core';
-import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import { RotateCcw, Volume2 } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
-import { MagnetChange, toggleMagnet, toMagnetId } from '../../utils/magnetOrder';
+import { isEverySlotFilled, placeLetter, takeBackLetter, toSlots } from '../../utils/letterSlots';
 import { playSfx } from '../../utils/sfx';
-import {
-  BankMagnet,
-  MAGNET_BANK_ID,
-  MAGNET_TRAY_ID,
-  MagnetDragOverlay,
-  MagnetDropZone,
-  TrayMagnet,
-  useMagnetDrag,
-} from './magnetDrag';
+import { LetterSlot, useLetterSlotDrag } from './letterSlotDrag';
+import { DraggableMagnet, MAGNET_BANK_ID, MagnetDragOverlay, MagnetDropZone } from './magnetDrag';
 
 interface SpellingMagnetDrillProps {
   /** The word or phrase to spell; spaces, hyphens and apostrophes are shown, not spelled */
@@ -21,10 +13,11 @@ interface SpellingMagnetDrillProps {
   /** The word's letters in shuffled order, one tile each */
   letterTiles: string[];
   translationHe?: string;
-  selectedIndices: number[];
+  /** The tile in each letter slot of the word, null for an open slot (an empty list means all open) */
+  slots: (number | null)[];
   isCompleted: boolean;
-  /** A letter was placed (tap or drop), taken back, or moved to another slot */
-  onChangeOrder: (nextIndices: number[], change: MagnetChange) => void;
+  /** A letter was placed, moved, swapped or taken back */
+  onChangeSlots: (next: (number | null)[]) => void;
   onReset: () => void;
   onCheck: () => void;
   onListen: () => void;
@@ -32,69 +25,83 @@ interface SpellingMagnetDrillProps {
 }
 
 const SPELLED_CHAR = /[A-Za-z0-9]/;
+const SLOT_CLASS = 'w-9 h-11 rounded-xl flex transition-shadow';
+const OPEN_SLOT_CLASS = 'border-2 border-dashed border-purple-400/50 bg-black/5 dark:bg-white/5';
+const SLOT_OVER_CLASS = 'ring-2 ring-purple-400/80';
 const ZONE_OVER_CLASS = 'ring-2 ring-purple-400/70';
 
-/** Letter magnets: tap or drag the letter tiles into order to spell the word you hear. */
+/** Letter magnets: tap the letter tiles, or drag them into any slot, to spell the word you hear. */
 export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
   targetEn,
   letterTiles,
   translationHe,
-  selectedIndices,
+  slots,
   isCompleted,
-  onChangeOrder,
+  onChangeSlots,
   onReset,
   onCheck,
   onListen,
   theme,
 }) => {
-  const drag = useMagnetDrag({
-    order: selectedIndices,
+  const slotCount = letterTiles.length;
+  const filledSlots = toSlots(slots, slotCount);
+  const drag = useLetterSlotDrag({
+    slots: filledSlots,
+    slotCount,
     isDisabled: isCompleted,
     getLabel: (idx) => letterTiles[idx] ?? '',
-    trayLabelHe: 'המילה',
     bankLabelHe: 'האותיות',
-    onChangeOrder,
+    onChangeSlots,
   });
-  const placed = drag.order;
 
-  const handleTap = (tileIdx: number) => {
+  const handleTapBank = (tileIdx: number) => {
     if (drag.shouldIgnoreClick()) return;
     playSfx('tap');
-    const { order, change } = toggleMagnet(selectedIndices, tileIdx);
-    onChangeOrder(order, change);
+    onChangeSlots(placeLetter(filledSlots, slotCount, tileIdx));
   };
 
-  // Lay the placed letters into the word's letter slots, keeping spaces and punctuation fixed.
+  const handleTapPlaced = (tileIdx: number) => {
+    if (drag.shouldIgnoreClick()) return;
+    playSfx('tap');
+    onChangeSlots(takeBackLetter(filledSlots, slotCount, tileIdx));
+  };
+
+  // Lay out the word's letter slots, keeping spaces and punctuation fixed.
   let letterPos = 0;
-  const slots = targetEn.split('').map((ch, idx) => {
+  const slotElements = targetEn.split('').map((ch, charIdx) => {
     if (!SPELLED_CHAR.test(ch)) {
       return ch === ' ' ? (
-        <span key={`gap-${idx}`} className="w-3" aria-hidden="true" />
+        <span key={`gap-${charIdx}`} className="w-3" aria-hidden="true" />
       ) : (
-        <span key={`fixed-${idx}`} className="text-lg font-extrabold opacity-70">
+        <span key={`fixed-${charIdx}`} className="text-lg font-extrabold opacity-70">
           {ch}
         </span>
       );
     }
-    const tileIdx = placed[letterPos];
+    const pos = letterPos;
     letterPos += 1;
-    return tileIdx === undefined ? (
-      <span
-        key={`slot-${idx}`}
-        className="w-9 h-11 rounded-xl border-2 border-dashed border-purple-400/50 bg-black/5 dark:bg-white/5"
-      />
-    ) : (
-      <TrayMagnet
-        key={`tile-${tileIdx}`}
-        idx={tileIdx}
-        isDragDisabled={isCompleted}
-        disabled={isCompleted}
-        onClick={() => handleTap(tileIdx)}
-        aria-label={`letter ${letterTiles[tileIdx]}`}
-        className={`w-9 h-11 rounded-xl text-lg font-extrabold ${theme.primaryBtnClass}`}
+    const tileIdx = filledSlots[pos];
+    return (
+      <LetterSlot
+        key={`slot-${pos}`}
+        pos={pos}
+        className={`${SLOT_CLASS} ${tileIdx === null || tileIdx === undefined ? OPEN_SLOT_CLASS : ''}`}
+        overClassName={SLOT_OVER_CLASS}
       >
-        {letterTiles[tileIdx]}
-      </TrayMagnet>
+        {tileIdx !== null && tileIdx !== undefined && (
+          <DraggableMagnet
+            idx={tileIdx}
+            isDragDisabled={isCompleted}
+            isKeyboardDraggable
+            disabled={isCompleted}
+            onClick={() => handleTapPlaced(tileIdx)}
+            aria-label={`letter ${letterTiles[tileIdx]}`}
+            className={`w-full h-full rounded-xl text-lg font-extrabold ${theme.primaryBtnClass}`}
+          >
+            {letterTiles[tileIdx]}
+          </DraggableMagnet>
+        )}
+      </LetterSlot>
     );
   });
 
@@ -118,18 +125,14 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
         </div>
 
         {/* Letter slots */}
-        <MagnetDropZone
-          id={MAGNET_TRAY_ID}
+        <div
           aria-label="המילה"
-          className="min-h-[68px] p-3 rounded-2xl bg-black/5 dark:bg-white/5 flex flex-wrap items-center justify-center gap-1.5 transition-shadow"
-          overClassName={ZONE_OVER_CLASS}
+          className="min-h-[68px] p-3 rounded-2xl bg-black/5 dark:bg-white/5 flex flex-wrap items-center justify-center gap-1.5"
           dir="ltr"
           lang="en"
         >
-          <SortableContext items={placed.map(toMagnetId)} strategy={rectSortingStrategy}>
-            {slots}
-          </SortableContext>
-        </MagnetDropZone>
+          {slotElements}
+        </div>
 
         {/* Letter tiles */}
         <MagnetDropZone
@@ -141,7 +144,7 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
           lang="en"
         >
           {letterTiles.map((letter, idx) =>
-            placed.includes(idx) ? (
+            filledSlots.includes(idx) ? (
               <button
                 key={`tile-${idx}-${letter}`}
                 type="button"
@@ -152,17 +155,17 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
                 {letter}
               </button>
             ) : (
-              <BankMagnet
+              <DraggableMagnet
                 key={`tile-${idx}-${letter}`}
                 idx={idx}
                 isDragDisabled={isCompleted}
                 disabled={isCompleted}
-                onClick={() => handleTap(idx)}
+                onClick={() => handleTapBank(idx)}
                 aria-label={`letter ${letter}`}
                 className={`w-11 h-11 rounded-xl text-lg font-extrabold transition-all ${theme.secondaryBtnClass}`}
               >
                 {letter}
-              </BankMagnet>
+              </DraggableMagnet>
             )
           )}
         </MagnetDropZone>
@@ -189,7 +192,7 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
             </button>
             <button
               type="button"
-              disabled={selectedIndices.length < letterTiles.length}
+              disabled={!isEverySlotFilled(filledSlots, slotCount)}
               onClick={onCheck}
               className={`px-6 py-2.5 rounded-xl text-xs md:text-sm font-extrabold ${theme.primaryBtnClass} disabled:opacity-40`}
             >
