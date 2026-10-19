@@ -1,5 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { pickVoice, type VoiceInfo } from './ttsVoice';
+import { getFallbackPitch, pickVoice, type VoiceInfo } from './ttsVoice';
+
+describe('getFallbackPitch', () => {
+  it('leaves the pitch alone when a matching voice was found', () => {
+    expect(getFallbackPitch('male', true)).toBe(1);
+    expect(getFallbackPitch('female', true)).toBe(1);
+  });
+
+  it('lowers the male and raises the female pitch when no voice matched', () => {
+    expect(getFallbackPitch('male', false)).toBeLessThan(1);
+    expect(getFallbackPitch('female', false)).toBeGreaterThan(1);
+  });
+});
 
 const v = (name: string, lang = 'en-US'): VoiceInfo => ({ name, lang });
 
@@ -40,6 +52,13 @@ describe('pickVoice', () => {
 
   it('treats an unknown preference as female', () => {
     expect(pickVoice(voices, 'other' as never)?.name).toContain('Zira');
+  });
+
+  it('recognises Android Google TTS voices by their code', () => {
+    const list = [v('en-us-x-sfg-local'), v('en-us-x-iom-local'), v('en-us-x-tpc-network')];
+    expect(pickVoice(list, 'male')?.name).toBe('en-us-x-iom-local');
+    expect(pickVoice(list, 'female')?.name).not.toBe('en-us-x-iom-local');
+    expect(pickVoice(list, 'female')).not.toBeNull();
   });
 
   it('does not treat a female voice as male', () => {

@@ -8,8 +8,17 @@ export interface VoiceInfo {
 }
 
 const FEMALE_NAMES =
-  /\b(aria|jenny|samantha|zira|susan|karen|moira|tessa|serena|victoria|allison|ava|libby|sonia|emma|female)\b|google us english/i;
-const MALE_NAMES = /\b(david|mark|guy|alex|daniel|fred|george|ryan|james|tom|male)\b/i;
+  /\b(aria|jenny|samantha|zira|susan|karen|moira|tessa|serena|victoria|allison|ava|libby|sonia|emma|female)\b|google us english|-x-(sfg|iob|iog|tpc|tpf)\b/i;
+const MALE_NAMES = /\b(david|mark|guy|alex|daniel|fred|george|ryan|james|tom|male)\b|-x-(iol|iom|tpd)\b/i;
+
+const UNMATCHED_MALE_PITCH = 0.7;
+const UNMATCHED_FEMALE_PITCH = 1.1;
+
+/** With no recognisable voice, the default voice is used, so the pitch keeps the two options apart. */
+export function getFallbackPitch(preference: VoicePreference, hasMatchedVoice: boolean): number {
+  if (hasMatchedVoice) return 1;
+  return preference === 'male' ? UNMATCHED_MALE_PITCH : UNMATCHED_FEMALE_PITCH;
+}
 const NEURAL_NAMES = /natural|online|neural/i;
 
 function isMale(name: string): boolean {
@@ -69,5 +78,6 @@ export function speakWithVoice(text: string, rate: number, preference: VoicePref
     utterance.voice = voice;
     utterance.lang = voice.lang;
   }
+  utterance.pitch = getFallbackPitch(preference, voice !== null);
   window.speechSynthesis.speak(utterance);
 }
