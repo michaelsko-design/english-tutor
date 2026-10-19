@@ -67,21 +67,23 @@ flowchart TD
 ## 4. Key Architectural Patterns & Features
 
 ### 4.1. State Management & Cloud Sync Pipeline
-- **Local Mirroring**: State is mirrored synchronously to `localStorage` under `english_tutor_learner_profile_v2` for offline availability.
+- **Local Mirroring**: State is mirrored to `localStorage` under `english_tutor_learner_profile_v2` (shown behind the sign-in check). Offline use relies on Firestore's IndexedDB cache.
 - **Firebase Authentication**: Mandatory login gate supporting:
   - Google 1-Tap sign-in (`signInWithPopup`).
   - Kid-friendly Email/Username + PIN password authentication.
-- **Conflict-Free Merge (`mergeLearnerProfiles`)**:
-  - When a user signs in, local and remote profiles are merged safely without data loss.
-  - Takes the **maximum** stars per mission ID (`Math.max(local, cloud)`).
-  - Unions unlocked items (`unlockedRewardIds`).
-  - Preserves maximum streaks, diamonds, and XP.
+- **Sign-in load** (`App.tsx`, `buildLoginProfile` in `cloudSync.ts`): the cloud document is the profile; a fresh default only fills gaps, and its 50 welcome diamonds never count for an existing account. If the first read fails, `CloudLoadErrorScreen` offers a retry and **nothing is saved** until the profile loaded (`isCloudLoadedRef`), so a default profile can never reach onboarding and overwrite the cloud. A slow load of an earlier account is ignored (`authGeneration`).
+- **Every local change** goes through `App.handleUpdateProfile`, which records it once: the activity log (`recordActivityLog`) and this device's diamond ledger (`recordDiamondChange`). Cloud saves are batched (`services/profileSaveQueue.ts`): one write of the latest profile a second after a burst, flushed when the app is hidden or closed and before switching accounts.
+- **Merge (`mergeLearnerProfiles`)** runs on every snapshot. It builds the profile field by field, so **a new profile field must be added there** or a sync drops it locally.
+  - Stars: the maximum per mission. Unlocked items: union. XP: the maximum.
+  - **Diamonds** (`data/diamondLedger.ts`): `diamondLedger` holds per-device `{earned, spent}` totals that only grow; devices merge by the larger value of each, and `stats.diamonds` is their balance. A purchase on one device is never refunded by another. The balance from before the ledger is the `legacy` entry; while neither side has a ledger, the larger plain balance is kept.
+  - **Streak** (`mergeStreakStats`): the device that learned most recently wins (4.6).
+  - Dates are local calendar days everywhere (`utils/dates.ts`, `toLocalDateStr`), never the UTC date.
 - **Real-Time Synchronization**: Listens to Firestore snapshots (`onSnapshot`) on `learners/{uid}`, updating state in real time across multiple devices.
 
 ### 4.2. Hebrew Grammatical Gender Localization (`hebrewGender.ts`)
 - Israeli learners are addressed naturally according to their chosen gender (`girl` / `boy`).
 - `getHebrewCopy(gender, name)` generates personalized greeting headlines, CTA buttons, and status texts.
-- `inflectHebrew(text, gender)` applies regex-based grammatical inflection to mission prompts, hints, daily quests, and explanations (e.g., turning "השלימי" into "השלם", "קראי" into "קרא").
+- `inflectHebrew(text, gender)` applies regex-based grammatical inflection (e.g., turning "השלימי" into "השלם", "קראי" into "קרא"). Mission steps use the `he` tagged template (`hebrewTemplate(gender)`), which inflects only the instruction text written in the template, never the story passages, story questions or answer options it embeds, so third-person story text ("היא יכולה") reads the same for every learner. `hebrewGender.test.ts` checks every mission × tier for both genders against a list of words that must not change.
 
 ### 4.3. Pluggable Theming System (`themeRegistry.ts`)
 - The app is always called EnglishVibe; theme names appear only in the theme picker in settings. Internal ids (`english_tutor_*` storage keys, the `english-tutor-il-7` Firebase project, the `@peachnote.tutor.local` sign-in domain) keep their old names so existing accounts and data keep working.
@@ -90,6 +92,7 @@ flowchart TD
   2. **VibeLingua (`neon-pop`)**: Vibrant dark mode with neon cyan and fuchsia cyber accents.
   3. **Starlight RPG (`starlight-rpg`)**: Midnight indigo galaxy style, golden stars, Nova celestial companion.
 - Each theme defines layout tokens: `pageBgClass`, `cardBgClass`, `heroCardClass`, `primaryBtnClass`, `hudBgClass`, and companion metadata.
+- `isDark` turns on the `dark:` colours: Tailwind uses `darkMode: 'class'` and `App` sets the `dark` class on `<html>` from the theme, not from the phone's dark-mode setting. `themeColor` is the browser bar colour.
 
 ### 4.4. Multi-Grade Curriculum Framework (`src/data/curriculum/`)
 > **After any change to English text, render the read-aloud clips again.** See "When English text changes" in section 6.
@@ -111,10 +114,10 @@ The curriculum is organized into modular grade packs covering Grades 1 to 12:
   - **Grade 10 (Band III Entry & Bagrut Foundations)**: Passive Voice (Present & Past Simple), Defining & Non-Defining Relative Clauses, Modals of Deduction in the Present (`must be`, `can't be`, `might / could be`), First & Second Conditionals review, and Bagrut Module C/E Gateway Unseens.
   - **Grade 11 (Band III Core & Module E Mastery)**: Third Conditional (`If + had + V3, would have + V3`), HOTS Literature analysis (Cause and Effect, Distinguishing Different Perspectives, Comparing and Contrasting), Modals in the Past (`should have`, `must have`, `couldn't have + V3`), and Module E scientific unseens with trend/graph interpretation.
   - **Grade 12 (Band III Mastery, Bagrut Opinion Essay & Module G)**: Academic discourse markers & connectors (addition, contrast, result, concession), 120–140 word Bagrut Opinion Essay structure (thesis statement, counter-argument & rebuttal, conclusion), Module G rigorous unseen reading (identifying author's tone, cross-paragraph synthesis, and justification), and global professional English.
-- **Proficiency Tiers**:
-  - `explorer` (Beginner - 1.0x XP multiplier)
-  - `challenger` (Standard - 1.25x XP multiplier)
-  - `master` (Advanced - 1.5x XP multiplier + diamond bonus)
+- **Proficiency Tiers** (`TIER_CONFIG` in `themeRegistry.ts`):
+  - `explorer` (Beginner - 1.0x XP, +5 💎)
+  - `challenger` (Standard - 1.5x XP, +12 💎)
+  - `master` (Advanced - 2.0x XP, +20 💎)
 
 ### 4.5. 5-Step Interactive Mission Engine (`MissionRunner.tsx`)
 Each learning mission consists of 5 pedagogical drill stages:
@@ -129,21 +132,25 @@ Each learning mission consists of 5 pedagogical drill stages:
 
 ### 4.6. Gamification, Streaks & Shabbat Shield
 - **Daily Quests (`DailyQuestsCard.tsx`)**: 3 daily challenges rewarding XP and diamonds (Daily Mission, Voice Practice, 3-Star Mastery).
-- **Shabbat-Safe Streak Calendar**: Observant learners can toggle Shabbat observer status. Weekend days (Friday–Saturday) do not break streaks if inactive, preventing lost progress.
+- **Streak** (`data/streak.ts`): consecutive days with a finished session, stored with the date it last counted (`stats.streakLastDateStr`). Always read it with `getCurrentStreak(profile, todayStr)`: a missed weekday breaks it (shown as 0), Friday and Shabbat never do for observers, and each shop **streak shield** covers one missed day. Shields are used up (`streakShieldsBought` / `streakShieldsUsed`) and can be bought again. `totalActiveDays` counts every active day; old profiles' streak number (which never reset) became it, and their streak is rebuilt from the activity log.
+- **Daily counters and claimed quests** belong to one local day (`getTodayCounters`): a tab left open past midnight shows zero and unclaimed quests.
+- **Weekly calendar** (`DailyQuestsCard`): 🔥 only on days with a finished session (from the activity log), 🛡️ on protected days, 💤 on missed days.
 - **Reward Shop (`RewardShopModal.tsx`)**: Spend diamonds on equippable avatar emojis, collectible stickers, and streak shields.
+- **Replay rewards** (`data/missionRewards.ts`): a mission pays its full XP and diamonds the first time, when the stars improve, and once a day until it has 3 stars; other replays give 20% of the XP. A skipped voice step ("quiet place") is left out of the stars and earns no voice-word credit.
 
 ### 4.7. Interactive Vocabulary Vault (`VocabularyVaultModal.tsx`)
 - Searchable directory of Israeli Ministry of Education curriculum words (with picture emojis for elementary vocabulary).
 - Filters by grade and unit.
 - One-tap audio pronunciation via the read-aloud service (4.20).
-- Interactive microphone drill to test spoken pronunciation against target vocabulary words.
+- Interactive microphone drill to test spoken pronunciation against target vocabulary words. Each word earns its reward once a day, for up to 20 words a day (`vaultPractice`, `VAULT_DAILY_REWARD_WORDS`).
 
 ### 4.8. Diagnostic Level Placement Test (`PlacementTest.tsx`, `placementTest.ts`)
 - A 10-question adaptive test (מבחן רמה) that estimates the learner's English level and recommends a grade and proficiency tier.
 - **Offered** once right after first-time onboarding (skippable), and on demand from the stats sheet (the avatar in the HUD, retakes allowed).
 - **Questions are generated from the curriculum**: each mission yields a grammar-rule item (`drillSeed.rule`) and a vocabulary-meaning item (`vocabulary[0]` + `drillSeed.wrongWords`). Options are shuffled with the seeded shuffle and a per-attempt salt.
 - **Adaptive staircase**: starts one grade below the school grade; a correct answer moves up and a wrong answer or "לא יודע/ת" moves down (±2 for the first 3 questions, then ±1), clamped to grades 1–12.
-- **Estimate**: rounded mean mastery evidence of questions 5–10 (correct at grade g → g, wrong → g−1, correct at grade 12 → 13). Tier: below school grade → Explorer, equal → Challenger, above → Master. A different grade is recommended only when the estimate is 2+ grades away.
+- **Estimate**: rounded mean mastery evidence of questions 5–10 (correct at grade g → g, wrong → g−1, correct at grade 12 → 13). A different grade is recommended only when the estimate is 2+ grades away. The tier is measured against the **recommended** grade (below → Explorer, equal → Challenger, above → Master), so a learner moved to an easier grade isn't also given the easiest tier.
+- **School grade**: `schoolGradeId` (set at onboarding, kept when a test moves the practice `gradeId`) is the base of every test (`getSchoolGradeId`), so retakes don't drift.
 - The result is stored as `placementResult` on the profile (merged across devices by latest `completedAt`). The first completed test grants +30 XP and +10 diamonds.
 
 ### 4.9. "Get Ready for an Exam" Study Plans (`examPrep.ts`, `components/examPrep/`)
@@ -158,7 +165,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Boss gate**: a unit's Boss mission unlocks only when the unit's regular missions have earned 2 stars each (`BOSS_STARS_PER_REGULAR_MISSION`, i.e. 4 of 6). This is on top of the sequential rule (a mission opens once the previous one has a star), so the next unit also waits for the Boss. A Boss that already has stars always stays unlocked.
 - **Suggestion**: `getSuggestedMission` returns the first mission without stars; when that is a gated Boss it suggests replaying the unit's weakest regular mission and returns the gate, so the dashboard hero and the mission map explain how many stars are missing.
 - **Metrics**: stars (all grades, 1–3 per mission) measure mastery depth; the "Missions Completed" (משימות הושלמו) tile counts distinct missions with ≥1 star (`countCompletedMissions`). The words count on the XP tile (the one that opens the Vocabulary Vault) is the mastered-word count of the weekly report (`countMasteredWords` in `progressReport.ts`): the vocabulary of missions with 3 stars, across all grades, each word once. All three are derived from `missionProgress`, so no extra sync fields. `stats.missionsCompleted` (counts replays) and `stats.wordsMastered` (counts replays and Vault practice) are still stored but not shown.
-- **Vault practice**: a word said in the Vocabulary Vault (`applyVocabPracticeReward` in `progressRewards.ts`) adds a voice word to today's counters (reset on a new day, like every activity) but is not a mission, so it doesn't extend the streak.
+- **Vault practice**: a word said in the Vocabulary Vault (`applyVocabPracticeReward` in `progressRewards.ts`) adds a voice word to today's counters (reset on a new day, like every activity) but is not a mission, so it doesn't extend the streak. It pays once per word per day (4.7).
 
 ### 4.11. School Word List Importer (`customWordLists.ts`, `components/wordLists/`)
 - The "My Word Lists" (רשימות המילים שלי) home dock tile opens the lists card in a sheet, which lets the learner paste a word list from a school worksheet and practise it.
@@ -202,12 +209,15 @@ Each learning mission consists of 5 pedagogical drill stages:
 - Word lists reuse the same helpers (meaning: word shape, magnets: `getSpellingHintHe` / sentence order, voice: pronunciation tip). The room naming panel's spell hint shows the first letter and the letter count, not the name.
 
 ### 4.14. Friends Hub & Daily Contests (`friends.ts`, `contests.ts`, `services/friendsService.ts`, `components/friends/`)
-- The "👫 חברים" home dock tile opens the hub; its dot shows waiting friend requests and contest invites. It is only for signed-in, non-guest accounts (guests get no tile). The settings screen (`OnboardingView` in edit mode) has an on/off toggle (`friendsHub.isEnabled`, on by default). When it is off, the tile is hidden, no listeners run, and the public summary, friend code entry and username entry are deleted.
+- The "👫 חברים" home dock tile opens the hub; its dot shows waiting friend requests and contest invites. It is only for signed-in, non-guest accounts (guests get no tile). The settings screen (`OnboardingView` in edit mode) has an on/off toggle (`friendsHub.isEnabled`). Without a stored choice it is on from age 13 and **off under 13** (`needsParentApproval`); turning it on for a younger learner needs a parent's checkbox (`parentApprovedAt`). When it is off, the tile is hidden, no listeners run, and the public summary, friend code entry and username entry are deleted.
+- **Username search is opt-in** (`friendsHub.isUsernameSearchable`, off by default): usernames are easy to guess, so the `usernames/{slug}` entry exists only while it is on. The friend code always works.
+- **Display names**: the only free text friends see is the first name; `toDisplayName` shows a name with a blocked word as "Learner".
 - **Firestore** (all access rules in `firestore.rules`; client-only, no Cloud Functions):
   - `friendCodes/{CODE}` and `usernames/{slug}` → `{uid, displayName, avatarEmoji}`. They can be read one at a time (no listing). Each learner owns exactly one code, recorded in `friendCodeOwners/{uid}` in the same write; another device recovers it from there. A username can be claimed or changed only by the account whose sign-in email is `<slug>@peachnote.tutor.local` (`utils/username.ts`). A lookup returns both the code match and the username match, labelled, when both exist.
   - Every avatar field must be emoji only (no letters or digits). Timestamps are bounded strings.
-  - `publicProfiles/{uid}` → display name, avatar, level, streak, stars, missions completed. Nothing else (no age, grade or email). Readable only by the owner and accepted friends. `useFriendPresence` (in `App.tsx`) claims the friend code and republishes the summary when it changes.
-  - `friendships/{pairId}` (`getPairId`: sorted uids): a pending request with both names and avatars. The requester's name and avatar must match their own public profile. The addressee accepts. Either side deletes it to cancel, decline or remove. Each friend may set only their own preset reaction (`FRIEND_REACTIONS`, also listed in the rules). There is no free text anywhere.
+  - `publicProfiles/{uid}` → display name, avatar, level, streak, stars, missions completed. Nothing else (no age, grade or email). Readable only by the owner and accepted friends. The numbers are capped at what the curriculum allows (stars ≤ 432, missions ≤ 144, level ≤ 1000, streak ≤ 3650; `PUBLIC_PROFILE_LIMITS`), in the rules and in `buildPublicProfile`. `useFriendPresence` (in `App.tsx`) claims the friend code and republishes the summary when it changes.
+  - `friendships/{pairId}` (`getPairId`: sorted uids): a pending request with both names and avatars. The requester's name and avatar must match their own public profile. The addressee accepts. Either side deletes it to cancel, decline or remove. Each friend may set only their own preset reaction (`FRIEND_REACTIONS`, also listed in the rules). There is no chat and no free text besides the first name.
+  - `friendRequestCounts/{uid}` → `{dateStr, count}`: at most 10 requests a day. Every new request must raise it by one in the same write (`sendFriendRequest` uses a batch); it only goes up (or restarts at 1 on a later day) and can't be deleted.
   - `contests/{pairId}_{dateStr}`: one contest per pair per day, ending at the creator's local midnight (`expiresAtMs`). The rules accept only a date within a day of the server date, an expiry at most 25 hours away, and players who are still friends. The invitee accepts or declines. Each player writes their own result once, before midnight, with at least 5 questions and at least 3 seconds. Listed with the `uids` + `dateStr` composite index (`firestore.indexes.json`).
 - **Adding friends**: by friend code (6 characters, no 0/O/1/I/L) or username. An invite link `/?invite=CODE` (`usePendingInvite`) is kept through sign-in and opens the hub with the code. Sharing uses `navigator.share`, with a WhatsApp link and copy as the fallback. Limits: 30 friends and 10 outgoing requests (`checkFriendRequest`).
 - **Contests** (`buildContestSteps`): each player gets questions from their *own* grade, at the same relative difficulty. That means the same unit number (seeded 1–4), the Challenger tier for both, and the same layout: 5 meaning matches (1 + 3 distractor translations from the grade) and the sentence magnet of each of the unit's 3 missions. Everything is seeded by the contest. `ContestRunner` has no hints, one try per question and a timer. Leaving after the first answer ends the contest with the answers so far. The result screen opens while the result saves. Offline saves time out after 10 seconds with a message.
@@ -268,6 +278,7 @@ Each learning mission consists of 5 pedagogical drill stages:
      - Only the canonical query from `buildLiveTtsQuery` is accepted, so extra parameters can't bust the CDN cache.
      - The CDN caches answers for a year (`s-maxage`), and the page keeps the newest 300 in CacheStorage `englishvibe-tts-live-v1`.
      - A 429 or 503 pauses it for 10 minutes; it has 3 s to answer.
+     - **Signed-in learners only.** The app sends its Firebase ID token in `X-Firebase-Token` (`TTS_TOKEN_HEADER`); the function verifies it with Web Crypto against Google's securetoken keys (`api/_lib/firebaseToken.ts`, no Admin SDK) before calling Azure, and answers 401 (never cached) otherwise. Answers already in the CDN cache never reach the function, and the cache key ignores the header. `FIREBASE_PROJECT_ID` overrides the project (default `english-tutor-il-7`); `TTS_AUTH=off` turns the check off, which the dev server does (emulator tokens aren't signed).
   3. **Device voice.** `speakWithVoice` in `ttsVoice.ts`: `pickVoice` chooses the best English device voice of the learner's `voicePreference`. Voices load asynchronously, so `watchVoices()` (in `main.tsx`) caches them.
 - **Clip keys** (`ttsText.ts`, shared by the app, the proxy and the scripts): `getClipKey(text, speed)` hashes the clip text (`getClipText`: a single word is lowercased without edge punctuation, so a word chip and a vocabulary word share a clip). A rate of 0.8 or below is `slow`. Only single words have slow clips; a slow sentence plays the normal clip with `playbackRate`.
 - **Rendering** (needs `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION` in `.env.local`, server only, no `VITE_`):
@@ -296,19 +307,37 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Text size**: nothing is smaller than 12px (`text-xs`); `text-[10px]` and `text-[11px]` are gone.
 - Reduced motion: no chest wobble or confetti, the gems show at once, the companion stands still.
 
+### 4.21. Privacy, Accounts & Child Safety (`components/privacy/`, `components/settings/AccountPrivacyCard.tsx`, `services/accountService.ts`)
+- **Privacy notice** (`PrivacyNoticeDialog`, Hebrew): what is stored and where, what friends see, what isn't done, and the parents' rights. Linked from the sign-in screen, the settings and onboarding. The contact address is `PRIVACY_CONTACT_EMAIL` (`config/appInfo.ts`).
+- **Parental consent**: onboarding a learner under 13 needs a parent's checkbox (`parentalConsentAt`, the first one kept on merge).
+- **Settings → פרטיות וחשבון**: download all data as JSON (`downloadProfileJson`), and **delete the account** (`deleteAccount`): the confirm word "מחיקה" plus the PIN (or Google again) first, then the profile, public profile, friend code and its owner record, username, every friendship and contest of the learner, and the sign-in itself. Only the daily friend-request counter stays (no personal data; it can't be deleted, or the limit could be reset).
+- **Guests** (anonymous sign-in) can keep their progress by adding Google or a username + PIN to the same account (`saveGuestWithGoogle` / `saveGuestWithUsername`, same uid). A guest is warned before signing out, because a guest account can't be signed into again.
+- Children's safety in the Friends Hub: 4.14.
+
+### 4.22. App Shell, Accessibility & Security Headers
+- **Error boundary** (`AppErrorBoundary` in `main.tsx`): a render error shows the companion's oops pose with "try again" and reload, not a blank page.
+- **Lazy screens**: dialogs and hub screens load on first open (`utils/lazyNamed.ts` + `Suspense` with `ScreenLoading`); Firebase and React are their own chunks, whose hashes survive releases. The service worker precaches every chunk of a build. Loading only the learner's grade of the curriculum is not done yet (every module reads `CURRICULUM_BY_GRADE` synchronously).
+- **Dialogs** use `hooks/useDialog.ts`: focus moves in and is trapped, Escape closes only the top dialog, focus returns, the page behind doesn't scroll. `ExamModalShell` is the shared shell; the mission runner, shop, Vault, sign-in panel, placement test and victory screen use the hook directly.
+- **Screen readers**: English text carries `lang="en"` with `dir="ltr"` (and `getTextLang` for answer options that may be English or Hebrew), so it is read with an English voice. Answer feedback is `role="alert"`. Icon buttons have Hebrew `aria-label`s. A `:focus-visible` ring shows keyboard focus.
+- **Phones**: pinch-zoom is allowed (inputs are 16px on small screens so iOS doesn't zoom into them); `viewport-fit=cover` with `env(safe-area-inset-*)` padding on the bottom nav, sheets and header; sheets use `dvh`. Grades 1–3 hear each question when it opens; a mission started from the map sheet skips the intro's tier choice.
+- **Fonts** are bundled (`@fontsource-variable/rubik`, `@fontsource-variable/plus-jakarta-sans`), not loaded from Google Fonts.
+- **Headers** (`vercel.json`): `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy` (microphone only for the app). The Content Security Policy is still **Report-Only**: check the console on a preview deploy (Google sign-in, Firestore, read-aloud), then rename the header to `Content-Security-Policy`.
+
 ---
 
 ## 5. Directory Structure
 
 ```text
-├── api/                    # Vercel Functions: tts.ts (online Azure voice), _lib/azureTts.ts (SSML & Azure call, shared with scripts/tts)
+├── api/                    # Vercel Functions: tts.ts (online Azure voice, signed-in learners only), _lib/azureTts.ts (SSML & Azure call, shared with scripts/tts), _lib/firebaseToken.ts (ID token check)
 ├── docs/                   # tts-evaluation.md (read-aloud voice decision)
 ├── public/                 # Static assets & favicon; tts/ (rendered read-aloud clips + manifest.json, see 4.20); sfx/ (Kenney CC0 sounds + CREDITS.md), art/emoji/ (Fluent Emoji, MIT), art/<theme>/ etc. (generated WebP art, see 4.17)
-├── scripts/                # process_art.py (art-src/ -> public/art/ WebP pipeline), cutout_companion.py (one theme's poses), tts/ (read-aloud corpus, clip render & check)
+├── scripts/                # process_art.py (art-src/ -> public/art/ WebP pipeline), cutout_companion.py (one theme's poses), tts/ (read-aloud corpus, clip render & check), emulator/rulesSmoke.mjs (firestore.rules check against the emulators)
 ├── src/
 │   ├── components/         # React UI Components
+│   │   ├── AppErrorBoundary.tsx      # Render errors show the companion with "try again" instead of a blank page
 │   │   ├── art/                      # ArtImage: a generated picture with a fallback when the file is missing
 │   │   ├── AuthModal.tsx             # Kid-friendly authentication modal
+│   │   ├── CloudLoadErrorScreen.tsx  # Retry screen when the first cloud read after sign-in fails (nothing is saved meanwhile)
 │   │   ├── companion/                # Companion: theme companion poses with CSS motion, ground shadow & emoji fallback
 │   │   ├── DailyQuestsCard.tsx       # Daily quest tracker & streak counter
 │   │   ├── DashboardView.tsx         # Home base: HUD, hero, quest rings, dock, map peek, map, sheets & modals
@@ -326,7 +355,9 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── ShareTextActions.tsx      # Share sheet / WhatsApp / copy buttons for a text (report, friend invite)
 │   │   ├── PlacementResultCard.tsx   # Placement result & grade/tier recommendation
 │   │   ├── RewardShopModal.tsx       # Diamond shop (avatars, stickers, shields)
-│   │   ├── settings/                 # VoiceLabCard: tries the read-aloud tiers in settings
+│   │   ├── settings/                 # VoiceLabCard (read-aloud tiers), AccountPrivacyCard (privacy notice, data download, account deletion)
+│   │   ├── privacy/                  # PrivacyNoticeDialog: the Hebrew privacy notice for parents
+│   │   ├── ScreenLoading.tsx         # Spinner while a lazily loaded screen arrives
 │   │   ├── room/                     # My English Room: hub, scene & layout, inventory, naming panel, wardrobe, phone, dream journal, games/ (Games Book), stickers/ (Sticker Studio)
 │   │   ├── victory/                  # Staged mission victory screen with the cheering companion (Features 24–25)
 │   │   ├── VocabularyVaultModal.tsx  # Ministry word bank & pronunciation studio
@@ -340,6 +371,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   │   ├── index.ts              # CURRICULUM_BY_GRADE registry
 │   │   │   └── types.ts              # Unit, MissionNode, VocabularyItem, and DrillSeed types
 │   │   ├── activityLog.ts            # Daily activity log (12 weeks) recorded by diffing profile updates, + merge (+ .test.ts)
+│   │   ├── diamondLedger.ts          # Per-device earned/spent diamond totals, balance & merge (+ .test.ts)
 │   │   ├── customWordLists.ts        # School word list parsing, session steps, scoring & rewards (+ .test.ts)
 │   │   ├── homeBase.ts               # Home base: quest rings, companion greeting, Play label, map peek, first-launch steps (+ .test.ts)
 │   │   ├── elementaryExercises.ts    # Tier-aware 5-step generator for elementary drill seeds
@@ -348,11 +380,14 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── friends.ts                # Friend codes, requests, public summary, reactions & invite links (+ .test.ts)
 │   │   ├── contests.ts               # Daily contest questions by grade, deciding & rewards (+ .test.ts)
 │   │   ├── milestones.ts             # Boss star gate, mission unlocks, suggested mission & missions counter (+ .test.ts)
+│   │   ├── missionRewards.ts         # Full reward vs. repeat XP for mission replays (+ .test.ts)
 │   │   ├── worldMap.ts               # World map layout: regions, path sampling, stop & landmark positions, stop states (+ .test.ts)
 │   │   ├── missionHints.test.ts      # Sweep of every mission × tier: hints never repeat the prompt or reveal the answer
 │   │   ├── placementTest.ts          # Placement question generation, staircase & scoring (+ .test.ts)
 │   │   ├── progressReport.ts         # Weekly report: week days, totals, star mastery, mastered words & share text (+ .test.ts)
 │   │   ├── progressRewards.ts        # Shared level formula & daily-activity/streak bookkeeping
+│   │   ├── streak.ts                 # Streak that breaks on missed weekdays, Shabbat days & shields, merge (+ .test.ts)
+│   │   ├── curriculum.test.ts        # Curriculum data checks: unique ids, wrong answers, sentences
 │   │   ├── room.ts                   # Room items & slots, placing & naming rules (+ .test.ts)
 │   │   ├── roomRewards.ts            # 3-star rewards alternating room decor and wardrobe items (+ .test.ts)
 │   │   ├── roomActivities.ts         # Shared daily reward for room activities (+ .test.ts, with voice messages)
@@ -365,6 +400,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   ├── hooks/
 │   │   ├── useAnimationClock.ts      # Per-frame clock with skip, starting at the end for reduced motion
 │   │   ├── useArtStatus.ts           # Whether a generated picture is loading, loaded or missing
+│   │   ├── useDialog.ts              # Modal behaviour: focus trap, Escape for the top dialog, focus return, scroll lock
 │   │   ├── useCountUp.ts             # Counts a number up from its previous value
 │   │   ├── useFriendsHub.ts          # Live friendships, friends' public profiles & contests
 │   │   ├── useFriendPresence.ts      # Claims the friend code and publishes the public summary
@@ -375,6 +411,8 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   ├── services/
 │   │   ├── tts/                      # Read-aloud: hybrid service (clip / online / device), clip keys, audio unlock, demo phrases (+ tests)
 │   │   ├── cloudSync.ts              # LocalStorage <-> Firestore sync & merge logic (+ .test.ts)
+│   │   ├── accountService.ts         # Account deletion with all data, data export, saving a guest account
+│   │   ├── profileSaveQueue.ts       # Batches cloud saves of the profile (+ .test.ts)
 │   │   ├── friendsService.ts         # Firestore calls for friends, public profiles & contests
 │   │   └── firebase.ts               # Firebase initialization & auth/db instances
 │   ├── themes/
@@ -384,6 +422,8 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   └── learner.ts                # Core domain types (LearnerProfile, Stats, Grades)
 │   ├── utils/
 │   │   ├── artStatus.ts              # Probes each art file once and caches loaded / missing (+ .test.ts)
+│   │   ├── dates.ts                  # Local calendar days (YYYY-MM-DD): toLocalDateStr, addDays, daysBetween
+│   │   ├── deviceId.ts               # This browser's id in the diamond ledger
 │   │   ├── celebrate.ts              # Shared confetti + sound celebration (small / medium / big)
 │   │   ├── hebrewGender.ts           # Hebrew grammatical gender inflection engine
 │   │   ├── missionFeedback.ts        # Mission runner trail, combo flame, per-answer XP float & companion peek pose (+ .test.ts)
@@ -394,6 +434,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── hints.ts                  # Drill hint builders: word shape, cloze, word order, pronunciation tips, story locator (+ .test.ts)
 │   │   ├── ttsVoice.ts               # Device voice: choice (female default / male) and speechSynthesis helper (+ .test.ts)
 │   │   ├── shuffle.ts                # Deterministic seeded shuffle for options & word chips
+│   │   ├── lazyNamed.ts              # React.lazy for named exports
 │   │   ├── speechSimilarity.ts       # Phonetic & string similarity calculation for voice
 │   │   └── username.ts               # Username <-> sign-in email slug (auth, lookup and rules)
 │   ├── App.tsx                       # Root orchestrator & Firebase auth/sync listener
@@ -426,8 +467,15 @@ npm test
 # Typecheck and build for production
 npm run build
 
+# Lint (ESLint with react-hooks) and typecheck only
+npm run lint
+npm run typecheck
+
 # Preview production build locally
 npm run preview
+
+# Check firestore.rules against the running emulators (section 8)
+node scripts/emulator/rulesSmoke.mjs
 ```
 
 ### When English text changes: render the read-aloud clips
