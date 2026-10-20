@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.emulator-data/**)",
+      "Read(./art-src/**)",
+      "Read(./public/tts/**)",
+      "Read(./public/art/**)",
+      "Read(./public/sfx/**)",
+      "Read(./dist/**)",
+      "Read(./node_modules/**)"
+    ]
+  }
+}
