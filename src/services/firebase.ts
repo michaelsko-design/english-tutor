@@ -27,7 +27,7 @@ const EMULATOR_FIRESTORE_PORT = 8080;
 const liveFirebaseConfig = {
   apiKey:
     import.meta.env.VITE_FIREBASE_API_KEY?.trim() ||
-    'AIzaSyAXCksnrNURhcvq5Z2VhMaQ1oBL4uB9fC8',
+    'AIzaSyBW8GwRMBgXDNKYyYkHKSK-ugEmJuUAm0M',
   authDomain:
     import.meta.env.VITE_FIREBASE_AUTH_DOMAIN?.trim() ||
     'english-tutor-il-7.firebaseapp.com',
