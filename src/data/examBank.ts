@@ -9,7 +9,7 @@
 import type { ExamSkill, GradeId, LearnerGender, ProficiencyTier } from '../types/learner';
 import type { ExamSessionStep } from './examPrep';
 import type { MultipleChoiceOption } from './missionExercises';
-import { shuffleStepChoices } from './missionExercises';
+import { resolveStepGenderSlashes, shuffleStepChoices } from './missionExercises';
 import { getStoryHintHe } from './elementaryExercises';
 import {
   EXAM_BANK_BLANK,
@@ -147,7 +147,7 @@ export function buildBankSteps(unitBank: ExamUnitBank, input: BankStepInput): Ex
         ...base,
         id: `${idPrefix}-${index}`,
         type: 'sentence-builder',
-        promptHe: he`לחצי על המילים לפי הסדר הנכון כדי להרכיב את המשפט:`,
+        promptHe: he`הרכיבי את המשפט:`,
         hintHe: `💡 ${getSentenceOrderHintHe(words)}`,
         questionEn: 'Tap the words in the right order:',
         targetSentenceEn: item.en,
@@ -174,5 +174,7 @@ export function buildBankSteps(unitBank: ExamUnitBank, input: BankStepInput): Ex
     }));
   }
 
-  return steps.map((step) => shuffleStepChoices(step, `${step.id}|${tier}|${input.salt}`));
+  return steps.map((step) =>
+    resolveStepGenderSlashes(shuffleStepChoices(step, `${step.id}|${tier}|${input.salt}`), input.gender)
+  );
 }

@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { celebrate } from '../../utils/celebrate';
 import { spellSlots } from '../../utils/letterSlots';
 import { MagnetChange } from '../../utils/magnetOrder';
-import { Lightbulb } from 'lucide-react';
 import {
   WordListAnswer,
   WordListStep,
@@ -16,11 +15,14 @@ import { SpeechEvaluationResult } from '../../utils/speechSimilarity';
 import { getSpeechErrorTextHe, useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import {
   FeedbackBanner,
+  HintPopover,
   MultipleChoiceOptions,
   QuestionBubble,
+  QuestionCardContent,
   SentenceBuilderDrill,
   SpellingMagnetDrill,
   VoiceSpeakDrill,
+  getQuestionCardContent,
 } from '../drills';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { WordListSessionResult } from './WordListSessionResult';
@@ -42,11 +44,15 @@ interface Feedback {
   text: string;
 }
 
-function getQuestionEn(step: WordListStep): string {
-  if (step.type === 'meaning-match') return `Which word means "${step.translationHe}"?`;
-  if (step.type === 'spelling-magnet') return 'Spell the word you hear.';
-  if (step.type === 'sentence-builder') return 'Build the sentence.';
-  return step.textEn;
+/** The question card: the Hebrew meaning to match, or the sentence's translation. Spelling and voice have their own. */
+function getWordListCard(step: WordListStep): QuestionCardContent | null {
+  if (step.type === 'meaning-match' && step.translationHe) {
+    return { text: step.translationHe, lang: 'he', size: 'word' };
+  }
+  if (step.type === 'sentence-builder') {
+    return getQuestionCardContent({ type: step.type, questionEn: '', targetSentenceHe: step.translationHe });
+  }
+  return null;
 }
 
 /** Practises a school word list: meaning match, letter/word magnets and voice, first try scored. */
@@ -230,37 +236,22 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
       <span className="text-xs font-extrabold shrink-0" dir="ltr" lang="en">
         {stepIdx + 1}/{steps.length}
       </span>
+      {step.hintHe && <HintPopover hintHe={step.hintHe} isOpen={showHint} onToggle={setShowHint} theme={theme} />}
     </div>
   );
+
+  const questionCard = getWordListCard(step);
 
   return (
     <ExamModalShell theme={theme} labelHe="תרגול רשימת מילים" onClose={onClose} maxWidthClass="max-w-3xl" header={progressHeader}>
       <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>{step.badgeLabelHe}</span>
-          <button
-            type="button"
-            onClick={() => setShowHint(!showHint)}
-            className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-          >
-            <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-            <span>{showHint ? 'הסתר רמז' : 'רמז בעברית 💡'}</span>
-          </button>
-        </div>
+        <span className={`inline-block px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
+          {step.badgeLabelHe}
+        </span>
 
-        <p className="text-base md:text-lg font-extrabold">
-          {step.promptHe}
-        </p>
+        <p className="text-lg md:text-xl font-extrabold">{step.promptHe}</p>
 
-        {showHint && (
-          <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-xs md:text-sm font-bold">
-            {step.hintHe}
-          </div>
-        )}
-
-        {step.type !== 'voice-speak' && step.type !== 'spelling-magnet' && (
-          <QuestionBubble questionEn={getQuestionEn(step)} theme={theme} onSpeakEnglish={onSpeakEnglish} />
-        )}
+        {questionCard && <QuestionBubble content={questionCard} theme={theme} onSpeakEnglish={onSpeakEnglish} />}
 
         {step.options && (
           <MultipleChoiceOptions options={step.options} selectedIdx={selectedIdx} onSelect={handleSelectOption} theme={theme} />
@@ -286,7 +277,6 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
         {step.type === 'sentence-builder' && step.scrambledWords && (
           <SentenceBuilderDrill
             scrambledWords={step.scrambledWords}
-            targetSentenceHe={step.translationHe}
             selectedIndices={tileIndices}
             isCompleted={isResolved}
             onChangeOrder={handleWordOrderChange}

@@ -34,7 +34,7 @@ export const PassageBox: React.FC<PassageBoxProps> = ({
           {speech.isSpeaking ? <span>{STOP_SPEECH_TEXT}</span> : <span dir="ltr" lang="en">Listen to Story 🔊</span>}
         </button>
       </div>
-      <p className="text-sm md:text-base font-bold leading-relaxed" dir="ltr" lang="en">
+      <p className="text-sm md:text-base font-medium leading-relaxed" dir="ltr" lang="en">
         {passageEn}
       </p>
       {showHebrew && passageHe && (

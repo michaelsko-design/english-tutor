@@ -119,7 +119,7 @@ describe('buildContestSteps', () => {
     const unitWords = CURRICULUM_BY_GRADE['grade-8'].units[2].missions.flatMap((m) => m.vocabulary.map((v) => v.wordEn));
     const steps = buildContestSteps('grade-8', contest, 'boy').filter((s) => s.kind === 'meaning');
     for (const step of steps) {
-      const word = step.questionEn.match(/"(.+)"/)?.[1];
+      const word = step.questionEn;
       expect(unitWords).toContain(word);
     }
   });

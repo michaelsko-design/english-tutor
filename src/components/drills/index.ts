@@ -7,3 +7,6 @@ export { SpellingMagnetDrill } from './SpellingMagnetDrill';
 export { VoiceSpeakDrill } from './VoiceSpeakDrill';
 export { FeedbackSheet, FEEDBACK_COMPANION_SIZE } from './FeedbackSheet';
 export { StoryArt } from './StoryArt';
+export { HintPopover } from './HintPopover';
+export { getQuestionCardContent } from './questionCard';
+export type { QuestionCardContent } from './questionCard';

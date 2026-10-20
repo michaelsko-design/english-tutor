@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { isolateLtr } from '../../utils/bidi';
 import { celebrate } from '../../utils/celebrate';
 import { MagnetChange } from '../../utils/magnetOrder';
-import { Lightbulb } from 'lucide-react';
 import {
   ExamAnswer,
   ExamSessionStep,
@@ -13,10 +12,12 @@ import { ExamPlanDay, ExamPrepPlan, LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import {
   FeedbackBanner,
+  HintPopover,
   MultipleChoiceOptions,
   PassageBox,
   QuestionBubble,
   SentenceBuilderDrill,
+  getQuestionCardContent,
 } from '../drills';
 import { ExamModalShell } from './ExamModalShell';
 import { ExamSessionResult } from './ExamSessionResult';
@@ -95,8 +96,8 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
     setFeedback(null);
     setSelectedIdx(null);
     setWordIndices([]);
-    setShowHint(!isMock && tier === 'explorer');
-  }, [stepIdx, isMock, tier]);
+    setShowHint(false);
+  }, [stepIdx]);
 
   /** Records the answer once: practice scores the first try, the mock exam the only try. */
   const resolveStep = (isCorrect: boolean, text: string) => {
@@ -175,6 +176,9 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
       <span className="text-xs font-extrabold shrink-0" dir="ltr" lang="en">
         {Math.min(stepIdx + 1, steps.length)}/{steps.length}
       </span>
+      {!isMock && step?.hintHe && (
+        <HintPopover hintHe={step.hintHe} isOpen={showHint} onToggle={setShowHint} theme={theme} />
+      )}
     </div>
   );
 
@@ -207,32 +211,16 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
     );
   }
 
+  const questionCard = getQuestionCardContent(step);
+
   return (
     <ExamModalShell theme={theme} labelHe={isMock ? 'סימולציית מבחן' : 'תרגול למבחן'} onClose={onClose} maxWidthClass="max-w-3xl" header={progressHeader}>
       <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>{step.badgeLabelHe}</span>
-          {!isMock && (
-            <button
-              type="button"
-              onClick={() => setShowHint(!showHint)}
-              className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-            >
-              <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-              <span>{showHint ? 'הסתר רמז' : 'רמז בעברית 💡'}</span>
-            </button>
-          )}
-        </div>
+        <span className={`inline-block px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
+          {step.badgeLabelHe}
+        </span>
 
-        <p className="text-base md:text-lg font-extrabold">
-          {step.promptHe}
-        </p>
-
-        {showHint && !isMock && (
-          <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-xs md:text-sm font-bold">
-            {step.hintHe}
-          </div>
-        )}
+        <p className="text-lg md:text-xl font-extrabold">{step.promptHe}</p>
 
         {step.contextPassageEn && (
           <PassageBox
@@ -244,13 +232,15 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
           />
         )}
 
-        <QuestionBubble
-          questionEn={step.questionEn}
-          speakerAvatar={step.speakerAvatar}
-          speakerName={step.speakerName}
-          theme={theme}
-          onSpeakEnglish={onSpeakEnglish}
-        />
+        {questionCard && (
+          <QuestionBubble
+            content={questionCard}
+            speakerAvatar={step.speakerAvatar}
+            speakerName={step.speakerName}
+            theme={theme}
+            onSpeakEnglish={onSpeakEnglish}
+          />
+        )}
 
         {step.options && (
           <MultipleChoiceOptions
@@ -265,7 +255,6 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
         {step.type === 'sentence-builder' && step.scrambledWords && (
           <SentenceBuilderDrill
             scrambledWords={step.scrambledWords}
-            targetSentenceHe={step.targetSentenceHe}
             selectedIndices={wordIndices}
             isCompleted={isResolved}
             onChangeOrder={handleWordOrderChange}

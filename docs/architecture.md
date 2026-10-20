@@ -131,6 +131,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 5. **Story Unseen (`story-unseen`)**: Reading comprehension passage with contextual questions and vocabulary reinforcement.
 - Answer options and scrambled word chips are randomized on each attempt via a deterministic seeded shuffle (`src/utils/shuffle.ts`) so the correct option is never fixed in the first slot while remaining stable across React re-renders.
 - Features combo multipliers, sound effects, celebration confetti, and 1–3 star ratings based on exercise accuracy.
+- **Question screen layout (Feature 46)**: step badge, one short gendered instruction (`promptHe`), then the question card, the largest text on the screen. `drills/questionCard.ts` (`getQuestionCardContent`) picks what the card shows, for all four runners: the Hebrew sentence to translate in the sentence builder (no 🔊, there is no Hebrew voice and the English is the answer), the Hebrew word in Hebrew → English word steps (`cardTextHe`), a single English word very large, otherwise `questionEn`, with `___` drawn as an empty slot. The voice step has no question card: `VoiceSpeakDrill` is the card (sentence, Hebrew translation, 🐢/🔊) with one round record button under it. Authored gender pairs in Hebrew content (`אני אוהב/ת`, `החבר/ה`) are resolved to the learner's form by `resolveGenderSlashes` (`utils/hebrewGender.ts`) when steps are built (`resolveStepGenderSlashes`).
 - A mission opens on an intro screen (`mission/MissionIntro.tsx`) where the tier is chosen; the steps have no tier switcher. A first play then shows the mission's mini-lesson (4.24). The runner's look and the companion are described in 4.17.
 
 ### 4.6. Gamification, Streaks & Shabbat Shield
@@ -203,7 +204,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 - Every mission object now opens its activity; the per-item missions follow the draft designs in `backlog.md` (Feature 12) until a detailed breakdown replaces them.
 
 ### 4.13. Drill Hints (`utils/hints.ts`)
-- **Rule**: a hint (`hintHe`, shown by the "רמז בעברית 💡" button and automatically for Explorer) gives a way to work the answer out. It never names the answer or repeats text already on screen. Hints are worded gender-neutrally (`כדאי…`, `טיפ:`).
+- **Rule**: a hint (`hintHe`, shown in a popover by the 💡 "רמז" button in the runner's header, only when tapped: `drills/HintPopover.tsx`) gives a way to work the answer out. It never names the answer or repeats text already on screen. Hints are worded gender-neutrally (`כדאי…`, `טיפ:`).
 - **Generated hints** (pure helpers in `utils/hints.ts`, + `.test.ts`):
   - Step 1, vocabulary: Explorer and Master (English-word options) get the example sentence with the word blanked (`toClozeSentence`). When the word isn't in it, they get the letter count, plus the first letter when another option has the same length (`getWordShapeHintHe`). Challenger (Hebrew-meaning options) gets the English example sentence without its Hebrew translation.
   - Step 2, sentence builder: the word count and the last word, plus the first word for sentences of 5+ words (`getSentenceOrderHintHe`). The capitalised chip already shows the first word of short sentences.

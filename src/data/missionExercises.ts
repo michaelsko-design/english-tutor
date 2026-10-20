@@ -1,6 +1,6 @@
 import { MissionNode } from './curriculum';
 import { LearnerGender, ProficiencyTier } from '../types/learner';
-import { hebrewTemplate, inflectHebrew } from '../utils/hebrewGender';
+import { hebrewTemplate, inflectHebrew, resolveGenderSlashes } from '../utils/hebrewGender';
 import { seededShuffle, seededShuffleNotIdentity } from '../utils/shuffle';
 import { buildElementaryExercises } from './elementaryExercises';
 import {
@@ -36,6 +36,8 @@ export interface MissionExerciseStep {
   contextPassageEn?: string;
   contextPassageHe?: string;
   questionEn: string;
+  /** Hebrew word or phrase shown on the question card instead of `questionEn` (Hebrew → English steps) */
+  cardTextHe?: string;
   options?: MultipleChoiceOption[];
   // For sentence-builder
   targetSentenceEn?: string;
@@ -61,7 +63,33 @@ export function getExercisesForMission(
   salt: number = 0
 ): MissionExerciseStep[] {
   const steps = getRawExercisesForMission(mission, tier, gender);
-  return steps.map((step) => shuffleStepChoices(step, `${mission.id}|${tier}|${step.id}|${salt}`));
+  return steps.map((step) =>
+    resolveStepGenderSlashes(shuffleStepChoices(step, `${mission.id}|${tier}|${step.id}|${salt}`), gender)
+  );
+}
+
+/**
+ * Resolves authored "word/suffix" gender pairs (אני אוהב/ת) in every Hebrew text of a step to
+ * the learner's form. English fields have no such pairs and come back unchanged.
+ */
+export function resolveStepGenderSlashes<T extends MissionExerciseStep>(step: T, gender: LearnerGender): T {
+  const resolve = (text: string) => resolveGenderSlashes(text, gender);
+  const resolveOptional = (text: string | undefined) => (text === undefined ? undefined : resolve(text));
+  return {
+    ...step,
+    badgeLabelHe: resolve(step.badgeLabelHe),
+    promptHe: resolve(step.promptHe),
+    hintHe: resolve(step.hintHe),
+    contextPassageHe: resolveOptional(step.contextPassageHe),
+    targetSentenceHe: resolveOptional(step.targetSentenceHe),
+    cardTextHe: resolveOptional(step.cardTextHe),
+    speakTargetHe: resolveOptional(step.speakTargetHe),
+    options: step.options?.map((option) => ({
+      ...option,
+      textEn: resolve(option.textEn),
+      explanationHe: resolve(option.explanationHe),
+    })),
+  };
 }
 
 /**
@@ -81,7 +109,8 @@ export function shuffleStepChoices<T extends MissionExerciseStep>(step: T, seedK
   };
 }
 
-function getRawExercisesForMission(
+/** The steps before shuffling and gender-pair resolution; only the instructions follow the gender. */
+export function getRawExercisesForMission(
   mission: MissionNode,
   tier: ProficiencyTier,
   gender: LearnerGender
@@ -143,7 +172,7 @@ function getRawExercisesForMission(
       stepNumber: 2,
       type: 'sentence-builder',
       badgeLabelHe: he`🧩 שלב 2/5: הרכבת משפט המפתח`,
-      promptHe: he`לחצי על המילים לפי הסדר הנכון כדי להרכיב את משפט המפתח של המשימה:`,
+      promptHe: he`הרכיבי את המשפט:`,
       hintHe: `💡 ${getSentenceOrderHintHe(cleanWords)}`,
       questionEn: 'Tap the words in the right order:',
       targetSentenceEn: cleanWords.join(' '),
@@ -155,7 +184,7 @@ function getRawExercisesForMission(
       stepNumber: 3,
       type: 'voice-speak',
       badgeLabelHe: he`🎙️ שלב 3/5: אימון קריאה ודיבור (Voice Recognition)`,
-      promptHe: he`האזיני למשפט (רגיל או איטי) ואז הקליטי את עצמך קוראת אותו בקול:`,
+      promptHe: he`הקשיבי וחזרי על המשפט:`,
       hintHe: `💡 ${getPronunciationTipHe(mission.sampleSentenceEn)}`,
       questionEn: 'Speak this sentence aloud:',
       speakTargetEn: mission.sampleSentenceEn,

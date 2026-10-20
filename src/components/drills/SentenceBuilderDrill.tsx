@@ -17,7 +17,6 @@ import {
 
 interface SentenceBuilderDrillProps {
   scrambledWords: string[];
-  targetSentenceHe?: string;
   selectedIndices: number[];
   isCompleted: boolean;
   /** A word was placed (tap or drop), taken back, or moved to another spot in the sentence */
@@ -27,12 +26,11 @@ interface SentenceBuilderDrillProps {
   theme: ThemeDefinition;
 }
 
-const CHIP_CLASS = 'px-3.5 py-2 rounded-xl text-sm font-extrabold';
+const CHIP_CLASS = 'min-h-11 px-4 py-2 rounded-xl text-base font-extrabold';
 const ZONE_OVER_CLASS = 'ring-2 ring-purple-400/70';
 
 export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
   scrambledWords,
-  targetSentenceHe,
   selectedIndices,
   isCompleted,
   onChangeOrder,
@@ -60,12 +58,6 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
   return (
     <DndContext {...drag.contextProps}>
       <div className="space-y-4">
-        {targetSentenceHe && (
-          <div className="text-sm font-bold opacity-85">
-            משפט היעד לתרגום: &ldquo;{targetSentenceHe}&rdquo;
-          </div>
-        )}
-
         {/* Assembled Sentence Tray */}
         <MagnetDropZone
           id={MAGNET_TRAY_ID}
@@ -77,8 +69,8 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
         >
           <SortableContext items={placed.map(toMagnetId)} strategy={rectSortingStrategy}>
             {placed.length === 0 ? (
-              <span className="text-xs opacity-60">
-                Tap or drag the English words here in the correct order...
+              <span className="text-sm opacity-60" dir="rtl" lang="he">
+                כאן ייבנה המשפט באנגלית…
               </span>
             ) : (
               placed.map((wordIdx) => (
@@ -139,22 +131,22 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
         </MagnetDragOverlay>
 
         {!isCompleted && (
-          <div className="flex items-center gap-2.5 pt-1">
-            <button
-              type="button"
-              onClick={onReset}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>איפוס מילים</span>
-            </button>
+          <div className="flex items-center justify-between gap-2.5 pt-1">
             <button
               type="button"
               disabled={selectedIndices.length === 0}
               onClick={onCheck}
-              className={`px-6 py-2.5 rounded-xl text-xs md:text-sm font-extrabold ${theme.primaryBtnClass} disabled:opacity-40`}
+              className={`min-h-12 px-8 rounded-2xl text-base font-extrabold ${theme.primaryBtnClass} disabled:opacity-40`}
             >
               <span>בדיקת משפט ✓</span>
+            </button>
+            <button
+              type="button"
+              onClick={onReset}
+              className={`min-h-11 px-4 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>איפוס מילים</span>
             </button>
           </div>
         )}

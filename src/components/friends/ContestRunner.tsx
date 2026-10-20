@@ -3,7 +3,13 @@ import { Timer } from 'lucide-react';
 import { ContestDoc, ContestStep, buildContestSteps } from '../../data/contests';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
-import { FeedbackBanner, MultipleChoiceOptions, QuestionBubble, SentenceBuilderDrill } from '../drills';
+import {
+  FeedbackBanner,
+  MultipleChoiceOptions,
+  QuestionBubble,
+  SentenceBuilderDrill,
+  getQuestionCardContent,
+} from '../drills';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { isolateLtr } from '../../utils/bidi';
 import { MagnetChange } from '../../utils/magnetOrder';
@@ -170,6 +176,8 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
     );
   }
 
+  const questionCard = getQuestionCardContent(step);
+
   return (
     <ExamModalShell theme={theme} labelHe="אתגר יומי" onClose={handleLeave} maxWidthClass="max-w-3xl" header={header}>
       <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
@@ -199,17 +207,17 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
           </span>
         </div>
 
-        <p className="text-base md:text-lg font-extrabold">
-          {step.promptHe}
-        </p>
+        <p className="text-lg md:text-xl font-extrabold">{step.promptHe}</p>
 
-        <QuestionBubble
-          questionEn={step.questionEn}
-          speakerAvatar={step.speakerAvatar}
-          speakerName={step.speakerName}
-          theme={theme}
-          onSpeakEnglish={onSpeakEnglish}
-        />
+        {questionCard && (
+          <QuestionBubble
+            content={questionCard}
+            speakerAvatar={step.speakerAvatar}
+            speakerName={step.speakerName}
+            theme={theme}
+            onSpeakEnglish={onSpeakEnglish}
+          />
+        )}
 
         {step.options && (
           <MultipleChoiceOptions
@@ -224,7 +232,6 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
         {step.kind === 'sentence' && step.scrambledWords && (
           <SentenceBuilderDrill
             scrambledWords={step.scrambledWords}
-            targetSentenceHe={step.targetSentenceHe}
             selectedIndices={wordIndices}
             isCompleted={isResolved}
             onChangeOrder={handleWordOrderChange}

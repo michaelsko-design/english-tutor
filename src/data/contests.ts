@@ -150,9 +150,9 @@ function buildMeaningStep(
     type: 'chat-reply',
     kind: 'meaning',
     badgeLabelHe: '🔤 פירוש מילה',
-    promptHe: inflectHebrew('בחרי את התרגום הנכון למילה באנגלית:', gender),
+    promptHe: inflectHebrew('מה המשמעות של המילה?', gender),
     hintHe: '',
-    questionEn: `What does "${word.wordEn}" mean?`,
+    questionEn: word.wordEn,
     options,
   };
 }

@@ -12,13 +12,15 @@ import { LearnerGender, ProficiencyTier } from '../types/learner';
 import { ThemeDefinition, TIER_CONFIG } from '../themes/themeRegistry';
 import { SpeechEvaluationResult } from '../utils/speechSimilarity';
 import { getSpeechErrorTextHe, useSpeechRecognition } from '../hooks/useSpeechRecognition';
-import { X, Lightbulb, BookOpen } from 'lucide-react';
+import { X, BookOpen } from 'lucide-react';
 import {
   FEEDBACK_COMPANION_SIZE,
   FeedbackSheet,
   MultipleChoiceOptions,
+  HintPopover,
   PassageBox,
   QuestionBubble,
+  getQuestionCardContent,
   SentenceBuilderDrill,
   StoryArt,
   VoiceSpeakDrill,
@@ -184,7 +186,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
 
   // Reset step state when step or tier changes
   useEffect(() => {
-    setShowHint(tier === 'explorer'); // Explorer shows hints automatically!
+    setShowHint(false);
     setAttemptedCurrentStep(false);
     setStepCompleted(false);
     setFeedbackHe(null);
@@ -379,6 +381,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   }
 
   const peekPose = getPeekCompanionPose(showHint, feedbackHe !== null);
+  const questionCard = currentStep ? getQuestionCardContent(currentStep) : null;
 
   return (
     <ModalPortal>
@@ -466,36 +469,17 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     <BookOpen className="w-4 h-4" />
                   </button>
                 )}
+                <HintPopover hintHe={currentStep.hintHe} isOpen={showHint} onToggle={setShowHint} theme={theme} />
               </div>
 
               {/* Main Exercise Body */}
               <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
-                {/* Badge & Hebrew Prompt */}
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
-                    {currentStep.badgeLabelHe}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setShowHint(!showHint)}
-                    className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-                  >
-                    <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-                    <span>{showHint ? 'הסתר רמז' : 'רמז בעברית 💡'}</span>
-                  </button>
-                </div>
+                {/* Step badge & the one-line instruction */}
+                <span className={`inline-block px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
+                  {currentStep.badgeLabelHe}
+                </span>
 
-                <p className="text-base md:text-lg font-extrabold">
-                  {currentStep.promptHe}
-                </p>
-
-                {showHint && (
-                  <div
-                    className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-xs md:text-sm font-bold"
-                  >
-                    {currentStep.hintHe}
-                  </div>
-                )}
+                <p className="text-lg md:text-xl font-extrabold">{currentStep.promptHe}</p>
 
                 {/* Story step: the mission's spot illustration, only when the file exists */}
                 {currentStep.type === 'story-unseen' && <StoryArt missionId={mission.id} />}
@@ -511,7 +495,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                   />
                 )}
 
-                {/* Question Bubble, with the companion peeking over its corner */}
+                {/* The question card (or the voice studio card), with the companion peeking over its corner */}
                 <div>
                   <div
                     key={currentStepIdx}
@@ -526,14 +510,37 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                       <Companion theme={theme} pose={peekPose ?? 'idle'} size={PEEK_COMPANION_SIZE} hasShadow={false} />
                     </div>
                   </div>
-                  <QuestionBubble
-                    questionEn={currentStep.questionEn}
-                    readAloudText={currentStep.speakTargetEn}
-                    speakerAvatar={currentStep.speakerAvatar}
-                    speakerName={currentStep.speakerName}
-                    theme={theme}
-                    onSpeakEnglish={onSpeakEnglish}
-                  />
+                  {questionCard ? (
+                    <QuestionBubble
+                      content={questionCard}
+                      speakerAvatar={currentStep.speakerAvatar}
+                      speakerName={currentStep.speakerName}
+                      theme={theme}
+                      onSpeakEnglish={onSpeakEnglish}
+                    />
+                  ) : (
+                    currentStep.type === 'voice-speak' &&
+                    currentStep.speakTargetEn && (
+                      <VoiceSpeakDrill
+                        targetEn={currentStep.speakTargetEn}
+                        targetHe={currentStep.speakTargetHe}
+                        speechEval={speechEval}
+                        isListening={speech.isListening}
+                        isCompleted={stepCompleted}
+                        gender={gender}
+                        theme={theme}
+                        onSpeakEnglish={onSpeakEnglish}
+                        onStartListening={handleStartSpeechRecognition}
+                        onSkip={() =>
+                          registerSkippedStep(
+                            isGirl
+                              ? 'דילגת על מיקרופון במצב שקט — ממשיכות לשלב הבא!'
+                              : 'דילגת על מיקרופון במצב שקט — ממשיכים לשלב הבא!'
+                          )
+                        }
+                      />
+                    )
+                  )}
                 </div>
 
                 {/* DRILL TYPE 1, 4, 5: MULTIPLE CHOICE OPTIONS */}
@@ -550,35 +557,12 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                 {currentStep.type === 'sentence-builder' && currentStep.scrambledWords && (
                   <SentenceBuilderDrill
                     scrambledWords={currentStep.scrambledWords}
-                    targetSentenceHe={currentStep.targetSentenceHe}
                     selectedIndices={selectedWordIndices}
                     isCompleted={stepCompleted}
                     onChangeOrder={handleWordOrderChange}
                     onReset={() => setSelectedWordIndices([])}
                     onCheck={handleCheckSentence}
                     theme={theme}
-                  />
-                )}
-
-                {/* DRILL TYPE 3: TWO-WAY VOICE SPEAKING & PRONUNCIATION MATCHER */}
-                {currentStep.type === 'voice-speak' && currentStep.speakTargetEn && (
-                  <VoiceSpeakDrill
-                    targetEn={currentStep.speakTargetEn}
-                    targetHe={currentStep.speakTargetHe}
-                    speechEval={speechEval}
-                    isListening={speech.isListening}
-                    isCompleted={stepCompleted}
-                    gender={gender}
-                    theme={theme}
-                    onSpeakEnglish={onSpeakEnglish}
-                    onStartListening={handleStartSpeechRecognition}
-                    onSkip={() =>
-                      registerSkippedStep(
-                        isGirl
-                          ? 'דילגת על מיקרופון במצב שקט — ממשיכות לשלב הבא!'
-                          : 'דילגת על מיקרופון במצב שקט — ממשיכים לשלב הבא!'
-                      )
-                    }
                   />
                 )}
 

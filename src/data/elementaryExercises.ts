@@ -69,11 +69,10 @@ export function buildElementaryExercises(
       stepNumber: 1,
       type: 'chat-reply',
       badgeLabelHe: he`💬 שלב 1/5: איזו מילה זו?`,
-      promptHe: isMiddleOrHigh
-        ? he`איזו מילה באנגלית פירושה "${v0.translationHe}"? בחרי:`
-        : v0.emoji
-        ? he`איזו מילה באנגלית מתאימה לתמונה? בחרי:`
-        : he`איזו מילה באנגלית פירושה "${v0.translationHe}"? בחרי:`,
+      promptHe:
+        v0.emoji && !isMiddleOrHigh
+          ? he`איזו מילה באנגלית מתאימה לתמונה? בחרי:`
+          : he`איך אומרים את זה באנגלית?`,
       hintHe: englishOptionHint([wrongA.wordEn]),
       speakerName: 'Word Guide',
       speakerAvatar: mission.icon,
@@ -82,6 +81,7 @@ export function buildElementaryExercises(
         : v0.emoji
         ? `What is this? ${v0.emoji}`
         : 'Which word is right?',
+      cardTextHe: v0.emoji && !isMiddleOrHigh ? undefined : v0.translationHe,
       options: opts,
     };
   } else if (!isMaster) {
@@ -90,11 +90,11 @@ export function buildElementaryExercises(
       stepNumber: 1,
       type: 'chat-reply',
       badgeLabelHe: he`💬 שלב 1/5: מה פירוש המילה?`,
-      promptHe: he`מה המשמעות של המילה באנגלית? בחרי את התרגום הנכון:`,
+      promptHe: he`מה המשמעות של המילה?`,
       hintHe: he`💡 כדאי לקרוא את המילה בתוך משפט: "${isolateLtr(v0.exampleEn)}"`,
       speakerName: 'Word Guide',
       speakerAvatar: mission.icon,
-      questionEn: `What does "${v0.wordEn}" mean?`,
+      questionEn: v0.wordEn,
       options: [
         { textEn: v0.translationHe, isCorrect: true, explanationHe: correctExplain },
         { textEn: wrongA.translationHe, isCorrect: false, explanationHe: wrongExplain(wrongA) },
@@ -107,11 +107,12 @@ export function buildElementaryExercises(
       stepNumber: 1,
       type: 'chat-reply',
       badgeLabelHe: he`💬 שלב 1/5: איך אומרים באנגלית?`,
-      promptHe: he`איך אומרים באנגלית "${v0.translationHe}"? בחרי את המילה הנכונה:`,
+      promptHe: he`איך אומרים את זה באנגלית?`,
       hintHe: englishOptionHint([wrongA.wordEn, wrongB.wordEn]),
       speakerName: 'Word Guide',
       speakerAvatar: mission.icon,
       questionEn: 'Which English word is right?',
+      cardTextHe: v0.translationHe,
       options: [
         { textEn: v0.wordEn, isCorrect: true, explanationHe: correctExplain },
         { textEn: wrongA.wordEn, isCorrect: false, explanationHe: wrongExplain(wrongA) },
@@ -133,7 +134,7 @@ export function buildElementaryExercises(
     stepNumber: 2,
     type: 'sentence-builder',
     badgeLabelHe: he`🧩 שלב 2/5: הרכבת משפט`,
-    promptHe: he`לחצי על המילים לפי הסדר הנכון כדי להרכיב את המשפט:`,
+    promptHe: he`הרכיבי את המשפט:`,
     hintHe: `💡 ${getSentenceOrderHintHe(cleanWords)}`,
     questionEn: 'Tap the words in the right order:',
     targetSentenceEn: sentenceEn,
@@ -147,7 +148,7 @@ export function buildElementaryExercises(
     stepNumber: 3,
     type: 'voice-speak',
     badgeLabelHe: he`🎙️ שלב 3/5: אימון קריאה ודיבור`,
-    promptHe: he`האזיני למשפט (רגיל או איטי) ואז הקליטי את עצמך קוראת אותו בקול:`,
+    promptHe: he`הקשיבי וחזרי על המשפט:`,
     hintHe: `💡 ${getPronunciationTipHe(sentenceEn)}`,
     questionEn: 'Speak this sentence aloud:',
     speakTargetEn: sentenceEn,

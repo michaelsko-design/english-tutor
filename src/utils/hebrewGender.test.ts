@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { hebrewTemplate, inflectHebrew } from './hebrewGender';
+import { hebrewTemplate, inflectHebrew, resolveGenderSlashes } from './hebrewGender';
 import { CURRICULUM_BY_GRADE, MissionNode } from '../data/curriculum';
-import { getExercisesForMission, MissionExerciseStep } from '../data/missionExercises';
+import { getExercisesForMission, getRawExercisesForMission, MissionExerciseStep } from '../data/missionExercises';
 import { ProficiencyTier } from '../types/learner';
 
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
@@ -26,6 +26,7 @@ function hebrewTexts(step: MissionExerciseStep): string[] {
     step.promptHe,
     step.hintHe,
     step.contextPassageHe ?? '',
+    step.cardTextHe ?? '',
     step.targetSentenceHe ?? '',
     step.speakTargetHe ?? '',
     ...(step.options ?? []).flatMap((o) => [o.textEn, o.explanationHe]),
@@ -69,11 +70,11 @@ describe('hebrewTemplate', () => {
 });
 
 describe('mission steps for boys', () => {
-  it('keep story text and authored data exactly as for girls', () => {
+  it('keep story text and authored data exactly as for girls before gender pairs are resolved', () => {
     for (const mission of ALL_MISSIONS) {
       for (const tier of TIERS) {
-        const girlSteps = getExercisesForMission(mission, tier, 'girl');
-        const boySteps = getExercisesForMission(mission, tier, 'boy');
+        const girlSteps = getRawExercisesForMission(mission, tier, 'girl');
+        const boySteps = getRawExercisesForMission(mission, tier, 'boy');
         boySteps.forEach((boy, i) => {
           const girl = girlSteps[i];
           const where = `${mission.id} ${tier} ${boy.type}`;
@@ -91,9 +92,22 @@ describe('mission steps for boys', () => {
     }
   });
 
+  it('resolve every authored gender pair to the learner form', () => {
+    const slashPair = /[א-ת]\/(ית|ות|ה|ת|י)(?![א-ת])/;
+    for (const mission of ALL_MISSIONS) {
+      for (const tier of TIERS) {
+        for (const gender of ['girl', 'boy'] as const) {
+          for (const step of getExercisesForMission(mission, tier, gender)) {
+            expect(hebrewTexts(step).join('\n'), `${mission.id} ${tier} ${gender} ${step.type}`).not.toMatch(slashPair);
+          }
+        }
+      }
+    }
+  });
+
   it('show the Explorer story question exactly as written', () => {
     for (const mission of ALL_MISSIONS) {
-      const story = getExercisesForMission(mission, 'explorer', 'boy').find((s) => s.type === 'story-unseen');
+      const story = getRawExercisesForMission(mission, 'explorer', 'boy').find((s) => s.type === 'story-unseen');
       expect(story?.promptHe, mission.id).toContain(mission.drillSeed!.story.questionHe);
     }
   });
@@ -103,12 +117,12 @@ describe('mission steps for boys', () => {
     const sentence = steps.find((s) => s.type === 'sentence-builder')!;
     const voice = steps.find((s) => s.type === 'voice-speak')!;
     const detective = steps.find((s) => s.type === 'grammar-detective')!;
-    expect(sentence.promptHe).toMatch(/^לחץ על המילים/);
-    expect(voice.promptHe).toContain('הקלט את עצמך קורא');
+    expect(sentence.promptHe).toBe('הרכב את המשפט:');
+    expect(voice.promptHe).toBe('הקשב וחזור על המשפט:');
     expect(detective.badgeLabelHe).toContain('בלש הדקדוק');
     expect(detective.promptHe).toMatch(/^בחר /);
     for (const step of steps) {
-      expect(step.promptHe, step.type).not.toMatch(/(^|[^א-ת])(בחרי|לחצי|קראי|האזיני|הקליטי)([^א-ת]|$)/);
+      expect(step.promptHe, step.type).not.toMatch(/(^|[^א-ת])(בחרי|לחצי|קראי|האזיני|הקליטי|הרכיבי|הקשיבי|חזרי)([^א-ת]|$)/);
     }
   });
 
@@ -118,5 +132,30 @@ describe('mission steps for boys', () => {
       const correct = story.options!.find((o) => o.isCorrect)!;
       expect(correct.explanationHe).toBe('אלוף! סיימת את כל שלבי המשימה בהצלחה! 🎉');
     }
+  });
+});
+
+describe('resolveGenderSlashes', () => {
+  const cases: [string, string, string][] = [
+    ['החבר/ה הכי טוב/ה שלי מעצב/ת מדבקות.', 'החברה הכי טובה שלי מעצבת מדבקות.', 'החבר הכי טוב שלי מעצב מדבקות.'],
+    ['אני זוכר/ת את כל המילים.', 'אני זוכרת את כל המילים.', 'אני זוכר את כל המילים.'],
+    ['אנחנו עומדים/ות להשיק חנות.', 'אנחנו עומדות להשיק חנות.', 'אנחנו עומדים להשיק חנות.'],
+    ['אני יכול/ה לקפוץ.', 'אני יכולה לקפוץ.', 'אני יכול לקפוץ.'],
+    ['אני שותה/ת מים ועושה/ה שיעורים.', 'אני שותה מים ועושה שיעורים.', 'אני שותה מים ועושה שיעורים.'],
+    ['את/ה תלמיד/ה טוב/ה?', 'את תלמידה טובה?', 'אתה תלמיד טוב?'],
+    ['אני מתכוונ/ת לבוא, ושתמשיך/י!', 'אני מתכוונת לבוא, ושתמשיכי!', 'אני מתכוון לבוא, ושתמשיך!'],
+    ['הבלש/ית ולשותף/ה', 'הבלשית ולשותפה', 'הבלש ולשותף'],
+    ['תוכל/י לבוא/?', 'תוכלי לבוא/?', 'תוכל לבוא/?'],
+  ];
+
+  it.each(cases)('resolves "%s"', (text, girl, boy) => {
+    expect(resolveGenderSlashes(text, 'girl')).toBe(girl);
+    expect(resolveGenderSlashes(text, 'boy')).toBe(boy);
+  });
+
+  it('leaves pairs that are not gender suffixes as written', () => {
+    expect(resolveGenderSlashes('כן/לא', 'boy')).toBe('כן/לא');
+    expect(resolveGenderSlashes('מצב/רגש', 'girl')).toBe('מצב/רגש');
+    expect(resolveGenderSlashes('and/or', 'girl')).toBe('and/or');
   });
 });

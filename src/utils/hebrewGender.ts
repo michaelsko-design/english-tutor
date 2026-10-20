@@ -97,6 +97,7 @@ export function inflectHebrew(text: string, gender: LearnerGender): string {
     ['השלימי', 'השלם'],
     ['לחצי', 'לחץ'],
     ['הקשיבי', 'הקשב'],
+    ['חזרי', 'חזור'],
     ['האזיני', 'האזן'],
     ['קראי', 'קרא'],
     ['הקליטי', 'הקלט'],
@@ -148,4 +149,42 @@ export function hebrewTemplate(gender: LearnerGender) {
       (text, part, i) => `${text}${inflectHebrew(part, gender)}${i < values.length ? String(values[i]) : ''}`,
       ''
     );
+}
+
+/** Hebrew final letters and their regular forms, for appending a suffix to a stem or ending a word. */
+const FINAL_TO_REGULAR: Record<string, string> = { ך: 'כ', ם: 'מ', ן: 'נ', ף: 'פ', ץ: 'צ' };
+const REGULAR_TO_FINAL: Record<string, string> = { כ: 'ך', מ: 'ם', נ: 'ן', פ: 'ף', צ: 'ץ' };
+
+/** "Word/suffix" pairs authored for both genders, e.g. אוהב/ת, החבר/ה, עומדים/ות, תוכל/י. */
+const GENDER_SLASH_PATTERN = /(?<![א-ת])([א-ת]+)\/(ית|ות|ה|ת|י)(?![א-ת])/g;
+
+function toRegularLastLetter(stem: string): string {
+  const last = stem.slice(-1);
+  return FINAL_TO_REGULAR[last] ? `${stem.slice(0, -1)}${FINAL_TO_REGULAR[last]}` : stem;
+}
+
+function toFinalLastLetter(stem: string): string {
+  const last = stem.slice(-1);
+  return REGULAR_TO_FINAL[last] ? `${stem.slice(0, -1)}${REGULAR_TO_FINAL[last]}` : stem;
+}
+
+function resolveSlashPair(stem: string, suffix: string, gender: LearnerGender): string {
+  if (stem === 'את' && suffix === 'ה') return gender === 'girl' ? 'את' : 'אתה';
+  if (gender === 'boy') return toFinalLastLetter(stem);
+  if (suffix === 'ות' && stem.endsWith('ים')) return `${stem.slice(0, -2)}ות`;
+  // שותה/ת, עושה/ה, מכבה/ת: the feminine form is the same word
+  if (stem.endsWith('ה') && (suffix === 'ה' || suffix === 'ת')) return stem;
+  return `${toRegularLastLetter(stem)}${suffix}`;
+}
+
+/**
+ * Resolves authored "word/suffix" gender pairs to the learner's form:
+ * "אני אוהב/ת" → "אני אוהבת" for a girl, "אני אוהב" for a boy; "את/ה" → "את" / "אתה".
+ * Pairs that are not gender suffixes (כן/לא) are left as written.
+ */
+export function resolveGenderSlashes(text: string, gender: LearnerGender): string {
+  if (!text || !text.includes('/')) return text;
+  return text.replace(GENDER_SLASH_PATTERN, (_match, stem: string, suffix: string) =>
+    resolveSlashPair(stem, suffix, gender)
+  );
 }
