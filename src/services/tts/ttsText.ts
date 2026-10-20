@@ -29,19 +29,20 @@ const SLOW_RATE_MAX = 0.8;
 export const CLIP_BASE_RATE = 0.95;
 
 const EDGE_PUNCTUATION = /^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu;
-const CLOUD_SPEAKABLE = /^[A-Za-z0-9 .,!?'’"“”\-–—:;()&%$/]+$/;
+/** English text: Latin letters (café, naïve), digits, punctuation and the + of grammar formulas. */
+const CLOUD_SPEAKABLE = /^[\p{Script=Latin}0-9 .,!?'’"“”\-–—:;()&%$/+]+$/u;
 
 /** Blanks are read as "blank" and emoji are stripped so the voice doesn't read them out. */
 export function toSpeakableText(text: string): string {
   return text
     .replace(/_{3,}/g, 'blank')
-    .replace(/\p{Extended_Pictographic}|️|‍/gu, '')
+    .replace(/\p{Extended_Pictographic}|️|‍|⃣/gu, '')
     .trim();
 }
 
-/** Trims and collapses whitespace; the text that is actually sent to the voice. */
+/** Trims and collapses whitespace (NFC, so é has one spelling); the text that is actually sent to the voice. */
 export function normalizeTtsText(text: string): string {
-  return text.replace(/\s+/g, ' ').trim();
+  return text.normalize('NFC').replace(/\s+/g, ' ').trim();
 }
 
 export function isSingleWord(text: string): boolean {

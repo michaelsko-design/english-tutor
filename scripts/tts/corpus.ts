@@ -155,14 +155,23 @@ function addRoom(corpus: CorpusBuilder): void {
     .forEach((frame) => frame.blanks.flat().forEach((word) => corpus.add(word.en, 0.9)));
 }
 
-export function collectCorpus(): CorpusPhrase[] {
+function buildCorpus(): CorpusBuilder {
   const corpus = new CorpusBuilder();
   addCurriculum(corpus);
   addMiniLessons(corpus);
   addExamBanks(corpus);
   addRoom(corpus);
   corpus.add(DEMO_SENTENCE, DEMO_SENTENCE_RATE);
-  return corpus.list();
+  return corpus;
+}
+
+export function collectCorpus(): CorpusPhrase[] {
+  return buildCorpus().list();
+}
+
+/** Fixed text the app reads aloud that gets no clip (not plain English), so the device voice reads it. */
+export function collectSkippedPhrases(): string[] {
+  return [...new Set(buildCorpus().skipped)].sort();
 }
 
 /** 48 kbps MP3 is 6 KB a second; speech runs about 14 characters a second, plus the leading break and a tail. */

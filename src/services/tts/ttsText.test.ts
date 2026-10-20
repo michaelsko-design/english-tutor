@@ -15,6 +15,10 @@ describe('toSpeakableText', () => {
   it('reads blanks as "blank" and drops emoji', () => {
     expect(toSpeakableText('I ___ a cat 🐱')).toBe('I blank a cat');
   });
+
+  it('drops the keycap mark of a keycap emoji', () => {
+    expect(toSpeakableText('What is this? 3️⃣')).toBe('What is this? 3');
+  });
 });
 
 describe('normalizeTtsText', () => {
@@ -41,6 +45,11 @@ describe('getClipText', () => {
 describe('isCloudSpeakable', () => {
   it('accepts plain English', () => {
     expect(isCloudSpeakable("Don't forget your hat!")).toBe(true);
+  });
+
+  it('accepts accented Latin letters and grammar formulas', () => {
+    expect(isCloudSpeakable('Does this café serve matcha?')).toBe(true);
+    expect(isCloudSpeakable('If + had + V3, would have + V3')).toBe(true);
   });
 
   it('rejects Hebrew, empty and over-long text', () => {
