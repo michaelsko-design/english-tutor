@@ -51,7 +51,7 @@ const mp3 = () => new Response(new Uint8Array([1, 2, 3]), { status: 200, headers
 const html = () => new Response('<!doctype html>', { status: 200, headers: { 'Content-Type': 'text/html' } });
 
 function setup(
-  options: { clipKeys?: string[]; liveStatus?: number; manifestFails?: number; clipsAreHtml?: boolean; authToken?: string } = {}
+  options: { clipKeys?: string[]; liveStatus?: number; manifestFails?: number; clipsAreHtml?: boolean; authToken?: string; appCheckToken?: string } = {}
 ) {
   let manifestFailures = options.manifestFails ?? 0;
   const audio = new FakeAudio();
@@ -83,6 +83,7 @@ function setup(
     now: () => now,
     isOnline: () => true,
     ...(options.authToken ? { getAuthToken: async () => options.authToken ?? null } : {}),
+    ...(options.appCheckToken ? { getAppCheckToken: async () => options.appCheckToken ?? null } : {}),
   };
   const advance = (ms: number) => {
     now += ms;
@@ -129,6 +130,13 @@ describe('hybrid read-aloud service', () => {
     await engineOf(service, 'My own word list sentence');
     const liveCall = fetchMock.mock.calls.find(([url]) => String(url).startsWith('/api/tts')) as unknown[];
     expect(liveCall[1]).toMatchObject({ headers: { 'X-Firebase-Token': 'id-token' } });
+  });
+
+  it('sends the App Check token with an online voice request', async () => {
+    const { service, fetchMock } = setup({ authToken: 'id-token', appCheckToken: 'ac-token' });
+    await engineOf(service, 'My own word list sentence');
+    const liveCall = fetchMock.mock.calls.find(([url]) => String(url).startsWith('/api/tts')) as unknown[];
+    expect(liveCall[1]).toMatchObject({ headers: { 'X-Firebase-Token': 'id-token', 'X-Firebase-AppCheck': 'ac-token' } });
   });
 
   it('uses the device voice for text the online voice does not read', async () => {

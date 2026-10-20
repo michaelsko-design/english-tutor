@@ -44,6 +44,40 @@ describe('handleTtsRequest sign-in check', () => {
   });
 });
 
+describe('handleTtsRequest App Check', () => {
+  const audio = () => vi.fn(async () => new Response(new Uint8Array([1]), { status: 200 }));
+  const withAppCheck = (token?: string) =>
+    new Request(canonical('hello').url, { headers: token ? { 'X-Firebase-AppCheck': token } : {} });
+  const ON_ENV = { ...ENV, APPCHECK_ENFORCE: 'on' };
+
+  it('ignores App Check until enforcement is on', async () => {
+    const verify = vi.fn(async () => false);
+    const response = await handleTtsRequest(withAppCheck(), ENV, audio() as typeof fetch, async () => true, verify);
+    expect(response.status).toBe(200);
+    expect(verify).not.toHaveBeenCalled();
+  });
+
+  it('refuses a missing or invalid token before calling Azure', async () => {
+    const fetchImpl = audio();
+    expect((await handleTtsRequest(withAppCheck(), ON_ENV, fetchImpl as typeof fetch, async () => true, async () => true)).status).toBe(401);
+    expect((await handleTtsRequest(withAppCheck('bad'), ON_ENV, fetchImpl as typeof fetch, async () => true, async () => false)).status).toBe(401);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('serves a valid token, checking it against the project number', async () => {
+    const verify = vi.fn(async () => true);
+    const response = await handleTtsRequest(
+      withAppCheck('good'),
+      { ...ON_ENV, FIREBASE_PROJECT_NUMBER: '42' },
+      audio() as typeof fetch,
+      async () => true,
+      verify
+    );
+    expect(response.status).toBe(200);
+    expect(verify).toHaveBeenCalledWith('good', '42');
+  });
+});
+
 describe('handleTtsRequest', () => {
   it('rejects text the online voice does not read', async () => {
     const fetchImpl = vi.fn();

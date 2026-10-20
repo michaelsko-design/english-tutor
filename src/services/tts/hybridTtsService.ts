@@ -8,6 +8,7 @@
 import { DEFAULT_VOICE_PREFERENCE, type VoicePreference } from '../../utils/ttsVoice';
 import { CLIP_MANIFEST_URL, getClipUrl, type ClipManifest } from './clipManifestTypes';
 import {
+  APP_CHECK_HEADER,
   TTS_TOKEN_HEADER,
   buildLiveTtsQuery,
   CLIP_BASE_RATE,
@@ -39,6 +40,8 @@ export interface HybridTtsDeps {
   isOnline: () => boolean;
   /** The signed-in learner's Firebase ID token; /api/tts serves only signed-in learners. */
   getAuthToken?: () => Promise<string | null>;
+  /** The Firebase App Check token (null when App Check isn't set up); proves the request comes from the real app. */
+  getAppCheckToken?: () => Promise<string | null>;
   /** Called with text that had no rendered clip (dev builds record these to find corpus gaps). */
   onClipMiss?: (text: string) => void;
 }
@@ -135,8 +138,15 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
     const cached = await cache?.match(url);
     let response = cached;
     if (!response) {
-      const token = await deps.getAuthToken?.().catch(() => null);
-      response = await deps.fetch(url, { signal, ...(token ? { headers: { [TTS_TOKEN_HEADER]: token } } : {}) });
+      const [token, appCheckToken] = await Promise.all([
+        deps.getAuthToken?.().catch(() => null),
+        deps.getAppCheckToken?.().catch(() => null),
+      ]);
+      const headers: Record<string, string> = {
+        ...(token ? { [TTS_TOKEN_HEADER]: token } : {}),
+        ...(appCheckToken ? { [APP_CHECK_HEADER]: appCheckToken } : {}),
+      };
+      response = await deps.fetch(url, { signal, ...(Object.keys(headers).length > 0 ? { headers } : {}) });
       if (response.status === 429 || response.status === 503) livePausedUntil = deps.now() + LIVE_PAUSE_MS;
       if (!isAudioResponse(response)) return null;
       // Storing is best effort: a full or blocked cache just means fetching again next time.

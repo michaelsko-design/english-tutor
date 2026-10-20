@@ -6,11 +6,14 @@
  */
 // Explicit .js extensions: the package is ESM ("type": "module"), so Node needs them at runtime.
 import { AzureTtsError, readAzureConfig, synthesize } from './_lib/azureTts.js';
+import { verifyAppCheckToken } from './_lib/appCheckToken.js';
 import { verifyFirebaseIdToken } from './_lib/firebaseToken.js';
-import { TTS_TOKEN_HEADER, buildLiveTtsQuery, isCloudSpeakable, isTtsSpeed, isTtsVoice } from '../src/services/tts/ttsText.js';
+import { APP_CHECK_HEADER, TTS_TOKEN_HEADER, buildLiveTtsQuery, isCloudSpeakable, isTtsSpeed, isTtsVoice } from '../src/services/tts/ttsText.js';
 
 const AZURE_TIMEOUT_MS = 8_000;
 const DEFAULT_FIREBASE_PROJECT_ID = 'english-tutor-il-7';
+/** App Check tokens name the project by number (the first part of the web appId) */
+const DEFAULT_FIREBASE_PROJECT_NUMBER = '1003230297590';
 // s-maxage lets the Vercel CDN share the answer; max-age lets the browser keep it.
 const AUDIO_CACHE_CONTROL = 'public, max-age=31536000, s-maxage=31536000, immutable';
 
@@ -31,6 +34,7 @@ export async function handleTtsRequest(
   env: Record<string, string | undefined>,
   fetchImpl: typeof fetch = fetch,
   verifyToken: (token: string, projectId: string) => Promise<boolean> = verifyFirebaseIdToken,
+  verifyAppCheck: (token: string, projectNumber: string) => Promise<boolean> = verifyAppCheckToken,
 ): Promise<Response> {
   const url = new URL(request.url);
   const text = url.searchParams.get('t') ?? '';
@@ -52,6 +56,16 @@ export async function handleTtsRequest(
     const token = request.headers.get(TTS_TOKEN_HEADER) ?? '';
     const projectId = env.FIREBASE_PROJECT_ID || DEFAULT_FIREBASE_PROJECT_ID;
     if (!token || !(await verifyToken(token, projectId))) return errorResponse(401, 'Sign in to use the online voice');
+  }
+
+  // App Check proves the request came from the real app. Off until the console shows the web app
+  // sending valid tokens (APPCHECK_ENFORCE=on), so a rollout can't lock out learners.
+  if (env.APPCHECK_ENFORCE === 'on') {
+    const appCheckToken = request.headers.get(APP_CHECK_HEADER) ?? '';
+    const projectNumber = env.FIREBASE_PROJECT_NUMBER || DEFAULT_FIREBASE_PROJECT_NUMBER;
+    if (!appCheckToken || !(await verifyAppCheck(appCheckToken, projectNumber))) {
+      return errorResponse(401, 'App check failed');
+    }
   }
 
   const config = readAzureConfig(env);

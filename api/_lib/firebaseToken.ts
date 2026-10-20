@@ -1,11 +1,10 @@
 /**
- * Verifies a Firebase Auth ID token (any signed-in learner, guests included) with Web Crypto, so
- * the function needs no Firebase Admin SDK. The checks are the ones Firebase documents: an RS256
- * signature by one of Google's current securetoken keys, this project as audience and issuer, not
- * expired, issued in the past and with a user id.
+ * Verifies Firebase-issued JWTs (Auth ID tokens, App Check tokens) with Web Crypto, so the function
+ * needs no Firebase Admin SDK. The signature check is the same for both: RS256 by one of the
+ * issuer's current public keys. Each token type supplies its own claim rules.
  */
 
-const JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
+const AUTH_JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 const DEFAULT_KEYS_MAX_AGE_S = 3600;
 /** Clock difference allowed between the learner's token and this server */
 const CLOCK_SKEW_S = 300;
@@ -15,17 +14,23 @@ interface TokenHeader {
   kid?: string;
 }
 
-interface TokenPayload {
+export interface TokenPayload {
   iss?: string;
-  aud?: string;
+  aud?: string | string[];
   sub?: string;
   iat?: number;
   exp?: number;
 }
 
-interface VerifierDeps {
+export interface VerifierDeps {
   fetchImpl?: typeof fetch;
   nowMs?: () => number;
+}
+
+interface Rs256VerifierConfig extends VerifierDeps {
+  jwksUrl: string;
+  /** Claim checks beyond the common ones (sub present, not expired, issued in the past). */
+  hasValidClaims: (payload: TokenPayload) => boolean;
 }
 
 function decodePart<T>(part: string): T | null {
@@ -41,13 +46,18 @@ function maxAgeSeconds(cacheControl: string | null): number {
   return match ? Number(match[1]) : DEFAULT_KEYS_MAX_AGE_S;
 }
 
-export function createFirebaseTokenVerifier({ fetchImpl = fetch, nowMs = Date.now }: VerifierDeps = {}) {
+export function createRs256Verifier({
+  jwksUrl,
+  hasValidClaims,
+  fetchImpl = fetch,
+  nowMs = Date.now,
+}: Rs256VerifierConfig): (token: string) => Promise<boolean> {
   let keys: Map<string, CryptoKey> | null = null;
   let keysExpireAtMs = 0;
 
   const loadKeys = async (): Promise<Map<string, CryptoKey>> => {
     if (keys && nowMs() < keysExpireAtMs) return keys;
-    const response = await fetchImpl(JWKS_URL);
+    const response = await fetchImpl(jwksUrl);
     if (!response.ok) throw new Error(`JWKS ${response.status}`);
     const body = (await response.json()) as { keys?: (JsonWebKey & { kid?: string })[] };
     const imported = new Map<string, CryptoKey>();
@@ -63,7 +73,7 @@ export function createFirebaseTokenVerifier({ fetchImpl = fetch, nowMs = Date.no
     return imported;
   };
 
-  return async function verifyFirebaseIdToken(token: string, projectId: string): Promise<boolean> {
+  return async function verifyToken(token: string): Promise<boolean> {
     const parts = token.split('.');
     if (parts.length !== 3) return false;
     const header = decodePart<TokenHeader>(parts[0]);
@@ -71,16 +81,14 @@ export function createFirebaseTokenVerifier({ fetchImpl = fetch, nowMs = Date.no
     if (!header || !payload || header.alg !== 'RS256' || !header.kid) return false;
 
     const nowS = nowMs() / 1000;
-    const isValidClaims =
-      payload.aud === projectId &&
-      payload.iss === `https://securetoken.google.com/${projectId}` &&
+    const isValidCommonClaims =
       typeof payload.sub === 'string' &&
       payload.sub.length > 0 &&
       typeof payload.exp === 'number' &&
       payload.exp > nowS &&
       typeof payload.iat === 'number' &&
       payload.iat <= nowS + CLOCK_SKEW_S;
-    if (!isValidClaims) return false;
+    if (!isValidCommonClaims || !hasValidClaims(payload)) return false;
 
     try {
       const key = (await loadKeys()).get(header.kid);
@@ -94,6 +102,26 @@ export function createFirebaseTokenVerifier({ fetchImpl = fetch, nowMs = Date.no
     } catch {
       return false;
     }
+  };
+}
+
+/** Any signed-in learner, guests included: this project as audience and issuer. */
+export function createFirebaseTokenVerifier(deps: VerifierDeps = {}) {
+  const verifyWith = (projectId: string) =>
+    createRs256Verifier({
+      ...deps,
+      jwksUrl: AUTH_JWKS_URL,
+      hasValidClaims: (payload) => payload.aud === projectId && payload.iss === `https://securetoken.google.com/${projectId}`,
+    });
+  // The verifier caches the public keys, so keep one per project instead of one per call
+  const verifiers = new Map<string, (token: string) => Promise<boolean>>();
+  return async function verifyFirebaseIdToken(token: string, projectId: string): Promise<boolean> {
+    let verify = verifiers.get(projectId);
+    if (!verify) {
+      verify = verifyWith(projectId);
+      verifiers.set(projectId, verify);
+    }
+    return verify(token);
   };
 }
 

@@ -3,7 +3,7 @@
 ## Future / Next Up Ideas
 *Sorted by significance to the app's development (highest priority first). Completed features keep their numbers as stable IDs.*
 
-- [ ] **Security hardening: App Check and API key** - Turn on Firebase App Check (reCAPTCHA Enterprise) for Firestore and `/api/tts`, and restrict the Firebase web API key to the app's domains. (Done: the new `firestore.rules` are deployed, and the Content Security Policy is enforced.)
+- [ ] **Security hardening: App Check and API key** - Turn on Firebase App Check (reCAPTCHA Enterprise) for Firestore and `/api/tts`, and restrict the Firebase web API key to the app's domains. (Done: the new `firestore.rules` are deployed, the Content Security Policy is enforced, and the App Check code is in: client init via `VITE_APPCHECK_SITE_KEY`, `/api/tts` check behind `APPCHECK_ENFORCE=on`. Left, all console steps: create the reCAPTCHA Enterprise key and register it in App Check, set `VITE_APPCHECK_SITE_KEY` on Vercel, watch App Check metrics, enforce Firestore, set `APPCHECK_ENFORCE=on`, restrict the API key.)
 - [ ] **Parent view and PIN recovery** - A read-only parent link or code for the weekly report on the parent's own phone, and a parent email (or a parent-issued reset code) so a forgotten PIN doesn't lose the account.
 - [ ] **Hebrew audio for young learners** - Grades 1–2 can't read the Hebrew instructions yet. Render the fixed Hebrew prompts, hints and feedback with a `he-IL` Azure voice through the existing clip pipeline, add a 🔊 beside each instruction and play it automatically for grades 1–2.
 - [ ] **Daily streak reminders** - Web-native daily reminders without migrating to a native app: Web Push notifications via `public/sw.js` + VAPID keys (with an iOS "Add to Home Screen" guide), a scheduled Vercel Cron job that checks `streakLastDateStr` and respects `isShabbatObserver` (skipping Friday/Shabbat), optional parent/learner email streak-saver & Sunday weekly report emails via Resend, and a 1-tap `.ics` / Google Calendar recurring reminder option.
@@ -13,6 +13,8 @@
 - [ ] **Shared drill session hook and Button** - The four runners (mission, exam, word list, contest) copy the same step, answer and feedback state; one `useDrillSession` and a shared `<Button>` (44px minimum) would remove ~300 lines and keep them consistent.
 - [ ] **Themed buttons in settings** - in the settings, the 3 buttons of the different ui themes will have the corresponding background and instead of the emoji use the characters.
 - [ ] **Pro tier and payments plan** - Define the Freemium vs. "EnglishVibe Pro" / one-time "Exam Booster Pass" tier boundaries (keeping Unit 1, Placement Test and Friends Hub free while gating full curriculum, unlimited Exam Prep / Mock Exams and unlimited School Word Lists), design the kid-safe "Ask a Parent on WhatsApp" payment link flow (`/?upgrade=<uid>`), and plan integration with an Israeli payment gateway (Bit / Apple Pay / Google Pay + automatic tax invoices via Grow/PayPlus/Morning) and server-verified Firestore subscription status.
+- [ ] **Domain and Email update** - After buying a domain - update the contact email in the privacy notice.
+
 
 ## Probably never to implement Features
 - [ ] **Arabic for Arabic-speaking learners** - Move the inline Hebrew copy into a string catalogue first, then add Arabic. this is a feature that may never be implemented, leave it for later.

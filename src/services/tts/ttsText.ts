@@ -127,3 +127,5 @@ function encodeQueryValue(value: string): string {
 
 /** The header carrying the learner's Firebase ID token to /api/tts (the CDN cache key ignores it). */
 export const TTS_TOKEN_HEADER = 'X-Firebase-Token';
+/** The header carrying the Firebase App Check token to /api/tts. */
+export const APP_CHECK_HEADER = 'X-Firebase-AppCheck';

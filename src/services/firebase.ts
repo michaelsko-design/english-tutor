@@ -1,4 +1,5 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider, getToken, AppCheck } from 'firebase/app-check';
 import { getAuth, connectAuthEmulator, GoogleAuthProvider, Auth } from 'firebase/auth';
 import {
   initializeFirestore,
@@ -65,6 +66,9 @@ export const isFirebaseConfigured: boolean = Boolean(
     firebaseConfig.projectId !== 'your-project-id'
 );
 
+const appCheckSiteKey = import.meta.env.VITE_APPCHECK_SITE_KEY?.trim() ?? '';
+
+let appCheck: AppCheck | null = null;
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let db: Firestore | null = null;
@@ -73,6 +77,23 @@ let googleProvider: GoogleAuthProvider | null = null;
 if (isFirebaseConfigured) {
   try {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+    // App Check must start before Firestore/Auth are used so their requests carry a token. Without a
+    // site key (or against the emulators) it stays off and the app works as before.
+    if (appCheckSiteKey && !isEmulatorMode) {
+      try {
+        // Local dev uses a debug token (printed once in the console, registered in the Firebase console)
+        if (import.meta.env.DEV) {
+          (self as unknown as { FIREBASE_APPCHECK_DEBUG_TOKEN?: boolean }).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+        }
+        appCheck = initializeAppCheck(app, {
+          provider: new ReCaptchaEnterpriseProvider(appCheckSiteKey),
+          isTokenAutoRefreshEnabled: true,
+        });
+      } catch (err) {
+        console.warn('Firebase App Check could not start:', err);
+        appCheck = null;
+      }
+    }
     auth = getAuth(app);
     if (isEmulatorMode) {
       connectAuthEmulator(auth, `http://${EMULATOR_HOST}:${EMULATOR_AUTH_PORT}`, { disableWarnings: true });
@@ -108,4 +129,14 @@ if (isFirebaseConfigured) {
   }
 }
 
-export { app, auth, db, googleProvider };
+/** The current App Check token, or null when App Check is off or the token can't be fetched. */
+export async function getAppCheckToken(): Promise<string | null> {
+  if (!appCheck) return null;
+  try {
+    return (await getToken(appCheck)).token;
+  } catch {
+    return null;
+  }
+}
+
+export { app, appCheck, auth, db, googleProvider };

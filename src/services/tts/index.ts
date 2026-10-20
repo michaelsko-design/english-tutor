@@ -2,7 +2,7 @@ import { getSharedAudio, onFirstGesture } from './audioUnlock';
 import { deviceTtsService } from './deviceTtsService';
 import { createHybridTtsService } from './hybridTtsService';
 import { createSpeechStatus, type SpeechStatusService } from './speechStatus';
-import { auth } from '../firebase';
+import { auth, getAppCheckToken } from '../firebase';
 
 export type { SpeakOptions, TextToSpeechService, TtsEngine } from './types';
 export { DEFAULT_SPEECH_RATE, isSameSpeech, type CurrentSpeech } from './speechStatus';
@@ -33,6 +33,7 @@ export function getTtsService(): SpeechStatusService {
       now: () => Date.now(),
       isOnline: () => typeof navigator === 'undefined' || navigator.onLine !== false,
       getAuthToken: async () => (auth?.currentUser ? auth.currentUser.getIdToken() : null),
+      getAppCheckToken,
       onClipMiss: recordClipMiss,
     });
     onFirstGesture(created.preload);
