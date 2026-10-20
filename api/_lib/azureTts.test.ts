@@ -28,6 +28,25 @@ describe('buildSsml', () => {
     expect(ssml).toContain('&quot;חתול&quot;.');
     expect(ssml).not.toContain('<lang xml:lang="en-US"><prosody rate="-8%">quot');
   });
+
+  it('spells out misread Hebrew words in IPA, with their pause, and leaves the rest as written', () => {
+    const ssml = buildSsml('הקשב ובחר: המילה מתחילה ב-B.', 'he-female', 'normal');
+    expect(ssml).toContain('<phoneme alphabet="ipa" ph="hak.ˈʃev">הקשב</phoneme>');
+    expect(ssml).toContain('<phoneme alphabet="ipa" ph="uv.ˈχaʁ">ובחר</phoneme>');
+    expect(ssml).toContain('<phoneme alphabet="ipa" ph="be">ב-</phoneme><break time="50ms"/>');
+    expect(ssml).toContain(': המילה מתחילה ');
+  });
+
+  it("says a gender-tagged line in the learner's form, and never reads the tag", () => {
+    const boy = buildSsml('[to:boy] מעולה! בנית את המילה cat', 'he-female', 'normal');
+    expect(boy).toContain('<phoneme alphabet="ipa" ph="ba.ˈni.ta">בנית</phoneme>');
+    expect(boy).not.toContain('to:boy');
+    expect(buildSsml('[to:girl] מעולה! בנית את המילה cat', 'he-female', 'normal')).toContain('ph="ba.ˈnit"');
+  });
+
+  it('never spells out English clips', () => {
+    expect(buildSsml('Listen and choose.', 'female', 'normal')).not.toContain('<phoneme');
+  });
 });
 
 describe('readAzureConfig', () => {

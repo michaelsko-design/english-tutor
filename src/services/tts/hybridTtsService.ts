@@ -7,9 +7,11 @@
  */
 import { DEFAULT_VOICE_PREFERENCE } from '../../utils/ttsVoice';
 import { CLIP_MANIFEST_URL, getClipUrl, type ClipManifest } from './clipManifestTypes';
+import { voiceForListener } from './hebrewListener';
 import {
   APP_CHECK_HEADER,
   HEBREW_VOICE,
+  type ListenerGender,
   isSpeakableBy,
   toPlainSpeech,
   type ClipVoice,
@@ -47,6 +49,8 @@ export interface HybridTtsDeps {
   getAppCheckToken?: () => Promise<string | null>;
   /** Called with text that had no rendered clip (dev builds record these to find corpus gaps). */
   onClipMiss?: (text: string) => void;
+  /** The learner's gender, for Hebrew lines whose words read differently for a girl and a boy. */
+  getListenerGender?: () => ListenerGender | null;
 }
 
 interface Playable {
@@ -216,6 +220,8 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
     const rate = options.rate ?? DEFAULT_RATE;
     const lang = options.lang ?? 'en';
     const clipVoice: ClipVoice = lang === 'he' ? HEBREW_VOICE : voice;
+    // "בנית" is banit for a girl and banita for a boy, "משחק/ת" is one of them: a clip per gender
+    const voiced = lang === 'he' ? voiceForListener(text, deps.getListenerGender?.() ?? null) : text;
     const controller = new AbortController();
     abortController = controller;
     const isCurrent = () => id === requestId;
@@ -226,8 +232,8 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
       // The online voice gets LIVE_TIMEOUT_MS; a slower answer is dropped for the device voice.
       const timer = setTimeout(() => controller.abort(), LIVE_TIMEOUT_MS);
       try {
-        playable = (await findClip(text, clipVoice, rate, controller.signal)) ??
-          (await fetchLive(toPlainSpeech(text), clipVoice, rate, controller.signal));
+        playable = (await findClip(voiced, clipVoice, rate, controller.signal)) ??
+          (await fetchLive(toPlainSpeech(voiced), clipVoice, rate, controller.signal));
       } catch {
         // A timeout, an abort or a network error falls through to the device voice.
         playable = null;

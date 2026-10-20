@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  addListenerGender,
+  parseListenerGender,
   buildLiveTtsQuery,
   getClipKey,
   getClipSpeed,
@@ -157,5 +159,25 @@ describe('letter tokens', () => {
     expect(parseLetterToken('ball')).toBeNull();
     expect(toPlainSpeech('[letter:a]')).toBe('A');
     expect(toPlainSpeech('apple')).toBe('apple');
+  });
+});
+
+describe('listener gender', () => {
+  it('tags a Hebrew line whose words read by gender, and only those', () => {
+    expect(addListenerGender('מעולה! בנית את המילה cat', 'girl')).toBe('[to:girl] מעולה! בנית את המילה cat');
+    expect(addListenerGender('מעולה! בנית את המילה cat', 'boy')).toBe('[to:boy] מעולה! בנית את המילה cat');
+    expect(addListenerGender('הקשיבי ובחרי את האות:', 'girl')).toBe('הקשיבי ובחרי את האות:');
+    // A longer word that contains one isn't tagged
+    expect(addListenerGender('הבנית שלו', 'girl')).toBe('הבנית שלו');
+    expect(addListenerGender('מעולה! בנית', null)).toBe('מעולה! בנית');
+  });
+
+  it('reads the tag back, and a tagged line is still speakable Hebrew', () => {
+    const tagged = addListenerGender('סיימת את המשימה!', 'boy');
+    expect(addListenerGender(tagged, 'girl')).toBe(tagged);
+    expect(parseListenerGender(tagged)).toEqual({ gender: 'boy', text: 'סיימת את המשימה!' });
+    expect(parseListenerGender('סיימת את המשימה!')).toEqual({ gender: null, text: 'סיימת את המשימה!' });
+    expect(isHebrewSpeakable(tagged)).toBe(true);
+    expect(getClipKey(tagged, 'normal')).not.toBe(getClipKey(addListenerGender('סיימת את המשימה!', 'girl'), 'normal'));
   });
 });

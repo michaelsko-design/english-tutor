@@ -1,18 +1,18 @@
 /** Reads and writes public/tts/manifest.json, the clip keys rendered for each voice. */
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { TTS_AUDIO_VERSION, TTS_VOICES, type ClipVoice } from '../../src/services/tts/ttsText';
+import { getAudioVersion, TTS_VOICES, type ClipVoice } from '../../src/services/tts/ttsText';
 import type { ClipManifest } from '../../src/services/tts/clipManifestTypes';
 
 export const TTS_PUBLIC_DIR = join(process.cwd(), 'public', 'tts');
 export const MANIFEST_PATH = join(TTS_PUBLIC_DIR, 'manifest.json');
 
-export function getVoiceDir(voice: string): string {
-  return join(TTS_PUBLIC_DIR, `v${TTS_AUDIO_VERSION}`, voice);
+export function getVoiceDir(voice: ClipVoice): string {
+  return join(TTS_PUBLIC_DIR, `v${getAudioVersion(voice)}`, voice);
 }
 
 /** The clip keys that exist on disk for a voice. */
-export function listRenderedKeys(voice: string): Set<string> {
+export function listRenderedKeys(voice: ClipVoice): Set<string> {
   const dir = getVoiceDir(voice);
   if (!existsSync(dir)) return new Set();
   return new Set(

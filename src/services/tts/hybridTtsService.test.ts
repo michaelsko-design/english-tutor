@@ -52,7 +52,7 @@ const mp3 = () => new Response(new Uint8Array([1, 2, 3]), { status: 200, headers
 const html = () => new Response('<!doctype html>', { status: 200, headers: { 'Content-Type': 'text/html' } });
 
 function setup(
-  options: { clipKeys?: string[]; hebrewClipKeys?: string[]; liveStatus?: number; manifestFails?: number; clipsAreHtml?: boolean; authToken?: string; appCheckToken?: string } = {}
+  options: { clipKeys?: string[]; hebrewClipKeys?: string[]; listenerGender?: 'girl' | 'boy'; liveStatus?: number; manifestFails?: number; clipsAreHtml?: boolean; authToken?: string; appCheckToken?: string } = {}
 ) {
   let manifestFailures = options.manifestFails ?? 0;
   const audio = new FakeAudio();
@@ -83,6 +83,7 @@ function setup(
     caches: caches as unknown as CacheStorage,
     now: () => now,
     isOnline: () => true,
+    getListenerGender: () => options.listenerGender ?? null,
     ...(options.authToken ? { getAuthToken: async () => options.authToken ?? null } : {}),
     ...(options.appCheckToken ? { getAppCheckToken: async () => options.appCheckToken ?? null } : {}),
   };
@@ -111,12 +112,27 @@ describe('hybrid read-aloud service', () => {
     expect(fetchMock).toHaveBeenCalledWith(expect.stringMatching(/^\/tts\/v\d+\/he-female\/.+\.mp3$/), expect.anything());
   });
 
+  it("plays the clip in the learner's gender for a line whose words read by gender", async () => {
+    const text = 'מעולה! בנית את המילה cat';
+    const girlKey = getClipKey(`[to:girl] ${text}`, 'normal');
+    const boyKey = getClipKey(`[to:boy] ${text}`, 'normal');
+    for (const [gender, key] of [['girl', girlKey], ['boy', boyKey]] as const) {
+      const { service, fetchMock } = setup({ hebrewClipKeys: [girlKey, boyKey], listenerGender: gender });
+      await service.speak(text, { lang: 'he' });
+      expect(fetchMock).toHaveBeenCalledWith(`/tts/v2/he-female/${key}.mp3`, expect.anything());
+    }
+    // The device voice reads the line itself, without the tag
+    const offline = setup({ liveStatus: 503, listenerGender: 'girl' });
+    await offline.service.speak(text, { lang: 'he' });
+    expect(offline.device.speak).toHaveBeenCalledWith(text, expect.objectContaining({ lang: 'he' }));
+  });
+
   it('reads Hebrew without a clip with the online Hebrew voice, then the device Hebrew voice', async () => {
     const { service, fetchMock, device } = setup();
     let engine: TtsEngine | null = null;
     await service.speak('כל הכבוד, נועה!', { lang: 'he', onPlaybackStart: (e) => (engine = e) });
     expect(engine).toBe('live');
-    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/api/tts?a=1&v=he-female&'), expect.anything());
+    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/api/tts?a=2&v=he-female&'), expect.anything());
 
     const offline = setup({ liveStatus: 503 });
     await offline.service.speak('כל הכבוד, נועה!', { lang: 'he' });

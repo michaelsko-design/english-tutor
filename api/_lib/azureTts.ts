@@ -3,7 +3,15 @@
  * (scripts/tts/renderClips.ts). Voices and prosody live here only, so changing a voice is one edit
  * (and a re-render of the clips).
  */
-import { parseLetterToken, splitLangRuns, type ClipVoice, type TtsSpeed } from '../../src/services/tts/ttsText.js';
+import {
+  parseLetterToken,
+  parseListenerGender,
+  splitLangRuns,
+  type ClipVoice,
+  type ListenerGender,
+  type TtsSpeed,
+} from '../../src/services/tts/ttsText.js';
+import { markPronunciations } from './hebrewPronunciation.js';
 
 export type TtsVoiceId = ClipVoice;
 
@@ -54,12 +62,29 @@ export function escapeXml(text: string): string {
     .replace(/'/g, '&apos;');
 }
 
-/** Hebrew text as <lang> runs, so the multilingual voice switches language at each English word. */
-function buildHebrewBody(text: string, speed: TtsSpeed): string {
+/** A Hebrew run with its misread words spelled out in IPA (hebrewPronunciation.ts); English as it is. */
+function buildRunText(text: string, lang: 'en' | 'he', gender: ListenerGender | null): string {
+  if (lang === 'en') return escapeXml(text);
+  return markPronunciations(text, gender)
+    .map((segment) =>
+      segment.ipa
+        ? `<phoneme alphabet="ipa" ph="${escapeXml(segment.ipa)}">${escapeXml(segment.text)}</phoneme>` +
+          (segment.pauseAfterMs ? `<break time="${segment.pauseAfterMs}ms"/>` : '')
+        : escapeXml(segment.text),
+    )
+    .join('');
+}
+
+/**
+ * Hebrew text as <lang> runs, so the multilingual voice switches language at each English word.
+ * A `[to:girl]` / `[to:boy]` tag says whom it addresses, for words like "בנית" (banit / banita).
+ */
+function buildHebrewBody(tagged: string, speed: TtsSpeed): string {
+  const { gender, text } = parseListenerGender(tagged);
   return splitLangRuns(text)
     .map(
       (run) =>
-        `<lang xml:lang="${XML_LANG[run.lang]}"><prosody rate="${PROSODY_RATE[speed]}">${escapeXml(run.text)}</prosody></lang>`,
+        `<lang xml:lang="${XML_LANG[run.lang]}"><prosody rate="${PROSODY_RATE[speed]}">${buildRunText(run.text, run.lang, gender)}</prosody></lang>`,
     )
     .join('');
 }

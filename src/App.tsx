@@ -28,6 +28,7 @@ import { usePendingInvite } from './hooks/usePendingInvite';
 import { CloudLoadErrorScreen } from './components/CloudLoadErrorScreen';
 import { ScreenLoading } from './components/ScreenLoading';
 import { lazyNamed } from './utils/lazyNamed';
+import { setListenerGender } from './services/tts';
 
 // Screens most visits never open load in their own chunks
 const OnboardingView = lazyNamed(() => import('./components/OnboardingView'), 'OnboardingView');
@@ -138,6 +139,9 @@ export function App() {
     };
   }, []);
   profileRef.current = profile;
+
+  // The Hebrew voice says words like "בנית" in the learner's form (banit / banita)
+  useEffect(() => setListenerGender(profile.gender), [profile.gender]);
 
   // Always mirror profile to localStorage when logged in for instant offline access
   useEffect(() => {

@@ -17,11 +17,22 @@ export const HEBREW_VOICE = 'he-female' satisfies ClipVoice;
 export const TTS_VOICES: readonly ClipVoice[] = ['female', 'male', HEBREW_VOICE];
 
 /**
- * The version of the rendered sound (voices and SSML in api/_lib/azureTts.ts). Clips and online
+ * The version of the rendered English sound (voices and SSML in api/_lib/azureTts.ts). Clips and online
  * answers are cached forever, so bump this whenever the sound changes, then re-render: the new
  * clip folder and URLs make every cache fetch the new audio.
  */
 export const TTS_AUDIO_VERSION = 1;
+
+/**
+ * The Hebrew voice's own sound version, so its clips can be re-rendered without the English ones.
+ * 2: words the voice misread are spelled out in IPA (api/_lib/hebrewPronunciation.ts).
+ */
+export const HEBREW_AUDIO_VERSION = 2;
+
+export function getAudioVersion(voice: ClipVoice): number {
+  return voice === HEBREW_VOICE ? HEBREW_AUDIO_VERSION : TTS_AUDIO_VERSION;
+}
+
 export const TTS_SPEEDS: readonly TtsSpeed[] = ['normal', 'slow'];
 
 /** The longest text the online voice reads; longer text uses the device voice. */
@@ -41,6 +52,8 @@ const EDGE_PUNCTUATION = /^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu;
 const CLOUD_SPEAKABLE = /^[\p{Script=Latin}0-9 .,!?'’"“”\-–—:;()&%$/+]+$/u;
 
 const HEBREW_LETTER = /[\u05d0-\u05ea]/;
+/** What the Hebrew voice calls the \ud83d\udd0a in an instruction ("\u05dc\u05d7\u05e6\u05d9 \u05e2\u05dc \ud83d\udd0a"), instead of guessing a word for it */
+const SPEAKER_BUTTON_HE = '\u05db\u05e4\u05ea\u05d5\u05e8 \u05d4\u05e8\u05de\u05e7\u05d5\u05dc';
 /** Hebrew text: Hebrew letters and points, Latin runs (an English word in an instruction), digits and punctuation. */
 const HEBREW_SPEAKABLE = /^[\u0590-\u05ff\p{Script=Latin}0-9 .,!?'’"“”״׳\-–—:;()&%/+…]+$/u;
 /** An English run inside Hebrew text: Latin words joined by spaces, commas, periods or hyphens. */
@@ -67,12 +80,38 @@ export function toPlainSpeech(text: string): string {
   return parseLetterToken(text) ?? text;
 }
 
+/** Whom the Hebrew voice addresses: the learner's gender. */
+export type ListenerGender = 'girl' | 'boy';
+
+/**
+ * Hebrew words said to the learner that are written the same for a girl and a boy but read
+ * differently ("בנית": banit / banita). A line with one gets a clip per gender, and the voice says
+ * the word in the learner's form (api/_lib/hebrewPronunciation.ts spells out both).
+ */
+export const LISTENER_GENDERED_WORDS = ['בנית', 'שמעת', 'ששמעת', 'קראת', 'סיימת', 'דילגת', 'אותך', 'שלך'] as const;
+
+const LISTENER_GENDERED = new RegExp(`(?<![\\u05d0-\\u05ea])(?:${LISTENER_GENDERED_WORDS.join('|')})(?![\\u05d0-\\u05ea])`);
+const LISTENER_TOKEN = /^\[to:(girl|boy)\] /;
+
+/** The Hebrew text tagged with the learner's gender (`[to:girl] …`) when a word in it reads by gender. */
+export function addListenerGender(text: string, gender: ListenerGender | null): string {
+  if (!gender || LISTENER_TOKEN.test(text) || !LISTENER_GENDERED.test(text)) return text;
+  return `[to:${gender}] ${text}`;
+}
+
+/** The gender a tagged Hebrew text is said to, and the text without its tag. */
+export function parseListenerGender(text: string): { gender: ListenerGender | null; text: string } {
+  const match = LISTENER_TOKEN.exec(text);
+  return match ? { gender: match[1] as ListenerGender, text: text.slice(match[0].length) } : { gender: null, text };
+}
+
 /** Blanks are read as "blank" and emoji are stripped so the voice doesn't read them out. */
 export function toSpeakableText(text: string): string {
   return text
     // Bidi isolates and marks from isolateEnglishRuns aren't spoken, and must not change a clip key
     .replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, '')
     .replace(/_{3,}/g, 'blank')
+    .replace(/🔊/gu, HEBREW_LETTER.test(text) ? SPEAKER_BUTTON_HE : '')
     .replace(/\p{Extended_Pictographic}|️|‍|⃣/gu, '')
     .trim();
 }
@@ -111,7 +150,7 @@ export function isCloudSpeakable(text: string, maxChars = MAX_TTS_CHARS): boolea
 
 /** Whether the Hebrew voice accepts the text: it has Hebrew letters, at most `maxChars` (MAX_TTS_CHARS). */
 export function isHebrewSpeakable(text: string, maxChars = MAX_TTS_CHARS): boolean {
-  const normalized = normalizeTtsText(text);
+  const normalized = parseListenerGender(normalizeTtsText(text)).text;
   return (
     normalized.length > 0 &&
     normalized.length <= maxChars &&
@@ -186,7 +225,7 @@ export function getClipKey(text: string, speed: TtsSpeed): string {
  * (extra parameters, another order or encoding), so each phrase has one CDN cache entry.
  */
 export function buildLiveTtsQuery(text: string, voice: ClipVoice, speed: TtsSpeed): string {
-  return `?a=${TTS_AUDIO_VERSION}&v=${voice}&s=${speed}&t=${encodeQueryValue(normalizeTtsText(text))}`;
+  return `?a=${getAudioVersion(voice)}&v=${voice}&s=${speed}&t=${encodeQueryValue(normalizeTtsText(text))}`;
 }
 
 /**

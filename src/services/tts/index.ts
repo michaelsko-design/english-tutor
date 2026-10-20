@@ -3,7 +3,7 @@ import { deviceTtsService } from './deviceTtsService';
 import { createHybridTtsService } from './hybridTtsService';
 import { createSpeechStatus, DEFAULT_SPEECH_RATE, type SpeechStatusService } from './speechStatus';
 import { auth, getAppCheckToken } from '../firebase';
-import { toSpeakableText } from './ttsText';
+import { toSpeakableText, type ListenerGender } from './ttsText';
 
 export type { SpeakOptions, TextToSpeechService, TtsEngine } from './types';
 export { DEFAULT_SPEECH_RATE, isSameSpeech, type CurrentSpeech, type SpeechPart } from './speechStatus';
@@ -22,6 +22,12 @@ function recordClipMiss(text: string): void {
 }
 
 let service: SpeechStatusService | null = null;
+let listenerGender: ListenerGender | null = null;
+
+/** The learner's gender, so Hebrew words that read by gender ("בנית") are said in their form. */
+export function setListenerGender(gender: ListenerGender | null): void {
+  listenerGender = gender;
+}
 
 /** The app's read-aloud service: rendered clip, then the online voice, then the device voice. */
 export function getTtsService(): SpeechStatusService {
@@ -36,6 +42,7 @@ export function getTtsService(): SpeechStatusService {
       getAuthToken: async () => (auth?.currentUser ? auth.currentUser.getIdToken() : null),
       getAppCheckToken,
       onClipMiss: recordClipMiss,
+      getListenerGender: () => listenerGender,
     });
     onFirstGesture(created.preload);
     service = createSpeechStatus(created);

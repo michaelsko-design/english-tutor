@@ -114,7 +114,7 @@ function addFixedFeedback(corpus: CorpusBuilder): void {
 }
 
 export function buildHebrewCorpus(): CorpusBuilder {
-  const corpus = new CorpusBuilder(isHebrewSpeakable);
+  const corpus = new CorpusBuilder(isHebrewSpeakable, true);
   addFixedFeedback(corpus);
   addMissions(corpus);
   addLessons(corpus);
