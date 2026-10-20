@@ -3,6 +3,7 @@ import { Check, X } from 'lucide-react';
 import { MultipleChoiceOption } from '../../data/missionExercises';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { getTextLang } from '../../utils/bidi';
+import { OptionSpeakButton } from './OptionSpeakButton';
 
 interface MultipleChoiceOptionsProps {
   options: MultipleChoiceOption[];
@@ -14,6 +15,8 @@ interface MultipleChoiceOptionsProps {
    * option and disable every option so the answer is locked in.
    */
   revealCorrect?: boolean;
+  /** Reads an English option; with it every option gets a 🔊 that only listens (Feature 47) */
+  onSpeakEnglish?: (text: string, rate?: number) => void;
 }
 
 const CORRECT_STYLE = 'bg-emerald-500/20 border-2 border-emerald-500 btn-chunky-correct';
@@ -29,6 +32,7 @@ export const MultipleChoiceOptions: React.FC<MultipleChoiceOptionsProps> = ({
   onSelect,
   theme,
   revealCorrect = false,
+  onSpeakEnglish,
 }) => {
   const isLocked = revealCorrect && selectedIdx !== null;
 
@@ -45,31 +49,35 @@ export const MultipleChoiceOptions: React.FC<MultipleChoiceOptionsProps> = ({
         else if (isShownWrong) stateStyle = WRONG_STYLE;
         const motionStyle = isPicked ? (opt.isCorrect ? 'animate-answer-bounce' : 'animate-answer-shake') : '';
 
+        const lang = getTextLang(opt.textEn);
+
         return (
-          <button
-            key={opt.textEn}
-            type="button"
-            disabled={isLocked}
-            onClick={() => onSelect(idx)}
-            dir="auto"
-            className={`btn-chunky w-full text-start px-4 py-3.5 min-h-[56px] rounded-2xl flex items-center justify-between gap-3 ${stateStyle} ${motionStyle}`}
-          >
-            <span className="font-extrabold text-base md:text-lg leading-snug" lang={getTextLang(opt.textEn)}>
-              {opt.textEn}
-            </span>
-            {isShownCorrect && (
-              <span className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
-                <Check className="w-4 h-4" strokeWidth={3} aria-hidden="true" />
-                <span className="sr-only">תשובה נכונה</span>
+          <div key={opt.textEn} className="flex items-stretch gap-2">
+            <OptionSpeakButton text={opt.textEn} onSpeakEnglish={onSpeakEnglish} className={theme.secondaryBtnClass} />
+            <button
+              type="button"
+              disabled={isLocked}
+              onClick={() => onSelect(idx)}
+              dir="auto"
+              className={`btn-chunky flex-1 min-w-0 text-start px-4 py-3.5 min-h-[56px] rounded-2xl flex items-center justify-between gap-3 ${stateStyle} ${motionStyle}`}
+            >
+              <span className="font-extrabold text-base md:text-lg leading-snug" lang={lang}>
+                {opt.textEn}
               </span>
-            )}
-            {isShownWrong && (
-              <span className="w-7 h-7 rounded-full bg-rose-500 text-white flex items-center justify-center shrink-0">
-                <X className="w-4 h-4" strokeWidth={3} aria-hidden="true" />
-                <span className="sr-only">תשובה שגויה</span>
-              </span>
-            )}
-          </button>
+              {isShownCorrect && (
+                <span className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                  <Check className="w-4 h-4" strokeWidth={3} aria-hidden="true" />
+                  <span className="sr-only">תשובה נכונה</span>
+                </span>
+              )}
+              {isShownWrong && (
+                <span className="w-7 h-7 rounded-full bg-rose-500 text-white flex items-center justify-center shrink-0">
+                  <X className="w-4 h-4" strokeWidth={3} aria-hidden="true" />
+                  <span className="sr-only">תשובה שגויה</span>
+                </span>
+              )}
+            </button>
+          </div>
         );
       })}
     </div>

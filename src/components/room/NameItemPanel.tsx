@@ -249,7 +249,13 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
       )}
 
       {mode === 'choose' && (
-        <MultipleChoiceOptions options={choiceOptions} selectedIdx={selectedIdx} onSelect={handleChoose} theme={theme} />
+        <MultipleChoiceOptions
+          options={choiceOptions}
+          selectedIdx={selectedIdx}
+          onSelect={handleChoose}
+          theme={theme}
+          onSpeakEnglish={onSpeakEnglish}
+        />
       )}
 
       {feedback && (

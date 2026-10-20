@@ -582,6 +582,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     selectedIdx={selectedOptionIdx}
                     onSelect={handleSelectOption}
                     theme={theme}
+                    onSpeakEnglish={onSpeakEnglish}
                   />
                 )}
 

@@ -18,6 +18,10 @@ import {
 import { isolateLtr } from '../utils/bidi';
 import { inflectHebrew } from '../utils/hebrewGender';
 import { HebrewSpeakButton } from './drills/HebrewSpeakButton';
+import { OptionSpeakButton } from './drills/OptionSpeakButton';
+import { DEFAULT_SPEECH_RATE, getTtsService } from '../services/tts';
+import { DEFAULT_VOICE_PREFERENCE } from '../utils/ttsVoice';
+import { useStopSpeechOnLeave } from '../hooks/useSpeech';
 import { PlacementResultCard } from './PlacementResultCard';
 import { ArrowLeft, Target, X } from 'lucide-react';
 
@@ -43,6 +47,10 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
   onClose,
 }) => {
   const isGirl = profile.gender === 'girl';
+  useStopSpeechOnLeave();
+  const speakEnglish = (text: string, rate = DEFAULT_SPEECH_RATE) => {
+    void getTtsService().speak(text, { rate, voice: profile.voicePreference ?? DEFAULT_VOICE_PREFERENCE });
+  };
   const schoolGrade = gradeIdToNumber(getSchoolGradeId(profile));
   const isFirstTest = !profile.placementResult;
 
@@ -235,19 +243,21 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
 
             <div className="grid grid-cols-1 gap-2.5">
               {question.options.map((opt, idx) => (
-                <button
-                  key={opt.text}
-                  type="button"
-                  disabled={isAnswered}
-                  onClick={() => setPendingPick(idx)}
-                  className={`w-full p-4 rounded-2xl transition-all font-extrabold text-sm sm:text-base text-start flex items-center justify-between gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 ${optionClass(idx)}`}
-                  dir="auto"
-                >
-                  <span>{opt.text}</span>
-                  {isAnswered && (opt.isCorrect || pendingPick === idx) && (
-                    <span aria-hidden="true">{opt.isCorrect ? '✅' : '❌'}</span>
-                  )}
-                </button>
+                <div key={opt.text} className="flex items-stretch gap-2">
+                  <OptionSpeakButton text={opt.text} onSpeakEnglish={speakEnglish} className={theme.secondaryBtnClass} />
+                  <button
+                    type="button"
+                    disabled={isAnswered}
+                    onClick={() => setPendingPick(idx)}
+                    className={`flex-1 min-w-0 p-4 rounded-2xl transition-all font-extrabold text-sm sm:text-base text-start flex items-center justify-between gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 ${optionClass(idx)}`}
+                    dir="auto"
+                  >
+                    <span>{opt.text}</span>
+                    {isAnswered && (opt.isCorrect || pendingPick === idx) && (
+                      <span aria-hidden="true">{opt.isCorrect ? '✅' : '❌'}</span>
+                    )}
+                  </button>
+                </div>
               ))}
             </div>
 

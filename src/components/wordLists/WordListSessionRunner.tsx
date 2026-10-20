@@ -255,7 +255,13 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
         {questionCard && <QuestionBubble content={questionCard} theme={theme} onSpeakEnglish={onSpeakEnglish} />}
 
         {step.options && (
-          <MultipleChoiceOptions options={step.options} selectedIdx={selectedIdx} onSelect={handleSelectOption} theme={theme} />
+          <MultipleChoiceOptions
+            options={step.options}
+            selectedIdx={selectedIdx}
+            onSelect={handleSelectOption}
+            theme={theme}
+            onSpeakEnglish={onSpeakEnglish}
+          />
         )}
 
         {step.type === 'spelling-magnet' && step.letterTiles && (

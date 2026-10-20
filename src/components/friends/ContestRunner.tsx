@@ -227,6 +227,7 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
             onSelect={handleSelectOption}
             theme={theme}
             revealCorrect
+            onSpeakEnglish={onSpeakEnglish}
           />
         )}
 

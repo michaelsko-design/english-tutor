@@ -250,6 +250,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
             onSelect={handleSelectOption}
             theme={theme}
             revealCorrect={isMock}
+            onSpeakEnglish={onSpeakEnglish}
           />
         )}
 

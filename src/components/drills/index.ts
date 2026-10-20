@@ -12,3 +12,4 @@ export { getQuestionCardContent } from './questionCard';
 export type { QuestionCardContent } from './questionCard';
 export { HebrewSpeakButton } from './HebrewSpeakButton';
 export { InstructionLine } from './InstructionLine';
+export { OptionSpeakButton } from './OptionSpeakButton';

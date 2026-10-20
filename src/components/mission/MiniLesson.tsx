@@ -144,6 +144,7 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
               if (/[A-Za-z]/.test(textEn)) onSpeakEnglish(textEn, LESSON_SPEAK_RATE);
             }}
             readsAloud={readsHebrewAloud}
+            onSpeakEnglish={onSpeakEnglish}
             theme={theme}
             headingRef={headingRef}
           />
@@ -304,8 +305,9 @@ const QuickTryCard: React.FC<
     pickedIdx: number | null;
     onPick: (idx: number) => void;
     readsAloud: boolean;
+    onSpeakEnglish: (text: string, rate?: number) => void;
   }
-> = ({ quickTry, options, pickedIdx, onPick, theme, headingRef, readsAloud }) => {
+> = ({ quickTry, options, pickedIdx, onPick, theme, headingRef, readsAloud, onSpeakEnglish }) => {
   const picked = pickedIdx === null ? null : options[pickedIdx];
   return (
     <>
@@ -324,7 +326,13 @@ const QuickTryCard: React.FC<
           {quickTry.questionEn}
         </p>
       )}
-      <MultipleChoiceOptions options={options} selectedIdx={pickedIdx} onSelect={onPick} theme={theme} />
+      <MultipleChoiceOptions
+        options={options}
+        selectedIdx={pickedIdx}
+        onSelect={onPick}
+        theme={theme}
+        onSpeakEnglish={onSpeakEnglish}
+      />
       {picked && (
         <FeedbackBanner
           isCorrect={picked.isCorrect}
