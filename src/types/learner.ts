@@ -123,6 +123,8 @@ export interface PlacementResult {
   recommendedTier: ProficiencyTier;
   correctCount: number;
   totalQuestions: number;
+  /** The learner said they can't read English yet, so the questions were skipped (grade 1, from the letters) */
+  isNonReader?: boolean;
 }
 
 /** A skill area a school exam can test (Feature 18). */

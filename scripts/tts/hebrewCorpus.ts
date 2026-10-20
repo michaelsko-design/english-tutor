@@ -9,7 +9,7 @@ import { ALL_LESSON_PACKS } from '../../src/data/curriculum/lessons';
 import { ALL_EXAM_BANKS } from '../../src/data/curriculum/examBank';
 import { buildBankSteps } from '../../src/data/examBank';
 import { HEBREW_AUDIO_GRADES } from '../../src/data/hebrewAudio';
-import { gradeIdToNumber } from '../../src/data/placementTest';
+import { getReadGateCopy, gradeIdToNumber, NON_READER_RESULT_HE } from '../../src/data/placementTest';
 import { isHebrewSpeakable } from '../../src/services/tts/ttsText';
 import type { ExamSkill, LearnerGender, ProficiencyTier } from '../../src/types/learner';
 import { getSentenceOrderWrongHe, getVoiceSkippedHe } from '../../src/data/missionFeedbackHe';
@@ -100,7 +100,9 @@ function addFixedFeedback(corpus: CorpusBuilder): void {
     corpus.add(getSentenceOrderWrongHe(gender));
     corpus.add(getVoiceSkippedHe(gender));
     SPEECH_ERRORS.forEach((kind) => corpus.add(getSpeechErrorTextHe(kind, gender)));
+    Object.values(getReadGateCopy(gender)).forEach((text) => corpus.add(text));
   }
+  corpus.add(NON_READER_RESULT_HE);
 }
 
 export function buildHebrewCorpus(): CorpusBuilder {

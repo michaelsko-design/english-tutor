@@ -1,7 +1,9 @@
 import React from 'react';
 import { LearnerProfile, PlacementResult, SUPPORTED_GRADES } from '../types/learner';
 import { ThemeDefinition, TIER_CONFIG } from '../themes/themeRegistry';
-import { PLACEMENT_REWARD_DIAMONDS, PLACEMENT_REWARD_XP } from '../data/placementTest';
+import { NON_READER_RESULT_HE, PLACEMENT_REWARD_DIAMONDS, PLACEMENT_REWARD_XP } from '../data/placementTest';
+import { isolateEnglishRuns } from '../utils/bidi';
+import { useAutoSpeakHebrew } from '../hooks/useAutoSpeakHebrew';
 import { Sparkles, Check } from 'lucide-react';
 
 interface PlacementResultCardProps {
@@ -30,6 +32,7 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
   const tier = TIER_CONFIG[result.recommendedTier];
   const isGradeChange = result.recommendedGradeId !== profile.gradeId;
   const isSameAsCurrent = !isGradeChange && result.recommendedTier === profile.preferredTier;
+  useAutoSpeakHebrew(NON_READER_RESULT_HE, Boolean(result.isNonReader), 0);
 
   return (
     <div className="p-5 sm:p-7 space-y-5 text-center">
@@ -42,13 +45,17 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
         <h2 className="text-xl sm:text-2xl font-extrabold">
           סיימת את מבחן הרמה, {profile.name}! 🎉
         </h2>
-        <p className={`text-sm font-bold ${theme.mutedTextClass}`}>
-          ענית נכון על{' '}
-          <span dir="ltr" lang="en">
-            {result.correctCount}/{result.totalQuestions}
-          </span>{' '}
-          שאלות
-        </p>
+        {result.isNonReader ? (
+          <p className="text-lg font-extrabold">{isolateEnglishRuns(NON_READER_RESULT_HE)}</p>
+        ) : (
+          <p className={`text-sm font-bold ${theme.mutedTextClass}`}>
+            ענית נכון על{' '}
+            <span dir="ltr" lang="en">
+              {result.correctCount}/{result.totalQuestions}
+            </span>{' '}
+            שאלות
+          </p>
+        )}
       </div>
 
       <div className={`p-4 rounded-2xl ${theme.cardBgClass} space-y-1`}>

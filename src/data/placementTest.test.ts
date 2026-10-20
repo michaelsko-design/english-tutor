@@ -6,6 +6,7 @@ import {
   PLACEMENT_REWARD_XP,
   PlacementAnswer,
   applyPlacementToProfile,
+  buildNonReaderResult,
   getSchoolGradeId,
   buildPlacementPool,
   computePlacementResult,
@@ -254,6 +255,23 @@ describe('applyPlacementToProfile', () => {
     expect(getSchoolGradeId(moved)).toBe('grade-7');
     // A later test still starts from the school grade
     expect(getSchoolGradeId(applyPlacementToProfile(moved, result, true))).toBe('grade-7');
+  });
+
+  it('puts a learner who cannot read English yet in grade 1, Explorer, keeping the school grade', () => {
+    const nonReader = buildNonReaderResult('2026-10-20T10:00:00.000Z');
+    expect(nonReader).toMatchObject({
+      recommendedGradeId: 'grade-1',
+      estimatedGradeId: 'grade-1',
+      recommendedTier: 'explorer',
+      totalQuestions: 0,
+      isNonReader: true,
+    });
+    const applied = applyPlacementToProfile(profile, nonReader, true);
+    expect(applied.gradeId).toBe('grade-1');
+    expect(applied.preferredTier).toBe('explorer');
+    expect(applied.schoolGradeId).toBe('grade-7');
+    expect(applied.stats.xp).toBe(profile.stats.xp + PLACEMENT_REWARD_XP);
+    expect(applyPlacementToProfile(applied, nonReader, true).stats.xp).toBe(applied.stats.xp);
   });
 
   it('applies the recommended grade and tier when asked', () => {

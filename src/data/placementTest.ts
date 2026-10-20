@@ -189,6 +189,34 @@ export function computePlacementResult(
   };
 }
 
+/**
+ * The result for a learner who can't read English yet: no questions, the letters of grade 1 at the
+ * easiest tier, whatever their school grade (the ±2 rule doesn't apply).
+ */
+export function buildNonReaderResult(completedAt: string): PlacementResult {
+  return {
+    completedAt,
+    estimatedGradeId: 'grade-1',
+    recommendedGradeId: 'grade-1',
+    recommendedTier: 'explorer',
+    correctCount: 0,
+    totalQuestions: 0,
+    isNonReader: true,
+  };
+}
+
+/** The question that opens the placement test, read aloud in Hebrew (the learner may not read yet). */
+export function getReadGateCopy(gender: LearnerGender): { questionHe: string; yesHe: string; notYetHe: string } {
+  return {
+    questionHe: 'אפשר כבר לקרוא באנגלית?',
+    yesHe: gender === 'girl' ? 'כן, אני יודעת לקרוא' : 'כן, אני יודע לקרוא',
+    notYetHe: 'עוד לא',
+  };
+}
+
+/** The line on the result screen of a learner who can't read English yet. */
+export const NON_READER_RESULT_HE = 'נתחיל מהאותיות: A, B, C!';
+
 /** The learner's school grade: set at onboarding, before a placement test changed the practice grade. */
 export function getSchoolGradeId(profile: LearnerProfile): GradeId {
   return profile.schoolGradeId ?? profile.gradeId;

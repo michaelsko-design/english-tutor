@@ -8,7 +8,9 @@ import {
   PLACEMENT_REWARD_DIAMONDS,
   PLACEMENT_REWARD_XP,
   PlacementAnswer,
+  buildNonReaderResult,
   computePlacementResult,
+  getReadGateCopy,
   getSchoolGradeId,
   getStartingDifficulty,
   gradeIdToNumber,
@@ -19,7 +21,7 @@ import { isolateLtr } from '../utils/bidi';
 import { inflectHebrew } from '../utils/hebrewGender';
 import { HebrewSpeakButton } from './drills/HebrewSpeakButton';
 import { OptionSpeakButton } from './drills/OptionSpeakButton';
-import { DEFAULT_SPEECH_RATE, getTtsService } from '../services/tts';
+import { DEFAULT_SPEECH_RATE, getTtsService, speakHebrew } from '../services/tts';
 import { DEFAULT_VOICE_PREFERENCE } from '../utils/ttsVoice';
 import { useStopSpeechOnLeave } from '../hooks/useSpeech';
 import { PlacementResultCard } from './PlacementResultCard';
@@ -34,7 +36,8 @@ interface PlacementTestProps {
   onClose: () => void;
 }
 
-type Phase = 'intro' | 'question' | 'result';
+/** Feature 47: the test opens by asking whether the learner reads English at all ('canRead'). */
+type Phase = 'canRead' | 'intro' | 'question' | 'result';
 
 /** Index of the picked option, or 'dont-know' when the learner chose "I don't know". */
 type PendingPick = number | 'dont-know' | null;
@@ -54,7 +57,20 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
   const schoolGrade = gradeIdToNumber(getSchoolGradeId(profile));
   const isFirstTest = !profile.placementResult;
 
-  const [phase, setPhase] = useState<Phase>('intro');
+  const [phase, setPhase] = useState<Phase>('canRead');
+  const gate = getReadGateCopy(profile.gender);
+
+  // The question is read aloud: a learner who can't read English may not read the Hebrew yet either
+  useEffect(() => {
+    if (phase === 'canRead') void speakHebrew(gate.questionHe);
+    // Only when the question opens
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
+  const handleCannotRead = () => {
+    setResult(buildNonReaderResult(new Date().toISOString()));
+    setPhase('result');
+  };
   const [salt, setSalt] = useState(0);
   const [difficulty, setDifficulty] = useState(() => getStartingDifficulty(schoolGrade));
   const [answers, setAnswers] = useState<PlacementAnswer[]>([]);
@@ -169,6 +185,38 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
                 </span>
               </>
             )}
+          </div>
+        )}
+
+        {phase === 'canRead' && (
+          <div className="p-5 sm:p-7 space-y-5 text-center">
+            <div className="text-6xl" aria-hidden="true">
+              🔤
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <h2 className="text-2xl sm:text-3xl font-extrabold">{gate.questionHe}</h2>
+              <HebrewSpeakButton text={gate.questionHe} label="הקשבה לשאלה" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { textHe: gate.yesHe, emoji: '📖', onClick: () => setPhase('intro') },
+                { textHe: gate.notYetHe, emoji: '🙈', onClick: handleCannotRead },
+              ].map((choice) => (
+                <div key={choice.textHe} className="flex items-stretch gap-2">
+                  <OptionSpeakButton text={choice.textHe} className={theme.secondaryBtnClass} />
+                  <button
+                    type="button"
+                    onClick={choice.onClick}
+                    className={`btn-chunky flex-1 py-5 px-4 rounded-2xl text-lg font-extrabold flex flex-col items-center gap-1 ${theme.cardBgClass}`}
+                  >
+                    <span className="text-4xl" aria-hidden="true">
+                      {choice.emoji}
+                    </span>
+                    <span>{choice.textHe}</span>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
