@@ -56,7 +56,10 @@ describe('grade id helpers', () => {
 
 describe('buildPlacementPool', () => {
   it.each(ALL_GRADES)('builds a rule item and a vocab item per mission for grade %i', (grade) => {
-    const missions = CURRICULUM_BY_GRADE[gradeNumberToId(grade)].units.flatMap((u) => u.missions);
+    // Grade 1's letters and blending missions have no drill seed; the reading question covers them
+    const missions = CURRICULUM_BY_GRADE[gradeNumberToId(grade)].units
+      .flatMap((u) => u.missions)
+      .filter((m) => m.drillSeed);
     const pool = buildPlacementPool(grade, 'girl');
 
     expect(pool).toHaveLength(missions.length * 2);

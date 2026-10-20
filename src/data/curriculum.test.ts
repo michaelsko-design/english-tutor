@@ -4,6 +4,8 @@ import { CURRICULUM_BY_GRADE, MissionNode } from './curriculum';
 const ALL_MISSIONS: MissionNode[] = Object.values(CURRICULUM_BY_GRADE).flatMap((pack) =>
   pack.units.flatMap((u) => u.missions)
 );
+/** Missions with a drill seed: all but grade 1's letters and blending missions (Feature 48). */
+const SEEDED_MISSIONS = ALL_MISSIONS.filter((m) => m.drillSeed);
 
 function sameText(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
@@ -22,15 +24,15 @@ describe('curriculum data (CURRICULUM_BY_GRADE)', () => {
     }
   });
 
-  it('has a drill seed and vocabulary for every mission', () => {
+  it('has a drill seed (or phonics) and vocabulary for every mission', () => {
     for (const m of ALL_MISSIONS) {
-      expect(m.drillSeed, m.id).toBeDefined();
+      expect(m.drillSeed ?? m.phonics, m.id).toBeDefined();
       expect(m.vocabulary.length, m.id).toBeGreaterThan(0);
     }
   });
 
   it('has at least two distractor words, none equal to the answer word', () => {
-    for (const m of ALL_MISSIONS) {
+    for (const m of SEEDED_MISSIONS) {
       const seed = m.drillSeed!;
       const v0 = m.vocabulary[0];
       expect(seed.wrongWords.length, m.id).toBeGreaterThanOrEqual(2);
@@ -45,7 +47,7 @@ describe('curriculum data (CURRICULUM_BY_GRADE)', () => {
   });
 
   it('never lists the correct rule answer among the wrong ones', () => {
-    for (const m of ALL_MISSIONS) {
+    for (const m of SEEDED_MISSIONS) {
       const { rule } = m.drillSeed!;
       expect(rule.wrong.length, m.id).toBeGreaterThanOrEqual(2);
       for (const wrong of rule.wrong) {
@@ -56,7 +58,7 @@ describe('curriculum data (CURRICULUM_BY_GRADE)', () => {
   });
 
   it('never lists the correct story answer among the wrong ones', () => {
-    for (const m of ALL_MISSIONS) {
+    for (const m of SEEDED_MISSIONS) {
       const { story } = m.drillSeed!;
       expect(story.wrong.length, m.id).toBeGreaterThanOrEqual(2);
       for (const wrong of story.wrong) {
@@ -67,7 +69,7 @@ describe('curriculum data (CURRICULUM_BY_GRADE)', () => {
   });
 
   it('has no empty sentences, questions or answers', () => {
-    for (const m of ALL_MISSIONS) {
+    for (const m of SEEDED_MISSIONS) {
       const seed = m.drillSeed!;
       const texts: Record<string, string> = {
         sampleSentenceEn: m.sampleSentenceEn,

@@ -15,7 +15,15 @@ import { WARDROBE_ITEMS } from '../../src/data/wardrobe';
 import { VOICE_MESSAGES } from '../../src/data/voiceMessages';
 import { DREAM_FRAMES } from '../../src/data/dreamJournal';
 import { DEMO_SENTENCE, DEMO_SENTENCE_RATE } from '../../src/services/tts/demoPhrases';
-import { HEBREW_VOICE, isCloudSpeakable, type ClipVoice } from '../../src/services/tts/ttsText';
+import {
+  HEBREW_VOICE,
+  isCloudSpeakable,
+  letterToken,
+  parseLetterToken,
+  type ClipVoice,
+} from '../../src/services/tts/ttsText';
+import { ALPHABET } from '../../src/data/alphabet';
+import { BLEND_WORDS, FIRST_SENTENCES } from '../../src/data/blendingWords';
 import { CorpusBuilder, type CorpusPhrase } from './corpusBuilder';
 import { buildHebrewCorpus } from './hebrewCorpus';
 
@@ -49,7 +57,10 @@ function addStep(corpus: CorpusBuilder, step: MissionExerciseStep): void {
   corpus.add(step.targetSentenceEn);
   corpus.addSentenceAndWords(step.speakTargetEn);
   corpus.addWord(step.focusWordEn);
-  step.options?.forEach((option) => corpus.add(option.textEn));
+  step.options?.forEach((option) => {
+    corpus.add(option.textEn);
+    corpus.add(option.speakEn);
+  });
   step.scrambledWords?.forEach((chip) => corpus.add(chip));
 }
 
@@ -94,6 +105,20 @@ function addMiniLessons(corpus: CorpusBuilder): void {
   }
 }
 
+/** Grade 1's letters and blending (Feature 48): every letter's name, tile and word, slow and normal. */
+function addPhonics(corpus: CorpusBuilder): void {
+  ALPHABET.forEach((letter) => {
+    corpus.add(letterToken(letter.upper));
+    letter.words.forEach((word) => corpus.addWord(word.en));
+  });
+  BLEND_WORDS.forEach((word) => {
+    corpus.addWord(word.word);
+    word.tiles.forEach((tile) => corpus.add(letterToken(tile)));
+    word.lookAlikes.forEach((lookAlike) => corpus.addWord(lookAlike));
+  });
+  FIRST_SENTENCES.forEach((sentence) => corpus.addSentenceAndWords(sentence.en));
+}
+
 function addRoom(corpus: CorpusBuilder): void {
   [...ROOM_ITEMS, ...SHOP_ROOM_ITEMS, ...ROOM_OBJECTS, ...WARDROBE_ITEMS].forEach((item) => corpus.addWord(item.nameEn));
   Object.values(VOICE_MESSAGES)
@@ -108,11 +133,13 @@ function addRoom(corpus: CorpusBuilder): void {
 }
 
 function buildEnglishCorpus(): CorpusBuilder {
-  const corpus = new CorpusBuilder(isCloudSpeakable);
+  // Letter tokens ([letter:b]) are rendered with their own SSML
+  const corpus = new CorpusBuilder((text, maxChars) => parseLetterToken(text) !== null || isCloudSpeakable(text, maxChars));
   addCurriculum(corpus);
   addMiniLessons(corpus);
   addExamBanks(corpus);
   addRoom(corpus);
+  addPhonics(corpus);
   corpus.add(DEMO_SENTENCE, DEMO_SENTENCE_RATE);
   return corpus;
 }

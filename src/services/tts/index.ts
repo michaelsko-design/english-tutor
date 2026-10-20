@@ -3,6 +3,7 @@ import { deviceTtsService } from './deviceTtsService';
 import { createHybridTtsService } from './hybridTtsService';
 import { createSpeechStatus, DEFAULT_SPEECH_RATE, type SpeechStatusService } from './speechStatus';
 import { auth, getAppCheckToken } from '../firebase';
+import { toSpeakableText } from './ttsText';
 
 export type { SpeakOptions, TextToSpeechService, TtsEngine } from './types';
 export { DEFAULT_SPEECH_RATE, isSameSpeech, type CurrentSpeech, type SpeechPart } from './speechStatus';
@@ -55,5 +56,6 @@ export function stopSpeech(): void {
 
 /** Reads Hebrew with the Hebrew voice (the instruction, a hint, feedback); the English voice choice doesn't apply. */
 export function speakHebrew(text: string, rate = DEFAULT_SPEECH_RATE): Promise<void> {
-  return getTtsService().speak(text, { rate, lang: 'he' });
+  // The same text a 🔊 button compares with, so it shows "stop" while this plays
+  return getTtsService().speak(toSpeakableText(text), { rate, lang: 'he' });
 }

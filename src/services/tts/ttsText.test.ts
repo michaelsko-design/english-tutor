@@ -9,6 +9,9 @@ import {
   isHebrewSpeakable,
   isSpeakableBy,
   splitLangRuns,
+  letterToken,
+  parseLetterToken,
+  toPlainSpeech,
   MAX_TTS_CHARS,
   normalizeTtsText,
   toSpeakableText,
@@ -143,5 +146,16 @@ describe('splitLangRuns', () => {
 
   it('keeps a Hebrew-only text as one run', () => {
     expect(splitLangRuns('שימו לב!')).toEqual([{ lang: 'he', text: 'שימו לב!' }]);
+  });
+});
+
+describe('letter tokens', () => {
+  it('keeps a letter token as its own clip text and reads it as capitals elsewhere', () => {
+    expect(letterToken('B')).toBe('[letter:b]');
+    expect(getClipText('[letter:b]')).toBe('[letter:b]');
+    expect(parseLetterToken('[letter:sh]')).toBe('SH');
+    expect(parseLetterToken('ball')).toBeNull();
+    expect(toPlainSpeech('[letter:a]')).toBe('A');
+    expect(toPlainSpeech('apple')).toBe('apple');
   });
 });

@@ -15,6 +15,10 @@ describe('buildSsml', () => {
     expect(ssml).toContain('<prosody rate="-30%">Hi &amp; bye</prosody>');
   });
 
+  it('reads a letter token as the letter name', () => {
+    expect(buildSsml('[letter:a]', 'female', 'normal')).toContain('<say-as interpret-as="characters">A</say-as>');
+  });
+
   it('reads Hebrew with the multilingual voice and switches to English for English words', () => {
     const ssml = buildSsml('מעולה! cat פירושו "חתול".', 'he-female', 'normal');
     expect(ssml).toContain('xml:lang="he-IL"><voice name="en-US-AvaMultilingualNeural">');

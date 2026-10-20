@@ -18,7 +18,9 @@ import { isSameSpeech } from '../../services/tts';
 import { toggleSpeech, useCurrentSpeech } from '../../hooks/useSpeech';
 import { SpeakIcon } from '../SpeakIcon';
 import { FeedbackBanner, HebrewSpeakButton, MultipleChoiceOptions } from '../drills';
-import { speakHebrew } from '../../services/tts';
+import { getTtsService, speakHebrew } from '../../services/tts';
+import { toSpeakableText } from '../../services/tts/ttsText';
+import { BlendCards, LetterCards } from './PhonicsLessonCards';
 
 export const LESSON_COMPANION_SIZE = 96;
 /** The read-aloud rate of lesson examples, the same as the drills' (one rendered clip each) */
@@ -129,9 +131,14 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
 
       <div key={card} className="animate-lesson-card space-y-4">
         {card === 'idea' && <IdeaCard lesson={lesson} theme={theme} headingRef={headingRef} />}
-        {card === 'examples' && (
-          <ExamplesCard examples={lesson.examples} theme={theme} headingRef={headingRef} onSpeakEnglish={onSpeakEnglish} />
-        )}
+        {card === 'examples' &&
+          (lesson.letters ? (
+            <LetterCards letters={lesson.letters} theme={theme} headingRef={headingRef} onSpeakEnglish={onSpeakEnglish} />
+          ) : lesson.blendWords ? (
+            <BlendCards words={lesson.blendWords} theme={theme} headingRef={headingRef} onSpeakEnglish={onSpeakEnglish} />
+          ) : (
+            <ExamplesCard examples={lesson.examples} theme={theme} headingRef={headingRef} onSpeakEnglish={onSpeakEnglish} />
+          ))}
         {card === 'try' && lesson.quickTry && (
           <QuickTryCard
             quickTry={lesson.quickTry}
@@ -141,9 +148,15 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
               setQuickTryPick(idx);
               // A Hebrew option (a word's meaning) isn't read with the English voice
               const { textEn } = quickTryOptions[idx];
-              if (/[A-Za-z]/.test(textEn)) onSpeakEnglish(textEn, LESSON_SPEAK_RATE);
+              const isEnglish = /[A-Za-z]/.test(textEn);
+              // Grades 1–2 hear the picked word, then the Hebrew explanation (not one over the other)
+              if (readsHebrewAloud && lesson.quickTry) {
+                void getTtsService().speakSequence([
+                  ...(isEnglish ? [{ text: textEn, options: { rate: LESSON_SPEAK_RATE } }] : []),
+                  { text: toSpeakableText(lesson.quickTry.explainHe), options: { lang: 'he' as const } },
+                ]);
+              } else if (isEnglish) onSpeakEnglish(textEn, LESSON_SPEAK_RATE);
             }}
-            readsAloud={readsHebrewAloud}
             onSpeakEnglish={onSpeakEnglish}
             theme={theme}
             headingRef={headingRef}
@@ -304,10 +317,9 @@ const QuickTryCard: React.FC<
     options: MultipleChoiceOption[];
     pickedIdx: number | null;
     onPick: (idx: number) => void;
-    readsAloud: boolean;
     onSpeakEnglish: (text: string, rate?: number) => void;
   }
-> = ({ quickTry, options, pickedIdx, onPick, theme, headingRef, readsAloud, onSpeakEnglish }) => {
+> = ({ quickTry, options, pickedIdx, onPick, theme, headingRef, onSpeakEnglish }) => {
   const picked = pickedIdx === null ? null : options[pickedIdx];
   return (
     <>
@@ -341,7 +353,6 @@ const QuickTryCard: React.FC<
           nextLabel=""
           onNext={() => undefined}
           theme={theme}
-          readsAloud={readsAloud}
         />
       )}
     </>

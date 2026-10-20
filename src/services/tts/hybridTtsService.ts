@@ -11,6 +11,7 @@ import {
   APP_CHECK_HEADER,
   HEBREW_VOICE,
   isSpeakableBy,
+  toPlainSpeech,
   type ClipVoice,
   TTS_TOKEN_HEADER,
   buildLiveTtsQuery,
@@ -226,7 +227,7 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
       const timer = setTimeout(() => controller.abort(), LIVE_TIMEOUT_MS);
       try {
         playable = (await findClip(text, clipVoice, rate, controller.signal)) ??
-          (await fetchLive(text, clipVoice, rate, controller.signal));
+          (await fetchLive(toPlainSpeech(text), clipVoice, rate, controller.signal));
       } catch {
         // A timeout, an abort or a network error falls through to the device voice.
         playable = null;
@@ -243,7 +244,7 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
       }
     }
     if (!isCurrent()) return;
-    await deps.device.speak(text, { rate, voice, lang, onPlaybackStart: options.onPlaybackStart });
+    await deps.device.speak(toPlainSpeech(text), { rate, voice, lang, onPlaybackStart: options.onPlaybackStart });
   };
 
   return {

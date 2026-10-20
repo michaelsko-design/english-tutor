@@ -1,11 +1,14 @@
 import type { LessonPack } from './types';
+import { GRADE_1_PHONICS_LESSONS } from './grade1Phonics';
 
 /**
- * Grade 1 mini-lessons (Feature 42): very short Hebrew, picture examples. Every Boss of grade 1
- * brings something new (sounds D–F, goodbye, classroom commands, eat and drink), so each has
+ * Grade 1 mini-lessons (Feature 42): very short Hebrew, picture examples. Units 1–6 are built from
+ * the alphabet and blending words (grade1Phonics.ts). Every Boss of units 7–10 brings something new (sounds D–F, goodbye, classroom commands, eat and drink), so each has
  * its own lesson.
  */
 export const GRADE_1_LESSONS: LessonPack = {
+  // Units 1–6: letters and blending (Feature 48)
+  ...GRADE_1_PHONICS_LESSONS,
   'g1-u1-m1': {
     titleHe: 'הצלילים A, B, C 🔤',
     ideaHe: 'לכל אות יש צליל. A כמו apple. B כמו ball. C כמו cat. וכשנפגשים אומרים Hello.',

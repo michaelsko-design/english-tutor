@@ -1,0 +1,250 @@
+import type { ElementaryUnitSpec } from './builder';
+
+const LETTER_SKILLS = ['Letter Names', 'Capital & Small Letters', 'First Words'];
+const BLEND_SKILLS = ['Blending', 'Reading Words', 'Voice Practice'];
+
+const letters = (from: string, to: string): string[] => {
+  const start = from.charCodeAt(0);
+  return Array.from({ length: to.charCodeAt(0) - start + 1 }, (_, i) => String.fromCharCode(start + i));
+};
+
+/**
+ * Grade 1, units 1–6 (Feature 48): reading from zero. Units 1–4 teach every letter A–Z (its name,
+ * its capital and small form and three picture words); units 5–6 put the letters together into
+ * short words, then letter pairs (sh, ch, th), a few sight words and a first sentence.
+ * Hebrew copy is gender-neutral plural, since it is read aloud to learners who can't read yet.
+ */
+export const GRADE_1_PHONICS_UNITS: ElementaryUnitSpec[] = [
+  {
+    idUnitNumber: 11,
+    titleEn: 'Unit 1: ABC Friends',
+    titleHe: 'פרק 1: חברים מ-A עד F',
+    subtitleHe: 'האותיות הראשונות: A, B, C, D, E, F',
+    badgeEmoji: '🔤',
+    missions: [
+      {
+        icon: '🍎',
+        titleEn: 'Meet A, B and C',
+        titleHe: 'מכירים את A, B, C',
+        storyHookHe: 'בואו נכיר את שלוש האותיות הראשונות באנגלית, ואת התמונות שמתחילות בהן!',
+        grammarTopic: 'Letters A–C',
+        skills: LETTER_SKILLS,
+        phonics: { kind: 'letters', letters: letters('A', 'C') },
+      },
+      {
+        icon: '🐶',
+        titleEn: 'Meet D, E and F',
+        titleHe: 'מכירים את D, E, F',
+        storyHookHe: 'הכלב, הביצה והדג מחכים לכם! בואו נכיר את האותיות D, E ו-F.',
+        grammarTopic: 'Letters D–F',
+        skills: LETTER_SKILLS,
+        phonics: { kind: 'letters', letters: letters('D', 'F') },
+      },
+      {
+        icon: '🏰',
+        isBoss: true,
+        titleEn: 'Boss: A to F Party',
+        titleHe: 'בוס: מסיבת האותיות A עד F',
+        storyHookHe: 'כל שש האותיות הגיעו למסיבה! הראו שאתם מכירים כל אחת מהן.',
+        grammarTopic: 'Letters A–F Review',
+        skills: LETTER_SKILLS,
+        phonics: { kind: 'letters', letters: letters('A', 'F') },
+      },
+    ],
+  },
+  {
+    idUnitNumber: 12,
+    titleEn: 'Unit 2: Letter Parade',
+    titleHe: 'פרק 2: מצעד האותיות',
+    subtitleHe: 'האותיות G, H, I, J, K, L, M',
+    badgeEmoji: '🎪',
+    missions: [
+      {
+        icon: '🎁',
+        titleEn: 'Meet G, H and I',
+        titleHe: 'מכירים את G, H, I',
+        storyHookHe: 'מתנה, סוס וכובע מצטרפים למצעד! בואו נכיר את G, H ו-I.',
+        grammarTopic: 'Letters G–I',
+        skills: LETTER_SKILLS,
+        phonics: { kind: 'letters', letters: letters('G', 'I') },
+      },
+      {
+        icon: '🦁',
+        titleEn: 'Meet J, K, L and M',
+        titleHe: 'מכירים את J, K, L, M',
+        storyHookHe: 'האריה והקוף מובילים את המצעד! ארבע אותיות חדשות: J, K, L ו-M.',
+        grammarTopic: 'Letters J–M',
+        skills: LETTER_SKILLS,
+        phonics: { kind: 'letters', letters: letters('J', 'M') },
+      },
+      {
+        icon: '🏰',
+        isBoss: true,
+        titleEn: 'Boss: The Big Parade',
+        titleHe: 'בוס: המצעד הגדול',
+        storyHookHe: 'כל אותיות המצעד עוברות לפניכם. זהו את כולן!',
+        grammarTopic: 'Letters G–M Review',
+        skills: LETTER_SKILLS,
+        phonics: { kind: 'letters', letters: letters('G', 'M') },
+      },
+    ],
+  },
+  {
+    idUnitNumber: 13,
+    titleEn: 'Unit 3: Letter Garden',
+    titleHe: 'פרק 3: גן האותיות',
+    subtitleHe: 'האותיות N, O, P, Q, R, S, T',
+    badgeEmoji: '🌷',
+    missions: [
+      {
+        icon: '🐙',
+        titleEn: 'Meet N, O and P',
+        titleHe: 'מכירים את N, O, P',
+        storyHookHe: 'בגן האותיות פורחות אותיות חדשות: N, O ו-P!',
+        grammarTopic: 'Letters N–P',
+        skills: LETTER_SKILLS,
+        phonics: { kind: 'letters', letters: letters('N', 'P') },
+      },
+      {
+        icon: '👑',
+        titleEn: 'Meet Q, R, S and T',
+        titleHe: 'מכירים את Q, R, S, T',
+        storyHookHe: 'המלכה מזמינה אתכם לגן: ארבע אותיות חדשות, Q, R, S ו-T.',
+        grammarTopic: 'Letters Q–T',
+        skills: LETTER_SKILLS,
+        phonics: { kind: 'letters', letters: letters('Q', 'T') },
+      },
+      {
+        icon: '🏰',
+        isBoss: true,
+        titleEn: 'Boss: Garden Treasure Hunt',
+        titleHe: 'בוס: ציד אוצרות בגן',
+        storyHookHe: 'האותיות התחבאו בין הפרחים. מצאו את כולן!',
+        grammarTopic: 'Letters N–T Review',
+        skills: LETTER_SKILLS,
+        phonics: { kind: 'letters', letters: letters('N', 'T') },
+      },
+    ],
+  },
+  {
+    idUnitNumber: 14,
+    titleEn: 'Unit 4: All the Letters',
+    titleHe: 'פרק 4: כל האותיות',
+    subtitleHe: 'האותיות האחרונות U עד Z, וחזרה על כל ה-ABC',
+    badgeEmoji: '🎉',
+    missions: [
+      {
+        icon: '☂️',
+        titleEn: 'Meet U, V and W',
+        titleHe: 'מכירים את U, V, W',
+        storyHookHe: 'מטרייה, כינור ואבטיח! בואו נכיר את U, V ו-W.',
+        grammarTopic: 'Letters U–W',
+        skills: LETTER_SKILLS,
+        phonics: { kind: 'letters', letters: letters('U', 'W') },
+      },
+      {
+        icon: '🦓',
+        titleEn: 'Meet X, Y and Z',
+        titleHe: 'מכירים את X, Y, Z',
+        storyHookHe: 'השועל, היו-יו והזברה סוגרים את ה-ABC: האותיות X, Y ו-Z!',
+        grammarTopic: 'Letters X–Z',
+        skills: LETTER_SKILLS,
+        phonics: { kind: 'letters', letters: letters('X', 'Z') },
+      },
+      {
+        icon: '🏰',
+        isBoss: true,
+        titleEn: 'Boss: ABC Champion',
+        titleHe: 'בוס: אלופי ה-ABC',
+        storyHookHe: 'כל 26 האותיות כאן! הראו שאתם מכירים את כל ה-ABC.',
+        grammarTopic: 'Letters A–Z Review',
+        skills: LETTER_SKILLS,
+        phonics: { kind: 'letters', letters: letters('A', 'Z') },
+      },
+    ],
+  },
+  {
+    idUnitNumber: 15,
+    titleEn: 'Unit 5: Word Builder',
+    titleHe: 'פרק 5: בונים מילים',
+    subtitleHe: 'מחברים אותיות למילים: cat, pig, dog',
+    badgeEmoji: '🧱',
+    missions: [
+      {
+        icon: '🐱',
+        titleEn: 'Words with a: cat, hat, map',
+        titleHe: 'מילים עם a: cat, hat, map',
+        storyHookHe: 'אותיות שמתחברות הופכות למילה! בואו נחבר c, a, t ונקבל cat.',
+        grammarTopic: 'Blending words with short a',
+        skills: BLEND_SKILLS,
+        phonics: { kind: 'blending', words: ['cat', 'hat', 'map', 'bag', 'bat'], focus: 'a' },
+      },
+      {
+        icon: '🐷',
+        titleEn: 'Words with i and o: pig, dog',
+        titleHe: 'מילים עם i, o: pig, dog',
+        storyHookHe: 'החזיר והכלב רוצים שתקראו את השמות שלהם: p, i, g ו-d, o, g!',
+        grammarTopic: 'Blending words with short i and o',
+        skills: BLEND_SKILLS,
+        phonics: { kind: 'blending', words: ['pig', 'lip', 'pin', 'dog', 'pot', 'fox', 'log'], focus: 'i, o' },
+      },
+      {
+        icon: '🏰',
+        isBoss: true,
+        titleEn: 'Boss: Word Builder Challenge',
+        titleHe: 'בוס: אתגר בוני המילים',
+        storyHookHe: 'מחליפים אות אחת ומקבלים מילה חדשה: cat, hat, bat! מוכנים לאתגר?',
+        grammarTopic: 'Blending review: a, i, o',
+        skills: BLEND_SKILLS,
+        phonics: { kind: 'blending', words: ['cat', 'pig', 'dog', 'hat', 'pin', 'log'], focus: 'a, i, o' },
+      },
+    ],
+  },
+  {
+    idUnitNumber: 16,
+    titleEn: 'Unit 6: I Can Read!',
+    titleHe: 'פרק 6: קוראים!',
+    subtitleHe: 'מילים עם e, u, האותיות sh, ch, th. והמשפט הראשון!',
+    badgeEmoji: '📖',
+    missions: [
+      {
+        icon: '🐔',
+        titleEn: 'Words with e and u: hen, sun',
+        titleHe: 'מילים עם e, u: hen, sun',
+        storyHookHe: 'התרנגולת יוצאת לשמש. קראו איתה מילים חדשות עם e ו-u!',
+        grammarTopic: 'Blending words with short e and u',
+        skills: BLEND_SKILLS,
+        phonics: { kind: 'blending', words: ['bed', 'hen', 'ten', 'sun', 'bus', 'cup'], focus: 'e, u' },
+      },
+      {
+        icon: '🚢',
+        titleEn: 'Two letters, one sound: sh, ch, th',
+        titleHe: 'שתי אותיות, צליל אחד: sh, ch, th',
+        storyHookHe: 's ו-h ביחד נשמעות כמו ש׳! בואו נקרא ship, chip ו-bath.',
+        grammarTopic: 'Letter pairs sh, ch, th & sight words',
+        skills: BLEND_SKILLS,
+        phonics: {
+          kind: 'blending',
+          words: ['ship', 'fish', 'chip', 'bath'],
+          sightWords: ['I', 'a', 'the', 'is', 'see'],
+          focus: 'sh, ch, th',
+        },
+      },
+      {
+        icon: '🏰',
+        isBoss: true,
+        titleEn: 'Boss: My First Sentence',
+        titleHe: 'בוס: המשפט הראשון שלי',
+        storyHookHe: 'הגיע הרגע הגדול: קוראים משפט שלם באנגלית!',
+        grammarTopic: 'Reading a first sentence',
+        skills: BLEND_SKILLS,
+        phonics: {
+          kind: 'blending',
+          words: ['hen', 'cat', 'ship', 'bed', 'sun'],
+          sightWords: ['I', 'a', 'the', 'is', 'see'],
+          focus: 'I see a …',
+        },
+      },
+    ],
+  },
+];

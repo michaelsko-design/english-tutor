@@ -6,6 +6,7 @@ import {
   MissionNode,
   VocabularyItem,
 } from '../types';
+import { buildPhonicsMission, PhonicsMissionSpec } from './phonicsBuilder';
 
 /** [wordEn, partOfSpeech, translationHe, emoji, exampleEn, exampleHe] */
 export type VocabTuple = [string, string, string, string, string, string];
@@ -32,7 +33,14 @@ export interface ElementaryUnitSpec {
   titleHe: string;
   subtitleHe: string;
   badgeEmoji: string;
-  missions: ElementaryMissionSpec[];
+  /**
+   * The unit number in the mission ids when it differs from the unit's place: grade 1's letters
+   * and blending units came first later (Feature 48), so they use new ids (g1-u11…) and the older
+   * units kept theirs (g1-u1…), which keeps every learner's stars on the missions they played.
+   */
+  idUnitNumber?: number;
+  /** Grade 1's phonics units hold letters and blending missions (Feature 48) */
+  missions: (ElementaryMissionSpec | PhonicsMissionSpec)[];
 }
 
 const BASE_XP_BY_GRADE: Record<number, number> = {
@@ -63,19 +71,20 @@ function buildMission(
   gradeId: GradeId,
   unitNumber: number,
   missionNumber: number,
-  spec: ElementaryMissionSpec
+  spec: ElementaryMissionSpec,
+  idUnitNumber = unitNumber
 ): MissionNode {
   const grade = gradeNumber(gradeId);
   const isBoss = Boolean(spec.isBoss);
   const baseXp =
-    (BASE_XP_BY_GRADE[grade] ?? 40) + (unitNumber - 1) * 5 + (missionNumber - 1) * 5 + (isBoss ? 15 : 0);
+    (BASE_XP_BY_GRADE[grade] ?? 40) + (idUnitNumber - 1) * 5 + (missionNumber - 1) * 5 + (isBoss ? 15 : 0);
   const baseDiamonds = Math.round(baseXp / 4);
   const estimatedMinutes = (grade <= 2 ? 2 : grade <= 4 ? 3 : 4) + (isBoss ? 1 : 0);
   const words = spec.vocab.map((v) => v[0]).join(', ');
   const { seed } = spec;
 
   const mission: MissionNode = {
-    id: `g${grade}-u${unitNumber}-m${missionNumber}`,
+    id: `g${grade}-u${idUnitNumber}-m${missionNumber}`,
     unitNumber,
     missionNumber,
     icon: spec.icon,
@@ -129,7 +138,11 @@ export function buildElementaryGrade(
       titleHe: u.titleHe,
       subtitleHe: u.subtitleHe,
       badgeEmoji: u.badgeEmoji,
-      missions: u.missions.map((m, mIdx) => buildMission(gradeId, unitNumber, mIdx + 1, m)),
+      missions: u.missions.map((m, mIdx) =>
+        'phonics' in m
+          ? buildPhonicsMission(gradeId, unitNumber, mIdx + 1, m, u.idUnitNumber)
+          : buildMission(gradeId, unitNumber, mIdx + 1, m, u.idUnitNumber)
+      ),
     };
   });
   return { gradeId, units: builtUnits };

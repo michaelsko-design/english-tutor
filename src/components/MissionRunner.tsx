@@ -19,6 +19,8 @@ import {
   MultipleChoiceOptions,
   HintPopover,
   InstructionLine,
+  SoundTiles,
+  SpellingMagnetDrill,
   PassageBox,
   QuestionBubble,
   getQuestionCardContent,
@@ -47,7 +49,13 @@ import {
 } from '../utils/missionFeedback';
 import { useStopSpeechOnLeave } from '../hooks/useSpeech';
 import type { SpokenPart } from '../data/hebrewAudio';
-import { getSentenceOrderWrongHe, getVoiceSkippedHe } from '../data/missionFeedbackHe';
+import {
+  getSentenceOrderWrongHe,
+  getVoiceSkippedHe,
+  getWordBuildWrongHe,
+  getWordBuiltHe,
+} from '../data/missionFeedbackHe';
+import { spellSlots } from '../utils/letterSlots';
 
 /** The companion peeking over the question card */
 const PEEK_COMPANION_SIZE = 64;
@@ -158,6 +166,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
 
   // State for Sentence Builder step
   const [selectedWordIndices, setSelectedWordIndices] = useState<number[]>([]);
+  /** Grade 1's blending build step: the letter tile in each slot of the word */
+  const [letterSlots, setLetterSlots] = useState<(number | null)[]>([]);
 
   // State for Voice Speaking step
   const speech = useSpeechRecognition();
@@ -227,6 +237,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     setFeedbackHe(null);
     setSelectedOptionIdx(null);
     setSelectedWordIndices([]);
+    setLetterSlots([]);
     cancelListening();
     setSpeechEval(null);
   }, [currentStepIdx, tier, cancelListening]);
@@ -279,7 +290,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     setSelectedOptionIdx(idx);
     const chosen = currentStep.options[idx];
     if (/[A-Za-z]/.test(chosen.textEn)) {
-      speakAnswerEnglish(chosen.textEn);
+      // A letter option reads its name (speakEn); a reading check's word (speakEn '') is read after the answer
+      speakAnswerEnglish(chosen.speakEn || chosen.textEn);
     }
 
     if (chosen.isCorrect) {
@@ -294,6 +306,17 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     if (stepCompleted || !currentStep.scrambledWords) return;
     setSelectedWordIndices(nextIndices);
     if (change.kind === 'add') onSpeakEnglish(currentStep.scrambledWords[change.idx], 0.95);
+  };
+
+  const handleCheckWord = () => {
+    if (!currentStep.letterTiles || !currentStep.targetSentenceEn) return;
+    const word = currentStep.targetSentenceEn;
+    if (spellSlots(letterSlots, currentStep.letterTiles).toLowerCase() === word.toLowerCase()) {
+      speakAnswerEnglish(word);
+      registerCorrectAnswer(getWordBuiltHe(word));
+    } else {
+      registerWrongAttempt(getWordBuildWrongHe(gender));
+    }
   };
 
   const handleCheckSentence = () => {
@@ -548,9 +571,18 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                       <Companion theme={theme} pose={peekPose ?? 'idle'} size={PEEK_COMPANION_SIZE} hasShadow={false} />
                     </div>
                   </div>
-                  {questionCard ? (
+                  {currentStep.soundTiles ? (
+                    <SoundTiles
+                      tiles={currentStep.soundTiles}
+                      word={currentStep.soundTiles.join('')}
+                      canSlide={Boolean(currentStep.canSlide)}
+                      onSpeakEnglish={onSpeakEnglish}
+                      theme={theme}
+                    />
+                  ) : questionCard ? (
                     <QuestionBubble
                       content={questionCard}
+                      readAloudText={currentStep.cardDisplay !== undefined ? currentStep.questionEn : undefined}
                       speakerAvatar={currentStep.speakerAvatar}
                       speakerName={currentStep.speakerName}
                       theme={theme}
@@ -583,6 +615,25 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     onSelect={handleSelectOption}
                     theme={theme}
                     onSpeakEnglish={onSpeakEnglish}
+                  />
+                )}
+
+                {/* Grade 1 blending: build the word with letter magnets */}
+                {currentStep.type === 'blend-build' && currentStep.letterTiles && currentStep.targetSentenceEn && (
+                  <SpellingMagnetDrill
+                    targetEn={currentStep.targetSentenceEn}
+                    letterTiles={currentStep.letterTiles}
+                    slots={letterSlots}
+                    isCompleted={stepCompleted}
+                    onChangeSlots={(next) => {
+                      if (!stepCompleted) setLetterSlots(next);
+                    }}
+                    onReset={() => setLetterSlots([])}
+                    onCheck={handleCheckWord}
+                    listenEn={currentStep.targetSentenceEn}
+                    listenRate={0.7}
+                    onSpeakEnglish={onSpeakEnglish}
+                    theme={theme}
                   />
                 )}
 

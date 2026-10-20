@@ -2,8 +2,9 @@
 export interface QuestionCardContent {
   text: string;
   lang: 'en' | 'he';
-  /** `word` for a single English word (vocabulary), shown very large and centered */
-  size: 'sentence' | 'word';
+  /** `word` for a single English word (vocabulary), shown very large and centered; `glyph` for a
+   * letter or a picture of grade 1's letters and blending steps, larger still */
+  size: 'sentence' | 'word' | 'glyph';
 }
 
 interface QuestionCardStep {
@@ -12,6 +13,10 @@ interface QuestionCardStep {
   targetSentenceHe?: string;
   /** Hebrew word or phrase to put into English: shown instead of the English question */
   cardTextHe?: string;
+  /** Letters and blending steps: the letter, picture or sentence to show (Feature 48) */
+  cardDisplay?: string;
+  /** Blending steps that show the word as sound tiles instead of a card */
+  soundTiles?: string[];
 }
 
 /** A blank in a fill-in-the-blank question: three or more underscores. */
@@ -25,7 +30,11 @@ const SINGLE_WORD_PATTERN = /^[A-Za-z][A-Za-z'’-]*$/;
  * translate (the English one is the answer).
  */
 export function getQuestionCardContent(step: QuestionCardStep): QuestionCardContent | null {
-  if (step.type === 'voice-speak') return null;
+  if (step.type === 'voice-speak' || step.soundTiles) return null;
+  if (step.cardDisplay) {
+    const isSentence = /\s/.test(step.cardDisplay.trim());
+    return { text: step.cardDisplay, lang: 'en', size: isSentence ? 'sentence' : 'glyph' };
+  }
   if (step.type === 'sentence-builder') {
     // Without a translation (a teacher's sheet), the instruction above is enough
     return step.targetSentenceHe ? { text: step.targetSentenceHe, lang: 'he', size: 'sentence' } : null;

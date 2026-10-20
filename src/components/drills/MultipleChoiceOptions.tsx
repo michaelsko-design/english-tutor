@@ -50,10 +50,16 @@ export const MultipleChoiceOptions: React.FC<MultipleChoiceOptionsProps> = ({
         const motionStyle = isPicked ? (opt.isCorrect ? 'animate-answer-bounce' : 'animate-answer-shake') : '';
 
         const lang = getTextLang(opt.textEn);
+        // A letter or a picture (grade 1's letters and blending steps) is shown very large
+        const isGlyph = !/\p{L}{2}/u.test(opt.textEn);
 
         return (
           <div key={opt.textEn} className="flex items-stretch gap-2">
-            <OptionSpeakButton text={opt.textEn} onSpeakEnglish={onSpeakEnglish} className={theme.secondaryBtnClass} />
+            <OptionSpeakButton
+              text={opt.speakEn ?? opt.textEn}
+              onSpeakEnglish={onSpeakEnglish}
+              className={theme.secondaryBtnClass}
+            />
             <button
               type="button"
               disabled={isLocked}
@@ -61,7 +67,10 @@ export const MultipleChoiceOptions: React.FC<MultipleChoiceOptionsProps> = ({
               dir="auto"
               className={`btn-chunky flex-1 min-w-0 text-start px-4 py-3.5 min-h-[56px] rounded-2xl flex items-center justify-between gap-3 ${stateStyle} ${motionStyle}`}
             >
-              <span className="font-extrabold text-base md:text-lg leading-snug" lang={lang}>
+              <span
+                className={`font-extrabold leading-snug ${isGlyph ? 'text-4xl md:text-5xl w-full text-center' : 'text-base md:text-lg'}`}
+                lang={lang}
+              >
                 {opt.textEn}
               </span>
               {isShownCorrect && (

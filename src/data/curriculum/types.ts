@@ -53,6 +53,22 @@ export interface DrillSeed {
   };
 }
 
+/**
+ * A phonics mission of grade 1 (Feature 48): the letters A–Z, then blending letters into words.
+ * Its steps come from its own generators instead of a drill seed.
+ */
+export type PhonicsMission =
+  | { kind: 'letters'; letters: string[] }
+  | {
+      kind: 'blending';
+      /** Words to read, each built from the letters taught in units 1–4 */
+      words: string[];
+      /** Words read whole, not sounded out ("the", "is") */
+      sightWords?: string[];
+      /** The sound pattern of the mission, e.g. "a" or "sh", shown in its lesson */
+      focus: string;
+    };
+
 export interface MissionNode {
   id: string;
   unitNumber: number;
@@ -73,6 +89,13 @@ export interface MissionNode {
   tierObjectives: Record<ProficiencyTier, TierObjective>;
   /** Authored seed for generated exercises (elementary grades 1–6). */
   drillSeed?: DrillSeed;
+  /** A grade 1 letters or blending mission; it has no drill seed */
+  phonics?: PhonicsMission;
+}
+
+/** A unit of phonics missions (grade 1 units 1–6): no exam bank and no contest sentences. */
+export function isPhonicsUnit(unit: { missions: readonly MissionNode[] }): boolean {
+  return unit.missions.length > 0 && unit.missions.every((mission) => mission.phonics !== undefined);
 }
 
 export interface CurriculumUnit {

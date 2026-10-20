@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CURRICULUM_BY_GRADE } from './curriculum';
+import { CURRICULUM_BY_GRADE, isPhonicsUnit } from './curriculum';
 import { ALL_EXAM_BANKS } from './curriculum/examBank';
 import { ALL_LESSON_PACKS } from './curriculum/lessons';
 import {
@@ -106,8 +106,11 @@ describe('exam question bank (Feature 43)', () => {
   });
 
   it.each(BANKS)('grade $grade has every unit with full lists and two passages', ({ grade, bank }) => {
-    const units = CURRICULUM_BY_GRADE[`grade-${grade}` as GradeId].units.map((u) => u.unitNumber);
-    expect(Object.keys(bank).map(Number).sort()).toEqual(units);
+    // Grade 1's letters and blending units have no exam bank (Feature 48)
+    const units = CURRICULUM_BY_GRADE[`grade-${grade}` as GradeId].units
+      .filter((u) => !isPhonicsUnit(u))
+      .map((u) => u.unitNumber);
+    expect(Object.keys(bank).map(Number).sort((a, b) => a - b)).toEqual(units);
     for (const u of Object.values(bank)) {
       expect(u.vocabulary).toHaveLength(EXAM_BANK_ITEMS_PER_LIST);
       expect(u.grammar).toHaveLength(EXAM_BANK_ITEMS_PER_LIST);

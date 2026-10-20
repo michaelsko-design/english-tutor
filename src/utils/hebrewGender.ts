@@ -125,6 +125,10 @@ export function inflectHebrew(text: string, gender: LearnerGender): string {
     ['תוכלי', 'תוכל'],
     ['תצליחי', 'תצליח'],
     ['קוראת', 'קורא'],
+    ['שמעי', 'שמע'],
+    ['הסתכלי', 'הסתכל'],
+    ['מצאי', 'מצא'],
+    ['החליקי', 'החלק'],
   ];
 
   for (const [femaleWord, maleWord] of wordReplacements) {

@@ -3,6 +3,8 @@ import { LearnerGender, ProficiencyTier } from '../types/learner';
 import { hebrewTemplate, inflectHebrew, resolveGenderSlashes } from '../utils/hebrewGender';
 import { seededShuffle, seededShuffleNotIdentity } from '../utils/shuffle';
 import { buildElementaryExercises } from './elementaryExercises';
+import { buildLetterExercises } from './letterExercises';
+import { buildBlendingExercises } from './blendingExercises';
 import {
   findAnswerSentenceNumber,
   getPronunciationTipHe,
@@ -15,12 +17,24 @@ export type DrillType =
   | 'sentence-builder'
   | 'voice-speak'
   | 'grammar-detective'
-  | 'story-unseen';
+  | 'story-unseen'
+  // Grade 1 letters (Feature 48)
+  | 'letter-listen'
+  | 'letter-case'
+  | 'letter-picture'
+  | 'letter-find'
+  // Grade 1 blending (Feature 48)
+  | 'blend-listen'
+  | 'blend-read'
+  | 'blend-build'
+  | 'blend-change';
 
 export interface MultipleChoiceOption {
   textEn: string;
   isCorrect: boolean;
   explanationHe: string;
+  /** What the option's 🔊 reads when it differs from the text (a picture option reads its word) */
+  speakEn?: string;
 }
 
 export interface MissionExerciseStep {
@@ -47,6 +61,14 @@ export interface MissionExerciseStep {
   speakTargetEn?: string;
   speakTargetHe?: string;
   focusWordEn?: string;
+  /** Letters and blending steps: what the question card shows very large (a letter, a picture, a word) */
+  cardDisplay?: string;
+  /** Blending steps: the word as sound tiles ("sh", "i", "p") */
+  soundTiles?: string[];
+  /** Blending: whether the tiles may slide the word aloud (hidden in Master's reading check) */
+  canSlide?: boolean;
+  /** Blending build step: the letter tiles to build the word from (digraphs as one tile) */
+  letterTiles?: string[];
 }
 
 /**
@@ -115,6 +137,9 @@ export function getRawExercisesForMission(
   tier: ProficiencyTier,
   gender: LearnerGender
 ): MissionExerciseStep[] {
+  // Grade 1 phonics: letters A–Z, then blending them into words (Feature 48)
+  if (mission.phonics?.kind === 'letters') return buildLetterExercises(mission, tier, gender);
+  if (mission.phonics?.kind === 'blending') return buildBlendingExercises(mission, tier, gender);
   // All missions across Grades 1 through 12 with drillSeed delegate to the structured generator
   if (mission.drillSeed) {
     return buildElementaryExercises(mission, tier, gender);

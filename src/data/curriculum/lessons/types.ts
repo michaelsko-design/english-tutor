@@ -50,6 +50,10 @@ export interface MiniLesson {
   quickTry?: LessonQuickTry;
   /** Only on a Boss recap built from the unit's lessons */
   recapParts?: LessonRecapPart[];
+  /** Grade 1 letters lessons: one card per letter (big letter, its name, three picture words) */
+  letters?: string[];
+  /** Grade 1 blending lessons: words shown as tiles that slide into the word */
+  blendWords?: string[];
 }
 
 /** A grade's lessons by mission id (`g7-u1-m1`) */

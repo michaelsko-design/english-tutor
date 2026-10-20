@@ -24,6 +24,7 @@ Emulator testing: never sign in or create accounts against the live Firebase pro
 ## Essential Rules
 
 **TTS corpus** (any change to English text the app reads aloud):
+- Hebrew shown to grades 1–2 is read aloud too (Feature 47): it must be built by the generators `scripts/tts/hebrewCorpus.ts` runs (or added there), and rendered with `npm run tts:render -- --voice he-female`.
 - Fixed spoken text must be in `scripts/tts/corpus.ts` (new data file or new `onSpeakEnglish(...)` call on fixed text → add it there). Learner-typed text is not.
 - After editing curriculum, mini-lessons, exam banks, vocabulary, room/wardrobe names, voice messages, dream words: `npm run tts:check` → `npm run tts:render` (needs `AZURE_SPEECH_KEY`/`AZURE_SPEECH_REGION` in `.env.local`) → `tts:check` again → commit new `public/tts/v<N>/female/*.mp3` + `manifest.json` in the same commit.
 - Changing voice/SSML (`api/_lib/azureTts.ts`) means bumping `TTS_AUDIO_VERSION` in `src/services/tts/ttsText.ts` and re-rendering everything.

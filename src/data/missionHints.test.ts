@@ -10,6 +10,8 @@ const GENDERS: LearnerGender[] = ['girl', 'boy'];
 const ALL_MISSIONS: MissionNode[] = Object.values(CURRICULUM_BY_GRADE).flatMap((pack) =>
   pack.units.flatMap((u) => u.missions)
 );
+/** Missions with a drill seed: all but grade 1's letters and blending missions (Feature 48). */
+const SEEDED_MISSIONS = ALL_MISSIONS.filter((m) => m.drillSeed);
 
 function hasWholeWord(text: string, word: string): boolean {
   const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -18,8 +20,9 @@ function hasWholeWord(text: string, word: string): boolean {
 
 describe('mission hints (Feature 20)', () => {
   it('covers every mission of grades 1–12', () => {
-    expect(ALL_MISSIONS).toHaveLength(144);
-    expect(ALL_MISSIONS.every((m) => m.drillSeed)).toBe(true);
+    // 12 grades × 12 missions, plus grade 1's 18 letters and blending missions
+    expect(ALL_MISSIONS).toHaveLength(162);
+    expect(ALL_MISSIONS.every((m) => m.drillSeed || m.phonics)).toBe(true);
   });
 
   it('gives every step a hint that is not the prompt and does not repeat on-screen text', () => {
@@ -56,7 +59,7 @@ describe('mission hints (Feature 20)', () => {
   });
 
   it('points to the story without giving the answer in step 5', () => {
-    for (const mission of ALL_MISSIONS) {
+    for (const mission of SEEDED_MISSIONS) {
       for (const tier of TIERS) {
         const step5 = getExercisesForMission(mission, tier)[4];
         expect(step5.hintHe.toLowerCase(), `${mission.id} ${tier}`).not.toContain(
@@ -67,7 +70,7 @@ describe('mission hints (Feature 20)', () => {
   });
 
   it('has a hand-written grammar hint that does not reveal the answer', () => {
-    for (const mission of ALL_MISSIONS) {
+    for (const mission of SEEDED_MISSIONS) {
       const rule = mission.drillSeed!.rule;
       const where = `${mission.id}: ${rule.hintHe}`;
       expect(rule.hintHe.trim(), where).not.toBe('');

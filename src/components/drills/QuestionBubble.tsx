@@ -19,6 +19,7 @@ interface QuestionBubbleProps {
 const TEXT_SIZE_CLASS: Record<QuestionCardContent['size'], string> = {
   sentence: 'text-xl sm:text-2xl md:text-3xl leading-snug',
   word: 'text-4xl md:text-5xl leading-tight text-center',
+  glyph: 'text-7xl md:text-8xl leading-none text-center',
 };
 
 const BlankSlot: React.FC<{ text: string }> = ({ text }) => (
@@ -39,9 +40,11 @@ export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
   onSpeakEnglish,
 }) => {
   const isEnglish = content.lang === 'en';
-  const speech = useSpeechToggle(onSpeakEnglish, toSpeakableText(readAloudText || content.text), 0.92);
+  // An empty readAloudText means nothing to hear (a reading check); the card text is read otherwise
+  const spokenText = toSpeakableText(readAloudText ?? content.text);
+  const speech = useSpeechToggle(onSpeakEnglish, spokenText, 0.92);
   const label = speech.isSpeaking ? STOP_SPEECH_LABEL : 'השמעת השאלה';
-  const isWord = content.size === 'word';
+  const isWord = content.size !== 'sentence';
 
   return (
     <div
@@ -66,7 +69,7 @@ export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
       </div>
 
       {!isEnglish && <HebrewSpeakButton text={content.text} label="השמעת השאלה" className={theme.secondaryBtnClass} />}
-      {isEnglish && (
+      {isEnglish && spokenText && (
         <button
           type="button"
           onClick={speech.toggle}

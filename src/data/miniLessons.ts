@@ -49,11 +49,16 @@ function getMissionNumber(missionId: string): number {
  */
 export function buildBossRecap(lessons: MiniLesson[]): MiniLesson | null {
   if (lessons.length === 0) return null;
+  // Grade 1 letters and blending recaps keep their letter cards and word tiles (Feature 48)
+  const letters = lessons.flatMap((lesson) => lesson.letters ?? []);
+  const blendWords = lessons.flatMap((lesson) => lesson.blendWords?.slice(0, 2) ?? []);
   return {
     titleHe: 'חזרה מהירה לפני הבוס 👑',
     ideaHe: 'בבוס נפגשים כל הנושאים של היחידה. רגע לפני הקרב, נזכרים בהם:',
     recapParts: lessons.map((lesson) => ({ titleHe: lesson.titleHe, pattern: lesson.pattern })),
     examples: lessons.map((lesson) => lesson.examples[0]),
+    ...(letters.length > 0 ? { letters } : {}),
+    ...(blendWords.length > 0 ? { blendWords } : {}),
   };
 }
 

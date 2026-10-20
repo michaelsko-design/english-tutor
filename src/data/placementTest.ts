@@ -215,7 +215,7 @@ export function getReadGateCopy(gender: LearnerGender): { questionHe: string; ye
 }
 
 /** The line on the result screen of a learner who can't read English yet. */
-export const NON_READER_RESULT_HE = 'נתחיל מהאותיות: A, B, C!';
+export const NON_READER_RESULT_HE = 'נתחיל ממש מההתחלה: מהאותיות! 🔤';
 
 /** The learner's school grade: set at onboarding, before a placement test changed the practice grade. */
 export function getSchoolGradeId(profile: LearnerProfile): GradeId {

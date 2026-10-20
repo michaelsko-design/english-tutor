@@ -6,8 +6,8 @@ import type { ExamBankPack } from './types';
  * second passage are for the mock exam. Very short sentences and passages, picture-friendly words.
  */
 export const GRADE_1_EXAM_BANK: ExamBankPack = {
-  // Unit 1: Letter sounds, greetings, colors & animals
-  1: {
+  // Unit 7 (after the letters and blending units): letter sounds, greetings, colors & animals
+  7: {
     vocabulary: [
       {
         clozeEn: 'The ____ says meow.',
@@ -150,8 +150,8 @@ export const GRADE_1_EXAM_BANK: ExamBankPack = {
     ],
   },
 
-  // Unit 2: Numbers 1–10, plural s & goodbye
-  2: {
+  // Unit 8: Numbers 1–10, plural s & goodbye
+  8: {
     vocabulary: [
       {
         clozeEn: 'The little ____ sings in the tree.',
@@ -294,8 +294,8 @@ export const GRADE_1_EXAM_BANK: ExamBankPack = {
     ],
   },
 
-  // Unit 3: My body, classroom objects & classroom commands
-  3: {
+  // Unit 9: My body, classroom objects & classroom commands
+  9: {
     vocabulary: [
       {
         clozeEn: 'I smell a flower with my ____.',
@@ -438,8 +438,8 @@ export const GRADE_1_EXAM_BANK: ExamBankPack = {
     ],
   },
 
-  // Unit 4: Fruit, toys, eat & drink
-  4: {
+  // Unit 10: Fruit, toys, eat & drink
+  10: {
     vocabulary: [
       {
         clozeEn: 'A ____ is long and yellow.',

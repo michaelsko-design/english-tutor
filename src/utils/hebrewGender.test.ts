@@ -9,6 +9,8 @@ const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
 const ALL_MISSIONS: MissionNode[] = Object.values(CURRICULUM_BY_GRADE).flatMap((pack) =>
   pack.units.flatMap((u) => u.missions)
 );
+/** Missions with a drill seed: all but grade 1's letters and blending missions (Feature 48). */
+const SEEDED_MISSIONS = ALL_MISSIONS.filter((m) => m.drillSeed);
 
 /**
  * Nouns, adjectives and third-person forms that must read the same for every learner.
@@ -106,14 +108,14 @@ describe('mission steps for boys', () => {
   });
 
   it('show the Explorer story question exactly as written', () => {
-    for (const mission of ALL_MISSIONS) {
+    for (const mission of SEEDED_MISSIONS) {
       const story = getRawExercisesForMission(mission, 'explorer', 'boy').find((s) => s.type === 'story-unseen');
       expect(story?.promptHe, mission.id).toContain(mission.drillSeed!.story.questionHe);
     }
   });
 
   it('still address boys with masculine instructions', () => {
-    const steps = getExercisesForMission(ALL_MISSIONS[0], 'challenger', 'boy');
+    const steps = getExercisesForMission(SEEDED_MISSIONS[0], 'challenger', 'boy');
     const sentence = steps.find((s) => s.type === 'sentence-builder')!;
     const voice = steps.find((s) => s.type === 'voice-speak')!;
     const detective = steps.find((s) => s.type === 'grammar-detective')!;
@@ -128,7 +130,7 @@ describe('mission steps for boys', () => {
 
   it('keep the step-5 success message whole', () => {
     for (const tier of TIERS) {
-      const story = getExercisesForMission(ALL_MISSIONS[0], tier, 'boy').find((s) => s.type === 'story-unseen')!;
+      const story = getExercisesForMission(SEEDED_MISSIONS[0], tier, 'boy').find((s) => s.type === 'story-unseen')!;
       const correct = story.options!.find((o) => o.isCorrect)!;
       expect(correct.explanationHe).toBe('אלוף! סיימת את כל שלבי המשימה בהצלחה! 🎉');
     }

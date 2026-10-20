@@ -12,14 +12,20 @@ import { HEBREW_AUDIO_GRADES } from '../../src/data/hebrewAudio';
 import { getReadGateCopy, gradeIdToNumber, NON_READER_RESULT_HE } from '../../src/data/placementTest';
 import { isHebrewSpeakable } from '../../src/services/tts/ttsText';
 import type { ExamSkill, LearnerGender, ProficiencyTier } from '../../src/types/learner';
-import { getSentenceOrderWrongHe, getVoiceSkippedHe } from '../../src/data/missionFeedbackHe';
+import {
+  getSentenceOrderWrongHe,
+  getVoiceSkippedHe,
+  getWordBuildWrongHe,
+  getWordBuiltHe,
+} from '../../src/data/missionFeedbackHe';
+import { BLEND_WORDS } from '../../src/data/blendingWords';
 import { getSpeechErrorTextHe, type SpeechErrorKind } from '../../src/hooks/useSpeechRecognition';
 import { CorpusBuilder } from './corpusBuilder';
 
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
 const GENDERS: LearnerGender[] = ['girl', 'boy'];
 const EXAM_SKILLS: ExamSkill[] = ['vocabulary', 'grammar', 'sentences', 'unseen'];
-const HEBREW_LETTER = /[א-ת]/;
+const HEBREW_LETTER = /[\u05d0-\u05ea]/;
 
 function addHebrew(corpus: CorpusBuilder, text: string | undefined): void {
   if (text && HEBREW_LETTER.test(text)) corpus.add(text);
@@ -99,10 +105,12 @@ function addFixedFeedback(corpus: CorpusBuilder): void {
   for (const gender of GENDERS) {
     corpus.add(getSentenceOrderWrongHe(gender));
     corpus.add(getVoiceSkippedHe(gender));
+    corpus.add(getWordBuildWrongHe(gender));
     SPEECH_ERRORS.forEach((kind) => corpus.add(getSpeechErrorTextHe(kind, gender)));
     Object.values(getReadGateCopy(gender)).forEach((text) => corpus.add(text));
   }
   corpus.add(NON_READER_RESULT_HE);
+  BLEND_WORDS.forEach((word) => corpus.add(getWordBuiltHe(word.word)));
 }
 
 export function buildHebrewCorpus(): CorpusBuilder {

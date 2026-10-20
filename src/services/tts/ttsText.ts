@@ -40,17 +40,38 @@ const EDGE_PUNCTUATION = /^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu;
 /** English text: Latin letters (café, naïve), digits, punctuation and the + of grammar formulas. */
 const CLOUD_SPEAKABLE = /^[\p{Script=Latin}0-9 .,!?'’"“”\-–—:;()&%$/+]+$/u;
 
-const HEBREW_LETTER = /[א-ת]/;
+const HEBREW_LETTER = /[\u05d0-\u05ea]/;
 /** Hebrew text: Hebrew letters and points, Latin runs (an English word in an instruction), digits and punctuation. */
-const HEBREW_SPEAKABLE = /^[֐-׿\p{Script=Latin}0-9 .,!?'’"“”״׳\-–—:;()&%/+…]+$/u;
+const HEBREW_SPEAKABLE = /^[\u0590-\u05ff\p{Script=Latin}0-9 .,!?'’"“”״׳\-–—:;()&%/+…]+$/u;
 /** An English run inside Hebrew text: Latin words joined by spaces, commas, periods or hyphens. */
 const LATIN_RUN = /[A-Za-z][A-Za-z0-9'’]*(?:[ ,.-]+[A-Za-z0-9'’]+)*/g;
+
+/**
+ * A letter's name as a clip ("bee" for B, "es aitch" for sh): written `[letter:b]`, rendered with
+ * <say-as interpret-as="characters">, so a lone "a" isn't read as the article "uh".
+ */
+const LETTER_TOKEN = /^\[letter:([a-z]{1,2})\]$/;
+
+export function letterToken(letter: string): string {
+  return `[letter:${letter.toLowerCase()}]`;
+}
+
+/** The letters of a letter token ("SH"), or null for other text. */
+export function parseLetterToken(text: string): string | null {
+  const match = LETTER_TOKEN.exec(text.trim());
+  return match ? match[1].toUpperCase() : null;
+}
+
+/** The text the online and device voices read for a phrase: a letter token becomes its capital letters. */
+export function toPlainSpeech(text: string): string {
+  return parseLetterToken(text) ?? text;
+}
 
 /** Blanks are read as "blank" and emoji are stripped so the voice doesn't read them out. */
 export function toSpeakableText(text: string): string {
   return text
     // Bidi isolates and marks from isolateEnglishRuns aren't spoken, and must not change a clip key
-    .replace(/[‎‏‪-‮⁦-⁩]/g, '')
+    .replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, '')
     .replace(/_{3,}/g, 'blank')
     .replace(/\p{Extended_Pictographic}|️|‍|⃣/gu, '')
     .trim();
@@ -71,6 +92,7 @@ export function isSingleWord(text: string): boolean {
  */
 export function getClipText(text: string): string {
   const normalized = normalizeTtsText(text);
+  if (parseLetterToken(normalized)) return normalized;
   if (!isSingleWord(normalized)) return normalized;
   const bare = normalized.replace(EDGE_PUNCTUATION, '');
   return bare === 'I' ? bare : bare.toLowerCase();

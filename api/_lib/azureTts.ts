@@ -3,7 +3,7 @@
  * (scripts/tts/renderClips.ts). Voices and prosody live here only, so changing a voice is one edit
  * (and a re-render of the clips).
  */
-import { splitLangRuns, type ClipVoice, type TtsSpeed } from '../../src/services/tts/ttsText.js';
+import { parseLetterToken, splitLangRuns, type ClipVoice, type TtsSpeed } from '../../src/services/tts/ttsText.js';
 
 export type TtsVoiceId = ClipVoice;
 
@@ -66,7 +66,11 @@ function buildHebrewBody(text: string, speed: TtsSpeed): string {
 
 export function buildSsml(text: string, voice: TtsVoiceId, speed: TtsSpeed): string {
   const isHebrew = voice === 'he-female';
-  const body = isHebrew ? buildHebrewBody(text, speed) : `<prosody rate="${PROSODY_RATE[speed]}">${escapeXml(text)}</prosody>`;
+  const letters = parseLetterToken(text);
+  const english = letters
+    ? `<say-as interpret-as="characters">${letters}</say-as>`
+    : `<prosody rate="${PROSODY_RATE[speed]}">${escapeXml(text)}</prosody>`;
+  const body = isHebrew ? buildHebrewBody(text, speed) : english;
   return (
     `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${isHebrew ? XML_LANG.he : XML_LANG.en}">` +
     `<voice name="${AZURE_VOICE_NAMES[voice]}">` +
