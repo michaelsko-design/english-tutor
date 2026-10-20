@@ -13,13 +13,16 @@ import {
   ProficiencyTier,
 } from '../types/learner';
 import { seededShuffle } from '../utils/shuffle';
+import { buildBankSteps, type ExamBankPack, type ExamBankPool } from './examBank';
 
 /**
  * "Get Ready for an Exam" (Feature 18).
  *
  * The learner picks an exam date, the curriculum units and the skills the exam covers. The plan
  * spreads (unit × skill) focus blocks over the days before the exam, adds a mixed review day and
- * ends with a mock mini-exam. Practice items are the matching steps of the units' mission drills.
+ * ends with a mock mini-exam. Practice items come from the grade's exam question bank (Feature 43,
+ * `examBank.ts`): the first items of each list for practice, the reserved ones for the mock. A unit
+ * without a bank uses the matching steps of its mission drills.
  */
 
 export const EXAM_SKILLS: readonly ExamSkill[] = ['vocabulary', 'grammar', 'sentences', 'unseen'];
@@ -218,21 +221,57 @@ export function buildExamPlan(input: ExamPlanInput): ExamPrepPlan {
 
 // ---- Session content -------------------------------------------------------------------
 
-/** The step of each unit mission that practises `skill`, shuffled per session. */
+/** Where a session's questions come from: the grade's bank (null: the mission questions only). */
+interface ExamQuestionSource {
+  bank: ExamBankPack | null;
+  pool: ExamBankPool;
+}
+
+/**
+ * The block's questions, shuffled per session: the unit's bank items of the pool, or, for a unit
+ * without a bank, the step of each unit mission that practises `skill`.
+ */
 function getBlockSteps(
   plan: ExamPrepPlan,
   block: ExamFocusBlock,
   tier: ProficiencyTier,
   gender: LearnerGender,
   salt: number,
-  seedKey: string
+  seedKey: string,
+  source: ExamQuestionSource
+): ExamSessionStep[] {
+  const meta = EXAM_SKILL_META[block.skill];
+  const badgeLabelHe = `${meta.emoji} ${meta.labelHe} · יחידה ${block.unitNumber}`;
+  const unitBank = source.bank?.[block.unitNumber];
+  const steps = unitBank
+    ? buildBankSteps(unitBank, {
+        gradeId: plan.gradeId,
+        unitNumber: block.unitNumber,
+        skill: block.skill,
+        pool: source.pool,
+        tier,
+        gender,
+        salt,
+        badgeLabelHe,
+      })
+    : getMissionBlockSteps(plan, block, tier, gender, salt, badgeLabelHe);
+  return seededShuffle(steps, `${seedKey}|${block.unitNumber}|${block.skill}`);
+}
+
+function getMissionBlockSteps(
+  plan: ExamPrepPlan,
+  block: ExamFocusBlock,
+  tier: ProficiencyTier,
+  gender: LearnerGender,
+  salt: number,
+  badgeLabelHe: string
 ): ExamSessionStep[] {
   const pack = CURRICULUM_BY_GRADE[plan.gradeId] || CURRICULUM_BY_GRADE['grade-7'];
   const unit = pack.units.find((u) => u.unitNumber === block.unitNumber);
   if (!unit) return [];
 
   const meta = EXAM_SKILL_META[block.skill];
-  const steps = unit.missions.flatMap((mission) => {
+  return unit.missions.flatMap((mission) => {
     const step = getExercisesForMission(mission, tier, gender, salt).find(
       (s) => s.type === meta.stepType
     );
@@ -242,7 +281,7 @@ function getBlockSteps(
         ...step,
         skill: block.skill,
         unitNumber: block.unitNumber,
-        badgeLabelHe: `${meta.emoji} ${meta.labelHe} · יחידה ${block.unitNumber}`,
+        badgeLabelHe,
         // The mission's own wording ("you finished every step") doesn't fit an exam session.
         options:
           block.skill === 'unseen'
@@ -253,7 +292,6 @@ function getBlockSteps(
       },
     ];
   });
-  return seededShuffle(steps, `${seedKey}|${block.unitNumber}|${block.skill}`);
 }
 
 /** Round-robin merge: one item from each list in turn. */
@@ -267,26 +305,33 @@ export function buildSessionSteps(
   day: ExamPlanDay,
   tier: ProficiencyTier,
   gender: LearnerGender,
-  salt: number
+  salt: number,
+  bank: ExamBankPack | null = null
 ): ExamSessionStep[] {
   const focus = day.focus.length > 0 ? day.focus : getAllBlocks(plan.unitNumbers, plan.skills);
   const seedKey = `${plan.id}|day${day.dayIndex}|${salt}`;
-  const perBlock = focus.map((b) => getBlockSteps(plan, b, tier, gender, salt, seedKey));
+  const source: ExamQuestionSource = { bank, pool: 'practice' };
+  const perBlock = focus.map((b) => getBlockSteps(plan, b, tier, gender, salt, seedKey, source));
   return interleave(perBlock).slice(0, EXAM_SESSION_MAX_STEPS);
 }
 
-/** Up to MOCK_EXAM_QUESTION_COUNT questions, balanced across skills and grouped by skill. */
+/**
+ * Up to MOCK_EXAM_QUESTION_COUNT questions, balanced across skills and grouped by skill. Units
+ * with a bank use only its reserved items, so the mock never repeats a practice question.
+ */
 export function buildMockExamSteps(
   plan: ExamPrepPlan,
   tier: ProficiencyTier,
   gender: LearnerGender,
-  salt: number
+  salt: number,
+  bank: ExamBankPack | null = null
 ): ExamSessionStep[] {
   const seedKey = `${plan.id}|mock|${salt}`;
+  const source: ExamQuestionSource = { bank, pool: 'mock' };
   const pools = plan.skills.map((skill) =>
     interleave(
       plan.unitNumbers.map((unitNumber) =>
-        getBlockSteps(plan, { unitNumber, skill }, tier, gender, salt, seedKey)
+        getBlockSteps(plan, { unitNumber, skill }, tier, gender, salt, seedKey, source)
       )
     )
   );

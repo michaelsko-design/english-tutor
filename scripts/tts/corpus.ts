@@ -6,6 +6,10 @@
 import { CURRICULUM_BY_GRADE } from '../../src/data/curriculum';
 import { getExercisesForMission } from '../../src/data/missionExercises';
 import { ALL_LESSON_PACKS } from '../../src/data/curriculum/lessons';
+import { ALL_EXAM_BANKS } from '../../src/data/curriculum/examBank';
+import { buildBankSteps } from '../../src/data/examBank';
+import type { MissionExerciseStep } from '../../src/data/missionExercises';
+import type { ExamSkill, GradeId } from '../../src/types/learner';
 import { ROOM_ITEMS, ROOM_OBJECTS, SHOP_ROOM_ITEMS } from '../../src/data/room';
 import { WARDROBE_ITEMS } from '../../src/data/wardrobe';
 import { VOICE_MESSAGES } from '../../src/data/voiceMessages';
@@ -80,14 +84,42 @@ function addCurriculum(corpus: CorpusBuilder): void {
         }
         for (const tier of TIERS) {
           corpus.add(mission.tierObjectives[tier]?.samplePromptEn.replace(/_+/g, ''));
-          for (const step of getExercisesForMission(mission, tier)) {
-            corpus.add(step.questionEn);
-            corpus.add(step.contextPassageEn);
-            corpus.add(step.targetSentenceEn);
-            corpus.addSentenceAndWords(step.speakTargetEn);
-            corpus.addWord(step.focusWordEn);
-            step.options?.forEach((option) => corpus.add(option.textEn));
-            step.scrambledWords?.forEach((chip) => corpus.add(chip));
+          getExercisesForMission(mission, tier).forEach((step) => addStep(corpus, step));
+        }
+      }
+    }
+  }
+}
+
+function addStep(corpus: CorpusBuilder, step: MissionExerciseStep): void {
+  corpus.add(step.questionEn);
+  corpus.add(step.contextPassageEn);
+  corpus.add(step.targetSentenceEn);
+  corpus.addSentenceAndWords(step.speakTargetEn);
+  corpus.addWord(step.focusWordEn);
+  step.options?.forEach((option) => corpus.add(option.textEn));
+  step.scrambledWords?.forEach((chip) => corpus.add(chip));
+}
+
+const EXAM_SKILLS: ExamSkill[] = ['vocabulary', 'grammar', 'sentences', 'unseen'];
+
+/** Exam question bank steps (Feature 43), practice and mock items, every tier. */
+function addExamBanks(corpus: CorpusBuilder): void {
+  for (const [grade, bank] of Object.entries(ALL_EXAM_BANKS)) {
+    for (const [unitNumber, unitBank] of Object.entries(bank ?? {})) {
+      for (const tier of TIERS) {
+        for (const skill of EXAM_SKILLS) {
+          for (const pool of ['practice', 'mock'] as const) {
+            buildBankSteps(unitBank, {
+              gradeId: `grade-${grade}` as GradeId,
+              unitNumber: Number(unitNumber),
+              skill,
+              pool,
+              tier,
+              gender: 'girl',
+              salt: 0,
+              badgeLabelHe: '',
+            }).forEach((step) => addStep(corpus, step));
           }
         }
       }
@@ -127,6 +159,7 @@ export function collectCorpus(): CorpusPhrase[] {
   const corpus = new CorpusBuilder();
   addCurriculum(corpus);
   addMiniLessons(corpus);
+  addExamBanks(corpus);
   addRoom(corpus);
   corpus.add(DEMO_SENTENCE, DEMO_SENTENCE_RATE);
   return corpus.list();

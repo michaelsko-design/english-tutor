@@ -21,6 +21,8 @@ import {
 import { ExamModalShell } from './ExamModalShell';
 import { ExamSessionResult } from './ExamSessionResult';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
+import { useExamBank } from '../../hooks/useExamBank';
+import { ScreenLoading } from '../ScreenLoading';
 
 export type ExamSessionNext = 'plan' | 'retry';
 
@@ -65,13 +67,14 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
   const tier = profile.preferredTier;
   // A new salt per run gives new questions and option order, stable across re-renders.
   const [salt] = useState(() => Math.floor(Math.random() * 1_000_000_000));
-  const steps: ExamSessionStep[] = useMemo(
-    () =>
-      isMock
-        ? buildMockExamSteps(plan, tier, profile.gender, salt)
-        : buildSessionSteps(plan, day, tier, profile.gender, salt),
-    [isMock, plan, day, tier, profile.gender, salt]
-  );
+  const bankState = useExamBank(plan.gradeId);
+  const isBankLoading = bankState.status === 'loading';
+  const steps: ExamSessionStep[] = useMemo(() => {
+    if (isBankLoading) return [];
+    return isMock
+      ? buildMockExamSteps(plan, tier, profile.gender, salt, bankState.bank)
+      : buildSessionSteps(plan, day, tier, profile.gender, salt, bankState.bank);
+  }, [isBankLoading, bankState.bank, isMock, plan, day, tier, profile.gender, salt]);
 
   const [stepIdx, setStepIdx] = useState(0);
   const [answers, setAnswers] = useState<ExamAnswer[]>([]);
@@ -191,6 +194,8 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
       </ExamModalShell>
     );
   }
+
+  if (isBankLoading) return <ScreenLoading />;
 
   if (!step) {
     return (

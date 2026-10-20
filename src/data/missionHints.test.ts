@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CURRICULUM_BY_GRADE, MissionNode } from './curriculum';
 import { getExercisesForMission } from './missionExercises';
 import { LearnerGender, ProficiencyTier } from '../types/learner';
+import { decidingWords, toTokens } from './testing/answerWords';
 
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
 const GENDERS: LearnerGender[] = ['girl', 'boy'];
@@ -10,26 +11,9 @@ const ALL_MISSIONS: MissionNode[] = Object.values(CURRICULUM_BY_GRADE).flatMap((
   pack.units.flatMap((u) => u.missions)
 );
 
-function toTokens(text: string): Set<string> {
-  return new Set(
-    text
-      .toLowerCase()
-      .replace(/[^a-z0-9'\s-]/g, ' ')
-      .split(/\s+/)
-      .map((w) => w.replace(/^['-]+|['-]+$/g, ''))
-      .filter(Boolean)
-  );
-}
-
 function hasWholeWord(text: string, word: string): boolean {
   const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return new RegExp(`(^|[^A-Za-z])${escaped}([^A-Za-z]|$)`, 'i').test(text);
-}
-
-/** Words that appear in the correct option but in none of the wrong ones: naming them gives the answer. */
-function decidingWords(correct: string, wrong: string[]): string[] {
-  const wrongTokens = new Set(wrong.flatMap((w) => [...toTokens(w)]));
-  return [...toTokens(correct)].filter((t) => !wrongTokens.has(t));
 }
 
 describe('mission hints (Feature 20)', () => {

@@ -230,7 +230,7 @@ export function buildElementaryExercises(
  * Points to the story sentence that holds the answer. Challenger and Master also get the question
  * in Hebrew; Explorer already sees it in the prompt.
  */
-function getStoryHintHe(
+export function getStoryHintHe(
   story: { passageEn: string; questionEn: string; questionHe: string; correct: string },
   isExplorer: boolean
 ): string {

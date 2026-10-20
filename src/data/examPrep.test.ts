@@ -28,6 +28,8 @@ import {
   toLocalDateStr,
 } from './examPrep';
 import { ExamPrepPlan, ExamSkill, LearnerProfile } from '../types/learner';
+import { GRADE_7_EXAM_BANK } from './curriculum/examBank/grade7';
+import { EXAM_MOCK_RESERVED_PER_LIST, EXAM_BANK_ITEMS_PER_LIST } from './curriculum/examBank/types';
 
 /** 2026-10-18 is a Sunday; 2026-10-24 is a Saturday. */
 const SUNDAY = '2026-10-18';
@@ -251,6 +253,54 @@ describe('buildMockExamSteps', () => {
     const plan = makePlan({ unitNumbers: [1], skills: ['grammar'] });
 
     expect(buildMockExamSteps(plan, 'challenger', 'girl', 11)).toHaveLength(3);
+  });
+});
+
+/** Bank step ids end in the item index (`-4`) or the passage and question (`-1.2`). */
+function isMockReserved(stepId: string): boolean {
+  const index = stepId.split('-').pop()!;
+  if (index.includes('.')) return index.startsWith('1.');
+  return Number(index) >= EXAM_BANK_ITEMS_PER_LIST - EXAM_MOCK_RESERVED_PER_LIST;
+}
+
+describe('sessions with the exam question bank (Feature 43)', () => {
+  const allSkills: ExamSkill[] = ['grammar', 'vocabulary', 'unseen', 'sentences'];
+
+  it('practises only bank items that are not kept for the mock', () => {
+    const plan = makePlan({ skills: allSkills, unitNumbers: [1, 2, 3, 4] });
+    plan.days
+      .filter((d) => d.kind === 'practice')
+      .forEach((day) => {
+        const steps = buildSessionSteps(plan, day, 'challenger', 'girl', 5, GRADE_7_EXAM_BANK);
+        expect(steps.length).toBeGreaterThan(0);
+        expect(steps.length).toBeLessThanOrEqual(EXAM_SESSION_MAX_STEPS);
+        steps.forEach((s) => {
+          expect(s.id.startsWith('exam-g7-')).toBe(true);
+          expect(isMockReserved(s.id)).toBe(false);
+          expect(s.type).toBe(SKILL_TO_STEP_TYPE[s.skill]);
+        });
+      });
+  });
+
+  it('builds a balanced mock exam from the reserved items only', () => {
+    const plan = makePlan({ skills: allSkills, unitNumbers: [1, 2] });
+    const steps = buildMockExamSteps(plan, 'challenger', 'girl', 11, GRADE_7_EXAM_BANK);
+
+    expect(steps).toHaveLength(MOCK_EXAM_QUESTION_COUNT);
+    EXAM_SKILLS.forEach((skill) =>
+      expect(steps.filter((s) => s.skill === skill)).toHaveLength(MOCK_EXAM_QUESTION_COUNT / 4)
+    );
+    steps.forEach((s) => expect(isMockReserved(s.id)).toBe(true));
+    expect(new Set(steps.map((s) => s.id)).size).toBe(steps.length);
+  });
+
+  it('falls back to the mission questions for a unit the bank lacks', () => {
+    const plan = makePlan({ unitNumbers: [1, 2], skills: ['grammar'] });
+    const { 1: unitOne } = GRADE_7_EXAM_BANK;
+    const steps = buildMockExamSteps(plan, 'challenger', 'girl', 11, { 1: unitOne });
+
+    expect(steps.filter((s) => s.unitNumber === 1).every((s) => s.id.startsWith('exam-'))).toBe(true);
+    expect(steps.filter((s) => s.unitNumber === 2).every((s) => s.id.startsWith('g7-u2-'))).toBe(true);
   });
 });
 

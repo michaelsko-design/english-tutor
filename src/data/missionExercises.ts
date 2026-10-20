@@ -61,19 +61,24 @@ export function getExercisesForMission(
   salt: number = 0
 ): MissionExerciseStep[] {
   const steps = getRawExercisesForMission(mission, tier, gender);
-  return steps.map((step) => {
-    const seedKey = `${mission.id}|${tier}|${step.id}|${salt}`;
-    const targetKey = step.targetSentenceEn
-      ? step.targetSentenceEn.replace(/[.!?",]/g, '').split(/\s+/).filter(Boolean).join('\u0000')
-      : undefined;
-    return {
-      ...step,
-      options: step.options ? seededShuffle(step.options, seedKey) : undefined,
-      scrambledWords: step.scrambledWords
-        ? seededShuffleNotIdentity(step.scrambledWords, `${seedKey}|words`, targetKey)
-        : undefined,
-    };
-  });
+  return steps.map((step) => shuffleStepChoices(step, `${mission.id}|${tier}|${step.id}|${salt}`));
+}
+
+/**
+ * Shuffles a step's answer options and word chips with `seedKey`. The chips never come out in
+ * the answer's own order.
+ */
+export function shuffleStepChoices<T extends MissionExerciseStep>(step: T, seedKey: string): T {
+  const targetKey = step.targetSentenceEn
+    ? step.targetSentenceEn.replace(/[.!?",]/g, '').split(/\s+/).filter(Boolean).join('\u0000')
+    : undefined;
+  return {
+    ...step,
+    options: step.options ? seededShuffle(step.options, seedKey) : undefined,
+    scrambledWords: step.scrambledWords
+      ? seededShuffleNotIdentity(step.scrambledWords, `${seedKey}|words`, targetKey)
+      : undefined,
+  };
 }
 
 function getRawExercisesForMission(
