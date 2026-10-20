@@ -29,7 +29,8 @@ interface MissionIntroProps {
   onClose: () => void;
 }
 
-export const INTRO_COMPANION_SIZE = 120;
+/** Small enough that the intro fits a phone screen without scrolling */
+export const INTRO_COMPANION_SIZE = 96;
 
 /**
  * Feature 25: the mission start. The companion waves, the mission is introduced and the tier
@@ -50,7 +51,7 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
   const isGirl = gender === 'girl';
   const minutes = mission.estimatedMinutes + (lessonOffer === 'auto' ? LESSON_MINUTES : 0);
   return (
-    <div className="relative px-4 sm:px-8 pt-4 pb-6 space-y-5">
+    <div className="relative px-4 sm:px-8 pt-4 pb-5 space-y-4">
       <button
         type="button"
         onClick={onClose}
@@ -60,7 +61,7 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
         <X className="w-4 h-4" />
       </button>
 
-      <div className="flex flex-col items-center text-center gap-2 pt-2">
+      <div className="flex flex-col items-center text-center gap-1.5 pt-1">
         <Companion theme={theme} pose="wave" size={INTRO_COMPANION_SIZE} />
         <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
           {mission.isBoss ? '👑 משימת בוס · ' : ''}
@@ -85,7 +86,13 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
         </p>
       </div>
 
-      <TierChoice tier={tier} onChangeTier={onChangeTier} gender={gender} theme={theme} />
+      {/* Phones get the three tiers as one row of chips, so Start is on screen without scrolling */}
+      <div className="sm:hidden">
+        <TierChoice tier={tier} onChangeTier={onChangeTier} gender={gender} theme={theme} isCompact />
+      </div>
+      <div className="hidden sm:block">
+        <TierChoice tier={tier} onChangeTier={onChangeTier} gender={gender} theme={theme} />
+      </div>
 
       {lessonOffer === 'optional' && (
         <button
