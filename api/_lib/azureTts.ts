@@ -3,14 +3,22 @@
  * (scripts/tts/renderClips.ts). Voices and prosody live here only, so changing a voice is one edit
  * (and a re-render of the clips).
  */
-import type { TtsSpeed } from '../../src/services/tts/ttsText.js';
+import { splitLangRuns, type ClipVoice, type TtsSpeed } from '../../src/services/tts/ttsText.js';
 
-export type TtsVoiceId = 'female' | 'male';
+export type TtsVoiceId = ClipVoice;
 
+/**
+ * Hebrew is read by a multilingual voice: it speaks the Hebrew and switches to native English for
+ * the English words inside an instruction ("מעולה! cat פירושו חתול"). Chosen by ear over
+ * he-IL-HilaNeural, which reads those words with a Hebrew accent.
+ */
 export const AZURE_VOICE_NAMES: Record<TtsVoiceId, string> = {
   female: 'en-US-JennyNeural',
   male: 'en-US-GuyNeural',
+  'he-female': 'en-US-AvaMultilingualNeural',
 };
+
+const XML_LANG = { en: 'en-US', he: 'he-IL' } as const;
 
 const PROSODY_RATE: Record<TtsSpeed, string> = {
   normal: '-8%',
@@ -46,12 +54,24 @@ export function escapeXml(text: string): string {
     .replace(/'/g, '&apos;');
 }
 
+/** Hebrew text as <lang> runs, so the multilingual voice switches language at each English word. */
+function buildHebrewBody(text: string, speed: TtsSpeed): string {
+  return splitLangRuns(text)
+    .map(
+      (run) =>
+        `<lang xml:lang="${XML_LANG[run.lang]}"><prosody rate="${PROSODY_RATE[speed]}">${escapeXml(run.text)}</prosody></lang>`,
+    )
+    .join('');
+}
+
 export function buildSsml(text: string, voice: TtsVoiceId, speed: TtsSpeed): string {
+  const isHebrew = voice === 'he-female';
+  const body = isHebrew ? buildHebrewBody(text, speed) : `<prosody rate="${PROSODY_RATE[speed]}">${escapeXml(text)}</prosody>`;
   return (
-    `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">` +
+    `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${isHebrew ? XML_LANG.he : XML_LANG.en}">` +
     `<voice name="${AZURE_VOICE_NAMES[voice]}">` +
     `<break time="${LEADING_BREAK_MS}ms"/>` +
-    `<prosody rate="${PROSODY_RATE[speed]}">${escapeXml(text)}</prosody>` +
+    body +
     `</voice></speak>`
   );
 }

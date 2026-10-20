@@ -15,62 +15,14 @@ import { WARDROBE_ITEMS } from '../../src/data/wardrobe';
 import { VOICE_MESSAGES } from '../../src/data/voiceMessages';
 import { DREAM_FRAMES } from '../../src/data/dreamJournal';
 import { DEMO_SENTENCE, DEMO_SENTENCE_RATE } from '../../src/services/tts/demoPhrases';
-import {
-  getClipKey,
-  getClipSpeed,
-  getClipText,
-  getSpeedBucket,
-  isCloudSpeakable,
-  MAX_CLIP_CHARS,
-  toSpeakableText,
-  type TtsSpeed,
-} from '../../src/services/tts/ttsText';
+import { HEBREW_VOICE, isCloudSpeakable, type ClipVoice } from '../../src/services/tts/ttsText';
+import { CorpusBuilder, type CorpusPhrase } from './corpusBuilder';
+import { buildHebrewCorpus } from './hebrewCorpus';
+
+export type { CorpusPhrase } from './corpusBuilder';
 import type { ProficiencyTier } from '../../src/types/learner';
 
-export interface CorpusPhrase {
-  key: string;
-  text: string;
-  speed: TtsSpeed;
-}
-
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
-/** Single words are read slowly in the vault, voice drills and games, so they get a slow clip too. */
-const SLOW_RATE = 0.7;
-const NORMAL_RATE = 0.95;
-
-class CorpusBuilder {
-  private readonly phrases = new Map<string, CorpusPhrase>();
-  readonly skipped: string[] = [];
-
-  add(rawText: string | undefined, rate = NORMAL_RATE): void {
-    if (!rawText) return;
-    const text = getClipText(toSpeakableText(rawText));
-    if (!isCloudSpeakable(text, MAX_CLIP_CHARS)) {
-      this.skipped.push(text);
-      return;
-    }
-    const speed = getClipSpeed(text, getSpeedBucket(rate));
-    const key = getClipKey(text, speed);
-    if (!this.phrases.has(key)) this.phrases.set(key, { key, text, speed });
-  }
-
-  /** A sentence plus each of its words (voice drill words are tapped one by one). */
-  addSentenceAndWords(sentence: string | undefined): void {
-    if (!sentence) return;
-    this.add(sentence);
-    sentence.split(/\s+/).forEach((word) => this.addWord(word));
-  }
-
-  /** A word at normal speed and slowly. */
-  addWord(word: string | undefined): void {
-    this.add(word, NORMAL_RATE);
-    this.add(word, SLOW_RATE);
-  }
-
-  list(): CorpusPhrase[] {
-    return [...this.phrases.values()].sort((a, b) => a.key.localeCompare(b.key));
-  }
-}
 
 function addCurriculum(corpus: CorpusBuilder): void {
   for (const pack of Object.values(CURRICULUM_BY_GRADE)) {
@@ -155,8 +107,8 @@ function addRoom(corpus: CorpusBuilder): void {
     .forEach((frame) => frame.blanks.flat().forEach((word) => corpus.add(word.en, 0.9)));
 }
 
-function buildCorpus(): CorpusBuilder {
-  const corpus = new CorpusBuilder();
+function buildEnglishCorpus(): CorpusBuilder {
+  const corpus = new CorpusBuilder(isCloudSpeakable);
   addCurriculum(corpus);
   addMiniLessons(corpus);
   addExamBanks(corpus);
@@ -165,13 +117,18 @@ function buildCorpus(): CorpusBuilder {
   return corpus;
 }
 
-export function collectCorpus(): CorpusPhrase[] {
-  return buildCorpus().list();
+function buildCorpus(voice: ClipVoice): CorpusBuilder {
+  return voice === HEBREW_VOICE ? buildHebrewCorpus() : buildEnglishCorpus();
+}
+
+/** The phrases a voice has clips for: the English corpus for female and male, the Hebrew one for he-female. */
+export function collectCorpus(voice: ClipVoice = 'female'): CorpusPhrase[] {
+  return buildCorpus(voice).list();
 }
 
 /** Fixed text the app reads aloud that gets no clip (not plain English), so the device voice reads it. */
-export function collectSkippedPhrases(): string[] {
-  return [...new Set(buildCorpus().skipped)].sort();
+export function collectSkippedPhrases(voice: ClipVoice = 'female'): string[] {
+  return [...new Set(buildCorpus(voice).skipped)].sort();
 }
 
 /** 48 kbps MP3 is 6 KB a second; speech runs about 14 characters a second, plus the leading break and a tail. */

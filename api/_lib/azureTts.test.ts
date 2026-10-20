@@ -14,6 +14,16 @@ describe('buildSsml', () => {
     expect(ssml).toContain('<break time="200ms"/>');
     expect(ssml).toContain('<prosody rate="-30%">Hi &amp; bye</prosody>');
   });
+
+  it('reads Hebrew with the multilingual voice and switches to English for English words', () => {
+    const ssml = buildSsml('מעולה! cat פירושו "חתול".', 'he-female', 'normal');
+    expect(ssml).toContain('xml:lang="he-IL"><voice name="en-US-AvaMultilingualNeural">');
+    expect(ssml).toContain('<lang xml:lang="he-IL"><prosody rate="-8%">מעולה! </prosody></lang>');
+    expect(ssml).toContain('<lang xml:lang="en-US"><prosody rate="-8%">cat</prosody></lang>');
+    // Quotes are escaped after splitting, so "quot" is never read as an English word
+    expect(ssml).toContain('&quot;חתול&quot;.');
+    expect(ssml).not.toContain('<lang xml:lang="en-US"><prosody rate="-8%">quot');
+  });
 });
 
 describe('readAzureConfig', () => {

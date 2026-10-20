@@ -77,15 +77,22 @@ export function describeVoices(preference: VoicePreference): { picked: string | 
   };
 }
 
+/** The device's Hebrew voice, or null when it has none (most desktops; then nothing is read). */
+export function pickHebrewVoice<T extends VoiceInfo>(voices: readonly T[]): T | null {
+  return voices.find((voice) => /^(he|iw)([-_]|$)/i.test(voice.lang)) ?? null;
+}
+
 /** Reads the text with the device's own voice; resolves when it ends, fails or is stopped. */
 export function speakWithVoice(
   text: string,
   rate: number,
   preference: VoicePreference,
   onStart?: () => void,
+  lang: 'en' | 'he' = 'en',
 ): Promise<void> {
   if (!isDeviceVoiceAvailable()) return Promise.resolve();
   window.speechSynthesis.cancel();
+  if (lang === 'he') return speakHebrewWithDevice(text, rate, onStart);
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'en-US';
   utterance.rate = rate;
@@ -95,6 +102,22 @@ export function speakWithVoice(
     utterance.lang = voice.lang;
   }
   utterance.pitch = getFallbackPitch(preference, voice !== null);
+  return new Promise((resolve) => {
+    utterance.onstart = () => onStart?.();
+    utterance.onend = () => resolve();
+    utterance.onerror = () => resolve();
+    window.speechSynthesis.speak(utterance);
+  });
+}
+
+function speakHebrewWithDevice(text: string, rate: number, onStart?: () => void): Promise<void> {
+  const voice = pickHebrewVoice(loadVoices());
+  // An English voice would spell the Hebrew out letter by letter, so without a Hebrew voice it stays silent.
+  if (!voice) return Promise.resolve();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.voice = voice;
+  utterance.lang = voice.lang;
+  utterance.rate = rate;
   return new Promise((resolve) => {
     utterance.onstart = () => onStart?.();
     utterance.onend = () => resolve();

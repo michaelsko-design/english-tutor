@@ -6,7 +6,7 @@ import { buildLiveTtsQuery } from '../src/services/tts/ttsText';
 const ENV = { AZURE_SPEECH_KEY: 'secret', AZURE_SPEECH_REGION: 'westeurope', TTS_AUTH: 'off' };
 const AUTH_ENV = { AZURE_SPEECH_KEY: 'secret', AZURE_SPEECH_REGION: 'westeurope' };
 const request = (query: string) => new Request(`https://app.test/api/tts?${query}`);
-const canonical = (text: string, voice: 'female' | 'male' = 'female', speed: 'normal' | 'slow' = 'normal') =>
+const canonical = (text: string, voice: 'female' | 'male' | 'he-female' = 'female', speed: 'normal' | 'slow' = 'normal') =>
   new Request(`https://app.test/api/tts${buildLiveTtsQuery(text, voice, speed)}`);
 
 describe('handleTtsRequest sign-in check', () => {
@@ -84,6 +84,13 @@ describe('handleTtsRequest', () => {
     const response = await handleTtsRequest(request('a=1&v=female&s=normal&t=%D7%A9%D7%9C%D7%95%D7%9D'), ENV, fetchImpl);
     expect(response.status).toBe(400);
     expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('reads Hebrew only with the Hebrew voice, and English only with the English voices', async () => {
+    const fetchImpl = vi.fn(async () => new Response(new Uint8Array([7]), { status: 200 }));
+    expect((await handleTtsRequest(canonical('כל הכבוד, נועה!', 'he-female'), ENV, fetchImpl as typeof fetch)).status).toBe(200);
+    expect((await handleTtsRequest(canonical('hello', 'he-female'), ENV, fetchImpl as typeof fetch)).status).toBe(400);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
   it('rejects an unknown voice or speed', async () => {

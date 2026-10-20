@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getFallbackPitch, pickVoice, type VoiceInfo } from './ttsVoice';
+import { getFallbackPitch, pickHebrewVoice, pickVoice, type VoiceInfo } from './ttsVoice';
 
 describe('getFallbackPitch', () => {
   it('leaves the pitch alone when a matching voice was found', () => {
@@ -63,5 +63,13 @@ describe('pickVoice', () => {
 
   it('does not treat a female voice as male', () => {
     expect(pickVoice([v('Google UK English Female', 'en-GB')], 'male')).toBeNull();
+  });
+});
+
+describe('pickHebrewVoice', () => {
+  it('finds a Hebrew device voice (he or the old iw code), or none', () => {
+    expect(pickHebrewVoice([{ name: 'Zira', lang: 'en-US' }, { name: 'Carmit', lang: 'he-IL' }])?.name).toBe('Carmit');
+    expect(pickHebrewVoice([{ name: 'Google עברית', lang: 'iw_IL' }])?.name).toBe('Google עברית');
+    expect(pickHebrewVoice([{ name: 'Zira', lang: 'en-US' }])).toBeNull();
   });
 });

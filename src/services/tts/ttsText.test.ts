@@ -6,6 +6,9 @@ import {
   getClipText,
   getSpeedBucket,
   isCloudSpeakable,
+  isHebrewSpeakable,
+  isSpeakableBy,
+  splitLangRuns,
   MAX_TTS_CHARS,
   normalizeTtsText,
   toSpeakableText,
@@ -100,5 +103,41 @@ describe('buildLiveTtsQuery', () => {
     const query = buildLiveTtsQuery("Don't stop (now)!", 'male', 'normal');
     expect(new URL(`https://app.test/api/tts${query}`).search).toBe(query);
     expect(new URL(`https://app.test/api/tts${query}`).searchParams.get('t')).toBe("Don't stop (now)!");
+  });
+});
+
+describe('isHebrewSpeakable', () => {
+  it('accepts Hebrew with English words, quotes and Hebrew punctuation', () => {
+    expect(isHebrewSpeakable('מעולה! cat פירושו "חתול".')).toBe(true);
+    expect(isHebrewSpeakable('כיתה א׳ — מתחילים!')).toBe(true);
+  });
+
+  it('refuses text without Hebrew, unsupported characters or too long', () => {
+    expect(isHebrewSpeakable('hello')).toBe(false);
+    expect(isHebrewSpeakable('שלום <b>')).toBe(false);
+    expect(isHebrewSpeakable('א'.repeat(MAX_TTS_CHARS + 1))).toBe(false);
+  });
+
+  it('is what the Hebrew voice reads, while the English voices read English', () => {
+    expect(isSpeakableBy('he-female', 'שלום')).toBe(true);
+    expect(isSpeakableBy('he-female', 'hello')).toBe(false);
+    expect(isSpeakableBy('female', 'שלום')).toBe(false);
+  });
+});
+
+describe('splitLangRuns', () => {
+  it('splits Hebrew text into Hebrew and English runs', () => {
+    expect(splitLangRuns('A כמו apple. B כמו ball.')).toEqual([
+      { lang: 'en', text: 'A' },
+      { lang: 'he', text: ' כמו ' },
+      { lang: 'en', text: 'apple. B' },
+      { lang: 'he', text: ' כמו ' },
+      { lang: 'en', text: 'ball' },
+      { lang: 'he', text: '.' },
+    ]);
+  });
+
+  it('keeps a Hebrew-only text as one run', () => {
+    expect(splitLangRuns('שימו לב!')).toEqual([{ lang: 'he', text: 'שימו לב!' }]);
   });
 });

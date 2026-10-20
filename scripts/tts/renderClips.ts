@@ -1,6 +1,6 @@
 /**
  * Renders the read-aloud clips with Azure Neural voices into public/tts/<voice>/<key>.mp3 and
- * writes public/tts/manifest.json: `npm run tts:render -- [--voice female|male] [--limit N]`.
+ * writes public/tts/manifest.json: `npm run tts:render -- [--voice female|male|he-female] [--limit N]`.
  * It skips clips already on disk, so a stopped run continues where it left off. Needs
  * AZURE_SPEECH_KEY and AZURE_SPEECH_REGION in .env.local.
  */
@@ -8,8 +8,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadEnv } from 'vite';
 import { AzureTtsError, readAzureConfig, synthesize, type AzureConfig } from '../../api/_lib/azureTts';
-import { isTtsVoice } from '../../src/services/tts/ttsText';
-import type { VoicePreference } from '../../src/utils/ttsVoice';
+import { isTtsVoice, type ClipVoice } from '../../src/services/tts/ttsText';
 import { collectCorpus, type CorpusPhrase } from './corpus';
 import { getVoiceDir, listRenderedKeys, writeManifest } from './clipManifest';
 
@@ -27,7 +26,7 @@ function readArg(name: string): string | undefined {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function renderOne(phrase: CorpusPhrase, voice: VoicePreference, config: AzureConfig): Promise<boolean> {
+async function renderOne(phrase: CorpusPhrase, voice: ClipVoice, config: AzureConfig): Promise<boolean> {
   let backoff = FIRST_BACKOFF_MS;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
     try {
@@ -50,14 +49,18 @@ async function renderOne(phrase: CorpusPhrase, voice: VoicePreference, config: A
 
 async function main(): Promise<void> {
   const voiceArg = readArg('voice') ?? 'female';
-  if (!isTtsVoice(voiceArg)) throw new Error(`Unknown voice "${voiceArg}"; use female or male.`);
-  const voice: VoicePreference = voiceArg;
+  if (!isTtsVoice(voiceArg)) throw new Error(`Unknown voice "${voiceArg}"; use female, male or he-female.`);
+  const voice: ClipVoice = voiceArg;
   const limit = Number(readArg('limit') ?? Infinity);
   const config = readAzureConfig(loadEnv('development', process.cwd(), 'AZURE_'));
   if (!config) throw new Error('Set AZURE_SPEECH_KEY and AZURE_SPEECH_REGION in .env.local.');
 
-  const corpus = collectCorpus();
-  const corpusKeys = new Set(corpus.map((phrase) => phrase.key));
+  const corpus = collectCorpus(voice);
+  const keyCache = new Map<ClipVoice, Set<string>>([[voice, new Set(corpus.map((phrase) => phrase.key))]]);
+  const corpusKeys = (v: ClipVoice) => {
+    if (!keyCache.has(v)) keyCache.set(v, new Set(collectCorpus(v).map((phrase) => phrase.key)));
+    return keyCache.get(v) as Set<string>;
+  };
   mkdirSync(getVoiceDir(voice), { recursive: true });
   const existing = listRenderedKeys(voice);
   const todo = corpus.filter((phrase) => !existing.has(phrase.key)).slice(0, limit);

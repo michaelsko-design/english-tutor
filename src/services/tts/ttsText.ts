@@ -6,7 +6,15 @@ import type { VoicePreference } from '../../utils/ttsVoice';
 
 export type TtsSpeed = 'normal' | 'slow';
 
-export const TTS_VOICES: readonly VoicePreference[] = ['female', 'male'];
+/** The language a phrase is read in; Hebrew has one voice whatever the English voice choice is. */
+export type TtsLang = 'en' | 'he';
+
+/** A rendered clip voice: the two English voices and the Hebrew voice (public/tts/v<N>/<voice>/). */
+export type ClipVoice = VoicePreference | 'he-female';
+
+export const HEBREW_VOICE = 'he-female' satisfies ClipVoice;
+
+export const TTS_VOICES: readonly ClipVoice[] = ['female', 'male', HEBREW_VOICE];
 
 /**
  * The version of the rendered sound (voices and SSML in api/_lib/azureTts.ts). Clips and online
@@ -31,6 +39,12 @@ export const CLIP_BASE_RATE = 0.95;
 const EDGE_PUNCTUATION = /^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu;
 /** English text: Latin letters (café, naïve), digits, punctuation and the + of grammar formulas. */
 const CLOUD_SPEAKABLE = /^[\p{Script=Latin}0-9 .,!?'’"“”\-–—:;()&%$/+]+$/u;
+
+const HEBREW_LETTER = /[א-ת]/;
+/** Hebrew text: Hebrew letters and points, Latin runs (an English word in an instruction), digits and punctuation. */
+const HEBREW_SPEAKABLE = /^[֐-׿\p{Script=Latin}0-9 .,!?'’"“”״׳\-–—:;()&%/+…]+$/u;
+/** An English run inside Hebrew text: Latin words joined by spaces, commas, periods or hyphens. */
+const LATIN_RUN = /[A-Za-z][A-Za-z0-9'’]*(?:[ ,.-]+[A-Za-z0-9'’]+)*/g;
 
 /** Blanks are read as "blank" and emoji are stripped so the voice doesn't read them out. */
 export function toSpeakableText(text: string): string {
@@ -71,6 +85,41 @@ export function isCloudSpeakable(text: string, maxChars = MAX_TTS_CHARS): boolea
   );
 }
 
+/** Whether the Hebrew voice accepts the text: it has Hebrew letters, at most `maxChars` (MAX_TTS_CHARS). */
+export function isHebrewSpeakable(text: string, maxChars = MAX_TTS_CHARS): boolean {
+  const normalized = normalizeTtsText(text);
+  return (
+    normalized.length > 0 &&
+    normalized.length <= maxChars &&
+    HEBREW_LETTER.test(normalized) &&
+    HEBREW_SPEAKABLE.test(normalized)
+  );
+}
+
+/** Whether a voice can read the text: Hebrew for the Hebrew voice, plain English for the others. */
+export function isSpeakableBy(voice: ClipVoice, text: string, maxChars = MAX_TTS_CHARS): boolean {
+  return voice === HEBREW_VOICE ? isHebrewSpeakable(text, maxChars) : isCloudSpeakable(text, maxChars);
+}
+
+export interface LangRun {
+  lang: TtsLang;
+  text: string;
+}
+
+/** Splits Hebrew text into Hebrew and English runs, so the multilingual voice reads "cat" in English. */
+export function splitLangRuns(text: string): LangRun[] {
+  const runs: LangRun[] = [];
+  let last = 0;
+  for (const match of text.matchAll(LATIN_RUN)) {
+    const start = match.index ?? 0;
+    if (start > last) runs.push({ lang: 'he', text: text.slice(last, start) });
+    runs.push({ lang: 'en', text: match[0] });
+    last = start + match[0].length;
+  }
+  if (last < text.length) runs.push({ lang: 'he', text: text.slice(last) });
+  return runs.filter((run) => run.text.trim().length > 0);
+}
+
 export function getSpeedBucket(rate: number): TtsSpeed {
   return rate <= SLOW_RATE_MAX ? 'slow' : 'normal';
 }
@@ -80,8 +129,8 @@ export function getClipSpeed(text: string, speed: TtsSpeed): TtsSpeed {
   return speed === 'slow' && isSingleWord(text) ? 'slow' : 'normal';
 }
 
-export function isTtsVoice(value: unknown): value is VoicePreference {
-  return value === 'female' || value === 'male';
+export function isTtsVoice(value: unknown): value is ClipVoice {
+  return value === 'female' || value === 'male' || value === HEBREW_VOICE;
 }
 
 export function isTtsSpeed(value: unknown): value is TtsSpeed {
@@ -112,7 +161,7 @@ export function getClipKey(text: string, speed: TtsSpeed): string {
  * The one URL query the online voice accepts for a phrase. The server rejects any other spelling
  * (extra parameters, another order or encoding), so each phrase has one CDN cache entry.
  */
-export function buildLiveTtsQuery(text: string, voice: VoicePreference, speed: TtsSpeed): string {
+export function buildLiveTtsQuery(text: string, voice: ClipVoice, speed: TtsSpeed): string {
   return `?a=${TTS_AUDIO_VERSION}&v=${voice}&s=${speed}&t=${encodeQueryValue(normalizeTtsText(text))}`;
 }
 

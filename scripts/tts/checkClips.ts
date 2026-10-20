@@ -1,17 +1,23 @@
-/** Lists corpus phrases with no rendered clip: `npm run tts:check -- [--voice female|male]`. */
+/** Lists corpus phrases with no rendered clip: `npm run tts:check -- [--voice female|male|he-female]`. */
 import { collectCorpus, collectSkippedPhrases } from './corpus';
 import { readManifest } from './clipManifest';
+import { HEBREW_VOICE, isTtsVoice } from '../../src/services/tts/ttsText';
 
 const HEBREW = /[֐-׿]/;
 const LATIN_LETTER = /\p{Script=Latin}/u;
 
 const index = process.argv.indexOf('--voice');
-const voice = index >= 0 ? process.argv[index + 1] : 'female';
+const voiceArg = index >= 0 ? process.argv[index + 1] : 'female';
+if (!isTtsVoice(voiceArg)) throw new Error(`Unknown voice "${voiceArg}"; use female, male or he-female.`);
+const voice = voiceArg;
 const manifest = readManifest();
-const rendered = new Set(manifest?.voices[voice as 'female' | 'male'] ?? []);
-const missing = collectCorpus().filter((phrase) => !rendered.has(phrase.key));
-// Text with Hebrew is meant for the device voice; English left out of the corpus is a gap.
-const skippedEnglish = collectSkippedPhrases().filter((text) => LATIN_LETTER.test(text) && !HEBREW.test(text));
+const rendered = new Set(manifest?.voices[voice] ?? []);
+const missing = collectCorpus(voice).filter((phrase) => !rendered.has(phrase.key));
+// English corpus: text with Hebrew is for the Hebrew voice; English left out is a gap.
+// Hebrew corpus: anything left out (an unsupported character, too long) is a gap.
+const skippedEnglish = collectSkippedPhrases(voice).filter((text) =>
+  voice === HEBREW_VOICE ? true : LATIN_LETTER.test(text) && !HEBREW.test(text),
+);
 
 if (skippedEnglish.length > 0) {
   skippedEnglish.forEach((text) => console.log(`  skipped: ${text.slice(0, 80)}`));

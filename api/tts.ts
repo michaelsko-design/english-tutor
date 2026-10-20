@@ -1,6 +1,6 @@
 /**
- * GET /api/tts?a=<version>&v=<female|male>&s=<normal|slow>&t=<text>: Azure Neural speech for text that has no
- * rendered clip (word lists, sticker names, dreams, the male voice). The CDN caches each answer by
+ * GET /api/tts?a=<version>&v=<female|male|he-female>&s=<normal|slow>&t=<text>: Azure Neural speech for text that has no
+ * rendered clip (word lists, sticker names, dreams, the male voice, Hebrew with the learner's name). The CDN caches each answer by
  * URL for a year, so a phrase is synthesized once for everyone. The F0 key can't be billed: over
  * quota Azure answers 429 and the app uses the device voice.
  */
@@ -8,7 +8,7 @@
 import { AzureTtsError, readAzureConfig, synthesize } from './_lib/azureTts.js';
 import { verifyAppCheckToken } from './_lib/appCheckToken.js';
 import { verifyFirebaseIdToken } from './_lib/firebaseToken.js';
-import { APP_CHECK_HEADER, TTS_TOKEN_HEADER, buildLiveTtsQuery, isCloudSpeakable, isTtsSpeed, isTtsVoice } from '../src/services/tts/ttsText.js';
+import { APP_CHECK_HEADER, TTS_TOKEN_HEADER, buildLiveTtsQuery, isSpeakableBy, isTtsSpeed, isTtsVoice } from '../src/services/tts/ttsText.js';
 
 const AZURE_TIMEOUT_MS = 8_000;
 const DEFAULT_FIREBASE_PROJECT_ID = 'english-tutor-il-7';
@@ -40,7 +40,7 @@ export async function handleTtsRequest(
   const text = url.searchParams.get('t') ?? '';
   const voice = url.searchParams.get('v');
   const speed = url.searchParams.get('s');
-  if (!isCloudSpeakable(text) || !isTtsVoice(voice) || !isTtsSpeed(speed)) {
+  if (!isTtsVoice(voice) || !isSpeakableBy(voice, text) || !isTtsSpeed(speed)) {
     return errorResponse(400, 'Unsupported text, voice or speed');
   }
   // Only the canonical request is served (the parameters a, v, s, t in that order, the current

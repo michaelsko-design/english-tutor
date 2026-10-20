@@ -46,12 +46,13 @@ class FakeCaches {
   }
 }
 
-const manifestWith = (keys: string[]) => new Response(JSON.stringify({ version: 1, voices: { female: keys } }));
+const manifestWith = (keys: string[], hebrewKeys: string[] = []) =>
+  new Response(JSON.stringify({ version: 1, voices: { female: keys, 'he-female': hebrewKeys } }));
 const mp3 = () => new Response(new Uint8Array([1, 2, 3]), { status: 200, headers: { 'Content-Type': 'audio/mpeg' } });
 const html = () => new Response('<!doctype html>', { status: 200, headers: { 'Content-Type': 'text/html' } });
 
 function setup(
-  options: { clipKeys?: string[]; liveStatus?: number; manifestFails?: number; clipsAreHtml?: boolean; authToken?: string; appCheckToken?: string } = {}
+  options: { clipKeys?: string[]; hebrewClipKeys?: string[]; liveStatus?: number; manifestFails?: number; clipsAreHtml?: boolean; authToken?: string; appCheckToken?: string } = {}
 ) {
   let manifestFailures = options.manifestFails ?? 0;
   const audio = new FakeAudio();
@@ -68,7 +69,7 @@ function setup(
         manifestFailures -= 1;
         throw new TypeError('Failed to fetch');
       }
-      return manifestWith(options.clipKeys ?? []);
+      return manifestWith(options.clipKeys ?? [], options.hebrewClipKeys ?? []);
     }
     if (url.startsWith('/tts/')) return options.clipsAreHtml ? html() : mp3();
     if (url.startsWith('/api/tts')) return options.liveStatus ? new Response('', { status: options.liveStatus }) : mp3();
@@ -101,6 +102,28 @@ const liveCalls = (fetchMock: ReturnType<typeof setup>['fetchMock']) =>
   fetchMock.mock.calls.filter(([url]) => String(url).startsWith('/api/tts')).length;
 
 describe('hybrid read-aloud service', () => {
+  it('reads Hebrew from the Hebrew clip folder, whatever the English voice is', async () => {
+    const text = 'בחרי את התשובה הנכונה:';
+    const { service, fetchMock } = setup({ hebrewClipKeys: [getClipKey(text, 'normal')] });
+    let engine: TtsEngine | null = null;
+    await service.speak(text, { voice: 'male', lang: 'he', onPlaybackStart: (e) => (engine = e) });
+    expect(engine).toBe('clip');
+    expect(fetchMock).toHaveBeenCalledWith(expect.stringMatching(/^\/tts\/v\d+\/he-female\/.+\.mp3$/), expect.anything());
+  });
+
+  it('reads Hebrew without a clip with the online Hebrew voice, then the device Hebrew voice', async () => {
+    const { service, fetchMock, device } = setup();
+    let engine: TtsEngine | null = null;
+    await service.speak('כל הכבוד, נועה!', { lang: 'he', onPlaybackStart: (e) => (engine = e) });
+    expect(engine).toBe('live');
+    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/api/tts?a=1&v=he-female&'), expect.anything());
+
+    const offline = setup({ liveStatus: 503 });
+    await offline.service.speak('כל הכבוד, נועה!', { lang: 'he' });
+    expect(offline.device.speak).toHaveBeenCalledWith('כל הכבוד, נועה!', expect.objectContaining({ lang: 'he' }));
+    expect(device.speak).not.toHaveBeenCalled();
+  });
+
   it('plays a rendered clip when the manifest has it', async () => {
     const { service, fetchMock, device } = setup({ clipKeys: [getClipKey('school', 'normal')] });
     expect(await engineOf(service, 'School.')).toBe('clip');

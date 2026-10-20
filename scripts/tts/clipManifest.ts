@@ -1,7 +1,7 @@
 /** Reads and writes public/tts/manifest.json, the clip keys rendered for each voice. */
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { TTS_AUDIO_VERSION, TTS_VOICES } from '../../src/services/tts/ttsText';
+import { TTS_AUDIO_VERSION, TTS_VOICES, type ClipVoice } from '../../src/services/tts/ttsText';
 import type { ClipManifest } from '../../src/services/tts/clipManifestTypes';
 
 export const TTS_PUBLIC_DIR = join(process.cwd(), 'public', 'tts');
@@ -22,10 +22,14 @@ export function listRenderedKeys(voice: string): Set<string> {
   );
 }
 
-/** Writes the manifest from the files on disk, keeping only keys that are still in the corpus. */
-export function writeManifest(corpusKeys: ReadonlySet<string>): ClipManifest {
+/**
+ * Writes the manifest from the files on disk, keeping only keys that are still in that voice's
+ * corpus (the English one for female and male, the Hebrew one for he-female).
+ */
+export function writeManifest(getCorpusKeys: (voice: ClipVoice) => ReadonlySet<string>): ClipManifest {
   const manifest: ClipManifest = { version: 1, voices: {} };
   for (const voice of TTS_VOICES) {
+    const corpusKeys = getCorpusKeys(voice);
     const keys = [...listRenderedKeys(voice)].filter((key) => corpusKeys.has(key)).sort();
     if (keys.length > 0) manifest.voices[voice] = keys;
   }

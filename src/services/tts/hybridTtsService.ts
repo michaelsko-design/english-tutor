@@ -5,17 +5,19 @@
  * 3. the device's own voice when offline, over quota, too slow or for other text.
  * Each new speak() stops the previous one, since learners tap word chips quickly.
  */
-import { DEFAULT_VOICE_PREFERENCE, type VoicePreference } from '../../utils/ttsVoice';
+import { DEFAULT_VOICE_PREFERENCE } from '../../utils/ttsVoice';
 import { CLIP_MANIFEST_URL, getClipUrl, type ClipManifest } from './clipManifestTypes';
 import {
   APP_CHECK_HEADER,
+  HEBREW_VOICE,
+  isSpeakableBy,
+  type ClipVoice,
   TTS_TOKEN_HEADER,
   buildLiveTtsQuery,
   CLIP_BASE_RATE,
   getClipKey,
   getClipSpeed,
   getSpeedBucket,
-  isCloudSpeakable,
   normalizeTtsText,
   toSpeakableText,
 } from './ttsText';
@@ -59,14 +61,14 @@ function isAudioResponse(response: Response): boolean {
 }
 
 export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService & { preload(): void } {
-  let manifestPromise: Promise<Map<VoicePreference, Set<string>> | null> | null = null;
+  let manifestPromise: Promise<Map<ClipVoice, Set<string>> | null> | null = null;
   let requestId = 0;
   let abortController: AbortController | null = null;
   let revokeCurrent: (() => void) | undefined;
   let livePausedUntil = 0;
   let finishCurrent: (() => void) | undefined;
 
-  const fetchManifest = async (): Promise<Map<VoicePreference, Set<string>> | null> => {
+  const fetchManifest = async (): Promise<Map<ClipVoice, Set<string>> | null> => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), MANIFEST_TIMEOUT_MS);
     try {
@@ -74,8 +76,8 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
       if (!response.ok) return null;
       const manifest = (await response.json()) as ClipManifest;
       if (!manifest?.voices) return null;
-      const byVoice = new Map<VoicePreference, Set<string>>();
-      Object.entries(manifest.voices).forEach(([voice, keys]) => byVoice.set(voice as VoicePreference, new Set(keys)));
+      const byVoice = new Map<ClipVoice, Set<string>>();
+      Object.entries(manifest.voices).forEach(([voice, keys]) => byVoice.set(voice as ClipVoice, new Set(keys)));
       return byVoice;
     } finally {
       clearTimeout(timer);
@@ -117,7 +119,7 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
     await Promise.all(keys.slice(0, Math.max(0, keys.length - LIVE_CACHE_MAX_ENTRIES)).map((key) => cache.delete(key)));
   };
 
-  const findClip = async (text: string, voice: VoicePreference, rate: number, signal: AbortSignal): Promise<Playable | null> => {
+  const findClip = async (text: string, voice: ClipVoice, rate: number, signal: AbortSignal): Promise<Playable | null> => {
     const clips = (await loadManifest())?.get(voice);
     const speed = getClipSpeed(text, getSpeedBucket(rate));
     const key = getClipKey(text, speed);
@@ -129,8 +131,8 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
     return toPlayable(getClipUrl(voice, key), 'clip', speed === 'slow' ? 1 : rate / CLIP_BASE_RATE, signal);
   };
 
-  const fetchLive = async (text: string, voice: VoicePreference, rate: number, signal: AbortSignal): Promise<Playable | null> => {
-    if (!isCloudSpeakable(text) || deps.now() < livePausedUntil || !deps.isOnline()) return null;
+  const fetchLive = async (text: string, voice: ClipVoice, rate: number, signal: AbortSignal): Promise<Playable | null> => {
+    if (!isSpeakableBy(voice, text) || deps.now() < livePausedUntil || !deps.isOnline()) return null;
     const speed = getClipSpeed(text, getSpeedBucket(rate));
     const url = `/api/tts${buildLiveTtsQuery(text, voice, speed)}`;
     const playbackRate = speed === 'slow' ? 1 : rate / CLIP_BASE_RATE;
@@ -211,6 +213,8 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
     if (!text) return;
     const voice = options.voice ?? DEFAULT_VOICE_PREFERENCE;
     const rate = options.rate ?? DEFAULT_RATE;
+    const lang = options.lang ?? 'en';
+    const clipVoice: ClipVoice = lang === 'he' ? HEBREW_VOICE : voice;
     const controller = new AbortController();
     abortController = controller;
     const isCurrent = () => id === requestId;
@@ -221,7 +225,8 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
       // The online voice gets LIVE_TIMEOUT_MS; a slower answer is dropped for the device voice.
       const timer = setTimeout(() => controller.abort(), LIVE_TIMEOUT_MS);
       try {
-        playable = (await findClip(text, voice, rate, controller.signal)) ?? (await fetchLive(text, voice, rate, controller.signal));
+        playable = (await findClip(text, clipVoice, rate, controller.signal)) ??
+          (await fetchLive(text, clipVoice, rate, controller.signal));
       } catch {
         // A timeout, an abort or a network error falls through to the device voice.
         playable = null;
@@ -238,7 +243,7 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
       }
     }
     if (!isCurrent()) return;
-    await deps.device.speak(text, { rate, voice, onPlaybackStart: options.onPlaybackStart });
+    await deps.device.speak(text, { rate, voice, lang, onPlaybackStart: options.onPlaybackStart });
   };
 
   return {
