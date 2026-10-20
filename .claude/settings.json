@@ -1,4 +1,8 @@
 {
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": false,
+    "vercel-plugin@vercel": false
+  },
   "permissions": {
     "deny": [
       "Read(./.emulator-data/**)",
