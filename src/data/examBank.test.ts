@@ -102,7 +102,7 @@ describe('exam question bank (Feature 43)', () => {
     for (const { gradeId, bank } of BANKS) {
       expect(await loadExamBank(gradeId)).toBe(bank);
     }
-    expect(await loadExamBank('grade-1' as GradeId)).toBeNull();
+    expect(await loadExamBank('grade-13' as GradeId)).toBeNull();
   });
 
   it.each(BANKS)('grade $grade has every unit with full lists and two passages', ({ grade, bank }) => {
@@ -199,7 +199,7 @@ describe('exam question bank (Feature 43)', () => {
 });
 
 describe('buildBankSteps', () => {
-  const { gradeId, bank } = BANKS[0];
+  const { gradeId, bank } = BANKS.find((b) => b.grade === 7)!;
   const input = (overrides: Partial<BankStepInput>): BankStepInput => ({
     gradeId,
     unitNumber: 1,

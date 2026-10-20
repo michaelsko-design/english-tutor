@@ -32,6 +32,12 @@ export type {
 
 /** Grades with a bank; the others practise with their missions' questions. */
 export const EXAM_BANK_LOADERS: Partial<Record<number, () => Promise<ExamBankPack>>> = {
+  1: () => import('./curriculum/examBank/grade1').then((m) => m.GRADE_1_EXAM_BANK),
+  2: () => import('./curriculum/examBank/grade2').then((m) => m.GRADE_2_EXAM_BANK),
+  3: () => import('./curriculum/examBank/grade3').then((m) => m.GRADE_3_EXAM_BANK),
+  4: () => import('./curriculum/examBank/grade4').then((m) => m.GRADE_4_EXAM_BANK),
+  5: () => import('./curriculum/examBank/grade5').then((m) => m.GRADE_5_EXAM_BANK),
+  6: () => import('./curriculum/examBank/grade6').then((m) => m.GRADE_6_EXAM_BANK),
   7: () => import('./curriculum/examBank/grade7').then((m) => m.GRADE_7_EXAM_BANK),
 };
 
