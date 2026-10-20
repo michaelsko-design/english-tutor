@@ -302,7 +302,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 
 ### 4.19. Home Base Dashboard (`DashboardView.tsx`, `components/home/`, `data/homeBase.ts`, `utils/bidi.ts`)
 - Phase 4 of the Feature 22 redesign (Feature 27). The home screen has one focus, top to bottom: HUD, hero with one Play button, quest rings, dock, map peek, then the world map (`MissionMap`, 4.18). The bottom nav stays on phones.
-- **HUD** (`HomeHud`), one row: the avatar inside a ring of the XP toward the next level with the level number under it (`ProgressRing`, `getLevelProgress`) opens the **stats sheet**; the 🔥 streak opens the daily quests sheet; the 💎 count (count-up) opens the shop; then the ❓ app tour (4.25), the sound toggle and the cloud sync button. Desktop adds the vault, shop and settings buttons.
+- **HUD** (`HomeHud`), one row: the avatar inside a ring of the XP toward the next level with the level number under it (`ProgressRing`, `getLevelProgress`) opens the **stats sheet**; the 🔥 streak opens the daily quests sheet; the 💎 count (count-up) opens the shop; then the ❓ app tour (4.25), the sound toggle and the cloud sync button (shown only on a sync problem or for an unsaved guest; logout is in the profile settings, `AccountPrivacyCard`). Desktop adds the vault, shop and settings buttons.
 - **Stats sheet** (`StatsSheet`): level, the five stat tiles that left the home screen (streak, stars, missions completed, diamonds → shop, XP and mastered words → Vocabulary Vault), the grade selector, the Shabbat shield and the placement test link, plus profile settings.
 - **Hero** (`HomeHero`): the theme's `art.homeScene` (16:9, `object-fit: cover`; on phones it keeps the left side, where the building is), with the hero card gradient as the fallback. The companion waves on the right with a speech bubble (`getHomeGreetingHe`: by name and gender; first adventure / Boss stars missing / mission done today / ready). Today's mission card shows the tier-scaled XP and 💎, the Hebrew and English titles, the Boss-gate replay line (`getSuggestedMission`), and one big Play button (`getPlayLabelHe`: "בואי נשחק!" or "שפרי כוכבים" for the replay). The tier is chosen on the mission intro (4.17).
 - **Quest rings** (`QuestRings`, `getQuestRings`): the three daily quests as small rings (pink in progress, amber pulsing when the reward waits, green when claimed). A tap opens the full `DailyQuestsCard` (quests and Shabbat-safe streak week) in a sheet.
@@ -385,7 +385,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── ShareTextActions.tsx      # Share sheet / WhatsApp / copy buttons for a text (report, friend invite)
 │   │   ├── PlacementResultCard.tsx   # Placement result & grade/tier recommendation
 │   │   ├── RewardShopModal.tsx       # Diamond shop (avatars, stickers, shields)
-│   │   ├── settings/                 # VoiceLabCard (read-aloud tiers), AccountPrivacyCard (privacy notice, data download, account deletion)
+│   │   ├── settings/                 # VoiceLabCard (read-aloud tiers), AccountPrivacyCard (logout, privacy notice, data download, account deletion)
 │   │   ├── privacy/                  # PrivacyNoticeDialog: the Hebrew privacy notice for parents
 │   │   ├── ScreenLoading.tsx         # Spinner while a lazily loaded screen arrives
 │   │   ├── SpeakIcon.tsx             # 🔊 icon, or a stop square while the button's own text is being read (Feature 41)

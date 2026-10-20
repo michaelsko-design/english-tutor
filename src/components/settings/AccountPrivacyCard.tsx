@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Download, ShieldCheck, Trash2 } from 'lucide-react';
+import { signOut } from 'firebase/auth';
+import { Download, LogOut, ShieldCheck, Trash2 } from 'lucide-react';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { auth } from '../../services/firebase';
@@ -24,8 +25,11 @@ export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile,
   const [pin, setPin] = useState('');
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
+  // A guest signing out loses the account for good, so it asks first
+  const [isConfirmingGuestSignOut, setIsConfirmingGuestSignOut] = useState(false);
 
   const user = auth?.currentUser ?? null;
+  const isGuest = Boolean(user?.isAnonymous);
   const accountKind = user ? getAccountKind(user) : null;
   const canDelete = confirmWord.trim() === DELETE_CONFIRM_WORD && (accountKind !== 'password' || pin.trim().length >= 6);
 
@@ -40,8 +44,43 @@ export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile,
     }
   };
 
+  const handleLogOut = async () => {
+    if (!auth) return;
+    if (isGuest && !isConfirmingGuestSignOut) {
+      setIsConfirmingGuestSignOut(true);
+      return;
+    }
+    setIsBusy(true);
+    setErrorHe(null);
+    try {
+      // The progress stays in the cloud and comes back at the next sign-in (a guest's is gone)
+      await signOut(auth);
+    } catch {
+      setErrorHe('אירעה שגיאה בהתנתקות.');
+      setIsBusy(false);
+    }
+  };
+
   return (
     <div className="space-y-2">
+      {user && (
+        <>
+          {isConfirmingGuestSignOut && (
+            <p role="alert" className="text-xs sm:text-sm font-extrabold text-rose-700 dark:text-rose-300">
+              בטוחים? חשבון אורח שלא נשמר נמחק בהתנתקות, עם כל ההתקדמות. לחיצה נוספת תנתק.
+            </p>
+          )}
+          <button
+            type="button"
+            disabled={isBusy}
+            onClick={handleLogOut}
+            className={`w-full min-h-11 p-2.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 ${theme.secondaryBtnClass}`}
+          >
+            <LogOut className="w-4 h-4" aria-hidden="true" />
+            {isConfirmingGuestSignOut ? 'להתנתק בכל זאת' : 'התנתקות מהחשבון'}
+          </button>
+        </>
+      )}
       <div className="grid grid-cols-2 gap-2">
         <button
           type="button"

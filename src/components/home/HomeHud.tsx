@@ -37,6 +37,10 @@ const SYNC_CLASS: Record<CloudSyncStatus, string> = {
   'offline-error': 'bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300',
 };
 
+export function shouldShowSyncButton(syncStatus: CloudSyncStatus, authUser: AuthUserSummary | null): boolean {
+  return syncStatus === 'offline-error' || syncStatus === 'local-only' || Boolean(authUser?.isAnonymous);
+}
+
 function formatShortAccountLabel(user: AuthUserSummary, fallbackName: string): string {
   if (user.isAnonymous) return 'ענן אורח';
   return (
@@ -69,7 +73,10 @@ export const HomeHud: React.FC<HomeHudProps> = ({
   const streakDays = getCurrentStreak(profile, toLocalDateStr(new Date()));
   const level = getLevelProgress(profile.stats.xp, profile.stats.level);
   const levelLabel = `רמה ${level.level}: עוד ${level.xpToNextLevel} XP לרמה ${level.level + 1}. פתיחת הנתונים שלי`;
-  const pillClass = `h-9 px-2.5 rounded-xl text-sm font-extrabold flex items-center gap-1 ${theme.secondaryBtnClass}`;
+  // The cloud button shows only when something needs the learner: a sync problem, or a guest
+  // account that isn't saved yet. Logout lives in the profile settings.
+  const needsSyncAttention = shouldShowSyncButton(syncStatus, authUser);
+  const pillClass =`h-9 px-2.5 rounded-xl text-sm font-extrabold flex items-center gap-1 ${theme.secondaryBtnClass}`;
 
   return (
     <header className={`sticky top-0 z-30 ${theme.hudBgClass} px-3 md:px-8 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top))]`}>
@@ -140,24 +147,26 @@ export const HomeHud: React.FC<HomeHudProps> = ({
 
         <SoundToggle className={`h-9 w-9 flex items-center justify-center ${theme.secondaryBtnClass}`} />
 
-        <button
-          type="button"
-          onClick={onOpenAuth}
-          title={authUser ? `מחובר/ת: ${authUser.email || authUser.displayName || authUser.uid}` : 'סנכרון ענן'}
-          aria-label="סנכרון ענן וחשבון"
-          className={`h-9 px-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 border transition-all ${SYNC_CLASS[syncStatus]}`}
-        >
-          {syncStatus === 'synced' ? (
-            <Cloud className="w-4 h-4 text-emerald-500 shrink-0" />
-          ) : syncStatus === 'syncing' ? (
-            <RefreshCw className="w-4 h-4 text-sky-500 animate-spin shrink-0" />
-          ) : (
-            <CloudOff className="w-4 h-4 text-amber-500 shrink-0" />
-          )}
-          <span className="hidden lg:inline max-w-[8rem] truncate">
-            <bdi>{authUser ? formatShortAccountLabel(authUser, profile.name) : 'סנכרון'}</bdi>
-          </span>
-        </button>
+        {needsSyncAttention && (
+          <button
+            type="button"
+            onClick={onOpenAuth}
+            title={authUser ? `מחובר/ת: ${authUser.email || authUser.displayName || authUser.uid}` : 'סנכרון ענן'}
+            aria-label="סנכרון ענן וחשבון"
+            className={`h-9 px-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 border transition-all ${SYNC_CLASS[syncStatus]}`}
+          >
+            {syncStatus === 'synced' ? (
+              <Cloud className="w-4 h-4 text-emerald-500 shrink-0" />
+            ) : syncStatus === 'syncing' ? (
+              <RefreshCw className="w-4 h-4 text-sky-500 animate-spin shrink-0" />
+            ) : (
+              <CloudOff className="w-4 h-4 text-amber-500 shrink-0" />
+            )}
+            <span className="hidden lg:inline max-w-[8rem] truncate">
+              <bdi>{authUser ? formatShortAccountLabel(authUser, profile.name) : 'סנכרון'}</bdi>
+            </span>
+          </button>
+        )}
 
         {/* Desktop shortcuts (the bottom nav has them on phones) */}
         <div className="hidden md:flex items-center gap-2">
