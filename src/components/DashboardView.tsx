@@ -52,6 +52,7 @@ const MissionRunner = lazyNamed(() => import('./MissionRunner'), 'MissionRunner'
 const VocabularyVaultModal = lazyNamed(() => import('./VocabularyVaultModal'), 'VocabularyVaultModal');
 const RewardShopModal = lazyNamed(() => import('./RewardShopModal'), 'RewardShopModal');
 const PlacementTest = lazyNamed(() => import('./PlacementTest'), 'PlacementTest');
+const ProfileTour = lazyNamed(() => import('./tutorial/ProfileTour'), 'ProfileTour');
 
 interface DashboardViewProps {
   profile: LearnerProfile;
@@ -85,6 +86,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [isRewardShopOpen, setIsRewardShopOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isPlacementOpen, setIsPlacementOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(false);
   const [roomRewardToast, setRoomRewardToast] = useState<RoomRewardItem | null>(null);
   const [isRoomOpen, setIsRoomOpen] = useState(false);
   const [openSheet, setOpenSheet] = useState<HomeSheet | null>(null);
@@ -305,6 +307,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         onOpenShop={() => setIsRewardShopOpen(true)}
         onOpenVault={() => setIsVocabVaultOpen(true)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
+        onOpenTour={() => setIsTourOpen(true)}
         onEditProfile={onEditOnboarding}
       />
 
@@ -445,6 +448,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             setOpenSheet(null);
             setIsPlacementOpen(true);
           }}
+          onOpenTour={() => {
+            setOpenSheet(null);
+            setIsTourOpen(true);
+          }}
           onEditProfile={onEditOnboarding}
           onClose={() => setOpenSheet(null)}
         />
@@ -497,6 +504,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           isTierChosen={isMissionFromMap}
           readsQuestionsAloud={EARLY_READER_GRADES.includes(profile.gradeId)}
             lastRewardDateStr={profile.missionRewardDates?.[activePracticeMission.id]}
+          />
+        </Suspense>
+      )}
+
+      {/* FEATURE 45: THE APP TOUR, AGAIN (the ❓ button in the HUD or the stats sheet) */}
+      {isTourOpen && (
+        <Suspense fallback={<ScreenLoading />}>
+          <ProfileTour
+            profile={profile}
+            theme={theme}
+            authUser={authUser}
+            finishLabelHe={profile.gender === 'girl' ? 'סיימתי, בואי נשחק! 🚀' : 'סיימתי, בוא נשחק! 🚀'}
+            onDone={() => setIsTourOpen(false)}
           />
         </Suspense>
       )}

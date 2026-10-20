@@ -23,6 +23,7 @@ interface HomeHudProps {
   onOpenShop: () => void;
   onOpenVault: () => void;
   onOpenAuth: () => void;
+  onOpenTour: () => void;
   onEditProfile: () => void;
 }
 
@@ -61,6 +62,7 @@ export const HomeHud: React.FC<HomeHudProps> = ({
   onOpenShop,
   onOpenVault,
   onOpenAuth,
+  onOpenTour,
   onEditProfile,
 }) => {
   const diamondsShown = useCountUp(profile.stats.diamonds);
@@ -124,6 +126,16 @@ export const HomeHud: React.FC<HomeHudProps> = ({
         >
           <FluentIcon name="gem" className="w-5 h-5" />
           <span className="tabular-nums">{diamondsShown}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenTour}
+          className={`h-9 w-9 rounded-xl flex items-center justify-center text-base font-black ${theme.secondaryBtnClass}`}
+          aria-label="סיור באפליקציה: איפה הכול נמצא"
+          title="סיור באפליקציה"
+        >
+          <span aria-hidden="true">❓</span>
         </button>
 
         <SoundToggle className={`h-9 w-9 flex items-center justify-center ${theme.secondaryBtnClass}`} />

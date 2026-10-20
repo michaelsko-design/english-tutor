@@ -33,6 +33,7 @@ import { lazyNamed } from './utils/lazyNamed';
 const OnboardingView = lazyNamed(() => import('./components/OnboardingView'), 'OnboardingView');
 const PlacementTest = lazyNamed(() => import('./components/PlacementTest'), 'PlacementTest');
 const FirstLaunchGreeting = lazyNamed(() => import('./components/home/FirstLaunchGreeting'), 'FirstLaunchGreeting');
+const ProfileTour = lazyNamed(() => import('./components/tutorial/ProfileTour'), 'ProfileTour');
 
 const STORAGE_KEY = 'english_tutor_learner_profile_v2';
 /** A burst of changes is saved to the cloud this long after the last one */
@@ -109,6 +110,8 @@ export function App() {
   const [isEditingOnboarding, setIsEditingOnboarding] = useState<boolean>(false);
   /** True right after first-time onboarding, while the placement test is being offered */
   const [isOfferingPlacement, setIsOfferingPlacement] = useState<boolean>(false);
+  // The app tour right after the welcome chest (Feature 45)
+  const [isOfferingTour, setIsOfferingTour] = useState<boolean>(false);
   const [authUser, setAuthUser] = useState<AuthUserSummary | null>(null);
   const [isAuthInitializing, setIsAuthInitializing] = useState<boolean>(isFirebaseConfigured);
   const [syncStatus, setSyncStatus] = useState<CloudSyncStatus>('local-only');
@@ -371,9 +374,10 @@ export function App() {
   }
 
   // First launch, one screen after another: the companion's greeting with the welcome chest,
-  // then the placement test offer (Feature 27)
+  // the app tour (Feature 45), then the placement test offer (Feature 27)
   const firstLaunchSteps = getFirstLaunchSteps({
     hasSeenWelcomeGift: Boolean(profile.hasSeenWelcomeGiftModal),
+    isOfferingTour,
     isOfferingPlacement,
   });
 
@@ -385,10 +389,35 @@ export function App() {
         gender={profile.gender}
         name={profile.name}
         welcomeGems={WELCOME_GIFT_DIAMONDS}
-        hasPlacementNext={firstLaunchSteps.includes('placement')}
-        onDone={() => handleUpdateProfile({ ...profileRef.current, hasSeenWelcomeGiftModal: true })}
+        onDone={() => {
+          handleUpdateProfile({ ...profileRef.current, hasSeenWelcomeGiftModal: true });
+          setIsOfferingTour(true);
+        }}
       />
       </Suspense>
+    );
+  }
+
+  if (firstLaunchSteps[0] === 'tour') {
+    const isGirl = profile.gender === 'girl';
+    return (
+      <div className={`min-h-screen w-full ${activeTheme.pageBgClass}`}>
+        <Suspense fallback={<ScreenLoading />}>
+        <ProfileTour
+          profile={profile}
+          theme={activeTheme}
+          authUser={authUser}
+          finishLabelHe={
+            firstLaunchSteps.includes('placement')
+              ? `${isGirl ? 'המשיכי' : 'המשך'} למבחן רמה קצר 🎯`
+              : isGirl
+              ? 'בואי נשחק! 🚀'
+              : 'בוא נשחק! 🚀'
+          }
+          onDone={() => setIsOfferingTour(false)}
+        />
+        </Suspense>
+      </div>
     );
   }
 

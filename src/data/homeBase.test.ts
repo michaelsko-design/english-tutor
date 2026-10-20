@@ -132,16 +132,21 @@ describe('getMapPeek', () => {
 });
 
 describe('getFirstLaunchSteps', () => {
-  it('runs the greeting first, then the placement offer', () => {
-    expect(getFirstLaunchSteps({ hasSeenWelcomeGift: false, isOfferingPlacement: true })).toEqual([
-      'greeting',
-      'placement',
-    ]);
+  const steps = (hasSeenWelcomeGift: boolean, isOfferingTour: boolean, isOfferingPlacement: boolean) =>
+    getFirstLaunchSteps({ hasSeenWelcomeGift, isOfferingTour, isOfferingPlacement });
+
+  it('runs the greeting first, then the app tour, then the placement offer', () => {
+    expect(steps(false, false, true)).toEqual(['greeting', 'tour', 'placement']);
+  });
+
+  it('always follows the greeting with the tour', () => {
+    expect(steps(false, false, false)).toEqual(['greeting', 'tour']);
   });
 
   it('skips the steps already done', () => {
-    expect(getFirstLaunchSteps({ hasSeenWelcomeGift: true, isOfferingPlacement: true })).toEqual(['placement']);
-    expect(getFirstLaunchSteps({ hasSeenWelcomeGift: false, isOfferingPlacement: false })).toEqual(['greeting']);
-    expect(getFirstLaunchSteps({ hasSeenWelcomeGift: true, isOfferingPlacement: false })).toEqual([]);
+    expect(steps(true, true, true)).toEqual(['tour', 'placement']);
+    expect(steps(true, false, true)).toEqual(['placement']);
+    expect(steps(true, true, false)).toEqual(['tour']);
+    expect(steps(true, false, false)).toEqual([]);
   });
 });

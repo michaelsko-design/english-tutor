@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, Settings, ShieldCheck, Target, Zap } from 'lucide-react';
+import { CheckCircle2, Compass, Settings, ShieldCheck, Target, Zap } from 'lucide-react';
 import { GradeId, LearnerProfile, SUPPORTED_GRADES } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { getLevelProgress } from '../../utils/rewardFeedback';
@@ -23,6 +23,7 @@ interface StatsSheetProps {
   onOpenShop: () => void;
   onOpenVault: () => void;
   onOpenPlacement: () => void;
+  onOpenTour: () => void;
   onEditProfile: () => void;
   onClose: () => void;
 }
@@ -71,7 +72,7 @@ const StatTile: React.FC<StatTileProps> = ({ icon, value, labelHe, theme, titleH
 /**
  * Feature 27: the learner's numbers, moved off the home screen. Opened from the avatar in the
  * HUD: level, the five stat tiles (the words tile opens the Vocabulary Vault), the grade, the
- * Shabbat shield and the placement test.
+ * Shabbat shield, the placement test and the app tour (Feature 45).
  */
 export const StatsSheet: React.FC<StatsSheetProps> = ({
   profile,
@@ -83,6 +84,7 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
   onOpenShop,
   onOpenVault,
   onOpenPlacement,
+  onOpenTour,
   onEditProfile,
   onClose,
 }) => {
@@ -191,8 +193,16 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
           </button>
           <button
             type="button"
-            onClick={onEditProfile}
+            onClick={onOpenTour}
             className={`px-4 py-2.5 rounded-2xl text-sm font-extrabold flex items-center justify-center gap-1.5 ${theme.secondaryBtnClass}`}
+          >
+            <Compass className="w-4 h-4 shrink-0" />
+            סיור באפליקציה 🧭
+          </button>
+          <button
+            type="button"
+            onClick={onEditProfile}
+            className={`px-4 py-2.5 rounded-2xl text-sm font-extrabold flex items-center justify-center gap-1.5 sm:col-span-2 ${theme.secondaryBtnClass}`}
           >
             <Settings className="w-4 h-4 shrink-0" />
             פרופיל, עיצוב והגדרות

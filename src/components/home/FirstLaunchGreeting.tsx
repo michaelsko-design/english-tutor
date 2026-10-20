@@ -15,8 +15,6 @@ interface FirstLaunchGreetingProps {
   name: string;
   /** The welcome gems already in the new profile */
   welcomeGems: number;
-  /** The placement test offer comes next */
-  hasPlacementNext: boolean;
   onDone: () => void;
 }
 
@@ -26,15 +24,14 @@ const GEM_COUNT_MS = 900;
 
 /**
  * Feature 27: the first screen after onboarding. The companion says hello and hands over the
- * welcome chest; tapping it opens it and counts up the welcome gems. The placement test offer
- * follows as the next step of the same sequence.
+ * welcome chest; tapping it opens it and counts up the welcome gems. The app tour (Feature 45)
+ * and the placement test offer follow as the next steps of the same sequence.
  */
 export const FirstLaunchGreeting: React.FC<FirstLaunchGreetingProps> = ({
   theme,
   gender,
   name,
   welcomeGems,
-  hasPlacementNext,
   onDone,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -131,11 +128,7 @@ export const FirstLaunchGreeting: React.FC<FirstLaunchGreetingProps> = ({
               onClick={onDone}
               className={`btn-chunky w-full py-3.5 rounded-2xl font-black text-lg ${theme.primaryBtnClass}`}
             >
-              {hasPlacementNext
-                ? `${isGirl ? 'המשיכי' : 'המשך'} למבחן רמה קצר 🎯`
-                : isGirl
-                ? 'איזה כיף, בואי נתחיל! 🚀'
-                : 'איזה כיף, בוא נתחיל! 🚀'}
+              {isGirl ? 'איזה כיף! בואי נעשה סיור קצר 🧭' : 'איזה כיף! בוא נעשה סיור קצר 🧭'}
             </button>
           </div>
         )}

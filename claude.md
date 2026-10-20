@@ -40,12 +40,12 @@ flowchart TD
     AuthGate -- Yes --> OnboardingCheck{Profile Complete?}
     OnboardingCheck -- No --> OnboardingView[OnboardingView.tsx - Setup & Gender/Grade]
     OnboardingCheck -- Yes --> FirstLaunch{First launch?}
-    FirstLaunch -- Yes --> FirstLaunchSeq[home/FirstLaunchGreeting.tsx - Companion & Welcome Chest, then PlacementTest.tsx offer]
+    FirstLaunch -- Yes --> FirstLaunchSeq[home/FirstLaunchGreeting.tsx - Companion & Welcome Chest, tutorial/AppTour.tsx, then PlacementTest.tsx offer]
     FirstLaunch -- No --> DashboardView[DashboardView.tsx - Home Base]
     FirstLaunchSeq --> DashboardView
 
     DashboardView --> HomeHud[home/HomeHud.tsx - Avatar in Level Ring, Streak, Gems, Sound, Sync]
-    HomeHud --> StatsSheet[home/StatsSheet.tsx - Stat Tiles, Grade, Placement Test]
+    HomeHud --> StatsSheet[home/StatsSheet.tsx - Stat Tiles, Grade, Placement Test, App Tour]
     DashboardView --> HomeHero[home/HomeHero.tsx - Home Scene, Companion Greeting, Play Button]
     DashboardView --> QuestRings[home/QuestRings.tsx - 3 Quest Rings, opens DailyQuestsCard.tsx]
     DashboardView --> Dock[Dock: Room, Exam Prep, Word Lists, Friends, Report tiles]
@@ -301,13 +301,13 @@ Each learning mission consists of 5 pedagogical drill stages:
 
 ### 4.19. Home Base Dashboard (`DashboardView.tsx`, `components/home/`, `data/homeBase.ts`, `utils/bidi.ts`)
 - Phase 4 of the Feature 22 redesign (Feature 27). The home screen has one focus, top to bottom: HUD, hero with one Play button, quest rings, dock, map peek, then the world map (`MissionMap`, 4.18). The bottom nav stays on phones.
-- **HUD** (`HomeHud`), one row: the avatar inside a ring of the XP toward the next level with the level number under it (`ProgressRing`, `getLevelProgress`) opens the **stats sheet**; the 🔥 streak opens the daily quests sheet; the 💎 count (count-up) opens the shop; then the sound toggle and the cloud sync button. Desktop adds the vault, shop and settings buttons.
+- **HUD** (`HomeHud`), one row: the avatar inside a ring of the XP toward the next level with the level number under it (`ProgressRing`, `getLevelProgress`) opens the **stats sheet**; the 🔥 streak opens the daily quests sheet; the 💎 count (count-up) opens the shop; then the ❓ app tour (4.25), the sound toggle and the cloud sync button. Desktop adds the vault, shop and settings buttons.
 - **Stats sheet** (`StatsSheet`): level, the five stat tiles that left the home screen (streak, stars, missions completed, diamonds → shop, XP and mastered words → Vocabulary Vault), the grade selector, the Shabbat shield and the placement test link, plus profile settings.
 - **Hero** (`HomeHero`): the theme's `art.homeScene` (16:9, `object-fit: cover`; on phones it keeps the left side, where the building is), with the hero card gradient as the fallback. The companion waves on the right with a speech bubble (`getHomeGreetingHe`: by name and gender; first adventure / Boss stars missing / mission done today / ready). Today's mission card shows the tier-scaled XP and 💎, the Hebrew and English titles, the Boss-gate replay line (`getSuggestedMission`), and one big Play button (`getPlayLabelHe`: "בואי נשחק!" or "שפרי כוכבים" for the replay). The tier is chosen on the mission intro (4.17).
 - **Quest rings** (`QuestRings`, `getQuestRings`): the three daily quests as small rings (pink in progress, amber pulsing when the reward waits, green when claimed). A tap opens the full `DailyQuestsCard` (quests and Shabbat-safe streak week) in a sheet.
 - **Dock** (`DockTile`): each hub renders its own tile and keeps its overlays. 🏠 Room (dot: an unplaced item; the dashboard owns its open state so the new-item toast opens it), 📅 Exam prep (sheet with `ExamPrepCard`; dot: a study session waits today), 📝 Word lists (sheet with `WordListsCard`), 👫 Friends (only when the hub is on and the account is not a guest; dot: requests or contest invites), 📊 Report (opens `WeeklyReportScreen`). Sheets reuse `ExamModalShell`.
 - **Map peek** (`MapPeek`, `getMapPeek`): the current unit (first one with a mission without stars), the grade's missions and stars; a tap scrolls to the map.
-- **First launch** (`App.tsx`, `getFirstLaunchSteps`): one sequence instead of two modals. `FirstLaunchGreeting` (once per profile, `hasSeenWelcomeGiftModal`): the companion says hello and hands over the welcome chest (`/art/common/chest-closed.webp` → `chest-open.webp`, emoji fallbacks); a tap opens it with a big celebration and counts up the 50 welcome gems. Then, right after first-time onboarding, the placement test offer. The old welcome modal is gone.
+- **First launch** (`App.tsx`, `getFirstLaunchSteps`): one sequence instead of two modals. `FirstLaunchGreeting` (once per profile, `hasSeenWelcomeGiftModal`): the companion says hello and hands over the welcome chest (`/art/common/chest-closed.webp` → `chest-open.webp`, emoji fallbacks); a tap opens it with a big celebration and counts up the 50 welcome gems. Then the app tour (4.25), and, right after first-time onboarding, the placement test offer. The old welcome modal is gone.
 - **Right-to-left**: `index.html` is `<html lang="he" dir="rtl">`, so per-element `dir="rtl"` was removed (it stays only inside English `dir="ltr"` blocks). English text is marked `dir="ltr"` (blocks, word chips, letter grids, inputs), `dir="auto"` (answer options, mixed search) or `<bdi>` (English inside Hebrew lines, e.g. the login title). Plain strings use `isolateLtr` / `formatGainLtr` (`utils/bidi.ts`), so "+10 XP" doesn't show as "XP 10+".
 - **Text size**: nothing is smaller than 12px (`text-xs`); `text-[10px]` and `text-[11px]` are gone.
 - Reduced motion: no chest wobble or confetti, the gems show at once, the companion stands still.
@@ -344,6 +344,13 @@ Each learning mission consists of 5 pedagogical drill stages:
 - **Data**: `lessons/grade<N>.ts` exports a `LessonPack` keyed by mission id (`MiniLesson` in `lessons/types.ts`). It loads only when a mission opens (`LESSON_PACK_LOADERS`, a dynamic `import()` per grade); `lessons/index.ts` (`ALL_LESSON_PACKS`) is for the tests and the clip corpus, so **a new grade goes in both lists**. A Boss without its own lesson gets `buildBossRecap` (the unit's topics and patterns, one example from each, no quick try). `useMiniLesson` gives up after 3 s (`LESSON_LOAD_TIMEOUT_MS`), and a failed load starts the steps, so a lesson never blocks a mission.
 - **Writing a lesson**: Hebrew in gender-neutral plural forms ("שימו לב", "בואו"); `inflectHebrew` must leave it unchanged. The screen wraps every English run of the Hebrew text in a left-to-right isolate (`isolateEnglishRuns` in `utils/bidi.ts`: words joined by spaces, commas, slashes, colons or arrows), so a list like "sh, ch, s, x" stays in order; a comma between two English words that belong to different parts of the sentence ("A כמו apple, B כמו ball") joins them into one run, so write those with periods instead. A quick try may have Hebrew options (a word's meaning); they aren't read aloud. Examples are new sentences, never a mission's own answers. `miniLessons.test.ts` checks every regular mission of a grade with lessons, the length caps, the highlights, gender neutrality and that no example or quick-try answer repeats a step answer of the mission in any tier. Examples and quick-try answers are in `scripts/tts/corpus.ts`, so render the clips after adding lessons.
 
+### 4.25. App Tour (`data/appTutorial.ts`, `components/tutorial/`)
+- Feature 45. A short slideshow that shows a new learner the loop (play a mission, earn stars, XP and diamonds, spend them) and where everything is. Nothing in it is scored or rewarded.
+- **When**: once in the first-launch sequence (`getFirstLaunchSteps`: greeting → `tour` → placement offer). The greeting's button opens it; App keeps `isOfferingTour` for the session only (like the placement offer), so no profile field and no merge change. Again on demand from the ❓ button in the HUD and "סיור באפליקציה 🧭" in the stats sheet.
+- **Slides** (`getTutorialSlides`, pure, + `.test.ts`): welcome, missions (the 5 steps), map (1–3 stars, the Boss castle), economy (XP and the theme's `currencyNameHe`), streak (quests; the Shabbat shield only for observers), dock (the Friends tile only when the hub is on and the account isn't a guest), finish. Each slide has a companion pose. The Hebrew is gender-neutral plural; the test checks it with `inflectHebrew` for every theme. Only the buttons around it (`finishLabelHe`, the greeting's button) are gendered.
+- **Screen** (`AppTour`, `ProfileTour` builds the slides from the profile): a full-screen dialog (`useDialog`) with progress dots, the animated scene (`TourScenes.tsx`: small mocks of the play button and step trail, map coins and castle, level ring and gem count-up, week of flames and quest rings, dock tiles, trophy; per-slide colours in `TOUR_ACCENTS`), the companion beside its speech card, and back / next. Swipe (right to left: a swipe to the right goes forward), ←/→ keys, Escape and "דילוג" close it. The last slide fires `celebrate('medium')`. Animations are the `animate-tour-*` classes in `index.css`; reduced motion shows each scene's end state.
+- A new hub or a big change to the home screen should get a line in the dock or its own slide.
+
 ---
 
 ## 5. Directory Structure
@@ -365,6 +372,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── drills/                   # Shared drill UI (chunky options, sentence/letter magnets with magnetDrag.tsx drag-and-drop, voice, passage, feedback banner & sheet, story art)
 │   │   ├── examPrep/                 # Exam prep hub, setup, plan timeline, session runner, certificate
 │   │   ├── home/                     # Home base: HUD with level ring, hero scene, quest rings, dock tile, map peek, stats sheet, first-launch greeting & chest
+│   │   ├── tutorial/                 # App tour (Feature 45): slideshow shell, animated scenes, profile wrapper
 │   │   ├── hud/                      # Header pieces: sound toggle, Fluent Emoji icons
 │   │   ├── friends/                  # Friends Hub: dock tile, hub screen, friend card & reactions, add friend, invite code, contest panel/runner/result
 │   │   ├── mission/                  # Mission runner pieces: intro screen, mini-lesson cards (Feature 42), tier choice (shared with the map sheet), trail progress with the combo flame
@@ -394,6 +402,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   │   ├── examBank/             # Exam prep question banks by grade (Feature 43, grade1..12.ts), loaded when a session opens
 │   │   │   ├── index.ts              # CURRICULUM_BY_GRADE registry
 │   │   │   └── types.ts              # Unit, MissionNode, VocabularyItem, and DrillSeed types
+│   │   ├── appTutorial.ts            # App tour slides: texts, points and companion poses (+ .test.ts)
 │   │   ├── activityLog.ts            # Daily activity log (12 weeks) recorded by diffing profile updates, + merge (+ .test.ts)
 │   │   ├── diamondLedger.ts          # Per-device earned/spent diamond totals, balance & merge (+ .test.ts)
 │   │   ├── customWordLists.ts        # School word list parsing, session steps, scoring & rewards (+ .test.ts)

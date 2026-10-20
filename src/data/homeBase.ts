@@ -137,19 +137,21 @@ export function getMapPeek(units: CurriculumUnit[], progress: Record<string, num
   };
 }
 
-export type FirstLaunchStep = 'greeting' | 'placement';
+export type FirstLaunchStep = 'greeting' | 'tour' | 'placement';
 
 /**
  * The first-launch sequence, one screen after another: the companion's greeting with the
- * welcome chest (once per profile), then the placement test offer (right after first-time
- * onboarding only).
+ * welcome chest (once per profile), the app tour (Feature 45: right after the greeting, and
+ * while it is open), then the placement test offer (right after first-time onboarding only).
  */
 export function getFirstLaunchSteps(input: {
   hasSeenWelcomeGift: boolean;
+  isOfferingTour: boolean;
   isOfferingPlacement: boolean;
 }): FirstLaunchStep[] {
   const steps: FirstLaunchStep[] = [];
-  if (!input.hasSeenWelcomeGift) steps.push('greeting');
+  if (!input.hasSeenWelcomeGift) steps.push('greeting', 'tour');
+  else if (input.isOfferingTour) steps.push('tour');
   if (input.isOfferingPlacement) steps.push('placement');
   return steps;
 }
