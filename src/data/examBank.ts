@@ -39,6 +39,11 @@ export const EXAM_BANK_LOADERS: Partial<Record<number, () => Promise<ExamBankPac
   5: () => import('./curriculum/examBank/grade5').then((m) => m.GRADE_5_EXAM_BANK),
   6: () => import('./curriculum/examBank/grade6').then((m) => m.GRADE_6_EXAM_BANK),
   7: () => import('./curriculum/examBank/grade7').then((m) => m.GRADE_7_EXAM_BANK),
+  8: () => import('./curriculum/examBank/grade8').then((m) => m.GRADE_8_EXAM_BANK),
+  9: () => import('./curriculum/examBank/grade9').then((m) => m.GRADE_9_EXAM_BANK),
+  10: () => import('./curriculum/examBank/grade10').then((m) => m.GRADE_10_EXAM_BANK),
+  11: () => import('./curriculum/examBank/grade11').then((m) => m.GRADE_11_EXAM_BANK),
+  12: () => import('./curriculum/examBank/grade12').then((m) => m.GRADE_12_EXAM_BANK),
 };
 
 function getGradeNumber(gradeId: GradeId): number {
