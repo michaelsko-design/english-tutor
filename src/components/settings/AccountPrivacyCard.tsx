@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import { signOut } from 'firebase/auth';
-import { Download, LogOut, ShieldCheck, Trash2 } from 'lucide-react';
+import { Download, LogOut, ShieldCheck, Trash2, UserPlus } from 'lucide-react';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { auth } from '../../services/firebase';
-import { deleteAccount, downloadProfileJson, getAccountKind } from '../../services/accountService';
+import {
+  deleteAccount,
+  downloadProfileJson,
+  getAccountKind,
+  hasGoogleLinked,
+  linkGoogleToAccount,
+} from '../../services/accountService';
 import { PrivacyNoticeDialog } from '../privacy/PrivacyNoticeDialog';
 
 interface AccountPrivacyCardProps {
@@ -31,6 +37,9 @@ export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile,
   const user = auth?.currentUser ?? null;
   const isGuest = Boolean(user?.isAnonymous);
   const accountKind = user ? getAccountKind(user) : null;
+  // providerData changes in place after linking, so the card remembers the result itself
+  const [isGoogleLinked, setIsGoogleLinked] = useState(() => (user ? hasGoogleLinked(user) : false));
+  const canLinkGoogle = accountKind === 'password' && !isGoogleLinked;
   const canDelete = confirmWord.trim() === DELETE_CONFIRM_WORD && (accountKind !== 'password' || pin.trim().length >= 6);
 
   const handleDelete = async () => {
@@ -42,6 +51,15 @@ export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile,
       setErrorHe(result.errorHe);
       setIsBusy(false);
     }
+  };
+
+  const handleLinkGoogle = async () => {
+    setIsBusy(true);
+    setErrorHe(null);
+    const result = await linkGoogleToAccount();
+    if (result.ok) setIsGoogleLinked(true);
+    else setErrorHe(result.errorHe);
+    setIsBusy(false);
   };
 
   const handleLogOut = async () => {
@@ -80,6 +98,27 @@ export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile,
             {isConfirmingGuestSignOut ? 'להתנתק בכל זאת' : 'התנתקות מהחשבון'}
           </button>
         </>
+      )}
+      {canLinkGoogle && (
+        <button
+          type="button"
+          disabled={isBusy}
+          onClick={handleLinkGoogle}
+          className={`w-full min-h-11 p-2.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 ${theme.secondaryBtnClass}`}
+        >
+          <UserPlus className="w-4 h-4" aria-hidden="true" />
+          חיבור חשבון Google (גיבוי אם שוכחים את הקוד)
+        </button>
+      )}
+      {accountKind === 'password' && isGoogleLinked && (
+        <p className={`text-xs sm:text-sm font-bold text-center ${theme.mutedTextClass}`}>
+          חשבון Google מחובר. אפשר להיכנס גם איתו.
+        </p>
+      )}
+      {errorHe && !isDeleteOpen && (
+        <p role="alert" className="text-xs font-extrabold text-rose-700 dark:text-rose-300">
+          {errorHe}
+        </p>
       )}
       <div className="grid grid-cols-2 gap-2">
         <button

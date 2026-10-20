@@ -119,6 +119,30 @@ export async function saveGuestWithGoogle(): Promise<AccountResult> {
   }
 }
 
+export function hasGoogleLinked(user: User): boolean {
+  return user.providerData.some((p) => p.providerId === 'google.com');
+}
+
+/**
+ * Adds Google sign-in to the signed-in username + PIN account (same uid, so nothing moves and
+ * the progress stays). Lets a learner who forgets the PIN still get back in with Google.
+ */
+export async function linkGoogleToAccount(): Promise<AccountResult> {
+  const user = auth?.currentUser;
+  if (!user || user.isAnonymous || !googleProvider) return { ok: false, errorHe: 'צריך להיות מחוברים לחשבון.' };
+  if (hasGoogleLinked(user)) return { ok: true };
+  try {
+    await linkWithPopup(user, googleProvider as GoogleAuthProvider);
+    return { ok: true };
+  } catch (error) {
+    const code = (error as { code?: string })?.code || '';
+    if (code === 'auth/credential-already-in-use' || code === 'auth/email-already-in-use') {
+      return { ok: false, errorHe: 'חשבון Google הזה כבר מחובר לחשבון אחר. כדאי לבחור חשבון Google אחר.' };
+    }
+    return { ok: false, errorHe: describeAuthError(error) };
+  }
+}
+
 /** Keeps a guest's progress by adding a username + PIN sign-in to the same account. */
 export async function saveGuestWithUsername(identifier: string, pin: string, name: string): Promise<AccountResult> {
   const user = auth?.currentUser;
