@@ -12,6 +12,8 @@ import { HEBREW_AUDIO_GRADES } from '../../src/data/hebrewAudio';
 import { gradeIdToNumber } from '../../src/data/placementTest';
 import { isHebrewSpeakable } from '../../src/services/tts/ttsText';
 import type { ExamSkill, LearnerGender, ProficiencyTier } from '../../src/types/learner';
+import { getSentenceOrderWrongHe, getVoiceSkippedHe } from '../../src/data/missionFeedbackHe';
+import { getSpeechErrorTextHe, type SpeechErrorKind } from '../../src/hooks/useSpeechRecognition';
 import { CorpusBuilder } from './corpusBuilder';
 
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
@@ -90,8 +92,20 @@ function addExamBanks(corpus: CorpusBuilder): void {
   }
 }
 
+const SPEECH_ERRORS: SpeechErrorKind[] = ['unsupported', 'not-allowed', 'no-speech'];
+
+/** The runners' fixed feedback lines (text with the learner's name goes to the online voice). */
+function addFixedFeedback(corpus: CorpusBuilder): void {
+  for (const gender of GENDERS) {
+    corpus.add(getSentenceOrderWrongHe(gender));
+    corpus.add(getVoiceSkippedHe(gender));
+    SPEECH_ERRORS.forEach((kind) => corpus.add(getSpeechErrorTextHe(kind, gender)));
+  }
+}
+
 export function buildHebrewCorpus(): CorpusBuilder {
   const corpus = new CorpusBuilder(isHebrewSpeakable);
+  addFixedFeedback(corpus);
   addMissions(corpus);
   addLessons(corpus);
   addExamBanks(corpus);

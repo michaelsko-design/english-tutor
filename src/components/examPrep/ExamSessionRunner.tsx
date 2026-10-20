@@ -18,6 +18,7 @@ import {
   QuestionBubble,
   SentenceBuilderDrill,
   getQuestionCardContent,
+  InstructionLine,
 } from '../drills';
 import { ExamModalShell } from './ExamModalShell';
 import { ExamSessionResult } from './ExamSessionResult';
@@ -220,7 +221,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
           {step.badgeLabelHe}
         </span>
 
-        <p className="text-lg md:text-xl font-extrabold">{step.promptHe}</p>
+        <InstructionLine text={step.promptHe} />
 
         {step.contextPassageEn && (
           <PassageBox

@@ -15,6 +15,10 @@ import {
 } from './ttsText';
 
 describe('toSpeakableText', () => {
+  it('drops bidi isolates, so an isolated English run keeps the clip key', () => {
+    expect(toSpeakableText('A כמו ⁦apple⁩.')).toBe('A כמו apple.');
+  });
+
   it('reads blanks as "blank" and drops emoji', () => {
     expect(toSpeakableText('I ___ a cat 🐱')).toBe('I blank a cat');
   });

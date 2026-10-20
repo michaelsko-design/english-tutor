@@ -2,24 +2,29 @@ import React, { useEffect, useId, useRef } from 'react';
 import { Lightbulb } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { useAutoSpeakHebrew } from '../../hooks/useAutoSpeakHebrew';
+import { HebrewSpeakButton } from './HebrewSpeakButton';
 
 interface HintPopoverProps {
   hintHe: string;
   isOpen: boolean;
   onToggle: (isOpen: boolean) => void;
   theme: ThemeDefinition;
+  /** Grades 1–2 hear the hint as it opens (Feature 47) */
+  readsAloud?: boolean;
 }
 
 /**
  * The 💡 hint button for a runner's header. The hint opens in a popover only when tapped, and
  * closes on a second tap, a tap outside or Escape (which does not close the runner itself).
  */
-export const HintPopover: React.FC<HintPopoverProps> = ({ hintHe, isOpen, onToggle, theme }) => {
+export const HintPopover: React.FC<HintPopoverProps> = ({ hintHe, isOpen, onToggle, theme, readsAloud = false }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
   const prefersReducedMotion = usePrefersReducedMotion();
+  useAutoSpeakHebrew(hintHe, readsAloud && isOpen, 0);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -62,7 +67,10 @@ export const HintPopover: React.FC<HintPopoverProps> = ({ hintHe, isOpen, onTogg
             prefersReducedMotion ? '' : 'animate-lesson-card'
           }`}
         >
-          {hintHe}
+          <div className="flex items-start gap-2">
+            <span className="flex-1">{hintHe}</span>
+            <HebrewSpeakButton text={hintHe} label="הקשבה לרמז" />
+          </div>
         </div>
       )}
     </div>

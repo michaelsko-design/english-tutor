@@ -17,6 +17,7 @@ import {
 } from '../data/placementTest';
 import { isolateLtr } from '../utils/bidi';
 import { inflectHebrew } from '../utils/hebrewGender';
+import { HebrewSpeakButton } from './drills/HebrewSpeakButton';
 import { PlacementResultCard } from './PlacementResultCard';
 import { ArrowLeft, Target, X } from 'lucide-react';
 
@@ -223,9 +224,10 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
         {phase === 'question' && (
           <div className="p-4 sm:p-6 space-y-4">
             <div className="space-y-2">
-              <p className={`text-xs sm:text-sm font-bold ${theme.mutedTextClass}`}>
-                {question.promptHe}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className={`flex-1 text-xs sm:text-sm font-bold ${theme.mutedTextClass}`}>{question.promptHe}</p>
+                <HebrewSpeakButton text={question.promptHe} label="הקשבה להוראה" />
+              </div>
               <h2 className="text-lg sm:text-xl font-extrabold leading-snug" dir="auto">
                 {question.questionEn}
               </h2>

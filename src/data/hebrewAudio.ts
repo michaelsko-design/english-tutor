@@ -12,3 +12,10 @@ export const HEBREW_AUDIO_GRADES: readonly GradeId[] = ['grade-1', 'grade-2'];
 export function playsHebrewAloud(gradeId: GradeId): boolean {
   return HEBREW_AUDIO_GRADES.includes(gradeId);
 }
+
+/** One part of a spoken sequence: the Hebrew instruction, the English question, the feedback. */
+export interface SpokenPart {
+  text: string;
+  lang: 'en' | 'he';
+  rate?: number;
+}

@@ -9,6 +9,7 @@ import {
   QuestionBubble,
   SentenceBuilderDrill,
   getQuestionCardContent,
+  InstructionLine,
 } from '../drills';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { isolateLtr } from '../../utils/bidi';
@@ -207,7 +208,7 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
           </span>
         </div>
 
-        <p className="text-lg md:text-xl font-extrabold">{step.promptHe}</p>
+        <InstructionLine text={step.promptHe} />
 
         {questionCard && (
           <QuestionBubble

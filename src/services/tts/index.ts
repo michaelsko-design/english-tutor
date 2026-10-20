@@ -1,11 +1,11 @@
 import { getSharedAudio, onFirstGesture } from './audioUnlock';
 import { deviceTtsService } from './deviceTtsService';
 import { createHybridTtsService } from './hybridTtsService';
-import { createSpeechStatus, type SpeechStatusService } from './speechStatus';
+import { createSpeechStatus, DEFAULT_SPEECH_RATE, type SpeechStatusService } from './speechStatus';
 import { auth, getAppCheckToken } from '../firebase';
 
 export type { SpeakOptions, TextToSpeechService, TtsEngine } from './types';
-export { DEFAULT_SPEECH_RATE, isSameSpeech, type CurrentSpeech } from './speechStatus';
+export { DEFAULT_SPEECH_RATE, isSameSpeech, type CurrentSpeech, type SpeechPart } from './speechStatus';
 
 declare global {
   interface Window {
@@ -51,4 +51,9 @@ export function getTtsService(): SpeechStatusService {
 /** Stops whatever is being read aloud (a stop button, or leaving the screen that started it). */
 export function stopSpeech(): void {
   service?.stop();
+}
+
+/** Reads Hebrew with the Hebrew voice (the instruction, a hint, feedback); the English voice choice doesn't apply. */
+export function speakHebrew(text: string, rate = DEFAULT_SPEECH_RATE): Promise<void> {
+  return getTtsService().speak(text, { rate, lang: 'he' });
 }

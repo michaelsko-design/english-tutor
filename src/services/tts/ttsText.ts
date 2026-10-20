@@ -49,6 +49,8 @@ const LATIN_RUN = /[A-Za-z][A-Za-z0-9'’]*(?:[ ,.-]+[A-Za-z0-9'’]+)*/g;
 /** Blanks are read as "blank" and emoji are stripped so the voice doesn't read them out. */
 export function toSpeakableText(text: string): string {
   return text
+    // Bidi isolates and marks from isolateEnglishRuns aren't spoken, and must not change a clip key
+    .replace(/[‎‏‪-‮⁦-⁩]/g, '')
     .replace(/_{3,}/g, 'blank')
     .replace(/\p{Extended_Pictographic}|️|‍|⃣/gu, '')
     .trim();

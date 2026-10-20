@@ -144,3 +144,32 @@ describe('isSameSpeech', () => {
     expect(isSameSpeech({ text: 'Listen.', rate: 0.95 }, 'Listen.')).toBe(true);
   });
 });
+
+describe('speakSequence', () => {
+  it('reads the parts one after another', async () => {
+    const { service, finishAll } = fakeService();
+    const status = createSpeechStatus(service);
+    const done = status.speakSequence([{ text: 'שימו לב:', options: { lang: 'he' } }, { text: 'What is this?' }]);
+    expect(service.speak).toHaveBeenLastCalledWith('שימו לב:', { lang: 'he' });
+    await finishAll();
+    expect(service.speak).toHaveBeenLastCalledWith('What is this?', {});
+    await finishAll();
+    await done;
+    expect(service.speak).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops when another reading starts or the reading is stopped', async () => {
+    const { service, finishAll } = fakeService();
+    const status = createSpeechStatus(service);
+    const tapped = status.speakSequence([{ text: 'one' }, { text: 'two' }]);
+    void status.speak('a tapped word');
+    await finishAll();
+    await tapped;
+    expect(vi.mocked(service.speak).mock.calls.map(([text]) => text)).not.toContain('two');
+
+    const stopped = status.speakSequence([{ text: 'three' }, { text: 'four' }]);
+    status.stop();
+    await stopped;
+    expect(vi.mocked(service.speak).mock.calls.map(([text]) => text)).not.toContain('four');
+  });
+});

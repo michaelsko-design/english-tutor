@@ -23,6 +23,7 @@ import {
   SpellingMagnetDrill,
   VoiceSpeakDrill,
   getQuestionCardContent,
+  InstructionLine,
 } from '../drills';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { WordListSessionResult } from './WordListSessionResult';
@@ -249,7 +250,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
           {step.badgeLabelHe}
         </span>
 
-        <p className="text-lg md:text-xl font-extrabold">{step.promptHe}</p>
+        <InstructionLine text={step.promptHe} />
 
         {questionCard && <QuestionBubble content={questionCard} theme={theme} onSpeakEnglish={onSpeakEnglish} />}
 

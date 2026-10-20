@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { playSfx } from '../../utils/sfx';
+import { useAutoSpeakHebrew } from '../../hooks/useAutoSpeakHebrew';
+import { HebrewSpeakButton } from './HebrewSpeakButton';
 
 interface FeedbackBannerProps {
   isCorrect: boolean;
@@ -10,6 +12,8 @@ interface FeedbackBannerProps {
   nextLabel: string;
   onNext: () => void;
   theme: ThemeDefinition;
+  /** Grades 1–2 hear the feedback after its sound (Feature 47) */
+  readsAloud?: boolean;
 }
 
 export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
@@ -19,11 +23,13 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
   nextLabel,
   onNext,
   theme,
+  readsAloud = false,
 }) => {
   // Every drill answer gets a sound (Feature 24); a new message is a new answer.
   useEffect(() => {
     playSfx(isCorrect ? 'correct' : 'wrong');
   }, [isCorrect, text]);
+  useAutoSpeakHebrew(text, readsAloud);
 
   return (
     <div
@@ -44,6 +50,7 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
           <span className="sr-only">{isCorrect ? 'נכון! ' : 'לא נכון. '}</span>
           {text}
         </p>
+        <HebrewSpeakButton text={text} label="הקשבה למשוב" />
       </div>
 
       {showNext && (

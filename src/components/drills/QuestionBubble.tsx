@@ -3,6 +3,7 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { toSpeakableText } from '../../services/tts/ttsText';
 import { useSpeechToggle } from '../../hooks/useSpeech';
 import { SpeakIcon, STOP_SPEECH_LABEL } from '../SpeakIcon';
+import { HebrewSpeakButton } from './HebrewSpeakButton';
 import { QuestionCardContent, splitBlanks } from './questionCard';
 
 interface QuestionBubbleProps {
@@ -64,6 +65,7 @@ export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
         </p>
       </div>
 
+      {!isEnglish && <HebrewSpeakButton text={content.text} label="השמעת השאלה" className={theme.secondaryBtnClass} />}
       {isEnglish && (
         <button
           type="button"

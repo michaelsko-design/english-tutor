@@ -17,7 +17,8 @@ import { Companion } from '../companion/Companion';
 import { isSameSpeech } from '../../services/tts';
 import { toggleSpeech, useCurrentSpeech } from '../../hooks/useSpeech';
 import { SpeakIcon } from '../SpeakIcon';
-import { FeedbackBanner, MultipleChoiceOptions } from '../drills';
+import { FeedbackBanner, HebrewSpeakButton, MultipleChoiceOptions } from '../drills';
+import { speakHebrew } from '../../services/tts';
 
 export const LESSON_COMPANION_SIZE = 96;
 /** The read-aloud rate of lesson examples, the same as the drills' (one rendered clip each) */
@@ -33,6 +34,8 @@ interface MiniLessonProps {
   isReview?: boolean;
   /** Read the first example aloud when the examples open (grades 1–3) */
   readsAloud?: boolean;
+  /** Read the Hebrew idea and quick-try aloud as they open (grades 1–2, Feature 47) */
+  readsHebrewAloud?: boolean;
   /** The last button's label: start the practice, or go back to the question */
   doneLabel: string;
   onDone: () => void;
@@ -56,6 +59,7 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
   theme,
   onSpeakEnglish,
   readsAloud = false,
+  readsHebrewAloud = false,
   isReview = false,
   doneLabel,
   onDone,
@@ -85,9 +89,11 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
   // Early readers hear the first example when the examples open
   useEffect(() => {
     if (readsAloud && card === 'examples') onSpeakEnglish(lesson.examples[0].en, LESSON_SPEAK_RATE);
+    if (readsHebrewAloud && card === 'idea') void speakHebrew(lesson.ideaHe);
+    if (readsHebrewAloud && card === 'try' && lesson.quickTry) void speakHebrew(lesson.quickTry.promptHe);
     // Only when the card opens
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [card, readsAloud]);
+  }, [card, readsAloud, readsHebrewAloud]);
 
   const pose = getLessonPose(card, pickedOption);
 
@@ -137,6 +143,7 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
               const { textEn } = quickTryOptions[idx];
               if (/[A-Za-z]/.test(textEn)) onSpeakEnglish(textEn, LESSON_SPEAK_RATE);
             }}
+            readsAloud={readsHebrewAloud}
             theme={theme}
             headingRef={headingRef}
           />
@@ -206,7 +213,10 @@ const IdeaCard: React.FC<CardProps & { lesson: MiniLessonData }> = ({ lesson, th
     <h2 ref={headingRef} tabIndex={-1} className="text-2xl md:text-3xl font-extrabold leading-tight text-center outline-none">
       {isolateEnglishRuns(lesson.titleHe)}
     </h2>
-    <p className="text-base md:text-lg font-bold leading-relaxed text-center max-w-xl mx-auto">{isolateEnglishRuns(lesson.ideaHe)}</p>
+    <div className="flex items-start justify-center gap-2 max-w-xl mx-auto">
+      <p className="text-base md:text-lg font-bold leading-relaxed text-center">{isolateEnglishRuns(lesson.ideaHe)}</p>
+      <HebrewSpeakButton text={lesson.ideaHe} label="הקשבה להסבר" />
+    </div>
     {lesson.pattern && (
       <div className="flex justify-center">
         <span
@@ -293,14 +303,18 @@ const QuickTryCard: React.FC<
     options: MultipleChoiceOption[];
     pickedIdx: number | null;
     onPick: (idx: number) => void;
+    readsAloud: boolean;
   }
-> = ({ quickTry, options, pickedIdx, onPick, theme, headingRef }) => {
+> = ({ quickTry, options, pickedIdx, onPick, theme, headingRef, readsAloud }) => {
   const picked = pickedIdx === null ? null : options[pickedIdx];
   return (
     <>
-      <h2 ref={headingRef} tabIndex={-1} className="text-lg md:text-xl font-extrabold text-center outline-none">
-        {isolateEnglishRuns(quickTry.promptHe)}
-      </h2>
+      <div className="flex items-start justify-center gap-2">
+        <h2 ref={headingRef} tabIndex={-1} className="text-lg md:text-xl font-extrabold text-center outline-none">
+          {isolateEnglishRuns(quickTry.promptHe)}
+        </h2>
+        <HebrewSpeakButton text={quickTry.promptHe} label="הקשבה לשאלה" />
+      </div>
       {quickTry.questionEn && (
         <p
           dir="ltr"
@@ -319,6 +333,7 @@ const QuickTryCard: React.FC<
           nextLabel=""
           onNext={() => undefined}
           theme={theme}
+          readsAloud={readsAloud}
         />
       )}
     </>

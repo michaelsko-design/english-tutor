@@ -4,6 +4,8 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { playSfx } from '../../utils/sfx';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { Companion } from '../companion/Companion';
+import { useAutoSpeakHebrew } from '../../hooks/useAutoSpeakHebrew';
+import { HebrewSpeakButton } from './HebrewSpeakButton';
 
 interface FeedbackSheetProps {
   isCorrect: boolean;
@@ -18,6 +20,8 @@ interface FeedbackSheetProps {
   /** XP this answer adds to the mission total; floats off the sheet when above 0 */
   xpGain: number;
   theme: ThemeDefinition;
+  /** Grades 1–2 hear the feedback after its sound (Feature 47) */
+  readsAloud?: boolean;
 }
 
 export const FEEDBACK_COMPANION_SIZE = 84;
@@ -39,10 +43,12 @@ export const FeedbackSheet: React.FC<FeedbackSheetProps> = ({
   tryAgainLabel,
   xpGain,
   theme,
+  readsAloud = false,
 }) => {
   const actionRef = useRef<HTMLButtonElement>(null);
   // With reduced motion the XP stays put instead of floating away (and fading out).
   const isReducedMotion = usePrefersReducedMotion();
+  useAutoSpeakHebrew(text, readsAloud);
 
   // A new message is a new answer: play its sound and move the focus to the sheet's button
   // (without scrolling the drill behind it).
@@ -81,10 +87,11 @@ export const FeedbackSheet: React.FC<FeedbackSheetProps> = ({
               <AlertCircle className="w-6 h-6 text-rose-600 shrink-0" />
             )}
             {/* Announced as it appears; focus then moves to the button, which reads only its own name */}
-            <p className="text-sm md:text-base font-extrabold leading-relaxed" role="alert">
+            <p className="flex-1 text-sm md:text-base font-extrabold leading-relaxed" role="alert">
               <span className="sr-only">{isCorrect ? 'נכון! ' : 'לא נכון. '}</span>
               {text}
             </p>
+            <HebrewSpeakButton text={text} label="הקשבה למשוב" />
           </div>
 
           {showNext ? (

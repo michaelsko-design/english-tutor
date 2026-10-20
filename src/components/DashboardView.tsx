@@ -11,6 +11,8 @@ import {
 import { THEME_REGISTRY, TIER_CONFIG } from '../themes/themeRegistry';
 import { DEFAULT_VOICE_PREFERENCE } from '../utils/ttsVoice';
 import { DEFAULT_SPEECH_RATE, getTtsService } from '../services/tts';
+import { playsHebrewAloud, type SpokenPart } from '../data/hebrewAudio';
+import { toSpeakableText } from '../services/tts/ttsText';
 import { CURRICULUM_BY_GRADE, MissionNode } from '../data/curriculum';
 import { countCompletedMissions, getSuggestedMission } from '../data/milestones';
 import { DailyQuestDefinition, RewardShopItem, getDailyQuests } from '../data/rewardShop';
@@ -140,6 +142,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   // Read-aloud: a rendered clip, the online voice or the device voice (services/tts)
   const speakEnglish = (text: string, rate = DEFAULT_SPEECH_RATE) => {
     void getTtsService().speak(text, { rate, voice: profile.voicePreference ?? DEFAULT_VOICE_PREFERENCE });
+  };
+
+  // Grades 1–2: Hebrew and English one after another, e.g. the instruction then the question (Feature 47)
+  const speakParts = (parts: SpokenPart[]) => {
+    const voice = profile.voicePreference ?? DEFAULT_VOICE_PREFERENCE;
+    void getTtsService().speakSequence(
+      parts.map((part) => ({ text: toSpeakableText(part.text), options: { lang: part.lang, rate: part.rate, voice } })),
+    );
   };
 
   // A mission started from the map's sheet already has its tier, so its intro is skipped
@@ -503,6 +513,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             previousStars={profile.missionProgress?.[activePracticeMission.id] || 0}
           isTierChosen={isMissionFromMap}
           readsQuestionsAloud={EARLY_READER_GRADES.includes(profile.gradeId)}
+          readsHebrewAloud={playsHebrewAloud(profile.gradeId)}
+          onSpeakParts={speakParts}
             lastRewardDateStr={profile.missionRewardDates?.[activePracticeMission.id]}
           />
         </Suspense>

@@ -18,6 +18,7 @@ import {
   FeedbackSheet,
   MultipleChoiceOptions,
   HintPopover,
+  InstructionLine,
   PassageBox,
   QuestionBubble,
   getQuestionCardContent,
@@ -45,6 +46,8 @@ import {
   getStepXpGain,
 } from '../utils/missionFeedback';
 import { useStopSpeechOnLeave } from '../hooks/useSpeech';
+import type { SpokenPart } from '../data/hebrewAudio';
+import { getSentenceOrderWrongHe, getVoiceSkippedHe } from '../data/missionFeedbackHe';
 
 /** The companion peeking over the question card */
 const PEEK_COMPANION_SIZE = 64;
@@ -78,6 +81,10 @@ interface MissionRunnerProps {
   isTierChosen?: boolean;
   /** Read each question aloud when it opens (grades 1–3, who may not read yet) */
   readsQuestionsAloud?: boolean;
+  /** Grades 1–2 also hear the Hebrew instruction, hint and feedback (Feature 47) */
+  readsHebrewAloud?: boolean;
+  /** Reads Hebrew and English parts one after another (the instruction, then the question) */
+  onSpeakParts?: (parts: SpokenPart[]) => void;
   /** The mission's stars and last full-reward date before this attempt, to size the reward */
   previousStars: number;
   lastRewardDateStr?: string;
@@ -105,6 +112,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   lastRewardDateStr,
   isTierChosen = false,
   readsQuestionsAloud = false,
+  readsHebrewAloud = false,
+  onSpeakParts,
 }) => {
   const isGirl = gender === 'girl';
   // Random salt per mission attempt: shuffles answer options differently on every attempt,
@@ -176,13 +185,39 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
 
   // Early readers hear each question as it opens (the start tap already unlocked the audio)
   useEffect(() => {
-    if (!readsQuestionsAloud || !isInSteps) return;
+    if (!isInSteps || (!readsQuestionsAloud && !readsHebrewAloud)) return;
     const step = steps[currentStepIdx];
-    const text = step?.speakTargetEn || step?.questionEn;
-    if (text) onSpeakEnglish(toSpeakableText(text), 0.92);
+    const englishText = step?.speakTargetEn || step?.questionEn;
+    const questionEn = readsQuestionsAloud && englishText ? toSpeakableText(englishText) : undefined;
+    if (readsHebrewAloud && step?.promptHe && onSpeakParts) {
+      onSpeakParts([
+        { text: step.promptHe, lang: 'he' },
+        ...(questionEn ? [{ text: questionEn, lang: 'en' as const, rate: 0.92 }] : []),
+      ]);
+    }
+    else if (questionEn) onSpeakEnglish(questionEn, 0.92);
     // Only when a new step opens, not on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStepIdx, isInSteps, readsQuestionsAloud]);
+  }, [currentStepIdx, isInSteps, readsQuestionsAloud, readsHebrewAloud]);
+
+  // Grades 1–2 hear the answer's English (an option, the built sentence), then the Hebrew feedback
+  const answerEnglishRef = useRef<string | undefined>(undefined);
+  const isHebrewVoiced = readsHebrewAloud && Boolean(onSpeakParts);
+  const speakAnswerEnglish = (text: string) => {
+    if (isHebrewVoiced) answerEnglishRef.current = text;
+    else onSpeakEnglish(text, 0.95);
+  };
+  useEffect(() => {
+    if (!feedbackHe || !isHebrewVoiced || !onSpeakParts) return;
+    const answerEn = answerEnglishRef.current;
+    answerEnglishRef.current = undefined;
+    onSpeakParts([
+      ...(answerEn ? [{ text: answerEn, lang: 'en' as const, rate: 0.95 }] : []),
+      { text: feedbackHe.text, lang: 'he' },
+    ]);
+    // Only when new feedback appears
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [feedbackHe]);
 
   // Reset step state when step or tier changes
   useEffect(() => {
@@ -244,7 +279,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     setSelectedOptionIdx(idx);
     const chosen = currentStep.options[idx];
     if (/[A-Za-z]/.test(chosen.textEn)) {
-      onSpeakEnglish(chosen.textEn, 0.95);
+      speakAnswerEnglish(chosen.textEn);
     }
 
     if (chosen.isCorrect) {
@@ -274,18 +309,14 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
       .trim();
 
     if (cleanBuilt === cleanTarget) {
-      onSpeakEnglish(currentStep.targetSentenceEn, 0.95);
+      speakAnswerEnglish(currentStep.targetSentenceEn);
       registerCorrectAnswer(
         isGirl
           ? `מעולה ${learnerName}! הרכבת את המשפט בסדר דקדוקי מושלם!`
           : `מעולה ${learnerName}! הרכבת את המשפט בסדר דקדוקי מושלם!`
       );
     } else {
-      registerWrongAttempt(
-        isGirl
-          ? 'עדיין לא בסדר הנכון — בדקי את מיקום הפועל או היעזרי ברמז 💡'
-          : 'עדיין לא בסדר הנכון — בדוק את מיקום הפועל או היעזר ברמז 💡'
-      );
+      registerWrongAttempt(getSentenceOrderWrongHe(gender));
     }
   };
 
@@ -413,6 +444,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                 theme={theme}
                 onSpeakEnglish={onSpeakEnglish}
                 readsAloud={readsQuestionsAloud}
+                readsHebrewAloud={readsHebrewAloud}
                 doneLabel="יאללה לתרגול! 🚀"
                 onDone={() => setPhase('steps')}
                 onClose={onClose}
@@ -469,7 +501,13 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     <BookOpen className="w-4 h-4" />
                   </button>
                 )}
-                <HintPopover hintHe={currentStep.hintHe} isOpen={showHint} onToggle={setShowHint} theme={theme} />
+                <HintPopover
+                  hintHe={currentStep.hintHe}
+                  isOpen={showHint}
+                  onToggle={setShowHint}
+                  theme={theme}
+                  readsAloud={readsHebrewAloud}
+                />
               </div>
 
               {/* Main Exercise Body */}
@@ -479,7 +517,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                   {currentStep.badgeLabelHe}
                 </span>
 
-                <p className="text-lg md:text-xl font-extrabold">{currentStep.promptHe}</p>
+                <InstructionLine text={currentStep.promptHe} />
 
                 {/* Story step: the mission's spot illustration, only when the file exists */}
                 {currentStep.type === 'story-unseen' && <StoryArt missionId={mission.id} />}
@@ -531,13 +569,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                         theme={theme}
                         onSpeakEnglish={onSpeakEnglish}
                         onStartListening={handleStartSpeechRecognition}
-                        onSkip={() =>
-                          registerSkippedStep(
-                            isGirl
-                              ? 'דילגת על מיקרופון במצב שקט — ממשיכות לשלב הבא!'
-                              : 'דילגת על מיקרופון במצב שקט — ממשיכים לשלב הבא!'
-                          )
-                        }
+                        onSkip={() => registerSkippedStep(getVoiceSkippedHe(gender))}
                       />
                     )
                   )}
