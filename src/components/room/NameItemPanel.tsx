@@ -241,7 +241,9 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
           onChangeSlots={handleLetterSlotsChange}
           onReset={() => setLetterSlots([])}
           onCheck={handleCheckSpelling}
-          onListen={() => onSpeakEnglish(item.nameEn, 0.85)}
+          listenEn={item.nameEn}
+          listenRate={0.85}
+          onSpeakEnglish={onSpeakEnglish}
           theme={theme}
         />
       )}

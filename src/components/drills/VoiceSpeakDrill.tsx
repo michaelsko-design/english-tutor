@@ -1,8 +1,10 @@
 import React from 'react';
-import { Mic, Volume2 } from 'lucide-react';
+import { Mic } from 'lucide-react';
 import { LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { SpeechEvaluationResult } from '../../utils/speechSimilarity';
+import { useSpeechToggle } from '../../hooks/useSpeech';
+import { SpeakIcon, STOP_SPEECH_TEXT } from '../SpeakIcon';
 
 interface VoiceSpeakDrillProps {
   targetEn: string;
@@ -33,6 +35,8 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
   onSkip,
 }) => {
   const isGirl = gender === 'girl';
+  const normalSpeech = useSpeechToggle(onSpeakEnglish, targetEn, 0.95);
+  const slowSpeech = useSpeechToggle(onSpeakEnglish, targetEn, 0.7);
   const words = speechEval
     ? speechEval.wordResults
     : targetEn.split(/\s+/).map((w) => ({ targetWord: w, cleanWord: w, matched: false }));
@@ -70,19 +74,19 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
       <div className="flex flex-wrap items-center justify-center gap-3">
         <button
           type="button"
-          onClick={() => onSpeakEnglish(targetEn, 0.95)}
+          onClick={normalSpeech.toggle}
           className={`px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
         >
-          <Volume2 className="w-4 h-4" />
-          <span>🔊 <bdi>Listen</bdi> (רגיל)</span>
+          <SpeakIcon isSpeaking={normalSpeech.isSpeaking} />
+          {normalSpeech.isSpeaking ? <span>{STOP_SPEECH_TEXT}</span> : <span>🔊 <bdi>Listen</bdi> (רגיל)</span>}
         </button>
         <button
           type="button"
-          onClick={() => onSpeakEnglish(targetEn, 0.7)}
+          onClick={slowSpeech.toggle}
           className={`px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
         >
-          <Volume2 className="w-4 h-4" />
-          <span>🐢 <bdi>Listen Slow</bdi> (איטי)</span>
+          <SpeakIcon isSpeaking={slowSpeech.isSpeaking} />
+          {slowSpeech.isSpeaking ? <span>{STOP_SPEECH_TEXT}</span> : <span>🐢 <bdi>Listen Slow</bdi> (איטי)</span>}
         </button>
         <button
           type="button"

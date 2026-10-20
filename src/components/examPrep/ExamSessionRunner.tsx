@@ -20,6 +20,7 @@ import {
 } from '../drills';
 import { ExamModalShell } from './ExamModalShell';
 import { ExamSessionResult } from './ExamSessionResult';
+import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
 
 export type ExamSessionNext = 'plan' | 'retry';
 
@@ -58,6 +59,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
   onFinish,
   onClose,
 }) => {
+  useStopSpeechOnLeave();
   const isGirl = profile.gender === 'girl';
   const isMock = day.kind === 'mock';
   const tier = profile.preferredTier;

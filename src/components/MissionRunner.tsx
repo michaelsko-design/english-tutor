@@ -42,6 +42,7 @@ import {
   getPeekCompanionPose,
   getStepXpGain,
 } from '../utils/missionFeedback';
+import { useStopSpeechOnLeave } from '../hooks/useSpeech';
 
 /** The companion peeking over the question card */
 const PEEK_COMPANION_SIZE = 64;
@@ -323,6 +324,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   const dialogRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   useDialog(dialogRef, { onClose, initialFocusRef: cardRef });
+  // Leaving the mission mid-sentence stops the reading (Feature 41)
+  useStopSpeechOnLeave();
 
   // Calculate final rewards
   const scoredStepCount = Math.max(1, steps.length - skippedStepCount);

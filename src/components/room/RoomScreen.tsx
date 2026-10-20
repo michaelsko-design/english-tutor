@@ -26,6 +26,7 @@ import { PhonePanel } from './PhonePanel';
 import { WardrobePanel } from './WardrobePanel';
 import { AVATAR_HOME, OBJECT_POSITIONS, SLOT_POSITIONS, ScenePoint, getStandingPoint } from './roomLayout';
 import { formatGainLtr } from '../../utils/bidi';
+import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
 
 interface RoomScreenProps {
   profile: LearnerProfile;
@@ -60,6 +61,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   onOpenShop,
   onClose,
 }) => {
+  useStopSpeechOnLeave();
   const isGirl = profile.gender === 'girl';
   const room = getRoom(profile);
   const ownedItems = getOwnedRoomItems(profile);

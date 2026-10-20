@@ -1,9 +1,11 @@
 import React from 'react';
 import { DndContext } from '@dnd-kit/core';
-import { RotateCcw, Volume2 } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { isEverySlotFilled, placeLetter, takeBackLetter, toSlots } from '../../utils/letterSlots';
 import { playSfx } from '../../utils/sfx';
+import { useSpeechToggle } from '../../hooks/useSpeech';
+import { SpeakIcon, STOP_SPEECH_TEXT } from '../SpeakIcon';
 import { LetterSlot, useLetterSlotDrag } from './letterSlotDrag';
 import { DraggableMagnet, MAGNET_BANK_ID, MagnetDragOverlay, MagnetDropZone } from './magnetDrag';
 
@@ -20,7 +22,10 @@ interface SpellingMagnetDrillProps {
   onChangeSlots: (next: (number | null)[]) => void;
   onReset: () => void;
   onCheck: () => void;
-  onListen: () => void;
+  /** What the listen button reads, and how fast */
+  listenEn: string;
+  listenRate: number;
+  onSpeakEnglish: (text: string, rate?: number) => void;
   theme: ThemeDefinition;
 }
 
@@ -40,9 +45,12 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
   onChangeSlots,
   onReset,
   onCheck,
-  onListen,
+  listenEn,
+  listenRate,
+  onSpeakEnglish,
   theme,
 }) => {
+  const listenSpeech = useSpeechToggle(onSpeakEnglish, listenEn, listenRate);
   const slotCount = letterTiles.length;
   const filledSlots = toSlots(slots, slotCount);
   const drag = useLetterSlotDrag({
@@ -111,11 +119,11 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
-            onClick={onListen}
+            onClick={listenSpeech.toggle}
             className={`px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
           >
-            <Volume2 className="w-4 h-4" />
-            <span>🔊 האזנה למילה</span>
+            <SpeakIcon isSpeaking={listenSpeech.isSpeaking} />
+            <span>{listenSpeech.isSpeaking ? STOP_SPEECH_TEXT : '🔊 האזנה למילה'}</span>
           </button>
           {translationHe && (
             <span className="text-sm font-bold opacity-85">

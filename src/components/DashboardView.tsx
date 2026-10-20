@@ -10,7 +10,7 @@ import {
 } from '../types/learner';
 import { THEME_REGISTRY, TIER_CONFIG } from '../themes/themeRegistry';
 import { DEFAULT_VOICE_PREFERENCE } from '../utils/ttsVoice';
-import { getTtsService } from '../services/tts';
+import { DEFAULT_SPEECH_RATE, getTtsService } from '../services/tts';
 import { CURRICULUM_BY_GRADE, MissionNode } from '../data/curriculum';
 import { countCompletedMissions, getSuggestedMission } from '../data/milestones';
 import { DailyQuestDefinition, RewardShopItem, getDailyQuests } from '../data/rewardShop';
@@ -136,7 +136,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   });
 
   // Read-aloud: a rendered clip, the online voice or the device voice (services/tts)
-  const speakEnglish = (text: string, rate = 0.95) => {
+  const speakEnglish = (text: string, rate = DEFAULT_SPEECH_RATE) => {
     void getTtsService().speak(text, { rate, voice: profile.voicePreference ?? DEFAULT_VOICE_PREFERENCE });
   };
 

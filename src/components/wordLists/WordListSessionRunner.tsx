@@ -24,6 +24,7 @@ import {
 } from '../drills';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { WordListSessionResult } from './WordListSessionResult';
+import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
 
 export type WordListSessionNext = 'lists' | 'retry';
 
@@ -57,6 +58,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   onFinish,
   onClose,
 }) => {
+  useStopSpeechOnLeave();
   const gender = profile.gender;
   const isGirl = gender === 'girl';
   // A new salt per run picks other items and a new tile order, stable across re-renders.
@@ -274,7 +276,9 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
             onChangeSlots={handleLetterSlotsChange}
             onReset={() => setLetterSlots([])}
             onCheck={handleCheckSpelling}
-            onListen={() => onSpeakEnglish(step.textEn, 0.85)}
+            listenEn={step.textEn}
+            listenRate={0.85}
+            onSpeakEnglish={onSpeakEnglish}
             theme={theme}
           />
         )}

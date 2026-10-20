@@ -7,6 +7,7 @@ import { FeedbackBanner, MultipleChoiceOptions, QuestionBubble, SentenceBuilderD
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { isolateLtr } from '../../utils/bidi';
 import { MagnetChange } from '../../utils/magnetOrder';
+import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
 
 interface ContestRunnerProps {
   contest: ContestDoc;
@@ -47,6 +48,7 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
   onFinish,
   onClose,
 }) => {
+  useStopSpeechOnLeave();
   const isGirl = profile.gender === 'girl';
   const steps: ContestStep[] = useMemo(
     () => buildContestSteps(profile.gradeId, contest, profile.gender),

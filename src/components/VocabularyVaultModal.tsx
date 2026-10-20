@@ -9,13 +9,15 @@ import { evaluateSpokenSentence } from '../utils/speechSimilarity';
 import {
   X,
   BookOpen,
-  Volume2,
   Mic,
   Search,
   CheckCircle2,
   Sparkles,
 } from 'lucide-react';
 import { isolateLtr } from '../utils/bidi';
+import { isSameSpeech } from '../services/tts';
+import { toggleSpeech, useCurrentSpeech, useStopSpeechOnLeave } from '../hooks/useSpeech';
+import { SpeakIcon, STOP_SPEECH_LABEL, STOP_SPEECH_TEXT } from './SpeakIcon';
 
 /** The reward inside a Hebrew sentence, isolated so "+10 XP" doesn't flip */
 const VAULT_REWARD_LABEL = isolateLtr('+10 XP · +2 💎');
@@ -77,6 +79,8 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
 
   const dialogRef = useRef<HTMLDivElement>(null);
   useDialog(dialogRef, { onClose });
+  useStopSpeechOnLeave();
+  const currentSpeech = useCurrentSpeech();
 
   // Closing the Vault mid-word stops listening, so no result arrives after it closed
   const recognitionRef = useRef<{ abort: () => void } | null>(null);
@@ -280,6 +284,9 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
           {filteredVocab.map((item) => {
             const isMastered = masteredWordsSession[item.wordEn];
             const isRecordingThis = practicingWord === item.wordEn;
+            const listenText = `${item.wordEn}. ${item.exampleEn}`;
+            const isListenSpeaking = isSameSpeech(currentSpeech, listenText, 0.95);
+            const isSlowSpeaking = isSameSpeech(currentSpeech, item.wordEn, 0.65);
 
             return (
               <div
@@ -326,22 +333,21 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
-                      onClick={() =>
-                        onSpeakEnglish(`${item.wordEn}. ${item.exampleEn}`, 0.95)
-                      }
+                      onClick={() => toggleSpeech(isListenSpeaking, onSpeakEnglish, listenText, 0.95)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1 ${theme.secondaryBtnClass}`}
                     >
-                      <Volume2 className="w-3.5 h-3.5" />
-                      <span>Listen</span>
+                      <SpeakIcon isSpeaking={isListenSpeaking} className="w-3.5 h-3.5" />
+                      <span>{isListenSpeaking ? STOP_SPEECH_TEXT : 'Listen'}</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => onSpeakEnglish(item.wordEn, 0.65)}
+                      onClick={() => toggleSpeech(isSlowSpeaking, onSpeakEnglish, item.wordEn, 0.65)}
                       className={`px-2.5 py-1.5 rounded-xl text-xs font-bold ${theme.secondaryBtnClass}`}
-                      title="Listen Slowly"
+                      title={isSlowSpeaking ? STOP_SPEECH_LABEL : 'Listen Slowly'}
+                      aria-label={isSlowSpeaking ? STOP_SPEECH_LABEL : undefined}
                       dir="ltr" lang="en"
                     >
-                      🐢 Slow
+                      {isSlowSpeaking ? '⏹' : '🐢 Slow'}
                     </button>
                   </div>
 

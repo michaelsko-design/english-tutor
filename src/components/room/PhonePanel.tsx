@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { celebrate } from '../../utils/celebrate';
-import { Volume2 } from 'lucide-react';
 import { RoomActivityReward } from '../../data/roomActivities';
 import { applyPhoneSessionResult, buildPhoneSession } from '../../data/voiceMessages';
 import { LearnerProfile } from '../../types/learner';
@@ -10,6 +9,8 @@ import { getSpeechErrorTextHe, useSpeechRecognition } from '../../hooks/useSpeec
 import { FeedbackBanner, VoiceSpeakDrill } from '../drills';
 import { ActivityRewardSummary } from './ActivityRewardSummary';
 import { RoomPanelFrame } from './RoomPanelFrame';
+import { useSpeechToggle } from '../../hooks/useSpeech';
+import { SpeakIcon, STOP_SPEECH_LABEL } from '../SpeakIcon';
 
 interface PhonePanelProps {
   profile: LearnerProfile;
@@ -40,6 +41,7 @@ export const PhonePanel: React.FC<PhonePanelProps> = ({ profile, theme, onUpdate
   const cancelListening = speech.cancel;
 
   const message = messages[idx];
+  const messageSpeech = useSpeechToggle(onSpeakEnglish, message?.incomingEn ?? '', 0.9);
   const isResolved = outcomes.length > idx;
   const isLast = idx === messages.length - 1;
   const sentCount = outcomes.filter((o) => o === 'sent').length;
@@ -134,11 +136,11 @@ export const PhonePanel: React.FC<PhonePanelProps> = ({ profile, theme, onUpdate
                 </div>
                 <button
                   type="button"
-                  onClick={() => onSpeakEnglish(message.incomingEn, 0.85)}
+                  onClick={messageSpeech.toggle}
                   className="p-2 rounded-full bg-white/15 shrink-0"
-                  aria-label="השמעת ההודעה"
+                  aria-label={messageSpeech.isSpeaking ? STOP_SPEECH_LABEL : 'השמעת ההודעה'}
                 >
-                  <Volume2 className="w-4 h-4" />
+                  <SpeakIcon isSpeaking={messageSpeech.isSpeaking} />
                 </button>
               </div>
               {outcomes[idx] === 'sent' && (

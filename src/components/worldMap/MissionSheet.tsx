@@ -1,11 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { BookOpen, Clock, Play, Sparkles, Volume2, X } from 'lucide-react';
+import { BookOpen, Clock, Play, Sparkles, X } from 'lucide-react';
 import { MapStop } from '../../data/worldMap';
 import { LearnerGender, ProficiencyTier } from '../../types/learner';
 import { ThemeDefinition, TIER_CONFIG } from '../../themes/themeRegistry';
 import { inflectHebrew } from '../../utils/hebrewGender';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { toggleSpeech, useCurrentSpeech, useStopSpeechOnLeave } from '../../hooks/useSpeech';
+import { isSameSpeech } from '../../services/tts';
+import { SpeakIcon, STOP_SPEECH_LABEL } from '../SpeakIcon';
 import { TierChoice } from '../mission/TierChoice';
 import { StarRow } from './mapPieces';
 import { WorldMapStyle } from './worldMapStyles';
@@ -54,10 +57,14 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
 }) => {
   const closeRef = useRef<HTMLButtonElement>(null);
   const isReducedMotion = usePrefersReducedMotion();
+  const currentSpeech = useCurrentSpeech();
+  useStopSpeechOnLeave();
   const { mission, status, stars } = stop.state;
   const isGirl = gender === 'girl';
   const tierMeta = TIER_CONFIG[tier];
   const tierObjective = mission.tierObjectives[tier];
+  const sampleEn = tierObjective?.samplePromptEn.replace(/_+/g, '') ?? '';
+  const isSampleSpeaking = isSameSpeech(currentSpeech, sampleEn, 0.92);
   const xp = Math.round(mission.baseXp * tierMeta.xpMultiplier);
   const diamonds = mission.baseDiamonds + tierMeta.diamondBonus;
   const startLabel =
@@ -160,11 +167,11 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
                     <span>&ldquo;{tierObjective.samplePromptEn}&rdquo;</span>
                     <button
                       type="button"
-                      onClick={() => onSpeakEnglish(tierObjective.samplePromptEn.replace(/_+/g, ''), 0.92)}
+                      onClick={() => toggleSpeech(isSampleSpeaking, onSpeakEnglish, sampleEn, 0.92)}
                       className={`p-1.5 rounded-lg shrink-0 ${theme.secondaryBtnClass}`}
-                      aria-label="האזנה למשפט לדוגמה"
+                      aria-label={isSampleSpeaking ? STOP_SPEECH_LABEL : 'האזנה למשפט לדוגמה'}
                     >
-                      <Volume2 className="w-4 h-4" />
+                      <SpeakIcon isSpeaking={isSampleSpeaking} />
                     </button>
                   </div>
                 </div>
@@ -180,29 +187,34 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
               </span>
             </h4>
             <ul className="grid grid-cols-1 gap-1.5">
-              {mission.vocabulary.map((word) => (
-                <li key={word.wordEn}>
-                  <button
-                    type="button"
-                    onClick={() => onSpeakEnglish(`${word.wordEn}. ${word.exampleEn}`, 0.9)}
-                    className={`w-full p-2.5 rounded-2xl ${style.sheetChipClass} flex items-center gap-2.5 text-start`}
-                  >
-                    <Volume2 className="w-4 h-4 shrink-0 opacity-70" />
-                    <span className="flex-1 min-w-0">
-                      <span className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-bold">{word.translationHe}</span>
-                        <span className="font-extrabold text-sm" dir="ltr" lang="en">
-                          {word.emoji && <span aria-hidden="true">{word.emoji} </span>}
-                          {word.wordEn}
+              {mission.vocabulary.map((word) => {
+                const wordText = `${word.wordEn}. ${word.exampleEn}`;
+                const isSpeaking = isSameSpeech(currentSpeech, wordText, 0.9);
+                return (
+                  <li key={word.wordEn}>
+                    <button
+                      type="button"
+                      onClick={() => toggleSpeech(isSpeaking, onSpeakEnglish, wordText, 0.9)}
+                      aria-pressed={isSpeaking}
+                      className={`w-full p-2.5 rounded-2xl ${style.sheetChipClass} flex items-center gap-2.5 text-start`}
+                    >
+                      <SpeakIcon isSpeaking={isSpeaking} className="w-4 h-4 shrink-0 opacity-70" />
+                      <span className="flex-1 min-w-0">
+                        <span className="flex items-center justify-between gap-2">
+                          <span className="text-sm font-bold">{word.translationHe}</span>
+                          <span className="font-extrabold text-sm" dir="ltr" lang="en">
+                            {word.emoji && <span aria-hidden="true">{word.emoji} </span>}
+                            {word.wordEn}
+                          </span>
+                        </span>
+                        <span className="block text-xs opacity-75 mt-0.5" dir="ltr" lang="en">
+                          {word.exampleEn}
                         </span>
                       </span>
-                      <span className="block text-xs opacity-75 mt-0.5" dir="ltr" lang="en">
-                        {word.exampleEn}
-                      </span>
-                    </span>
-                  </button>
-                </li>
-              ))}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>

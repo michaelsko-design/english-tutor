@@ -275,6 +275,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 
 ### 4.20. Read-Aloud Voice (`services/tts/`, `api/tts.ts`, `scripts/tts/`, `utils/ttsVoice.ts`)
 - Features 23 and 28. All English read-aloud goes through `getTtsService().speak(text, { rate, voice })` (called by `speakEnglish` in `DashboardView` and the settings voice preview), which implements `TextToSpeechService` (`speak` / `stop` / `isReady`). Each new `speak` stops the last one. The evaluation and decision are in `docs/tts-evaluation.md`.
+- **Stopping** (Feature 41, `speechStatus.ts`, `hooks/useSpeech.ts`): the service also knows what it is reading (`getCurrent()`: the text and rate, from the tap until it ends or is stopped). Every 🔊 button reads through `useSpeechToggle` (or `useCurrentSpeech` + `toggleSpeech` in a list): while its own text and rate are being read it shows a stop square (`SpeakIcon`, "עצירת ההקראה") and a tap stops it. Auto-reads (questions, word chips, answers) stay plain `speak` calls. Reading stops when the screen that started it closes (`useStopSpeechOnLeave`: the four drill runners, the room and its panels, the Vault, the report, the map's mission sheet, the voice lab) and when the app goes to the background (`visibilitychange`). **A new 🔊 button or screen that reads aloud uses these too.**
 - **Three tiers** (`hybridTtsService.ts`, + `.test.ts`):
   1. **Rendered clip.** An Azure Neural MP3 in `public/tts/v<N>/<voice>/<key>.mp3`, listed in `public/tts/manifest.json`. Only the default female voice is rendered, to keep git small.
   2. **Online voice.** `/api/tts?a=&v=&s=&t=` (Vercel Function, `api/tts.ts`) for any other plain English text up to 200 characters: word lists, sticker names, dreams, the male voice.
@@ -377,6 +378,7 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── settings/                 # VoiceLabCard (read-aloud tiers), AccountPrivacyCard (privacy notice, data download, account deletion)
 │   │   ├── privacy/                  # PrivacyNoticeDialog: the Hebrew privacy notice for parents
 │   │   ├── ScreenLoading.tsx         # Spinner while a lazily loaded screen arrives
+│   │   ├── SpeakIcon.tsx             # 🔊 icon, or a stop square while the button's own text is being read (Feature 41)
 │   │   ├── room/                     # My English Room: hub, scene & layout, inventory, naming panel, wardrobe, phone, dream journal, games/ (Games Book), stickers/ (Sticker Studio)
 │   │   ├── victory/                  # Staged mission victory screen with the cheering companion (Features 24–25)
 │   │   ├── VocabularyVaultModal.tsx  # Ministry word bank & pronunciation studio
@@ -429,9 +431,10 @@ Each learning mission consists of 5 pedagogical drill stages:
 │   │   ├── usePendingInvite.ts       # Friend code from an invite link, kept through sign-in
 │   │   ├── usePrefersReducedMotion.ts # The reduce-motion setting
 │   │   ├── useSfxMuted.ts            # The sound mute setting
+│   │   ├── useSpeech.ts              # What is being read aloud, 🔊 play/stop toggles, stop on leaving a screen (Feature 41)
 │   │   └── useSpeechRecognition.ts   # Web Speech recognition for the voice drills
 │   ├── services/
-│   │   ├── tts/                      # Read-aloud: hybrid service (clip / online / device), clip keys, audio unlock, demo phrases (+ tests)
+│   │   ├── tts/                      # Read-aloud: hybrid service (clip / online / device), what is being read (speechStatus), clip keys, audio unlock, demo phrases (+ tests)
 │   │   ├── cloudSync.ts              # LocalStorage <-> Firestore sync & merge logic (+ .test.ts)
 │   │   ├── accountService.ts         # Account deletion with all data, data export, saving a guest account
 │   │   ├── profileSaveQueue.ts       # Batches cloud saves of the profile (+ .test.ts)

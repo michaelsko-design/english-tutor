@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { celebrate } from '../../utils/celebrate';
-import { Volume2 } from 'lucide-react';
 import {
   DreamFrame,
   DreamWord,
@@ -18,6 +17,8 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { SpeechEvaluationResult } from '../../utils/speechSimilarity';
 import { getSpeechErrorTextHe, useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { VoiceSpeakDrill } from '../drills';
+import { useSpeechToggle } from '../../hooks/useSpeech';
+import { SpeakIcon } from '../SpeakIcon';
 import { ActivityRewardSummary } from './ActivityRewardSummary';
 import { DreamJournalList } from './DreamJournalList';
 import { RoomPanelFrame } from './RoomPanelFrame';
@@ -66,6 +67,7 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
     frames[frameIdx].blanks.map((_, b) => picks[blankKey(frameIdx, b)]?.[lang]);
   const dreamHe = frames.map((frame, f) => fillFrame(frame.he, wordsOf(f, 'he'))).join(' ');
   const dreamEn = frames.map((frame, f) => fillFrame(frame.en, wordsOf(f, 'en'))).join(' ');
+  const dreamSpeech = useSpeechToggle(onSpeakEnglish, dreamEn, 0.85);
   const firstTryCount = blankKeys.filter((key) => !missed[key]).length;
 
   const handlePick = (key: string, word: DreamWord) => setPicks({ ...picks, [key]: word });
@@ -270,11 +272,12 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
           </p>
           <button
             type="button"
-            onClick={() => onSpeakEnglish(dreamEn, 0.85)}
+            onClick={dreamSpeech.toggle}
+            aria-pressed={dreamSpeech.isSpeaking}
             className={`w-full p-3 rounded-2xl text-sm font-extrabold flex items-center gap-2 ${theme.secondaryBtnClass}`}
             dir="ltr" lang="en"
           >
-            <Volume2 className="w-4 h-4 shrink-0" />
+            <SpeakIcon isSpeaking={dreamSpeech.isSpeaking} className="w-4 h-4 shrink-0" />
             <span className="text-left">{dreamEn}</span>
           </button>
           <VoiceSpeakDrill

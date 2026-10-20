@@ -71,7 +71,9 @@ export const ScrambleGame: React.FC<ScrambleGameProps> = ({ rounds, gender, them
         onChangeSlots={handleSlotsChange}
         onReset={() => setSlots([])}
         onCheck={handleCheck}
-        onListen={() => onSpeakEnglish(round.word.word.toLowerCase(), 0.8)}
+        listenEn={round.word.word.toLowerCase()}
+        listenRate={0.8}
+        onSpeakEnglish={onSpeakEnglish}
         theme={theme}
       />
       {feedback && (

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Volume2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   WeeklyReport,
   buildWeeklyReport,
@@ -12,6 +12,9 @@ import { LearnerProfile } from '../../types/learner';
 import { TIER_CONFIG, ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { ShareTextActions } from '../ShareTextActions';
+import { SpeakIcon, STOP_SPEECH_LABEL } from '../SpeakIcon';
+import { isSameSpeech } from '../../services/tts';
+import { toggleSpeech, useCurrentSpeech, useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { WeekStrip } from './WeekStrip';
 
 interface WeeklyReportScreenProps {
@@ -55,6 +58,8 @@ export const WeeklyReportScreen: React.FC<WeeklyReportScreenProps> = ({
   onSpeakEnglish,
   onClose,
 }) => {
+  const currentSpeech = useCurrentSpeech();
+  useStopSpeechOnLeave();
   const weeks = getAvailableWeeks(profile, todayStr);
   const [weekIndex, setWeekIndex] = useState(0);
   const safeIndex = Math.min(weekIndex, weeks.length - 1);
@@ -160,21 +165,24 @@ export const WeeklyReportScreen: React.FC<WeeklyReportScreenProps> = ({
           <h3 className="font-extrabold text-sm">📚 מילים חדשות שנשלטו השבוע ({report.newMasteredWords.length})</h3>
           {report.newMasteredWords.length > 0 ? (
             <ul className="flex flex-wrap gap-1.5">
-              {report.newMasteredWords.map((word) => (
-                <li key={word.wordEn}>
-                  <button
-                    type="button"
-                    onClick={() => onSpeakEnglish(word.wordEn)}
-                    className={`px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${theme.badgeClass}`}
-                    aria-label={`השמעת ${word.wordEn}: ${word.translationHe}`}
-                  >
-                    {word.emoji && <span aria-hidden="true">{word.emoji}</span>}
-                    <span dir="ltr" lang="en">{word.wordEn}</span>
-                    <span className="opacity-75">– {word.translationHe}</span>
-                    <Volume2 className="w-3 h-3 opacity-60" aria-hidden="true" />
-                  </button>
-                </li>
-              ))}
+              {report.newMasteredWords.map((word) => {
+                const isSpeaking = isSameSpeech(currentSpeech, word.wordEn);
+                return (
+                  <li key={word.wordEn}>
+                    <button
+                      type="button"
+                      onClick={() => toggleSpeech(isSpeaking, onSpeakEnglish, word.wordEn)}
+                      className={`px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${theme.badgeClass}`}
+                      aria-label={isSpeaking ? STOP_SPEECH_LABEL : `השמעת ${word.wordEn}: ${word.translationHe}`}
+                    >
+                      {word.emoji && <span aria-hidden="true">{word.emoji}</span>}
+                      <span dir="ltr" lang="en">{word.wordEn}</span>
+                      <span className="opacity-75">– {word.translationHe}</span>
+                      <SpeakIcon isSpeaking={isSpeaking} className="w-3 h-3 opacity-60" />
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <p className={`text-xs ${theme.mutedTextClass}`}>

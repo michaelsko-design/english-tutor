@@ -1,10 +1,11 @@
 import { getSharedAudio, onFirstGesture } from './audioUnlock';
 import { deviceTtsService } from './deviceTtsService';
 import { createHybridTtsService } from './hybridTtsService';
-import type { TextToSpeechService } from './types';
+import { createSpeechStatus, type SpeechStatusService } from './speechStatus';
 import { auth } from '../firebase';
 
 export type { SpeakOptions, TextToSpeechService, TtsEngine } from './types';
+export { DEFAULT_SPEECH_RATE, isSameSpeech, type CurrentSpeech } from './speechStatus';
 
 declare global {
   interface Window {
@@ -19,10 +20,10 @@ function recordClipMiss(text: string): void {
   window.__ttsMisses.add(text);
 }
 
-let service: (TextToSpeechService & { preload(): void }) | null = null;
+let service: SpeechStatusService | null = null;
 
 /** The app's read-aloud service: rendered clip, then the online voice, then the device voice. */
-export function getTtsService(): TextToSpeechService {
+export function getTtsService(): SpeechStatusService {
   if (!service) {
     const created = createHybridTtsService({
       device: deviceTtsService,
@@ -35,7 +36,18 @@ export function getTtsService(): TextToSpeechService {
       onClipMiss: recordClipMiss,
     });
     onFirstGesture(created.preload);
-    service = created;
+    service = createSpeechStatus(created);
+    // Reading stops when the learner switches to another app or tab.
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') stopSpeech();
+      });
+    }
   }
   return service;
+}
+
+/** Stops whatever is being read aloud (a stop button, or leaving the screen that started it). */
+export function stopSpeech(): void {
+  service?.stop();
 }

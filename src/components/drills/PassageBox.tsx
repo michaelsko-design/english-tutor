@@ -1,6 +1,7 @@
 import React from 'react';
-import { Volume2 } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { useSpeechToggle } from '../../hooks/useSpeech';
+import { SpeakIcon, STOP_SPEECH_TEXT } from '../SpeakIcon';
 
 interface PassageBoxProps {
   passageEn: string;
@@ -16,28 +17,31 @@ export const PassageBox: React.FC<PassageBoxProps> = ({
   showHebrew,
   theme,
   onSpeakEnglish,
-}) => (
-  <div className={`p-4 md:p-5 rounded-2xl ${theme.cardBgClass} space-y-2.5`}>
-    <div className="flex items-center justify-between gap-2">
-      <span className="text-xs font-extrabold uppercase tracking-wider opacity-75">
-        📖 Reading Passage · קטע קריאה
-      </span>
-      <button
-        type="button"
-        onClick={() => onSpeakEnglish(passageEn, 0.92)}
-        className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-      >
-        <Volume2 className="w-3.5 h-3.5" />
-        <span dir="ltr" lang="en">Listen to Story 🔊</span>
-      </button>
-    </div>
-    <p className="text-sm md:text-base font-bold leading-relaxed" dir="ltr" lang="en">
-      {passageEn}
-    </p>
-    {showHebrew && passageHe && (
-      <p className={`text-xs ${theme.mutedTextClass} pt-1 border-t border-current/10`}>
-        {passageHe}
+}) => {
+  const speech = useSpeechToggle(onSpeakEnglish, passageEn, 0.92);
+  return (
+    <div className={`p-4 md:p-5 rounded-2xl ${theme.cardBgClass} space-y-2.5`}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs font-extrabold uppercase tracking-wider opacity-75">
+          📖 Reading Passage · קטע קריאה
+        </span>
+        <button
+          type="button"
+          onClick={speech.toggle}
+          className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
+        >
+          <SpeakIcon isSpeaking={speech.isSpeaking} className="w-3.5 h-3.5" />
+          {speech.isSpeaking ? <span>{STOP_SPEECH_TEXT}</span> : <span dir="ltr" lang="en">Listen to Story 🔊</span>}
+        </button>
+      </div>
+      <p className="text-sm md:text-base font-bold leading-relaxed" dir="ltr" lang="en">
+        {passageEn}
       </p>
-    )}
-  </div>
-);
+      {showHebrew && passageHe && (
+        <p className={`text-xs ${theme.mutedTextClass} pt-1 border-t border-current/10`}>
+          {passageHe}
+        </p>
+      )}
+    </div>
+  );
+};

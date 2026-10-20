@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, Volume2, X } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
 import {
   getLessonCards,
   LessonCardKind,
@@ -14,6 +14,9 @@ import { CompanionPose } from '../../themes/themeArt';
 import { seededShuffle } from '../../utils/shuffle';
 import { isolateEnglishRuns } from '../../utils/bidi';
 import { Companion } from '../companion/Companion';
+import { isSameSpeech } from '../../services/tts';
+import { toggleSpeech, useCurrentSpeech } from '../../hooks/useSpeech';
+import { SpeakIcon } from '../SpeakIcon';
 import { FeedbackBanner, MultipleChoiceOptions } from '../drills';
 
 export const LESSON_COMPANION_SIZE = 96;
@@ -240,44 +243,49 @@ const IdeaCard: React.FC<CardProps & { lesson: MiniLessonData }> = ({ lesson, th
 
 const ExamplesCard: React.FC<
   CardProps & { examples: LessonExample[]; onSpeakEnglish: (text: string, rate?: number) => void }
-> = ({ examples, theme, headingRef, onSpeakEnglish }) => (
-  <>
-    <h2 ref={headingRef} tabIndex={-1} className="text-lg font-extrabold text-center outline-none">
-      לחצו על משפט כדי לשמוע אותו
-    </h2>
-    <ul className="space-y-3">
-      {examples.map((example) => {
-        const { before, match, after } = splitHighlight(example.en, example.highlight);
-        return (
-          <li key={example.en}>
-            <button
-              type="button"
-              onClick={() => onSpeakEnglish(example.en, LESSON_SPEAK_RATE)}
-              className={`btn-chunky w-full text-start p-4 rounded-2xl flex items-start gap-3 ${theme.cardBgClass}`}
-            >
-              <span className="flex-1 space-y-1">
-                <span dir="ltr" lang="en" className="block text-base md:text-lg font-extrabold leading-snug text-left">
-                  {example.emoji && (
-                    <span className="me-2" aria-hidden="true">
-                      {example.emoji}
-                    </span>
-                  )}
-                  {before}
-                  <mark className={`bg-transparent underline decoration-4 underline-offset-4 ${theme.accentTextClass}`}>
-                    {match}
-                  </mark>
-                  {after}
+> = ({ examples, theme, headingRef, onSpeakEnglish }) => {
+  const currentSpeech = useCurrentSpeech();
+  return (
+    <>
+      <h2 ref={headingRef} tabIndex={-1} className="text-lg font-extrabold text-center outline-none">
+        לחצו על משפט כדי לשמוע אותו
+      </h2>
+      <ul className="space-y-3">
+        {examples.map((example) => {
+          const { before, match, after } = splitHighlight(example.en, example.highlight);
+          const isSpeaking = isSameSpeech(currentSpeech, example.en, LESSON_SPEAK_RATE);
+          return (
+            <li key={example.en}>
+              <button
+                type="button"
+                onClick={() => toggleSpeech(isSpeaking, onSpeakEnglish, example.en, LESSON_SPEAK_RATE)}
+                aria-pressed={isSpeaking}
+                className={`btn-chunky w-full text-start p-4 rounded-2xl flex items-start gap-3 ${theme.cardBgClass}`}
+              >
+                <span className="flex-1 space-y-1">
+                  <span dir="ltr" lang="en" className="block text-base md:text-lg font-extrabold leading-snug text-left">
+                    {example.emoji && (
+                      <span className="me-2" aria-hidden="true">
+                        {example.emoji}
+                      </span>
+                    )}
+                    {before}
+                    <mark className={`bg-transparent underline decoration-4 underline-offset-4 ${theme.accentTextClass}`}>
+                      {match}
+                    </mark>
+                    {after}
+                  </span>
+                  <span className={`block text-sm font-bold ${theme.mutedTextClass}`}>{example.he}</span>
                 </span>
-                <span className={`block text-sm font-bold ${theme.mutedTextClass}`}>{example.he}</span>
-              </span>
-              <Volume2 className="w-5 h-5 shrink-0 mt-1 opacity-70" aria-hidden="true" />
-            </button>
-          </li>
-        );
-      })}
-    </ul>
-  </>
-);
+                <SpeakIcon isSpeaking={isSpeaking} className="w-5 h-5 shrink-0 mt-1 opacity-70" />
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  );
+};
 
 const QuickTryCard: React.FC<
   CardProps & {
