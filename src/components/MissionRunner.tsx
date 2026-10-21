@@ -48,6 +48,7 @@ import {
   getStepXpGain,
 } from '../utils/missionFeedback';
 import { useStopSpeechOnLeave } from '../hooks/useSpeech';
+import { normalizeSentence } from '../hooks/useDrillSession';
 import type { SpokenPart } from '../data/hebrewAudio';
 import {
   getSentenceOrderWrongHe,
@@ -325,13 +326,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
       .map((i) => currentStep.scrambledWords![i])
       .join(' ');
 
-    const cleanBuilt = builtSentence.toLowerCase().replace(/[^a-z0-9\s']/g, '').trim();
-    const cleanTarget = currentStep.targetSentenceEn
-      .toLowerCase()
-      .replace(/[^a-z0-9\s']/g, '')
-      .trim();
-
-    if (cleanBuilt === cleanTarget) {
+    if (normalizeSentence(builtSentence) === normalizeSentence(currentStep.targetSentenceEn)) {
       speakAnswerEnglish(currentStep.targetSentenceEn);
       registerCorrectAnswer(
         isGirl
