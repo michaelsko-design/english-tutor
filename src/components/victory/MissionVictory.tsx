@@ -14,6 +14,7 @@ import { LevelBadge } from '../hud/LevelBadge';
 import { Companion } from '../companion/Companion';
 import { Button } from '../ui/Button';
 import { VIBE_CHEER_HE } from '../../config/appInfo';
+import { VibeAmount } from '../ui/VibeAmount';
 
 interface MissionVictoryProps {
   mission: MissionNode;
@@ -200,7 +201,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
           <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
             <Zap className="w-5 h-5 text-indigo-500 mx-auto mb-1" />
             <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap" dir="ltr" lang="en">
-              +{frame.xpShown} Vibe
+              <VibeAmount amount={frame.xpShown} hasPlus />
             </div>
             <div className="text-xs opacity-75">
               כולל בונוס {maxCombo}x רצף

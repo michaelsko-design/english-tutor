@@ -6,6 +6,7 @@ import { useCountUp } from '../../hooks/useCountUp';
 import { ArtImage } from '../art/ArtImage';
 import { HudIcon } from '../hud/HudIcon';
 import { ProgressRing } from '../home/ProgressRing';
+import { VibeAmount } from '../ui/VibeAmount';
 
 /**
  * Feature 45: the animated picture at the top of each tour slide. Every scene is a small,
@@ -173,7 +174,7 @@ const EconomyScene: React.FC<{ avatarEmoji: string }> = ({ avatarEmoji }) => {
             רמה 2
           </span>
           <span className="absolute -top-3 -right-6 px-2 py-0.5 rounded-full bg-white text-indigo-600 text-xs font-black shadow animate-tour-pop" dir="ltr" style={popDelay(3)}>
-            +20 Vibe
+            <VibeAmount amount={20} hasPlus />
           </span>
         </div>
         {/* The diamonds counter */}

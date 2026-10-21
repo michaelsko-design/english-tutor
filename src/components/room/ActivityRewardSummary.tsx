@@ -2,7 +2,7 @@ import React from 'react';
 import { RoomActivityReward } from '../../data/roomActivities';
 import { LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
-import { formatGainLtr } from '../../utils/bidi';
+import { formatGainLtr, formatVibeGain } from '../../utils/bidi';
 import { Button } from '../ui/Button';
 import { VIBE_CHEER_HE } from '../../config/appInfo';
 
@@ -36,8 +36,8 @@ export const ActivityRewardSummary: React.FC<ActivityRewardSummaryProps> = ({
   const rewardText = !reward
     ? emptyHe
     : reward.isFullReward
-      ? `${formatGainLtr(reward.xpEarned, 'Vibe')} ו־${formatGainLtr(reward.diamondsEarned, '💎')} — וזה נספר כמשימה של היום! 🎯 ${VIBE_CHEER_HE}`
-      : partialHe ?? `${formatGainLtr(reward.xpEarned, 'Vibe')} · את הפרס היומי כבר קיבלת היום, ${isGirl ? 'המשיכי' : 'המשך'} להתאמן!`;
+      ? `${formatVibeGain(reward.xpEarned)} ו־${formatGainLtr(reward.diamondsEarned, '💎')} — וזה נספר כמשימה של היום! 🎯 ${VIBE_CHEER_HE}`
+      : partialHe ?? `${formatVibeGain(reward.xpEarned)} · את הפרס היומי כבר קיבלת היום, ${isGirl ? 'המשיכי' : 'המשך'} להתאמן!`;
 
   return (
     <div className="space-y-3 text-center py-2" role="status">

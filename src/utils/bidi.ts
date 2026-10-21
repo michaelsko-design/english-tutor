@@ -33,6 +33,11 @@ export function formatGainLtr(amount: number, unit: string): string {
   return isolateLtr(`+${amount} ${unit}`);
 }
 
+/** A gained Vibe amount as text: the number first when read right to left, with its plus sign in front. */
+export function formatVibeGain(amount: number): string {
+  return `⁧${isolateLtr(`+${amount}`)} ${isolateLtr('Vibe')}⁩`;
+}
+
 /**
  * The language to mark on text that may be English or Hebrew (answer options), so screen readers
  * read English with an English voice. Mixed text stays with the page's Hebrew.

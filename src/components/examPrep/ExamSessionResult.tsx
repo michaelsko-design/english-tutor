@@ -16,6 +16,7 @@ import {
 import { ExamPlanDay, ExamPrepPlan, LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { Button } from '../ui/Button';
+import { VibeAmount } from '../ui/VibeAmount';
 
 interface ExamSessionResultProps {
   plan: ExamPrepPlan;
@@ -113,7 +114,7 @@ export const ExamSessionResult: React.FC<ExamSessionResultProps> = ({
       </div>
 
       <div className="px-4 py-2 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold text-center">
-        🎁 <span dir="ltr" lang="en">+{xp} Vibe</span>
+        🎁 <VibeAmount amount={xp} hasPlus />
         {diamonds > 0 && (
           <>
             {' · '}

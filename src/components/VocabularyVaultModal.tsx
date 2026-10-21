@@ -14,14 +14,15 @@ import {
   CheckCircle2,
   Sparkles,
 } from 'lucide-react';
-import { isolateLtr } from '../utils/bidi';
+import { isolateLtr, formatVibeGain } from '../utils/bidi';
 import { isSameSpeech } from '../services/tts';
 import { toggleSpeech, useCurrentSpeech, useStopSpeechOnLeave } from '../hooks/useSpeech';
 import { SpeakIcon, STOP_SPEECH_LABEL, STOP_SPEECH_TEXT } from './SpeakIcon';
 import { Button } from './ui/Button';
+import { VibeAmount } from './ui/VibeAmount';
 
 /** The reward inside a Hebrew sentence, isolated so "+10 XP" doesn't flip */
-const VAULT_REWARD_LABEL = isolateLtr('+10 Vibe · +2 💎');
+const VAULT_REWARD_LABEL = `${formatVibeGain(10)} · ${isolateLtr('+2 💎')}`;
 
 interface VocabularyVaultModalProps {
   units: CurriculumUnit[];
@@ -360,7 +361,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                         ? 'תורגל בהצלחה ✓'
                         : (
                           <>
-                            {isGirl ? 'תרגלי הגייה' : 'תרגל הגייה'} (<bdi dir="ltr" lang="en">+10 Vibe</bdi>)
+                            {isGirl ? 'תרגלי הגייה' : 'תרגל הגייה'} (<VibeAmount amount={10} hasPlus />)
                           </>
                         )}
                     </span>

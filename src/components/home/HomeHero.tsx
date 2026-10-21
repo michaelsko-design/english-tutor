@@ -9,6 +9,7 @@ import { inflectHebrew } from '../../utils/hebrewGender';
 import { useArtStatus } from '../../hooks/useArtStatus';
 import { Companion } from '../companion/Companion';
 import { Button } from '../ui/Button';
+import { VibeAmount } from '../ui/VibeAmount';
 
 interface HomeHeroProps {
   theme: ThemeDefinition;
@@ -99,7 +100,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-500 text-white"
               dir="ltr" lang="en"
             >
-              +{xpReward} Vibe · +{diamondReward} 💎
+              <VibeAmount amount={xpReward} hasPlus /> · +{diamondReward} 💎
             </span>
           </div>
 

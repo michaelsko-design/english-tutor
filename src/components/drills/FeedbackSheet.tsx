@@ -6,6 +6,7 @@ import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { Companion } from '../companion/Companion';
 import { useAutoSpeakHebrew } from '../../hooks/useAutoSpeakHebrew';
 import { HebrewSpeakButton } from './HebrewSpeakButton';
+import { VibeAmount } from '../ui/VibeAmount';
 
 interface FeedbackSheetProps {
   isCorrect: boolean;
@@ -73,7 +74,7 @@ export const FeedbackSheet: React.FC<FeedbackSheetProps> = ({
             dir="ltr" lang="en"
             aria-hidden="true"
           >
-            +{xpGain} Vibe
+            <VibeAmount amount={xpGain} hasPlus />
           </span>
         )}
 

@@ -31,7 +31,7 @@ import { StickersLockedSheet } from './StickersLockedSheet';
 import { PhonePanel } from './PhonePanel';
 import { WardrobePanel } from './WardrobePanel';
 import { AVATAR_HOME, ScenePoint, getStandingPoint } from './roomLayout';
-import { formatGainLtr } from '../../utils/bidi';
+import { formatVibeGain } from '../../utils/bidi';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { Button } from '../ui/Button';
 import { EmojiIcon } from '../art/EmojiIcon';
@@ -198,7 +198,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     }
     setStatusText(
       result.xpEarned > 0
-        ? `${item?.emoji} ${item?.nameEn} בחדר! ${formatGainLtr(result.xpEarned, 'Vibe')} על מילה חדשה 🌟`
+        ? `${item?.emoji} ${item?.nameEn} בחדר! ${formatVibeGain(result.xpEarned)} על מילה חדשה 🌟`
         : `${item?.emoji} ${item?.nameEn} בחדר! 🏠`
     );
     setNaming(null);

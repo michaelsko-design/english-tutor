@@ -12,6 +12,7 @@ import { HudIcon } from '../hud/HudIcon';
 import { LevelBadge } from '../hud/LevelBadge';
 import { ProgressRing } from './ProgressRing';
 import { Button } from '../ui/Button';
+import { VibeAmount } from '../ui/VibeAmount';
 
 const STATS_LEVEL_BADGE_SIZE = 52;
 
@@ -111,7 +112,7 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
           <div className="min-w-0">
             <p className="font-extrabold text-lg truncate">{profile.name}</p>
             <p className="text-sm font-bold">
-              רמה {level.level} · עוד <bdi dir="ltr" lang="en">{level.xpToNextLevel} Vibe</bdi> לרמה {level.level + 1}
+              רמה {level.level} · עוד <VibeAmount amount={level.xpToNextLevel} /> לרמה {level.level + 1}
             </p>
           </div>
           <LevelBadge level={level.level} size={STATS_LEVEL_BADGE_SIZE} className="ms-auto" />
@@ -149,7 +150,7 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
           <StatTile
             theme={theme}
             icon={<Zap className="w-6 h-6 text-indigo-500 fill-indigo-400" />}
-            value={<bdi dir="ltr" lang="en">{profile.stats.xp} Vibe</bdi>}
+            value={<VibeAmount amount={profile.stats.xp} />}
             labelHe={`${masteredWords} מילים · מאגר המילים 🎙️`}
             titleHe="מילים של משימות עם 3 כוכבים · פתיחת מאגר המילים"
             className="col-span-2"

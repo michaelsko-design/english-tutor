@@ -6,6 +6,7 @@ import { isolateEnglishRuns } from '../utils/bidi';
 import { useAutoSpeakHebrew } from '../hooks/useAutoSpeakHebrew';
 import { Sparkles, Check } from 'lucide-react';
 import { Button } from './ui/Button';
+import { VibeAmount } from './ui/VibeAmount';
 
 interface PlacementResultCardProps {
   result: PlacementResult;
@@ -97,7 +98,7 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
 
       {isFirstTest && (
         <div className="px-4 py-2.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-sm font-extrabold">
-          🎁 קיבלת <span dir="ltr" lang="en">+{PLACEMENT_REWARD_XP} Vibe</span> ו-
+          🎁 קיבלת <VibeAmount amount={PLACEMENT_REWARD_XP} hasPlus /> ו-
           {PLACEMENT_REWARD_DIAMONDS} 💎 על השלמת המבחן!
         </div>
       )}

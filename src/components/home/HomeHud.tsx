@@ -12,6 +12,7 @@ import { HudIcon } from '../hud/HudIcon';
 import { SoundToggle } from '../hud/SoundToggle';
 import { ProgressRing } from './ProgressRing';
 import { APP_NAME } from '../../config/appInfo';
+import { VibeAmount } from '../ui/VibeAmount';
 
 interface HomeHudProps {
   profile: LearnerProfile;
@@ -108,7 +109,7 @@ export const HomeHud: React.FC<HomeHudProps> = ({
         <div className="hidden sm:block min-w-0">
           <p className="font-extrabold text-sm truncate">{profile.name || APP_NAME}</p>
           <p className={`text-xs truncate ${theme.mutedTextClass}`}>
-            עוד <bdi dir="ltr" lang="en">{level.xpToNextLevel} Vibe</bdi> לרמה {level.level + 1}
+            עוד <VibeAmount amount={level.xpToNextLevel} /> לרמה {level.level + 1}
           </p>
         </div>
 

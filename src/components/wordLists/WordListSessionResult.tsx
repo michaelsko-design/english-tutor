@@ -10,6 +10,7 @@ import { toLocalDateStr } from '../../data/examPrep';
 import { CustomWordList, LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { Button } from '../ui/Button';
+import { VibeAmount } from '../ui/VibeAmount';
 
 interface WordListSessionResultProps {
   list: CustomWordList;
@@ -60,7 +61,7 @@ export const WordListSessionResult: React.FC<WordListSessionResultProps> = ({
       </div>
 
       <div className="px-4 py-2 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold text-center">
-        🎁 <span dir="ltr" lang="en">+{reward.xp} Vibe</span>
+        🎁 <VibeAmount amount={reward.xp} hasPlus />
         {reward.diamonds > 0 && (
           <>
             {' · '}

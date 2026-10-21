@@ -23,7 +23,7 @@ import { RoomPanelFrame } from '../RoomPanelFrame';
 import { CrosswordGame } from './CrosswordGame';
 import { ScrambleGame } from './ScrambleGame';
 import { WordHuntGame } from './WordHuntGame';
-import { formatGainLtr } from '../../../utils/bidi';
+import { formatVibeGain } from '../../../utils/bidi';
 
 interface GamesBookPanelProps {
   profile: LearnerProfile;
@@ -125,7 +125,7 @@ export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, 
           }
           partialHe={
             view.isBelowRewardScore && view.reward
-              ? `${formatGainLtr(view.reward.xpEarned, 'Vibe')} · הפרס היומי ניתן מ־${GAME_FULL_REWARD_MIN_SCORE}% ומעלה. ${
+              ? `${formatVibeGain(view.reward.xpEarned)} · הפרס היומי ניתן מ־${GAME_FULL_REWARD_MIN_SCORE}% ומעלה. ${
                   profile.gender === 'girl' ? 'נסי שוב ופתרי עוד מילים!' : 'נסה שוב ופתור עוד מילים!'
                 }`
               : undefined

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatGainLtr, getTextLang, isolateEnglishRuns, isolateLtr } from './bidi';
+import { formatGainLtr, formatVibeGain, getTextLang, isolateEnglishRuns, isolateLtr } from './bidi';
 
 describe('isolateLtr', () => {
   it('wraps the text in a left-to-right isolate', () => {
@@ -46,5 +46,11 @@ describe('isolateEnglishRuns', () => {
 
   it('leaves Hebrew-only text unchanged', () => {
     expect(isolateEnglishRuns('שלום לכולם!')).toBe('שלום לכולם!');
+  });
+});
+
+describe('formatVibeGain', () => {
+  it('isolates the number and the word inside a right-to-left run, number first', () => {
+    expect(formatVibeGain(10)).toBe('⁧⁦+10⁩ ⁦Vibe⁩⁩');
   });
 });

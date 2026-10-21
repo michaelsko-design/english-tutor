@@ -13,6 +13,7 @@ import { TierChoice } from '../mission/TierChoice';
 import { StarRow } from './mapPieces';
 import { WorldMapStyle } from './worldMapStyles';
 import { Button } from '../ui/Button';
+import { VibeAmount } from '../ui/VibeAmount';
 
 interface MissionSheetProps {
   stop: MapStop;
@@ -150,7 +151,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
               <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/40 flex items-center justify-between gap-2">
                 <span className="text-sm font-extrabold">🎁 פרסים ברמת {tierMeta.labelHe}:</span>
                 <span className={`shrink-0 whitespace-nowrap text-sm font-extrabold ${style.rewardTextClass}`} dir="ltr" lang="en">
-                  +{xp} Vibe · +{diamonds} 💎
+                  <VibeAmount amount={xp} hasPlus /> · +{diamonds} 💎
                 </span>
               </div>
 
