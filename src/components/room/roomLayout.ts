@@ -1,28 +1,45 @@
 import { RoomObjectId, RoomSlotKind } from '../../data/room';
 import { ThemeId } from '../../types/learner';
 
-/** A point in the room scene, as a percentage of its width (x) and height (y). */
-export interface ScenePoint {
-  x: number;
-  y: number;
-}
+import type { ScenePoint } from '../../data/roomPlacement';
 
-/** Where each slot's item sits in the scene. The wall ends at about 60% height (the room pictures put the floor line at about 72%); the window is at 35-65% across, 14-52% down, the sticker board on the right wall. */
-export const SLOT_POSITIONS: Record<string, ScenePoint> = {
-  'wall-left': { x: 13, y: 15 },
-  'wall-right': { x: 80, y: 13 },
-  'board-1': { x: 72.5, y: 30 },
-  'board-2': { x: 80, y: 30 },
-  'board-3': { x: 87.5, y: 30 },
-  shelf: { x: 17, y: 37 },
-  'window-sill': { x: 50, y: 49 },
-  'desk-top': { x: 62, y: 51 },
-  'floor-left': { x: 37, y: 70 },
-  'floor-center': { x: 57, y: 79 },
-  'floor-right': { x: 80, y: 84 },
+export type { ScenePoint };
+
+/** Hebrew names of the surfaces, for screen readers and hints. */
+export const SURFACE_LABELS_HE: Record<string, string> = {
+  'wall-left': 'הקיר משמאל',
+  'wall-right': 'הקיר מימין',
+  board: 'לוח המדבקות',
+  'shelf-high': 'המדף העליון',
+  'shelf-low': 'המדף התחתון',
+  'window-sill': 'אדן החלון',
+  'desk-top': 'השולחן',
+  floor: 'הרצפה',
 };
 
-/** Item emoji size per slot kind (in container-width units): furniture on the floor is bigger. */
+/**
+ * A drawn piece of furniture (public/art/room). `x`, `y` are the scene point where items stand on
+ * it (the middle of its top edge); `anchorY` is how far down the picture that line is (0-1).
+ */
+export interface FurniturePiece {
+  id: string;
+  src: string;
+  x: number;
+  y: number;
+  /** Width in container-width units */
+  width: number;
+  anchorY: number;
+}
+
+export const FURNITURE_PIECES: FurniturePiece[] = [
+  { id: 'shelf-high', src: '/art/room/shelf-short.webp', x: 17, y: 30, width: 24, anchorY: 0.25 },
+  { id: 'shelf-low', src: '/art/room/shelf-long.webp', x: 17, y: 43, width: 24, anchorY: 0.25 },
+  { id: 'window-sill', src: '/art/room/sill.webp', x: 45, y: 52, width: 22, anchorY: 0.2 },
+  { id: 'desk-top', src: '/art/room/desk.webp', x: 68.5, y: 55, width: 26, anchorY: 0.2 },
+  { id: 'board', src: '/art/room/board.webp', x: 80, y: 30, width: 22, anchorY: 0.5 },
+];
+
+/** Item size per slot kind (in container-width units): furniture on the floor is bigger. */
 export const SLOT_KIND_SIZES: Record<RoomSlotKind, number> = {
   wall: 7,
   board: 6,
@@ -30,6 +47,9 @@ export const SLOT_KIND_SIZES: Record<RoomSlotKind, number> = {
   desk: 6,
   floor: 9.5,
 };
+
+/** Kinds whose items stand on their surface (anchored at their feet); the others hang. */
+export const STANDING_KINDS: RoomSlotKind[] = ['shelf', 'desk', 'floor'];
 
 export const OBJECT_POSITIONS: Record<RoomObjectId, ScenePoint> = {
   bed: { x: 14, y: 73 },

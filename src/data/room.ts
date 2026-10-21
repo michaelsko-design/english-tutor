@@ -155,11 +155,6 @@ export function getUnplacedRoomItems(profile: LearnerProfile): RoomItem[] {
   return getOwnedRoomItems(profile).filter((item) => !placed.has(item.id));
 }
 
-export function getPlaceableSlots(profile: LearnerProfile, itemId: string): RoomSlot[] {
-  const item = getRoomItemFor(profile, itemId);
-  return item ? ROOM_SLOTS.filter((slot) => slot.kind === item.slotKind) : [];
-}
-
 function isOwned(profile: LearnerProfile, itemId: string): boolean {
   return getOwnedRoomItems(profile).some((item) => item.id === itemId);
 }
@@ -192,12 +187,13 @@ export function placeRoomItem(
   };
 }
 
-/** Takes the item out of a slot and back to the inventory. */
-export function removeRoomItem(profile: LearnerProfile, slotId: string, now: Date): LearnerProfile {
+/** Takes the item out of its slot or position (the placement key) and back to the inventory. */
+export function removeRoomItem(profile: LearnerProfile, placementKey: string, now: Date): LearnerProfile {
   const room = getRoom(profile);
-  if (!(slotId in room.placements)) return profile;
-  const placements = Object.fromEntries(Object.entries(room.placements).filter(([id]) => id !== slotId));
-  return { ...profile, room: { ...room, placements, updatedAt: now.toISOString() } };
+  if (!(placementKey in room.placements)) return profile;
+  const placements = Object.fromEntries(Object.entries(room.placements).filter(([id]) => id !== placementKey));
+  const positions = Object.fromEntries(Object.entries(room.positions ?? {}).filter(([id]) => id !== placementKey));
+  return { ...profile, room: { ...room, placements, positions, updatedAt: now.toISOString() } };
 }
 
 /** Records that the learner said or spelled the item's name; the first time earns XP. */

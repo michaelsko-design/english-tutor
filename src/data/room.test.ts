@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ROOM_NAMING_XP,
-  ROOM_SLOTS,
-  RoomSlotKind,
   getOwnedRoomItems,
-  getPlaceableSlots,
   getUnplacedRoomItems,
   placeNamedRoomItem,
   placeRoomItem,
@@ -61,20 +58,6 @@ describe('getOwnedRoomItems', () => {
     expect(ids).toEqual(expect.arrayContaining(['decor-neon-lamp', 'sticker-london-compass']));
     expect(ids).not.toContain('boost-streak-shield');
     expect(ids).not.toContain('avatar-boba-cat');
-  });
-});
-
-describe('getPlaceableSlots', () => {
-  it('returns only slots of the item kind', () => {
-    const slots = getPlaceableSlots(baseProfile, 'room-sofa');
-    expect(slots.length).toBeGreaterThan(0);
-    expect(slots.every((s) => s.kind === 'floor')).toBe(true);
-  });
-
-  it('gives every item kind at least one slot', () => {
-    const kinds = new Set(ROOM_SLOTS.map((s) => s.kind));
-    const allKinds: RoomSlotKind[] = ['wall', 'board', 'shelf', 'desk', 'floor'];
-    allKinds.forEach((kind) => expect(kinds.has(kind)).toBe(true));
   });
 });
 

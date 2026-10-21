@@ -5,13 +5,11 @@ import {
   ROOM_OBJECTS,
   RoomObjectId,
   getOwnedRoomItems,
-  getPlaceableSlots,
   getRoom,
-  getPlacedRoomItems,
   getRoomItemFor,
-  placeNamedRoomItem,
   removeRoomItem,
 } from '../../data/room';
+import { getPlacedRoomEntries, placeNamedRoomItemAt, placeRoomItemAt } from '../../data/roomPlacement';
 import { getWornItems } from '../../data/wardrobe';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
@@ -24,7 +22,7 @@ import { GamesBookPanel } from './games/GamesBookPanel';
 import { StickerStudioPanel } from './stickers/StickerStudioPanel';
 import { PhonePanel } from './PhonePanel';
 import { WardrobePanel } from './WardrobePanel';
-import { AVATAR_HOME, OBJECT_POSITIONS, SLOT_POSITIONS, ScenePoint, getStandingPoint } from './roomLayout';
+import { AVATAR_HOME, OBJECT_POSITIONS, ScenePoint, getStandingPoint } from './roomLayout';
 import { formatGainLtr } from '../../utils/bidi';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { Button } from '../ui/Button';
@@ -73,8 +71,9 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   const [isFacingLeft, setIsFacingLeft] = useState(false);
   const [bubble, setBubble] = useState<SceneBubble | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [focusedSlotId, setFocusedSlotId] = useState<string | null>(null);
-  const [naming, setNaming] = useState<{ itemId: string; slotId: string } | null>(null);
+  const [focusedKey, setFocusedKey] = useState<string | null>(null);
+  const [moveRequestKey, setMoveRequestKey] = useState<string | null>(null);
+  const [naming, setNaming] = useState<{ itemId: string; point: ScenePoint } | null>(null);
   const [statusText, setStatusText] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<RoomPanel | null>(null);
   const walkTimer = useRef<number | undefined>(undefined);
@@ -91,10 +90,11 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     walkTimer.current = window.setTimeout(onArrive, prefersReducedMotion() ? 0 : WALK_MS);
   };
 
-  const highlightedSlotIds = selectedItemId ? getPlaceableSlots(profile, selectedItemId).map((s) => s.id) : [];
+  const entries = getPlacedRoomEntries(profile);
+  const placingKind = selectedItemId ? getRoomItemFor(profile, selectedItemId)?.slotKind ?? null : null;
 
   const handleSelectItem = (itemId: string) => {
-    setFocusedSlotId(null);
+    setFocusedKey(null);
     setActivePanel(null);
     if (selectedItemId === itemId) {
       setSelectedItemId(null);
@@ -110,23 +110,40 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     );
   };
 
-  const handleTapSlot = (slotId: string) => {
-    const point = SLOT_POSITIONS[slotId];
-    if (selectedItemId && highlightedSlotIds.includes(slotId)) {
-      const itemId = selectedItemId;
-      setStatusText(null);
-      walkTo(point, () => setNaming({ itemId, slotId }));
-      return;
-    }
-    const item = getRoomItemFor(profile, room.placements[slotId]);
-    if (!item) return;
+  const handlePlaceAt = (point: ScenePoint) => {
+    if (!selectedItemId) return;
+    const itemId = selectedItemId;
+    setStatusText(null);
+    walkTo(point, () => setNaming({ itemId, point }));
+  };
+
+  const handleTapEntry = (key: string) => {
+    const entry = entries.find((candidate) => candidate.key === key);
+    if (!entry) return;
     setSelectedItemId(null);
     setStatusText(null);
-    walkTo(point, () => {
-      onSpeakEnglish(item.nameEn, 0.9);
-      setBubble({ at: point, textEn: item.nameEn, textHe: item.nameHe });
-      setFocusedSlotId(slotId);
+    walkTo(entry.point, () => {
+      onSpeakEnglish(entry.item.nameEn, 0.9);
+      setBubble({ at: entry.point, textEn: entry.item.nameEn, textHe: entry.item.nameHe });
+      setFocusedKey(key);
     });
+  };
+
+  /** A drag or keyboard drop: the item moves and keeps its name; no naming needed again. */
+  const handleMoveEntry = (key: string, point: ScenePoint) => {
+    const entry = entries.find((candidate) => candidate.key === key);
+    if (!entry) return;
+    onUpdateProfile(placeRoomItemAt(profile, entry.item.id, point, new Date()));
+    setFocusedKey(entry.item.id);
+    setBubble(null);
+    setStatusText(`${entry.item.emoji} ${entry.item.nameEn} הוזז ✨`);
+  };
+
+  /** The "move" button: the item takes arrow keys (it can also just be dragged). */
+  const handleStartMove = (key: string) => {
+    setBubble(null);
+    setStatusText('גוררים את הפריט, או משתמשים בחצים · Enter להנחה · Esc לביטול');
+    setMoveRequestKey(key);
   };
 
   const handleTapObject = (objectId: RoomObjectId) => {
@@ -134,7 +151,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     if (!object) return;
     const point = OBJECT_POSITIONS[objectId];
     setSelectedItemId(null);
-    setFocusedSlotId(null);
+    setFocusedKey(null);
     setStatusText(null);
     setActivePanel(null);
     walkTo(point, () => {
@@ -152,11 +169,11 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   const handleNamed = () => {
     if (!naming) return;
     const item = getRoomItemFor(profile, naming.itemId);
-    const result = placeNamedRoomItem(profile, naming.slotId, naming.itemId, new Date());
+    const result = placeNamedRoomItemAt(profile, naming.itemId, naming.point, new Date());
     onUpdateProfile(result.profile);
     celebrate('small');
     if (item) {
-      setBubble({ at: SLOT_POSITIONS[naming.slotId], textEn: item.nameEn, textHe: item.nameHe });
+      setBubble({ at: naming.point, textEn: item.nameEn, textHe: item.nameHe });
     }
     setStatusText(
       result.xpEarned > 0
@@ -167,10 +184,10 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     setSelectedItemId(null);
   };
 
-  const handleRemove = (slotId: string) => {
-    const item = getRoomItemFor(profile, room.placements[slotId]);
-    onUpdateProfile(removeRoomItem(profile, slotId, new Date()));
-    setFocusedSlotId(null);
+  const handleRemove = (key: string) => {
+    const item = getRoomItemFor(profile, room.placements[key]);
+    onUpdateProfile(removeRoomItem(profile, key, new Date()));
+    setFocusedKey(null);
     setBubble(null);
     setStatusText(`${item?.emoji} ${item?.nameEn} חזר לארגז הפריטים 📦`);
   };
@@ -180,7 +197,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     setBubble(null);
   };
 
-  const focusedItem = focusedSlotId ? getRoomItemFor(profile, room.placements[focusedSlotId]) : undefined;
+  const focusedItem = focusedKey ? getRoomItemFor(profile, room.placements[focusedKey]) : undefined;
   const namingItem = naming ? getRoomItemFor(profile, naming.itemId) : undefined;
 
   const header = (
@@ -188,7 +205,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
       <h2 className="font-extrabold text-sm sm:text-base truncate">🏠 החדר האנגלי שלי</h2>
       <Button theme={theme} variant="secondary" size="sm" className="shrink-0" onClick={() => {
           setSelectedItemId(null);
-          setFocusedSlotId(null);
+          setFocusedKey(null);
           setNaming(null);
           setStatusText(null);
           setActivePanel('stickers');
@@ -209,12 +226,16 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
           themeId={profile.themeId}
           avatarEmoji={avatarEmoji}
           worn={getWornItems(profile, avatarEmoji)}
-          placedItems={getPlacedRoomItems(profile)}
+          entries={entries}
           avatarPos={avatarPos}
           isAvatarFacingLeft={isFacingLeft}
-          highlightedSlotIds={naming ? [] : highlightedSlotIds}
+          placingKind={naming ? null : placingKind}
+          moveRequestKey={moveRequestKey}
           bubble={bubble}
-          onTapSlot={naming ? () => undefined : handleTapSlot}
+          onPlaceAt={handlePlaceAt}
+          onTapEntry={naming ? () => undefined : handleTapEntry}
+          onMoveEntry={handleMoveEntry}
+          onMoveRequestHandled={() => setMoveRequestKey(null)}
           onTapObject={naming ? () => undefined : handleTapObject}
         />
 
@@ -224,12 +245,12 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
           </p>
         )}
 
-        {focusedSlotId && focusedItem && !naming && (
+        {focusedKey && focusedItem && !naming && (
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <Button theme={theme} variant="secondary" size="sm" onClick={() => handleSelectItem(focusedItem.id)}>
+            <Button theme={theme} variant="secondary" size="sm" onClick={() => handleStartMove(focusedKey)}>
               🔀 הזזה ({focusedItem.nameEn})
             </Button>
-            <Button theme={theme} variant="secondary" size="sm" onClick={() => handleRemove(focusedSlotId)}>
+            <Button theme={theme} variant="secondary" size="sm" onClick={() => handleRemove(focusedKey)}>
               📦 החזרה לארגז
             </Button>
           </div>
@@ -280,7 +301,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
           />
         ) : naming && namingItem ? (
           <NameItemPanel
-            key={`${naming.itemId}-${naming.slotId}`}
+            key={naming.itemId}
             item={namingItem}
             gender={profile.gender}
             theme={theme}

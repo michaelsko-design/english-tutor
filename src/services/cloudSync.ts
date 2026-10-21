@@ -1,4 +1,12 @@
-import { doc, getDocFromCache, getDocFromServer, runTransaction, setDoc, type DocumentReference } from 'firebase/firestore';
+import {
+  deleteField,
+  doc,
+  getDocFromCache,
+  getDocFromServer,
+  runTransaction,
+  writeBatch,
+  type DocumentReference,
+} from 'firebase/firestore';
 import { db } from './firebase';
 import {
   ContestRecord,
@@ -602,5 +610,15 @@ export async function saveProfileToFirestore(
     ...profile,
     updatedAt: new Date().toISOString(),
   });
-  await setDoc(docRef, sanitized, { merge: true });
+  const batch = writeBatch(db);
+  batch.set(docRef, sanitized, { merge: true });
+  // A merge keeps keys the profile no longer has, so an item taken out of the room (or moved to a
+  // new placement key) would come back from the cloud. These two maps are written as a whole.
+  if (sanitized.room) {
+    batch.update(docRef, {
+      'room.placements': sanitized.room.placements ?? {},
+      'room.positions': sanitized.room.positions ?? deleteField(),
+    });
+  }
+  await batch.commit();
 }

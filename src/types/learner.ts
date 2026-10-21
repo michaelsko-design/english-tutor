@@ -243,6 +243,8 @@ export interface DrawnSticker {
 export interface LearnerRoom {
   /** Maps slotId -> placed room item id */
   placements: Record<string, string>;
+  /** Placement key -> point in the scene (% of its width and height); a placement without one sits at its old slot's default point */
+  positions?: Record<string, { x: number; y: number }>;
   /** Maps wardrobe layer -> worn wardrobe item id; saved with the layout */
   outfit?: Record<string, string>;
   dressUpDay?: DressUpDay;

@@ -585,3 +585,26 @@ describe('buildLoginProfile', () => {
     expect(loaded.gradeId).toBe('grade-5');
   });
 });
+
+describe('mergeLearnerProfiles room positions', () => {
+  const room = (positions: Record<string, { x: number; y: number }>, updatedAt: string) => ({
+    placements: { 'room-plant': 'room-plant' },
+    positions,
+    namedItemIds: [],
+    updatedAt,
+  });
+
+  it('keeps the newer layout together with its positions', () => {
+    const older = room({ 'room-plant': { x: 30, y: 80 } }, '2026-10-01T10:00:00.000Z');
+    const newer = room({ 'room-plant': { x: 60, y: 90 } }, '2026-10-02T10:00:00.000Z');
+    expect(mergeLearnerProfiles({ ...baseProfile, room: older }, { room: newer }).room?.positions).toEqual(newer.positions);
+    expect(mergeLearnerProfiles({ ...baseProfile, room: newer }, { room: older }).room?.positions).toEqual(newer.positions);
+  });
+
+  it('keeps old slot placements without positions as they are', () => {
+    const legacy = { placements: { 'floor-left': 'room-plant' }, namedItemIds: [], updatedAt: '2026-10-01T10:00:00.000Z' };
+    const merged = mergeLearnerProfiles({ ...baseProfile, room: legacy }, { room: legacy }).room;
+    expect(merged?.placements).toEqual({ 'floor-left': 'room-plant' });
+    expect(merged?.positions).toBeUndefined();
+  });
+});

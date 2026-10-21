@@ -89,6 +89,9 @@ export function deleteDrawnSticker(profile: LearnerProfile, stickerId: string, n
       ...room,
       drawnStickers: stickers.map((s) => (s.id === stickerId ? { ...s, imageDataUrl: '', archivedAt: now.toISOString() } : s)),
       placements: Object.fromEntries(Object.entries(room.placements).filter(([, itemId]) => itemId !== stickerId)),
+      positions: Object.fromEntries(
+        Object.entries(room.positions ?? {}).filter(([key]) => room.placements[key] !== stickerId)
+      ),
       backgroundStickerId: room.backgroundStickerId === stickerId ? undefined : room.backgroundStickerId,
       updatedAt: now.toISOString(),
     },
