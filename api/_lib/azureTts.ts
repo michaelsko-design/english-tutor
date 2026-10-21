@@ -64,7 +64,7 @@ export function escapeXml(text: string): string {
 
 /** A Hebrew run with its misread words spelled out in IPA (hebrewPronunciation.ts); English as it is. */
 function buildRunText(text: string, lang: 'en' | 'he', gender: ListenerGender | null): string {
-  if (lang === 'en') return escapeXml(text);
+  if (lang === 'en') return withLetterNames(escapeXml(text));
   return markPronunciations(text, gender)
     .map((segment) =>
       segment.ipa
@@ -89,12 +89,27 @@ function buildHebrewBody(tagged: string, speed: TtsSpeed): string {
     .join('');
 }
 
+/** Letter names as Israeli schools teach them, where the American voice differs: Z is "zed", not "zee". */
+const LETTER_NAME_IPA: Readonly<Record<string, string>> = { Z: 'zɛd' };
+const LONE_CAPITAL = /(?<![A-Za-z])([A-Z])(?![A-Za-z])/g;
+
+function sayLetterName(letter: string): string {
+  const ipa = LETTER_NAME_IPA[letter];
+  return ipa ? `<phoneme alphabet="ipa" ph="${ipa}">${letter}</phoneme>` : letter;
+}
+
+/** English (already XML-escaped) with a lone capital letter said by its taught name ("Z is for zebra"). */
+function withLetterNames(escaped: string): string {
+  return escaped.replace(LONE_CAPITAL, (letter) => sayLetterName(letter));
+}
+
 export function buildSsml(text: string, voice: TtsVoiceId, speed: TtsSpeed): string {
   const isHebrew = voice === 'he-female';
   const letters = parseLetterToken(text);
+  const letterName = letters && LETTER_NAME_IPA[letters] ? sayLetterName(letters) : null;
   const english = letters
-    ? `<say-as interpret-as="characters">${letters}</say-as>`
-    : `<prosody rate="${PROSODY_RATE[speed]}">${escapeXml(text)}</prosody>`;
+    ? (letterName ?? `<say-as interpret-as="characters">${letters}</say-as>`)
+    : `<prosody rate="${PROSODY_RATE[speed]}">${withLetterNames(escapeXml(text))}</prosody>`;
   const body = isHebrew ? buildHebrewBody(text, speed) : english;
   return (
     `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${isHebrew ? XML_LANG.he : XML_LANG.en}">` +

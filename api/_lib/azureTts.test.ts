@@ -44,6 +44,13 @@ describe('buildSsml', () => {
     expect(buildSsml('[to:girl] מעולה! בנית את המילה cat', 'he-female', 'normal')).toContain('ph="ba.ˈnit"');
   });
 
+  it('says the letter Z as "zed", alone and inside English, and other letters as before', () => {
+    expect(buildSsml('[letter:z]', 'female', 'normal')).toContain('<phoneme alphabet="ipa" ph="zɛd">Z</phoneme>');
+    expect(buildSsml('Z is for zebra.', 'female', 'normal')).toContain('<phoneme alphabet="ipa" ph="zɛd">Z</phoneme> is for zebra.');
+    expect(buildSsml('[letter:b]', 'female', 'normal')).toContain('<say-as interpret-as="characters">B</say-as>');
+    expect(buildSsml('zebra and Zz', 'female', 'normal')).not.toContain('<phoneme');
+  });
+
   it('never spells out English clips', () => {
     expect(buildSsml('Listen and choose.', 'female', 'normal')).not.toContain('<phoneme');
   });

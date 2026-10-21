@@ -158,6 +158,7 @@ describe('letter tokens', () => {
     expect(parseLetterToken('[letter:sh]')).toBe('SH');
     expect(parseLetterToken('ball')).toBeNull();
     expect(toPlainSpeech('[letter:a]')).toBe('A');
+    expect(toPlainSpeech('[letter:z]')).toBe('Zed');
     expect(toPlainSpeech('apple')).toBe('apple');
   });
 });

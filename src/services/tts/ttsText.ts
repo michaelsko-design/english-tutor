@@ -76,9 +76,13 @@ export function parseLetterToken(text: string): string | null {
   return match ? match[1].toUpperCase() : null;
 }
 
-/** The text the online and device voices read for a phrase: a letter token becomes its capital letters. */
+/** Letter names a device voice gets as a word, where its own reading differs from the taught one (Z: "zed", not "zee"). */
+const SPOKEN_LETTER_NAMES: Readonly<Record<string, string>> = { Z: 'Zed' };
+
+/** The text the online and device voices read for a phrase: a letter token becomes its capital letters (Z: "Zed"). */
 export function toPlainSpeech(text: string): string {
-  return parseLetterToken(text) ?? text;
+  const letters = parseLetterToken(text);
+  return letters ? (SPOKEN_LETTER_NAMES[letters] ?? letters) : text;
 }
 
 /** Whom the Hebrew voice addresses: the learner's gender. */
