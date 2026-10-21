@@ -284,8 +284,9 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     if (stepCompleted || !currentStep.options) return;
     session.selectOption(idx);
     const chosen = currentStep.options[idx];
-    if (/[A-Za-z]/.test(chosen.textEn)) {
-      // A letter option reads its name (speakEn); a reading check's word (speakEn '') is read after the answer
+    // Grades 1–2: the spoken feedback already says the option's English, so don't read it first.
+    // Later grades hear the option at once (a letter reads its name via speakEn)
+    if (!isHebrewVoiced && /[A-Za-z]/.test(chosen.textEn)) {
       speakAnswerEnglish(chosen.speakEn || chosen.textEn);
     }
 
