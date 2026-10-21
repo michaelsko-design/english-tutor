@@ -13,6 +13,7 @@
 - [ ] **Themed buttons in settings** - in the settings, the 3 buttons of the different ui themes will have the corresponding background and instead of the emoji use the characters.
 - [ ] **Pro tier and payments plan** - Define the Freemium vs. "EnglishVibe Pro" / one-time "Exam Booster Pass" tier boundaries (keeping Unit 1, Placement Test and Friends Hub free while gating full curriculum, unlimited Exam Prep / Mock Exams and unlimited School Word Lists), design the kid-safe "Ask a Parent on WhatsApp" payment link flow (`/?upgrade=<uid>`), and plan integration with an Israeli payment gateway (Bit / Apple Pay / Google Pay + automatic tax invoices via Grow/PayPlus/Morning) and server-verified Firestore subscription status.
 - [ ] **Domain and Email update** - After buying a domain - update the contact email in the privacy notice.
+- [ ] **UI** - replace the generic emoji all across the app with nice looking images / icons - button icons, shop items, room furniture and icons etc. also - improve the room - the shelves look poor, placement ux (maybe should be draggable) etc.
 
 
 ## Probably never to implement Features
