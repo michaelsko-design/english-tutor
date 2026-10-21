@@ -81,7 +81,7 @@ export const WardrobePanel: React.FC<WardrobePanelProps> = ({
     onUpdateProfile(result.profile);
     if (result.isDailyRewardEarned) celebrate('medium');
     const rewards = [
-      result.xpEarned > 0 ? formatGainLtr(result.xpEarned, 'XP') : '',
+      result.xpEarned > 0 ? formatGainLtr(result.xpEarned, 'Vibe') : '',
       result.diamondsEarned > 0 ? formatGainLtr(result.diamondsEarned, '💎') : '',
     ]
       .filter(Boolean)
@@ -96,7 +96,7 @@ export const WardrobePanel: React.FC<WardrobePanelProps> = ({
 
   const progressText = day.isRewarded
     ? '✓ קיבלת היום את פרס ההלבשה. אפשר להמשיך להתלבש בכיף!'
-    : `היום: ${Math.min(day.namedCount, DRESS_UP_DAILY_GOAL)}/${DRESS_UP_DAILY_GOAL} פריטים — פרס יומי ${formatGainLtr(DRESS_UP_REWARD_XP, 'XP')} ו־${DRESS_UP_REWARD_DIAMONDS} 💎`;
+    : `היום: ${Math.min(day.namedCount, DRESS_UP_DAILY_GOAL)}/${DRESS_UP_DAILY_GOAL} פריטים — פרס יומי ${formatGainLtr(DRESS_UP_REWARD_XP, 'Vibe')} ו־${DRESS_UP_REWARD_DIAMONDS} 💎`;
 
   if (namingItem) {
     return (

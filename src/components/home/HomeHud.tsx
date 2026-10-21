@@ -73,7 +73,7 @@ export const HomeHud: React.FC<HomeHudProps> = ({
   const diamondsShown = useCountUp(profile.stats.diamonds);
   const streakDays = getCurrentStreak(profile, toLocalDateStr(new Date()));
   const level = getLevelProgress(profile.stats.xp, profile.stats.level);
-  const levelLabel = `רמה ${level.level}: עוד ${level.xpToNextLevel} XP לרמה ${level.level + 1}. פתיחת הנתונים שלי`;
+  const levelLabel = `רמה ${level.level}: עוד ${level.xpToNextLevel} Vibe לרמה ${level.level + 1}. פתיחת הנתונים שלי`;
   // The cloud button shows only when something needs the learner: a sync problem, or a guest
   // account that isn't saved yet. Logout lives in the profile settings.
   const needsSyncAttention = shouldShowSyncButton(syncStatus, authUser);
@@ -108,7 +108,7 @@ export const HomeHud: React.FC<HomeHudProps> = ({
         <div className="hidden sm:block min-w-0">
           <p className="font-extrabold text-sm truncate">{profile.name || APP_NAME}</p>
           <p className={`text-xs truncate ${theme.mutedTextClass}`}>
-            עוד <bdi>{level.xpToNextLevel} XP</bdi> לרמה {level.level + 1}
+            עוד <bdi>{level.xpToNextLevel} Vibe</bdi> לרמה {level.level + 1}
           </p>
         </div>
 

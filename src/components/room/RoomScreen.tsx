@@ -177,7 +177,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     }
     setStatusText(
       result.xpEarned > 0
-        ? `${item?.emoji} ${item?.nameEn} בחדר! ${formatGainLtr(result.xpEarned, 'XP')} על מילה חדשה 🌟`
+        ? `${item?.emoji} ${item?.nameEn} בחדר! ${formatGainLtr(result.xpEarned, 'Vibe')} על מילה חדשה 🌟`
         : `${item?.emoji} ${item?.nameEn} בחדר! 🏠`
     );
     setNaming(null);

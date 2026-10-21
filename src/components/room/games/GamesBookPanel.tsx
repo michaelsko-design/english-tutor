@@ -125,7 +125,7 @@ export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, 
           }
           partialHe={
             view.isBelowRewardScore && view.reward
-              ? `${formatGainLtr(view.reward.xpEarned, 'XP')} · הפרס היומי ניתן מ־${GAME_FULL_REWARD_MIN_SCORE}% ומעלה. ${
+              ? `${formatGainLtr(view.reward.xpEarned, 'Vibe')} · הפרס היומי ניתן מ־${GAME_FULL_REWARD_MIN_SCORE}% ומעלה. ${
                   profile.gender === 'girl' ? 'נסי שוב ופתרי עוד מילים!' : 'נסה שוב ופתור עוד מילים!'
                 }`
               : undefined

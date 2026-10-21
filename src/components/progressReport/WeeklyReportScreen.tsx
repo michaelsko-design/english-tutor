@@ -126,7 +126,7 @@ export const WeeklyReportScreen: React.FC<WeeklyReportScreenProps> = ({
             <StatTile emoji="🆕" labelHe="משימות חדשות" value={report.newMissionsCompleted} />
             <StatTile emoji="⭐" labelHe="כוכבים חדשים" value={report.starsGained} />
             <StatTile emoji="🎤" labelHe="מילים בקול" value={report.voiceWords} />
-            <StatTile emoji="✨" labelHe="XP" value={report.xpEarned} />
+            <StatTile emoji="✨" labelHe="Vibe" value={report.xpEarned} />
           </div>
         </section>
 

@@ -88,11 +88,11 @@ export function getTutorialSlides({ currencyNameHe, hasFriends, isShabbatObserve
     },
     {
       id: 'economy',
-      titleHe: `XP ו${currencyNameHe}`,
+      titleHe: `Vibe ו${currencyNameHe}`,
       bodyHe: 'כל משימה נותנת שני סוגי פרסים:',
       pose: 'cheer',
       points: [
-        { emoji: '⚡', labelHe: 'XP', textHe: 'ממלא את הטבעת סביב הדמות ומעלה רמה.' },
+        { emoji: '⚡', labelHe: 'Vibe', textHe: 'ממלא את הטבעת סביב הדמות ומעלה רמה.' },
         { emoji: '💎', labelHe: currencyNameHe, textHe: 'קונים בחנות דמויות, מדבקות, בגדים ומגיני רצף.' },
       ],
     },

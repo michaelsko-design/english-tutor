@@ -21,7 +21,7 @@ import { SpeakIcon, STOP_SPEECH_LABEL, STOP_SPEECH_TEXT } from './SpeakIcon';
 import { Button } from './ui/Button';
 
 /** The reward inside a Hebrew sentence, isolated so "+10 XP" doesn't flip */
-const VAULT_REWARD_LABEL = isolateLtr('+10 XP · +2 💎');
+const VAULT_REWARD_LABEL = isolateLtr('+10 Vibe · +2 💎');
 
 interface VocabularyVaultModalProps {
   units: CurriculumUnit[];
@@ -199,8 +199,8 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
               </h2>
               <p className={`text-xs hidden sm:block ${theme.mutedTextClass}`}>
                 {isGirl
-                  ? 'האזיני לכל מילה באנגלית או הקליטי את עצמך קוראת אותה בקול כדי לצבור XP ויהלומים!'
-                  : 'האזן לכל מילה באנגלית או הקלט את עצמך קורא אותה בקול כדי לצבור XP ויהלומים!'}
+                  ? 'האזיני לכל מילה באנגלית או הקליטי את עצמך קוראת אותה בקול כדי לצבור Vibe ויהלומים!'
+                  : 'האזן לכל מילה באנגלית או הקלט את עצמך קורא אותה בקול כדי לצבור Vibe ויהלומים!'}
               </p>
             </div>
           </div>
@@ -360,7 +360,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                         ? 'תורגל בהצלחה ✓'
                         : (
                           <>
-                            {isGirl ? 'תרגלי הגייה' : 'תרגל הגייה'} (<bdi>+10 XP</bdi>)
+                            {isGirl ? 'תרגלי הגייה' : 'תרגל הגייה'} (<bdi>+10 Vibe</bdi>)
                           </>
                         )}
                     </span>

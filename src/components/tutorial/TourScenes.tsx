@@ -173,7 +173,7 @@ const EconomyScene: React.FC<{ avatarEmoji: string }> = ({ avatarEmoji }) => {
             רמה 2
           </span>
           <span className="absolute -top-3 -right-6 px-2 py-0.5 rounded-full bg-white text-indigo-600 text-xs font-black shadow animate-tour-pop" dir="ltr" style={popDelay(3)}>
-            +20 XP
+            +20 Vibe
           </span>
         </div>
         {/* The diamonds counter */}

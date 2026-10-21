@@ -239,7 +239,7 @@ export function buildWeeklyReportTextHe(report: WeeklyReport, profile: LearnerPr
     `🆕 משימות חדשות שהושלמו: ${report.newMissionsCompleted}`,
     `⭐ כוכבים חדשים: ${report.starsGained}`,
     `🎤 מילים שנאמרו בקול: ${report.voiceWords}`,
-    `✨ נקודות ניסיון (XP): ${report.xpEarned}`,
+    `✨ נקודות Vibe: ${report.xpEarned}`,
     '',
     '📈 התקדמות כללית',
     `רמה ${overall.level} · רצף של ${formatDayCountHe(overall.streakDays)}`,

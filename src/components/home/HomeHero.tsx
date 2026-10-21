@@ -99,7 +99,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-500 text-white"
               dir="ltr" lang="en"
             >
-              +{xpReward} XP · +{diamondReward} 💎
+              +{xpReward} Vibe · +{diamondReward} 💎
             </span>
           </div>
 

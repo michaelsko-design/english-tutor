@@ -111,7 +111,7 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
           <div className="min-w-0">
             <p className="font-extrabold text-lg truncate">{profile.name}</p>
             <p className="text-sm font-bold">
-              רמה {level.level} · עוד <bdi>{level.xpToNextLevel} XP</bdi> לרמה {level.level + 1}
+              רמה {level.level} · עוד <bdi>{level.xpToNextLevel} Vibe</bdi> לרמה {level.level + 1}
             </p>
           </div>
           <LevelBadge level={level.level} size={STATS_LEVEL_BADGE_SIZE} className="ms-auto" />
@@ -149,7 +149,7 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
           <StatTile
             theme={theme}
             icon={<Zap className="w-6 h-6 text-indigo-500 fill-indigo-400" />}
-            value={<bdi>{profile.stats.xp} XP</bdi>}
+            value={<bdi>{profile.stats.xp} Vibe</bdi>}
             labelHe={`${masteredWords} מילים · מאגר המילים 🎙️`}
             titleHe="מילים של משימות עם 3 כוכבים · פתיחת מאגר המילים"
             className="col-span-2"

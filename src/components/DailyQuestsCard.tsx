@@ -64,7 +64,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
             <span>🎯 אתגרים יומיים</span>
           </h3>
           <span className={`text-xs font-semibold ${theme.mutedTextClass}`}>
-            בונוס יהלומים ו-XP
+            בונוס יהלומים ו-Vibe
           </span>
         </div>
 

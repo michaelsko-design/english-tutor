@@ -13,6 +13,7 @@ import { HudIcon } from '../hud/HudIcon';
 import { LevelBadge } from '../hud/LevelBadge';
 import { Companion } from '../companion/Companion';
 import { Button } from '../ui/Button';
+import { VIBE_CHEER_HE } from '../../config/appInfo';
 
 interface MissionVictoryProps {
   mission: MissionNode;
@@ -140,7 +141,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
         </div>
 
         <p className="sr-only">
-          {`${starsEarned} מתוך 3 כוכבים, ${xpEarned} נקודות XP, ${diamondsEarned} ${currencyNameHe}, ${wordsLearned} מילים`}
+          {`${starsEarned} מתוך 3 כוכבים, ${xpEarned} נקודות Vibe, ${diamondsEarned} ${currencyNameHe}, ${wordsLearned} מילים`}
           {frame.hasLeveledUp ? `, עלייה לרמה ${frame.level}` : ''}
         </p>
 
@@ -199,7 +200,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
           <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
             <Zap className="w-5 h-5 text-indigo-500 mx-auto mb-1" />
             <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap" dir="ltr" lang="en">
-              +{frame.xpShown} XP
+              +{frame.xpShown} Vibe
             </div>
             <div className="text-xs opacity-75">
               כולל בונוס {maxCombo}x רצף
@@ -224,6 +225,9 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
             </div>
           </div>
         </div>
+
+        {/* A full prize (it pays diamonds; repeats don't) gets the cheer */}
+        {diamondsEarned > 0 && xpEarned > 0 && (<p className="text-sm font-extrabold text-center">{VIBE_CHEER_HE}</p>)}
 
         {/* The room item is revealed last; its space is kept so nothing jumps */}
         {roomReward && (

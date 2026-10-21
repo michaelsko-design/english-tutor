@@ -73,7 +73,7 @@ export const FeedbackSheet: React.FC<FeedbackSheetProps> = ({
             dir="ltr" lang="en"
             aria-hidden="true"
           >
-            +{xpGain} XP
+            +{xpGain} Vibe
           </span>
         )}
 

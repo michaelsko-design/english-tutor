@@ -3,7 +3,8 @@
 ## Future / Next Up Ideas
 *Sorted by significance to the app's development (highest priority first). Completed features keep their numbers as stable IDs.*
 
-- [ ] **Fix** - change the XP points to "Vibe" points. when the app gives prizes it should give you "Vibe" points, maybe sy something like "יש לך וייב טוב!".
+- [x] **Fix** - the score now shows as "Vibe" points instead of XP (display only; the code keeps `stats.xp`), and a full prize shows "יש לך וייב טוב!" (`VIBE_CHEER_HE` in `src/config/appInfo.ts`).
+- [ ] **Vibe-o-meter** - A 0-100% gauge derived from `profile.activityLog` (no stored field, no sync change): it fills with recent practice and cools gently when days go quiet (Shabbat and shielded days count as active). It never removes points or levels, and its copy is encouraging, not punishing.
 - [ ] **Retire the old Firebase API key** - The old browser key (`AIzaSyAXCk…`) is still unrestricted and still works against this project. Find which of the other projects (Maps APIs showed active usage) use it, move them to their own keys, then restrict or delete it.
 - [ ] **Parent view and PIN recovery** - A read-only parent link or code for the weekly report on the parent's own phone, and a parent email (or a parent-issued reset code) so a forgotten PIN doesn't lose the account.
 - [ ] **Daily streak reminders** - Web-native daily reminders without migrating to a native app: Web Push notifications via `public/sw.js` + VAPID keys (with an iOS "Add to Home Screen" guide), a scheduled Vercel Cron job that checks `streakLastDateStr` and respects `isShabbatObserver` (skipping Friday/Shabbat), optional parent/learner email streak-saver & Sunday weekly report emails via Resend, and a 1-tap `.ics` / Google Calendar recurring reminder option.
