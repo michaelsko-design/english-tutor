@@ -25,9 +25,10 @@ export const TTS_AUDIO_VERSION = 1;
 
 /**
  * The Hebrew voice's own sound version, so its clips can be re-rendered without the English ones.
- * 2: words the voice misread are spelled out in IPA (api/_lib/hebrewPronunciation.ts).
+ * 2: Azure, with misread words spelled out in IPA (api/_lib/hebrewPronunciation.ts).
+ * 3: rendered with Gemini, which reads Hebrew by context (scripts/tts/geminiTts.ts).
  */
-export const HEBREW_AUDIO_VERSION = 2;
+export const HEBREW_AUDIO_VERSION = 3;
 
 export function getAudioVersion(voice: ClipVoice): number {
   return voice === HEBREW_VOICE ? HEBREW_AUDIO_VERSION : TTS_AUDIO_VERSION;

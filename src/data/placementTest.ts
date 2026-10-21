@@ -208,7 +208,7 @@ export function buildNonReaderResult(completedAt: string): PlacementResult {
 /** The question that opens the placement test, read aloud in Hebrew (the learner may not read yet). */
 export function getReadGateCopy(gender: LearnerGender): { questionHe: string; yesHe: string; notYetHe: string } {
   return {
-    questionHe: 'אפשר כבר לקרוא באנגלית?',
+    questionHe: gender === 'girl' ? 'האם את יודעת לקרוא באנגלית?' : 'האם אתה יודע לקרוא באנגלית?',
     yesHe: gender === 'girl' ? 'כן, אני יודעת לקרוא' : 'כן, אני יודע לקרוא',
     notYetHe: 'עוד לא',
   };

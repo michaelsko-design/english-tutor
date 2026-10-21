@@ -22,3 +22,4 @@ art-src/
 
 # TypeScript incremental build state
 *.tsbuildinfo
+.tts-gemini-batches.json

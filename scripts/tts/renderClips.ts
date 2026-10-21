@@ -1,6 +1,7 @@
 /**
  * Renders the read-aloud clips with Azure Neural voices into public/tts/<voice>/<key>.mp3 and
- * writes public/tts/manifest.json: `npm run tts:render -- [--voice female|male|he-female] [--limit N]`.
+ * writes public/tts/manifest.json: `npm run tts:render -- [--voice female|male] [--limit N]`. The Hebrew
+ * voice is rendered with Gemini instead: `npm run tts:render:he` (renderGeminiBatch.ts).
  * It skips clips already on disk, so a stopped run continues where it left off. Needs
  * AZURE_SPEECH_KEY and AZURE_SPEECH_REGION in .env.local.
  */
@@ -8,7 +9,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadEnv } from 'vite';
 import { AzureTtsError, readAzureConfig, synthesize, type AzureConfig } from '../../api/_lib/azureTts';
-import { isTtsVoice, type ClipVoice } from '../../src/services/tts/ttsText';
+import { HEBREW_VOICE, isTtsVoice, type ClipVoice } from '../../src/services/tts/ttsText';
 import { collectCorpus, type CorpusPhrase } from './corpus';
 import { getVoiceDir, listRenderedKeys, writeManifest } from './clipManifest';
 
@@ -51,6 +52,7 @@ async function main(): Promise<void> {
   const voiceArg = readArg('voice') ?? 'female';
   if (!isTtsVoice(voiceArg)) throw new Error(`Unknown voice "${voiceArg}"; use female, male or he-female.`);
   const voice: ClipVoice = voiceArg;
+  if (voice === HEBREW_VOICE) throw new Error('Hebrew clips are rendered with Gemini: npm run tts:render:he -- submit, then -- collect.');
   const limit = Number(readArg('limit') ?? Infinity);
   const config = readAzureConfig(loadEnv('development', process.cwd(), 'AZURE_'));
   if (!config) throw new Error('Set AZURE_SPEECH_KEY and AZURE_SPEECH_REGION in .env.local.');

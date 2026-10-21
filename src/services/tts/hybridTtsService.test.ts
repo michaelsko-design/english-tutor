@@ -119,7 +119,7 @@ describe('hybrid read-aloud service', () => {
     for (const [gender, key] of [['girl', girlKey], ['boy', boyKey]] as const) {
       const { service, fetchMock } = setup({ hebrewClipKeys: [girlKey, boyKey], listenerGender: gender });
       await service.speak(text, { lang: 'he' });
-      expect(fetchMock).toHaveBeenCalledWith(`/tts/v2/he-female/${key}.mp3`, expect.anything());
+      expect(fetchMock).toHaveBeenCalledWith(`/tts/v3/he-female/${key}.mp3`, expect.anything());
     }
     // The device voice reads the line itself, without the tag
     const offline = setup({ liveStatus: 503, listenerGender: 'girl' });
@@ -132,7 +132,7 @@ describe('hybrid read-aloud service', () => {
     let engine: TtsEngine | null = null;
     await service.speak('כל הכבוד, נועה!', { lang: 'he', onPlaybackStart: (e) => (engine = e) });
     expect(engine).toBe('live');
-    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/api/tts?a=2&v=he-female&'), expect.anything());
+    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/api/tts?a=3&v=he-female&'), expect.anything());
 
     const offline = setup({ liveStatus: 503 });
     await offline.service.speak('כל הכבוד, נועה!', { lang: 'he' });
