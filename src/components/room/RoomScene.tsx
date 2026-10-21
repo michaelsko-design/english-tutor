@@ -14,6 +14,7 @@ import { THEME_REGISTRY } from '../../themes/themeRegistry';
 import { useArtStatus } from '../../hooks/useArtStatus';
 import { DressedAvatar } from './DressedAvatar';
 import { ItemIcon } from './ItemIcon';
+import { IconBounds, ROOM_ICON_BOUNDS } from '../../data/roomIconBounds';
 import { useRoomItemDrag } from './useRoomItemDrag';
 import {
   FURNITURE_PIECES,
@@ -48,6 +49,17 @@ interface RoomSceneProps {
   onTapEntry?: (key: string) => void;
   onMoveEntry?: (key: string, point: ScenePoint) => void;
   onMoveRequestHandled?: () => void;
+}
+
+/** A picture drawn to its box edges (the desk), and the padding most icons are drawn with. */
+const FULL_BOUNDS: IconBounds = { left: 0.04, right: 0.96, top: 0, bottom: 1 };
+const DEFAULT_BOUNDS: IconBounds = { left: 0.074, right: 0.926, top: 0.074, bottom: 0.926 };
+const SHADOW_WIDTH_OF_FOOTPRINT = 0.7;
+const SHADOW_HEIGHT_OF_WIDTH = 0.13;
+
+function getBounds(item: { emoji: string; imageUrl?: string }, isDesk: boolean): IconBounds {
+  if (isDesk) return FULL_BOUNDS;
+  return ROOM_ICON_BOUNDS[item.emoji.replace('️', '')] ?? DEFAULT_BOUNDS;
 }
 
 const CENTERED = 'absolute -translate-x-1/2 -translate-y-1/2';
@@ -202,28 +214,38 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
         const isStanding = STANDING_KINDS.includes(kind);
         const size = entry.width * getDepthScale(kind, point.y);
         const isDesk = entry.key === `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`;
+        const bounds = getBounds(entry.item, isDesk);
+        // The picture's box is bigger than the drawn object: the feet are the object's visible bottom
+        const padBottom = (1 - bounds.bottom) * size;
+        const footprint = (bounds.right - bounds.left) * size;
         const style: React.CSSProperties = {
           ...at(point),
           width: `${size * 1.25}cqw`,
           zIndex: isMoving ? 30 : kind === 'desk' ? Math.round(layout.deskPoint.y) + 1 : Math.round(point.y),
           ...(isDesk ? { width: `${size}cqw` } : {}),
-          transform: isStanding ? 'translate(-50%, -100%)' : 'translate(-50%, -50%)',
+          transform: isStanding ? `translate(-50%, calc(-100% + ${padBottom}cqw))` : 'translate(-50%, -50%)',
         };
         const body = (
           <>
             {isStanding && (
               <span
-                className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/4 rounded-full bg-[#3B2A5A]/30 blur-[1px]"
-                style={{ width: `${size * 0.72}cqw`, height: `${size * 0.14}cqw` }}
+                className="absolute -translate-x-1/2 rounded-full bg-[#3B2A5A]/30 blur-[1px]"
+                style={{
+                  left: `${((bounds.left + bounds.right) / 2) * 100}%`,
+                  // centred on the feet: the object's bottom edge overlaps the top half of the shadow
+                  bottom: `${padBottom - (footprint * SHADOW_WIDTH_OF_FOOTPRINT * SHADOW_HEIGHT_OF_WIDTH) * 0.35}cqw`,
+                  width: `${footprint * SHADOW_WIDTH_OF_FOOTPRINT}cqw`,
+                  height: `${footprint * SHADOW_WIDTH_OF_FOOTPRINT * SHADOW_HEIGHT_OF_WIDTH}cqw`,
+                }}
                 aria-hidden="true"
               />
             )}
             <span
               className={`relative flex justify-center leading-none ${isMoving ? 'scale-110 drop-shadow-lg' : 'drop-shadow-sm'}`}
-              style={{ fontSize: `${size}cqw` }}
+              style={{ fontSize: `${size}cqw`, ...(isDesk ? {} : { height: `${size}cqw` }) }}
             >
               {isDesk ? (
-                <img src={entry.item.imageUrl} alt="" draggable={false} className="w-full h-auto" />
+                <img src={entry.item.imageUrl} alt="" draggable={false} className="block w-full h-auto" />
               ) : (
                 <ItemIcon item={entry.item} size={`${size}cqw`} />
               )}

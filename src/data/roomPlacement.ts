@@ -64,7 +64,7 @@ export const ROOM_SURFACES: RoomSurface[] = [
 /** Item width per id, in container-width units (the depth scale is applied on top). */
 const ITEM_WIDTHS: Record<string, number> = {
   'object:bed': 24,
-  'object:wardrobe': 15,
+  'object:wardrobe': 18,
   'object:games-book': 7,
   'object:phone': 5.5,
   'object:desk': 28,
