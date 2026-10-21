@@ -25,6 +25,7 @@ import { ExamSessionResult } from './ExamSessionResult';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { useExamBank } from '../../hooks/useExamBank';
 import { ScreenLoading } from '../ScreenLoading';
+import { normalizeSentence, useDrillSession } from '../../hooks/useDrillSession';
 
 export type ExamSessionNext = 'plan' | 'retry';
 
@@ -38,17 +39,8 @@ interface ExamSessionRunnerProps {
   onClose: () => void;
 }
 
-interface Feedback {
-  isCorrect: boolean;
-  text: string;
-}
-
 /** Mock answers can't be retried, so drop the drills' "try again" wording. */
 const TRY_AGAIN_PATTERN = /\s*נס(י|ה) שוב!?/g;
-
-function normalizeSentence(text: string): string {
-  return text.toLowerCase().replace(/[^a-z0-9\s']/g, '').replace(/\s+/g, ' ').trim();
-}
 
 /**
  * Runs a practice session or the mock exam. Practice allows hints and retries and scores the
@@ -78,25 +70,14 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
       : buildSessionSteps(plan, day, tier, profile.gender, salt, bankState.bank);
   }, [isBankLoading, bankState.bank, isMock, plan, day, tier, profile.gender, salt]);
 
-  const [stepIdx, setStepIdx] = useState(0);
-  const [answers, setAnswers] = useState<ExamAnswer[]>([]);
-  const [hasMissed, setHasMissed] = useState(false);
-  const [isResolved, setIsResolved] = useState(false);
-  const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const [wordIndices, setWordIndices] = useState<number[]>([]);
+  const session = useDrillSession<ExamAnswer>();
+  const { stepIdx, answers, hasMissed, isResolved, feedback, selectedIdx, wordIndices, isFinished } = session;
   const [showHint, setShowHint] = useState(false);
-  const [isFinished, setIsFinished] = useState(false);
 
   const step = steps[stepIdx];
   const isLast = stepIdx === steps.length - 1;
 
   useEffect(() => {
-    setHasMissed(false);
-    setIsResolved(false);
-    setFeedback(null);
-    setSelectedIdx(null);
-    setWordIndices([]);
     setShowHint(false);
   }, [stepIdx]);
 
@@ -104,9 +85,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
   const resolveStep = (isCorrect: boolean, text: string) => {
     // Written by step index, so a step can never be counted twice.
     const answer: ExamAnswer = { skill: step.skill, isCorrect: isCorrect && !hasMissed };
-    setAnswers((prev) => [...prev.slice(0, stepIdx), answer]);
-    setIsResolved(true);
-    setFeedback({ isCorrect, text });
+    session.resolve(answer, { isCorrect, text });
   };
 
   const handleWrong = (text: string, correctAnswerHe: string) => {
@@ -115,13 +94,12 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
       resolveStep(false, `${lockedText} ${correctAnswerHe}`);
       return;
     }
-    setHasMissed(true);
-    setFeedback({ isCorrect: false, text });
+    session.miss({ isCorrect: false, text });
   };
 
   const handleSelectOption = (idx: number) => {
     if (isResolved || !step.options) return;
-    setSelectedIdx(idx);
+    session.selectOption(idx);
     const chosen = step.options[idx];
     if (/[A-Za-z]/.test(chosen.textEn)) onSpeakEnglish(chosen.textEn, 0.95);
     const correct = step.options.find((o) => o.isCorrect);
@@ -131,7 +109,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
 
   const handleWordOrderChange = (nextIndices: number[], change: MagnetChange) => {
     if (isResolved || !step.scrambledWords) return;
-    setWordIndices(nextIndices);
+    session.setWordIndices(nextIndices);
     if (change.kind === 'add') onSpeakEnglish(step.scrambledWords[change.idx], 0.95);
   };
 
@@ -150,12 +128,8 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
   };
 
   const handleNext = () => {
-    if (!isLast) {
-      setStepIdx(stepIdx + 1);
-      return;
-    }
-    setIsFinished(true);
-    celebrate('big');
+    session.next(steps.length);
+    if (isLast) celebrate('big');
   };
 
   const progressHeader = (
@@ -260,7 +234,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
             selectedIndices={wordIndices}
             isCompleted={isResolved}
             onChangeOrder={handleWordOrderChange}
-            onReset={() => setWordIndices([])}
+            onReset={() => session.setWordIndices([])}
             onCheck={handleCheckSentence}
             theme={theme}
           />
