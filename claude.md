@@ -28,6 +28,7 @@ Emulator testing: never sign in or create accounts against the live Firebase pro
 - Fixed spoken text must be in `scripts/tts/corpus.ts` (new data file or new `onSpeakEnglish(...)` call on fixed text → add it there). Learner-typed text is not.
 - After editing curriculum, mini-lessons, exam banks, vocabulary, room/wardrobe names, voice messages, dream words: `npm run tts:check` → `npm run tts:render` (needs `AZURE_SPEECH_KEY`/`AZURE_SPEECH_REGION` in `.env.local`) → `tts:check` again → commit new `public/tts/v<N>/female/*.mp3` + `manifest.json` in the same commit.
 - Changing voice/SSML (`api/_lib/azureTts.ts`) means bumping `TTS_AUDIO_VERSION` in `src/services/tts/ttsText.ts` and re-rendering everything. Changing only the Hebrew clips' sound (`scripts/tts/geminiTts.ts`, or the niqqud in `scripts/tts/geminiSpelling.ts`, checked by ear) bumps `HEBREW_AUDIO_VERSION` instead and re-renders with `tts:render:he`. `api/_lib/hebrewPronunciation.ts` (IPA) only shapes the online Azure fallback.
+- A clip re-rendered after it shipped (`npm run tts:render:he -- redo "<text>"`) keeps its file name, so `redo` bumps its revision in `src/services/tts/clipRevisions.ts` (adds `?r=N` to its URL); commit that file with the new mp3, or devices keep the old take for a year.
 - All read-aloud goes through `getTtsService().speak(...)`; 🔊 buttons use `useSpeechToggle`; screens that read aloud use `useStopSpeechOnLeave`.
 
 **Profile sync**:
