@@ -133,6 +133,9 @@ export const ICON_ID_BY_EMOJI: Readonly<Record<string, string>> = {
   '🧷': 'ui-safety-pin',
   '🕵': 'ui-detective',
   '🙂': 'ui-slight-smile',
+  '👏': 'ui-clap',
+  '😄': 'ui-grin',
+  '💬': 'ui-speech',
 };
 
 const ICON_DIR = '/art/icons';

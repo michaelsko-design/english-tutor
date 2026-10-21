@@ -8,7 +8,7 @@ import { toLocalDateStr } from '../../utils/dates';
 import { usernameFromEmail } from '../../utils/username';
 import { useCountUp } from '../../hooks/useCountUp';
 import { EmojiIcon } from '../art/EmojiIcon';
-import { FluentIcon } from '../hud/FluentIcon';
+import { HudIcon } from '../hud/HudIcon';
 import { SoundToggle } from '../hud/SoundToggle';
 import { ProgressRing } from './ProgressRing';
 import { APP_NAME } from '../../config/appInfo';
@@ -121,7 +121,7 @@ export const HomeHud: React.FC<HomeHudProps> = ({
           aria-label={`${streakDays} ימי רצף. פתיחת האתגרים היומיים`}
           title="ימי רצף ואתגרים יומיים"
         >
-          <FluentIcon name="flame" className="w-5 h-5" />
+          <HudIcon name="flame" className="w-5 h-5" />
           <span className="tabular-nums">{streakDays}</span>
         </button>
 
@@ -132,7 +132,7 @@ export const HomeHud: React.FC<HomeHudProps> = ({
           aria-label={`${profile.stats.diamonds} ${theme.currencyNameHe}. פתיחת החנות`}
           title="חנות הפרסים"
         >
-          <FluentIcon name="gem" className="w-5 h-5" />
+          <HudIcon name="gem" className="w-5 h-5" />
           <span className="tabular-nums">{diamondsShown}</span>
         </button>
 

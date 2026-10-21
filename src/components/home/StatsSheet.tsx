@@ -8,7 +8,7 @@ import { toLocalDateStr } from '../../utils/dates';
 import { useCountUp } from '../../hooks/useCountUp';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { EmojiIcon } from '../art/EmojiIcon';
-import { FluentIcon } from '../hud/FluentIcon';
+import { HudIcon } from '../hud/HudIcon';
 import { LevelBadge } from '../hud/LevelBadge';
 import { ProgressRing } from './ProgressRing';
 import { Button } from '../ui/Button';
@@ -121,13 +121,13 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
         <div className="grid grid-cols-2 gap-2.5">
           <StatTile
             theme={theme}
-            icon={<FluentIcon name="flame" className="w-7 h-7" />}
+            icon={<HudIcon name="flame" className="w-7 h-7" />}
             value={getCurrentStreak(profile, toLocalDateStr(new Date()))}
             labelHe="ימי רצף"
           />
           <StatTile
             theme={theme}
-            icon={<FluentIcon name="star" className="w-7 h-7" />}
+            icon={<HudIcon name="star" className="w-7 h-7" />}
             value={profile.stats.stars}
             labelHe="כוכבים"
             titleHe="כוכבים מודדים עומק שליטה: 1–3 כוכבים לכל משימה"
@@ -141,7 +141,7 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
           />
           <StatTile
             theme={theme}
-            icon={<FluentIcon name="gem" className="w-7 h-7" />}
+            icon={<HudIcon name="gem" className="w-7 h-7" />}
             value={diamondsShown}
             labelHe={theme.currencyNameHe}
             onClick={onOpenShop}

@@ -4,7 +4,7 @@ import { APP_NAME } from '../../config/appInfo';
 import { getCommonArt, pickCutoutSrc } from '../../themes/themeArt';
 import { useCountUp } from '../../hooks/useCountUp';
 import { ArtImage } from '../art/ArtImage';
-import { FluentIcon } from '../hud/FluentIcon';
+import { HudIcon } from '../hud/HudIcon';
 import { ProgressRing } from '../home/ProgressRing';
 
 /**
@@ -124,7 +124,7 @@ const MapCoin: React.FC<{ stars: number; isLocked?: boolean; index: number; offs
     <span className="flex gap-0.5 h-5">
       {Array.from({ length: isLocked ? 0 : 3 }, (_, s) => (
         <span key={s} className="animate-tour-pop" style={popDelay(index * 2 + 1 + s * 0.4)}>
-          <FluentIcon name="star" className="w-5 h-5" isGreyed={s >= stars} />
+          <HudIcon name="star" className="w-5 h-5" isGreyed={s >= stars} />
         </span>
       ))}
     </span>
@@ -178,7 +178,7 @@ const EconomyScene: React.FC<{ avatarEmoji: string }> = ({ avatarEmoji }) => {
         </div>
         {/* The diamonds counter */}
         <div className="animate-tour-pop flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white shadow-xl" style={popDelay(1)}>
-          <FluentIcon name="gem" className="w-8 h-8" />
+          <HudIcon name="gem" className="w-8 h-8" />
           <span className="text-2xl font-black text-fuchsia-600 tabular-nums">{gems}</span>
         </div>
       </div>
@@ -209,7 +209,7 @@ const StreakScene: React.FC<{ isShabbatObserver: boolean }> = ({ isShabbatObserv
                 className="animate-tour-pop w-10 h-10 rounded-full bg-white/90 shadow flex items-center justify-center text-xl"
                 style={popDelay(i)}
               >
-                {isShabbatDay ? '🛡️' : i < 5 ? <FluentIcon name="flame" className="w-6 h-6" /> : '💤'}
+                {isShabbatDay ? '🛡️' : i < 5 ? <HudIcon name="flame" className="w-6 h-6" /> : '💤'}
               </span>
               <span className="text-xs font-black text-white">{day}</span>
             </div>
@@ -253,7 +253,7 @@ const FinishScene: React.FC = () => (
     <Sparkle emoji="🔥" className="bottom-8 right-14" delayMs={800} />
     <Sparkle emoji="✨" className="bottom-6 left-14" delayMs={1200} />
     <span className="animate-tour-pop" style={popDelay(0)}>
-      <FluentIcon name="trophy" className="w-28 h-28 drop-shadow-2xl" />
+      <HudIcon name="trophy" className="w-28 h-28 drop-shadow-2xl" />
     </span>
   </div>
 );

@@ -3,7 +3,7 @@ import { Lock } from 'lucide-react';
 import { CurriculumUnit } from '../../data/curriculum';
 import { MapPoint, getUnitLandmarkArt, pickCutoutSrc } from '../../themes/themeArt';
 import { MAP_BANNER_HEIGHT } from '../../data/worldMap';
-import { FluentIcon } from '../hud/FluentIcon';
+import { HudIcon } from '../hud/HudIcon';
 import { ArtImage } from '../art/ArtImage';
 import { WorldMapStyle } from './worldMapStyles';
 
@@ -25,7 +25,7 @@ export function getPinStyle(point: MapPoint, mapHeight: number): React.CSSProper
 export const StarRow: React.FC<{ stars: number; sizeClass?: string }> = ({ stars, sizeClass = 'w-4 h-4' }) => (
   <span className="flex items-center gap-px" dir="ltr" lang="en">
     {[1, 2, 3].map((n) => (
-      <FluentIcon key={n} name="star" className={sizeClass} isGreyed={stars < n} />
+      <HudIcon key={n} name="star" className={sizeClass} isGreyed={stars < n} />
     ))}
   </span>
 );
@@ -67,7 +67,7 @@ export const UnitBanner: React.FC<UnitBannerProps> = ({ unit, bannerTop, mapHeig
         dir="ltr" lang="en"
         aria-label={`${starsEarned} מתוך ${starsPossible} כוכבים ביחידה`}
       >
-        <FluentIcon name="star" className="w-4 h-4" />
+        <HudIcon name="star" className="w-4 h-4" />
         {starsEarned}/{starsPossible}
       </span>
     </div>

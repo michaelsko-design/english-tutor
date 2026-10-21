@@ -790,5 +790,23 @@
     "emoji": "🙂",
     "subject": "a round yellow face with a small smile",
     "sheet": 15
+  },
+  {
+    "id": "ui-clap",
+    "emoji": "👏",
+    "subject": "two cartoon hands clapping with small motion lines",
+    "sheet": 16
+  },
+  {
+    "id": "ui-grin",
+    "emoji": "😄",
+    "subject": "a round yellow face with a big open smile and happy eyes",
+    "sheet": 16
+  },
+  {
+    "id": "ui-speech",
+    "emoji": "💬",
+    "subject": "a rounded speech bubble with three dots inside",
+    "sheet": 16
   }
 ]

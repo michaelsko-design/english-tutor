@@ -2,7 +2,7 @@ import React from 'react';
 import { ChevronDown } from 'lucide-react';
 import { MapPeek as MapPeekData } from '../../data/homeBase';
 import { ThemeDefinition } from '../../themes/themeRegistry';
-import { FluentIcon } from '../hud/FluentIcon';
+import { HudIcon } from '../hud/HudIcon';
 
 interface MapPeekProps {
   peek: MapPeekData;
@@ -30,7 +30,7 @@ export const MapPeek: React.FC<MapPeekProps> = ({ peek, gradeLabelHe, theme, onO
       </span>
     </span>
     <span className="flex items-center gap-1 text-sm font-extrabold shrink-0">
-      <FluentIcon name="star" className="w-5 h-5" />
+      <HudIcon name="star" className="w-5 h-5" />
       <bdi className="tabular-nums">
         {peek.starsEarned}/{peek.starsPossible}
       </bdi>

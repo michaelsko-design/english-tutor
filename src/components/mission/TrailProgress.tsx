@@ -1,6 +1,6 @@
 import React from 'react';
 import { getComboFlameLevel, getTrailSegments, TrailSegmentState } from '../../utils/missionFeedback';
-import { FluentIcon } from '../hud/FluentIcon';
+import { HudIcon } from '../hud/HudIcon';
 
 interface TrailProgressProps {
   stepCount: number;
@@ -51,7 +51,7 @@ export const TrailProgress: React.FC<TrailProgressProps> = ({
       <div className="w-14 h-10 shrink-0 flex items-center justify-center" aria-live="polite">
         {flameLevel > 0 && (
           <span key={flameLevel} className="flex items-center gap-0.5 animate-reward-pop">
-            <FluentIcon name="flame" className={FLAME_SIZE_BY_LEVEL[flameLevel]} />
+            <HudIcon name="flame" className={FLAME_SIZE_BY_LEVEL[flameLevel]} />
             <span className="text-xs font-extrabold tabular-nums" dir="ltr" lang="en">
               {combo}x
             </span>

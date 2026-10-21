@@ -9,7 +9,7 @@ import { useAnimationClock } from '../../hooks/useAnimationClock';
 import { celebrate } from '../../utils/celebrate';
 import { getVictoryDurationMs, getVictoryFrame, VictoryFrame } from '../../utils/rewardFeedback';
 import { playSfx } from '../../utils/sfx';
-import { FluentIcon } from '../hud/FluentIcon';
+import { HudIcon } from '../hud/HudIcon';
 import { LevelBadge } from '../hud/LevelBadge';
 import { Companion } from '../companion/Companion';
 import { Button } from '../ui/Button';
@@ -124,7 +124,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
         {/* The companion cheers (Feature 25), holding up the trophy */}
         <div className="relative w-fit mx-auto">
           <Companion theme={theme} pose="cheer" size={VICTORY_COMPANION_SIZE} />
-          <FluentIcon name="trophy" className="absolute -bottom-1 -right-6 w-12 h-12 drop-shadow-md" />
+          <HudIcon name="trophy" className="absolute -bottom-1 -right-6 w-12 h-12 drop-shadow-md" />
         </div>
 
         <div className="space-y-1.5">
@@ -161,7 +161,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
                 } ${slot === 1 ? 'relative -top-2' : ''}`}
               >
                 {hasLanded ? (
-                  <FluentIcon name="star" className="w-10 h-10" isGreyed={!isEarned} />
+                  <HudIcon name="star" className="w-10 h-10" isGreyed={!isEarned} />
                 ) : (
                   <span className="block w-10 h-10" />
                 )}
@@ -206,7 +206,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
             </div>
           </div>
           <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
-            <FluentIcon name="gem" className="w-6 h-6 mx-auto mb-1" />
+            <HudIcon name="gem" className="w-6 h-6 mx-auto mb-1" />
             <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap" dir="ltr" lang="en">
               +{frame.diamondsShown}
             </div>
