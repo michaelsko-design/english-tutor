@@ -51,7 +51,27 @@ export const GEMINI_SPELLINGS: Readonly<Record<string, string>> = {
   // Qamatz: by ear (2026-10) לְחַץ still came out lahetz in 5 of 18 takes, לְחָץ never
   לחץ: 'לְחָץ',
   וקרא: 'וּקְרָא',
+  // "be-BOS" (in the boss), stress on the last syllable; unvoweled it was read "Babos"
+  בבוס: 'בְּבּוֹס',
 };
+
+/**
+ * Whole lines that come out with an English accent even when each word is right: all of it goes in
+ * niqqud, which keeps Gemini on Hebrew sounds. Keyed by the line without its trailing punctuation.
+ */
+export const GEMINI_FULL_NIQQUD: Readonly<Record<string, string>> = {
+  'הקשב ואמור את המילה בקול': 'הַקְשֶׁב וֶאֱמוֹר אֶת הַמִּלָּה בְּקוֹל',
+  'הקשיבי ואמרי את המילה בקול': 'הַקְשִׁיבִי וְאִמְרִי אֶת הַמִּלָּה בְּקוֹל',
+};
+
+const TRAILING_PUNCTUATION = /[\s:.!?]*$/;
+
+function applyFullNiqqud(text: string): string {
+  const punctuation = TRAILING_PUNCTUATION.exec(text)?.[0] ?? '';
+  const line = text.slice(0, text.length - punctuation.length);
+  const voweled = GEMINI_FULL_NIQQUD[line];
+  return voweled ? voweled + punctuation : text;
+}
 
 const HEBREW_LETTER = '\\u05d0-\\u05ea';
 
@@ -76,6 +96,8 @@ const LONE_LETTER = /(?<![A-Za-z])([A-Z])(?![A-Za-z])/g;
 export function toGeminiText(clipText: string): string {
   const { gender, text } = parseListenerGender(clipText);
   const forms = gender === 'girl' ? GEMINI_GIRL_FORMS : gender === 'boy' ? GEMINI_BOY_FORMS : null;
+  const whole = applyFullNiqqud(text);
+  if (whole !== text) return whole;
   const forListener = forms ? replaceWords(text, forms) : text;
   return replaceWords(forListener, GEMINI_SPELLINGS).replace(LONE_LETTER, (letter) => GEMINI_LETTER_NAMES[letter] ?? letter);
 }

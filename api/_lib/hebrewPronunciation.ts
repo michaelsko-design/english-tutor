@@ -43,6 +43,8 @@ export const HEBREW_PRONUNCIATIONS: readonly PronunciationEntry[] = [
   { pattern: 'אמרי', ipa: 'im.ˈʁi' },
   { pattern: 'ואמרי', ipa: 've.im.ˈʁi' },
   { pattern: 'אמרו', ipa: 'im.ˈʁu' },
+  // The Boss recap line is built at run time, so it is read by this online voice ("be-BOS", not "Babos")
+  { pattern: 'בבוס', ipa: 'be.ˈbos' },
   { pattern: 'נסה', ipa: 'na.ˈse' },
   { pattern: 'ונסה', ipa: 've.na.ˈse' },
   { pattern: 'נסי', ipa: 'na.ˈsi' },

@@ -15,6 +15,10 @@ describe('markPronunciations', () => {
     ]);
   });
 
+  it('reads "בבוס" as be-BOS, stressed on the last syllable', () => {
+    expect(spelled('בבוס נפגשים כל הנושאים של היחידה.')).toEqual([{ text: 'בבוס', ipa: 'be.ˈbos' }]);
+  });
+
   it('matches whole words only, so a longer word that contains one is left alone', () => {
     expect(spelled('הבחירה שלך')).toEqual([]);
     expect(spelled('נסיון')).toEqual([]);

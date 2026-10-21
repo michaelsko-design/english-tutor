@@ -7,6 +7,7 @@ import { CURRICULUM_BY_GRADE } from '../../src/data/curriculum';
 import { getExercisesForMission, type MissionExerciseStep } from '../../src/data/missionExercises';
 import { ALL_LESSON_PACKS } from '../../src/data/curriculum/lessons';
 import { ALL_EXAM_BANKS } from '../../src/data/curriculum/examBank';
+import { buildBossRecap } from '../../src/data/miniLessons';
 import { buildBankSteps } from '../../src/data/examBank';
 import { HEBREW_AUDIO_GRADES } from '../../src/data/hebrewAudio';
 import { getReadGateCopy, gradeIdToNumber, NON_READER_RESULT_HE } from '../../src/data/placementTest';
@@ -62,6 +63,8 @@ function addMissions(corpus: CorpusBuilder): void {
 function addLessons(corpus: CorpusBuilder): void {
   for (const gradeId of HEBREW_AUDIO_GRADES) {
     const pack = ALL_LESSON_PACKS[gradeIdToNumber(gradeId)] ?? {};
+    // The Boss recap is built at run time; its fixed intro is read aloud, the rest comes from the lessons
+    addHebrew(corpus, buildBossRecap(Object.values(pack).slice(0, 1))?.ideaHe);
     for (const lesson of Object.values(pack)) {
       [lesson.titleHe, lesson.ideaHe, lesson.tipHe, lesson.quickTry?.promptHe, lesson.quickTry?.explainHe].forEach(
         (text) => addHebrew(corpus, text),

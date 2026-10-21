@@ -22,6 +22,16 @@ describe('toGeminiText', () => {
     expect(toGeminiText('האותיות X, Y, Z')).toBe('האותיות X, Y, Zed');
   });
 
+  it('says "בבוס" as be-BOS', () => {
+    expect(toGeminiText('בבוס נפגשים כל הנושאים של היחידה.')).toBe('בְּבּוֹס נפגשים כל הנושאים של היחידה.');
+  });
+
+  it('puts a line that comes out with an English accent fully in niqqud', () => {
+    expect(toGeminiText('[to:boy] הקשב ואמור את המילה בקול:')).toBe('הַקְשֶׁב וֶאֱמוֹר אֶת הַמִּלָּה בְּקוֹל:');
+    expect(toGeminiText('[to:girl] הקשיבי ואמרי את המילה בקול:')).toBe('הַקְשִׁיבִי וְאִמְרִי אֶת הַמִּלָּה בְּקוֹל:');
+    expect(toGeminiText('הקשב ואמור את המילה cat בקול:')).toBe('הַקְשֶׁב ואמור את המילה cat בקול:');
+  });
+
   it('has a girl and a boy form for every word that reads by gender', () => {
     for (const word of LISTENER_GENDERED_WORDS) {
       expect(GEMINI_GIRL_FORMS[word], word).toMatch(/[ְ-ּ]/);

@@ -3,7 +3,7 @@
 ## Future / Next Up Ideas
 *Sorted by significance to the app's development (highest priority first). Completed features keep their numbers as stable IDs.*
 
-- [ ] **Fix** - change the XP point to "Vibe" when the app gives prizes it should give you "Vibe" points, maybe sy something like "יש לך וייב טוב!".
+- [ ] **Fix** - change the XP points to "Vibe" points. when the app gives prizes it should give you "Vibe" points, maybe sy something like "יש לך וייב טוב!".
 - [ ] **Retire the old Firebase API key** - The old browser key (`AIzaSyAXCk…`) is still unrestricted and still works against this project. Find which of the other projects (Maps APIs showed active usage) use it, move them to their own keys, then restrict or delete it.
 - [ ] **Parent view and PIN recovery** - A read-only parent link or code for the weekly report on the parent's own phone, and a parent email (or a parent-issued reset code) so a forgotten PIN doesn't lose the account.
 - [ ] **Daily streak reminders** - Web-native daily reminders without migrating to a native app: Web Push notifications via `public/sw.js` + VAPID keys (with an iOS "Add to Home Screen" guide), a scheduled Vercel Cron job that checks `streakLastDateStr` and respects `isShabbatObserver` (skipping Friday/Shabbat), optional parent/learner email streak-saver & Sunday weekly report emails via Resend, and a 1-tap `.ics` / Google Calendar recurring reminder option.
@@ -14,6 +14,7 @@
 - [ ] **Pro tier and payments plan** - Define the Freemium vs. "EnglishVibe Pro" / one-time "Exam Booster Pass" tier boundaries (keeping Unit 1, Placement Test and Friends Hub free while gating full curriculum, unlimited Exam Prep / Mock Exams and unlimited School Word Lists), design the kid-safe "Ask a Parent on WhatsApp" payment link flow (`/?upgrade=<uid>`), and plan integration with an Israeli payment gateway (Bit / Apple Pay / Google Pay + automatic tax invoices via Grow/PayPlus/Morning) and server-verified Firestore subscription status.
 - [ ] **Domain and Email update** - After buying a domain - update the contact email in the privacy notice.
 - [ ] **UI** - replace the generic emoji all across the app with nice looking images / icons - button icons, shop items, room furniture and icons etc. also - improve the room - the shelves look poor, placement ux (maybe should be draggable) etc.
+- [ ] **UI** - Think about introducing another theme that will fit better for older students (not so much "kid-like" as the current themes).
 
 
 ## Probably never to implement Features
