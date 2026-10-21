@@ -183,6 +183,8 @@ export function App() {
       isCloudLoadedRef.current = false;
       retryCloudLoadRef.current = null;
       setIsCloudLoadFailed(false);
+      // Sign-out lives on the profile screen: whoever signs in next starts on the dashboard
+      setIsEditingOnboarding(false);
 
       if (!firebaseUser) {
         setAuthUser(null);

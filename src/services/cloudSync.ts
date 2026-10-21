@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDocFromCache, getDocFromServer, runTransaction, setDoc, type DocumentReference } from 'firebase/firestore';
 import { db } from './firebase';
 import {
   ContestRecord,
@@ -547,9 +547,26 @@ export function buildLoginProfile(
 }
 
 /**
+ * The learner's document for sign-in. It comes from the server: a cache cleared (or filled by an
+ * older session) must never answer "no profile". Offline, a cached copy that exists still opens
+ * the app; with nothing cached the error reaches the retry screen.
+ */
+async function readLoginSnapshot(docRef: DocumentReference) {
+  try {
+    return await getDocFromServer(docRef);
+  } catch (error) {
+    const cached = await getDocFromCache(docRef).catch(() => null);
+    if (cached?.exists()) return cached;
+    throw error;
+  }
+}
+
+/**
  * Loads or initializes the learner profile when signing in:
  * - If a cloud document exists for this user, loads it as the source of truth.
- * - If this is a brand-new user (no cloud document yet), initializes a clean-slate profile.
+ * - If this is a brand-new user (no cloud document yet), initializes a clean-slate profile. The
+ *   document is created in a transaction that re-checks it, so a default never lands on a profile
+ *   that exists (an earlier sign-in bug reset a learner's progress that way).
  */
 export async function migrateAndSyncProfileOnLogin(
   uid: string,
@@ -558,14 +575,18 @@ export async function migrateAndSyncProfileOnLogin(
   if (!db) return cleanDefaultProfile;
 
   const docRef = doc(db, LEARNERS_COLLECTION, uid);
-  const snapshot = await getDoc(docRef);
+  const snapshot = await readLoginSnapshot(docRef);
   if (snapshot.exists()) {
     return buildLoginProfile(cleanDefaultProfile, snapshot.data() as Partial<LearnerProfile>);
   }
 
   const sanitized = sanitizeForFirestore(cleanDefaultProfile);
-  await setDoc(docRef, sanitized, { merge: true });
-  return sanitized;
+  return runTransaction(db, async (transaction) => {
+    const latest = await transaction.get(docRef);
+    if (latest.exists()) return buildLoginProfile(cleanDefaultProfile, latest.data() as Partial<LearnerProfile>);
+    transaction.set(docRef, sanitized);
+    return sanitized;
+  });
 }
 
 /**
