@@ -1,6 +1,6 @@
 """Cut the 3 x 3 icon sheets into one picture per icon.
 
-Reads   art-src/icon-sheets/sheet-<n>.png   (n = 1-based, nine icons per sheet in iconList.json order)
+Reads   art-src/icon-sheets/sheet-<n>.png   (n = the "sheet" number in iconList.json, at most nine icons per sheet, in list order)
 Writes  art-src/icons/<id>.png               (one icon on white, ready for scripts/process_art.py icons)
 
 A cell that holds drawing on its outer rim means an icon spilled over a cell border; the script
@@ -50,12 +50,15 @@ def main() -> None:
     icons = json.loads(ICON_LIST.read_text(encoding="utf-8"))
     out_dir.mkdir(parents=True, exist_ok=True)
     written = 0
-    for number, start in enumerate(range(0, len(icons), ICONS_PER_SHEET), start=1):
+    sheets: dict[int, list[dict]] = {}
+    for icon in icons:
+        sheets.setdefault(icon["sheet"], []).append(icon)
+    for number in sorted(sheets):
         sheet_path = sheets_dir / f"sheet-{number}.png"
         if not sheet_path.exists():
             print(f"skip    sheet-{number}.png (not drawn yet)")
             continue
-        written += slice_sheet(sheet_path, icons[start:start + ICONS_PER_SHEET], out_dir)
+        written += slice_sheet(sheet_path, sheets[number][:ICONS_PER_SHEET], out_dir)
     print(f"{written} icon(s) written to {out_dir}")
 
 

@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { defineConfig, loadEnv, type Plugin, type ResolvedConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -85,7 +85,10 @@ function vendorChunk(id: string): string | undefined {
 }
 
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), ttsApiDevPlugin(loadEnv(mode, process.cwd(), 'AZURE_')), swPrecachePlugin()],
+  resolve: { alias: { 'emoji-jsx': resolve(__dirname, 'src/emojiJsx') } },
+  // The JSX runtime is app source (it reads the icon map): served as is, not pre-bundled as a stale copy
+  optimizeDeps: { exclude: ['emoji-jsx/jsx-runtime', 'emoji-jsx/jsx-dev-runtime'] },
+  plugins: [react({ jsxImportSource: 'emoji-jsx' }), ttsApiDevPlugin(loadEnv(mode, process.cwd(), 'AZURE_')), swPrecachePlugin()],
   build: {
     rollupOptions: { output: { manualChunks: vendorChunk } },
   },

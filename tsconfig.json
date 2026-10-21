@@ -11,6 +11,8 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "jsxImportSource": "emoji-jsx",
+    "paths": { "emoji-jsx/*": ["./src/emojiJsx/*"] },
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,

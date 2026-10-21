@@ -5,11 +5,11 @@
  * cut into single pictures by scripts/art/slice_icon_sheets.py.
  *
  * Usage:
- *   node scripts/art/renderIconBatch.mjs pilot [outDir]   one sheet (the first 9 icons), rendered at once
+ *   node scripts/art/renderIconBatch.mjs pilot [outDir]   one sheet (the first), rendered at once
  *   node scripts/art/renderIconBatch.mjs submit           every missing sheet as one batch (50% discount)
  *   node scripts/art/renderIconBatch.mjs status
  *   node scripts/art/renderIconBatch.mjs collect
- * Sheets land in art-src/icon-sheets/sheet-<n>.png (n is 1-based, in the order of iconList.json).
+ * Sheets land in art-src/icon-sheets/sheet-<n>.png (n is the "sheet" number of the icons in iconList.json, at most nine per sheet).
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -36,10 +36,11 @@ function loadIcons() {
   return JSON.parse(readFileSync(ICON_LIST, 'utf8'));
 }
 
-function chunk(list, size) {
-  const sheets = [];
-  for (let i = 0; i < list.length; i += size) sheets.push(list.slice(i, i + size));
-  return sheets;
+/** The icons of each sheet, in sheet order; every icon in iconList.json names its sheet number. */
+function groupBySheet(list) {
+  const sheets = new Map();
+  for (const icon of list) sheets.set(icon.sheet, [...(sheets.get(icon.sheet) ?? []), icon]);
+  return [...sheets.entries()].sort(([a], [b]) => a - b).map(([n, icons]) => ({ n, icons }));
 }
 
 function buildSheetPrompt(icons) {
@@ -55,9 +56,7 @@ function sheetPath(n) {
 
 /** The sheets still to draw, as { n, icons } (n is the 1-based sheet number). */
 function missingSheets() {
-  return chunk(loadIcons(), ICONS_PER_SHEET)
-    .map((icons, i) => ({ n: i + 1, icons }))
-    .filter(({ n }) => !existsSync(sheetPath(n)));
+  return groupBySheet(loadIcons()).filter(({ n }) => !existsSync(sheetPath(n)));
 }
 
 function readApiKey() {
@@ -94,7 +93,7 @@ function imageFrom(response) {
 }
 
 async function pilot(apiKey, outDir) {
-  const [first] = chunk(loadIcons(), ICONS_PER_SHEET);
+  const [{ icons: first }] = groupBySheet(loadIcons());
   const res = await fetch(`${API_BASE}/models/${MODEL}:generateContent?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
