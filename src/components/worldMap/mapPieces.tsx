@@ -1,7 +1,7 @@
 import React from 'react';
 import { Lock } from 'lucide-react';
 import { CurriculumUnit } from '../../data/curriculum';
-import { MapPoint, getLandmarkArt, pickCutoutSrc } from '../../themes/themeArt';
+import { MapPoint, getUnitLandmarkArt, pickCutoutSrc } from '../../themes/themeArt';
 import { MAP_BANNER_HEIGHT } from '../../data/worldMap';
 import { FluentIcon } from '../hud/FluentIcon';
 import { ArtImage } from '../art/ArtImage';
@@ -98,7 +98,7 @@ export const MapLandmark: React.FC<MapLandmarkProps> = ({ unit, gradeNumber, pos
         <div className="relative aspect-square">{fallback}</div>
       ) : (
         <ArtImage
-          src={pickCutoutSrc(getLandmarkArt(gradeNumber, unit.unitNumber), LANDMARK_DISPLAY_PX, getDevicePixelRatio())}
+          src={pickCutoutSrc(getUnitLandmarkArt(gradeNumber, unit), LANDMARK_DISPLAY_PX, getDevicePixelRatio())}
           className="aspect-square w-full"
           imgClassName="drop-shadow-lg"
           fallback={fallback}

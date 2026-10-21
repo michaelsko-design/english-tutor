@@ -147,6 +147,25 @@ export function getLandmarkArt(gradeNumber: number, unitNumber: number): CutoutA
   return getCutoutArt('landmarks', `g${gradeNumber}-u${unitNumber}`);
 }
 
+/** What a unit's landmark is named by: its place on the map and its missions' ids. */
+export interface LandmarkUnit {
+  unitNumber: number;
+  missions: ReadonlyArray<{ id: string }>;
+}
+
+const MISSION_ID_UNIT = /^g\d+-u(\d+)-m\d+$/;
+
+/**
+ * The landmark of a unit, named by the unit number in its mission ids like the story pictures.
+ * That differs from the unit's place in grade 1, where the letters units (ids g1-u11…) came
+ * first later; a unit with no readable mission id falls back to its place.
+ */
+export function getUnitLandmarkArt(gradeNumber: number, unit: LandmarkUnit): CutoutArt {
+  const match = unit.missions[0] && MISSION_ID_UNIT.exec(unit.missions[0].id);
+  const idUnitNumber = match ? Number(match[1]) : unit.unitNumber;
+  return getLandmarkArt(gradeNumber, idUnitNumber);
+}
+
 /** The spot illustration of a mission's story step, e.g. /art/stories/g7-u3-m2.webp */
 export function getStoryArt(missionId: string): string {
   return `${ART_ROOT}/stories/${missionId}.webp`;

@@ -7,9 +7,11 @@ import {
   getCommonArt,
   getLandmarkArt,
   getStoryArt,
+  getUnitLandmarkArt,
   pickCutoutSrc,
 } from './themeArt';
 import { THEME_REGISTRY } from './themeRegistry';
+import { grade1Curriculum } from '../data/curriculum/elementary/grade1';
 
 describe('buildThemeArt', () => {
   it('points every companion pose at the 512px and 256px WebP files of the theme', () => {
@@ -61,6 +63,23 @@ describe('shared art paths', () => {
     });
     expect(getLandmarkArt(7, 3).full).toBe('/art/landmarks/g7-u3.webp');
     expect(getStoryArt('g7-u3-m2')).toBe('/art/stories/g7-u3-m2.webp');
+  });
+});
+
+describe('getUnitLandmarkArt', () => {
+  it('names the landmark by the unit number in the mission ids, like the story pictures', () => {
+    const units = grade1Curriculum.units;
+    expect(getUnitLandmarkArt(1, units[0]).full).toBe('/art/landmarks/g1-u11.webp');
+    expect(getUnitLandmarkArt(1, units[5]).full).toBe('/art/landmarks/g1-u16.webp');
+    expect(getUnitLandmarkArt(1, units[6]).full).toBe('/art/landmarks/g1-u1.webp');
+    expect(getUnitLandmarkArt(1, units[9]).full).toBe('/art/landmarks/g1-u4.webp');
+  });
+
+  it('falls back to the unit place when the unit has no mission id to read', () => {
+    expect(getUnitLandmarkArt(7, { unitNumber: 3, missions: [] }).full).toBe('/art/landmarks/g7-u3.webp');
+    expect(getUnitLandmarkArt(7, { unitNumber: 3, missions: [{ id: 'odd-id' }] }).full).toBe(
+      '/art/landmarks/g7-u3.webp'
+    );
   });
 });
 
