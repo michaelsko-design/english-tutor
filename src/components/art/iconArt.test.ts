@@ -47,7 +47,7 @@ describe('getIconSrc', () => {
   });
 
   it('is null for an emoji without a drawn icon', () => {
-    expect(getIconSrc('🦄', 64)).toBeNull();
+    expect(getIconSrc('🧿', 64)).toBeNull();
   });
 
   it('treats a bad pixel ratio as 1', () => {

@@ -6,7 +6,7 @@ describe('splitIconEmoji', () => {
   it('is null for text without a drawn emoji', () => {
     expect(splitIconEmoji('שלום')).toBeNull();
     expect(splitIconEmoji('')).toBeNull();
-    expect(splitIconEmoji('🦄 unicorn')).toBeNull();
+    expect(splitIconEmoji('🧿 charm')).toBeNull();
   });
 
   it('splits text around drawn emoji, keeping the order', () => {
