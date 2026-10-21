@@ -1,6 +1,8 @@
 import React, { RefObject, useRef, useState } from 'react';
 import {
   PlacedRoomEntry,
+  PlacementOptions,
+  RoomLayoutContext,
   ScenePoint,
   cycleSurface,
   snapToSurface,
@@ -26,6 +28,8 @@ interface Press {
 
 interface UseRoomItemDragOptions {
   sceneRef: RefObject<HTMLElement | null>;
+  /** Where the desk is: its top is the surface of the small items */
+  layout: RoomLayoutContext;
   onMove: (key: string, point: ScenePoint) => void;
   onTap: (key: string) => void;
 }
@@ -42,10 +46,12 @@ const CLICK_AFTER_DRAG_MS = 350;
  * PageDown to change surface, Enter to drop, Escape to cancel). The dragged item always shows on
  * a surface of its kind; the drop is committed through `onMove`.
  */
-export function useRoomItemDrag({ sceneRef, onMove, onTap }: UseRoomItemDragOptions) {
+export function useRoomItemDrag({ sceneRef, layout, onMove, onTap }: UseRoomItemDragOptions) {
   const [drag, setDrag] = useState<DragState | null>(null);
   const press = useRef<Press | null>(null);
   const suppressClickUntil = useRef(0);
+
+  const optionsFor = (entry: PlacedRoomEntry): PlacementOptions => ({ layout, width: entry.width });
 
   const toScene = (clientX: number, clientY: number): ScenePoint | null => {
     const rect = sceneRef.current?.getBoundingClientRect();
@@ -88,7 +94,7 @@ export function useRoomItemDrag({ sceneRef, onMove, onTap }: UseRoomItemDragOpti
     const pointer = toScene(event.clientX, event.clientY);
     if (!pointer) return;
     const raw = { x: pointer.x - current.offset.x, y: pointer.y - current.offset.y };
-    setDrag({ key: entry.key, point: snapToSurface(entry.item.slotKind, raw).point, source: 'pointer' });
+    setDrag({ key: entry.key, point: snapToSurface(entry.item.slotKind, raw, optionsFor(entry)).point, source: 'pointer' });
   };
 
   const onPointerUp = (entry: PlacedRoomEntry) => {
@@ -112,20 +118,22 @@ export function useRoomItemDrag({ sceneRef, onMove, onTap }: UseRoomItemDragOpti
     const kind = entry.item.slotKind;
     const point = drag?.key === entry.key ? drag.point : entry.point;
     const step = event.shiftKey ? KEY_STEP_BIG : KEY_STEP;
-    const isLine = snapToSurface(kind, point).surface.yMin === snapToSurface(kind, point).surface.yMax;
+    const options = optionsFor(entry);
+    const surface = snapToSurface(kind, point, options).surface;
+    const isLine = surface.yMin === surface.yMax;
     switch (event.key) {
       case 'ArrowLeft':
-        return stepPoint(kind, point, -step, 0);
+        return stepPoint(kind, point, -step, 0, options);
       case 'ArrowRight':
-        return stepPoint(kind, point, step, 0);
+        return stepPoint(kind, point, step, 0, options);
       case 'ArrowUp':
-        return isLine ? cycleSurface(kind, point, -1) : stepPoint(kind, point, 0, -step);
+        return isLine ? cycleSurface(kind, point, -1, options) : stepPoint(kind, point, 0, -step, options);
       case 'ArrowDown':
-        return isLine ? cycleSurface(kind, point, 1) : stepPoint(kind, point, 0, step);
+        return isLine ? cycleSurface(kind, point, 1, options) : stepPoint(kind, point, 0, step, options);
       case 'PageUp':
-        return cycleSurface(kind, point, -1);
+        return cycleSurface(kind, point, -1, options);
       case 'PageDown':
-        return cycleSurface(kind, point, 1);
+        return cycleSurface(kind, point, 1, options);
       default:
         return null;
     }
@@ -160,7 +168,7 @@ export function useRoomItemDrag({ sceneRef, onMove, onTap }: UseRoomItemDragOpti
   const getAnnouncement = (entries: PlacedRoomEntry[]): string => {
     const moving = drag && entries.find((entry) => entry.key === drag.key);
     if (!moving || drag.source !== 'keyboard') return '';
-    const surface = snapToSurface(moving.item.slotKind, drag.point).surface;
+    const surface = snapToSurface(moving.item.slotKind, drag.point, optionsFor(moving)).surface;
     return `${moving.item.nameHe}: ${SURFACE_LABELS_HE[surface.id] ?? ''}`;
   };
 

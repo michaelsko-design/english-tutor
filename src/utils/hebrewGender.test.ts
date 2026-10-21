@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hebrewTemplate, inflectHebrew, resolveGenderSlashes } from './hebrewGender';
+import { getHebrewCopy, hebrewTemplate, inflectHebrew, resolveGenderSlashes } from './hebrewGender';
 import { CURRICULUM_BY_GRADE, MissionNode } from '../data/curriculum';
 import { getExercisesForMission, getRawExercisesForMission, MissionExerciseStep } from '../data/missionExercises';
 import { ProficiencyTier } from '../types/learner';
@@ -159,5 +159,16 @@ describe('resolveGenderSlashes', () => {
     expect(resolveGenderSlashes('כן/לא', 'boy')).toBe('כן/לא');
     expect(resolveGenderSlashes('מצב/רגש', 'girl')).toBe('מצב/רגש');
     expect(resolveGenderSlashes('and/or', 'girl')).toBe('and/or');
+  });
+});
+
+describe('stickers-locked hint copy', () => {
+  it('speaks to a girl and a boy in their own form and names the shop', () => {
+    const girl = getHebrewCopy('girl', 'נועה').stickersLockedBody;
+    const boy = getHebrewCopy('boy', 'נועם').stickersLockedBody;
+    expect(girl).toContain('את יכולה');
+    expect(boy).toContain('אתה יכול');
+    expect(girl).toContain('בחנות');
+    expect(getHebrewCopy('girl', '').stickersLockedTitle).toBe(getHebrewCopy('boy', '').stickersLockedTitle);
   });
 });

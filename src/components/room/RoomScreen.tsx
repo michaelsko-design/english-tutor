@@ -9,7 +9,14 @@ import {
   getRoomItemFor,
   removeRoomItem,
 } from '../../data/room';
-import { getPlacedRoomEntries, placeNamedRoomItemAt, placeRoomItemAt } from '../../data/roomPlacement';
+import {
+  getObjectIdFromKey,
+  getPlacedRoomEntries,
+  isObjectKey,
+  moveRoomEntry,
+  placeNamedRoomItemAt,
+} from '../../data/roomPlacement';
+import { getAlbumStickers } from '../../data/stickers';
 import { getWornItems } from '../../data/wardrobe';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
@@ -20,9 +27,10 @@ import { RoomScene, SceneBubble } from './RoomScene';
 import { DreamJournalPanel } from './DreamJournalPanel';
 import { GamesBookPanel } from './games/GamesBookPanel';
 import { StickerStudioPanel } from './stickers/StickerStudioPanel';
+import { StickersLockedSheet } from './StickersLockedSheet';
 import { PhonePanel } from './PhonePanel';
 import { WardrobePanel } from './WardrobePanel';
-import { AVATAR_HOME, OBJECT_POSITIONS, ScenePoint, getStandingPoint } from './roomLayout';
+import { AVATAR_HOME, ScenePoint, getStandingPoint } from './roomLayout';
 import { formatGainLtr } from '../../utils/bidi';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { Button } from '../ui/Button';
@@ -73,12 +81,19 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const [moveRequestKey, setMoveRequestKey] = useState<string | null>(null);
+  const [isStickersHintOpen, setIsStickersHintOpen] = useState(false);
   const [naming, setNaming] = useState<{ itemId: string; point: ScenePoint } | null>(null);
   const [statusText, setStatusText] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<RoomPanel | null>(null);
   const walkTimer = useRef<number | undefined>(undefined);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => () => window.clearTimeout(walkTimer.current), []);
+
+  // On a phone the panels sit below the room: bring a newly opened one into view
+  useEffect(() => {
+    if (activePanel) panelRef.current?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+  }, [activePanel]);
 
   /** Moves the avatar next to `target`, then runs `onArrive` once it gets there. */
   const walkTo = (target: ScenePoint, onArrive: () => void) => {
@@ -120,6 +135,10 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   const handleTapEntry = (key: string) => {
     const entry = entries.find((candidate) => candidate.key === key);
     if (!entry) return;
+    if (isObjectKey(key)) {
+      handleTapObject(getObjectIdFromKey(key), entry.point);
+      return;
+    }
     setSelectedItemId(null);
     setStatusText(null);
     walkTo(entry.point, () => {
@@ -133,8 +152,8 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   const handleMoveEntry = (key: string, point: ScenePoint) => {
     const entry = entries.find((candidate) => candidate.key === key);
     if (!entry) return;
-    onUpdateProfile(placeRoomItemAt(profile, entry.item.id, point, new Date()));
-    setFocusedKey(entry.item.id);
+    onUpdateProfile(moveRoomEntry(profile, key, point, new Date()));
+    setFocusedKey(isObjectKey(key) ? null : entry.item.id);
     setBubble(null);
     setStatusText(`${entry.item.emoji} ${entry.item.nameEn} הוזז ✨`);
   };
@@ -146,16 +165,18 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     setMoveRequestKey(key);
   };
 
-  const handleTapObject = (objectId: RoomObjectId) => {
+  const handleTapObject = (objectId: string, point: ScenePoint) => {
     const object = ROOM_OBJECTS.find((o) => o.id === objectId);
-    if (!object) return;
-    const point = OBJECT_POSITIONS[objectId];
+    if (!object) {
+      walkTo(point, () => setBubble({ at: point, textEn: 'desk', textHe: 'שולחן' }));
+      return;
+    }
     setSelectedItemId(null);
     setFocusedKey(null);
     setStatusText(null);
     setActivePanel(null);
     walkTo(point, () => {
-      const panel = OBJECT_PANELS[objectId];
+      const panel = OBJECT_PANELS[object.id];
       if (panel) {
         setBubble({ at: point, textEn: object.nameEn, textHe: object.nameHe });
         setActivePanel(panel);
@@ -208,6 +229,11 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
           setFocusedKey(null);
           setNaming(null);
           setStatusText(null);
+          if (getAlbumStickers(profile).length === 0) {
+            setActivePanel(null);
+            setIsStickersHintOpen(true);
+            return;
+          }
           setActivePanel('stickers');
         }}>
         🎨 מדבקות
@@ -236,7 +262,6 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
           onTapEntry={naming ? () => undefined : handleTapEntry}
           onMoveEntry={handleMoveEntry}
           onMoveRequestHandled={() => setMoveRequestKey(null)}
-          onTapObject={naming ? () => undefined : handleTapObject}
         />
 
         {statusText && (
@@ -256,6 +281,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
           </div>
         )}
 
+        <div ref={panelRef}>
         {activePanel === 'wardrobe' ? (
           <WardrobePanel
             profile={profile}
@@ -321,11 +347,24 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
             onSelectItem={handleSelectItem}
           />
         )}
+        </div>
 
         <p className={`text-xs text-center ${theme.mutedTextClass}`}>
           🚪 ארון: הלבשה · 📱 טלפון: הודעות קוליות · 🛏️ מיטה: יומן חלומות · 📖 ספר המשחקים: משחקי מילים · 🎨 מדבקות: אלבום וציור
         </p>
       </div>
+
+      {isStickersHintOpen && (
+        <StickersLockedSheet
+          profile={profile}
+          theme={theme}
+          onOpenShop={() => {
+            setIsStickersHintOpen(false);
+            onOpenShop();
+          }}
+          onClose={() => setIsStickersHintOpen(false)}
+        />
+      )}
     </ExamModalShell>
   );
 };
