@@ -4,6 +4,7 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { playSfx } from '../../utils/sfx';
 import { useAutoSpeakHebrew } from '../../hooks/useAutoSpeakHebrew';
 import { HebrewSpeakButton } from './HebrewSpeakButton';
+import { Button } from '../ui/Button';
 
 interface FeedbackBannerProps {
   isCorrect: boolean;
@@ -54,14 +55,10 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({
       </div>
 
       {showNext && (
-        <button
-          type="button"
-          onClick={onNext}
-          className={`px-5 py-2.5 rounded-xl text-xs md:text-sm font-extrabold flex items-center justify-center gap-1.5 shrink-0 ${theme.primaryBtnClass}`}
-        >
+        <Button theme={theme} onClick={onNext} className="shrink-0">
           <span>{nextLabel}</span>
           <ArrowRight className="w-4 h-4 rotate-180" aria-hidden="true" />
-        </button>
+        </Button>
       )}
     </div>
   );
