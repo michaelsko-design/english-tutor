@@ -28,6 +28,7 @@ import {
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { WordListSessionResult } from './WordListSessionResult';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
+import { useDrillSession } from '../../hooks/useDrillSession';
 
 export type WordListSessionNext = 'lists' | 'retry';
 
@@ -38,11 +39,6 @@ interface WordListSessionRunnerProps {
   onSpeakEnglish: (text: string, rate?: number) => void;
   onFinish: (answers: WordListAnswer[], next: WordListSessionNext) => void;
   onClose: () => void;
-}
-
-interface Feedback {
-  isCorrect: boolean;
-  text: string;
 }
 
 /** The question card: the Hebrew meaning to match, or the sentence's translation. Spelling and voice have their own. */
@@ -72,17 +68,12 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   const [salt] = useState(() => Math.floor(Math.random() * 1_000_000_000));
   const steps = useMemo(() => buildWordListSteps(list, gender, salt), [list, gender, salt]);
 
-  const [stepIdx, setStepIdx] = useState(0);
-  const [answers, setAnswers] = useState<WordListAnswer[]>([]);
-  const [hasMissed, setHasMissed] = useState(false);
-  const [isResolved, setIsResolved] = useState(false);
-  const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const [tileIndices, setTileIndices] = useState<number[]>([]);
+  const session = useDrillSession<WordListAnswer>();
+  const { stepIdx, answers, hasMissed, isResolved, feedback, selectedIdx, isFinished } = session;
+  const tileIndices = session.wordIndices;
   const [letterSlots, setLetterSlots] = useState<(number | null)[]>([]);
   const [speechEval, setSpeechEval] = useState<SpeechEvaluationResult | null>(null);
   const [showHint, setShowHint] = useState(false);
-  const [isFinished, setIsFinished] = useState(false);
   const speech = useSpeechRecognition();
   const cancelListening = speech.cancel;
 
@@ -90,11 +81,6 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   const isLast = stepIdx === steps.length - 1;
 
   useEffect(() => {
-    setHasMissed(false);
-    setIsResolved(false);
-    setFeedback(null);
-    setSelectedIdx(null);
-    setTileIndices([]);
     setLetterSlots([]);
     setSpeechEval(null);
     setShowHint(profile.preferredTier === 'explorer');
@@ -110,21 +96,18 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   /** Records the step once; only a first-try answer counts as correct. */
   const resolveStep = (isCorrect: boolean, text: string, isSkipped = false) => {
     const answer: WordListAnswer = { type: step.type, isCorrect: isCorrect && !hasMissed, isSkipped };
-    setAnswers((prev) => [...prev.slice(0, stepIdx), answer]);
     // A late speech result must not overwrite the recorded answer.
     cancelListening();
-    setIsResolved(true);
-    setFeedback({ isCorrect, text });
+    session.resolve(answer, { isCorrect, text });
   };
 
   const handleWrong = (text: string) => {
-    setHasMissed(true);
-    setFeedback({ isCorrect: false, text });
+    session.miss({ isCorrect: false, text });
   };
 
   const handleSelectOption = (idx: number) => {
     if (isResolved || !step.options) return;
-    setSelectedIdx(idx);
+    session.selectOption(idx);
     const chosen = step.options[idx];
     onSpeakEnglish(chosen.textEn, 0.95);
     if (chosen.isCorrect) resolveStep(true, chosen.explanationHe);
@@ -138,7 +121,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
 
   const handleWordOrderChange = (nextIndices: number[], change: MagnetChange) => {
     if (isResolved || !step.scrambledWords) return;
-    setTileIndices(nextIndices);
+    session.setWordIndices(nextIndices);
     if (change.kind === 'add') onSpeakEnglish(step.scrambledWords[change.idx], 0.95);
   };
 
@@ -166,7 +149,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
 
   const handleStartListening = () => {
     if (isResolved) return;
-    setFeedback(null);
+    session.setFeedback(null);
     speech.start(step.textEn, {
       onResult: (transcript, evaluation) => {
         setSpeechEval(evaluation);
@@ -180,17 +163,13 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
           );
         }
       },
-      onError: (kind) => setFeedback({ isCorrect: false, text: getSpeechErrorTextHe(kind, gender) }),
+      onError: (kind) => session.setFeedback({ isCorrect: false, text: getSpeechErrorTextHe(kind, gender) }),
     });
   };
 
   const handleNext = () => {
-    if (!isLast) {
-      setStepIdx(stepIdx + 1);
-      return;
-    }
-    setIsFinished(true);
-    celebrate('big');
+    session.next(steps.length);
+    if (isLast) celebrate('big');
   };
 
   if (isFinished) {
@@ -287,7 +266,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
             selectedIndices={tileIndices}
             isCompleted={isResolved}
             onChangeOrder={handleWordOrderChange}
-            onReset={() => setTileIndices([])}
+            onReset={() => session.setWordIndices([])}
             onCheck={handleCheckSentence}
             theme={theme}
           />
