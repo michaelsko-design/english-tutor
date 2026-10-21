@@ -15,6 +15,8 @@ import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { isolateLtr } from '../../utils/bidi';
 import { MagnetChange } from '../../utils/magnetOrder';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
+import { normalizeSentence, useDrillSession } from '../../hooks/useDrillSession';
+import { Button } from '../ui/Button';
 
 interface ContestRunnerProps {
   contest: ContestDoc;
@@ -26,16 +28,7 @@ interface ContestRunnerProps {
   onClose: () => void;
 }
 
-interface Feedback {
-  isCorrect: boolean;
-  text: string;
-}
-
 const TICK_MS = 1000;
-
-function normalizeSentence(text: string): string {
-  return text.toLowerCase().replace(/[^a-z0-9\s']/g, '').replace(/\s+/g, ' ').trim();
-}
 
 export function formatDuration(ms: number): string {
   const totalSeconds = Math.floor(ms / 1000);
@@ -63,12 +56,8 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
   );
   const startedAtRef = useRef(Date.now());
   const [elapsedMs, setElapsedMs] = useState(0);
-  const [stepIdx, setStepIdx] = useState(0);
-  const [answers, setAnswers] = useState<boolean[]>([]);
-  const [isResolved, setIsResolved] = useState(false);
-  const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const [wordIndices, setWordIndices] = useState<number[]>([]);
+  const session = useDrillSession<boolean>();
+  const { stepIdx, answers, isResolved, feedback, selectedIdx, wordIndices } = session;
   const [finishedMs, setFinishedMs] = useState<number | null>(null);
   const [isConfirmingLeave, setIsConfirmingLeave] = useState(false);
 
@@ -81,24 +70,15 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
     return () => window.clearInterval(timer);
   }, [finishedMs]);
 
-  useEffect(() => {
-    setIsResolved(false);
-    setFeedback(null);
-    setSelectedIdx(null);
-    setWordIndices([]);
-  }, [stepIdx]);
-
   /** One try per question; the last answer stops the clock. */
   const resolveStep = (isCorrect: boolean, text: string) => {
-    setAnswers((prev) => [...prev.slice(0, stepIdx), isCorrect]);
-    setIsResolved(true);
-    setFeedback({ isCorrect, text });
+    session.resolve(isCorrect, { isCorrect, text });
     if (isLast) setFinishedMs(Date.now() - startedAtRef.current);
   };
 
   const handleSelectOption = (idx: number) => {
     if (isResolved || !step.options) return;
-    setSelectedIdx(idx);
+    session.selectOption(idx);
     const chosen = step.options[idx];
     if (/[A-Za-z]/.test(chosen.textEn)) onSpeakEnglish(chosen.textEn, 0.95);
     resolveStep(chosen.isCorrect, chosen.explanationHe);
@@ -106,7 +86,7 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
 
   const handleWordOrderChange = (nextIndices: number[], change: MagnetChange) => {
     if (isResolved || !step.scrambledWords) return;
-    setWordIndices(nextIndices);
+    session.setWordIndices(nextIndices);
     if (change.kind === 'add') onSpeakEnglish(step.scrambledWords[change.idx], 0.95);
   };
 
@@ -120,7 +100,7 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
 
   const handleNext = () => {
     if (!isLast) {
-      setStepIdx(stepIdx + 1);
+      session.next(steps.length);
       return;
     }
     onFinish(answers, finishedMs ?? Date.now() - startedAtRef.current);
@@ -188,16 +168,12 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
               {isGirl ? 'בטוחה' : 'בטוח'} שרוצים לצאת? האתגר יסתיים עם התשובות עד עכשיו, ואי אפשר לשחק בו שוב.
             </p>
             <div className="flex gap-2">
-              <button type="button" onClick={finishEarly} className="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-amber-500 text-white">
+              <Button theme={theme} variant="danger" onClick={finishEarly}>
                 לסיים עכשיו
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsConfirmingLeave(false)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold ${theme.secondaryBtnClass}`}
-              >
+              </Button>
+              <Button theme={theme} variant="secondary" onClick={() => setIsConfirmingLeave(false)}>
                 להמשיך לשחק
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -237,7 +213,7 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
             selectedIndices={wordIndices}
             isCompleted={isResolved}
             onChangeOrder={handleWordOrderChange}
-            onReset={() => setWordIndices([])}
+            onReset={() => session.setWordIndices([])}
             onCheck={handleCheckSentence}
             theme={theme}
           />
