@@ -5,6 +5,7 @@ import { ThemeId } from '../../types/learner';
 import { THEME_REGISTRY } from '../../themes/themeRegistry';
 import { useArtStatus } from '../../hooks/useArtStatus';
 import { DressedAvatar } from './DressedAvatar';
+import { EmojiIcon } from '../art/EmojiIcon';
 import { ItemIcon } from './ItemIcon';
 import {
   OBJECT_POSITIONS,
@@ -153,11 +154,11 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
             style={style}
             aria-label={`${object.nameEn} · ${object.nameHe}`}
           >
-            {object.emoji}
+            <EmojiIcon emoji={object.emoji} size={`${OBJECT_SIZES[object.id]}cqw`} />
           </button>
         ) : (
           <span key={object.id} className={`${centered} leading-none`} style={style} aria-hidden="true">
-            {object.emoji}
+            <EmojiIcon emoji={object.emoji} size={`${OBJECT_SIZES[object.id]}cqw`} />
           </span>
         );
       })}

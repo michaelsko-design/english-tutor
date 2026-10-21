@@ -1,4 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react';
+import { EmojiIcon } from './art/EmojiIcon';
 import {
   AuthUserSummary,
   CloudSyncStatus,
@@ -593,7 +594,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             className={`pointer-events-auto px-4 py-3 rounded-2xl shadow-2xl border-2 border-fuchsia-400 flex items-center gap-3 font-extrabold text-sm ${theme.cardBgClass} ${theme.pageBgClass}`}
             role="status"
           >
-            <span className="text-2xl leading-none">{roomRewardToast.emoji}</span>
+            <EmojiIcon emoji={roomRewardToast.emoji} size="2rem" />
             <span>
               {roomRewardToast.kind === 'wear' ? '🎁 בגד חדש לארון' : '🎁 פריט חדש לחדר'}: {roomRewardToast.nameHe} — לחדר שלי ←
             </span>

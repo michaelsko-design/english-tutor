@@ -1,5 +1,6 @@
 import React from 'react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { EmojiIcon } from '../art/EmojiIcon';
 
 interface DockTileProps {
   emoji: string;
@@ -12,6 +13,8 @@ interface DockTileProps {
   newsLabelHe?: string;
 }
 
+const DOCK_ICON_SIZE = '2.5rem';
+
 /** Feature 27: one icon tile of the home dock (room, exam prep, word lists, friends, report). */
 export const DockTile: React.FC<DockTileProps> = ({ emoji, labelHe, theme, onClick, hasNews = false, newsLabelHe }) => (
   <button
@@ -20,9 +23,7 @@ export const DockTile: React.FC<DockTileProps> = ({ emoji, labelHe, theme, onCli
     aria-label={hasNews && newsLabelHe ? `${labelHe}: ${newsLabelHe}` : labelHe}
     className={`btn-chunky relative flex-1 min-w-0 aspect-square max-h-24 rounded-2xl flex flex-col items-center justify-center gap-1 px-1 ${theme.cardBgClass}`}
   >
-    <span className="text-2xl sm:text-3xl leading-none" aria-hidden="true">
-      {emoji}
-    </span>
+    <EmojiIcon emoji={emoji} size={DOCK_ICON_SIZE} />
     <span className="text-xs sm:text-sm font-extrabold leading-tight text-center">{labelHe}</span>
     {hasNews && (
       <span

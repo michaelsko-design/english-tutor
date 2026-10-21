@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { ModalPortal } from './ModalPortal';
+import { EmojiIcon } from './art/EmojiIcon';
 import { useDialog } from '../hooks/useDialog';
 import { celebrate } from '../utils/celebrate';
 import {
@@ -194,8 +195,8 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="w-14 h-14 rounded-2xl bg-black/5 dark:bg-white/10 flex items-center justify-center text-3xl shrink-0">
-                    {item.emoji}
+                  <div className="w-14 h-14 rounded-2xl bg-black/5 dark:bg-white/10 flex items-center justify-center shrink-0">
+                    <EmojiIcon emoji={item.emoji} size="2.75rem" />
                   </div>
                   {isUnlocked ? (
                     <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 text-xs font-extrabold flex items-center gap-1">

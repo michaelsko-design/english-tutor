@@ -1,0 +1,76 @@
+/** Generated icons (scripts/art/iconList.json → public/art/icons/<id>.webp, + @128): emoji → icon id. */
+export const ICON_ID_BY_EMOJI: Readonly<Record<string, string>> = {
+  '🛏': 'bed',
+  '📱': 'phone',
+  '🚪': 'wardrobe',
+  '📖': 'games-book',
+  '🪴': 'room-plant',
+  '🛋': 'room-sofa',
+  '💡': 'room-lamp',
+  '🕰': 'room-clock',
+  '📚': 'room-books',
+  '⭐': 'room-star',
+  '🧸': 'room-teddy',
+  '🌍': 'room-globe',
+  '🖼': 'room-picture',
+  '🪑': 'room-chair',
+  '🌈': 'room-rainbow',
+  '🤖': 'room-robot',
+  '🪁': 'room-kite',
+  '💻': 'room-computer',
+  '⚽': 'room-ball',
+  '❤': 'room-heart',
+  '🌵': 'room-cactus',
+  '🪞': 'room-mirror',
+  '🥁': 'room-drum',
+  '🏆': 'room-trophy',
+  '🌸': 'decor-flower-lamp',
+  '🥐': 'sticker-croissant',
+  '🎸': 'sticker-guitar',
+  '🧭': 'sticker-compass',
+  '🎨': 'pass-sticker-studio',
+  '🧋': 'avatar-boba',
+  '👧': 'avatar-girl',
+  '👦': 'avatar-boy',
+  '🐶': 'avatar-dog',
+  '🐱': 'avatar-cat',
+  '🐼': 'avatar-panda',
+  '🐰': 'avatar-bunny',
+  '🦊': 'avatar-fox',
+  '🦋': 'avatar-butterfly',
+  '🛡': 'boost-shield',
+  '🧢': 'wear-cap',
+  '👓': 'wear-glasses',
+  '🧣': 'wear-scarf',
+  '👕': 'wear-shirt',
+  '👖': 'wear-jeans',
+  '👟': 'wear-shoes',
+  '🎀': 'wear-bow',
+  '👗': 'wear-dress',
+  '🎩': 'wear-hat',
+  '🩳': 'wear-shorts',
+  '📿': 'wear-necklace',
+  '🧥': 'wear-coat',
+  '👢': 'wear-boots',
+  '🧦': 'wear-socks',
+  '🕶': 'wear-sunglasses',
+  '👑': 'wear-crown',
+  '🎓': 'wear-graduation-cap',
+  '📅': 'dock-exam-prep',
+  '👫': 'dock-friends',
+  '📊': 'dock-report',
+  '🏠': 'dock-room',
+  '📝': 'dock-word-lists',
+};
+
+const ICON_DIR = '/art/icons';
+const SMALL_ICON_PX = 128;
+const VARIATION_SELECTOR = /\uFE0F/g;
+
+/** The icon's file for an emoji at this display size, or null when it has no drawn icon. */
+export function getIconSrc(emoji: string, displaySizePx: number, devicePixelRatio = 1): string | null {
+  const id = ICON_ID_BY_EMOJI[emoji.replace(VARIATION_SELECTOR, '')];
+  if (!id) return null;
+  const pixels = displaySizePx * (devicePixelRatio > 0 ? devicePixelRatio : 1);
+  return `${ICON_DIR}/${id}${pixels <= SMALL_ICON_PX ? '@128' : ''}.webp`;
+}

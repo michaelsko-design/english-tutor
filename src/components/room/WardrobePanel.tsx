@@ -17,6 +17,7 @@ import {
 } from '../../data/wardrobe';
 import { LearnerProfile, ProficiencyTier } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { EmojiIcon } from '../art/EmojiIcon';
 import { DressedAvatar } from './DressedAvatar';
 import { NameItemPanel } from './NameItemPanel';
 import { RoomPanelFrame } from './RoomPanelFrame';
@@ -155,9 +156,7 @@ export const WardrobePanel: React.FC<WardrobePanelProps> = ({
                   isWorn ? 'border-emerald-500 bg-emerald-500/15' : 'border-transparent bg-black/5 dark:bg-white/5 hover:border-current/20'
                 } ${isWearable ? '' : 'opacity-40'}`}
               >
-                <span className="text-2xl leading-none" aria-hidden="true">
-                  {item.emoji}
-                </span>
+                <EmojiIcon emoji={item.emoji} size="2.5rem" />
                 <span className="text-xs font-extrabold truncate max-w-full">{item.nameHe}</span>
                 <span className={`text-xs font-bold ${isWorn ? 'text-emerald-600 dark:text-emerald-300' : theme.mutedTextClass}`}>
                   {isWorn ? '✓ לבוש' : isWearable ? 'ללבוש' : 'רק לילד/ה'}

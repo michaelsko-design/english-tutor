@@ -4,6 +4,7 @@ Cut-outs (drawn on a plain white background) become transparent squares, 512px a
     art-src/<theme>/companion-<pose>.jpg  -> public/art/<theme>/companion-<pose>.webp + @256
     art-src/common/<name>.jpg             -> public/art/common/<name>.webp + @256
     art-src/landmarks/g<grade>-u<unit>.jpg -> public/art/landmarks/g<grade>-u<unit>.webp + @256
+    art-src/icons/<id>.png                -> public/art/icons/<id>.webp (256px) + @128  (from scripts/art/slice_icon_sheets.py)
 Full-frame pictures are only resized (never enlarged):
     art-src/<theme>/map-bg.jpg      -> public/art/<theme>/map-bg.webp      (1080 wide)
     art-src/<theme>/home-scene.jpg  -> public/art/<theme>/home-scene.webp  (1200 wide)
@@ -19,7 +20,7 @@ companion can bob and jump. The five companion poses are scaled to the same heig
 bottom-centred on the same square canvas, so poses swap in place.
 
 Usage:  python scripts/process_art.py [only ...] [--src DIR] [--out DIR]
-        only: theme ids (cozy-studio, neon-pop, starlight-rpg), common, landmarks, stories
+        only: theme ids (cozy-studio, neon-pop, starlight-rpg), common, landmarks, stories, icons
         (default: everything found in art-src/)
 Needs:  Python 3.10+, Pillow and numpy  (pip install pillow numpy)
 """
@@ -35,6 +36,9 @@ ROOT = Path(__file__).resolve().parent.parent
 THEMES = ["cozy-studio", "neon-pop", "starlight-rpg"]
 POSES = ["idle", "cheer", "think", "oops", "wave"]
 CUTOUT_SIZES = (512, 256)
+ICON_SIZES = (256, 128)
+OPEN_SHAPE_ICONS = {"wear-necklace", "wear-scarf"}  # the white inside the loop is background too
+ICON_MARGIN = 0.08  # free space around an icon, as a share of its longest side
 SCENE_WIDTHS = {"map-bg": 1080, "home-scene": 1200, "room-bg": 1600}
 STORY_WIDTH = 960
 SOURCE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
@@ -108,10 +112,15 @@ def background_mask(rgb: np.ndarray) -> np.ndarray:
     return seen
 
 
-def cut_out(path: Path) -> Image.Image:
-    """The drawing on a transparent background, cropped to the drawing."""
+def cut_out(path: Path, clear_enclosed_white: bool = False) -> Image.Image:
+    """The drawing on a transparent background, cropped to the drawing.
+
+    clear_enclosed_white also removes near-white areas the outline closes off (the hole of a necklace)."""
     image = Image.open(path).convert("RGB")
-    background = background_mask(np.asarray(image))
+    rgb = np.asarray(image)
+    background = background_mask(rgb)
+    if clear_enclosed_white:
+        background = background | ((255 - rgb.astype(int).min(axis=2)) <= BACKGROUND_TOLERANCE)
     alpha = Image.fromarray(np.where(background, 0, 255).astype("uint8"))
     # Shrink the edge by a pixel and soften it, so no white fringe is left.
     alpha = alpha.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(0.8))
@@ -127,10 +136,12 @@ def place_on_square(cut: Image.Image, canvas_side: int, floor_gap: int) -> Image
     return canvas
 
 
-def save_cutout_sizes(canvas: Image.Image, output_dir: Path, name: str, report: Report) -> None:
+def save_cutout_sizes(
+    canvas: Image.Image, output_dir: Path, name: str, report: Report, sizes: tuple[int, ...] = CUTOUT_SIZES
+) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
-    for size in CUTOUT_SIZES:
-        suffix = "" if size == CUTOUT_SIZES[0] else f"@{size}"
+    for size in sizes:
+        suffix = "" if size == sizes[0] else f"@{size}"
         target = output_dir / f"{name}{suffix}.webp"
         canvas.resize((size, size), Image.LANCZOS).save(target, "WEBP", quality=CUTOUT_QUALITY, method=6)
         report.wrote(target)
@@ -195,6 +206,20 @@ def process_scenes(theme: str, src_root: Path, out_root: Path, report: Report) -
         save_resized(path, out_root / theme / f"{name}.webp", width, report)
 
 
+def process_icons(src_root: Path, out_root: Path, report: Report) -> None:
+    """Every icon centred on its own square, 256px and 128px (room items, shop, wardrobe, dock)."""
+    sources = list_sources(src_root / "icons")
+    if not sources:
+        report.skip("icons/ (no source files)")
+        return
+    for path in sources:
+        cut = cut_out(path, clear_enclosed_white=path.stem in OPEN_SHAPE_ICONS)
+        side = round(max(cut.width, cut.height) * (1 + 2 * ICON_MARGIN))
+        canvas = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+        canvas.alpha_composite(cut, ((side - cut.width) // 2, (side - cut.height) // 2))
+        save_cutout_sizes(canvas, out_root / "icons", path.stem, report, ICON_SIZES)
+
+
 def process_stories(src_root: Path, out_root: Path, report: Report) -> None:
     sources = list_sources(src_root / "stories")
     if not sources:
@@ -206,8 +231,8 @@ def process_stories(src_root: Path, out_root: Path, report: Report) -> None:
 
 def run(only: list[str], src_root: Path, out_root: Path) -> Report:
     report = Report()
-    groups = only or THEMES + ["common", "landmarks", "stories"]
-    unknown = [group for group in groups if group not in THEMES + ["common", "landmarks", "stories"]]
+    groups = only or THEMES + ["common", "landmarks", "stories", "icons"]
+    unknown = [group for group in groups if group not in THEMES + ["common", "landmarks", "stories", "icons"]]
     if unknown:
         sys.exit(f"Unknown group(s): {', '.join(unknown)}")
     if not src_root.is_dir():
@@ -219,6 +244,8 @@ def run(only: list[str], src_root: Path, out_root: Path) -> Report:
             process_scenes(group, src_root, out_root, report)
         elif group == "stories":
             process_stories(src_root, out_root, report)
+        elif group == "icons":
+            process_icons(src_root, out_root, report)
         else:
             process_single_cutouts(group, src_root, out_root, report)
 
@@ -228,7 +255,7 @@ def run(only: list[str], src_root: Path, out_root: Path) -> Report:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Make the app's WebP art from art-src/.")
-    parser.add_argument("only", nargs="*", help="theme ids, common, landmarks or stories (default: all)")
+    parser.add_argument("only", nargs="*", help="theme ids, common, landmarks, stories or icons (default: all)")
     parser.add_argument("--src", type=Path, default=ROOT / "art-src", help="sources folder (default: art-src)")
     parser.add_argument("--out", type=Path, default=ROOT / "public" / "art", help="output folder (default: public/art)")
     args = parser.parse_args()
