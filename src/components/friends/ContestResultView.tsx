@@ -60,7 +60,7 @@ export const ContestResultView: React.FC<ContestResultViewProps> = ({
           <>
             {xpEarned !== null && (
               <p className="inline-block px-4 py-1.5 rounded-full text-sm font-extrabold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
-                <bdi>+{xpEarned} Vibe</bdi>{isFullReward ? ' · נספר כמשימה של היום! 🎯' : ''}
+                <bdi dir="ltr" lang="en">+{xpEarned} Vibe</bdi>{isFullReward ? ' · נספר כמשימה של היום! 🎯' : ''}
               </p>
             )}
             <p className={`text-xs ${theme.mutedTextClass}`}>

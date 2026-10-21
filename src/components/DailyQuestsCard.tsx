@@ -64,7 +64,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
             <span>🎯 אתגרים יומיים</span>
           </h3>
           <span className={`text-xs font-semibold ${theme.mutedTextClass}`}>
-            בונוס יהלומים ו-Vibe
+            בונוס יהלומים ונקודות <bdi dir="ltr" lang="en">Vibe</bdi>
           </span>
         </div>
 
@@ -86,7 +86,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
                   </div>
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-extrabold text-xs md:text-sm truncate">
+                      <span className="font-extrabold text-xs md:text-sm leading-snug">
                         {quest.titleHe}
                       </span>
                       <span className="text-xs font-bold opacity-75 shrink-0" dir="ltr" lang="en">

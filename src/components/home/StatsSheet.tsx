@@ -52,7 +52,7 @@ const StatTile: React.FC<StatTileProps> = ({ icon, value, labelHe, theme, titleH
       <span className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/10 flex items-center justify-center shrink-0">{icon}</span>
       <span className="min-w-0 text-right">
         <span className="block text-lg font-extrabold leading-tight tabular-nums">{value}</span>
-        <span className={`block text-xs font-semibold truncate ${onClick ? 'underline' : ''} ${theme.mutedTextClass}`}>{labelHe}</span>
+        <span className={`block text-xs font-semibold ${onClick ? 'underline' : ''} ${theme.mutedTextClass}`}>{labelHe}</span>
       </span>
     </>
   );
@@ -111,7 +111,7 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
           <div className="min-w-0">
             <p className="font-extrabold text-lg truncate">{profile.name}</p>
             <p className="text-sm font-bold">
-              רמה {level.level} · עוד <bdi>{level.xpToNextLevel} Vibe</bdi> לרמה {level.level + 1}
+              רמה {level.level} · עוד <bdi dir="ltr" lang="en">{level.xpToNextLevel} Vibe</bdi> לרמה {level.level + 1}
             </p>
           </div>
           <LevelBadge level={level.level} size={STATS_LEVEL_BADGE_SIZE} className="ms-auto" />
@@ -149,7 +149,7 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
           <StatTile
             theme={theme}
             icon={<Zap className="w-6 h-6 text-indigo-500 fill-indigo-400" />}
-            value={<bdi>{profile.stats.xp} Vibe</bdi>}
+            value={<bdi dir="ltr" lang="en">{profile.stats.xp} Vibe</bdi>}
             labelHe={`${masteredWords} מילים · מאגר המילים 🎙️`}
             titleHe="מילים של משימות עם 3 כוכבים · פתיחת מאגר המילים"
             className="col-span-2"

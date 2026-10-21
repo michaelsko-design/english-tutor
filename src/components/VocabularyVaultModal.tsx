@@ -360,7 +360,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                         ? 'תורגל בהצלחה ✓'
                         : (
                           <>
-                            {isGirl ? 'תרגלי הגייה' : 'תרגל הגייה'} (<bdi>+10 Vibe</bdi>)
+                            {isGirl ? 'תרגלי הגייה' : 'תרגל הגייה'} (<bdi dir="ltr" lang="en">+10 Vibe</bdi>)
                           </>
                         )}
                     </span>
