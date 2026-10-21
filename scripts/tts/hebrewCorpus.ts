@@ -19,6 +19,7 @@ import {
   getWordBuildWrongHe,
   getWordBuiltHe,
 } from '../../src/data/missionFeedbackHe';
+import { getHebrewCopy } from '../../src/utils/hebrewGender';
 import { BLEND_WORDS } from '../../src/data/blendingWords';
 import { getSpeechErrorTextHe, type SpeechErrorKind } from '../../src/hooks/useSpeechRecognition';
 import { CorpusBuilder } from './corpusBuilder';
@@ -111,6 +112,8 @@ function addFixedFeedback(corpus: CorpusBuilder): void {
     corpus.add(getWordBuildWrongHe(gender));
     SPEECH_ERRORS.forEach((kind) => corpus.add(getSpeechErrorTextHe(kind, gender)));
     Object.values(getReadGateCopy(gender)).forEach((text) => corpus.add(text));
+    corpus.add(getHebrewCopy(gender, '').stickersLockedTitle);
+    corpus.add(getHebrewCopy(gender, '').stickersLockedBody);
   }
   corpus.add(NON_READER_RESULT_HE);
   BLEND_WORDS.forEach((word) => corpus.add(getWordBuiltHe(word.word)));

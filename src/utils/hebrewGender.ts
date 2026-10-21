@@ -25,6 +25,10 @@ export function getHebrewCopy(gender: LearnerGender, name: string) {
       ? 'התחילי משימה בלחיצה אחת'
       : 'התחל משימה בלחיצה אחת',
     championBadge: isGirl ? 'אלופת האנגלית' : 'אלוף האנגלית',
+    stickersLockedTitle: 'עוד אין מדבקות',
+    stickersLockedBody: isGirl
+      ? 'את יכולה לקנות מדבקות בחנות בעזרת יהלומים, או לקבל אחת במשימה עם שלושה כוכבים.'
+      : 'אתה יכול לקנות מדבקות בחנות בעזרת יהלומים, או לקבל אחת במשימה עם שלושה כוכבים.',
     youLearnedWords: (count: number) =>
       isGirl ? `למדת כבר ${count} מילים חדשות!` : `למדת כבר ${count} מילים חדשות!`,
     keepStreakAlive: isGirl

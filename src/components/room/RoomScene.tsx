@@ -1,20 +1,23 @@
-import React, { useEffect, useRef } from 'react';
-import { ROOM_OBJECTS, RoomObjectId, RoomSlotKind } from '../../data/room';
-import { PlacedRoomEntry, getDepthScale, getSurfaces } from '../../data/roomPlacement';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { RoomSlotKind } from '../../data/room';
+import {
+  DEFAULT_DESK_POINT,
+  DESK_OBJECT_ID,
+  OBJECT_KEY_PREFIX,
+  PlacedRoomEntry,
+  getDepthScale,
+  getSurfaces,
+} from '../../data/roomPlacement';
 import { WardrobeItem } from '../../data/wardrobe';
 import { ThemeId } from '../../types/learner';
 import { THEME_REGISTRY } from '../../themes/themeRegistry';
 import { useArtStatus } from '../../hooks/useArtStatus';
 import { DressedAvatar } from './DressedAvatar';
-import { EmojiIcon } from '../art/EmojiIcon';
 import { ItemIcon } from './ItemIcon';
 import { useRoomItemDrag } from './useRoomItemDrag';
 import {
   FURNITURE_PIECES,
-  OBJECT_POSITIONS,
-  OBJECT_SIZES,
   SCENE_PALETTES,
-  SLOT_KIND_SIZES,
   STANDING_KINDS,
   SURFACE_LABELS_HE,
   ScenePoint,
@@ -44,7 +47,6 @@ interface RoomSceneProps {
   onPlaceAt?: (point: ScenePoint) => void;
   onTapEntry?: (key: string) => void;
   onMoveEntry?: (key: string, point: ScenePoint) => void;
-  onTapObject?: (objectId: RoomObjectId) => void;
   onMoveRequestHandled?: () => void;
 }
 
@@ -69,18 +71,22 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
   onPlaceAt,
   onTapEntry,
   onMoveEntry,
-  onTapObject,
   onMoveRequestHandled,
 }) => {
   const palette = SCENE_PALETTES[themeId] || SCENE_PALETTES['cozy-studio'];
-  const isInteractive = Boolean(onTapEntry && onTapObject);
+  const isInteractive = Boolean(onTapEntry);
   const roomBgSrc = (THEME_REGISTRY[themeId] || THEME_REGISTRY['cozy-studio']).art.roomBg;
   const hasRoomArt = useArtStatus(roomBgSrc) === 'loaded';
   const sceneRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
+  const layout = useMemo(
+    () => ({ deskPoint: entries.find((entry) => entry.key === `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`)?.point ?? DEFAULT_DESK_POINT }),
+    [entries]
+  );
   const { drag, handlers, startKeyboardMove, getAnnouncement } = useRoomItemDrag({
     sceneRef,
+    layout,
     onMove: (key, point) => onMoveEntry?.(key, point),
     onTap: (key) => onTapEntry?.(key),
   });
@@ -101,7 +107,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
 
   const handleZoneClick = (event: React.MouseEvent, surfaceId: string) => {
     const rect = sceneRef.current?.getBoundingClientRect();
-    const surface = getSurfaces(zoneKind ?? 'floor').find((candidate) => candidate.id === surfaceId);
+    const surface = getSurfaces(zoneKind ?? 'floor', layout).find((candidate) => candidate.id === surfaceId);
     if (!rect || !surface) return;
     const isPointer = event.detail > 0 && rect.width > 0 && rect.height > 0;
     onPlaceAt?.(
@@ -164,7 +170,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
 
       {/* Drop zones: where the picked or dragged item can go */}
       {zoneKind &&
-        getSurfaces(zoneKind).map((surface) => {
+        getSurfaces(zoneKind, layout).map((surface) => {
           const isStanding = STANDING_KINDS.includes(zoneKind);
           const height = surface.yMax - surface.yMin;
           const style: React.CSSProperties = {
@@ -173,7 +179,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
             top: isStanding ? `calc(${surface.yMin}% - ${ZONE_TOP_PAD_CQW}cqw)` : `${surface.yMin - 4}%`,
             height: isStanding ? `calc(${height}% + ${ZONE_TOP_PAD_CQW + 1}cqw)` : `${height + 8}%`,
           };
-          const className = `absolute rounded-2xl border-[0.4cqw] border-dashed motion-safe:animate-pulse ${palette.highlightClass}`;
+          const className = `absolute z-[25] rounded-2xl border-[0.4cqw] border-dashed motion-safe:animate-pulse ${palette.highlightClass}`;
           return placingKind && isInteractive ? (
             <button
               key={surface.id}
@@ -194,19 +200,21 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
         const isMoving = drag?.key === entry.key;
         const point = isMoving ? drag.point : entry.point;
         const isStanding = STANDING_KINDS.includes(kind);
-        const size = SLOT_KIND_SIZES[kind] * getDepthScale(kind, point.y);
+        const size = entry.width * getDepthScale(kind, point.y);
+        const isDesk = entry.key === `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`;
         const style: React.CSSProperties = {
           ...at(point),
           width: `${size * 1.25}cqw`,
-          zIndex: isMoving ? 30 : Math.round(point.y),
+          zIndex: isMoving ? 30 : kind === 'desk' ? Math.round(layout.deskPoint.y) + 1 : Math.round(point.y),
+          ...(isDesk ? { width: `${size}cqw` } : {}),
           transform: isStanding ? 'translate(-50%, -100%)' : 'translate(-50%, -50%)',
         };
         const body = (
           <>
             {isStanding && (
               <span
-                className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/3 rounded-full bg-[#3B2A5A]/30 blur-[1px]"
-                style={{ width: `${size}cqw`, height: `${size * 0.22}cqw` }}
+                className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/4 rounded-full bg-[#3B2A5A]/30 blur-[1px]"
+                style={{ width: `${size * 0.72}cqw`, height: `${size * 0.14}cqw` }}
                 aria-hidden="true"
               />
             )}
@@ -214,7 +222,11 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
               className={`relative flex justify-center leading-none ${isMoving ? 'scale-110 drop-shadow-lg' : 'drop-shadow-sm'}`}
               style={{ fontSize: `${size}cqw` }}
             >
-              <ItemIcon item={entry.item} size={`${size}cqw`} />
+              {isDesk ? (
+                <img src={entry.item.imageUrl} alt="" draggable={false} className="w-full h-auto" />
+              ) : (
+                <ItemIcon item={entry.item} size={`${size}cqw`} />
+              )}
             </span>
           </>
         );
@@ -247,34 +259,10 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
         );
       })}
 
-      {/* Mission objects */}
-      {ROOM_OBJECTS.map((object) => {
-        const style: React.CSSProperties = {
-          ...at(OBJECT_POSITIONS[object.id]),
-          fontSize: `${OBJECT_SIZES[object.id]}cqw`,
-        };
-        return isInteractive ? (
-          <button
-            key={object.id}
-            type="button"
-            onClick={() => onTapObject?.(object.id)}
-            className={`${CENTERED} leading-none transition-transform hover:scale-105 active:scale-95 focus-visible:outline focus-visible:outline-2`}
-            style={style}
-            aria-label={`${object.nameEn} · ${object.nameHe}`}
-          >
-            <EmojiIcon emoji={object.emoji} size={`${OBJECT_SIZES[object.id]}cqw`} />
-          </button>
-        ) : (
-          <span key={object.id} className={`${CENTERED} leading-none`} style={style} aria-hidden="true">
-            <EmojiIcon emoji={object.emoji} size={`${OBJECT_SIZES[object.id]}cqw`} />
-          </span>
-        );
-      })}
-
       {/* Avatar */}
       <div
         className={`${CENTERED} pointer-events-none transition-[left,top] duration-700 ease-in-out motion-reduce:transition-none`}
-        style={at(avatarPos)}
+        style={{ ...at(avatarPos), zIndex: Math.round(avatarPos.y) + 1 }}
         aria-hidden="true"
       >
         <div className="drop-shadow-md" style={{ transform: isAvatarFacingLeft ? 'scaleX(-1)' : undefined }}>
@@ -289,7 +277,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
       {/* Speech bubble */}
       {bubble && (
         <div
-          className="absolute -translate-x-1/2 -translate-y-full px-[2cqw] py-[1cqw] rounded-[2cqw] bg-white text-slate-800 shadow-lg text-center whitespace-nowrap pointer-events-none"
+          className="absolute z-40 -translate-x-1/2 -translate-y-full px-[2cqw] py-[1cqw] rounded-[2cqw] bg-white text-slate-800 shadow-lg text-center whitespace-nowrap pointer-events-none"
           style={{ left: `${Math.min(80, Math.max(20, bubble.at.x))}%`, top: `${Math.max(14, bubble.at.y - 8)}%` }}
           role="status"
         >

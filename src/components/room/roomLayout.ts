@@ -1,4 +1,4 @@
-import { RoomObjectId, RoomSlotKind } from '../../data/room';
+import { RoomSlotKind } from '../../data/room';
 import { ThemeId } from '../../types/learner';
 
 import type { ScenePoint } from '../../data/roomPlacement';
@@ -35,36 +35,11 @@ export const FURNITURE_PIECES: FurniturePiece[] = [
   { id: 'shelf-high', src: '/art/room/shelf-short.webp', x: 17, y: 30, width: 24, anchorY: 0.25 },
   { id: 'shelf-low', src: '/art/room/shelf-long.webp', x: 17, y: 43, width: 24, anchorY: 0.25 },
   { id: 'window-sill', src: '/art/room/sill.webp', x: 45, y: 52, width: 22, anchorY: 0.2 },
-  { id: 'desk-top', src: '/art/room/desk.webp', x: 68.5, y: 55, width: 26, anchorY: 0.2 },
   { id: 'board', src: '/art/room/board.webp', x: 80, y: 30, width: 22, anchorY: 0.5 },
 ];
 
-/** Item size per slot kind (in container-width units): furniture on the floor is bigger. */
-export const SLOT_KIND_SIZES: Record<RoomSlotKind, number> = {
-  wall: 7,
-  board: 6,
-  shelf: 6.5,
-  desk: 6,
-  floor: 9.5,
-};
-
 /** Kinds whose items stand on their surface (anchored at their feet); the others hang. */
 export const STANDING_KINDS: RoomSlotKind[] = ['shelf', 'desk', 'floor'];
-
-export const OBJECT_POSITIONS: Record<RoomObjectId, ScenePoint> = {
-  bed: { x: 14, y: 73 },
-  phone: { x: 73, y: 50 },
-  wardrobe: { x: 92, y: 45 },
-  'games-book': { x: 38, y: 90 },
-};
-
-/** Larger emoji for the big mission objects (in container-width units). */
-export const OBJECT_SIZES: Record<RoomObjectId, number> = {
-  bed: 15,
-  phone: 6,
-  wardrobe: 14,
-  'games-book': 7,
-};
 
 export const AVATAR_HOME: ScenePoint = { x: 50, y: 68 };
 
