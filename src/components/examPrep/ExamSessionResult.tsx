@@ -15,6 +15,7 @@ import {
 } from '../../data/examPrep';
 import { ExamPlanDay, ExamPrepPlan, LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { Button } from '../ui/Button';
 
 interface ExamSessionResultProps {
   plan: ExamPrepPlan;
@@ -123,21 +124,13 @@ export const ExamSessionResult: React.FC<ExamSessionResultProps> = ({
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2.5">
-        <button
-          type="button"
-          onClick={onSave}
-          className={`flex-1 py-3.5 rounded-2xl font-extrabold text-base ${theme.primaryBtnClass}`}
-        >
+        <Button theme={theme} size="lg" className="flex-1" onClick={onSave}>
           {earnsCertificate ? 'לתעודה שלי 🏅' : 'שמירה וחזרה לתוכנית'}
-        </button>
+        </Button>
         {isMock && !isReady && (
-          <button
-            type="button"
-            onClick={onSaveAndRetry}
-            className={`py-3.5 px-4 rounded-2xl font-extrabold text-sm ${theme.secondaryBtnClass}`}
-          >
+          <Button theme={theme} variant="secondary" size="lg" onClick={onSaveAndRetry}>
             {isGirl ? 'נסי סימולציה חדשה 🔄' : 'נסה סימולציה חדשה 🔄'}
-          </button>
+          </Button>
         )}
       </div>
     </div>

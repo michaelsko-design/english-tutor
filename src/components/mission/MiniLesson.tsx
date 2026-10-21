@@ -21,6 +21,7 @@ import { FeedbackBanner, HebrewSpeakButton, MultipleChoiceOptions } from '../dri
 import { getTtsService, speakHebrew } from '../../services/tts';
 import { toSpeakableText } from '../../services/tts/ttsText';
 import { BlendCards, LetterCards } from './PhonicsLessonCards';
+import { Button } from '../ui/Button';
 
 export const LESSON_COMPANION_SIZE = 96;
 /** The read-aloud rate of lesson examples, the same as the drills' (one rendered clip each) */
@@ -166,22 +167,14 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
 
       <div className="flex items-center gap-3 pt-1">
         {cardIdx > 0 && (
-          <button
-            type="button"
-            onClick={() => setCardIdx(cardIdx - 1)}
-            className={`btn-chunky min-h-12 px-4 rounded-2xl text-sm font-extrabold ${theme.secondaryBtnClass}`}
-          >
+          <Button theme={theme} variant="secondary" className="btn-chunky" onClick={() => setCardIdx(cardIdx - 1)}>
             הקודם
-          </button>
+          </Button>
         )}
-        <button
-          type="button"
-          onClick={() => (isLastCard ? onDone() : setCardIdx(cardIdx + 1))}
-          className={`btn-chunky flex-1 min-h-12 py-3.5 rounded-2xl text-base sm:text-lg font-extrabold flex items-center justify-center gap-2 ${theme.primaryBtnClass}`}
-        >
+        <Button theme={theme} size="lg" className="btn-chunky flex-1" onClick={() => (isLastCard ? onDone() : setCardIdx(cardIdx + 1))}>
           <span>{isLastCard ? doneLabel : 'הבא'}</span>
           {!isLastCard && <ArrowRight className="w-4 h-4 rotate-180" aria-hidden="true" />}
-        </button>
+        </Button>
       </div>
     </div>
   );

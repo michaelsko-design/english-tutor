@@ -8,6 +8,7 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { inflectHebrew } from '../../utils/hebrewGender';
 import { useArtStatus } from '../../hooks/useArtStatus';
 import { Companion } from '../companion/Companion';
+import { Button } from '../ui/Button';
 
 interface HomeHeroProps {
   theme: ThemeDefinition;
@@ -115,14 +116,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             </p>
           )}
 
-          <button
-            type="button"
-            onClick={onPlay}
-            className={`btn-chunky w-full py-3.5 sm:py-4 px-6 rounded-2xl font-black text-lg sm:text-xl flex items-center justify-center gap-2.5 ${theme.primaryBtnClass}`}
-          >
+          <Button theme={theme} size="lg" className="btn-chunky w-full sm:py-4" onClick={onPlay}>
             <Play className="w-6 h-6 fill-current" />
             <span>{getPlayLabelHe(gender, Boolean(bossGate))}</span>
-          </button>
+          </Button>
         </div>
       </div>
     </section>

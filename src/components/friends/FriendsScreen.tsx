@@ -22,6 +22,7 @@ import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { AddFriendPanel } from './AddFriendPanel';
 import { FriendCard } from './FriendCard';
 import { MyFriendCodePanel } from './MyFriendCodePanel';
+import { Button } from '../ui/Button';
 
 interface FriendsScreenProps {
   profile: LearnerProfile;
@@ -126,25 +127,15 @@ export const FriendsScreen: React.FC<FriendsScreenProps> = ({
             <ul className="space-y-2">
               {incoming.map((request) => (
                 <RequestRow key={request.friendshipId} request={request} theme={theme} textHe="רוצה להיות בקשר איתך">
-                  <button
-                    type="button"
-                    disabled={busyId === request.friendshipId}
-                    onClick={() =>
+                  <Button theme={theme} size="sm" disabled={busyId === request.friendshipId} onClick={() =>
                       run(request.friendshipId, () => acceptFriendRequest(request.friendshipId), nowFriendsHe(request.fallbackName))
-                    }
-                    className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1 ${theme.primaryBtnClass} disabled:opacity-40`}
-                  >
+                    }>
                     <Check className="w-3.5 h-3.5" />
                     {isGirl ? 'אשרי' : 'אשר'}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busyId === request.friendshipId}
-                    onClick={() => run(request.friendshipId, () => deleteFriendship(request.friendshipId))}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-extrabold ${theme.secondaryBtnClass} disabled:opacity-40`}
-                  >
+                  </Button>
+                  <Button theme={theme} variant="secondary" size="sm" disabled={busyId === request.friendshipId} onClick={() => run(request.friendshipId, () => deleteFriendship(request.friendshipId))}>
                     לא תודה
-                  </button>
+                  </Button>
                 </RequestRow>
               ))}
             </ul>

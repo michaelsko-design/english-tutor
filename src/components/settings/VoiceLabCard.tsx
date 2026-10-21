@@ -6,6 +6,7 @@ import { DEMO_SENTENCE, DEMO_SENTENCE_RATE } from '../../services/tts/demoPhrase
 import { MAX_TTS_CHARS } from '../../services/tts/ttsText';
 import { useSpeechToggle, useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { SpeakIcon, STOP_SPEECH_LABEL, STOP_SPEECH_TEXT } from '../SpeakIcon';
+import { Button } from '../ui/Button';
 
 interface VoiceLabCardProps {
   voicePreference: VoicePreference;
@@ -49,14 +50,9 @@ export const VoiceLabCard: React.FC<VoiceLabCardProps> = ({ voicePreference, the
           aria-label="משפט באנגלית להקראה"
           className="flex-1 min-w-0 px-3 py-2 rounded-xl text-sm bg-white/70 dark:bg-black/30 border border-current/10"
         />
-        <button
-          type="button"
-          onClick={customSpeech.toggle}
-          aria-label={customSpeech.isSpeaking ? STOP_SPEECH_LABEL : 'הקראה'}
-          className={`px-3 py-2 rounded-xl ${theme.secondaryBtnClass}`}
-        >
+        <Button theme={theme} variant="secondary" onClick={customSpeech.toggle} aria-label={customSpeech.isSpeaking ? STOP_SPEECH_LABEL : 'הקראה'}>
           <SpeakIcon isSpeaking={customSpeech.isSpeaking} />
-        </button>
+        </Button>
       </div>
     </div>
   );

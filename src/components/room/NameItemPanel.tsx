@@ -13,6 +13,7 @@ import { spellSlots } from '../../utils/letterSlots';
 import { getSpeechErrorTextHe, useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { FeedbackBanner, MultipleChoiceOptions, SpellingMagnetDrill, VoiceSpeakDrill } from '../drills';
 import { ItemIcon } from './ItemIcon';
+import { Button } from '../ui/Button';
 
 interface NameItemPanelProps {
   item: NameableItem;
@@ -183,9 +184,9 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
           </div>
         </div>
         {!isNamed && (
-          <button type="button" onClick={onCancel} className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 ${theme.secondaryBtnClass}`}>
+          <Button theme={theme} variant="secondary" size="sm" className="shrink-0" onClick={onCancel}>
             ביטול
-          </button>
+          </Button>
         )}
       </div>
 
@@ -204,14 +205,10 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
               </button>
             ))}
           {mode === 'spell' && (
-            <button
-              type="button"
-              onClick={() => setShowHint(!showHint)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-            >
+            <Button theme={theme} variant="secondary" size="sm" onClick={() => setShowHint(!showHint)}>
               <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
               <span>{showHint ? getSpellingHintHe(getSpellingLetters(item.nameEn)) : 'רמז 💡'}</span>
-            </button>
+            </Button>
           )}
         </div>
       )}

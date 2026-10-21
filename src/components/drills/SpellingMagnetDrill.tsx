@@ -8,6 +8,7 @@ import { useSpeechToggle } from '../../hooks/useSpeech';
 import { SpeakIcon, STOP_SPEECH_TEXT } from '../SpeakIcon';
 import { LetterSlot, useLetterSlotDrag } from './letterSlotDrag';
 import { DraggableMagnet, MAGNET_BANK_ID, MagnetDragOverlay, MagnetDropZone } from './magnetDrag';
+import { Button } from '../ui/Button';
 
 interface SpellingMagnetDrillProps {
   /** The word or phrase to spell; spaces, hyphens and apostrophes are shown, not spelled */
@@ -117,14 +118,10 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
     <DndContext {...drag.contextProps}>
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={listenSpeech.toggle}
-            className={`px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-          >
+          <Button theme={theme} variant="secondary" onClick={listenSpeech.toggle}>
             <SpeakIcon isSpeaking={listenSpeech.isSpeaking} />
             <span>{listenSpeech.isSpeaking ? STOP_SPEECH_TEXT : '🔊 האזנה למילה'}</span>
-          </button>
+          </Button>
           {translationHe && (
             <span className="text-sm font-bold opacity-85">
               פירוש: &ldquo;{translationHe}&rdquo;
@@ -190,22 +187,13 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
 
         {!isCompleted && (
           <div className="flex items-center gap-2.5 pt-1">
-            <button
-              type="button"
-              onClick={onReset}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-            >
+            <Button theme={theme} variant="secondary" onClick={onReset}>
               <RotateCcw className="w-3.5 h-3.5" />
               <span>איפוס אותיות</span>
-            </button>
-            <button
-              type="button"
-              disabled={!isEverySlotFilled(filledSlots, slotCount)}
-              onClick={onCheck}
-              className={`px-6 py-2.5 rounded-xl text-xs md:text-sm font-extrabold ${theme.primaryBtnClass} disabled:opacity-40`}
-            >
+            </Button>
+            <Button theme={theme} disabled={!isEverySlotFilled(filledSlots, slotCount)} onClick={onCheck}>
               בדיקת איות ✓
-            </button>
+            </Button>
           </div>
         )}
       </div>

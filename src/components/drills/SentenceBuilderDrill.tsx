@@ -14,6 +14,7 @@ import {
   TrayMagnet,
   useMagnetDrag,
 } from './magnetDrag';
+import { Button } from '../ui/Button';
 
 interface SentenceBuilderDrillProps {
   scrambledWords: string[];
@@ -132,22 +133,13 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
 
         {!isCompleted && (
           <div className="flex items-center justify-between gap-2.5 pt-1">
-            <button
-              type="button"
-              disabled={selectedIndices.length === 0}
-              onClick={onCheck}
-              className={`min-h-12 px-8 rounded-2xl text-base font-extrabold ${theme.primaryBtnClass} disabled:opacity-40`}
-            >
+            <Button theme={theme} size="lg" disabled={selectedIndices.length === 0} onClick={onCheck}>
               <span>בדיקת משפט ✓</span>
-            </button>
-            <button
-              type="button"
-              onClick={onReset}
-              className={`min-h-11 px-4 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-            >
+            </Button>
+            <Button theme={theme} variant="secondary" onClick={onReset}>
               <RotateCcw className="w-3.5 h-3.5" />
               <span>איפוס מילים</span>
-            </button>
+            </Button>
           </div>
         )}
       </div>

@@ -5,6 +5,7 @@ import { EXAM_SKILL_META } from '../../data/examPrep';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from './ExamModalShell';
 import { formatExamDate } from './examPrepFormat';
+import { Button } from '../ui/Button';
 
 interface ExamReadyCertificateProps {
   plan: ExamPrepPlan;
@@ -69,13 +70,9 @@ export const ExamReadyCertificate: React.FC<ExamReadyCertificateProps> = ({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={onClose}
-          className={`mt-4 w-full py-3.5 rounded-2xl font-extrabold text-base ${theme.primaryBtnClass}`}
-        >
+        <Button theme={theme} size="lg" className="mt-4 w-full" onClick={onClose}>
           {isGirl ? 'יאללה, אני מוכנה! 🚀' : 'יאללה, אני מוכן! 🚀'}
-        </button>
+        </Button>
       </div>
     </ExamModalShell>
   );

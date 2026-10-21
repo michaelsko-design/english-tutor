@@ -12,6 +12,7 @@ import { playSfx } from '../../utils/sfx';
 import { FluentIcon } from '../hud/FluentIcon';
 import { LevelBadge } from '../hud/LevelBadge';
 import { Companion } from '../companion/Companion';
+import { Button } from '../ui/Button';
 
 interface MissionVictoryProps {
   mission: MissionNode;
@@ -248,13 +249,9 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={handleCollect}
-          className={`w-full py-4 rounded-2xl font-extrabold text-base flex items-center justify-center gap-2 ${theme.primaryBtnClass}`}
-        >
+        <Button theme={theme} size="lg" className="w-full" onClick={handleCollect}>
           <span>איסוף פרסים וחזרה לדשבורד 🚀</span>
-        </button>
+        </Button>
 
         <p className={`text-xs ${theme.mutedTextClass} ${frame.isDone ? 'invisible' : ''}`} aria-hidden="true">
           הקשה על המסך מדלגת לסוף ⏩

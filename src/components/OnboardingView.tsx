@@ -29,6 +29,7 @@ import { PrivacyNoticeDialog } from './privacy/PrivacyNoticeDialog';
 import { auth } from '../services/firebase';
 import { usernameFromEmail } from '../utils/username';
 import { APP_NAME } from '../config/appInfo';
+import { Button } from './ui/Button';
 
 interface OnboardingViewProps {
   initialProfile: LearnerProfile;
@@ -535,23 +536,16 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
 
           {/* Submit CTA */}
           <div className="lg:col-span-2 flex items-center gap-2.5 pt-1">
-            <button
-              type="submit"
-              className={`flex-1 py-3.5 rounded-2xl font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 transition-transform ${activeTheme.primaryBtnClass}`}
-            >
+            <Button theme={activeTheme} size="lg" className="flex-1" type="submit">
               <UserCheck className="w-5 h-5" />
               <span>
                 {onCancel ? 'שמירת שינויים' : 'שמירה וכניסה לדשבורד 🚀'}
               </span>
-            </button>
+            </Button>
             {onCancel && (
-              <button
-                type="button"
-                onClick={onCancel}
-                className={`py-3.5 px-5 rounded-2xl font-extrabold text-sm ${activeTheme.secondaryBtnClass}`}
-              >
+              <Button theme={activeTheme} variant="secondary" size="lg" onClick={onCancel}>
                 ביטול
-              </button>
+              </Button>
             )}
           </div>
         </form>

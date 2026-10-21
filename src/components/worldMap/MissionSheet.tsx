@@ -12,6 +12,7 @@ import { SpeakIcon, STOP_SPEECH_LABEL } from '../SpeakIcon';
 import { TierChoice } from '../mission/TierChoice';
 import { StarRow } from './mapPieces';
 import { WorldMapStyle } from './worldMapStyles';
+import { Button } from '../ui/Button';
 
 interface MissionSheetProps {
   stop: MapStop;
@@ -221,14 +222,10 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
 
         {status !== 'locked' && (
           <div className={`sticky bottom-0 px-4 sm:px-6 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))] ${style.sheetBgClass}`}>
-            <button
-              type="button"
-              onClick={onStart}
-              className={`btn-chunky w-full py-3.5 rounded-2xl text-lg font-extrabold flex items-center justify-center gap-2 ${theme.primaryBtnClass}`}
-            >
+            <Button theme={theme} size="lg" className="btn-chunky w-full" onClick={onStart}>
               <Play className="w-5 h-5 fill-current" />
               {startLabel}
-            </button>
+            </Button>
           </div>
         )}
       </section>

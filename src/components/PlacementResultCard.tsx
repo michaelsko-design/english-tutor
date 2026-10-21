@@ -5,6 +5,7 @@ import { NON_READER_RESULT_HE, PLACEMENT_REWARD_DIAMONDS, PLACEMENT_REWARD_XP } 
 import { isolateEnglishRuns } from '../utils/bidi';
 import { useAutoSpeakHebrew } from '../hooks/useAutoSpeakHebrew';
 import { Sparkles, Check } from 'lucide-react';
+import { Button } from './ui/Button';
 
 interface PlacementResultCardProps {
   result: PlacementResult;
@@ -102,35 +103,23 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
       )}
 
       {isSameAsCurrent ? (
-        <button
-          type="button"
-          onClick={() => onFinish(true)}
-          className={`w-full py-3.5 rounded-2xl font-extrabold text-base flex items-center justify-center gap-2 ${theme.primaryBtnClass}`}
-        >
+        <Button theme={theme} size="lg" className="w-full" onClick={() => onFinish(true)}>
           <Check className="w-5 h-5" />
           <span>
             {isGirl
               ? 'ההגדרות שלך כבר מתאימות. בואי נמשיך!'
               : 'ההגדרות שלך כבר מתאימות. בוא נמשיך!'}
           </span>
-        </button>
+        </Button>
       ) : (
         <div className="flex flex-col sm:flex-row gap-2.5">
-          <button
-            type="button"
-            onClick={() => onFinish(true)}
-            className={`flex-1 py-3.5 rounded-2xl font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 ${theme.primaryBtnClass}`}
-          >
+          <Button theme={theme} size="lg" className="flex-1" onClick={() => onFinish(true)}>
             <Check className="w-5 h-5" />
             <span>{isGirl ? 'עדכני לפי ההמלצה' : 'עדכן לפי ההמלצה'}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onFinish(false)}
-            className={`py-3.5 px-4 rounded-2xl font-extrabold text-sm ${theme.secondaryBtnClass}`}
-          >
+          </Button>
+          <Button theme={theme} variant="secondary" size="lg" onClick={() => onFinish(false)}>
             {isGirl ? 'השאירי את ההגדרות שלי' : 'השאר את ההגדרות שלי'}
-          </button>
+          </Button>
         </div>
       )}
     </div>

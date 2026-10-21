@@ -14,6 +14,7 @@ import { ThemeDefinition } from '../../../themes/themeRegistry';
 import { ItemIcon } from '../ItemIcon';
 import { RoomPanelFrame } from '../RoomPanelFrame';
 import { StickerDrawPanel } from './StickerDrawPanel';
+import { Button } from '../../ui/Button';
 
 interface StickerStudioPanelProps {
   profile: LearnerProfile;
@@ -110,14 +111,9 @@ export const StickerStudioPanel: React.FC<StickerStudioPanelProps> = ({
                         למחוק?
                       </button>
                     ) : (
-                      <button
-                        type="button"
-                        onClick={() => setConfirmDeleteId(item.id)}
-                        aria-label={`מחיקת ${item.nameEn}`}
-                        className={`px-2 py-1 rounded-lg text-xs font-bold ${theme.secondaryBtnClass}`}
-                      >
+                      <Button theme={theme} variant="secondary" size="sm" onClick={() => setConfirmDeleteId(item.id)} aria-label={`מחיקת ${item.nameEn}`}>
                         🗑️
-                      </button>
+                      </Button>
                     ))}
                 </div>
               </li>
@@ -138,14 +134,9 @@ export const StickerStudioPanel: React.FC<StickerStudioPanelProps> = ({
       )}
 
       {hasPass ? (
-        <button
-          type="button"
-          onClick={() => setIsDrawing(true)}
-          disabled={drawnCount >= MAX_DRAWN_STICKERS}
-          className={`w-full py-2.5 rounded-2xl font-extrabold text-sm ${theme.primaryBtnClass} disabled:opacity-40`}
-        >
+        <Button theme={theme} className="w-full" onClick={() => setIsDrawing(true)} disabled={drawnCount >= MAX_DRAWN_STICKERS}>
           ✏️ ציור מדבקה חדשה ({drawnCount}/{MAX_DRAWN_STICKERS})
-        </button>
+        </Button>
       ) : (
         <div className="p-3 rounded-2xl border-2 border-dashed border-fuchsia-400/60 flex items-center gap-3">
           <span className="text-2xl" aria-hidden="true">
@@ -154,9 +145,9 @@ export const StickerStudioPanel: React.FC<StickerStudioPanelProps> = ({
           <p className="flex-1 text-xs font-bold">
             פרימיום: ציור מדבקות משלך — עם כרטיס סטודיו המדבקות מהחנות.
           </p>
-          <button type="button" onClick={onOpenShop} className={`px-3 py-2 rounded-xl text-xs font-extrabold shrink-0 ${theme.primaryBtnClass}`}>
+          <Button theme={theme} size="sm" className="shrink-0" onClick={onOpenShop}>
             לחנות 🛍️
-          </button>
+          </Button>
         </div>
       )}
     </RoomPanelFrame>

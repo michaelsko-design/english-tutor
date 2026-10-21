@@ -6,6 +6,7 @@ import { inflectHebrew } from '../../utils/hebrewGender';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { Companion } from '../companion/Companion';
 import { TierChoice } from './TierChoice';
+import { Button } from '../ui/Button';
 
 /**
  * The mission's mini-lesson (Feature 42): it opens by itself after Start on a first play ('auto'),
@@ -95,23 +96,15 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
       </div>
 
       {lessonOffer === 'optional' && (
-        <button
-          type="button"
-          onClick={onOpenLesson}
-          className={`w-full min-h-12 py-3 rounded-2xl text-sm font-extrabold flex items-center justify-center gap-2 ${theme.secondaryBtnClass}`}
-        >
+        <Button theme={theme} variant="secondary" size="lg" className="w-full" onClick={onOpenLesson}>
           <BookOpen className="w-4 h-4" aria-hidden="true" />
           <span>תזכורת קצרה לפני שמתחילים</span>
-        </button>
+        </Button>
       )}
 
-      <button
-        type="button"
-        onClick={onStart}
-        className={`btn-chunky w-full py-4 rounded-2xl text-lg font-extrabold ${theme.primaryBtnClass}`}
-      >
+      <Button theme={theme} size="lg" className="btn-chunky w-full" onClick={onStart}>
         {isGirl ? 'יאללה, בואי נתחיל! 🚀' : 'יאללה, בוא נתחיל! 🚀'}
-      </button>
+      </Button>
     </div>
   );
 };

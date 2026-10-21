@@ -18,6 +18,7 @@ import { isolateLtr } from '../utils/bidi';
 import { isSameSpeech } from '../services/tts';
 import { toggleSpeech, useCurrentSpeech, useStopSpeechOnLeave } from '../hooks/useSpeech';
 import { SpeakIcon, STOP_SPEECH_LABEL, STOP_SPEECH_TEXT } from './SpeakIcon';
+import { Button } from './ui/Button';
 
 /** The reward inside a Hebrew sentence, isolated so "+10 XP" doesn't flip */
 const VAULT_REWARD_LABEL = isolateLtr('+10 XP · +2 💎');
@@ -331,24 +332,13 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                 {/* Audio TTS & Voice Recognition Buttons */}
                 <div className="flex items-center justify-between gap-2 pt-1">
                   <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => toggleSpeech(isListenSpeaking, onSpeakEnglish, listenText, 0.95)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1 ${theme.secondaryBtnClass}`}
-                    >
+                    <Button theme={theme} variant="secondary" size="sm" onClick={() => toggleSpeech(isListenSpeaking, onSpeakEnglish, listenText, 0.95)}>
                       <SpeakIcon isSpeaking={isListenSpeaking} className="w-3.5 h-3.5" />
                       <span>{isListenSpeaking ? STOP_SPEECH_TEXT : 'Listen'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => toggleSpeech(isSlowSpeaking, onSpeakEnglish, item.wordEn, 0.65)}
-                      className={`px-2.5 py-1.5 rounded-xl text-xs font-bold ${theme.secondaryBtnClass}`}
-                      title={isSlowSpeaking ? STOP_SPEECH_LABEL : 'Listen Slowly'}
-                      aria-label={isSlowSpeaking ? STOP_SPEECH_LABEL : undefined}
-                      dir="ltr" lang="en"
-                    >
+                    </Button>
+                    <Button theme={theme} variant="secondary" size="sm" onClick={() => toggleSpeech(isSlowSpeaking, onSpeakEnglish, item.wordEn, 0.65)} title={isSlowSpeaking ? STOP_SPEECH_LABEL : 'Listen Slowly'} aria-label={isSlowSpeaking ? STOP_SPEECH_LABEL : undefined} dir="ltr" lang="en">
                       {isSlowSpeaking ? '⏹' : '🐢 Slow'}
-                    </button>
+                    </Button>
                   </div>
 
                   <button

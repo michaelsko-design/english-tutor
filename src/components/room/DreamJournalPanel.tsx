@@ -22,6 +22,7 @@ import { SpeakIcon } from '../SpeakIcon';
 import { ActivityRewardSummary } from './ActivityRewardSummary';
 import { DreamJournalList } from './DreamJournalList';
 import { RoomPanelFrame } from './RoomPanelFrame';
+import { Button } from '../ui/Button';
 
 interface DreamJournalPanelProps {
   profile: LearnerProfile;
@@ -228,14 +229,9 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
             rows={2}
             className={`w-full px-3 py-2 rounded-2xl text-xs ${theme.inputBgClass}`}
           />
-          <button
-            type="button"
-            disabled={!isInvented}
-            onClick={() => setStep('translate')}
-            className={`w-full py-2.5 rounded-2xl font-extrabold text-sm ${theme.primaryBtnClass} disabled:opacity-40`}
-          >
+          <Button theme={theme} className="w-full" disabled={!isInvented} onClick={() => setStep('translate')}>
             לתרגום לאנגלית ←
-          </button>
+          </Button>
           <DreamJournalList entries={entries} theme={theme} onSpeakEnglish={onSpeakEnglish} />
         </div>
       )}
@@ -253,14 +249,14 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
           </p>
           {frames.map(renderTranslate)}
           {isTyping && !isTranslated && (
-            <button type="button" onClick={handleCheckTyped} className={`w-full py-2.5 rounded-2xl font-extrabold text-sm ${theme.secondaryBtnClass}`}>
+            <Button theme={theme} variant="secondary" className="w-full" onClick={handleCheckTyped}>
               בדיקה ✓
-            </button>
+            </Button>
           )}
           {isTranslated && (
-            <button type="button" onClick={() => setStep('read')} className={`w-full py-2.5 rounded-2xl font-extrabold text-sm ${theme.primaryBtnClass}`}>
+            <Button theme={theme} className="w-full" onClick={() => setStep('read')}>
               תרגמת את החלום! להקראה ←
-            </button>
+            </Button>
           )}
         </div>
       )}
@@ -293,9 +289,9 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
           />
           {speechError && <p className="text-xs font-bold text-rose-600">{speechError}</p>}
           {wasReadAloud && <p className="text-xs font-extrabold text-emerald-600 dark:text-emerald-300">🎙️ הקראה מעולה!</p>}
-          <button type="button" onClick={handleSave} className={`w-full py-2.5 rounded-2xl font-extrabold text-sm ${theme.primaryBtnClass}`}>
+          <Button theme={theme} className="w-full" onClick={handleSave}>
             שמירה ביומן 📔
-          </button>
+          </Button>
         </div>
       )}
 

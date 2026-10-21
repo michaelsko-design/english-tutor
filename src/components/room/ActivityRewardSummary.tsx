@@ -3,6 +3,7 @@ import { RoomActivityReward } from '../../data/roomActivities';
 import { LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { formatGainLtr } from '../../utils/bidi';
+import { Button } from '../ui/Button';
 
 interface ActivityRewardSummaryProps {
   /** null when nothing was earned (e.g. no message was sent) */
@@ -44,12 +45,12 @@ export const ActivityRewardSummary: React.FC<ActivityRewardSummaryProps> = ({
         {rewardText}
       </p>
       <div className="flex flex-wrap justify-center gap-2 pt-1">
-        <button type="button" onClick={onAgain} className={`px-5 py-2.5 rounded-2xl font-extrabold text-sm ${theme.primaryBtnClass}`}>
+        <Button theme={theme} onClick={onAgain}>
           {againLabel}
-        </button>
-        <button type="button" onClick={onClose} className={`px-5 py-2.5 rounded-2xl font-extrabold text-sm ${theme.secondaryBtnClass}`}>
+        </Button>
+        <Button theme={theme} variant="secondary" onClick={onClose}>
           חזרה לחדר
-        </button>
+        </Button>
       </div>
     </div>
   );

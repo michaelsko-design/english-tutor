@@ -3,6 +3,7 @@ import { ContestResult, getScorePercent } from '../../data/contests';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { formatDuration } from './ContestRunner';
+import { Button } from '../ui/Button';
 
 interface ContestResultViewProps {
   result: ContestResult;
@@ -68,14 +69,9 @@ export const ContestResultView: React.FC<ContestResultViewProps> = ({
           </>
         )}
 
-        <button
-          type="button"
-          onClick={onDone}
-          disabled={isSaving}
-          className={`w-full py-3 rounded-2xl font-extrabold ${theme.primaryBtnClass} disabled:opacity-40`}
-        >
+        <Button theme={theme} size="lg" className="w-full" onClick={onDone} disabled={isSaving}>
           חזרה למרכז החברים 👫
-        </button>
+        </Button>
       </div>
     </ExamModalShell>
   );

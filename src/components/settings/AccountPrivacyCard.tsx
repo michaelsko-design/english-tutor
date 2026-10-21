@@ -12,6 +12,7 @@ import {
   linkGoogleToAccount,
 } from '../../services/accountService';
 import { PrivacyNoticeDialog } from '../privacy/PrivacyNoticeDialog';
+import { Button } from '../ui/Button';
 
 interface AccountPrivacyCardProps {
   profile: LearnerProfile;
@@ -192,18 +193,14 @@ export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile,
             >
               {isBusy ? 'מוחקים…' : 'מחיקה לצמיתות'}
             </button>
-            <button
-              type="button"
-              onClick={() => {
+            <Button theme={theme} variant="secondary" onClick={() => {
                 setIsDeleteOpen(false);
                 setConfirmWord('');
                 setPin('');
                 setErrorHe(null);
-              }}
-              className={`min-h-11 px-4 rounded-2xl text-sm font-extrabold ${theme.secondaryBtnClass}`}
-            >
+              }}>
               ביטול
-            </button>
+            </Button>
           </div>
         </div>
       )}

@@ -27,6 +27,7 @@ import { WardrobePanel } from './WardrobePanel';
 import { AVATAR_HOME, OBJECT_POSITIONS, SLOT_POSITIONS, ScenePoint, getStandingPoint } from './roomLayout';
 import { formatGainLtr } from '../../utils/bidi';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
+import { Button } from '../ui/Button';
 
 interface RoomScreenProps {
   profile: LearnerProfile;
@@ -184,28 +185,19 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   const header = (
     <div className="flex items-center justify-between gap-2">
       <h2 className="font-extrabold text-sm sm:text-base truncate">🏠 החדר האנגלי שלי</h2>
-      <button
-        type="button"
-        onClick={() => {
+      <Button theme={theme} variant="secondary" size="sm" className="shrink-0" onClick={() => {
           setSelectedItemId(null);
           setFocusedSlotId(null);
           setNaming(null);
           setStatusText(null);
           setActivePanel('stickers');
-        }}
-        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold shrink-0 ${theme.secondaryBtnClass}`}
-      >
+        }}>
         🎨 מדבקות
-      </button>
-      <button
-        type="button"
-        onClick={onOpenShop}
-        aria-label="החלפת אווטאר"
-        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shrink-0 ${theme.secondaryBtnClass}`}
-      >
+      </Button>
+      <Button theme={theme} variant="secondary" size="sm" className="shrink-0" onClick={onOpenShop} aria-label="החלפת אווטאר">
         <span className="text-base leading-none">{avatarEmoji}</span>
         <span className="hidden sm:inline">החלפת אווטאר</span>
-      </button>
+      </Button>
     </div>
   );
 
@@ -233,20 +225,12 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
 
         {focusedSlotId && focusedItem && !naming && (
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={() => handleSelectItem(focusedItem.id)}
-              className={`px-4 py-2 rounded-xl text-xs font-extrabold ${theme.secondaryBtnClass}`}
-            >
+            <Button theme={theme} variant="secondary" size="sm" onClick={() => handleSelectItem(focusedItem.id)}>
               🔀 הזזה ({focusedItem.nameEn})
-            </button>
-            <button
-              type="button"
-              onClick={() => handleRemove(focusedSlotId)}
-              className={`px-4 py-2 rounded-xl text-xs font-extrabold ${theme.secondaryBtnClass}`}
-            >
+            </Button>
+            <Button theme={theme} variant="secondary" size="sm" onClick={() => handleRemove(focusedSlotId)}>
               📦 החזרה לארגז
-            </button>
+            </Button>
           </div>
         )}
 

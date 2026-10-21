@@ -9,6 +9,7 @@ import {
 import { toLocalDateStr } from '../../data/examPrep';
 import { CustomWordList, LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { Button } from '../ui/Button';
 
 interface WordListSessionResultProps {
   list: CustomWordList;
@@ -71,20 +72,12 @@ export const WordListSessionResult: React.FC<WordListSessionResultProps> = ({
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2.5">
-        <button
-          type="button"
-          onClick={onSave}
-          className={`flex-1 py-3.5 rounded-2xl font-extrabold text-base ${theme.primaryBtnClass}`}
-        >
+        <Button theme={theme} size="lg" className="flex-1" onClick={onSave}>
           שמירה וחזרה לדשבורד
-        </button>
-        <button
-          type="button"
-          onClick={onSaveAndRetry}
-          className={`py-3.5 px-4 rounded-2xl font-extrabold text-sm ${theme.secondaryBtnClass}`}
-        >
+        </Button>
+        <Button theme={theme} variant="secondary" size="lg" onClick={onSaveAndRetry}>
           {isGirl ? 'תרגלי שוב 🔄' : 'תרגל שוב 🔄'}
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import { MapLandmark, UnitBanner } from './worldMap/mapPieces';
 import { BossCastleStop, MissionCoinStop } from './worldMap/MapStops';
 import { MissionSheet } from './worldMap/MissionSheet';
 import { WORLD_MAP_STYLES } from './worldMap/worldMapStyles';
+import { Button } from './ui/Button';
 
 interface MissionMapProps {
   units: CurriculumUnit[];
@@ -95,14 +96,10 @@ export const MissionMap: React.FC<MissionMapProps> = ({
           </p>
         </div>
         {layout.currentStop && (
-          <button
-            type="button"
-            onClick={() => scrollToCurrent(isReducedMotion ? 'auto' : 'smooth')}
-            className={`shrink-0 px-3 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-          >
+          <Button theme={theme} variant="secondary" size="sm" className="shrink-0" onClick={() => scrollToCurrent(isReducedMotion ? 'auto' : 'smooth')}>
             <LocateFixed className="w-4 h-4" />
             למשימה הבאה
-          </button>
+          </Button>
         )}
       </div>
 

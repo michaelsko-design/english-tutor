@@ -10,6 +10,7 @@ import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { FluentIcon } from '../hud/FluentIcon';
 import { LevelBadge } from '../hud/LevelBadge';
 import { ProgressRing } from './ProgressRing';
+import { Button } from '../ui/Button';
 
 const STATS_LEVEL_BADGE_SIZE = 52;
 
@@ -183,30 +184,18 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={onOpenPlacement}
-            className={`px-4 py-2.5 rounded-2xl text-sm font-extrabold flex items-center justify-center gap-1.5 ${theme.secondaryBtnClass}`}
-          >
+          <Button theme={theme} variant="secondary" onClick={onOpenPlacement}>
             <Target className="w-4 h-4 shrink-0" />
             {profile.placementResult ? 'מבחן רמה חוזר 🎯' : isGirl ? 'לא בטוחה באיזו רמה? מבחן רמה' : 'לא בטוח באיזו רמה? מבחן רמה'}
-          </button>
-          <button
-            type="button"
-            onClick={onOpenTour}
-            className={`px-4 py-2.5 rounded-2xl text-sm font-extrabold flex items-center justify-center gap-1.5 ${theme.secondaryBtnClass}`}
-          >
+          </Button>
+          <Button theme={theme} variant="secondary" onClick={onOpenTour}>
             <Compass className="w-4 h-4 shrink-0" />
             סיור באפליקציה 🧭
-          </button>
-          <button
-            type="button"
-            onClick={onEditProfile}
-            className={`px-4 py-2.5 rounded-2xl text-sm font-extrabold flex items-center justify-center gap-1.5 sm:col-span-2 ${theme.secondaryBtnClass}`}
-          >
+          </Button>
+          <Button theme={theme} variant="secondary" className="sm:col-span-2" onClick={onEditProfile}>
             <Settings className="w-4 h-4 shrink-0" />
             פרופיל, עיצוב והגדרות
-          </button>
+          </Button>
         </div>
       </div>
     </ExamModalShell>

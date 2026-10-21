@@ -3,6 +3,7 @@ import { Cell, PlacedWord, WordSearchPuzzle, matchSelection, scorePercent } from
 import { LearnerGender } from '../../../types/learner';
 import { ThemeDefinition } from '../../../themes/themeRegistry';
 import { LetterGrid, cellKey } from './LetterGrid';
+import { Button } from '../../ui/Button';
 
 interface WordHuntGameProps {
   puzzle: WordSearchPuzzle;
@@ -103,13 +104,13 @@ export const WordHuntGame: React.FC<WordHuntGameProps> = ({
 
       <div className="flex flex-wrap justify-center gap-2">
         {isDone ? (
-          <button type="button" onClick={() => onFinish(finalScore)} className={`px-6 py-2.5 rounded-2xl font-extrabold text-sm ${theme.primaryBtnClass}`}>
+          <Button theme={theme} onClick={() => onFinish(finalScore)}>
             סיום ({finalScore}%) 🎉
-          </button>
+          </Button>
         ) : (
-          <button type="button" onClick={() => onFinish(finalScore)} className={`px-4 py-2 rounded-xl text-xs font-bold ${theme.secondaryBtnClass}`}>
+          <Button theme={theme} variant="secondary" size="sm" onClick={() => onFinish(finalScore)}>
             סיימתי לחפש ({foundWords.length}/{puzzle.placed.length})
-          </button>
+          </Button>
         )}
       </div>
     </div>

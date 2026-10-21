@@ -3,6 +3,7 @@ import { Flame, Star, Target, UserMinus } from 'lucide-react';
 import { FRIEND_REACTIONS, FriendLink, PublicProfile } from '../../data/friends';
 import { LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { Button } from '../ui/Button';
 
 interface FriendCardProps {
   friend: FriendLink;
@@ -135,13 +136,9 @@ export const FriendCard: React.FC<FriendCardProps> = ({
             >
               כן, להסיר
             </button>
-            <button
-              type="button"
-              onClick={() => setIsConfirmingRemove(false)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold ${theme.secondaryBtnClass}`}
-            >
+            <Button theme={theme} variant="secondary" size="sm" onClick={() => setIsConfirmingRemove(false)}>
               ביטול
-            </button>
+            </Button>
           </div>
         </div>
       )}

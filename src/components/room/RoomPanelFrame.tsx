@@ -1,6 +1,7 @@
 import React from 'react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
+import { Button } from '../ui/Button';
 
 interface RoomPanelFrameProps {
   titleHe: string;
@@ -18,9 +19,9 @@ export const RoomPanelFrame: React.FC<RoomPanelFrameProps> = ({ titleHe, theme, 
     <section aria-label={titleHe} className={`p-4 rounded-3xl space-y-3 ${theme.cardBgClass}`}>
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-extrabold text-sm sm:text-base">{titleHe}</h3>
-        <button type="button" onClick={onClose} className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 ${theme.secondaryBtnClass}`}>
+        <Button theme={theme} variant="secondary" size="sm" className="shrink-0" onClick={onClose}>
           {closeLabel}
-        </button>
+        </Button>
       </div>
       {children}
     </section>

@@ -10,6 +10,7 @@ import {
 import { CustomWordList, LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
+import { Button } from '../ui/Button';
 
 interface WordListImporterProps {
   gender: LearnerGender;
@@ -117,14 +118,9 @@ export const WordListImporter: React.FC<WordListImporterProps> = ({ gender, them
           </div>
         )}
 
-        <button
-          type="button"
-          disabled={!canSave}
-          onClick={handleSave}
-          className={`w-full py-3.5 rounded-2xl font-extrabold text-base ${theme.primaryBtnClass} disabled:opacity-40`}
-        >
+        <Button theme={theme} size="lg" className="w-full" disabled={!canSave} onClick={handleSave}>
           {canSave ? 'שמירת הרשימה ✓' : `צריך לפחות ${MIN_ITEMS_PER_LIST} מילים או משפטים`}
-        </button>
+        </Button>
       </div>
     </ExamModalShell>
   );

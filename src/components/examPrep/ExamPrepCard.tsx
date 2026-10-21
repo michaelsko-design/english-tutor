@@ -4,6 +4,7 @@ import { daysBetween, getNextSession, isExamPast } from '../../data/examPrep';
 import { ExamPrepPlan, LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { describeDayFocus, getCountdownHe, getStartLabel } from './examPrepFormat';
+import { Button } from '../ui/Button';
 
 interface ExamPrepCardProps {
   /** The active (non-archived) plan, if any */
@@ -49,13 +50,9 @@ export const ExamPrepCard: React.FC<ExamPrepCardProps> = ({
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={onCreatePlan}
-          className={`px-5 py-2.5 rounded-2xl font-extrabold text-sm shrink-0 ${theme.secondaryBtnClass}`}
-        >
+        <Button theme={theme} variant="secondary" className="shrink-0" onClick={onCreatePlan}>
           הכנה למבחן 🎯
-        </button>
+        </Button>
       </section>
     );
   }
@@ -72,17 +69,17 @@ export const ExamPrepCard: React.FC<ExamPrepCardProps> = ({
           השלמת {doneCount} מתוך {plan.days.length} שלבי הכנה. כל הכבוד על ההשקעה!
         </p>
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={onCreatePlan} className={`px-4 py-2 rounded-xl font-extrabold text-xs ${theme.primaryBtnClass}`}>
+          <Button theme={theme} size="sm" onClick={onCreatePlan}>
             📅 מבחן חדש
-          </button>
+          </Button>
           {plan.certificateEarnedAt && (
-            <button type="button" onClick={onShowCertificate} className={`px-4 py-2 rounded-xl font-extrabold text-xs ${theme.secondaryBtnClass}`}>
+            <Button theme={theme} variant="secondary" size="sm" onClick={onShowCertificate}>
               🏅 התעודה שלי
-            </button>
+            </Button>
           )}
-          <button type="button" onClick={onArchive} className={`px-4 py-2 rounded-xl font-bold text-xs ${theme.secondaryBtnClass}`}>
+          <Button theme={theme} variant="secondary" size="sm" onClick={onArchive}>
             סיום
-          </button>
+          </Button>
         </div>
       </section>
     );
@@ -112,18 +109,14 @@ export const ExamPrepCard: React.FC<ExamPrepCardProps> = ({
 
       <div className="flex flex-wrap gap-2">
         {nextDay && (
-          <button
-            type="button"
-            onClick={() => onStartDay(nextDay.dayIndex)}
-            className={`px-5 py-2.5 rounded-2xl font-extrabold text-sm flex items-center gap-1.5 ${theme.primaryBtnClass}`}
-          >
+          <Button theme={theme} onClick={() => onStartDay(nextDay.dayIndex)}>
             <Play className="w-4 h-4 fill-current" />
             {getStartLabel(nextDay, gender)}
-          </button>
+          </Button>
         )}
-        <button type="button" onClick={onOpenPlan} className={`px-4 py-2.5 rounded-2xl font-bold text-sm ${theme.secondaryBtnClass}`}>
+        <Button theme={theme} variant="secondary" onClick={onOpenPlan}>
           לתוכנית המלאה
-        </button>
+        </Button>
       </div>
     </section>
   );

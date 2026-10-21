@@ -13,6 +13,7 @@ import {
 import { ExamPrepPlan, ExamSkill, LearnerProfile, SUPPORTED_GRADES } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from './ExamModalShell';
+import { Button } from '../ui/Button';
 
 interface ExamPrepSetupProps {
   profile: LearnerProfile;
@@ -164,14 +165,9 @@ export const ExamPrepSetup: React.FC<ExamPrepSetupProps> = ({ profile, theme, on
           </p>
         )}
 
-        <button
-          type="button"
-          disabled={!canCreate}
-          onClick={handleCreate}
-          className={`w-full py-3.5 rounded-2xl font-extrabold text-base ${theme.primaryBtnClass} disabled:opacity-40 disabled:cursor-not-allowed`}
-        >
+        <Button theme={theme} size="lg" className="w-full" disabled={!canCreate} onClick={handleCreate}>
           בניית התוכנית שלי 🚀
-        </button>
+        </Button>
       </div>
     </ExamModalShell>
   );

@@ -2,6 +2,7 @@ import React from 'react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { useSpeechToggle } from '../../hooks/useSpeech';
 import { SpeakIcon, STOP_SPEECH_TEXT } from '../SpeakIcon';
+import { Button } from '../ui/Button';
 
 interface PassageBoxProps {
   passageEn: string;
@@ -25,14 +26,10 @@ export const PassageBox: React.FC<PassageBoxProps> = ({
         <span className="text-xs font-extrabold uppercase tracking-wider opacity-75">
           📖 Reading Passage · קטע קריאה
         </span>
-        <button
-          type="button"
-          onClick={speech.toggle}
-          className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
-        >
+        <Button theme={theme} variant="secondary" size="sm" onClick={speech.toggle}>
           <SpeakIcon isSpeaking={speech.isSpeaking} className="w-3.5 h-3.5" />
           {speech.isSpeaking ? <span>{STOP_SPEECH_TEXT}</span> : <span dir="ltr" lang="en">Listen to Story 🔊</span>}
-        </button>
+        </Button>
       </div>
       <p className="text-sm md:text-base font-medium leading-relaxed" dir="ltr" lang="en">
         {passageEn}

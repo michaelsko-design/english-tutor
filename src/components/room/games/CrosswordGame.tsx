@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CrosswordEntry, CrosswordPuzzle, getEntryCells, scorePercent } from '../../../data/wordGames';
 import { LearnerGender } from '../../../types/learner';
 import { ThemeDefinition } from '../../../themes/themeRegistry';
+import { Button } from '../../ui/Button';
 
 interface CrosswordGameProps {
   puzzle: CrosswordPuzzle;
@@ -140,12 +141,12 @@ export const CrosswordGame: React.FC<CrosswordGameProps> = ({ puzzle, gender, th
             autoCorrect="off"
             spellCheck={false}
           />
-          <button type="button" onClick={handleCheck} className={`px-4 py-2 rounded-xl text-xs font-extrabold ${theme.primaryBtnClass}`}>
+          <Button theme={theme} size="sm" onClick={handleCheck}>
             בדיקה ✓
-          </button>
-          <button type="button" onClick={handleReveal} className={`px-3 py-2 rounded-xl text-xs font-bold ${theme.secondaryBtnClass}`}>
+          </Button>
+          <Button theme={theme} variant="secondary" size="sm" onClick={handleReveal}>
             גילוי
-          </button>
+          </Button>
         </div>
       )}
 
@@ -157,13 +158,9 @@ export const CrosswordGame: React.FC<CrosswordGameProps> = ({ puzzle, gender, th
 
       {isDone && (
         <div className="text-center">
-          <button
-            type="button"
-            onClick={() => onFinish(scorePercent(firstTry, puzzle.entries.length))}
-            className={`px-6 py-2.5 rounded-2xl font-extrabold text-sm ${theme.primaryBtnClass}`}
-          >
+          <Button theme={theme} onClick={() => onFinish(scorePercent(firstTry, puzzle.entries.length))}>
             פתרת את התשבץ! סיום 🎉
-          </button>
+          </Button>
         </div>
       )}
     </div>

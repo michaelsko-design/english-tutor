@@ -6,6 +6,7 @@ import { LearnerProfile } from '../../../types/learner';
 import { ThemeDefinition } from '../../../themes/themeRegistry';
 import { getSpeechErrorTextHe, useSpeechRecognition } from '../../../hooks/useSpeechRecognition';
 import { StickerCanvas, StickerCanvasHandle, Stroke } from './StickerCanvas';
+import { Button } from '../../ui/Button';
 
 interface StickerDrawPanelProps {
   profile: LearnerProfile;
@@ -127,22 +128,12 @@ export const StickerDrawPanel: React.FC<StickerDrawPanelProps> = ({ profile, the
         >
           🧽 מחק
         </button>
-        <button
-          type="button"
-          onClick={() => setStrokes(strokes.slice(0, -1))}
-          disabled={strokes.length === 0}
-          className={`px-3 py-1.5 rounded-xl text-xs font-bold ${theme.secondaryBtnClass} disabled:opacity-40`}
-        >
+        <Button theme={theme} variant="secondary" size="sm" onClick={() => setStrokes(strokes.slice(0, -1))} disabled={strokes.length === 0}>
           ↩️ ביטול
-        </button>
-        <button
-          type="button"
-          onClick={() => setStrokes([])}
-          disabled={strokes.length === 0}
-          className={`px-3 py-1.5 rounded-xl text-xs font-bold ${theme.secondaryBtnClass} disabled:opacity-40`}
-        >
+        </Button>
+        <Button theme={theme} variant="secondary" size="sm" onClick={() => setStrokes([])} disabled={strokes.length === 0}>
           🗑️ ניקוי
-        </button>
+        </Button>
       </div>
 
       <div className="space-y-1.5">
@@ -175,17 +166,12 @@ export const StickerDrawPanel: React.FC<StickerDrawPanelProps> = ({ profile, the
       {error && <p className="text-xs font-bold text-rose-600 dark:text-rose-300">{error}</p>}
 
       <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={!canSave}
-          className={`flex-1 py-2.5 rounded-2xl font-extrabold text-sm ${theme.primaryBtnClass} disabled:opacity-40`}
-        >
+        <Button theme={theme} className="flex-1" onClick={handleSave} disabled={!canSave}>
           שמירה באלבום ✨
-        </button>
-        <button type="button" onClick={onDone} className={`px-4 py-2.5 rounded-2xl font-bold text-sm ${theme.secondaryBtnClass}`}>
+        </Button>
+        <Button theme={theme} variant="secondary" onClick={onDone}>
           ביטול
-        </button>
+        </Button>
       </div>
     </div>
   );

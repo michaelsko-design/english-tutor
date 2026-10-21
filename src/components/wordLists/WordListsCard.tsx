@@ -3,6 +3,7 @@ import { ClipboardList, Play, Trash2 } from 'lucide-react';
 import { MAX_ACTIVE_LISTS } from '../../data/customWordLists';
 import { CustomWordList, LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { Button } from '../ui/Button';
 
 interface WordListsCardProps {
   /** Active lists, newest first */
@@ -48,9 +49,9 @@ export const WordListsCard: React.FC<WordListsCardProps> = ({
             </p>
           </div>
         </div>
-        <button type="button" onClick={onImport} className={`px-5 py-2.5 rounded-2xl font-extrabold text-sm shrink-0 ${theme.secondaryBtnClass}`}>
+        <Button theme={theme} variant="secondary" className="shrink-0" onClick={onImport}>
           ייבוא רשימה 📋
-        </button>
+        </Button>
       </section>
     );
   }
@@ -61,14 +62,9 @@ export const WordListsCard: React.FC<WordListsCardProps> = ({
     <section aria-label="רשימות המילים שלי" className={`${cardClass} space-y-3`}>
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-extrabold text-base sm:text-lg">📋 רשימות המילים שלי</h2>
-        <button
-          type="button"
-          onClick={onImport}
-          disabled={!canAdd}
-          className={`px-3.5 py-2 rounded-xl font-extrabold text-xs ${theme.secondaryBtnClass} disabled:opacity-40`}
-        >
+        <Button theme={theme} variant="secondary" size="sm" onClick={onImport} disabled={!canAdd}>
           + רשימה חדשה
-        </button>
+        </Button>
       </div>
       {!canAdd && (
         <p className={`text-xs ${theme.mutedTextClass}`}>
@@ -86,14 +82,10 @@ export const WordListsCard: React.FC<WordListsCardProps> = ({
                 {list.bestScore !== undefined && ` · שיא ${list.bestScore}%`}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => onPractice(list.id)}
-              className={`px-3.5 py-2 rounded-xl font-extrabold text-xs flex items-center gap-1 shrink-0 ${theme.primaryBtnClass}`}
-            >
+            <Button theme={theme} size="sm" className="shrink-0" onClick={() => onPractice(list.id)}>
               <Play className="w-3.5 h-3.5 fill-current" />
               תרגול
-            </button>
+            </Button>
             {confirmingId === list.id ? (
               <button
                 type="button"

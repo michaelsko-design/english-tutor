@@ -5,6 +5,7 @@ import { DailyActivityCounters, LearnerGender } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
 import { Flame, CheckCircle2, Gift, ShieldCheck } from 'lucide-react';
 import { addDays, toLocalDateStr } from '../utils/dates';
+import { Button } from './ui/Button';
 
 interface DailyQuestsCardProps {
   streakDays: number;
@@ -111,14 +112,10 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
                       <span>נאסף</span>
                     </span>
                   ) : isCompleted ? (
-                    <button
-                      type="button"
-                      onClick={() => handleClaim(quest)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1 animate-pulse ${theme.primaryBtnClass}`}
-                    >
+                    <Button theme={theme} size="sm" className="animate-pulse" onClick={() => handleClaim(quest)}>
                       <Gift className="w-3.5 h-3.5" />
                       <span dir="ltr" lang="en">+{quest.rewardDiamonds} 💎</span>
-                    </button>
+                    </Button>
                   ) : (
                     <span className={`px-2.5 py-1 rounded-xl text-xs font-bold ${theme.badgeClass}`} dir="ltr" lang="en">
                       +{quest.rewardDiamonds} 💎

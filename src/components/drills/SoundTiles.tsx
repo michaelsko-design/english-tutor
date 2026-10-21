@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { letterToken } from '../../services/tts/ttsText';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { Button } from '../ui/Button';
 
 interface SoundTilesProps {
   /** The word's sounds in order ("sh", "i", "p") */
@@ -78,14 +79,10 @@ export const SoundTiles: React.FC<SoundTilesProps> = ({ tiles, word, canSlide, o
       </div>
       {canSlide && (
         <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={handleSlide}
-            className={`min-h-11 px-5 rounded-2xl text-base font-extrabold flex items-center gap-2 ${theme.secondaryBtnClass}`}
-          >
+          <Button theme={theme} variant="secondary" size="lg" onClick={handleSlide}>
             <span aria-hidden="true">➡️</span>
             <span>מחברים את האותיות</span>
-          </button>
+          </Button>
         </div>
       )}
     </div>

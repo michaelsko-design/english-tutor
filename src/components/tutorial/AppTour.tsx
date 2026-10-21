@@ -6,6 +6,7 @@ import { useDialog } from '../../hooks/useDialog';
 import { celebrate } from '../../utils/celebrate';
 import { Companion, preloadCompanion } from '../companion/Companion';
 import { popDelay, TOUR_ACCENTS, TourScene } from './TourScenes';
+import { Button } from '../ui/Button';
 
 interface AppTourProps {
   theme: ThemeDefinition;
@@ -199,13 +200,9 @@ export const AppTour: React.FC<AppTourProps> = ({ theme, slides, avatarEmoji, is
         {/* Back and next */}
         <div className="flex gap-2">
           {slideIdx > 0 && (
-            <button
-              type="button"
-              onClick={() => goTo(slideIdx - 1)}
-              className={`px-5 py-3.5 rounded-2xl font-extrabold text-base ${theme.secondaryBtnClass}`}
-            >
+            <Button theme={theme} variant="secondary" size="lg" onClick={() => goTo(slideIdx - 1)}>
               → הקודם
-            </button>
+            </Button>
           )}
           <button
             ref={nextRef}

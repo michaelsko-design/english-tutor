@@ -4,6 +4,7 @@ import { FriendLookupEntry, normalizeFriendQuery } from '../../data/friends';
 import { FriendLookupMatch, lookupFriend } from '../../services/friendsService';
 import { LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
+import { Button } from '../ui/Button';
 
 interface AddFriendPanelProps {
   gender: LearnerGender;
@@ -77,14 +78,10 @@ export const AddFriendPanel: React.FC<AddFriendPanelProps> = ({ gender, theme, i
           aria-label="קוד חבר או שם משתמש"
           className={`flex-1 min-w-0 px-3 py-2.5 rounded-xl font-bold text-sm tracking-wider ${theme.inputBgClass}`}
         />
-        <button
-          type="submit"
-          disabled={!canSearch || lookup.kind === 'searching'}
-          className={`px-4 py-2.5 rounded-xl font-extrabold text-sm flex items-center gap-1.5 ${theme.primaryBtnClass} disabled:opacity-40`}
-        >
+        <Button theme={theme} type="submit" disabled={!canSearch || lookup.kind === 'searching'}>
           <Search className="w-4 h-4" />
           חיפוש
-        </button>
+        </Button>
       </form>
 
       <div aria-live="polite">
@@ -106,19 +103,14 @@ export const AddFriendPanel: React.FC<AddFriendPanelProps> = ({ gender, theme, i
                   <p className="font-extrabold truncate" dir="auto">{entry.displayName}</p>
                   <p className={`text-xs ${theme.mutedTextClass}`}>{via === 'code' ? 'לפי קוד חבר' : 'לפי שם משתמש'}</p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
+                <Button theme={theme} size="sm" onClick={() => {
                     onSend(entry);
                     setLookup({ kind: 'idle' });
                     setQueryText('');
-                  }}
-                  disabled={isBusy}
-                  className={`px-3.5 py-2 rounded-xl font-extrabold text-xs flex items-center gap-1.5 ${theme.primaryBtnClass} disabled:opacity-40`}
-                >
+                  }} disabled={isBusy}>
                   <UserPlus className="w-4 h-4" />
                   שליחת בקשת חברות
-                </button>
+                </Button>
               </li>
             ))}
           </ul>

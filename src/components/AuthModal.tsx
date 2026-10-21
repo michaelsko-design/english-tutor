@@ -32,6 +32,7 @@ import {
   KeyRound,
   AlertCircle,
 } from 'lucide-react';
+import { Button } from './ui/Button';
 
 interface AuthModalProps {
   authUser: AuthUserSummary | null;
@@ -397,15 +398,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </p>
               )}
 
-              <button
-                type="button"
-                disabled={isBusy}
-                onClick={handleLogOut}
-                className={`w-full py-3 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 ${theme.secondaryBtnClass}`}
-              >
+              <Button theme={theme} variant="secondary" size="lg" className="w-full" disabled={isBusy} onClick={handleLogOut}>
                 <LogOut className="w-4 h-4" />
                 <span>{isConfirmingGuestSignOut ? 'להתנתק בכל זאת' : 'התנתקות מהחשבון'}</span>
-              </button>
+              </Button>
             </div>
           )}
 
@@ -413,15 +409,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {!authUser && (
             <div className="space-y-4">
               {/* Option 1: 1-Tap Google Sign-In */}
-              <button
-                type="button"
-                disabled={isBusy}
-                onClick={handleGoogleSignIn}
-                className={`w-full py-3.5 px-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2.5 transition-all ${theme.primaryBtnClass}`}
-              >
+              <Button theme={theme} size="lg" className="w-full" disabled={isBusy} onClick={handleGoogleSignIn}>
                 <span>🌐</span>
                 <span>התחברות מהירה בלחיצה אחת עם Google</span>
-              </button>
+              </Button>
 
               <div className="flex items-center gap-3 text-xs opacity-60">
                 <div className="h-px flex-1 bg-current" />
@@ -492,15 +483,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={isBusy}
-                  className={`w-full py-3 rounded-xl text-xs md:text-sm font-extrabold ${theme.primaryBtnClass}`}
-                >
+                <Button theme={theme} size="lg" className="w-full" type="submit" disabled={isBusy}>
                   {mode === 'register'
                     ? 'יצירת חשבון וסנכרון ההתקדמות לענן 🚀'
                     : 'התחברות וסנכרון מהענן ☁️'}
-                </button>
+                </Button>
               </form>
 
               <div className="text-center">

@@ -26,6 +26,7 @@ import { DEFAULT_VOICE_PREFERENCE } from '../utils/ttsVoice';
 import { useStopSpeechOnLeave } from '../hooks/useSpeech';
 import { PlacementResultCard } from './PlacementResultCard';
 import { ArrowLeft, Target, X } from 'lucide-react';
+import { Button } from './ui/Button';
 
 interface PlacementTestProps {
   profile: LearnerProfile;
@@ -255,24 +256,16 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
             )}
 
             <div className="flex flex-col sm:flex-row gap-2.5">
-              <button
-                type="button"
-                onClick={handleStart}
-                className={`flex-1 py-3.5 rounded-2xl font-extrabold text-base ${theme.primaryBtnClass}`}
-              >
+              <Button theme={theme} size="lg" className="flex-1" onClick={handleStart}>
                 {inflectHebrew('בואי נתחיל! 🚀', profile.gender)}
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className={`py-3.5 px-4 rounded-2xl font-extrabold text-sm ${theme.secondaryBtnClass}`}
-              >
+              </Button>
+              <Button theme={theme} variant="secondary" size="lg" onClick={onClose}>
                 {mode === 'onboarding'
                   ? isGirl
                     ? 'דלגי, אעשה את זה אחר כך'
                     : 'דלג, אעשה את זה אחר כך'
                   : 'לא עכשיו'}
-              </button>
+              </Button>
             </div>
           </div>
         )}
