@@ -3,7 +3,6 @@
 ## Future / Next Up Ideas
 *Sorted by significance to the app's development (highest priority first). Completed features keep their numbers as stable IDs.*
 
-- [ ] **Fix** - after choosing an answer in a multiple answer mission in first grades do not automatically read the answer as the feedback also reads it.
 - [ ] **Fix** - change the XP point to "Vibe" when the app gives prizes it should give you "Vibe" points, maybe sy something like "יש לך וייב טוב!".
 - [ ] **Retire the old Firebase API key** - The old browser key (`AIzaSyAXCk…`) is still unrestricted and still works against this project. Find which of the other projects (Maps APIs showed active usage) use it, move them to their own keys, then restrict or delete it.
 - [ ] **Parent view and PIN recovery** - A read-only parent link or code for the weekly report on the parent's own phone, and a parent email (or a parent-issued reset code) so a forgotten PIN doesn't lose the account.
@@ -22,6 +21,7 @@
 
 
 ## Completed Features
+- [x] **Fix: no double read-aloud in grades 1–2 multiple choice** - Choosing an answer in a multiple-choice mission no longer reads the option aloud before the feedback, since the spoken feedback already says it. Later grades still hear the option at once; the word and sentence builders still read the answer before the feedback.
 - [x] **Shared drill session hook and Button** - The mission, exam, word-list and contest runners share `useDrillSession` (`hooks/useDrillSession.ts`, a tested reducer) for their step, answer and feedback state, and `components/ui/Button.tsx` (44px minimum, `sm`/`md`/`lg`, primary/secondary/danger) replaces the hand-rolled text buttons across the app. Icon-only buttons, toggles with a conditional variant and the grade/theme pickers keep their own markup.
 - [x] **Feature 47**: Hebrew audio for young learners (הקראה בעברית) - Fixed Hebrew instructions, hints and feedback are read by a Hebrew voice (Azure `en-US-AvaMultilingualNeural` speaking Hebrew, switching to native English for English words), rendered as clips for grades 1–2 and through the online voice otherwise. A 🔊 sits beside every instruction, hint, feedback message and Hebrew question card, and every answer option has its own listen-only 🔊. Grades 1–2 hear the instruction and then the English question as each step opens, the hint when it opens, and the answer then its feedback. The placement test opens by asking "אפשר כבר לקרוא באנגלית?" (read aloud); "עוד לא" skips the questions and recommends grade 1 from the letters.
 - [x] **Feature 48**: Reading from zero in grade 1 (קריאה מאפס) - Grade 1 now has 10 units: the letters A–Z (units 1–4: each letter's name, capital and small form and three picture words; hear and pick, small to capital, picture to first letter, say the word, letter to picture), blending (units 5–6: words as tiles that slide together, reading alone, building the word with letter magnets, look-alike words one letter apart, sh / ch / th, sight words and a first sentence), then the earlier topics as units 7–10. Mini-lessons show a card per letter and sliding word tiles. Existing stars stay on their missions (the new units have new ids).
