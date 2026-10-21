@@ -54,6 +54,16 @@ describe('drillSessionReducer', () => {
     expect(state.stepIdx).toBe(0);
   });
 
+  it('resetStep clears the step state but keeps the step and answers', () => {
+    const state = run([
+      { type: 'select', idx: 1 },
+      { type: 'miss', feedback: wrong },
+      { type: 'resolve', answer: 'a', feedback: right },
+      { type: 'resetStep' },
+    ]);
+    expect(state).toMatchObject({ stepIdx: 0, hasMissed: false, isResolved: false, feedback: null, selectedIdx: null, answers: ['a'] });
+  });
+
   it('overwrites the answer of a replayed step instead of appending', () => {
     const state = run([
       { type: 'resolve', answer: 'a', feedback: right },

@@ -5,27 +5,31 @@ export interface DrillFeedback {
   text: string;
 }
 
-export interface DrillSessionState<TAnswer> {
+export interface DrillSessionState<TAnswer, TFeedback extends DrillFeedback = DrillFeedback> {
   stepIdx: number;
   answers: TAnswer[];
   /** A wrong try on this step, so a later right one no longer counts as first-try */
   hasMissed: boolean;
   isResolved: boolean;
-  feedback: DrillFeedback | null;
+  feedback: TFeedback | null;
   selectedIdx: number | null;
   wordIndices: number[];
   isFinished: boolean;
 }
 
-export type DrillSessionAction<TAnswer> =
+export type DrillSessionAction<TAnswer, TFeedback extends DrillFeedback = DrillFeedback> =
   | { type: 'select'; idx: number }
   | { type: 'setWords'; indices: number[] }
-  | { type: 'resolve'; answer: TAnswer; feedback: DrillFeedback }
-  | { type: 'miss'; feedback: DrillFeedback }
-  | { type: 'setFeedback'; feedback: DrillFeedback | null }
-  | { type: 'next'; stepCount: number };
+  | { type: 'resolve'; answer: TAnswer; feedback: TFeedback }
+  | { type: 'miss'; feedback: TFeedback }
+  | { type: 'setFeedback'; feedback: TFeedback | null }
+  | { type: 'next'; stepCount: number }
+  | { type: 'resetStep' };
 
-export function createDrillSessionState<TAnswer>(): DrillSessionState<TAnswer> {
+export function createDrillSessionState<
+  TAnswer,
+  TFeedback extends DrillFeedback = DrillFeedback,
+>(): DrillSessionState<TAnswer, TFeedback> {
   return {
     stepIdx: 0,
     answers: [],
@@ -47,10 +51,10 @@ const STEP_RESET = {
   wordIndices: [] as number[],
 };
 
-export function drillSessionReducer<TAnswer>(
-  state: DrillSessionState<TAnswer>,
-  action: DrillSessionAction<TAnswer>
-): DrillSessionState<TAnswer> {
+export function drillSessionReducer<TAnswer, TFeedback extends DrillFeedback = DrillFeedback>(
+  state: DrillSessionState<TAnswer, TFeedback>,
+  action: DrillSessionAction<TAnswer, TFeedback>
+): DrillSessionState<TAnswer, TFeedback> {
   switch (action.type) {
     case 'select':
       return { ...state, selectedIdx: action.idx };
@@ -68,6 +72,8 @@ export function drillSessionReducer<TAnswer>(
       return { ...state, hasMissed: true, feedback: action.feedback };
     case 'setFeedback':
       return { ...state, feedback: action.feedback };
+    case 'resetStep':
+      return { ...state, ...STEP_RESET };
     case 'next':
       if (state.stepIdx + 1 < action.stepCount) {
         return { ...state, ...STEP_RESET, stepIdx: state.stepIdx + 1 };
@@ -80,29 +86,30 @@ export function drillSessionReducer<TAnswer>(
  * The per-step state the practice runners share: the step, the answers so far, whether this
  * step was already missed, and the option or tiles chosen. Scoring and rules stay in the runner.
  */
-export function useDrillSession<TAnswer>() {
+export function useDrillSession<TAnswer, TFeedback extends DrillFeedback = DrillFeedback>() {
   const [state, dispatch] = useReducer(
-    drillSessionReducer<TAnswer>,
+    drillSessionReducer<TAnswer, TFeedback>,
     undefined,
-    createDrillSessionState<TAnswer>
+    createDrillSessionState<TAnswer, TFeedback>
   );
 
   const selectOption = useCallback((idx: number) => dispatch({ type: 'select', idx }), []);
   const setWordIndices = useCallback((indices: number[]) => dispatch({ type: 'setWords', indices }), []);
   const resolve = useCallback(
-    (answer: TAnswer, feedback: DrillFeedback) => dispatch({ type: 'resolve', answer, feedback }),
+    (answer: TAnswer, feedback: TFeedback) => dispatch({ type: 'resolve', answer, feedback }),
     []
   );
-  const miss = useCallback((feedback: DrillFeedback) => dispatch({ type: 'miss', feedback }), []);
+  const miss = useCallback((feedback: TFeedback) => dispatch({ type: 'miss', feedback }), []);
   const setFeedback = useCallback(
-    (feedback: DrillFeedback | null) => dispatch({ type: 'setFeedback', feedback }),
+    (feedback: TFeedback | null) => dispatch({ type: 'setFeedback', feedback }),
     []
   );
   const next = useCallback((stepCount: number) => dispatch({ type: 'next', stepCount }), []);
+  const resetStep = useCallback(() => dispatch({ type: 'resetStep' }), []);
 
   return useMemo(
-    () => ({ ...state, selectOption, setWordIndices, resolve, miss, setFeedback, next }),
-    [state, selectOption, setWordIndices, resolve, miss, setFeedback, next]
+    () => ({ ...state, selectOption, setWordIndices, resolve, miss, setFeedback, next, resetStep }),
+    [state, selectOption, setWordIndices, resolve, miss, setFeedback, next, resetStep]
   );
 }
 

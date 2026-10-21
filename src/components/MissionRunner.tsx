@@ -48,7 +48,7 @@ import {
   getStepXpGain,
 } from '../utils/missionFeedback';
 import { useStopSpeechOnLeave } from '../hooks/useSpeech';
-import { normalizeSentence } from '../hooks/useDrillSession';
+import { DrillFeedback, normalizeSentence, useDrillSession } from '../hooks/useDrillSession';
 import type { SpokenPart } from '../data/hebrewAudio';
 import {
   getSentenceOrderWrongHe,
@@ -104,6 +104,11 @@ interface MissionRunnerProps {
   startLevel: number;
 }
 
+interface MissionFeedback extends DrillFeedback {
+  /** XP this answer adds to the end-of-mission total, floated off the feedback sheet */
+  xpGain: number;
+}
+
 export const MissionRunner: React.FC<MissionRunnerProps> = ({
   mission,
   tier,
@@ -144,7 +149,6 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   const lessonOffer: LessonOffer = !lesson ? 'none' : isLessonFirst ? 'auto' : 'optional';
   // The lesson opened again from the steps' header; the step keeps its state underneath
   const [isLessonReviewOpen, setIsLessonReviewOpen] = useState(false);
-  const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [showHint, setShowHint] = useState(false);
 
   // Gamification state inside the mission
@@ -153,20 +157,18 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   const [firstTryCorrectCount, setFirstTryCorrectCount] = useState(0);
   // Steps skipped without an answer (the voice step in a quiet place) are left out of the score
   const [skippedStepCount, setSkippedStepCount] = useState(0);
-  const [attemptedCurrentStep, setAttemptedCurrentStep] = useState(false);
-  const [stepCompleted, setStepCompleted] = useState(false);
-  const [feedbackHe, setFeedbackHe] = useState<{
-    isCorrect: boolean;
-    text: string;
-    /** XP this answer adds to the end-of-mission total, floated off the feedback sheet */
-    xpGain: number;
-  } | null>(null);
-
-  // State for Multiple Choice steps
-  const [selectedOptionIdx, setSelectedOptionIdx] = useState<number | null>(null);
+  const session = useDrillSession<true, MissionFeedback>();
+  const {
+    stepIdx: currentStepIdx,
+    hasMissed: attemptedCurrentStep,
+    isResolved: stepCompleted,
+    feedback: feedbackHe,
+    selectedIdx: selectedOptionIdx,
+    wordIndices: selectedWordIndices,
+    isFinished: isMissionFinished,
+  } = session;
 
   // State for Sentence Builder step
-  const [selectedWordIndices, setSelectedWordIndices] = useState<number[]>([]);
   /** Grade 1's blending build step: the letter tile in each slot of the word */
   const [letterSlots, setLetterSlots] = useState<(number | null)[]>([]);
 
@@ -176,9 +178,6 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   const [speechEval, setSpeechEval] = useState<SpeechEvaluationResult | null>(
     null
   );
-
-  // Victory modal state
-  const [isMissionFinished, setIsMissionFinished] = useState(false);
 
   const currentStep: MissionExerciseStep = steps[currentStepIdx] || steps[0];
   const tierMeta = TIER_CONFIG[tier];
@@ -233,14 +232,12 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   // Reset step state when step or tier changes
   useEffect(() => {
     setShowHint(false);
-    setAttemptedCurrentStep(false);
-    setStepCompleted(false);
-    setFeedbackHe(null);
-    setSelectedOptionIdx(null);
-    setSelectedWordIndices([]);
+    session.resetStep();
     setLetterSlots([]);
     cancelListening();
     setSpeechEval(null);
+    // session.resetStep is stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStepIdx, tier, cancelListening]);
 
   const registerCorrectAnswer = (explanationHe: string) => {
@@ -261,8 +258,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     if (!attemptedCurrentStep) {
       setFirstTryCorrectCount((prev) => prev + 1);
     }
-    setStepCompleted(true);
-    setFeedbackHe({ isCorrect: true, text: explanationHe, xpGain });
+    session.resolve(true, { isCorrect: true, text: explanationHe, xpGain });
   };
 
   /** A skipped step: no first-try credit and no combo change, and it doesn't count toward the stars. */
@@ -275,20 +271,18 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
       previousMaxCombo: maxCombo,
     });
     setSkippedStepCount((prev) => prev + 1);
-    setStepCompleted(true);
-    setFeedbackHe({ isCorrect: true, text: explanationHe, xpGain });
+    session.resolve(true, { isCorrect: true, text: explanationHe, xpGain });
   };
 
   const registerWrongAttempt = (explanationHe: string) => {
-    setAttemptedCurrentStep(true);
     setCombo(0);
-    setFeedbackHe({ isCorrect: false, text: explanationHe, xpGain: 0 });
+    session.miss({ isCorrect: false, text: explanationHe, xpGain: 0 });
   };
 
   // Handler for Multiple Choice (chat-reply, grammar-detective, story-unseen)
   const handleSelectOption = (idx: number) => {
     if (stepCompleted || !currentStep.options) return;
-    setSelectedOptionIdx(idx);
+    session.selectOption(idx);
     const chosen = currentStep.options[idx];
     if (/[A-Za-z]/.test(chosen.textEn)) {
       // A letter option reads its name (speakEn); a reading check's word (speakEn '') is read after the answer
@@ -305,7 +299,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   // Handler for Sentence Magnet Builder
   const handleWordOrderChange = (nextIndices: number[], change: MagnetChange) => {
     if (stepCompleted || !currentStep.scrambledWords) return;
-    setSelectedWordIndices(nextIndices);
+    session.setWordIndices(nextIndices);
     if (change.kind === 'add') onSpeakEnglish(currentStep.scrambledWords[change.idx], 0.95);
   };
 
@@ -341,7 +335,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   // Handler for Voice Speaking Recognition (STT)
   const handleStartSpeechRecognition = () => {
     if (!currentStep.speakTargetEn) return;
-    setFeedbackHe(null);
+    session.setFeedback(null);
     speech.start(currentStep.speakTargetEn, {
       onResult: (transcript, evaluation) => {
         setSpeechEval(evaluation);
@@ -359,16 +353,12 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
           );
         }
       },
-      onError: (kind) => setFeedbackHe({ isCorrect: false, text: getSpeechErrorTextHe(kind, gender), xpGain: 0 }),
+      onError: (kind) => session.setFeedback({ isCorrect: false, text: getSpeechErrorTextHe(kind, gender), xpGain: 0 }),
     });
   };
 
   const handleNextStep = () => {
-    if (currentStepIdx + 1 < steps.length) {
-      setCurrentStepIdx(currentStepIdx + 1);
-    } else {
-      setIsMissionFinished(true);
-    }
+    session.next(steps.length);
   };
 
   // The overlay and the feedback sheet beside it are one dialog (useDialog); Escape leaves the mission
@@ -509,7 +499,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     onClick={() => {
                       // Like "try again": the wrong-answer sheet closes, and the learner comes back to retry
                       cancelListening();
-                      setFeedbackHe(null);
+                      session.setFeedback(null);
                       setIsLessonReviewOpen(true);
                     }}
                     className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
@@ -639,7 +629,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     selectedIndices={selectedWordIndices}
                     isCompleted={stepCompleted}
                     onChangeOrder={handleWordOrderChange}
-                    onReset={() => setSelectedWordIndices([])}
+                    onReset={() => session.setWordIndices([])}
                     onCheck={handleCheckSentence}
                     theme={theme}
                   />
@@ -662,7 +652,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
           showNext={stepCompleted}
           nextLabel={currentStepIdx + 1 < steps.length ? 'לשלב הבא' : 'סיום משימה וקבלת פרסים 🏆'}
           onNext={handleNextStep}
-          onTryAgain={() => setFeedbackHe(null)}
+          onTryAgain={() => session.setFeedback(null)}
           tryAgainLabel={isGirl ? 'נסי שוב' : 'נסה שוב'}
           xpGain={feedbackHe.xpGain}
           theme={theme}
