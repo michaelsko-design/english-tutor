@@ -30,6 +30,7 @@ import { auth } from '../services/firebase';
 import { usernameFromEmail } from '../utils/username';
 import { APP_NAME } from '../config/appInfo';
 import { Button } from './ui/Button';
+import { Companion } from './companion/Companion';
 
 interface OnboardingViewProps {
   initialProfile: LearnerProfile;
@@ -354,13 +355,13 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                     key={tKey}
                     type="button"
                     onClick={() => setThemeId(tKey)}
-                    className={`p-2.5 rounded-xl text-center transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 ${
-                      isSelected
-                        ? activeTheme.primaryBtnClass
-                        : activeTheme.secondaryBtnClass
-                    }`}
+                    aria-pressed={isSelected}
+                    aria-label={tItem.name}
+                    className={`p-2.5 rounded-xl text-center transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border border-current/20 ${
+                      tItem.pageBgClass
+                    } ${isSelected ? 'ring-2 ring-offset-2 ring-fuchsia-500' : 'opacity-75 hover:opacity-100'}`}
                   >
-                    <span className="text-base">{tItem.avatarEmoji}</span>
+                    <Companion theme={tItem} pose="idle" size={40} hasShadow={false} />
                     <span className="font-extrabold text-xs sm:text-xs truncate max-w-full" dir="ltr" lang="en">
                       {tItem.name}
                     </span>
