@@ -14,6 +14,7 @@ import { join } from 'node:path';
 import { loadEnv } from 'vite';
 import { HEBREW_VOICE, parseListenerGender, type ClipVoice } from '../../src/services/tts/ttsText';
 import { collectCorpus, type CorpusPhrase } from './corpus';
+import { bumpClipRevisions } from './clipRevisions';
 import { getVoiceDir, listRenderedKeys, writeManifest } from './clipManifest';
 import { toGeminiText } from './geminiSpelling';
 import {
@@ -157,6 +158,8 @@ function redo(text: string | undefined): void {
     if (existsSync(file)) unlinkSync(file);
     console.log(`Deleted ${phrase.key}: ${phrase.text}`);
   }
+  // A re-rendered clip keeps its file name: a new revision in its URL makes devices fetch the new take
+  bumpClipRevisions(HEBREW_VOICE, lines.map((phrase) => phrase.key));
   console.log(`${lines.length} clips to render again: run submit, then collect.`);
 }
 
