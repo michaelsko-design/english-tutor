@@ -7,6 +7,7 @@ import { getCurrentStreak } from '../../data/streak';
 import { toLocalDateStr } from '../../utils/dates';
 import { usernameFromEmail } from '../../utils/username';
 import { useCountUp } from '../../hooks/useCountUp';
+import { EmojiIcon } from '../art/EmojiIcon';
 import { FluentIcon } from '../hud/FluentIcon';
 import { SoundToggle } from '../hud/SoundToggle';
 import { ProgressRing } from './ProgressRing';
@@ -95,8 +96,8 @@ export const HomeHud: React.FC<HomeHudProps> = ({
             strokeWidth={LEVEL_RING_STROKE}
             arcClassName="text-amber-400"
           >
-            <span className={`w-8 h-8 rounded-full flex items-center justify-center text-lg ${theme.primaryBtnClass}`}>
-              {avatarEmoji}
+            <span className={`w-8 h-8 rounded-full flex items-center justify-center ${theme.primaryBtnClass}`}>
+              <EmojiIcon emoji={avatarEmoji} size="1.4rem" />
             </span>
           </ProgressRing>
           <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 min-w-[1.5rem] px-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black leading-4 text-center tabular-nums shadow">

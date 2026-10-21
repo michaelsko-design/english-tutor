@@ -7,6 +7,7 @@ import { getCurrentStreak } from '../../data/streak';
 import { toLocalDateStr } from '../../utils/dates';
 import { useCountUp } from '../../hooks/useCountUp';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
+import { EmojiIcon } from '../art/EmojiIcon';
 import { FluentIcon } from '../hud/FluentIcon';
 import { LevelBadge } from '../hud/LevelBadge';
 import { ProgressRing } from './ProgressRing';
@@ -105,7 +106,7 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
         {/* Level */}
         <div className="flex items-center gap-3">
           <ProgressRing ratio={level.ratio} size={64} strokeWidth={6} arcClassName="text-amber-400">
-            <span className="text-3xl leading-none">{avatarEmoji}</span>
+            <EmojiIcon emoji={avatarEmoji} size="2.25rem" />
           </ProgressRing>
           <div className="min-w-0">
             <p className="font-extrabold text-lg truncate">{profile.name}</p>

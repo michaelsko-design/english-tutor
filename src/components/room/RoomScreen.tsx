@@ -28,6 +28,7 @@ import { AVATAR_HOME, OBJECT_POSITIONS, SLOT_POSITIONS, ScenePoint, getStandingP
 import { formatGainLtr } from '../../utils/bidi';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { Button } from '../ui/Button';
+import { EmojiIcon } from '../art/EmojiIcon';
 
 interface RoomScreenProps {
   profile: LearnerProfile;
@@ -195,7 +196,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
         🎨 מדבקות
       </Button>
       <Button theme={theme} variant="secondary" size="sm" className="shrink-0" onClick={onOpenShop} aria-label="החלפת אווטאר">
-        <span className="text-base leading-none">{avatarEmoji}</span>
+        <EmojiIcon emoji={avatarEmoji} size="1.25rem" />
         <span className="hidden sm:inline">החלפת אווטאר</span>
       </Button>
     </div>
