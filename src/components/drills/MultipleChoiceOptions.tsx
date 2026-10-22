@@ -52,6 +52,8 @@ export const MultipleChoiceOptions: React.FC<MultipleChoiceOptionsProps> = ({
         const lang = getTextLang(opt.textEn);
         // A letter or a picture (grade 1's letters and blending steps) is shown very large
         const isGlyph = !/\p{L}{2}/u.test(opt.textEn);
+        // A picture (drawn emoji, hidden from screen readers) is named by the word it shows
+        const pictureWordEn = opt.speakEn && !/\p{L}/u.test(opt.textEn) ? opt.speakEn : null;
 
         return (
           <div key={opt.textEn} className="flex items-stretch gap-2">
@@ -73,6 +75,11 @@ export const MultipleChoiceOptions: React.FC<MultipleChoiceOptionsProps> = ({
               >
                 {opt.textEn}
               </span>
+              {pictureWordEn && (
+                <span className="sr-only" lang="en">
+                  {pictureWordEn}
+                </span>
+              )}
               {isShownCorrect && (
                 <span className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
                   <Check className="w-4 h-4" strokeWidth={3} aria-hidden="true" />

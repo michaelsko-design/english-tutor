@@ -16,7 +16,6 @@ import {
 import { recordDiamondChange } from './data/diamondLedger';
 import { createProfileSaveQueue } from './services/profileSaveQueue';
 import { getDeviceId } from './utils/deviceId';
-import { toLocalDateStr } from './utils/dates';
 import { DashboardView } from './components/DashboardView';
 import { AuthModal } from './components/AuthModal';
 import { applyPlacementToProfile } from './data/placementTest';
@@ -30,6 +29,7 @@ import { CloudLoadErrorScreen } from './components/CloudLoadErrorScreen';
 import { ScreenLoading } from './components/ScreenLoading';
 import { lazyNamed } from './utils/lazyNamed';
 import { setListenerGender } from './services/tts';
+import { DEFAULT_PROFILE, WELCOME_GIFT_DIAMONDS } from './data/defaultProfile';
 
 // Screens most visits never open load in their own chunks
 const OnboardingView = lazyNamed(() => import('./components/OnboardingView'), 'OnboardingView');
@@ -40,42 +40,6 @@ const ProfileTour = lazyNamed(() => import('./components/tutorial/ProfileTour'),
 const STORAGE_KEY = 'english_tutor_learner_profile_v2';
 /** A burst of changes is saved to the cloud this long after the last one */
 const SAVE_DELAY_MS = 1000;
-export const WELCOME_GIFT_DIAMONDS = 50;
-
-export const DEFAULT_PROFILE: LearnerProfile = {
-  isOnboarded: false,
-  name: '',
-  age: 12,
-  gender: 'girl',
-  gradeId: 'grade-7',
-  preferredTier: 'challenger',
-  themeId: 'cozy-studio', // Option B selected by user
-  stats: {
-    xp: 0,
-    level: 1,
-    stars: 0,
-    maxPossibleStars: 36,
-    diamonds: WELCOME_GIFT_DIAMONDS,
-    streakDays: 0,
-    shabbatShieldActive: true,
-    wordsMastered: 0,
-    missionsCompleted: 0,
-  },
-  missionProgress: {},
-  unlockedRewardIds: ['avatar-boba-cat'],
-  equippedAvatarEmoji: undefined,
-  claimedDailyQuestIds: [],
-  dailyCounters: {
-    dateStr: toLocalDateStr(new Date()),
-    missionsCompletedToday: 0,
-    voiceWordsPracticedToday: 0,
-    threeStarMissionsToday: 0,
-  },
-  isShabbatObserver: true,
-  hasSeenWelcomeGiftModal: false,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-};
 
 export function App() {
   const [profile, setProfile] = useState<LearnerProfile>(() => {

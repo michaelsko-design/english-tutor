@@ -1,0 +1,62 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
+import { CURRICULUM_BY_GRADE } from '../data/curriculum';
+import { TEST_THEME } from '../test/fixtures';
+import { VocabularyVaultModal } from './VocabularyVaultModal';
+
+const units = CURRICULUM_BY_GRADE['grade-1'].units;
+const words = units.flatMap((u) => u.missions.flatMap((m) => m.vocabulary));
+/** A word whose English and Hebrew appear only once in the grade, so a search finds just it */
+const isUnique = (w: (typeof words)[number]) =>
+  words.filter((o) => o.translationHe === w.translationHe || o.wordEn === w.wordEn).length === 1 &&
+  !words.some((o) => o !== w && (o.wordEn.toLowerCase().includes(w.wordEn.toLowerCase()) || o.exampleEn.toLowerCase().includes(w.wordEn.toLowerCase())));
+const [target, other] = words.filter(isUnique);
+
+function renderVault() {
+  const onClose = vi.fn();
+  render(
+    <VocabularyVaultModal
+      units={units}
+      gender="girl"
+      learnerName="נועה"
+      theme={TEST_THEME}
+      onSpeakEnglish={() => {}}
+      onEarnPracticeReward={() => true}
+      onClose={onClose}
+    />
+  );
+  return { onClose };
+}
+
+describe('VocabularyVaultModal', () => {
+  it('shows every word of the grade at first', () => {
+    renderVault();
+
+    expect(screen.getByRole('dialog', { name: 'כספת המילים' })).toBeInTheDocument();
+    expect(screen.getByText(target.translationHe)).toBeInTheDocument();
+    expect(screen.getByText(other.translationHe)).toBeInTheDocument();
+  });
+
+  it.each([
+    ['English', () => target.wordEn.toUpperCase()],
+    ['Hebrew', () => target.translationHe],
+  ])('finds a word by its %s', async (_lang, query) => {
+    const user = userEvent.setup();
+    renderVault();
+
+    await user.type(screen.getByRole('textbox', { name: 'חיפוש מילה' }), query());
+
+    expect(screen.getByText(target.translationHe)).toBeInTheDocument();
+    expect(screen.queryByText(other.translationHe)).not.toBeInTheDocument();
+  });
+
+  it('closes on Escape', async () => {
+    const user = userEvent.setup();
+    const { onClose } = renderVault();
+
+    await user.keyboard('{Escape}');
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});

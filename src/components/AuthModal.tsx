@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useId, useRef, useState } from 'react';
 import { ModalPortal } from './ModalPortal';
 import { useDialog } from '../hooks/useDialog';
 import {
@@ -70,6 +70,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   // Linking doesn't fire a sign-in change, so the saved state is kept here until the next load
   const [isGuestSaved, setIsGuestSaved] = useState(false);
   const isGuest = Boolean(authUser?.isAnonymous) && !isGuestSaved;
+
+  const identifierInputId = useId();
+  const pinInputId = useId();
 
   const dialogRef = useRef<HTMLDivElement>(null);
   // The sign-in gate can't be dismissed; the cloud panel closes with Escape
@@ -455,10 +458,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               {/* Option 2: Kid-Friendly Username/Email + PIN/Password Form */}
               <form onSubmit={handleUsernameOrEmailAuth} className="space-y-3">
                 <div>
-                  <label className="block text-xs font-bold mb-1">
+                  <label htmlFor={identifierInputId} className="block text-xs font-bold mb-1">
                     שם משתמש באנגלית או אימייל <bdi>(Username or Email)</bdi>:
                   </label>
                   <input
+                    id={identifierInputId}
                     type="text"
                     dir="ltr" lang="en"
                     value={identifier}
@@ -469,11 +473,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold mb-1 flex items-center gap-1">
+                  <label htmlFor={pinInputId} className="block text-xs font-bold mb-1 flex items-center gap-1">
                     <KeyRound className="w-3.5 h-3.5" />
                     <span>קוד סודי / סיסמה (לפחות 6 ספרות או אותיות):</span>
                   </label>
                   <input
+                    id={pinInputId}
                     type="password"
                     dir="ltr" lang="en"
                     value={secretPin}

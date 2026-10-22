@@ -257,6 +257,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="חיפוש מילה באנגלית או בעברית..."
+                aria-label="חיפוש מילה"
                 dir="auto"
                 className={`w-full pr-9 pl-3 py-2 rounded-xl text-xs font-bold outline-none ${theme.inputBgClass}`}
               />
