@@ -201,7 +201,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
           <PassageBox
             passageEn={step.contextPassageEn}
             passageHe={step.contextPassageHe}
-            showHebrew={!isMock && tier === 'explorer'}
+            canRevealHebrew={!isMock && tier === 'explorer'}
             theme={theme}
             onSpeakEnglish={onSpeakEnglish}
           />

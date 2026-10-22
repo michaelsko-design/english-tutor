@@ -1,9 +1,10 @@
 import { Locator, Page } from '@playwright/test';
-import { test } from './support/test';
+import { expect, test } from './support/test';
 import { startAsNewLearner } from './support/app';
 import {
   answerOptions,
   answerStep,
+  buildSentence,
   expectOnScreen,
   MAX_ROUNDS,
   missionDialog,
@@ -74,22 +75,44 @@ test.describe('a mission on a small phone', () => {
     await expectOnScreen(page, collect, 'victory: collect');
   });
 
-  test('grade 4: answers and the sentence check button fit the screen', async ({ page, learner }) => {
+  test('grade 4 on the easiest tier: sentence check, story screens and victory fit the screen', async ({ page, learner }) => {
     await startAsNewLearner(page, learner, { name: 'נועה', age: 9 });
-    const mission = await openFirstMission(page);
+    await page.getByRole('button', { name: 'בואי נשחק!' }).click();
+    const mission = missionDialog(page);
+    // The easiest tier offers the passage's Hebrew translation
+    await mission.getByText('בסיס וביטחון').filter({ visible: true }).first().click();
+    await mission.getByRole('button', { name: /יאללה, בואי נתחיל/ }).click();
     await walkMiniLesson(page, mission);
 
-    // Up to the sentence builder, whose answer the test can't know
     const check = mission.getByRole('button', { name: /בדיקת משפט/ });
-    for (let round = 1; round <= MAX_ROUNDS && !(await check.isVisible()); round++) {
-      await expectStepFits(page, mission, round);
-      await answerStep(page, mission);
-      await page.getByRole('button', { name: NEXT_STEP }).click();
+    const doneReading = mission.getByRole('button', { name: /קראתי, לשאלה/ });
+    const collect = page.getByRole('button', { name: /איסוף פרסים/ });
+    let hasReadStory = false;
+    for (let round = 1; round <= MAX_ROUNDS && !(await collect.isVisible()); round++) {
+      if (await check.isVisible()) {
+        await buildSentence(mission);
+        await expectOnScreen(page, check, `step ${round}: sentence check`);
+        await check.click();
+      } else {
+        if (await doneReading.isVisible()) {
+          hasReadStory = true;
+          // The translation is a clue: hidden until asked for
+          const translate = mission.getByRole('button', { name: /הצגת תרגום/ });
+          await expect(translate).toHaveAttribute('aria-expanded', 'false');
+          await translate.click();
+          await expect(mission.getByRole('button', { name: 'הסתרת התרגום' })).toHaveAttribute('aria-expanded', 'true');
+          await expectOnScreen(page, doneReading, `step ${round}: done reading`);
+          await doneReading.click();
+          await expectOnScreen(page, mission.getByRole('button', { name: 'חזרה לקטע' }), `step ${round}: back to passage`);
+        }
+        await expectStepFits(page, mission, round);
+        await answerStep(page, mission);
+      }
+      const next = page.getByRole('button', { name: NEXT_STEP });
+      await expectOnScreen(page, next, `step ${round}: next`);
+      await next.click();
     }
-    // Every word placed: the tray is at its tallest
-    const bank = mission.getByLabel('בנק המילים');
-    const words = bank.getByRole('button', { disabled: false });
-    for (let left = await words.count(); left > 0; left--) await words.first().click();
-    await expectOnScreen(page, check, 'sentence builder: check');
+    expect(hasReadStory, 'the mission had a story step').toBe(true);
+    await expectOnScreen(page, collect, 'victory: collect');
   });
 });

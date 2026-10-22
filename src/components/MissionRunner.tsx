@@ -21,11 +21,9 @@ import {
   InstructionLine,
   SoundTiles,
   SpellingMagnetDrill,
-  PassageBox,
   QuestionBubble,
   getQuestionCardContent,
   SentenceBuilderDrill,
-  StoryArt,
   VoiceSpeakDrill,
 } from './drills';
 import { MissionVictory, VICTORY_COMPANION_SIZE } from './victory/MissionVictory';
@@ -35,6 +33,7 @@ import { MiniLesson, LESSON_COMPANION_SIZE } from './mission/MiniLesson';
 import { useMiniLesson } from '../hooks/useMiniLesson';
 import { shouldAutoShowLesson } from '../data/miniLessons';
 import { TrailProgress } from './mission/TrailProgress';
+import { StoryPassage } from './mission/StoryPassage';
 import { getStoryArt } from '../themes/themeArt';
 import { preloadArt } from '../utils/artStatus';
 import { celebrate } from '../utils/celebrate';
@@ -150,6 +149,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   // The lesson opened again from the steps' header; the step keeps its state underneath
   const [isLessonReviewOpen, setIsLessonReviewOpen] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  /** Phones read a step's passage on its own screen first, then answer (StoryPassage) */
+  const [isReadingPassage, setIsReadingPassage] = useState(true);
 
   // Gamification state inside the mission
   const [combo, setCombo] = useState(0);
@@ -232,6 +233,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   // Reset step state when step or tier changes
   useEffect(() => {
     setShowHint(false);
+    setIsReadingPassage(true);
     session.resetStep();
     setLetterSlots([]);
     cancelListening();
@@ -358,6 +360,13 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     });
   };
 
+  /** Phones: between the passage and the question; the new screen starts at its top */
+  const showPassageScreen = (isReading: boolean) => {
+    setIsReadingPassage(isReading);
+    cardRef.current?.focus({ preventScroll: true });
+    cardRef.current?.scrollIntoView({ block: 'start' });
+  };
+
   const handleNextStep = () => {
     session.next(steps.length);
   };
@@ -422,6 +431,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
 
   const peekPose = getPeekCompanionPose(showHint, feedbackHe !== null);
   const hasPassage = Boolean(currentStep?.contextPassageEn);
+  // Phones show a passage step's question only after the passage was read
+  const questionPartClass = hasPassage && isReadingPassage ? 'hidden sm:block' : '';
   const questionCard = currentStep ? getQuestionCardContent(currentStep) : null;
   // On phones the mission fills the screen (no gutters or rounded inset); the intro stays a card
   const isIntro = shownPhase === 'intro';
@@ -534,26 +545,29 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                   <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
                     {currentStep.badgeLabelHe}
                   </span>
-                  <InstructionLine text={currentStep.promptHe} className={hasPassage ? '' : 'pe-16'} />
+                  <InstructionLine text={currentStep.promptHe} className="pe-16" />
                 </div>
 
-                {/* Story step: the mission's spot illustration, only when the file exists */}
-                {currentStep.type === 'story-unseen' && <StoryArt missionId={mission.id} />}
-
-                {/* Optional Story / Unseen Passage Box */}
+                {/* A story / unseen passage (phones: on its own screen before the question) */}
                 {currentStep.contextPassageEn && (
-                  <PassageBox
-                    className="pb-10"
+                  <StoryPassage
+                    missionId={mission.id}
+                    hasArt={currentStep.type === 'story-unseen'}
                     passageEn={currentStep.contextPassageEn}
                     passageHe={currentStep.contextPassageHe}
-                    showHebrew={tier === 'explorer'}
+                    canRevealHebrew={tier === 'explorer'}
+                    isReading={isReadingPassage}
+                    onDoneReading={() => showPassageScreen(false)}
                     theme={theme}
                     onSpeakEnglish={onSpeakEnglish}
                   />
                 )}
 
+                {/* Wide screens: room between the passage and the card for the peeking companion */}
+                {hasPassage && <div className="hidden sm:block h-8" aria-hidden="true" />}
+
                 {/* The question card (or the voice studio card), with the companion peeking over its corner */}
-                <div className="relative">
+                <div className={`relative ${questionPartClass}`}>
                   <div
                     key={currentStepIdx}
                     className="absolute bottom-full end-4 overflow-hidden pointer-events-none"
@@ -605,13 +619,29 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
 
                 {/* DRILL TYPE 1, 4, 5: MULTIPLE CHOICE OPTIONS */}
                 {currentStep.options && (
-                  <MultipleChoiceOptions
-                    options={currentStep.options}
-                    selectedIdx={selectedOptionIdx}
-                    onSelect={handleSelectOption}
-                    theme={theme}
-                    onSpeakEnglish={onSpeakEnglish}
-                  />
+                  <div className={questionPartClass}>
+                    <MultipleChoiceOptions
+                      options={currentStep.options}
+                      selectedIdx={selectedOptionIdx}
+                      onSelect={handleSelectOption}
+                      theme={theme}
+                      onSpeakEnglish={onSpeakEnglish}
+                    />
+                  </div>
+                )}
+
+                {/* Phones: back to a passage step's passage, to read it again */}
+                {hasPassage && !isReadingPassage && (
+                  <div className="sm:hidden flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => showPassageScreen(true)}
+                      className={`min-h-11 px-4 rounded-xl text-xs font-extrabold inline-flex items-center gap-1.5 ${theme.secondaryBtnClass}`}
+                    >
+                      <BookOpen className="w-4 h-4" aria-hidden="true" />
+                      <span>חזרה לקטע</span>
+                    </button>
+                  </div>
                 )}
 
                 {/* Grade 1 blending: build the word with letter magnets */}
