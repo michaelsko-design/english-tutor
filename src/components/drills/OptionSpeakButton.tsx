@@ -2,6 +2,7 @@ import React from 'react';
 import { speakHebrew } from '../../services/tts';
 import { toSpeakableText } from '../../services/tts/ttsText';
 import { useSpeechToggle } from '../../hooks/useSpeech';
+import { useReadsHebrewAloud } from '../../data/hebrewAudio';
 import { getTextLang } from '../../utils/bidi';
 import { SpeakIcon, STOP_SPEECH_LABEL } from '../SpeakIcon';
 
@@ -18,15 +19,18 @@ interface OptionSpeakButtonProps {
   text: string;
   onSpeakEnglish?: (text: string, rate?: number) => void;
   className: string;
+  /** Hebrew text shows for every grade (the placement gate) */
+  isHebrewAlways?: boolean;
 }
 
 /**
  * Feature 47: a 🔊 beside an answer option for learners who can't read it yet. It only listens;
  * answering is the option button itself. Nothing shows for a picture-only option.
  */
-export const OptionSpeakButton: React.FC<OptionSpeakButtonProps> = ({ text, onSpeakEnglish, className }) => {
+export const OptionSpeakButton: React.FC<OptionSpeakButtonProps> = ({ text, onSpeakEnglish, className, isHebrewAlways = false }) => {
+  const readsHebrew = useReadsHebrewAloud() || isHebrewAlways;
   const spokenText = toSpeakableText(text);
-  const speak = getTextLang(text) === 'en' ? onSpeakEnglish : readHebrew;
+  const speak = getTextLang(text) === 'en' ? onSpeakEnglish : readsHebrew ? readHebrew : undefined;
   const speech = useSpeechToggle(speak ?? noSpeech, spokenText, OPTION_SPEAK_RATE);
   if (!spokenText || !speak) return null;
   const label = speech.isSpeaking ? STOP_SPEECH_LABEL : 'הקשבה לתשובה';

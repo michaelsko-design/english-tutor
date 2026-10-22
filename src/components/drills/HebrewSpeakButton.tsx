@@ -2,6 +2,7 @@ import React from 'react';
 import { speakHebrew } from '../../services/tts';
 import { toSpeakableText } from '../../services/tts/ttsText';
 import { useSpeechToggle } from '../../hooks/useSpeech';
+import { useReadsHebrewAloud } from '../../data/hebrewAudio';
 import { SpeakIcon, STOP_SPEECH_LABEL } from '../SpeakIcon';
 
 interface HebrewSpeakButtonProps {
@@ -9,6 +10,8 @@ interface HebrewSpeakButtonProps {
   /** Screen-reader name, e.g. "הקשבה להוראה" */
   label?: string;
   className?: string;
+  /** Shows for every grade (the placement test's "can you read English?" gate) */
+  isAlways?: boolean;
 }
 
 const readHebrew = (text: string, rate?: number) => {
@@ -16,8 +19,10 @@ const readHebrew = (text: string, rate?: number) => {
 };
 
 /** Feature 47: a 🔊 that reads Hebrew text aloud (an instruction, a hint, feedback); a stop square while it reads. */
-export const HebrewSpeakButton: React.FC<HebrewSpeakButtonProps> = ({ text, label = 'הקשבה', className = '' }) => {
+export const HebrewSpeakButton: React.FC<HebrewSpeakButtonProps> = ({ text, label = 'הקשבה', className = '', isAlways = false }) => {
+  const readsHebrew = useReadsHebrewAloud();
   const speech = useSpeechToggle(readHebrew, toSpeakableText(text));
+  if (!readsHebrew && !isAlways) return null;
   const name = speech.isSpeaking ? STOP_SPEECH_LABEL : label;
   return (
     <button

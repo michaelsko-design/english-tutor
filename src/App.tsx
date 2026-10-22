@@ -29,6 +29,7 @@ import { CloudLoadErrorScreen } from './components/CloudLoadErrorScreen';
 import { ScreenLoading } from './components/ScreenLoading';
 import { lazyNamed } from './utils/lazyNamed';
 import { setListenerGender } from './services/tts';
+import { HebrewAudioContext, playsHebrewAloud } from './data/hebrewAudio';
 import { AccountResult, deleteAccount } from './services/accountService';
 import { DEFAULT_PROFILE, WELCOME_GIFT_DIAMONDS } from './data/defaultProfile';
 
@@ -426,6 +427,7 @@ export function App() {
 
   if (firstLaunchSteps[0] === 'placement') {
     return (
+      <HebrewAudioContext.Provider value={playsHebrewAloud(profile.gradeId)}>
       <div className={`min-h-screen w-full ${activeTheme.pageBgClass}`}>
         <Suspense fallback={<ScreenLoading />}>
         <PlacementTest
@@ -442,10 +444,12 @@ export function App() {
         />
         </Suspense>
       </div>
+      </HebrewAudioContext.Provider>
     );
   }
 
   return (
+    <HebrewAudioContext.Provider value={playsHebrewAloud(profile.gradeId)}>
     <DashboardView
       profile={profile}
       authUser={authUser}
@@ -456,6 +460,7 @@ export function App() {
       pendingInviteCode={pendingInviteCode}
       onInviteHandled={clearPendingInvite}
     />
+    </HebrewAudioContext.Provider>
   );
 }
 

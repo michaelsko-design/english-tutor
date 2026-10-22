@@ -197,7 +197,7 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
             </div>
             <div className="flex items-center justify-center gap-2">
               <h2 className="text-2xl sm:text-3xl font-extrabold">{gate.questionHe}</h2>
-              <HebrewSpeakButton text={gate.questionHe} label="הקשבה לשאלה" />
+              <HebrewSpeakButton text={gate.questionHe} label="הקשבה לשאלה" isAlways />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
@@ -205,7 +205,7 @@ export const PlacementTest: React.FC<PlacementTestProps> = ({
                 { textHe: gate.notYetHe, emoji: '🙈', onClick: handleCannotRead },
               ].map((choice) => (
                 <div key={choice.textHe} className="flex items-stretch gap-2">
-                  <OptionSpeakButton text={choice.textHe} className={theme.secondaryBtnClass} />
+                  <OptionSpeakButton text={choice.textHe} className={theme.secondaryBtnClass} isHebrewAlways />
                   <button
                     type="button"
                     onClick={choice.onClick}

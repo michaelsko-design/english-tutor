@@ -119,7 +119,16 @@ function addFixedFeedback(corpus: CorpusBuilder): void {
   BLEND_WORDS.forEach((word) => corpus.add(getWordBuiltHe(word.word)));
 }
 
+/** Hebrew clips exist for grades 1–2 only (Feature 47): refuse to build for any other grade. */
+function assertYoungGradesOnly(): void {
+  const grades = HEBREW_AUDIO_GRADES.map((gradeId) => gradeIdToNumber(gradeId));
+  if (grades.some((grade) => grade > 2)) {
+    throw new Error('HEBREW_AUDIO_GRADES must hold only grades 1–2: no Hebrew clips for later grades');
+  }
+}
+
 export function buildHebrewCorpus(): CorpusBuilder {
+  assertYoungGradesOnly();
   const corpus = new CorpusBuilder(isHebrewSpeakable, true);
   addFixedFeedback(corpus);
   addMissions(corpus);

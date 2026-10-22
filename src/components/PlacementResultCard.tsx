@@ -34,7 +34,7 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
   const tier = TIER_CONFIG[result.recommendedTier];
   const isGradeChange = result.recommendedGradeId !== profile.gradeId;
   const isSameAsCurrent = !isGradeChange && result.recommendedTier === profile.preferredTier;
-  useAutoSpeakHebrew(NON_READER_RESULT_HE, Boolean(result.isNonReader), 0);
+  useAutoSpeakHebrew(NON_READER_RESULT_HE, Boolean(result.isNonReader), 0, true);
 
   return (
     <div className="p-5 sm:p-7 space-y-5 text-center">
