@@ -17,9 +17,9 @@ interface QuestionBubbleProps {
 }
 
 const TEXT_SIZE_CLASS: Record<QuestionCardContent['size'], string> = {
-  sentence: 'text-xl sm:text-2xl md:text-3xl leading-snug',
-  word: 'text-4xl md:text-5xl leading-tight text-center',
-  glyph: 'text-7xl md:text-8xl leading-none text-center',
+  sentence: 'text-fluid-sentence sm:text-fluid-sentence-sm md:text-fluid-sentence-lg leading-snug',
+  word: 'text-fluid-word md:text-fluid-word-lg leading-tight text-center',
+  glyph: 'text-fluid-glyph md:text-fluid-glyph-lg leading-none text-center',
 };
 
 const BlankSlot: React.FC<{ text: string }> = ({ text }) => (
@@ -48,14 +48,14 @@ export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
 
   return (
     <div
-      className={`p-4 md:p-6 rounded-3xl border-2 border-current/15 ${theme.cardBgClass} flex items-start gap-3`}
+      className={`p-3 sm:p-4 md:p-6 rounded-3xl border-2 border-current/15 ${theme.cardBgClass} flex items-start gap-3`}
     >
       {speakerAvatar && (
         <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl shrink-0 ${theme.primaryBtnClass}`}>
           {speakerAvatar}
         </div>
       )}
-      <div className={`flex-1 min-w-0 ${isWord ? 'py-2' : ''}`}>
+      <div className={`flex-1 min-w-0 ${isWord ? 'py-2 short:py-0' : ''}`}>
         {speakerName && <div className="text-xs font-bold opacity-75 mb-1">{speakerName}</div>}
         <p
           className={`${TEXT_SIZE_CLASS[content.size]} font-black break-words`}

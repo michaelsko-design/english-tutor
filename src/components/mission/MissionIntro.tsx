@@ -52,7 +52,7 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
   const isGirl = gender === 'girl';
   const minutes = mission.estimatedMinutes + (lessonOffer === 'auto' ? LESSON_MINUTES : 0);
   return (
-    <div className="relative px-4 sm:px-8 pt-4 pb-5 space-y-4">
+    <div className="relative px-4 sm:px-8 pt-4 pb-5 short:pb-4 space-y-4 short:space-y-3">
       <button
         type="button"
         onClick={onClose}
@@ -63,7 +63,8 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
       </button>
 
       <div className="flex flex-col items-center text-center gap-1.5 pt-1">
-        <Companion theme={theme} pose="wave" size={INTRO_COMPANION_SIZE} />
+        {/* Shrinks to three quarters on short screens */}
+        <Companion theme={theme} pose="wave" size={INTRO_COMPANION_SIZE} sizeClassName="w-fluid-companion-96 h-fluid-companion-96" />
         <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
           {mission.isBoss ? '👑 משימת בוס · ' : ''}
           יחידה {mission.unitNumber} · משימה {mission.missionNumber}

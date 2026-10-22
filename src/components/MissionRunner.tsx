@@ -421,16 +421,23 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   }
 
   const peekPose = getPeekCompanionPose(showHint, feedbackHe !== null);
+  const hasPassage = Boolean(currentStep?.contextPassageEn);
   const questionCard = currentStep ? getQuestionCardContent(currentStep) : null;
+  // On phones the mission fills the screen (no gutters or rounded inset); the intro stays a card
+  const isIntro = shownPhase === 'intro';
+  const overlayPaddingClass = isIntro ? 'p-2' : 'p-0';
+  const cardShapeClass = isIntro
+    ? 'rounded-3xl border'
+    : 'min-h-[100dvh] sm:min-h-0 rounded-none sm:rounded-3xl border-0 sm:border';
 
   return (
     <ModalPortal>
     <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`משימה: ${mission.titleHe}`} className="contents">
-      <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-start sm:items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto">
+      <div className={`fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-start sm:items-center justify-center ${overlayPaddingClass} sm:p-4 md:p-6 overflow-y-auto`}>
         <div
           ref={cardRef}
           tabIndex={-1}
-          className={`outline-none w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
+          className={`outline-none w-full max-w-3xl overflow-clip shadow-2xl border-current/15 ${cardShapeClass} ${theme.pageBgClass}`}
         >
           {shownPhase === 'intro' ? (
             <MissionIntro
@@ -520,13 +527,15 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
               </div>
 
               {/* Main Exercise Body */}
-              <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
-                {/* Step badge & the one-line instruction */}
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
-                  {currentStep.badgeLabelHe}
-                </span>
-
-                <InstructionLine text={currentStep.promptHe} />
+              <div className="px-3 py-3 sm:p-6 md:p-8 space-y-3 sm:space-y-5 short:space-y-2.5">
+                {/* Step badge & the one-line instruction; the instruction leaves room at its end for
+                    the companion peeking over the card's corner */}
+                <div className="space-y-1">
+                  <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
+                    {currentStep.badgeLabelHe}
+                  </span>
+                  <InstructionLine text={currentStep.promptHe} className={hasPassage ? '' : 'pe-16'} />
+                </div>
 
                 {/* Story step: the mission's spot illustration, only when the file exists */}
                 {currentStep.type === 'story-unseen' && <StoryArt missionId={mission.id} />}
@@ -534,6 +543,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                 {/* Optional Story / Unseen Passage Box */}
                 {currentStep.contextPassageEn && (
                   <PassageBox
+                    className="pb-10"
                     passageEn={currentStep.contextPassageEn}
                     passageHe={currentStep.contextPassageHe}
                     showHebrew={tier === 'explorer'}
@@ -543,10 +553,10 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                 )}
 
                 {/* The question card (or the voice studio card), with the companion peeking over its corner */}
-                <div>
+                <div className="relative">
                   <div
                     key={currentStepIdx}
-                    className="overflow-hidden ms-4"
+                    className="absolute bottom-full end-4 overflow-hidden pointer-events-none"
                     style={{ width: PEEK_COMPANION_SIZE, height: Math.round(PEEK_COMPANION_SIZE * PEEK_VISIBLE_SHARE) }}
                   >
                     <div

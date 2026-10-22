@@ -9,6 +9,7 @@ import { SpeakIcon, STOP_SPEECH_TEXT } from '../SpeakIcon';
 import { LetterSlot, useLetterSlotDrag } from './letterSlotDrag';
 import { DraggableMagnet, MAGNET_BANK_ID, MagnetDragOverlay, MagnetDropZone } from './magnetDrag';
 import { Button } from '../ui/Button';
+import { StickyActionBar } from './StickyActionBar';
 
 interface SpellingMagnetDrillProps {
   /** The word or phrase to spell; spaces, hyphens and apostrophes are shown, not spelled */
@@ -116,7 +117,7 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
 
   return (
     <DndContext {...drag.contextProps}>
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         <div className="flex flex-wrap items-center gap-3">
           <Button theme={theme} variant="secondary" onClick={listenSpeech.toggle}>
             <SpeakIcon isSpeaking={listenSpeech.isSpeaking} />
@@ -132,7 +133,7 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
         {/* Letter slots */}
         <div
           aria-label="המילה"
-          className="min-h-[68px] p-3 rounded-2xl bg-black/5 dark:bg-white/5 flex flex-wrap items-center justify-center gap-1.5"
+          className="min-h-[56px] sm:min-h-[68px] p-3 rounded-2xl bg-black/5 dark:bg-white/5 flex flex-wrap items-center justify-center gap-1.5"
           dir="ltr"
           lang="en"
         >
@@ -186,7 +187,7 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
         </MagnetDragOverlay>
 
         {!isCompleted && (
-          <div className="flex items-center gap-2.5 pt-1">
+          <StickyActionBar theme={theme}>
             <Button theme={theme} variant="secondary" onClick={onReset}>
               <RotateCcw className="w-3.5 h-3.5" />
               <span>איפוס אותיות</span>
@@ -194,7 +195,7 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
             <Button theme={theme} disabled={!isEverySlotFilled(filledSlots, slotCount)} onClick={onCheck}>
               בדיקת איות ✓
             </Button>
-          </div>
+          </StickyActionBar>
         )}
       </div>
     </DndContext>

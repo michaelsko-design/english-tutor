@@ -8,8 +8,10 @@ import { ArtImage } from '../art/ArtImage';
 interface CompanionProps {
   theme: ThemeDefinition;
   pose: CompanionPose;
-  /** Width and height in CSS pixels */
+  /** Width and height in CSS pixels (the largest it is shown at, which picks the art file) */
   size: number;
+  /** Width and height classes instead of `size`, e.g. a fluid size that shrinks on short screens */
+  sizeClassName?: string;
   /** Extra classes (not positioning: the companion is always `relative`; wrap it to place it) */
   className?: string;
   /** The soft ground shadow; off when the companion peeks from behind a card */
@@ -52,7 +54,7 @@ export function preloadCompanion(theme: ThemeDefinition, poses: CompanionPose[],
  * motion and a ground shadow. Until a theme's art exists it shows the theme's avatar emoji
  * in a soft bubble of the same size, so nothing moves when the art arrives.
  */
-export const Companion: React.FC<CompanionProps> = ({ theme, pose, size, className = '', hasShadow = true }) => {
+export const Companion: React.FC<CompanionProps> = ({ theme, pose, size, sizeClassName, className = '', hasShadow = true }) => {
   const isReducedMotion = usePrefersReducedMotion();
   const motionClass = isReducedMotion ? '' : MOTION_CLASS_BY_POSE[pose];
   const shadowClass = isReducedMotion ? '' : SHADOW_CLASS_BY_POSE[pose];
@@ -61,7 +63,7 @@ export const Companion: React.FC<CompanionProps> = ({ theme, pose, size, classNa
     <div className="absolute inset-x-0 bottom-[4%] flex justify-center">
       <div
         className="rounded-full bg-white/85 ring-4 ring-white/40 shadow-lg flex items-center justify-center"
-        style={{ width: size * 0.72, height: size * 0.72, fontSize: size * 0.4 }}
+        style={{ width: '72%', height: '72%', fontSize: size * 0.4 }}
       >
         <span className="leading-none">{theme.avatarEmoji}</span>
       </div>
@@ -70,8 +72,8 @@ export const Companion: React.FC<CompanionProps> = ({ theme, pose, size, classNa
 
   return (
     <div
-      className={`relative shrink-0 pointer-events-none select-none ${className}`}
-      style={{ width: size, height: size }}
+      className={`relative shrink-0 pointer-events-none select-none ${sizeClassName ?? ''} ${className}`}
+      style={sizeClassName ? undefined : { width: size, height: size }}
       aria-hidden="true"
     >
       {hasShadow && (

@@ -112,20 +112,25 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
   return (
     <ModalPortal>
     <div
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
       onClick={handleSkip}
     >
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className={`outline-none w-full max-w-lg rounded-3xl p-6 md:p-8 ${theme.cardBgClass} ${theme.pageBgClass} text-center space-y-5 shadow-2xl border-2 border-amber-400`}
+        className={`outline-none w-full max-w-lg rounded-3xl p-4 sm:p-6 md:p-8 short:p-4 ${theme.cardBgClass} ${theme.pageBgClass} text-center space-y-3 sm:space-y-5 short:space-y-2.5 shadow-2xl border-2 border-amber-400`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="mission-victory-title"
       >
         {/* The companion cheers (Feature 25), holding up the trophy */}
         <div className="relative w-fit mx-auto">
-          <Companion theme={theme} pose="cheer" size={VICTORY_COMPANION_SIZE} />
+          <Companion
+            theme={theme}
+            pose="cheer"
+            size={VICTORY_COMPANION_SIZE}
+            sizeClassName="w-fluid-companion-120 h-fluid-companion-120"
+          />
           <HudIcon name="trophy" className="absolute -bottom-1 -right-6 w-12 h-12 drop-shadow-md" />
         </div>
 
@@ -147,14 +152,14 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
         </p>
 
         {/* Stars land one by one; a missed star lands grey */}
-        <div className="flex items-center justify-center gap-3 py-1" aria-hidden="true">
+        <div className="flex items-center justify-center gap-3 py-1 short:py-0" aria-hidden="true">
           {STAR_SLOTS.map((slot) => {
             const hasLanded = slot < frame.landedStarCount;
             const isEarned = slot < starsEarned;
             return (
               <div
                 key={slot}
-                className={`p-3 rounded-2xl border ${
+                className={`p-3 short:p-2 rounded-2xl border ${
                   !hasLanded
                     ? 'border-dashed border-current/20 opacity-30'
                     : isEarned
@@ -163,9 +168,9 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
                 } ${slot === 1 ? 'relative -top-2' : ''}`}
               >
                 {hasLanded ? (
-                  <HudIcon name="star" className="w-10 h-10" isGreyed={!isEarned} />
+                  <HudIcon name="star" className="w-fluid-star h-fluid-star" isGreyed={!isEarned} />
                 ) : (
-                  <span className="block w-10 h-10" />
+                  <span className="block w-fluid-star h-fluid-star" />
                 )}
               </div>
             );
@@ -173,7 +178,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
         </div>
 
         {/* XP bar toward the next level; a level-up pins the level badge to its corner */}
-        <div className="relative p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10 space-y-2" aria-hidden="true">
+        <div className="relative p-3.5 short:p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10 space-y-2" aria-hidden="true">
           {frame.hasLeveledUp && (
             <div className="absolute -top-10 -right-4 animate-reward-pop">
               <LevelBadge level={frame.level} size={LEVEL_BADGE_SIZE} />
@@ -198,30 +203,30 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
 
         {/* Earned rewards count up */}
         <div className="grid grid-cols-3 gap-3" aria-hidden="true">
-          <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
+          <div className="p-3.5 short:p-2 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
             <Zap className="w-5 h-5 text-indigo-500 mx-auto mb-1" />
             <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap" dir="ltr" lang="en">
               <VibeAmount amount={frame.xpShown} hasPlus />
             </div>
-            <div className="text-xs opacity-75">
+            <div className="text-xs opacity-75 short:hidden">
               כולל בונוס {maxCombo}x רצף
             </div>
           </div>
-          <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
+          <div className="p-3.5 short:p-2 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
             <HudIcon name="gem" className="w-6 h-6 mx-auto mb-1" />
             <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap" dir="ltr" lang="en">
               +{frame.diamondsShown}
             </div>
-            <div className="text-xs opacity-75">
+            <div className="text-xs opacity-75 short:hidden">
               {currencyNameHe}
             </div>
           </div>
-          <div className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
+          <div className="p-3.5 short:p-2 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
             <Trophy className="w-5 h-5 text-emerald-500 mx-auto mb-1" />
             <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap">
               <bdi dir="ltr" lang="en">+{frame.wordsShown}</bdi> מילים
             </div>
-            <div className="text-xs opacity-75">
+            <div className="text-xs opacity-75 short:hidden">
               נוספו לאוצר המילים
             </div>
           </div>
@@ -254,9 +259,12 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
           </div>
         )}
 
-        <Button theme={theme} size="lg" className="w-full" onClick={handleCollect}>
-          <span>איסוף פרסים וחזרה לדשבורד 🚀</span>
-        </Button>
+        {/* Pinned to the bottom of the screen when a level-up and a room item make the card too tall */}
+        <div className="sticky bottom-2 z-10">
+          <Button theme={theme} size="lg" className="w-full shadow-lg" onClick={handleCollect}>
+            <span>איסוף פרסים וחזרה לדשבורד 🚀</span>
+          </Button>
+        </div>
 
         <p className={`text-xs ${theme.mutedTextClass} ${frame.isDone ? 'invisible' : ''}`} aria-hidden="true">
           הקשה על המסך מדלגת לסוף ⏩

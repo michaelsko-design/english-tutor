@@ -21,7 +21,7 @@ export const StoryArt: React.FC<StoryArtProps> = ({ missionId }) => {
       alt=""
       aria-hidden="true"
       draggable={false}
-      className="w-full max-h-60 object-cover rounded-2xl shadow-md select-none"
+      className="w-full max-h-60 object-cover rounded-2xl shadow-md select-none short:hidden"
     />
   );
 };

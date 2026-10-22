@@ -79,9 +79,9 @@ export const FeedbackSheet: React.FC<FeedbackSheetProps> = ({
         )}
 
         <div
-          className={`rounded-t-3xl border-t-4 shadow-[0_-8px_30px_rgba(0,0,0,0.25)] px-4 sm:px-6 pt-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] space-y-3.5 ${sheetStyle}`}
+          className={`rounded-t-3xl border-t-4 shadow-[0_-8px_30px_rgba(0,0,0,0.25)] px-4 sm:px-6 pt-3 sm:pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:pb-[calc(1.25rem+env(safe-area-inset-bottom))] space-y-3 sm:space-y-3.5 ${sheetStyle}`}
         >
-          <div className="flex items-start gap-2.5 max-h-[38dvh] overflow-y-auto">
+          <div className="flex items-start gap-2.5 max-h-[38dvh] short:max-h-[30dvh] overflow-y-auto">
             {isCorrect ? (
               <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
             ) : (
@@ -100,7 +100,7 @@ export const FeedbackSheet: React.FC<FeedbackSheetProps> = ({
               type="button"
               onClick={onNext}
               ref={actionRef}
-              className="btn-chunky btn-chunky-correct w-full py-3.5 rounded-2xl bg-emerald-500 text-white text-base font-extrabold flex items-center justify-center gap-2"
+              className="btn-chunky btn-chunky-correct w-full py-3 sm:py-3.5 rounded-2xl bg-emerald-500 text-white text-base font-extrabold flex items-center justify-center gap-2"
             >
               <span>{nextLabel}</span>
               <ArrowRight className="w-5 h-5 rotate-180" />
@@ -110,7 +110,7 @@ export const FeedbackSheet: React.FC<FeedbackSheetProps> = ({
               type="button"
               onClick={onTryAgain}
               ref={actionRef}
-              className="btn-chunky btn-chunky-wrong w-full py-3.5 rounded-2xl bg-white border-2 border-rose-500 text-rose-700 text-base font-extrabold flex items-center justify-center gap-2"
+              className="btn-chunky btn-chunky-wrong w-full py-3 sm:py-3.5 rounded-2xl bg-white border-2 border-rose-500 text-rose-700 text-base font-extrabold flex items-center justify-center gap-2"
             >
               <RotateCcw className="w-5 h-5" />
               <span>{tryAgainLabel}</span>

@@ -37,7 +37,7 @@ export const MultipleChoiceOptions: React.FC<MultipleChoiceOptionsProps> = ({
   const isLocked = revealCorrect && selectedIdx !== null;
 
   return (
-    <div className="grid grid-cols-1 gap-3">
+    <div className="grid grid-cols-1 gap-2 sm:gap-3">
       {options.map((opt, idx) => {
         const isPicked = selectedIdx === idx;
         const isRevealed = isLocked && !isPicked && opt.isCorrect;
@@ -67,10 +67,10 @@ export const MultipleChoiceOptions: React.FC<MultipleChoiceOptionsProps> = ({
               disabled={isLocked}
               onClick={() => onSelect(idx)}
               dir="auto"
-              className={`btn-chunky flex-1 min-w-0 text-start px-4 py-3.5 min-h-[56px] rounded-2xl flex items-center justify-between gap-3 ${stateStyle} ${motionStyle}`}
+              className={`btn-chunky flex-1 min-w-0 text-start px-4 py-2.5 min-h-[48px] sm:py-3.5 sm:min-h-[56px] rounded-2xl flex items-center justify-between gap-3 ${stateStyle} ${motionStyle}`}
             >
               <span
-                className={`font-extrabold leading-snug ${isGlyph ? 'text-4xl md:text-5xl w-full text-center' : 'text-base md:text-lg'}`}
+                className={`font-extrabold leading-snug ${isGlyph ? 'text-fluid-word md:text-fluid-word-lg leading-tight w-full text-center' : 'text-base md:text-lg'}`}
                 lang={lang}
               >
                 {opt.textEn}

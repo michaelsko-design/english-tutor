@@ -17,7 +17,7 @@ import { Companion } from '../companion/Companion';
 import { isSameSpeech } from '../../services/tts';
 import { toggleSpeech, useCurrentSpeech } from '../../hooks/useSpeech';
 import { SpeakIcon } from '../SpeakIcon';
-import { FeedbackBanner, HebrewSpeakButton, MultipleChoiceOptions } from '../drills';
+import { FeedbackBanner, HebrewSpeakButton, MultipleChoiceOptions, StickyActionBar } from '../drills';
 import { getTtsService, speakHebrew } from '../../services/tts';
 import { toSpeakableText } from '../../services/tts/ttsText';
 import { BlendCards, LetterCards } from './PhonicsLessonCards';
@@ -101,7 +101,7 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
   const pose = getLessonPose(card, pickedOption);
 
   return (
-    <div className="relative px-4 sm:px-8 pt-4 pb-6 space-y-4">
+    <div className="relative px-4 sm:px-8 pt-4 pb-6 short:pb-4 space-y-4 short:space-y-3">
       <div className="flex items-center justify-between gap-3">
         <button
           type="button"
@@ -126,7 +126,12 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
       </div>
 
       <div className="flex flex-col items-center text-center gap-2">
-        <Companion theme={theme} pose={pose} size={LESSON_COMPANION_SIZE} />
+        <Companion
+          theme={theme}
+          pose={pose}
+          size={LESSON_COMPANION_SIZE}
+          sizeClassName="w-fluid-companion-96 h-fluid-companion-96"
+        />
         <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>{CARD_TITLE_HE[card]}</span>
       </div>
 
@@ -165,7 +170,7 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
         )}
       </div>
 
-      <div className="flex items-center gap-3 pt-1">
+      <StickyActionBar theme={theme} className="gap-3">
         {cardIdx > 0 && (
           <Button theme={theme} variant="secondary" className="btn-chunky" onClick={() => setCardIdx(cardIdx - 1)}>
             הקודם
@@ -175,7 +180,7 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
           <span>{isLastCard ? doneLabel : 'הבא'}</span>
           {!isLastCard && <ArrowRight className="w-4 h-4 rotate-180" aria-hidden="true" />}
         </Button>
-      </div>
+      </StickyActionBar>
     </div>
   );
 };

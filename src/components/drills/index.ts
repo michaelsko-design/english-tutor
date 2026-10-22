@@ -14,3 +14,4 @@ export { HebrewSpeakButton } from './HebrewSpeakButton';
 export { InstructionLine } from './InstructionLine';
 export { OptionSpeakButton } from './OptionSpeakButton';
 export { SoundTiles } from './SoundTiles';
+export { StickyActionBar } from './StickyActionBar';

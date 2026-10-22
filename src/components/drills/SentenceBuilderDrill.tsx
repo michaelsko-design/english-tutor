@@ -15,6 +15,7 @@ import {
   useMagnetDrag,
 } from './magnetDrag';
 import { Button } from '../ui/Button';
+import { StickyActionBar } from './StickyActionBar';
 
 interface SentenceBuilderDrillProps {
   scrambledWords: string[];
@@ -58,12 +59,12 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
 
   return (
     <DndContext {...drag.contextProps}>
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {/* Assembled Sentence Tray */}
         <MagnetDropZone
           id={MAGNET_TRAY_ID}
           aria-label="המשפט"
-          className="min-h-[68px] p-4 rounded-2xl border-2 border-dashed border-purple-400/60 bg-black/5 dark:bg-white/5 flex flex-wrap items-center gap-2 transition-shadow"
+          className="min-h-[56px] p-3 sm:min-h-[68px] sm:p-4 rounded-2xl border-2 border-dashed border-purple-400/60 bg-black/5 dark:bg-white/5 flex flex-wrap items-center gap-2 transition-shadow"
           overClassName={ZONE_OVER_CLASS}
           dir="ltr"
           lang="en"
@@ -132,7 +133,7 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
         </MagnetDragOverlay>
 
         {!isCompleted && (
-          <div className="flex items-center justify-between gap-2.5 pt-1">
+          <StickyActionBar theme={theme} className="justify-between">
             <Button theme={theme} size="lg" disabled={selectedIndices.length === 0} onClick={onCheck}>
               <span>בדיקת משפט ✓</span>
             </Button>
@@ -140,7 +141,7 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
               <RotateCcw className="w-3.5 h-3.5" />
               <span>איפוס מילים</span>
             </Button>
-          </div>
+          </StickyActionBar>
         )}
       </div>
     </DndContext>

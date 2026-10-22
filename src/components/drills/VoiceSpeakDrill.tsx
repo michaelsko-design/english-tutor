@@ -70,9 +70,9 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
     : 'לחץ ודבר';
 
   return (
-    <div className="space-y-5">
-      <div className={`p-5 md:p-6 rounded-3xl border-2 border-current/15 ${theme.cardBgClass} space-y-4 text-center`}>
-        <p className="text-2xl sm:text-3xl md:text-4xl font-black leading-snug" dir="ltr" lang="en">
+    <div className="space-y-3 sm:space-y-5">
+      <div className={`p-4 sm:p-5 md:p-6 rounded-3xl border-2 border-current/15 ${theme.cardBgClass} space-y-3 sm:space-y-4 text-center`}>
+        <p className="text-fluid-speak sm:text-fluid-speak-sm md:text-fluid-speak-lg font-black leading-snug" dir="ltr" lang="en">
           {words.map((item, idx) => (
             <React.Fragment key={`${item.targetWord}-${idx}`}>
               {idx > 0 && ' '}
@@ -112,11 +112,11 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
           onClick={onStartListening}
           disabled={isCompleted}
           aria-label={micLabel}
-          className={`w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center disabled:opacity-40 ${micStateClass}`}
+          className={`w-fluid-mic h-fluid-mic md:w-fluid-mic-lg md:h-fluid-mic-lg rounded-full flex items-center justify-center disabled:opacity-40 ${micStateClass}`}
         >
           <Mic className="w-8 h-8 md:w-10 md:h-10" aria-hidden="true" />
         </button>
-        <span className="text-base md:text-lg font-extrabold" aria-hidden="true">
+        <span className="text-base md:text-lg short:text-sm font-extrabold" aria-hidden="true">
           {micLabel}
         </span>
       </div>
