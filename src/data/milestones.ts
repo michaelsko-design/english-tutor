@@ -54,15 +54,24 @@ const isBossGated = (
 };
 
 /**
- * Sequential unlock (a mission opens once the previous one has a star) plus the Boss
- * star gate.
+ * The units on the same unlock track as `unit`: the grade's path, or the units of a content pack
+ * that opens on its own (`CurriculumUnit.track`), whose missions don't wait for the path.
+ */
+const getTrackUnits = (units: CurriculumUnit[], unit: CurriculumUnit): CurriculumUnit[] =>
+  units.filter((u) => u.track === unit.track);
+
+/**
+ * Sequential unlock (a mission opens once the previous one on its track has a star) plus the
+ * Boss star gate.
  */
 export function isMissionUnlocked(
   units: CurriculumUnit[],
   progress: MissionProgress,
   missionId: string
 ): boolean {
-  const allMissions = units.flatMap((u) => u.missions);
+  const unit = findUnitOf(units, missionId);
+  if (!unit) return false;
+  const allMissions = getTrackUnits(units, unit).flatMap((u) => u.missions);
   const idx = allMissions.findIndex((m) => m.id === missionId);
   if (idx === -1) return false;
 
@@ -76,14 +85,16 @@ export function isMissionUnlocked(
 }
 
 /**
- * The next mission to play: the first one without stars. When that is a gated Boss,
- * suggest replaying the unit's weakest regular mission to earn the missing stars.
+ * The next mission to play: the first one without stars, on the grade's path first and then on
+ * the tracks of the packs that open on their own. When that is a gated Boss, suggest replaying the
+ * unit's weakest regular mission to earn the missing stars.
  */
 export function getSuggestedMission(
   units: CurriculumUnit[],
   progress: MissionProgress
 ): SuggestedMission {
-  const allMissions = units.flatMap((u) => u.missions);
+  const pathFirst = [...units.filter((u) => u.track === undefined), ...units.filter((u) => u.track !== undefined)];
+  const allMissions = pathFirst.flatMap((u) => u.missions);
   const next = allMissions.find((m) => starsOf(progress, m.id) === 0);
   if (!next) return { mission: allMissions[0], bossGate: null };
 

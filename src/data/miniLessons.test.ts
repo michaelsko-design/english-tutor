@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { CURRICULUM_BY_GRADE, MissionNode } from './curriculum';
+import { MissionNode } from './curriculum';
+import { ALL_LESSON_PACKS_WITH_PACKS, CURRICULUM_WITH_ALL_PACKS } from './curriculum/packs/all';
 import { ALL_LESSON_PACKS } from './curriculum/lessons';
 import { getExercisesForMission } from './missionExercises';
 import {
@@ -25,7 +26,7 @@ const MAX_TIP_CHARS = 110;
 const MAX_EXAMPLE_CHARS = 70;
 
 function missionsOfGrade(grade: number): MissionNode[] {
-  return CURRICULUM_BY_GRADE[`grade-${grade}` as GradeId].units.flatMap((u) => u.missions);
+  return CURRICULUM_WITH_ALL_PACKS[`grade-${grade}` as GradeId].units.flatMap((u) => u.missions);
 }
 
 /** Lower case, letters, digits and spaces only, so "Don't." and "dont" compare equal. */
@@ -83,7 +84,7 @@ describe('mini-lessons (Feature 42)', () => {
 
   it('has a lesson for every regular mission of a grade with lessons, and nothing else', () => {
     for (const grade of LESSON_GRADES) {
-      const pack = ALL_LESSON_PACKS[grade];
+      const pack = ALL_LESSON_PACKS_WITH_PACKS[grade];
       const missions = missionsOfGrade(grade);
       for (const mission of missions.filter((m) => !m.isBoss)) {
         expect(pack[mission.id], mission.id).toBeDefined();
@@ -96,7 +97,7 @@ describe('mini-lessons (Feature 42)', () => {
   it('gives every Boss of a grade with lessons a recap or its own lesson', () => {
     for (const grade of LESSON_GRADES) {
       for (const boss of missionsOfGrade(grade).filter((m) => m.isBoss)) {
-        const lesson = resolveMiniLesson(boss, ALL_LESSON_PACKS[grade]);
+        const lesson = resolveMiniLesson(boss, ALL_LESSON_PACKS_WITH_PACKS[grade]);
         expect(lesson, boss.id).not.toBeNull();
         expect(lesson!.examples.length, boss.id).toBeGreaterThanOrEqual(2);
       }
@@ -104,7 +105,7 @@ describe('mini-lessons (Feature 42)', () => {
   });
 
   it('keeps every lesson short and well formed', () => {
-    for (const pack of Object.values(ALL_LESSON_PACKS)) {
+    for (const pack of Object.values(ALL_LESSON_PACKS_WITH_PACKS)) {
       for (const [id, lesson] of Object.entries(pack)) {
         expect(lesson.titleHe.length, id).toBeLessThanOrEqual(MAX_TITLE_CHARS);
         expect(lesson.ideaHe.length, id).toBeLessThanOrEqual(MAX_IDEA_CHARS);
@@ -126,7 +127,7 @@ describe('mini-lessons (Feature 42)', () => {
 
   it('never shows a mission answer in its lesson', () => {
     for (const grade of LESSON_GRADES) {
-      const pack = ALL_LESSON_PACKS[grade];
+      const pack = ALL_LESSON_PACKS_WITH_PACKS[grade];
       for (const mission of missionsOfGrade(grade)) {
         const lesson = resolveMiniLesson(mission, pack);
         if (!lesson) continue;
@@ -149,7 +150,7 @@ describe('mini-lessons (Feature 42)', () => {
   });
 
   it('writes the Hebrew gender-neutral, so it reads the same for every learner', () => {
-    for (const pack of Object.values(ALL_LESSON_PACKS)) {
+    for (const pack of Object.values(ALL_LESSON_PACKS_WITH_PACKS)) {
       for (const [id, lesson] of Object.entries(pack)) {
         for (const text of hebrewTextsOf(lesson)) {
           expect(inflectHebrew(text, 'boy'), id).toBe(text);

@@ -26,6 +26,19 @@
         "--strictPort"
       ],
       "port": 5174
+    },
+    {
+      "name": "vite-packs",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev:packs",
+        "--",
+        "--port",
+        "5175",
+        "--strictPort"
+      ],
+      "port": 5175
     }
   ]
 }

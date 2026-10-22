@@ -6,6 +6,8 @@ import { ThemeDefinition } from '../themes/themeRegistry';
 import { MAP_BG_ASPECT } from '../themes/themeArt';
 import { MapStop, buildWorldMap, getUnitGradeNumber } from '../data/worldMap';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { isPackNew } from '../data/contentPacks';
+import { toLocalDateStr } from '../utils/dates';
 import { ArtImage } from './art/ArtImage';
 import { MapPathLayer } from './worldMap/MapPathLayer';
 import { MapLandmark, UnitBanner } from './worldMap/mapPieces';
@@ -23,6 +25,8 @@ interface MissionMapProps {
   gender: LearnerGender;
   onStartMission: (mission: MissionNode) => void;
   onSpeakEnglish: (text: string, rate?: number) => void;
+  /** Scroll the map to this mission (the new-pack card); a new `requestId` scrolls again */
+  focusRequest?: { missionId: string; requestId: number } | null;
 }
 
 /** Where the current mission lands in the map window, as a share of its height from the top */
@@ -44,6 +48,7 @@ export const MissionMap: React.FC<MissionMapProps> = ({
   gender,
   onStartMission,
   onSpeakEnglish,
+  focusRequest = null,
 }) => {
   const style = WORLD_MAP_STYLES[theme.id];
   const isReducedMotion = usePrefersReducedMotion();
@@ -60,15 +65,19 @@ export const MissionMap: React.FC<MissionMapProps> = ({
   const currentMissionId = layout.currentStop?.state.mission.id ?? null;
   const isGirl = gender === 'girl';
 
-  const scrollToCurrent = useCallback(
-    (behavior: ScrollBehavior) => {
+  const scrollToStop = useCallback(
+    (stop: MapStop | null, behavior: ScrollBehavior) => {
       const container = scrollRef.current;
       const canvas = canvasRef.current;
-      if (!container || !canvas || !layout.currentStop) return;
-      const stopY = (layout.currentStop.position.y / layout.height) * canvas.offsetHeight;
+      if (!container || !canvas || !stop) return;
+      const stopY = (stop.position.y / layout.height) * canvas.offsetHeight;
       container.scrollTo({ top: Math.max(0, stopY - container.clientHeight * CURRENT_STOP_VIEW_SHARE), behavior });
     },
     [layout]
+  );
+  const scrollToCurrent = useCallback(
+    (behavior: ScrollBehavior) => scrollToStop(layout.currentStop, behavior),
+    [layout, scrollToStop]
   );
 
   // On open, on a new grade and when the next mission moves: bring the current mission into view
@@ -76,6 +85,16 @@ export const MissionMap: React.FC<MissionMapProps> = ({
     scrollToCurrent('auto');
     // Only these changes should move the map, not every progress update
   }, [currentMissionId, units]);
+
+  // The new-pack card asked for a unit: bring its first mission into view
+  useLayoutEffect(() => {
+    if (!focusRequest) return;
+    const stop = allStops.find((s) => s.state.mission.id === focusRequest.missionId) ?? null;
+    scrollToStop(stop, isReducedMotion ? 'auto' : 'smooth');
+    // Only a new request should move the map
+  }, [focusRequest?.requestId]);
+
+  const todayStr = toLocalDateStr(new Date());
 
   const handleCloseSheet = useCallback(() => setOpenMissionId(null), []);
   const handleSelectStop = useCallback((stop: MapStop) => setOpenMissionId(stop.state.mission.id), []);
@@ -161,6 +180,7 @@ export const MissionMap: React.FC<MissionMapProps> = ({
                 starsEarned={region.stops.reduce((acc, s) => acc + s.state.stars, 0)}
                 starsPossible={region.stops.length * 3}
                 style={style}
+                isNew={isPackNew(region.unit.packId, todayStr)}
               />
             ))}
           </div>

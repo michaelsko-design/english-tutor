@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { CURRICULUM_BY_GRADE, MissionNode } from './curriculum';
+import { MissionNode } from './curriculum';
+import { CURRICULUM_WITH_ALL_PACKS } from './curriculum/packs/all';
 
-const ALL_MISSIONS: MissionNode[] = Object.values(CURRICULUM_BY_GRADE).flatMap((pack) =>
+const ALL_MISSIONS: MissionNode[] = Object.values(CURRICULUM_WITH_ALL_PACKS).flatMap((pack) =>
   pack.units.flatMap((u) => u.missions)
 );
 /** Missions with a drill seed: all but grade 1's letters and blending missions (Feature 48). */
@@ -11,7 +12,7 @@ function sameText(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
 }
 
-describe('curriculum data (CURRICULUM_BY_GRADE)', () => {
+describe('curriculum data (every grade with every content pack)', () => {
   it('gives every mission a unique id', () => {
     const ids = ALL_MISSIONS.map((m) => m.id);
     const duplicates = ids.filter((id, i) => ids.indexOf(id) !== i);
@@ -19,7 +20,7 @@ describe('curriculum data (CURRICULUM_BY_GRADE)', () => {
   });
 
   it('files every pack under its own grade', () => {
-    for (const [gradeId, pack] of Object.entries(CURRICULUM_BY_GRADE)) {
+    for (const [gradeId, pack] of Object.entries(CURRICULUM_WITH_ALL_PACKS)) {
       expect(pack.gradeId).toBe(gradeId);
     }
   });

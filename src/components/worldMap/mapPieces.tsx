@@ -37,10 +37,20 @@ interface UnitBannerProps {
   starsEarned: number;
   starsPossible: number;
   style: WorldMapStyle;
+  /** A just-released content pack's unit: a "חדש!" tag on the sign */
+  isNew?: boolean;
 }
 
 /** A unit's header: a strip across the join between two backgrounds with a sign of its titles. */
-export const UnitBanner: React.FC<UnitBannerProps> = ({ unit, bannerTop, mapHeight, starsEarned, starsPossible, style }) => (
+export const UnitBanner: React.FC<UnitBannerProps> = ({
+  unit,
+  bannerTop,
+  mapHeight,
+  starsEarned,
+  starsPossible,
+  style,
+  isNew = false,
+}) => (
   <div
     className="absolute inset-x-0 z-[3] flex items-center justify-center"
     style={{ top: `${(bannerTop / mapHeight) * 100}%`, height: `${(MAP_BANNER_HEIGHT / mapHeight) * 100}%` }}
@@ -49,6 +59,11 @@ export const UnitBanner: React.FC<UnitBannerProps> = ({ unit, bannerTop, mapHeig
     <div
       className={`relative w-[88%] h-[86%] rounded-2xl px-3 flex items-center gap-2.5 ${style.bannerSignClass}`}
     >
+      {isNew && (
+        <span className="absolute -top-2.5 right-3 px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 text-xs font-extrabold shadow-md ring-2 ring-white/80">
+          חדש!
+        </span>
+      )}
       <span
         className={`w-11 h-11 shrink-0 rounded-2xl flex items-center justify-center text-2xl shadow-md ${style.bannerBadgeClass}`}
         aria-hidden="true"

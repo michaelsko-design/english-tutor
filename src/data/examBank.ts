@@ -19,6 +19,11 @@ import {
 } from './curriculum/examBank/types';
 import { getSentenceOrderHintHe, isolateLtr } from '../utils/hints';
 import { hebrewTemplate } from '../utils/hebrewGender';
+import { CURRICULUM_BY_GRADE } from './curriculum';
+import { ALL_PACK_EXAM_BANK_LOADERS } from './curriculum/packs';
+import { mergeExamBank } from './curriculum/packs/merge';
+import { IS_PACK_PREVIEW } from './curriculum/packs/registry';
+import type { ContentPackId, PackExamBankLoaders } from './curriculum/packs/types';
 
 export type {
   ExamBankPack,
@@ -50,12 +55,28 @@ function getGradeNumber(gradeId: GradeId): number {
   return Number(gradeId.replace('grade-', ''));
 }
 
-/** The grade's bank. Null when it has none yet, or when loading fails (offline). */
+/**
+ * The released content packs' bank loaders. When a pack ships, add its loaders here
+ * (`./curriculum/packs/<id>`) next to its entry in `RELEASED_CONTENT_PACKS`.
+ */
+const RELEASED_PACK_EXAM_BANK_LOADERS: Partial<Record<ContentPackId, PackExamBankLoaders>> = {};
+
+const PACK_EXAM_BANK_LOADERS: Partial<Record<ContentPackId, PackExamBankLoaders>> = IS_PACK_PREVIEW
+  ? ALL_PACK_EXAM_BANK_LOADERS
+  : RELEASED_PACK_EXAM_BANK_LOADERS;
+
+/**
+ * The grade's bank, with the released packs' banks moved to their units' places. Null when it has
+ * none yet, or when loading fails (offline).
+ */
 export async function loadExamBank(gradeId: GradeId): Promise<ExamBankPack | null> {
-  const load = EXAM_BANK_LOADERS[getGradeNumber(gradeId)];
+  const grade = getGradeNumber(gradeId);
+  const load = EXAM_BANK_LOADERS[grade];
   if (!load) return null;
+  const packLoads = Object.values(PACK_EXAM_BANK_LOADERS).flatMap((loaders) => loaders?.[grade] ?? []);
   try {
-    return await load();
+    const [base, ...packBanks] = await Promise.all([load(), ...packLoads.map((loadPack) => loadPack())]);
+    return packBanks.length === 0 ? base : mergeExamBank(base, packBanks, CURRICULUM_BY_GRADE[gradeId]?.units ?? []);
   } catch {
     // A missing chunk (offline, or a new release) only means the session uses the mission questions.
     return null;

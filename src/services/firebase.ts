@@ -13,10 +13,11 @@ import {
 /**
  * `npm run dev:emu` runs Vite in "emulator" mode: Auth and Firestore talk to the local Firebase
  * emulators (`npm run emulators`) under a demo project, never to the live project. Only honoured
- * on localhost, so a production build can't be pointed at an emulator.
+ * on localhost, so a production build can't be pointed at an emulator. `npm run dev:packs` (mode
+ * "packs", every content pack shown) uses the emulators too.
  */
 const isEmulatorMode: boolean =
-  import.meta.env.MODE === 'emulator' &&
+  ['emulator', 'packs'].includes(import.meta.env.MODE) &&
   typeof window !== 'undefined' &&
   ['localhost', '127.0.0.1'].includes(window.location.hostname);
 

@@ -32,6 +32,10 @@ export interface HighSchoolUnitSpec {
   titleHe: string;
   subtitleHe: string;
   badgeEmoji: string;
+  /** The unit number in the mission ids when it differs from the unit's place (content packs: 21 up) */
+  idUnitNumber?: number;
+  /** The unit number the rewards are scaled by when it differs from the id (content packs: 5–8) */
+  xpUnitNumber?: number;
   missions: HighSchoolMissionSpec[];
 }
 
@@ -60,19 +64,21 @@ function buildMission(
   gradeId: GradeId,
   unitNumber: number,
   missionNumber: number,
-  spec: HighSchoolMissionSpec
+  spec: HighSchoolMissionSpec,
+  idUnitNumber = unitNumber,
+  xpUnitNumber = idUnitNumber
 ): MissionNode {
   const grade = gradeNumber(gradeId);
   const isBoss = Boolean(spec.isBoss);
   const baseXp =
-    (BASE_XP_BY_GRADE[grade] ?? 90) + (unitNumber - 1) * 5 + (missionNumber - 1) * 5 + (isBoss ? 15 : 0);
+    (BASE_XP_BY_GRADE[grade] ?? 90) + (xpUnitNumber - 1) * 5 + (missionNumber - 1) * 5 + (isBoss ? 15 : 0);
   const baseDiamonds = Math.round(baseXp / 3.5);
   const estimatedMinutes = 5 + (isBoss ? 2 : 0);
   const words = spec.vocab.map((v) => v[0]).join(', ');
   const { seed } = spec;
 
   const mission: MissionNode = {
-    id: `g${grade}-u${unitNumber}-m${missionNumber}`,
+    id: `g${grade}-u${idUnitNumber}-m${missionNumber}`,
     unitNumber,
     missionNumber,
     icon: spec.icon,
@@ -126,7 +132,9 @@ export function buildHighSchoolGrade(
       titleHe: u.titleHe,
       subtitleHe: u.subtitleHe,
       badgeEmoji: u.badgeEmoji,
-      missions: u.missions.map((m, mIdx) => buildMission(gradeId, unitNumber, mIdx + 1, m)),
+      missions: u.missions.map((m, mIdx) =>
+        buildMission(gradeId, unitNumber, mIdx + 1, m, u.idUnitNumber, u.xpUnitNumber)
+      ),
     };
   });
   return { gradeId, units: builtUnits };

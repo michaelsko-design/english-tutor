@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { CURRICULUM_BY_GRADE, MissionNode } from './curriculum';
+import { MissionNode } from './curriculum';
+import { CURRICULUM_WITH_ALL_PACKS } from './curriculum/packs/all';
 import { getExercisesForMission } from './missionExercises';
 import { LearnerGender, ProficiencyTier } from '../types/learner';
 import { decidingWords, toTokens } from './testing/answerWords';
@@ -7,7 +8,7 @@ import { decidingWords, toTokens } from './testing/answerWords';
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
 const GENDERS: LearnerGender[] = ['girl', 'boy'];
 
-const ALL_MISSIONS: MissionNode[] = Object.values(CURRICULUM_BY_GRADE).flatMap((pack) =>
+const ALL_MISSIONS: MissionNode[] = Object.values(CURRICULUM_WITH_ALL_PACKS).flatMap((pack) =>
   pack.units.flatMap((u) => u.missions)
 );
 /** Missions with a drill seed: all but grade 1's letters and blending missions (Feature 48). */

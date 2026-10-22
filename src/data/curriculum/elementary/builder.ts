@@ -39,6 +39,11 @@ export interface ElementaryUnitSpec {
    * units kept theirs (g1-u1…), which keeps every learner's stars on the missions they played.
    */
   idUnitNumber?: number;
+  /**
+   * The unit number the rewards are scaled by when it differs from the id: a content pack's units
+   * have ids from 21 up but pay like units 5–8 (`packs/registry.ts`).
+   */
+  xpUnitNumber?: number;
   /** Grade 1's phonics units hold letters and blending missions (Feature 48) */
   missions: (ElementaryMissionSpec | PhonicsMissionSpec)[];
 }
@@ -72,12 +77,13 @@ function buildMission(
   unitNumber: number,
   missionNumber: number,
   spec: ElementaryMissionSpec,
-  idUnitNumber = unitNumber
+  idUnitNumber = unitNumber,
+  xpUnitNumber = idUnitNumber
 ): MissionNode {
   const grade = gradeNumber(gradeId);
   const isBoss = Boolean(spec.isBoss);
   const baseXp =
-    (BASE_XP_BY_GRADE[grade] ?? 40) + (idUnitNumber - 1) * 5 + (missionNumber - 1) * 5 + (isBoss ? 15 : 0);
+    (BASE_XP_BY_GRADE[grade] ?? 40) + (xpUnitNumber - 1) * 5 + (missionNumber - 1) * 5 + (isBoss ? 15 : 0);
   const baseDiamonds = Math.round(baseXp / 4);
   const estimatedMinutes = (grade <= 2 ? 2 : grade <= 4 ? 3 : 4) + (isBoss ? 1 : 0);
   const words = spec.vocab.map((v) => v[0]).join(', ');
@@ -141,7 +147,7 @@ export function buildElementaryGrade(
       missions: u.missions.map((m, mIdx) =>
         'phonics' in m
           ? buildPhonicsMission(gradeId, unitNumber, mIdx + 1, m, u.idUnitNumber)
-          : buildMission(gradeId, unitNumber, mIdx + 1, m, u.idUnitNumber)
+          : buildMission(gradeId, unitNumber, mIdx + 1, m, u.idUnitNumber, u.xpUnitNumber)
       ),
     };
   });

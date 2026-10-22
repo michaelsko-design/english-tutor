@@ -6,7 +6,8 @@ import {
   getSuggestedMission,
   isMissionUnlocked,
 } from './milestones';
-import { CURRICULUM_BY_GRADE, CurriculumUnit, MissionNode } from './curriculum';
+import { CurriculumUnit, MissionNode } from './curriculum';
+import { CURRICULUM_WITH_ALL_PACKS } from './curriculum/packs/all';
 
 const makeMission = (unitNumber: number, missionNumber: number, isBoss = false): MissionNode =>
   ({
@@ -130,6 +131,39 @@ describe('getSuggestedMission', () => {
   });
 });
 
+describe('unlock tracks of content packs', () => {
+  const sequenceUnit = makeUnit(5);
+  const openUnits = [makeUnit(6), makeUnit(7)].map((u) => ({ ...u, track: 'holidays' }));
+  const done = (units: CurriculumUnit[]) =>
+    Object.fromEntries(units.flatMap((u) => u.missions).map((m) => [m.id, 3]));
+
+  it('opens the first mission of an open pack at once, and keeps its own order', () => {
+    const units = [...UNITS, ...openUnits];
+    expect(isMissionUnlocked(units, {}, 'u6-m1')).toBe(true);
+    expect(isMissionUnlocked(units, {}, 'u6-m2')).toBe(false);
+    expect(isMissionUnlocked(units, { 'u6-m1': 1 }, 'u6-m2')).toBe(true);
+    expect(isMissionUnlocked(units, { 'u6-m1': 3, 'u6-m2': 3 }, 'u7-m1')).toBe(false);
+  });
+
+  it('keeps the Boss gate inside an open pack', () => {
+    expect(isMissionUnlocked([...UNITS, ...openUnits], { 'u6-m1': 1, 'u6-m2': 1 }, 'u6-m3')).toBe(false);
+  });
+
+  it('continues the path after the grade, even when an open pack shipped first', () => {
+    const units = [...UNITS, ...openUnits, sequenceUnit];
+    expect(isMissionUnlocked(units, {}, 'u5-m1')).toBe(false);
+    expect(isMissionUnlocked(units, done(UNITS), 'u5-m1')).toBe(true);
+    expect(isMissionUnlocked(units, done(openUnits), 'u5-m1')).toBe(false);
+  });
+
+  it('suggests the path first, then the open pack', () => {
+    const units = [...UNITS, ...openUnits, sequenceUnit];
+    expect(getSuggestedMission(units, {}).mission.id).toBe('u1-m1');
+    expect(getSuggestedMission(units, done(UNITS)).mission.id).toBe('u5-m1');
+    expect(getSuggestedMission(units, done([...UNITS, sequenceUnit])).mission.id).toBe('u6-m1');
+  });
+});
+
 describe('countCompletedMissions', () => {
   it('counts distinct missions with at least one star', () => {
     expect(countCompletedMissions({ a: 1, b: 3, c: 0, d: 2 })).toBe(3);
@@ -142,7 +176,7 @@ describe('countCompletedMissions', () => {
 
 describe('curriculum boss layout', () => {
   it('every unit in every grade ends with exactly one boss mission', () => {
-    const units = Object.values(CURRICULUM_BY_GRADE).flatMap((pack) => pack.units);
+    const units = Object.values(CURRICULUM_WITH_ALL_PACKS).flatMap((pack) => pack.units);
 
     for (const unit of units) {
       const bosses = unit.missions.filter((m) => m.isBoss);

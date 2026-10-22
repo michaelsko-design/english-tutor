@@ -105,6 +105,13 @@ export interface CurriculumUnit {
   subtitleHe: string;
   badgeEmoji: string;
   missions: MissionNode[];
+  /** The content pack the unit came from (`packs/registry.ts`); missing on the grade's own units */
+  packId?: string;
+  /**
+   * The unlock track of a pack that opens on its own (the holidays pack): its missions follow
+   * one another but don't wait for the main path. Missing on the main path.
+   */
+  track?: string;
 }
 
 export interface GradeCurriculumPack {

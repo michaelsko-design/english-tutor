@@ -3,10 +3,13 @@
  * option of the grade 1–2 missions, lessons and exam banks, for both genders and every tier, built
  * with the app's own generators so the clip keys match the screen.
  */
-import { CURRICULUM_BY_GRADE } from '../../src/data/curriculum';
 import { getExercisesForMission, type MissionExerciseStep } from '../../src/data/missionExercises';
-import { ALL_LESSON_PACKS } from '../../src/data/curriculum/lessons';
-import { ALL_EXAM_BANKS } from '../../src/data/curriculum/examBank';
+// Every content pack is voiced before it ships, so the corpus reads the curriculum as if all had shipped
+import {
+  ALL_EXAM_BANKS_WITH_PACKS as ALL_EXAM_BANKS,
+  ALL_LESSON_PACKS_WITH_PACKS as ALL_LESSON_PACKS,
+  CURRICULUM_WITH_ALL_PACKS as CURRICULUM_BY_GRADE,
+} from '../../src/data/curriculum/packs/all';
 import { buildBossRecap } from '../../src/data/miniLessons';
 import { buildBankSteps } from '../../src/data/examBank';
 import { HEBREW_AUDIO_GRADES } from '../../src/data/hebrewAudio';
@@ -22,6 +25,8 @@ import {
 import { getHebrewCopy } from '../../src/utils/hebrewGender';
 import { BLEND_WORDS } from '../../src/data/blendingWords';
 import { getSpeechErrorTextHe, type SpeechErrorKind } from '../../src/hooks/useSpeechRecognition';
+import { CONTENT_PACKS } from '../../src/data/curriculum/packs/registry';
+import { getNewPackCopy } from '../../src/data/contentPacks';
 import { CorpusBuilder } from './corpusBuilder';
 
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
@@ -116,6 +121,10 @@ function addFixedFeedback(corpus: CorpusBuilder): void {
     corpus.add(getHebrewCopy(gender, '').stickersLockedBody);
   }
   corpus.add(NON_READER_RESULT_HE);
+  // The home card of a newly released content pack (2 units in every grade)
+  for (const pack of Object.values(CONTENT_PACKS)) {
+    GENDERS.forEach((gender) => corpus.add(getNewPackCopy(pack, 2, gender).spokenHe));
+  }
   BLEND_WORDS.forEach((word) => corpus.add(getWordBuiltHe(word.word)));
 }
 

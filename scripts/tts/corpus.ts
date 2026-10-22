@@ -3,10 +3,13 @@
  * uses, so the clip keys match what the read-aloud service looks up. Text that isn't here (word
  * lists, sticker names, assembled dreams) is read by the online voice instead.
  */
-import { CURRICULUM_BY_GRADE } from '../../src/data/curriculum';
 import { getExercisesForMission } from '../../src/data/missionExercises';
-import { ALL_LESSON_PACKS } from '../../src/data/curriculum/lessons';
-import { ALL_EXAM_BANKS } from '../../src/data/curriculum/examBank';
+// Every content pack is voiced before it ships, so the corpus reads the curriculum as if all had shipped
+import {
+  ALL_EXAM_BANKS_WITH_PACKS as ALL_EXAM_BANKS,
+  ALL_LESSON_PACKS_WITH_PACKS as ALL_LESSON_PACKS,
+  CURRICULUM_WITH_ALL_PACKS as CURRICULUM_BY_GRADE,
+} from '../../src/data/curriculum/packs/all';
 import { buildBankSteps } from '../../src/data/examBank';
 import type { MissionExerciseStep } from '../../src/data/missionExercises';
 import type { ExamSkill, GradeId } from '../../src/types/learner';

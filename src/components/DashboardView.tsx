@@ -47,6 +47,9 @@ import { HomeHud } from './home/HomeHud';
 import { HomeHero } from './home/HomeHero';
 import { QuestRings } from './home/QuestRings';
 import { MapPeek } from './home/MapPeek';
+import { NewPackCard } from './home/NewPackCard';
+import { readSeenPacks, rememberSeenPack } from './home/seenPacks';
+import { getNewPackOffer } from '../data/contentPacks';
 import { StatsSheet } from './home/StatsSheet';
 import { BookOpen, Home, Map as MapIcon, Settings, ShoppingBag } from 'lucide-react';
 import { lazyNamed } from '../utils/lazyNamed';
@@ -97,6 +100,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [roomRewardToast, setRoomRewardToast] = useState<RoomRewardItem | null>(null);
   const [isRoomOpen, setIsRoomOpen] = useState(false);
   const [openSheet, setOpenSheet] = useState<HomeSheet | null>(null);
+  const [seenPackIds, setSeenPackIds] = useState<string[]>(() => readSeenPacks());
+  const [mapFocus, setMapFocus] = useState<{ missionId: string; requestId: number } | null>(null);
 
   useEffect(() => {
     if (!roomRewardToast) return;
@@ -137,6 +142,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const currentStreak = getCurrentStreak(profile, todayStr);
   const questRings = getQuestRings(getDailyQuests(profile.gender), dailyCounters, claimedQuestIds);
   const mapPeek = getMapPeek(gradeCurriculum.units, profile.missionProgress || {});
+  const newPackOffer = getNewPackOffer(gradeCurriculum.units, todayStr, seenPackIds);
   const greetingHe = getHomeGreetingHe({
     gender: profile.gender,
     name: profile.name,
@@ -299,6 +305,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     });
   };
 
+  const dismissPackOffer = (packId: string) => {
+    rememberSeenPack(packId);
+    setSeenPackIds(readSeenPacks());
+  };
+
   const scrollToSection = (elementId: string) => {
     const el = document.getElementById(elementId);
     if (el) {
@@ -371,6 +382,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <ProgressReportHub profile={profile} theme={theme} onSpeakEnglish={speakEnglish} />
         </nav>
 
+        {/* A NEWLY RELEASED CONTENT PACK, ONCE PER DEVICE */}
+        {newPackOffer && (
+          <NewPackCard
+            offer={newPackOffer}
+            gender={profile.gender}
+            theme={theme}
+            readsHebrewAloud={playsHebrewAloud(profile.gradeId)}
+            onOpen={() => {
+              dismissPackOffer(newPackOffer.pack.id);
+              setMapFocus({ missionId: newPackOffer.firstMissionId, requestId: Date.now() });
+              scrollToSection('mission-map');
+            }}
+            onClose={() => dismissPackOffer(newPackOffer.pack.id)}
+          />
+        )}
+
         {/* FEATURE 27: MAP PEEK, THEN THE FULL MAP */}
         {mapPeek && (
           <MapPeek
@@ -392,6 +419,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             gender={profile.gender}
             onStartMission={(mission) => handleLaunchMission(mission, true)}
             onSpeakEnglish={speakEnglish}
+            focusRequest={mapFocus}
           />
         </div>
       </main>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { evaluateSpokenSentence } from './speechSimilarity';
-import { CURRICULUM_BY_GRADE } from '../data/curriculum';
+import { CURRICULUM_WITH_ALL_PACKS } from '../data/curriculum/packs/all';
 
 function expectFullMatch(target: string, spoken: string) {
   const result = evaluateSpokenSentence(target, spoken);
@@ -135,7 +135,7 @@ describe('evaluateSpokenSentence', () => {
   });
 
   it('fully matches every curriculum speaking target read back exactly', () => {
-    const targets = Object.values(CURRICULUM_BY_GRADE).flatMap((pack) =>
+    const targets = Object.values(CURRICULUM_WITH_ALL_PACKS).flatMap((pack) =>
       pack.units.flatMap((u) =>
         u.missions.flatMap((m) => [m.sampleSentenceEn, m.drillSeed?.shortSentenceEn ?? '', ...m.vocabulary.map((v) => v.wordEn)])
       )

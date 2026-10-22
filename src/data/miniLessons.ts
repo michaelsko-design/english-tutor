@@ -7,6 +7,10 @@
  */
 import type { MissionNode } from './curriculum';
 import type { LessonPack, MiniLesson } from './curriculum/lessons/types';
+import { ALL_PACK_LESSON_LOADERS } from './curriculum/packs';
+import { mergeLessonPacks } from './curriculum/packs/merge';
+import { IS_PACK_PREVIEW } from './curriculum/packs/registry';
+import type { ContentPackId, PackLessonLoaders } from './curriculum/packs/types';
 
 export type { LessonExample, LessonPack, LessonQuickTry, MiniLesson } from './curriculum/lessons/types';
 
@@ -25,6 +29,23 @@ export const LESSON_PACK_LOADERS: Partial<Record<number, () => Promise<LessonPac
   11: () => import('./curriculum/lessons/grade11').then((m) => m.GRADE_11_LESSONS),
   12: () => import('./curriculum/lessons/grade12').then((m) => m.GRADE_12_LESSONS),
 };
+
+/**
+ * The released content packs' lesson loaders. When a pack ships, add its loaders here
+ * (`./curriculum/packs/<id>`) next to its entry in `RELEASED_CONTENT_PACKS`.
+ */
+const RELEASED_PACK_LESSON_LOADERS: Partial<Record<ContentPackId, PackLessonLoaders>> = {};
+
+const PACK_LESSON_LOADERS: Partial<Record<ContentPackId, PackLessonLoaders>> = IS_PACK_PREVIEW
+  ? ALL_PACK_LESSON_LOADERS
+  : RELEASED_PACK_LESSON_LOADERS;
+
+/** The grade's lessons with the released packs' lessons; a pack's lessons load with its grade's. */
+async function loadGradeLessons(grade: number, loadPack: () => Promise<LessonPack>): Promise<LessonPack> {
+  const packLoads = Object.values(PACK_LESSON_LOADERS).flatMap((loaders) => loaders?.[grade] ?? []);
+  const [base, ...packLessons] = await Promise.all([loadPack(), ...packLoads.map((load) => load())]);
+  return packLessons.length === 0 ? base : mergeLessonPacks(base, packLessons);
+}
 
 /** Mission ids are `g<grade>-u<unit>-m<mission>`. */
 const MISSION_ID_PATTERN = /^g(\d+)-u(\d+)-m(\d+)$/;
@@ -83,9 +104,9 @@ export function resolveMiniLesson(mission: Pick<MissionNode, 'id' | 'isBoss'>, p
 export async function loadMiniLesson(mission: Pick<MissionNode, 'id' | 'isBoss'>): Promise<MiniLesson | null> {
   const grade = getGradeNumberFromMissionId(mission.id);
   const loadPack = grade === null ? undefined : LESSON_PACK_LOADERS[grade];
-  if (!loadPack) return null;
+  if (grade === null || !loadPack) return null;
   try {
-    return resolveMiniLesson(mission, await loadPack());
+    return resolveMiniLesson(mission, await loadGradeLessons(grade, loadPack));
   } catch {
     // A missing chunk (offline, or a new release) only means the mission starts without the lesson.
     return null;

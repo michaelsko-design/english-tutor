@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { CURRICULUM_BY_GRADE, isPhonicsUnit } from './curriculum';
+import { isPhonicsUnit } from './curriculum';
+import { ALL_EXAM_BANKS_WITH_PACKS, ALL_LESSON_PACKS_WITH_PACKS, CURRICULUM_WITH_ALL_PACKS } from './curriculum/packs/all';
 import { ALL_EXAM_BANKS } from './curriculum/examBank';
-import { ALL_LESSON_PACKS } from './curriculum/lessons';
 import {
   EXAM_BANK_BLANK,
   EXAM_BANK_ITEMS_PER_LIST,
@@ -18,7 +18,7 @@ import type { ExamSkill, GradeId, ProficiencyTier } from '../types/learner';
 
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
 const SKILLS: ExamSkill[] = ['vocabulary', 'grammar', 'sentences', 'unseen'];
-const BANKS = Object.entries(ALL_EXAM_BANKS).map(([grade, bank]) => ({
+const BANKS = Object.entries(ALL_EXAM_BANKS_WITH_PACKS).map(([grade, bank]) => ({
   grade: Number(grade),
   gradeId: `grade-${grade}` as GradeId,
   bank: bank as ExamBankPack,
@@ -47,7 +47,7 @@ function collectTextsOutsideExams(): Set<string> {
   const add = (text: string | undefined) => {
     if (text && countWords(text) >= 3) texts.add(normalize(text.replace(/_+/g, ' ')));
   };
-  for (const pack of Object.values(CURRICULUM_BY_GRADE)) {
+  for (const pack of Object.values(CURRICULUM_WITH_ALL_PACKS)) {
     for (const mission of pack.units.flatMap((u) => u.missions)) {
       add(mission.sampleSentenceEn);
       mission.vocabulary.forEach((v) => add(v.exampleEn));
@@ -59,7 +59,7 @@ function collectTextsOutsideExams(): Set<string> {
       }
     }
   }
-  for (const pack of Object.values(ALL_LESSON_PACKS)) {
+  for (const pack of Object.values(ALL_LESSON_PACKS_WITH_PACKS)) {
     for (const lesson of Object.values(pack)) {
       lesson.examples.forEach((e) => add(e.en));
       add(lesson.quickTry?.questionEn);
@@ -99,15 +99,16 @@ function hebrewInstructions(bank: ExamBankPack): string[] {
 describe('exam question bank (Feature 43)', () => {
   it('has a loader for every bank in the index, and an index entry for every loader', async () => {
     expect(Object.keys(EXAM_BANK_LOADERS).sort()).toEqual(Object.keys(ALL_EXAM_BANKS).sort());
-    for (const { gradeId, bank } of BANKS) {
-      expect(await loadExamBank(gradeId)).toBe(bank);
+    // No content pack is released, so the app loads each grade's own bank
+    for (const { grade, gradeId } of BANKS) {
+      expect(await loadExamBank(gradeId)).toBe(ALL_EXAM_BANKS[grade]);
     }
     expect(await loadExamBank('grade-13' as GradeId)).toBeNull();
   });
 
   it.each(BANKS)('grade $grade has every unit with full lists and two passages', ({ grade, bank }) => {
     // Grade 1's letters and blending units have no exam bank (Feature 48)
-    const units = CURRICULUM_BY_GRADE[`grade-${grade}` as GradeId].units
+    const units = CURRICULUM_WITH_ALL_PACKS[`grade-${grade}` as GradeId].units
       .filter((u) => !isPhonicsUnit(u))
       .map((u) => u.unitNumber);
     expect(Object.keys(bank).map(Number).sort((a, b) => a - b)).toEqual(units);
@@ -121,7 +122,7 @@ describe('exam question bank (Feature 43)', () => {
   });
 
   it.each(BANKS)('grade $grade vocabulary tests the unit words with one blank', ({ grade, bank }) => {
-    const pack = CURRICULUM_BY_GRADE[`grade-${grade}` as GradeId];
+    const pack = CURRICULUM_WITH_ALL_PACKS[`grade-${grade}` as GradeId];
     for (const [unitNumber, u] of Object.entries(bank)) {
       const unit = pack.units.find((x) => x.unitNumber === Number(unitNumber))!;
       const unitWords = new Set(unit.missions.flatMap((m) => m.vocabulary.map((v) => v.wordEn.toLowerCase())));

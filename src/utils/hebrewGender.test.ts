@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { getHebrewCopy, hebrewTemplate, inflectHebrew, resolveGenderSlashes } from './hebrewGender';
-import { CURRICULUM_BY_GRADE, MissionNode } from '../data/curriculum';
+import { MissionNode } from '../data/curriculum';
+import { CURRICULUM_WITH_ALL_PACKS } from '../data/curriculum/packs/all';
 import { getExercisesForMission, getRawExercisesForMission, MissionExerciseStep } from '../data/missionExercises';
 import { ProficiencyTier } from '../types/learner';
 
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
 
-const ALL_MISSIONS: MissionNode[] = Object.values(CURRICULUM_BY_GRADE).flatMap((pack) =>
+const ALL_MISSIONS: MissionNode[] = Object.values(CURRICULUM_WITH_ALL_PACKS).flatMap((pack) =>
   pack.units.flatMap((u) => u.missions)
 );
 /** Missions with a drill seed: all but grade 1's letters and blending missions (Feature 48). */

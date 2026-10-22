@@ -11,6 +11,7 @@
     "test:e2e": "firebase emulators:exec --only auth,firestore --project demo-english-vibe \"playwright test\"",
     "test:e2e:headed": "firebase emulators:exec --only auth,firestore --project demo-english-vibe \"playwright test --headed --project=desktop\"",
     "dev:emu": "vite --mode emulator",
+    "dev:packs": "vite --mode packs",
     "tts:corpus": "vite-node scripts/tts/collectCorpus.ts",
     "tts:render": "vite-node scripts/tts/renderClips.ts --",
     "tts:check": "vite-node scripts/tts/checkClips.ts --",
