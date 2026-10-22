@@ -24,6 +24,7 @@ import { recordActivityLog } from './data/activityLog';
 import { getFirstLaunchSteps } from './data/homeBase';
 import { THEME_REGISTRY } from './themes/themeRegistry';
 import { useFriendPresence } from './hooks/useFriendPresence';
+import { useStickerImageSync } from './hooks/useStickerImageSync';
 import { usePendingInvite } from './hooks/usePendingInvite';
 import { CloudLoadErrorScreen } from './components/CloudLoadErrorScreen';
 import { ScreenLoading } from './components/ScreenLoading';
@@ -303,6 +304,14 @@ export function App() {
     document.documentElement.classList.toggle('dark', activeTheme.isDark);
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', activeTheme.themeColor);
   }, [activeTheme]);
+
+  useStickerImageSync({
+    uid: authUser?.uid,
+    isReady: !isAuthInitializing && !isCloudLoadFailed,
+    profile,
+    getLatestProfile: () => profileRef.current,
+    onUpdateProfile: handleUpdateProfile,
+  });
 
   useFriendPresence({
     authUser,

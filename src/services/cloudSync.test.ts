@@ -326,7 +326,6 @@ describe('mergeLearnerProfiles room', () => {
     const sticker = (id: string, archivedAt?: string) => ({
       id,
       nameEn: id,
-      imageDataUrl: archivedAt ? '' : 'data:image/png;base64,AAA',
       createdAt: '2026-10-10T08:00:00.000Z',
       ...(archivedAt ? { archivedAt } : {}),
     });
@@ -335,8 +334,8 @@ describe('mergeLearnerProfiles room', () => {
       { room: { ...olderRoom, drawnStickers: [sticker('a', '2026-10-15T08:00:00.000Z'), sticker('c')] } }
     ).room!;
     expect(merged.drawnStickers?.map((s) => s.id)).toEqual(['a', 'b', 'c']);
-    expect(merged.drawnStickers?.[0]).toMatchObject({ archivedAt: '2026-10-15T08:00:00.000Z', imageDataUrl: '' });
-    expect(merged.drawnStickers?.[1].imageDataUrl).toBe('data:image/png;base64,AAA');
+    expect(merged.drawnStickers?.[0]).toMatchObject({ archivedAt: '2026-10-15T08:00:00.000Z' });
+    expect(merged.drawnStickers?.[0]).not.toHaveProperty('imageDataUrl');
   });
 
   it('keeps only the newest drawn stickers active when both devices drew a full set', () => {
@@ -360,7 +359,7 @@ describe('mergeLearnerProfiles room', () => {
     expect(active.map((s) => s.id)).toEqual(cloud.map((s) => s.id));
     const archived = merged.filter((s) => s.archivedAt);
     expect(archived.map((s) => s.id)).toEqual(local.map((s) => s.id));
-    expect(archived.every((s) => s.imageDataUrl === '' && s.archivedAt === '2026-10-24T08:00:00.000Z')).toBe(true);
+    expect(archived.every((s) => s.imageDataUrl === undefined && s.archivedAt === '2026-10-24T08:00:00.000Z')).toBe(true);
 
     // The other device computes the same result
     const reversed = mergeLearnerProfiles(

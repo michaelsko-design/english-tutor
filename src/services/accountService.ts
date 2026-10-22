@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth';
 import { collection, deleteDoc, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { auth, db, googleProvider } from './firebase';
+import { deleteAllStickerImages, loadAllStickerImages } from './stickerImages';
 import { LearnerProfile } from '../types/learner';
 import { normalizeIdentifierToEmail, toUsernameSlug, usernameFromEmail } from '../utils/username';
 
@@ -72,6 +73,8 @@ async function deleteLearnerData(user: User, friendCode: string | undefined): Pr
     const nameRef = doc(db, 'usernames', toUsernameSlug(username));
     if ((await getDoc(nameRef)).exists()) await deleteDoc(nameRef);
   }
+  // A document's subcollections are not deleted with it
+  await deleteAllStickerImages(uid);
   await Promise.all([
     deleteDoc(doc(db, 'friendCodeOwners', uid)),
     deleteDoc(doc(db, 'publicProfiles', uid)),
@@ -96,9 +99,23 @@ export async function deleteAccount(friendCode: string | undefined, pin: string)
   }
 }
 
+/** The profile with the sticker pictures put back in, so the export is complete. */
+async function withStickerImages(profile: LearnerProfile): Promise<LearnerProfile> {
+  const stickers = profile.room?.drawnStickers;
+  if (!profile.room || !stickers?.length) return profile;
+  const images = await loadAllStickerImages(auth?.currentUser?.uid).catch(() => ({}) as Record<string, string>);
+  return {
+    ...profile,
+    room: {
+      ...profile.room,
+      drawnStickers: stickers.map((s) => (images[s.id] && !s.archivedAt ? { ...s, imageDataUrl: images[s.id] } : s)),
+    },
+  };
+}
+
 /** The learner's data as a JSON file the browser downloads (no server involved). */
-export function downloadProfileJson(profile: LearnerProfile): void {
-  const blob = new Blob([JSON.stringify(profile, null, 2)], { type: 'application/json' });
+export async function downloadProfileJson(profile: LearnerProfile): Promise<void> {
+  const blob = new Blob([JSON.stringify(await withStickerImages(profile), null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;

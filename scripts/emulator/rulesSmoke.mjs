@@ -91,5 +91,22 @@ await expect('a public profile with possible stars is allowed', true, () =>
 await expect('a public profile with impossible stars is denied', false, () =>
   setDoc(doc(a.db, 'publicProfiles', ua.uid), publicProfile(5000)));
 
+const png = (size) => 'data:image/png;base64,' + 'A'.repeat(size);
+const stickerDoc = (imageDataUrl) => ({ imageDataUrl, createdAt: new Date().toISOString() });
+const stickerRef = (db, uid) => doc(db, 'learners', uid, 'stickers', 'drawn-1');
+await expect('a learner can save their own sticker picture', true, () =>
+  setDoc(stickerRef(a.db, ua.uid), stickerDoc(png(1000))));
+await expect('a learner can read their own sticker picture', true, () => getDoc(stickerRef(a.db, ua.uid)));
+await expect('someone else cannot read a sticker picture', false, () => getDoc(stickerRef(b.db, ua.uid)));
+await expect('someone else cannot write a sticker picture', false, () =>
+  setDoc(stickerRef(b.db, ua.uid), stickerDoc(png(1000))));
+await expect('a sticker picture that is not a PNG is denied', false, () =>
+  setDoc(stickerRef(a.db, ua.uid), stickerDoc('data:text/html;base64,AAAA')));
+await expect('an oversized sticker picture is denied', false, () =>
+  setDoc(stickerRef(a.db, ua.uid), stickerDoc(png(40000))));
+await expect('a sticker picture with extra fields is denied', false, () =>
+  setDoc(stickerRef(a.db, ua.uid), { ...stickerDoc(png(1000)), note: 'x' }));
+await expect('a learner can delete their own sticker picture', true, () => deleteDoc(stickerRef(a.db, ua.uid)));
+
 for (const [status, label, detail] of results) console.log(`${status}  ${label}${detail ? `  (${detail})` : ''}`);
 process.exit(results.some(([s]) => s === 'FAIL') ? 1 : 0);

@@ -9,6 +9,8 @@ import {
   setBackgroundSticker,
 } from '../../../data/stickers';
 import { getRoom } from '../../../data/room';
+import { useStickerImages } from '../../../hooks/useStickerImages';
+import { deleteStickerImage } from '../../../services/stickerImages';
 import { LearnerProfile } from '../../../types/learner';
 import { ThemeDefinition } from '../../../themes/themeRegistry';
 import { ItemIcon } from '../ItemIcon';
@@ -37,6 +39,7 @@ export const StickerStudioPanel: React.FC<StickerStudioPanelProps> = ({
   onOpenShop,
   onClose,
 }) => {
+  useStickerImages();
   const [isDrawing, setIsDrawing] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const room = getRoom(profile);
@@ -74,7 +77,7 @@ export const StickerStudioPanel: React.FC<StickerStudioPanelProps> = ({
           {stickers.map((item) => {
             const isOnBoard = placedIds.includes(item.id);
             const isBackground = room.backgroundStickerId === item.id;
-            const isDrawn = Boolean(item.imageUrl);
+            const isDrawn = Boolean(item.isDrawnSticker);
             return (
               <li key={item.id} className="p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 flex flex-col items-center gap-1.5">
                 <ItemIcon item={item} size="2.75rem" />
@@ -103,6 +106,9 @@ export const StickerStudioPanel: React.FC<StickerStudioPanelProps> = ({
                         type="button"
                         onClick={() => {
                           onUpdateProfile(deleteDrawnSticker(profile, item.id, new Date()));
+                          deleteStickerImage(item.id).catch((e) =>
+                            console.warn('Deleting the sticker picture failed:', (e as { code?: string })?.code ?? e)
+                          );
                           setConfirmDeleteId(null);
                         }}
                         onBlur={() => setConfirmDeleteId(null)}

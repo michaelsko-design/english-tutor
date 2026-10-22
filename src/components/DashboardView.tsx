@@ -40,6 +40,7 @@ import { FriendsHub } from './friends/FriendsHub';
 import { ProgressReportHub } from './progressReport/ProgressReportHub';
 import { StickerBackground } from './room/StickerBackground';
 import { getBackgroundSticker } from '../data/stickers';
+import { useStickerImages } from '../hooks/useStickerImages';
 import { RoomRewardItem, getNextRoomReward, getRoomRewardForMission } from '../data/roomRewards';
 import { preloadCompanion } from './companion/Companion';
 import { HomeHud } from './home/HomeHud';
@@ -107,6 +108,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     preloadCompanion(theme, ['idle'], COMPANION_PRELOAD_SIZE);
   }, [theme]);
   const activeAvatarEmoji = profile.equippedAvatarEmoji || theme.avatarEmoji;
+  useStickerImages();
   const backgroundSticker = getBackgroundSticker(profile);
   const currentGradeMeta =
     SUPPORTED_GRADES.find((g) => g.id === profile.gradeId) || SUPPORTED_GRADES[6];

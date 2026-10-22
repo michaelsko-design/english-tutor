@@ -23,7 +23,7 @@ import {
   VaultPracticeDay,
 } from '../types/learner';
 import { keepNewestEntries } from '../data/dreamJournal';
-import { MAX_DRAWN_STICKERS } from '../data/stickers';
+import { MAX_DRAWN_STICKERS, archiveSticker, stripStickerImages } from '../data/stickers';
 import { MAX_CONTEST_HISTORY } from '../data/contests';
 import { mergeActivityLog } from '../data/activityLog';
 import { toLocalDateStr } from '../utils/dates';
@@ -375,7 +375,7 @@ function mergeDrawnStickers(
     ...local.map((sticker) => {
       const match = cloudById.get(sticker.id);
       const archivedAt = earliestIso(sticker.archivedAt, match?.archivedAt);
-      return archivedAt ? { ...sticker, imageDataUrl: '', archivedAt } : sticker;
+      return archivedAt ? archiveSticker(sticker, archivedAt) : sticker;
     }),
     ...cloud.filter((s) => !localIds.has(s.id)),
   ]);
@@ -395,7 +395,7 @@ function archiveOverflowStickers(stickers: DrawnSticker[]): DrawnSticker[] {
   const keptIds = new Set(newestFirst.slice(0, MAX_DRAWN_STICKERS).map((s) => s.id));
   const archivedAt = newestFirst[0].createdAt;
   return stickers.map((s) =>
-    s.archivedAt || keptIds.has(s.id) ? s : { ...s, imageDataUrl: '', archivedAt }
+    s.archivedAt || keptIds.has(s.id) ? s : archiveSticker(s, archivedAt)
   );
 }
 
@@ -606,8 +606,9 @@ export async function saveProfileToFirestore(
 ): Promise<void> {
   if (!db) return;
   const docRef = doc(db, LEARNERS_COLLECTION, uid);
+  // Sticker pictures live in learners/{uid}/stickers, never in the profile document
   const sanitized = sanitizeForFirestore({
-    ...profile,
+    ...stripStickerImages(profile),
     updatedAt: new Date().toISOString(),
   });
   const batch = writeBatch(db);

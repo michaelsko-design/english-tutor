@@ -17,6 +17,7 @@ import {
   placeNamedRoomItemAt,
 } from '../../data/roomPlacement';
 import { getAlbumStickers } from '../../data/stickers';
+import { useStickerImages } from '../../hooks/useStickerImages';
 import { getWornItems } from '../../data/wardrobe';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
@@ -70,6 +71,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   onClose,
 }) => {
   useStopSpeechOnLeave();
+  useStickerImages();
   const isGirl = profile.gender === 'girl';
   const room = getRoom(profile);
   const ownedItems = getOwnedRoomItems(profile);

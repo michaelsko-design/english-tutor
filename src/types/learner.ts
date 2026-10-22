@@ -229,8 +229,11 @@ export interface DrawnSticker {
   id: string;
   /** The English name the learner gave it */
   nameEn: string;
-  /** Small PNG data URL; emptied when the sticker is deleted */
-  imageDataUrl: string;
+  /**
+   * Legacy only: the picture now lives in `learners/{uid}/stickers/{id}` (services/stickerImages.ts)
+   * and is stripped from the profile. Still read from older saves, then migrated.
+   */
+  imageDataUrl?: string;
   createdAt: string;
   /**
    * ISO timestamp of when the learner deleted it. Stickers are archived instead of removed,

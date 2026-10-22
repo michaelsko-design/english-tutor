@@ -66,6 +66,20 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
+    // Drawn-sticker pictures (src/services/stickerImages.ts): small PNGs, one document each, so they
+    // don't travel with every profile save. Owner only, PNG data URLs under 30,000 characters.
+    match /learners/{userId}/stickers/{stickerId} {
+      allow read, delete: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['imageDataUrl', 'createdAt'])
+        && request.resource.data.keys().hasAll(['imageDataUrl', 'createdAt'])
+        && request.resource.data.imageDataUrl is string
+        && request.resource.data.imageDataUrl.size() <= 30000
+        && request.resource.data.imageDataUrl.matches('^data:image/png;base64,.*')
+        && isIsoTime(request.resource.data.createdAt);
+    }
+
     // Friend codes and usernames point to a learner and show their name and avatar before adding.
     // They can be read one at a time (no listing), and only their owner can change them.
     function isLookupEntry(data) {

@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { celebrate } from '../../../utils/celebrate';
 import { Mic } from 'lucide-react';
+import { saveStickerImage } from '../../../services/stickerImages';
 import { AddStickerError, addDrawnSticker, isValidStickerName } from '../../../data/stickers';
 import { LearnerProfile } from '../../../types/learner';
 import { ThemeDefinition } from '../../../themes/themeRegistry';
@@ -67,11 +68,17 @@ export const StickerDrawPanel: React.FC<StickerDrawPanelProps> = ({ profile, the
 
   const handleSave = () => {
     if (!canvasRef.current || strokes.length === 0) return;
-    const result = addDrawnSticker(profile, name, canvasRef.current.exportPng(), new Date());
-    if (result.error) {
-      setError(getErrorText(result.error, isGirl));
+    const now = new Date();
+    const imageDataUrl = canvasRef.current.exportPng();
+    const result = addDrawnSticker(profile, name, imageDataUrl, now);
+    if (result.error || !result.stickerId) {
+      setError(getErrorText(result.error ?? 'bad-image', isGirl));
       return;
     }
+    // The picture is stored first, so the profile never names a sticker without one
+    saveStickerImage(result.stickerId, imageDataUrl, now.toISOString()).catch((e) =>
+      console.warn('Saving the sticker picture failed:', (e as { code?: string })?.code ?? e)
+    );
     onUpdateProfile(result.profile);
     onSpeakEnglish(name.trim(), 0.9);
     celebrate('small');

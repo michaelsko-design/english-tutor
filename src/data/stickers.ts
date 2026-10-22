@@ -1,4 +1,5 @@
 import { DrawnSticker, LearnerProfile } from '../types/learner';
+import { isValidStickerImage } from './stickerImageRules';
 import { RoomItem, applyItemNamedReward, getOwnedRoomItems, getRoom, getRoomItemFor } from './room';
 
 /**
@@ -11,9 +12,7 @@ export const STICKER_PASS_ID = 'pass-sticker-studio';
 export const MAX_DRAWN_STICKERS = 12;
 /** Drawings are saved as small square PNGs, so the synced profile stays small. */
 export const DRAWN_STICKER_SIZE = 96;
-/** A real 96px drawing is about 4–15 KB; 12 at the cap stay far below Firestore's 1 MiB per doc. */
-export const MAX_STICKER_DATA_URL_LENGTH = 30_000;
-const PNG_DATA_URL_PREFIX = 'data:image/png;base64,';
+export { MAX_STICKER_DATA_URL_LENGTH, isValidStickerImage } from './stickerImageRules';
 
 export type AddStickerError = 'no-pass' | 'full' | 'bad-name' | 'bad-image';
 
@@ -30,6 +29,32 @@ export function getActiveDrawnStickers(profile: LearnerProfile): DrawnSticker[] 
   return (getRoom(profile).drawnStickers || []).filter((sticker) => !sticker.archivedAt);
 }
 
+/** A sticker without its picture (the picture is kept in the stickers subcollection). */
+export function withoutStickerImage(sticker: DrawnSticker): DrawnSticker {
+  return Object.fromEntries(Object.entries(sticker).filter(([key]) => key !== 'imageDataUrl')) as unknown as DrawnSticker;
+}
+
+/** A deleted sticker: only the id, name and archive time stay, so other devices don't bring it back. */
+export function archiveSticker(sticker: DrawnSticker, archivedAt: string): DrawnSticker {
+  return { ...withoutStickerImage(sticker), archivedAt };
+}
+
+/** The profile with every inline sticker picture removed (the profile document stays small). */
+export function stripStickerImages(profile: LearnerProfile): LearnerProfile {
+  const stickers = profile.room?.drawnStickers;
+  if (!profile.room || !stickers?.some((s) => s.imageDataUrl !== undefined)) return profile;
+  return { ...profile, room: { ...profile.room, drawnStickers: stickers.map(withoutStickerImage) } };
+}
+
+/** Pictures still inline on active stickers (saved before the move), to be uploaded once. */
+export function getLegacyStickerImages(profile: LearnerProfile): Record<string, string> {
+  return Object.fromEntries(
+    (profile.room?.drawnStickers || [])
+      .filter((s) => !s.archivedAt && s.imageDataUrl && isValidStickerImage(s.imageDataUrl))
+      .map((s) => [s.id, s.imageDataUrl as string])
+  );
+}
+
 /** Lower case, single spaces. */
 export function normalizeStickerName(name: string): string {
   return name.trim().replace(/\s+/g, ' ').toLowerCase();
@@ -41,20 +66,18 @@ export function isValidStickerName(name: string): boolean {
   return clean.length >= 2 && clean.length <= 20 && /^[a-z]+( [a-z]+){0,2}$/.test(clean);
 }
 
-export function isValidStickerImage(dataUrl: string): boolean {
-  return dataUrl.startsWith(PNG_DATA_URL_PREFIX) && dataUrl.length <= MAX_STICKER_DATA_URL_LENGTH;
-}
-
 /**
- * Saves a drawing with its English name. Naming it counts as naming a new item (first-time XP),
- * so placing it later needs the name again but gives no extra XP.
+ * Adds a drawing with its English name. The profile only gets the id and name; the caller saves
+ * the returned `imageDataUrl` under the returned sticker id (services/stickerImages.ts).
+ * Naming it counts as naming a new item (first-time XP), so placing it later needs the name
+ * again but gives no extra XP.
  */
 export function addDrawnSticker(
   profile: LearnerProfile,
   nameEn: string,
   imageDataUrl: string,
   now: Date
-): { profile: LearnerProfile; error?: AddStickerError; xpEarned: number } {
+): { profile: LearnerProfile; error?: AddStickerError; xpEarned: number; stickerId?: string } {
   const fail = (error: AddStickerError) => ({ profile, error, xpEarned: 0 });
   if (!hasStickerPass(profile)) return fail('no-pass');
   if (getActiveDrawnStickers(profile).length >= MAX_DRAWN_STICKERS) return fail('full');
@@ -65,14 +88,13 @@ export function addDrawnSticker(
   const sticker: DrawnSticker = {
     id: `drawn-${now.getTime()}`,
     nameEn: normalizeStickerName(nameEn),
-    imageDataUrl,
     createdAt: now.toISOString(),
   };
   const withSticker: LearnerProfile = {
     ...profile,
     room: { ...room, drawnStickers: [...(room.drawnStickers || []), sticker] },
   };
-  return applyItemNamedReward(withSticker, sticker.id);
+  return { ...applyItemNamedReward(withSticker, sticker.id), stickerId: sticker.id };
 }
 
 /**
@@ -87,7 +109,7 @@ export function deleteDrawnSticker(profile: LearnerProfile, stickerId: string, n
     ...profile,
     room: {
       ...room,
-      drawnStickers: stickers.map((s) => (s.id === stickerId ? { ...s, imageDataUrl: '', archivedAt: now.toISOString() } : s)),
+      drawnStickers: stickers.map((s) => (s.id === stickerId ? archiveSticker(s, now.toISOString()) : s)),
       placements: Object.fromEntries(Object.entries(room.placements).filter(([, itemId]) => itemId !== stickerId)),
       positions: Object.fromEntries(
         Object.entries(room.positions ?? {}).filter(([key]) => room.placements[key] !== stickerId)

@@ -8,10 +8,13 @@ import {
   getActiveDrawnStickers,
   getAlbumStickers,
   getBackgroundSticker,
+  getLegacyStickerImages,
   isValidStickerName,
   setBackgroundSticker,
+  stripStickerImages,
 } from './stickers';
 import { ROOM_NAMING_XP, getOwnedRoomItems, getPlacedRoomItems, getRoom, placeRoomItem } from './room';
+import { rememberStickerImages } from './stickerImageStore';
 import { LearnerProfile } from '../types/learner';
 
 const NOW = new Date('2026-10-17T10:00:00.000Z');
@@ -67,7 +70,14 @@ describe('addDrawnSticker', () => {
     expect(result.error).toBeUndefined();
     expect(result.xpEarned).toBe(ROOM_NAMING_XP);
     const [sticker] = getActiveDrawnStickers(result.profile);
-    expect(sticker).toMatchObject({ nameEn: 'happy sun', imageDataUrl: PNG, createdAt: NOW.toISOString() });
+    expect(sticker).toMatchObject({ nameEn: 'happy sun', createdAt: NOW.toISOString() });
+    expect(sticker).not.toHaveProperty('imageDataUrl');
+    expect(result.stickerId).toBe(sticker.id);
+    expect(getOwnedRoomItems(result.profile).find((item) => item.id === sticker.id)).toMatchObject({
+      isDrawnSticker: true,
+      imageUrl: undefined,
+    });
+    rememberStickerImages({ [sticker.id]: PNG });
     const owned = getOwnedRoomItems(result.profile).find((item) => item.id === sticker.id);
     expect(owned).toMatchObject({ slotKind: 'board', imageUrl: PNG, nameEn: 'happy sun' });
     expect(getAlbumStickers(result.profile).map((i) => i.id)).toEqual(['sticker-london-compass', sticker.id]);
@@ -99,7 +109,10 @@ describe('deleteDrawnSticker', () => {
 
     const deleted = deleteDrawnSticker(placed, id, LATER);
     expect(getActiveDrawnStickers(deleted)).toEqual([]);
-    expect(getRoom(deleted).drawnStickers?.[0]).toMatchObject({ imageDataUrl: '', archivedAt: LATER.toISOString() });
+    expect(getRoom(deleted).drawnStickers?.[0]).toEqual(
+      expect.objectContaining({ archivedAt: LATER.toISOString() })
+    );
+    expect(getRoom(deleted).drawnStickers?.[0]).not.toHaveProperty('imageDataUrl');
     expect(getRoom(deleted).placements).toEqual({});
     expect(getBackgroundSticker(deleted)).toBeUndefined();
   });
@@ -119,5 +132,32 @@ describe('setBackgroundSticker', () => {
   it('ignores a sticker the learner does not own or a non-sticker item', () => {
     expect(setBackgroundSticker(baseProfile, 'sticker-backstage-pass', NOW)).toBe(baseProfile);
     expect(setBackgroundSticker(baseProfile, 'room-plant', NOW)).toBe(baseProfile);
+  });
+});
+
+describe('sticker pictures kept out of the profile', () => {
+  const legacyProfile = (): LearnerProfile => ({
+    ...baseProfile,
+    room: {
+      placements: {},
+      namedItemIds: [],
+      updatedAt: '',
+      drawnStickers: [
+        { id: 'drawn-1', nameEn: 'sun', imageDataUrl: PNG, createdAt: NOW.toISOString() },
+        { id: 'drawn-2', nameEn: 'old', createdAt: NOW.toISOString(), archivedAt: LATER.toISOString() },
+        { id: 'drawn-3', nameEn: 'bad', imageDataUrl: 'data:text/html;base64,AA', createdAt: NOW.toISOString() },
+      ],
+    },
+  });
+
+  it('finds the valid pictures still inline in an older profile', () => {
+    expect(getLegacyStickerImages(legacyProfile())).toEqual({ 'drawn-1': PNG });
+  });
+
+  it('strips every inline picture and leaves a clean profile alone', () => {
+    const stripped = stripStickerImages(legacyProfile());
+    expect(stripped.room?.drawnStickers?.some((s) => 'imageDataUrl' in s)).toBe(false);
+    expect(stripped.room?.drawnStickers?.map((s) => s.id)).toEqual(['drawn-1', 'drawn-2', 'drawn-3']);
+    expect(stripStickerImages(stripped)).toBe(stripped);
   });
 });

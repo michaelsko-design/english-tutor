@@ -1,5 +1,6 @@
 import { LearnerProfile, LearnerRoom } from '../types/learner';
 import { levelForXp } from './progressRewards';
+import { getStickerImage } from './stickerImageStore';
 
 /**
  * Feature 12 — My English Room: the room item catalog, fixed slots, 3-star rewards and the
@@ -17,6 +18,8 @@ export interface NameableItem {
   nameHe: string;
   /** A drawn sticker's picture, shown instead of the emoji */
   imageUrl?: string;
+  /** True for the learner's own drawing (its picture may not have loaded yet) */
+  isDrawnSticker?: boolean;
 }
 
 export interface RoomItem extends NameableItem {
@@ -116,7 +119,9 @@ export function getDrawnStickerItems(profile: LearnerProfile): RoomItem[] {
       nameEn: sticker.nameEn,
       nameHe: 'המדבקה שלי',
       slotKind: 'board' as const,
-      imageUrl: sticker.imageDataUrl,
+      isDrawnSticker: true,
+      // Until the picture arrives (another device, a slow start) the 🎨 emoji shows
+      imageUrl: getStickerImage(sticker.id) || sticker.imageDataUrl || undefined,
     }));
 }
 

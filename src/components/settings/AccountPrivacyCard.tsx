@@ -132,7 +132,7 @@ export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile,
         </button>
         <button
           type="button"
-          onClick={() => downloadProfileJson(profile)}
+          onClick={() => void downloadProfileJson(profile)}
           className={`min-h-11 p-2.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 ${theme.secondaryBtnClass}`}
         >
           <Download className="w-4 h-4" aria-hidden="true" />
