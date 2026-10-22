@@ -11,7 +11,8 @@ React 18 + TypeScript, Vite 6, Tailwind CSS 3 (`darkMode: 'class'`, set from the
 npm run dev          # Vite dev server
 npm run dev:emu      # Vite against the Firebase emulators (port 5173)
 npm run emulators    # Auth 9099 + Firestore 8080, demo project demo-english-vibe (needs Java 21+)
-npm test             # Vitest (vitest run)
+npm test             # Vitest: unit (node) + component tests (jsdom, src/**/*.test.tsx)
+npm run test:e2e     # Playwright on desktop + phone against fresh emulators (needs Java 21+, firebase CLI)
 npm run lint         # ESLint
 npm run typecheck    # tsc -b
 npm run build        # tsc -b && vite build  (run test + build before committing)

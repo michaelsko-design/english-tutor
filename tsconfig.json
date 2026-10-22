@@ -18,5 +18,5 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "api", "scripts/tts"]
+  "include": ["src", "api", "scripts/tts", "e2e", "playwright.config.ts"]
 }

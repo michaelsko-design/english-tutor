@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { signOut } from 'firebase/auth';
 import { Download, LogOut, ShieldCheck, Trash2, UserPlus } from 'lucide-react';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { auth } from '../../services/firebase';
 import {
-  deleteAccount,
+  AccountResult,
   downloadProfileJson,
   getAccountKind,
   hasGoogleLinked,
@@ -17,6 +16,10 @@ import { Button } from '../ui/Button';
 interface AccountPrivacyCardProps {
   profile: LearnerProfile;
   theme: ThemeDefinition;
+  /** Signs out after the waiting cloud save, so the last changes aren't lost (App) */
+  onSignOut: () => Promise<void>;
+  /** Deletes the account after the waiting cloud save, which would otherwise re-create the profile (App) */
+  onDeleteAccount: (friendCode: string | undefined, pin: string) => Promise<AccountResult>;
 }
 
 const DELETE_CONFIRM_WORD = 'מחיקה';
@@ -25,7 +28,7 @@ const DELETE_CONFIRM_WORD = 'מחיקה';
  * Settings: the privacy notice, a download of all the learner's data, and deleting the account.
  * Deleting asks for the confirm word, plus the PIN (or Google again) so a parent decides it.
  */
-export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile, theme }) => {
+export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile, theme, onSignOut, onDeleteAccount }) => {
   const [isNoticeOpen, setIsNoticeOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [confirmWord, setConfirmWord] = useState('');
@@ -46,7 +49,7 @@ export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile,
   const handleDelete = async () => {
     setIsBusy(true);
     setErrorHe(null);
-    const result = await deleteAccount(profile.friendsHub?.friendCode, pin.trim());
+    const result = await onDeleteAccount(profile.friendsHub?.friendCode, pin.trim());
     // On success the sign-in ends and the app returns to the sign-in screen
     if (!result.ok) {
       setErrorHe(result.errorHe);
@@ -73,7 +76,7 @@ export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile,
     setErrorHe(null);
     try {
       // The progress stays in the cloud and comes back at the next sign-in (a guest's is gone)
-      await signOut(auth);
+      await onSignOut();
     } catch {
       setErrorHe('אירעה שגיאה בהתנתקות.');
       setIsBusy(false);

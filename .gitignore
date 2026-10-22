@@ -23,3 +23,7 @@ art-src/
 # TypeScript incremental build state
 *.tsbuildinfo
 .tts-gemini-batches.json
+
+# Playwright (npm run test:e2e)
+playwright-report/
+test-results/

@@ -517,8 +517,12 @@ npm install
 # Start local development server
 npm run dev
 
-# Run unit tests (Vitest)
+# Run unit and component tests (Vitest: the "unit" project in node for *.test.ts, the
+# "components" project in jsdom for src/**/*.test.tsx, set up by src/test/setup.ts)
 npm test
+
+# End-to-end tests (Playwright against fresh Firebase emulators, section 8)
+npm run test:e2e
 
 # Typecheck and build for production
 npm run build
@@ -565,5 +569,7 @@ Use the emulators to try new features and fixes in the real app, signed in, with
 3. Start the app in emulator mode (`vite-emu` preview or `npm run dev:emu`), sign in with the username and PIN, and finish onboarding once (name, grade, theme). A new profile also gets the welcome chest and the placement-test offer (skip it).
 4. Exercise the change and check it: screenshots, `read_page`, console messages, and the network tab, which must show only `127.0.0.1` requests for Auth and Firestore. Try the other themes (settings > theme) when the change is visual; theme changes apply live.
 5. Stop the dev server and the emulators when done (a clean stop with Ctrl+C keeps `.emulator-data/`). Run `npm test` and `npm run build` before committing; the emulators don't replace them.
+
+**Automated E2E (`npm run test:e2e`)**: `firebase emulators:exec` starts fresh, in-memory Auth and Firestore emulators (no `--import`/`--export`, so `.emulator-data/` is untouched) and runs Playwright (`playwright.config.ts`, specs in `e2e/`). Playwright starts Vite in emulator mode on port 5175 and runs every spec on a desktop and a phone viewport. `e2e/global-setup.ts` refuses to run unless the emulator environment variables point at localhost, then empties both emulators; `e2e/support/test.ts` fails a test if any request reached a real Firebase host and blocks read-aloud audio. Each test registers its own generated username and PIN (`e2e/support/emulator.ts` also reads documents with the emulator's owner token for assertions). Specs: sign-in, onboarding, a grade-1 mission, the shop and account deletion. Needs Java 21+ and the Firebase CLI, like `npm run emulators`, plus a one-time `npx playwright install chromium`; `npm run test:e2e:headed` watches it on the desktop viewport. Playwright's fake clock is not used: it stalls the app's save timer and Firebase. Reports go to the gitignored `playwright-report/` and `test-results/`.
 
 **Limits**: Google sign-in and anything needing real Firebase services (Hosting, Storage) don't work in emulator mode. Friends and contests need a second emulator account, created the same way. Dock tiles can scroll under the sticky header, so click them with a script (`button[aria-label^="..."]`) if a coordinate click misses.

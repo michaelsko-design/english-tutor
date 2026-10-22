@@ -19,6 +19,14 @@ export default tseslint.config(
     },
   },
   {
+    // Playwright fixtures call `use` and take `{}` when they need no other fixture; neither is React
+    files: ['e2e/**/*.ts'],
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+      'no-empty-pattern': 'off',
+    },
+  },
+  {
     files: ['public/sw.js'],
     extends: [js.configs.recommended],
     languageOptions: { globals: globals.serviceworker },

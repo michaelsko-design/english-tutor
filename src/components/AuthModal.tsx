@@ -7,7 +7,6 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInAnonymously,
-  signOut,
   updateProfile,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../services/firebase';
@@ -42,6 +41,8 @@ interface AuthModalProps {
   theme: ThemeDefinition;
   isMandatory?: boolean;
   onClose?: () => void;
+  /** Signs out after the waiting cloud save, so the last changes aren't lost (App) */
+  onSignOut: () => Promise<void>;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
@@ -52,6 +53,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   theme,
   isMandatory = false,
   onClose,
+  onSignOut,
 }) => {
   const isGirl = gender === 'girl';
   const heb = getHebrewCopy(gender, learnerName);
@@ -224,7 +226,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setErrorHe(null);
     try {
       // The progress stays in the cloud and comes back at the next sign-in (a guest's is gone)
-      await signOut(auth);
+      await onSignOut();
     } catch {
       setErrorHe('אירעה שגיאה בהתנתקות.');
     } finally {

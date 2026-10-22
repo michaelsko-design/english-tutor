@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { deleteAccount } from '../../services/accountService';
+import type { AccountResult } from '../../services/accountService';
 import { makeProfile, TEST_THEME } from '../../test/fixtures';
 import { AccountPrivacyCard } from './AccountPrivacyCard';
 
@@ -15,7 +15,6 @@ vi.mock('../../services/firebase', () => ({
 vi.mock('firebase/auth', () => ({ signOut: vi.fn() }));
 
 vi.mock('../../services/accountService', () => ({
-  deleteAccount: vi.fn(),
   downloadProfileJson: vi.fn(),
   getAccountKind: () => 'password',
   hasGoogleLinked: () => false,
@@ -24,10 +23,14 @@ vi.mock('../../services/accountService', () => ({
 
 const PIN = '246810';
 const FRIEND_CODE = 'NOA-1234';
+const onSignOut = vi.fn(async () => {});
+const deleteAccount = vi.fn<(friendCode: string | undefined, pin: string) => Promise<AccountResult>>();
 
 function renderCard() {
   const profile = makeProfile({ friendsHub: { friendCode: FRIEND_CODE } as never });
-  render(<AccountPrivacyCard profile={profile} theme={TEST_THEME} />);
+  render(
+    <AccountPrivacyCard profile={profile} theme={TEST_THEME} onSignOut={onSignOut} onDeleteAccount={deleteAccount} />
+  );
 }
 
 async function openDelete(user: ReturnType<typeof userEvent.setup>) {
@@ -35,9 +38,20 @@ async function openDelete(user: ReturnType<typeof userEvent.setup>) {
   return screen.getByRole('button', { name: 'מחיקה לצמיתות' });
 }
 
+describe('AccountPrivacyCard: signing out', () => {
+  it('signs out through onSignOut, which saves the waiting changes first', async () => {
+    const user = userEvent.setup();
+    renderCard();
+
+    await user.click(screen.getByRole('button', { name: 'התנתקות מהחשבון' }));
+
+    expect(onSignOut).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('AccountPrivacyCard: deleting the account', () => {
   beforeEach(() => {
-    vi.mocked(deleteAccount).mockReset();
+    deleteAccount.mockReset();
   });
 
   it('stays disabled until the confirm word and a 6-character PIN are typed', async () => {
@@ -56,7 +70,7 @@ describe('AccountPrivacyCard: deleting the account', () => {
 
   it('deletes with the friend code and PIN, and shows the error when it fails', async () => {
     const user = userEvent.setup();
-    vi.mocked(deleteAccount).mockResolvedValue({ ok: false, errorHe: 'הקוד הסודי שגוי.' });
+    deleteAccount.mockResolvedValue({ ok: false, errorHe: 'הקוד הסודי שגוי.' });
     renderCard();
     const confirm = await openDelete(user);
 

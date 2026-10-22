@@ -29,6 +29,7 @@ import { CloudLoadErrorScreen } from './components/CloudLoadErrorScreen';
 import { ScreenLoading } from './components/ScreenLoading';
 import { lazyNamed } from './utils/lazyNamed';
 import { setListenerGender } from './services/tts';
+import { AccountResult, deleteAccount } from './services/accountService';
 import { DEFAULT_PROFILE, WELCOME_GIFT_DIAMONDS } from './data/defaultProfile';
 
 // Screens most visits never open load in their own chunks
@@ -239,6 +240,26 @@ export function App() {
     };
   }, []);
 
+  /** Signs out once the waiting cloud save went out: after the sign-out, Firestore refuses it */
+  const signOutAfterSaving = async (): Promise<void> => {
+    await saveQueueRef.current.flush();
+    if (auth) await signOut(auth);
+  };
+
+  /**
+   * Deletes the account once the saves on their way are done, and holds new ones meanwhile: a
+   * save landing after the deletion would re-create the profile. A failed deletion lets them go.
+   */
+  const deleteAccountAfterSaving = async (friendCode: string | undefined, pin: string): Promise<AccountResult> => {
+    const queue = saveQueueRef.current;
+    await queue.flush();
+    queue.hold();
+    const result = await deleteAccount(friendCode, pin);
+    if (result.ok) queue.discard();
+    else queue.release();
+    return result;
+  };
+
   // Unified handler that updates local state and pushes to Firestore when logged in
   const handleUpdateProfile = (updated: LearnerProfile) => {
     const now = new Date();
@@ -316,6 +337,7 @@ export function App() {
           learnerName={profile.name}
           theme={activeTheme}
           isMandatory={true}
+          onSignOut={signOutAfterSaving}
         />
       </div>
     );
@@ -326,9 +348,9 @@ export function App() {
       <CloudLoadErrorScreen
         theme={activeTheme}
         onRetry={() => retryCloudLoadRef.current?.()}
-        onSignOut={() => {
-          if (auth) void signOut(auth);
-        }}
+        onSignOut={() =>
+          signOutAfterSaving().catch((error: unknown) => console.warn('Signing out failed:', error))
+        }
       />
     );
   }
@@ -347,6 +369,8 @@ export function App() {
         onCancel={
           profile.isOnboarded ? () => setIsEditingOnboarding(false) : undefined
         }
+        onSignOut={signOutAfterSaving}
+        onDeleteAccount={deleteAccountAfterSaving}
       />
       </Suspense>
     );
@@ -428,6 +452,7 @@ export function App() {
       syncStatus={syncStatus}
       onUpdateProfile={handleUpdateProfile}
       onEditOnboarding={() => setIsEditingOnboarding(true)}
+      onSignOut={signOutAfterSaving}
       pendingInviteCode={pendingInviteCode}
       onInviteHandled={clearPendingInvite}
     />

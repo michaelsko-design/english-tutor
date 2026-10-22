@@ -64,6 +64,8 @@ interface DashboardViewProps {
   syncStatus: CloudSyncStatus;
   onUpdateProfile: (updated: LearnerProfile) => void;
   onEditOnboarding: () => void;
+  /** Signs out after the waiting cloud save (App) */
+  onSignOut: () => Promise<void>;
   /** A friend code from an invite link, waiting for the Friends Hub */
   pendingInviteCode: string | null;
   onInviteHandled: () => void;
@@ -81,6 +83,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   syncStatus,
   onUpdateProfile,
   onEditOnboarding,
+  onSignOut,
   pendingInviteCode,
   onInviteHandled,
 }) => {
@@ -613,6 +616,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           learnerName={profile.name}
           theme={theme}
           onClose={() => setIsAuthModalOpen(false)}
+          onSignOut={onSignOut}
         />
       )}
     </div>

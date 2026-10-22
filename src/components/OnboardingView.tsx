@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import {
   GradeId,
   LearnerGender,
@@ -27,6 +27,7 @@ import {
 import { AccountPrivacyCard } from './settings/AccountPrivacyCard';
 import { PrivacyNoticeDialog } from './privacy/PrivacyNoticeDialog';
 import { auth } from '../services/firebase';
+import type { AccountResult } from '../services/accountService';
 import { usernameFromEmail } from '../utils/username';
 import { APP_NAME } from '../config/appInfo';
 import { Button } from './ui/Button';
@@ -36,13 +37,21 @@ interface OnboardingViewProps {
   initialProfile: LearnerProfile;
   onComplete: (updatedProfile: LearnerProfile) => void;
   onCancel?: () => void;
+  /** Signs out after the waiting cloud save (App); the settings' account card uses it */
+  onSignOut: () => Promise<void>;
+  /** Deletes the account after the waiting cloud save (App); the settings' account card uses it */
+  onDeleteAccount: (friendCode: string | undefined, pin: string) => Promise<AccountResult>;
 }
 
 export const OnboardingView: React.FC<OnboardingViewProps> = ({
   initialProfile,
   onComplete,
   onCancel,
+  onSignOut,
+  onDeleteAccount,
 }) => {
+  const nameInputId = useId();
+  const ageSelectId = useId();
   const [name, setName] = useState(initialProfile.name || '');
   const [age, setAge] = useState<number>(initialProfile.age || 12);
   const [gender, setGender] = useState<LearnerGender>(initialProfile.gender || 'girl');
@@ -178,10 +187,11 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:gap-y-5 lg:items-start">
           {/* 1. Name Input */}
           <div className="space-y-1.5">
-            <label className="block text-xs sm:text-sm font-bold">
+            <label htmlFor={nameInputId} className="block text-xs sm:text-sm font-bold">
               איך קוראים לך?
             </label>
             <input
+              id={nameInputId}
               type="text"
               value={name}
               onChange={(e) => {
@@ -234,8 +244,9 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
 
             {/* Age Selection */}
             <div className="space-y-1.5">
-              <label className="block text-xs sm:text-sm font-bold">גיל</label>
+              <label htmlFor={ageSelectId} className="block text-xs sm:text-sm font-bold">גיל</label>
               <select
+                id={ageSelectId}
                 value={age}
                 onChange={(e) => handleAgeChange(Number(e.target.value))}
                 className={`w-full px-3 py-2.5 rounded-2xl font-bold text-xs sm:text-sm outline-none ${activeTheme.inputBgClass}`}
@@ -512,7 +523,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           {onCancel && (
             <div className="space-y-1.5 lg:col-span-2">
               <span className="block text-xs sm:text-sm font-bold">פרטיות וחשבון:</span>
-              <AccountPrivacyCard profile={initialProfile} theme={activeTheme} />
+              <AccountPrivacyCard profile={initialProfile} theme={activeTheme} onSignOut={onSignOut} onDeleteAccount={onDeleteAccount} />
             </div>
           )}
 

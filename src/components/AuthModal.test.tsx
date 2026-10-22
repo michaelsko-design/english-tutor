@@ -40,6 +40,7 @@ function renderGate(props: { isMandatory?: boolean; onClose?: () => void } = {})
       theme={TEST_THEME}
       isMandatory={props.isMandatory ?? true}
       onClose={props.onClose}
+      onSignOut={async () => {}}
     />
   );
 }
