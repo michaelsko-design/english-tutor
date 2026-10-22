@@ -32,6 +32,24 @@ describe('splitIconEmoji', () => {
   });
 });
 
+describe('splitIconEmoji: plain symbols', () => {
+  it('splits Hebrew text around the symbols that have a Lucide icon', () => {
+    expect(splitIconEmoji('בדיקה ✓')).toEqual([
+      { kind: 'text', text: 'בדיקה ' },
+      { kind: 'emoji', emoji: '✓' },
+    ]);
+    expect(splitIconEmoji('⏹ עצירה')).toEqual([
+      { kind: 'emoji', emoji: '⏹' },
+      { kind: 'text', text: ' עצירה' },
+    ]);
+  });
+
+  it.each(['✓', '➡', '⬅', '⬆', '↩', '⏹', '➕', '⚙', '⚪', '🔊'])('finds %s with and without its variation selector', (glyph) => {
+    expect(splitIconEmoji(glyph)).toEqual([{ kind: 'emoji', emoji: glyph }]);
+    expect(splitIconEmoji(`${glyph}️`)).toEqual([{ kind: 'emoji', emoji: `${glyph}️` }]);
+  });
+});
+
 describe('withEmojiIcons', () => {
   it('leaves props alone for components, plain-text tags and text without emoji', () => {
     const props = { children: 'hi 🛏️' };

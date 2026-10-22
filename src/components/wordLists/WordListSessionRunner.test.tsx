@@ -29,6 +29,9 @@ function renderSession() {
   return handlers;
 }
 
+/** These play a whole session click by click: slow when many test files run at once */
+const SESSION_TEST_TIMEOUT_MS = 20_000;
+
 describe('WordListSessionRunner', () => {
   beforeEach(() => {
     vi.spyOn(Math, 'random').mockReturnValue(0);
@@ -61,7 +64,7 @@ describe('WordListSessionRunner', () => {
     expect(answers.filter((a: { isSkipped: boolean }) => a.isSkipped)).toHaveLength(
       steps.filter((s) => s.type === 'voice-speak').length
     );
-  });
+  }, SESSION_TEST_TIMEOUT_MS);
 
   it('a wrong first try is not scored as correct even after fixing it', async () => {
     const user = userEvent.setup();

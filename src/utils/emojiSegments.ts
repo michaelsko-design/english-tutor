@@ -1,13 +1,14 @@
 import { ICON_ID_BY_EMOJI } from '../components/art/iconArt';
+import { SYMBOL_ICONS } from '../components/art/symbolIcons';
 
-/** A run of plain text, or one emoji that has a drawn icon. */
+/** A run of plain text, or one emoji or symbol that has a drawn icon. */
 export type EmojiSegment = { kind: 'text'; text: string } | { kind: 'emoji'; emoji: string };
 
 const VARIATION_SELECTOR = '\uFE0F';
 
-/** The drawn emoji, longest first, each with its optional variation selector. */
+/** The drawn emoji and the symbols with a Lucide icon, longest first, each with its optional variation selector. */
 const ICON_EMOJI_PATTERN = new RegExp(
-  `(${Object.keys(ICON_ID_BY_EMOJI)
+  `(${[...Object.keys(ICON_ID_BY_EMOJI), ...Object.keys(SYMBOL_ICONS)]
     .sort((a, b) => b.length - a.length)
     .map((emoji) => `${emoji}${VARIATION_SELECTOR}?`)
     .join('|')})`,

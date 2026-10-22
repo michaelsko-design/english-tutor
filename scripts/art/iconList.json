@@ -1083,13 +1083,15 @@
     "id": "word-teacher",
     "emoji": "👩‍🏫",
     "subject": "a woman teacher with a pointer",
-    "sheet": 22
+    "sheet": 22,
+    "retired": true
   },
   {
     "id": "word-volcano",
     "emoji": "🌋",
     "subject": "an erupting volcano",
-    "sheet": 22
+    "sheet": 22,
+    "retired": true
   },
   {
     "id": "word-window",
@@ -1107,7 +1109,8 @@
     "id": "word-ship",
     "emoji": "🚢",
     "subject": "a large ship on the sea",
-    "sheet": 22
+    "sheet": 22,
+    "retired": true
   },
   {
     "id": "word-tulip",
@@ -1299,7 +1302,8 @@
     "id": "word-beach",
     "emoji": "🏖",
     "subject": "a beach with an umbrella and sand",
-    "sheet": 26
+    "sheet": 26,
+    "retired": true
   },
   {
     "id": "word-grandmother",
@@ -1311,7 +1315,8 @@
     "id": "word-galaxy",
     "emoji": "🌌",
     "subject": "a purple night sky full of stars",
-    "sheet": 26
+    "sheet": 26,
+    "retired": true
   },
   {
     "id": "word-chain-link",
@@ -1887,7 +1892,8 @@
     "id": "word-sunset",
     "emoji": "🌇",
     "subject": "a city at sunset",
-    "sheet": 36
+    "sheet": 36,
+    "retired": true
   },
   {
     "id": "word-blue-book",
@@ -2271,37 +2277,43 @@
     "id": "word-beating-heart",
     "emoji": "💓",
     "subject": "a beating pink heart",
-    "sheet": 44
+    "sheet": 44,
+    "retired": true
   },
   {
     "id": "word-fog",
     "emoji": "🌫",
     "subject": "a fog over hills",
-    "sheet": 44
+    "sheet": 44,
+    "retired": true
   },
   {
     "id": "word-pin",
     "emoji": "📍",
     "subject": "a red map pin",
-    "sheet": 44
+    "sheet": 44,
+    "retired": true
   },
   {
     "id": "word-train",
     "emoji": "🚆",
     "subject": "a modern train",
-    "sheet": 44
+    "sheet": 44,
+    "retired": true
   },
   {
     "id": "word-pilot",
     "emoji": "🧑‍✈",
     "subject": "a pilot with a cap",
-    "sheet": 44
+    "sheet": 44,
+    "retired": true
   },
   {
     "id": "word-folded-hands",
     "emoji": "🙏",
     "subject": "two hands pressed together",
-    "sheet": 44
+    "sheet": 44,
+    "retired": true
   },
   {
     "id": "word-folder",
@@ -2361,7 +2373,8 @@
     "id": "word-bridge",
     "emoji": "🌉",
     "subject": "a bridge at night",
-    "sheet": 45
+    "sheet": 45,
+    "retired": true
   },
   {
     "id": "word-snowman",
@@ -2385,7 +2398,8 @@
     "id": "word-snowy-mountain",
     "emoji": "🏔",
     "subject": "a snowy mountain",
-    "sheet": 46
+    "sheet": 46,
+    "retired": true
   },
   {
     "id": "word-big-whale",
@@ -2488,5 +2502,103 @@
     "emoji": "🕵‍♂",
     "subject": "a male detective with a hat and a magnifying glass",
     "sheet": 48
+  },
+  {
+    "id": "word-teacher-2",
+    "emoji": "👩‍🏫",
+    "subject": "a friendly woman teacher standing and holding a pointer stick, full figure, drawn alone",
+    "sheet": 49,
+    "replaces": "word-teacher"
+  },
+  {
+    "id": "word-volcano-2",
+    "emoji": "🌋",
+    "subject": "a cone-shaped volcano with orange lava and a small smoke puff, drawn alone",
+    "sheet": 49,
+    "replaces": "word-volcano"
+  },
+  {
+    "id": "word-ship-2",
+    "emoji": "🚢",
+    "subject": "a sailing ship with a wooden hull and purple sails, drawn alone with no sea",
+    "sheet": 49,
+    "replaces": "word-ship"
+  },
+  {
+    "id": "word-beach-2",
+    "emoji": "🏖",
+    "subject": "a small sand mound with a striped beach umbrella and a starfish",
+    "sheet": 49,
+    "replaces": "word-beach"
+  },
+  {
+    "id": "word-galaxy-2",
+    "emoji": "🌌",
+    "subject": "a purple spiral galaxy swirl with a few small stars",
+    "sheet": 49,
+    "replaces": "word-galaxy"
+  },
+  {
+    "id": "word-sunset-2",
+    "emoji": "🌇",
+    "subject": "a half sun setting behind three simple city silhouettes, drawn alone",
+    "sheet": 49,
+    "replaces": "word-sunset"
+  },
+  {
+    "id": "word-beating-heart-2",
+    "emoji": "💓",
+    "subject": "a pink heart with two small pulse lines on each side",
+    "sheet": 49,
+    "replaces": "word-beating-heart"
+  },
+  {
+    "id": "word-fog-2",
+    "emoji": "🌫",
+    "subject": "a soft grey cloud with three wavy fog lines under it",
+    "sheet": 49,
+    "replaces": "word-fog"
+  },
+  {
+    "id": "word-pin-2",
+    "emoji": "📍",
+    "subject": "a red map pin marker",
+    "sheet": 49,
+    "replaces": "word-pin"
+  },
+  {
+    "id": "word-train-2",
+    "emoji": "🚆",
+    "subject": "a modern white and purple passenger train seen from the front, drawn alone",
+    "sheet": 50,
+    "replaces": "word-train"
+  },
+  {
+    "id": "word-pilot-2",
+    "emoji": "🧑‍✈",
+    "subject": "a smiling pilot, head and shoulders, wearing a peaked cap",
+    "sheet": 50,
+    "replaces": "word-pilot"
+  },
+  {
+    "id": "word-folded-hands-2",
+    "emoji": "🙏",
+    "subject": "two cartoon hands pressed together in prayer, drawn alone",
+    "sheet": 50,
+    "replaces": "word-folded-hands"
+  },
+  {
+    "id": "word-bridge-2",
+    "emoji": "🌉",
+    "subject": "a small arched stone bridge, drawn alone with no water scene",
+    "sheet": 50,
+    "replaces": "word-bridge"
+  },
+  {
+    "id": "word-snowy-mountain-2",
+    "emoji": "🏔",
+    "subject": "a single snow-capped mountain peak, drawn alone",
+    "sheet": 50,
+    "replaces": "word-snowy-mountain"
   }
 ]

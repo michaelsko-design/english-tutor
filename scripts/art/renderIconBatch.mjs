@@ -29,6 +29,7 @@ const PALETTE_COZY =
 const SHEET_RULES = [
   'Layout: a sheet of exactly nine separate icons in a strict 3 × 3 grid (three rows, three columns) on a plain pure white background. The icons are listed below in reading order: left to right, top to bottom.',
   'Every icon is one single object (or one single pair), centered in its own equal square cell, filling about 65% of the cell, with a wide empty white margin on all sides so that no icon touches or overlaps another icon or the edge of the image. No grid lines, no cell borders, no frames, no ground shadows, no labels.',
+  'Draw each object alone on the white background: never a coloured tile, rounded square, circle, frame or scene behind it.',
   'All nine icons share the same line weight, lighting and level of detail, as one matching set. Output: square 1:1 image, at least 1024 × 1024 pixels.',
 ].join('\n');
 

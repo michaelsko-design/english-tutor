@@ -1,6 +1,7 @@
 import React from 'react';
 import { useArtStatus } from '../../hooks/useArtStatus';
 import { getIconSrc } from './iconArt';
+import { getSymbolIcon } from './symbolIcons';
 import { RAW_EMOJI_PROP } from '../../emojiJsx/withEmojiIcons';
 
 interface EmojiIconProps {
@@ -12,6 +13,7 @@ interface EmojiIconProps {
   isInline?: boolean;
 }
 
+const SYMBOL_STROKE_WIDTH = 2.5;
 const PX_PER_REM = 16;
 const SIZE_PATTERN = /^(\d+(?:\.\d+)?)(px|rem|em)$/;
 
@@ -31,6 +33,18 @@ function getDevicePixelRatio(): number {
  * file is missing, show the plain emoji at the same size, so the box never jumps.
  */
 export const EmojiIcon: React.FC<EmojiIconProps> = ({ emoji, size, className = '', isInline = false }) => {
+  const SymbolIcon = getSymbolIcon(emoji);
+  if (SymbolIcon) {
+    return (
+      <SymbolIcon
+        size={isInline ? '1em' : size}
+        strokeWidth={SYMBOL_STROKE_WIDTH}
+        fill={emoji.startsWith('⏹') ? 'currentColor' : 'none'}
+        aria-hidden="true"
+        className={`inline-block shrink-0 ${isInline ? 'align-[-0.125em]' : 'align-middle'} ${className}`}
+      />
+    );
+  }
   const sizePx = toPixels(size);
   const src = getIconSrc(emoji, sizePx ?? Number.POSITIVE_INFINITY, getDevicePixelRatio());
   const textEmoji = (

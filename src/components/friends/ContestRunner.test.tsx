@@ -36,6 +36,9 @@ async function answerAndContinue(user: TestUser, stepIdx: number) {
   await user.click(screen.getByRole('button', { name: /לשאלה הבאה|סיום האתגר/ }));
 }
 
+/** These play a whole session click by click: slow when many test files run at once */
+const SESSION_TEST_TIMEOUT_MS = 20_000;
+
 describe('ContestRunner', () => {
   it('has both meaning and sentence questions', () => {
     expect(steps.some((s) => s.kind === 'meaning')).toBe(true);
@@ -52,7 +55,7 @@ describe('ContestRunner', () => {
     const [answers, timeMs] = onFinish.mock.calls[0];
     expect(answers).toEqual(steps.map(() => true));
     expect(timeMs).toBeGreaterThanOrEqual(0);
-  });
+  }, SESSION_TEST_TIMEOUT_MS);
 
   it('leaving before the first answer just closes', async () => {
     const user = userEvent.setup();
