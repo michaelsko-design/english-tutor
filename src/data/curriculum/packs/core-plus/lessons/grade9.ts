@@ -46,7 +46,7 @@ export const CORE_PLUS_GRADE_9_LESSONS: LessonPack = {
       'כשמוסרים מה מישהו אמר, אחרי said הזמן זז צעד אחורה: am / is הופכים ל-was, ו-Present Simple הופך ל-Past Simple. גם I הופך ל-he או she.',
     pattern: 'said (that) + one step back',
     examples: [
-      { en: '"I am hungry." → He said that he was hungry.', he: '"אני רעב." ← הוא אמר שהוא רעב.', highlight: 'he was hungry' },
+      { en: '"I am hungry." — He said that he was hungry.', he: '"אני רעב." ← הוא אמר שהוא רעב.', highlight: 'he was hungry' },
       { en: 'Shira said that she liked the new song.', he: 'שירה אמרה שהשיר החדש מוצא חן בעיניה.', highlight: 'she liked' },
       { en: 'They said that the bus was late.', he: 'הם אמרו שהאוטובוס מאחר.', highlight: 'the bus was late' },
     ],

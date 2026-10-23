@@ -38,7 +38,7 @@ const UNITS: HighSchoolUnitSpec[] = [
           shortSentenceEn: 'She asked where I lived.',
           shortSentenceHe: 'היא שאלה איפה אני גר/ה.',
           rule: {
-            questionEn: 'Report the question: "Do you speak Arabic?" → The manager asked me _______.',
+            questionEn: 'Report the question: "Do you speak Arabic?" — The manager asked me _______.',
             correct: 'if I spoke Arabic',
             wrong: ['do I speak Arabic', 'if did I speak Arabic'],
             explainHe:
@@ -81,7 +81,7 @@ const UNITS: HighSchoolUnitSpec[] = [
           shortSentenceEn: 'She told us to wait.',
           shortSentenceHe: 'היא אמרה לנו לחכות.',
           rule: {
-            questionEn: 'Report the command: "Don’t touch the cash register!" → The manager told me _______ the cash register.',
+            questionEn: 'Report the command: "Don’t touch the cash register!" — The manager told me _______ the cash register.',
             correct: 'not to touch',
             wrong: ['to not touching', 'don’t touch'],
             explainHe: 'פקודה שלילית בדיבור עקיף: told + מישהו + not to + פועל בסיס.',

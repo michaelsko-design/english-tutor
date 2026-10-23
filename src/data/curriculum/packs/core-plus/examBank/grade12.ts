@@ -207,7 +207,7 @@ export const CORE_PLUS_GRADE_12_EXAM_BANK: ExamBankPack = {
         hintHe: 'פסלו את האפשרות שמעתיקה את המקור ואת האפשרות שמשנה את המשמעות.',
       },
       {
-        questionEn: 'Which word form completes the paraphrase? "She decided to leave." → "She made the ____ to leave."',
+        questionEn: 'Which word form completes the paraphrase? "She decided to leave." — "She made the ____ to leave."',
         correct: 'decision',
         wrong: ['decide', 'decisive'],
         explainHe: 'אחרי made the צריך שם עצם: decision.',

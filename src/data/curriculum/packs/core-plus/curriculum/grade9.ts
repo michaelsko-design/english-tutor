@@ -183,7 +183,7 @@ const UNITS: MiddleSchoolUnitSpec[] = [
           shortSentenceEn: 'She said it was cold.',
           shortSentenceHe: 'היא אמרה שהיה קר.',
           rule: {
-            questionEn: 'Report the sentence: Noa said, "I feel tired." → Noa said that she _______ tired.',
+            questionEn: 'Report the sentence: Noa said, "I feel tired." — Noa said that she _______ tired.',
             correct: 'felt',
             wrong: ['feel', 'has felt'],
             explainHe: 'בדיבור עקיף אחרי said הזמן זז אחורה: Present Simple (feel) הופך ל-Past Simple (felt).',

@@ -117,7 +117,7 @@ export function toSpeakableText(text: string): string {
     .replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, '')
     .replace(/_{3,}/g, 'blank')
     .replace(/🔊/gu, HEBREW_LETTER.test(text) ? SPEAKER_BUTTON_HE : '')
-    .replace(/\p{Extended_Pictographic}|️|‍|⃣/gu, '')
+    .replace(/\p{Extended_Pictographic}|\p{Regional_Indicator}|️|‍|⃣/gu, '')
     .trim();
 }
 
