@@ -16,6 +16,7 @@
 
 ### Features
 
+- [ ] **Publish the new seasons** - Remember to publish the new seasons once the decision is made. Release them through `RELEASED_CONTENT_PACKS` and the three `RELEASED_PACK_*` maps (`docs/architecture.md` §4.26), confirm their clips are uploaded and in the manifest, then check them on desktop and phone before they go live.
 - [ ] **Vibe-o-meter** - A 0-100% gauge derived from `profile.activityLog` (no stored field, no sync change): it fills with recent practice and cools gently when days go quiet (Shabbat and shielded days count as active). It never removes points or levels, and its copy is encouraging, not punishing.
 - [ ] **Parent view and PIN recovery** - A read-only parent link or code for the weekly report on the parent's own phone, and a parent email (or a parent-issued reset code) so a forgotten PIN doesn't lose the account.
 - [ ] **Daily streak reminders** - Web-native daily reminders without migrating to a native app: Web Push notifications via `public/sw.js` + VAPID keys (with an iOS "Add to Home Screen" guide), a scheduled Vercel Cron job that checks `streakLastDateStr` and respects `isShabbatObserver` (skipping Friday/Shabbat), optional parent/learner email streak-saver & Sunday weekly report emails via Resend, and a 1-tap `.ics` / Google Calendar recurring reminder option.
