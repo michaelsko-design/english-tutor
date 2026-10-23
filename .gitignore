@@ -27,3 +27,6 @@ art-src/
 # Playwright (npm run test:e2e)
 playwright-report/
 test-results/
+
+# Read-aloud clips are served from the R2 bucket (npm run tts:upload); only manifest.json is committed
+public/tts/**/*.mp3
