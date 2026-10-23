@@ -44,7 +44,7 @@ Emulator testing: never sign in or create accounts against the live Firebase pro
 - Hebrew addresses the learner by gender (`girl`/`boy`): use `getHebrewCopy` / `inflectHebrew` / the `he` template (`utils/hebrewGender.ts`). Hints, lessons, tour and exam-bank Hebrew are **gender-neutral plural** ("שימו לב", "כדאי…") and must be unchanged by `inflectHebrew` (tests enforce it).
 - Minimum text size `text-xs` (12px). Honor reduced motion (`usePrefersReducedMotion`).
 
-**Conventions**: internal ids keep old names (`english_tutor_*` storage keys, `@peachnote.tutor.local` sign-in domain); don't rename. New third-party origin → add to the CSP in `vercel.json`. New grade of lessons/exam bank → register in both the loader map and the `index.ts` list (see §4.24, §4.9). Prefer immutable updates; files < 800 lines.
+**Conventions**: internal ids keep old names (`english_tutor_*` storage keys, `@peachnote.tutor.local` sign-in domain); don't rename. New third-party origin → add to the CSP in `vercel.json`. New grade of lessons/exam bank → register in both the loader map and the `index.ts` list (see §4.24, §4.9). Content packs (§4.26) are hidden until released: their content follows every rule above (clips rendered now), and releasing one is `RELEASED_CONTENT_PACKS` + the three `RELEASED_PACK_*` maps. Prefer immutable updates; files < 800 lines.
 
 ## Efficiency & Subagent Rules
 - No broad repo sweeps: `Grep`/`Glob` for the specific symbol first, then `Read` with `offset`/`limit`. Don't read whole curriculum, lesson, exam-bank, or `public/tts` files.

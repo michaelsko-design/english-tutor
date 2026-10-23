@@ -1,0 +1,267 @@
+import { buildElementaryGrade, type ElementaryUnitSpec } from '../../../elementary/builder';
+import type { GradeCurriculumPack } from '../../../types';
+import { packUnitNumbers } from '../../units';
+
+/**
+ * The holidays pack's grade 1 units: autumn–winter and spring–summer holidays. Playable from the
+ * first day, so it only uses the structures of grade 1's first topic units: greetings, colors,
+ * numbers, I see / I like / I have.
+ */
+const UNITS: ElementaryUnitSpec[] = [
+  {
+    ...packUnitNumbers('holidays', 0),
+    titleEn: 'Autumn & Winter Holidays',
+    titleHe: 'חגי הסתיו והחורף',
+    subtitleHe: 'ראש השנה, סוכות וחנוכה: מילים חדשות לחגים',
+    badgeEmoji: '🕯️',
+    missions: [
+      {
+        icon: '🍎',
+        titleEn: 'Rosh Hashana: A Sweet Year',
+        titleHe: 'ראש השנה: שנה מתוקה',
+        storyHookHe: 'ראש השנה הגיע! טובלים תפוח בדבש ומאחלים שנה מתוקה. בואו נלמד את המילים באנגלית.',
+        grammarTopic: 'Holiday Words & "I like"',
+        skills: ['Holiday Words', 'I like', 'Greetings'],
+        sentenceEn: 'Happy New Year! I like apples and honey.',
+        sentenceHe: 'שנה טובה! אני אוהב/ת תפוחים ודבש.',
+        vocab: [
+          ['honey', 'noun', 'דבש', '🍯', 'I eat an apple with honey.', 'אני אוכל/ת תפוח עם דבש.'],
+          ['sweet', 'adjective', 'מתוק / מתוקה', '🍬', 'The honey is sweet.', 'הדבש מתוק.'],
+          ['card', 'noun', 'כרטיס ברכה', '💌', 'I make a card for Grandma.', 'אני מכין/ה כרטיס ברכה לסבתא.'],
+          ['year', 'noun', 'שנה', '🗓️', 'It is a new year.', 'זו שנה חדשה.'],
+        ],
+        seed: {
+          wrongWords: [
+            { wordEn: 'milk', translationHe: 'חלב' },
+            { wordEn: 'cake', translationHe: 'עוגה' },
+          ],
+          shortSentenceEn: 'I like honey.',
+          shortSentenceHe: 'אני אוהב/ת דבש.',
+          rule: {
+            questionEn: 'What do we say on Rosh Hashana?',
+            correct: 'Happy New Year!',
+            wrong: ['Goodbye!', 'Good night!'],
+            explainHe: 'בראש השנה מאחלים Happy New Year: שנה טובה!',
+            hintHe: 'בחג הזה מתחילה שנה חדשה. איזו ברכה מתאימה?',
+          },
+          story: {
+            passageEn: 'It is Rosh Hashana. I have an apple. I have honey too. It is sweet!',
+            passageHe: 'ראש השנה. יש לי תפוח. יש לי גם דבש. הוא מתוק!',
+            questionEn: 'What fruit do I have?',
+            questionHe: 'איזה פרי יש לי?',
+            correct: 'an apple',
+            wrong: ['a banana', 'a lemon'],
+          },
+        },
+      },
+      {
+        icon: '🌴',
+        titleEn: 'Sukkot: In the Sukkah',
+        titleHe: 'סוכות: בתוך הסוכה',
+        storyHookHe: 'בונים סוכה! תולים שרשראות נייר ומקשטים. בואו נגיד באנגלית מה רואים בסוכה.',
+        grammarTopic: 'Sukkot Words & "I see / I have"',
+        skills: ['Holiday Words', 'I see', 'I have'],
+        sentenceEn: 'I see a sukkah and a red paper chain.',
+        sentenceHe: 'אני רואה סוכה ושרשרת נייר אדומה.',
+        vocab: [
+          ['sukkah', 'noun', 'סוכה', '🛖', 'We eat in the sukkah.', 'אנחנו אוכלים בסוכה.'],
+          ['palm', 'noun', 'דקל', '🌴', 'A palm tree is tall.', 'עץ דקל הוא גבוה.'],
+          ['chain', 'noun', 'שרשרת', '🔗', 'I make a paper chain.', 'אני מכין/ה שרשרת נייר.'],
+          ['paper', 'noun', 'נייר', '📄', 'I draw on the paper.', 'אני מצייר/ת על הנייר.'],
+        ],
+        seed: {
+          wrongWords: [
+            { wordEn: 'door', translationHe: 'דלת' },
+            { wordEn: 'bed', translationHe: 'מיטה' },
+          ],
+          shortSentenceEn: 'I see a sukkah.',
+          shortSentenceHe: 'אני רואה סוכה.',
+          rule: {
+            questionEn: 'Which sentence is correct?',
+            correct: 'I have a blue chain.',
+            wrong: ['I have a chain blue.', 'I a blue chain have.'],
+            explainHe: 'הצבע בא לפני הדבר: a blue chain (שרשרת כחולה).',
+            hintHe: 'באנגלית הצבע עומד לפני הדבר. בדקו גם מה בא מיד אחרי I.',
+          },
+          story: {
+            passageEn: 'Hello! I see a sukkah. I see two chains. One is red and one is yellow.',
+            passageHe: 'שלום! אני רואה סוכה. אני רואה שתי שרשראות. אחת אדומה ואחת צהובה.',
+            questionEn: 'How many chains?',
+            questionHe: 'כמה שרשראות יש?',
+            correct: 'two',
+            wrong: ['one', 'three'],
+          },
+        },
+      },
+      {
+        icon: '🍩',
+        isBoss: true,
+        titleEn: 'Boss: Hanukkah Lights',
+        titleHe: 'אתגר הבוס: אורות חנוכה',
+        storyHookHe: 'חנוכה בחורף הקר! מדליקים נרות ואוכלים סופגניות. הראו שאתם מכירים את מילות החגים.',
+        grammarTopic: 'Hanukkah, Numbers & Review',
+        skills: ['Holiday Words', 'Numbers', 'Review'],
+        sentenceEn: 'I see eight candles on the menorah.',
+        sentenceHe: 'אני רואה שמונה נרות על החנוכייה.',
+        vocab: [
+          ['candle', 'noun', 'נר', '🕯️', 'The candle is bright.', 'הנר מאיר.'],
+          ['menorah', 'noun', 'חנוכייה', '🕎', 'We light the menorah.', 'אנחנו מדליקים את החנוכייה.'],
+          ['donut', 'noun', 'סופגנייה', '🍩', 'I like a jam donut.', 'אני אוהב/ת סופגנייה עם ריבה.'],
+          ['cold', 'adjective', 'קר / קרה', '❄️', 'It is cold in winter.', 'קר בחורף.'],
+        ],
+        seed: {
+          wrongWords: [
+            { wordEn: 'cake', translationHe: 'עוגה' },
+            { wordEn: 'sun', translationHe: 'שמש' },
+          ],
+          shortSentenceEn: 'I like donuts.',
+          shortSentenceHe: 'אני אוהב/ת סופגניות.',
+          rule: {
+            questionEn: 'Which sentence is correct?',
+            correct: 'I see three candles.',
+            wrong: ['I see three candle.', 'I see candles three.'],
+            explainHe: 'יותר מנר אחד: מוסיפים s. והמספר בא לפני: three candles.',
+            hintHe: 'כמה נרות יש? בדקו את סוף המילה ואת מקום המספר.',
+          },
+          story: {
+            passageEn: 'It is Hanukkah. It is cold. I see two candles on the menorah. I have a donut. Happy Hanukkah!',
+            passageHe: 'חנוכה. קר. אני רואה שני נרות על החנוכייה. יש לי סופגנייה. חג חנוכה שמח!',
+            questionEn: 'How many candles?',
+            questionHe: 'כמה נרות יש?',
+            correct: 'two',
+            wrong: ['one', 'eight'],
+          },
+        },
+      },
+    ],
+  },
+  {
+    ...packUnitNumbers('holidays', 1),
+    titleEn: 'Spring & Summer Holidays',
+    titleHe: 'חגי האביב והקיץ',
+    subtitleHe: 'ט״ו בשבט, פורים, פסח, יום העצמאות, שבועות והחופש הגדול',
+    badgeEmoji: '🌷',
+    missions: [
+      {
+        icon: '🎭',
+        titleEn: 'Tu BiShvat & Purim',
+        titleHe: 'ט״ו בשבט ופורים',
+        storyHookHe: 'בט״ו בשבט שותלים, ובפורים מתחפשים! בואו נלמד מילים לשני החגים.',
+        grammarTopic: 'Holiday Words & "I have a..."',
+        skills: ['Holiday Words', 'I have', 'Colors'],
+        sentenceEn: 'I have a mask and a yellow crown.',
+        sentenceHe: 'יש לי מסכה וכתר צהוב.',
+        vocab: [
+          ['plant', 'noun', 'צמח', '🌱', 'I give water to the plant.', 'אני משקה את הצמח.'],
+          ['garden', 'noun', 'גינה', '🏡', 'We plant a tree in the garden.', 'אנחנו שותלים עץ בגינה.'],
+          ['mask', 'noun', 'מסכה', '🎭', 'I have a funny mask.', 'יש לי מסכה מצחיקה.'],
+          ['crown', 'noun', 'כתר', '👑', 'The king has a crown.', 'למלך יש כתר.'],
+        ],
+        seed: {
+          wrongWords: [
+            { wordEn: 'hat', translationHe: 'כובע' },
+            { wordEn: 'tree', translationHe: 'עץ' },
+          ],
+          shortSentenceEn: 'I have a mask.',
+          shortSentenceHe: 'יש לי מסכה.',
+          rule: {
+            questionEn: 'Which one is correct?',
+            correct: 'I have a crown.',
+            wrong: ['I have crown.', 'I a crown have.'],
+            explainHe: 'לפני דבר אחד אומרים a: I have a crown (יש לי כתר).',
+            hintHe: 'כשמדברים על דבר אחד צריך מילה קטנה לפניו. איפה היא?',
+          },
+          story: {
+            passageEn: 'It is Purim! I have a mask. My friend has a crown. The crown is yellow.',
+            passageHe: 'פורים! יש לי מסכה. לחבר שלי יש כתר. הכתר צהוב.',
+            questionEn: 'What does my friend have?',
+            questionHe: 'מה יש לחבר שלי?',
+            correct: 'a crown',
+            wrong: ['a mask', 'a plant'],
+          },
+        },
+      },
+      {
+        icon: '🎆',
+        titleEn: 'Passover & Independence Day',
+        titleHe: 'פסח ויום העצמאות',
+        storyHookHe: 'בפסח אוכלים מצה, וביום העצמאות מניפים דגלים ורואים זיקוקים! בואו נלמד את המילים.',
+        grammarTopic: 'Holiday Words & Colors',
+        skills: ['Holiday Words', 'Colors', 'I see'],
+        sentenceEn: 'I see a blue and white flag.',
+        sentenceHe: 'אני רואה דגל כחול לבן.',
+        vocab: [
+          ['flag', 'noun', 'דגל', '🇮🇱', 'The flag is blue and white.', 'הדגל כחול ולבן.'],
+          ['matzah', 'noun', 'מצה', '🫓', 'We eat matzah on Passover.', 'אוכלים מצה בפסח.'],
+          ['fireworks', 'noun', 'זיקוקים', '🎆', 'I see fireworks in the sky.', 'אני רואה זיקוקים בשמיים.'],
+          ['party', 'noun', 'מסיבה', '🥳', 'We have a big party.', 'יש לנו מסיבה גדולה.'],
+        ],
+        seed: {
+          wrongWords: [
+            { wordEn: 'ball', translationHe: 'כדור' },
+            { wordEn: 'kite', translationHe: 'עפיפון' },
+          ],
+          shortSentenceEn: 'I see a flag.',
+          shortSentenceHe: 'אני רואה דגל.',
+          rule: {
+            questionEn: 'What colors are on the flag of Israel?',
+            correct: 'blue and white',
+            wrong: ['red and green', 'yellow and pink'],
+            explainHe: 'דגל ישראל כחול ולבן: blue and white.',
+            hintHe: 'חשבו על הדגל שרואים ביום העצמאות: באילו צבעים הוא?',
+          },
+          story: {
+            passageEn: 'It is Independence Day. I see ten flags. I see fireworks. Hello, party!',
+            passageHe: 'יום העצמאות. אני רואה עשרה דגלים. אני רואה זיקוקים. שלום, מסיבה!',
+            questionEn: 'How many flags?',
+            questionHe: 'כמה דגלים יש?',
+            correct: 'ten',
+            wrong: ['two', 'six'],
+          },
+        },
+      },
+      {
+        icon: '🏖️',
+        isBoss: true,
+        titleEn: 'Boss: Shavuot & Summer Fun',
+        titleHe: 'אתגר הבוס: שבועות וכיף של קיץ',
+        storyHookHe: 'בשבועות אוכלים גבינה, ואז מגיע החופש הגדול! הראו שאתם זוכרים את כל מילות החגים.',
+        grammarTopic: 'Shavuot, Summer & Review',
+        skills: ['Holiday Words', 'I like', 'Review'],
+        sentenceEn: 'I like cheese and I like the beach.',
+        sentenceHe: 'אני אוהב/ת גבינה ואני אוהב/ת את חוף הים.',
+        vocab: [
+          ['cheese', 'noun', 'גבינה', '🧀', 'I eat white cheese.', 'אני אוכל/ת גבינה לבנה.'],
+          ['wheat', 'noun', 'חיטה', '🌾', 'The wheat is yellow.', 'החיטה צהובה.'],
+          ['beach', 'noun', 'חוף ים', '🏖️', 'We play on the beach.', 'אנחנו משחקים על החוף.'],
+          ['shell', 'noun', 'צדף', '🐚', 'I find a shell in the sand.', 'אני מוצא/ת צדף בחול.'],
+        ],
+        seed: {
+          wrongWords: [
+            { wordEn: 'rain', translationHe: 'גשם' },
+            { wordEn: 'cake', translationHe: 'עוגה' },
+          ],
+          shortSentenceEn: 'I like the beach.',
+          shortSentenceHe: 'אני אוהב/ת את חוף הים.',
+          rule: {
+            questionEn: 'Which sentence is correct?',
+            correct: 'I see four shells.',
+            wrong: ['I see four shell.', 'I four see shells.'],
+            explainHe: 'יותר מצדף אחד: מוסיפים s: four shells. והמספר בא לפני.',
+            hintHe: 'כמה צדפים יש? בדקו את סוף המילה ואת מקום המספר.',
+          },
+          story: {
+            passageEn: 'It is summer! I am on the beach. I see the sun. I have a pink shell. Goodbye, school!',
+            passageHe: 'קיץ! אני בחוף הים. אני רואה את השמש. יש לי צדף ורוד. להתראות, בית ספר!',
+            questionEn: 'What color is the shell?',
+            questionHe: 'באיזה צבע הצדף?',
+            correct: 'pink',
+            wrong: ['blue', 'green'],
+          },
+        },
+      },
+    ],
+  },
+];
+
+export const HOLIDAYS_GRADE_1_CURRICULUM: GradeCurriculumPack = /*#__PURE__*/ buildElementaryGrade('grade-1', UNITS);

@@ -417,6 +417,14 @@ export const ICON_ID_BY_EMOJI: Readonly<Record<string, string>> = {
   '👩‍🎓': 'word-graduate',
   '🧑‍💼': 'word-office-worker',
   '🕵‍♂': 'word-detective-man',
+  // Content packs (sheet 51)
+  '🩺': 'word-stethoscope',
+  '🤒': 'word-sick-face',
+  '🍯': 'word-honey',
+  '🛖': 'word-sukkah',
+  '🕎': 'word-menorah',
+  '🫓': 'word-matzah',
+  '🇮🇱': 'word-israel-flag',
 };
 
 const ICON_DIR = '/art/icons';

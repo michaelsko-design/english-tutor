@@ -21,8 +21,9 @@ function hasWholeWord(text: string, word: string): boolean {
 
 describe('mission hints (Feature 20)', () => {
   it('covers every mission of grades 1–12', () => {
-    // 12 grades × 12 missions, plus grade 1's 18 letters and blending missions
-    expect(ALL_MISSIONS).toHaveLength(162);
+    // 12 grades × 12 missions, plus grade 1's 18 letters and blending missions, plus the content
+    // packs' 12 missions per grade
+    expect(ALL_MISSIONS).toHaveLength(162 + 12 * 12);
     expect(ALL_MISSIONS.every((m) => m.drillSeed || m.phonics)).toBe(true);
   });
 

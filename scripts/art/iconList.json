@@ -2600,5 +2600,47 @@
     "subject": "a single snow-capped mountain peak, drawn alone",
     "sheet": 50,
     "replaces": "word-snowy-mountain"
+  },
+  {
+    "id": "word-stethoscope",
+    "emoji": "🩺",
+    "subject": "a doctor's stethoscope, drawn alone",
+    "sheet": 51
+  },
+  {
+    "id": "word-sick-face",
+    "emoji": "🤒",
+    "subject": "a round yellow face with a thermometer in its mouth, looking unwell",
+    "sheet": 51
+  },
+  {
+    "id": "word-honey",
+    "emoji": "🍯",
+    "subject": "a small honey pot with honey dripping and a wooden honey dipper",
+    "sheet": 51
+  },
+  {
+    "id": "word-sukkah",
+    "emoji": "🛖",
+    "subject": "a small festive sukkah hut with a leafy palm-branch roof and paper chain decorations",
+    "sheet": 51
+  },
+  {
+    "id": "word-menorah",
+    "emoji": "🕎",
+    "subject": "a nine-branched Hanukkah menorah with lit candles",
+    "sheet": 51
+  },
+  {
+    "id": "word-matzah",
+    "emoji": "🫓",
+    "subject": "a square piece of matzah flatbread with rows of little holes",
+    "sheet": 51
+  },
+  {
+    "id": "word-israel-flag",
+    "emoji": "🇮🇱",
+    "subject": "the flag of Israel, white with two blue stripes and a blue Star of David, waving on a short pole",
+    "sheet": 51
   }
 ]

@@ -1,0 +1,267 @@
+import { buildElementaryGrade, type ElementaryUnitSpec } from '../../../elementary/builder';
+import type { GradeCurriculumPack } from '../../../types';
+import { packUnitNumbers } from '../../units';
+
+/**
+ * The core-plus pack's grade 1 units ("Season 2"): zoo animals with "I see a…", then shapes and
+ * sizes (big / small). Built on the structures of grade 1's topic units (colors, numbers,
+ * I see / I have / I like).
+ */
+const UNITS: ElementaryUnitSpec[] = [
+  {
+    ...packUnitNumbers('core-plus', 0),
+    titleEn: 'Zoo Day: What Do You See?',
+    titleHe: 'יום בגן החיות: מה רואים?',
+    subtitleHe: 'עונה 2: הרפתקאות בונוס! חיות חדשות ומשפטי I see a…',
+    badgeEmoji: '🐾',
+    missions: [
+      {
+        icon: '🦒',
+        titleEn: 'At the Zoo: I See a Giraffe',
+        titleHe: 'בגן החיות: אני רואה ג׳ירפה',
+        storyHookHe: 'עונה 2 מתחילה בגן החיות! בואו נגיד מה אנחנו רואים: I see a giraffe.',
+        grammarTopic: 'Zoo Animals & "I see a..."',
+        skills: ['Zoo Animals', 'I see a...', 'Speaking Aloud'],
+        sentenceEn: 'I see a giraffe and a parrot.',
+        sentenceHe: 'אני רואה ג׳ירפה ותוכי.',
+        vocab: [
+          ['giraffe', 'noun', 'ג׳ירפה', '🦒', 'The giraffe has a long neck.', 'לג׳ירפה יש צוואר ארוך.'],
+          ['parrot', 'noun', 'תוכי', '🦜', 'The parrot can talk.', 'התוכי יודע לדבר.'],
+          ['owl', 'noun', 'ינשוף', '🦉', 'The owl sleeps in the day.', 'הינשוף ישן ביום.'],
+          ['turtle', 'noun', 'צב', '🐢', 'The turtle is very slow.', 'הצב איטי מאוד.'],
+        ],
+        seed: {
+          wrongWords: [
+            { wordEn: 'lion', translationHe: 'אריה' },
+            { wordEn: 'monkey', translationHe: 'קוף' },
+          ],
+          shortSentenceEn: 'I see a giraffe.',
+          shortSentenceHe: 'אני רואה ג׳ירפה.',
+          rule: {
+            questionEn: 'Which sentence is correct?',
+            correct: 'I see a parrot.',
+            wrong: ['I a see parrot.', 'See I a parrot.'],
+            explainHe: 'אומרים קודם I (אני), אחר כך see (רואה), ואז a ושם החיה: I see a parrot.',
+            hintHe: 'כדאי להתחיל במי שרואה, אחר כך הפועל, ואז מילה קטנה לפני החיה.',
+          },
+          story: {
+            passageEn: 'I am at the zoo. I see a giraffe. I see a red parrot.',
+            passageHe: 'אני בגן החיות. אני רואה ג׳ירפה. אני רואה תוכי אדום.',
+            questionEn: 'What color is the parrot?',
+            questionHe: 'באיזה צבע התוכי?',
+            correct: 'red',
+            wrong: ['blue', 'green'],
+          },
+        },
+      },
+      {
+        icon: '🦋',
+        titleEn: 'What Do You See? Little Animals',
+        titleHe: 'מה רואים? חיות קטנות',
+        storyHookHe: 'בגינה מסתתרות חיות קטנות! נשאל What do you see? ונענה I see a butterfly.',
+        grammarTopic: 'What do you see? & I see a...',
+        skills: ['Questions', 'I see a...', 'Little Animals'],
+        sentenceEn: 'What do you see? I see a butterfly.',
+        sentenceHe: 'מה רואים? אני רואה פרפר.',
+        vocab: [
+          ['butterfly', 'noun', 'פרפר', '🦋', 'The butterfly is on a flower.', 'הפרפר על פרח.'],
+          ['caterpillar', 'noun', 'זחל', '🐛', 'The caterpillar eats a leaf.', 'הזחל אוכל עלה.'],
+          ['lizard', 'noun', 'לטאה', '🦎', 'The lizard sits in the sun.', 'הלטאה יושבת בשמש.'],
+          ['hamster', 'noun', 'אוגר', '🐹', 'My hamster is little and soft.', 'האוגר שלי קטן ורך.'],
+        ],
+        seed: {
+          wrongWords: [
+            { wordEn: 'frog', translationHe: 'צפרדע' },
+            { wordEn: 'snake', translationHe: 'נחש' },
+          ],
+          shortSentenceEn: 'I see a lizard.',
+          shortSentenceHe: 'אני רואה לטאה.',
+          rule: {
+            questionEn: 'Mom asks: "What do you see?" Which answer is correct?',
+            correct: 'I see a butterfly.',
+            wrong: ['I see butterfly a.', 'I a butterfly see.'],
+            explainHe: 'עונים I see a … (אני רואה …): קודם I see, ואז a ושם החיה.',
+            hintHe: 'בתשובה טובה המילה הקטנה עומדת לפני שם החיה. איפה היא בכל תשובה?',
+          },
+          story: {
+            passageEn: 'What do you see, Dan? I see a caterpillar. It is on a leaf. Now I see a butterfly!',
+            passageHe: 'מה אתה רואה, דן? אני רואה זחל. הוא על עלה. עכשיו אני רואה פרפר!',
+            questionEn: 'Where is the caterpillar?',
+            questionHe: 'איפה הזחל?',
+            correct: 'on a leaf',
+            wrong: ['in a box', 'on a car'],
+          },
+        },
+      },
+      {
+        icon: '🐊',
+        isBoss: true,
+        titleEn: 'Boss: Animal Parade',
+        titleHe: 'אתגר הבוס: מצעד החיות',
+        storyHookHe: 'כל החיות יוצאות למצעד גדול! הראו שאתם יודעים לומר מה אתם רואים.',
+        grammarTopic: 'Animals & "I see..." Review',
+        skills: ['Animals', 'I see...', 'Review'],
+        sentenceEn: 'I see a crocodile and a cow.',
+        sentenceHe: 'אני רואה תנין ופרה.',
+        vocab: [
+          ['crocodile', 'noun', 'תנין', '🐊', 'The crocodile swims in the river.', 'התנין שוחה בנהר.'],
+          ['eagle', 'noun', 'נשר', '🦅', 'The eagle flies high.', 'הנשר עף גבוה.'],
+          ['cow', 'noun', 'פרה', '🐄', 'The cow gives us milk.', 'הפרה נותנת לנו חלב.'],
+          ['sheep', 'noun', 'כבשה', '🐑', 'The sheep is white and soft.', 'הכבשה לבנה ורכה.'],
+        ],
+        seed: {
+          wrongWords: [
+            { wordEn: 'horse', translationHe: 'סוס' },
+            { wordEn: 'goat', translationHe: 'עז' },
+          ],
+          shortSentenceEn: 'I see a cow.',
+          shortSentenceHe: 'אני רואה פרה.',
+          rule: {
+            questionEn: 'Which sentence is correct?',
+            correct: 'I see two cows.',
+            wrong: ['I see two cow.', 'I two see cows.'],
+            explainHe: 'כשיש יותר מאחת מוסיפים s: two cows (שתי פרות). והמספר בא לפני החיה.',
+            hintHe: 'כמה פרות יש? כדאי לבדוק את סוף המילה ואת מקום המספר.',
+          },
+          story: {
+            passageEn: 'Look! I see a crocodile in the water. I see an eagle in the sky. I see three cows. Goodbye, animals!',
+            passageHe: 'תראו! אני רואה תנין במים. אני רואה נשר בשמיים. אני רואה שלוש פרות. להתראות, חיות!',
+            questionEn: 'Where is the eagle?',
+            questionHe: 'איפה הנשר?',
+            correct: 'in the sky',
+            wrong: ['in the water', 'in a box'],
+          },
+        },
+      },
+    ],
+  },
+  {
+    ...packUnitNumbers('core-plus', 1),
+    titleEn: 'Shapes & Sizes',
+    titleHe: 'צורות וגדלים',
+    subtitleHe: 'עונה 2: צורות, גדול וקטן, גבוה וארוך',
+    badgeEmoji: '📏',
+    missions: [
+      {
+        icon: '📐',
+        titleEn: 'Circle, Square & Triangle',
+        titleHe: 'עיגול, ריבוע ומשולש',
+        storyHookHe: 'הצורות התפזרו בכיתה! בואו נמצא עיגול, ריבוע ומשולש ונגיד באיזה צבע הם.',
+        grammarTopic: 'Shapes & color + shape',
+        skills: ['Shapes', 'Colors', 'Voice Practice'],
+        sentenceEn: 'I see a red circle and a blue square.',
+        sentenceHe: 'אני רואה עיגול אדום וריבוע כחול.',
+        vocab: [
+          ['circle', 'noun', 'עיגול', '🌑', 'The moon looks like a circle.', 'הירח נראה כמו עיגול.'],
+          ['square', 'noun', 'ריבוע', '🖼️', 'The picture is a square.', 'התמונה היא ריבוע.'],
+          ['triangle', 'noun', 'משולש', '📐', 'A triangle has three sides.', 'למשולש יש שלוש צלעות.'],
+          ['heart', 'noun', 'לב', '❤️', 'I draw a red heart.', 'אני מצייר/ת לב אדום.'],
+        ],
+        seed: {
+          wrongWords: [
+            { wordEn: 'star', translationHe: 'כוכב' },
+            { wordEn: 'door', translationHe: 'דלת' },
+          ],
+          shortSentenceEn: 'I see a red heart.',
+          shortSentenceHe: 'אני רואה לב אדום.',
+          rule: {
+            questionEn: 'Which one is correct?',
+            correct: 'a blue triangle',
+            wrong: ['a triangle blue', 'blue a triangle'],
+            explainHe: 'הצבע בא לפני הצורה: a blue triangle (משולש כחול).',
+            hintHe: 'באנגלית הצבע עומד לפני הדבר. ומה בא ראשון?',
+          },
+          story: {
+            passageEn: 'Look at my picture. I see a circle and a square. The square is blue.',
+            passageHe: 'תסתכלו על הציור שלי. אני רואה עיגול וריבוע. הריבוע כחול.',
+            questionEn: 'What color is the square?',
+            questionHe: 'באיזה צבע הריבוע?',
+            correct: 'blue',
+            wrong: ['red', 'yellow'],
+          },
+        },
+      },
+      {
+        icon: '🐘',
+        titleEn: 'Big and Small',
+        titleHe: 'גדול וקטן',
+        storyHookHe: 'הפיל גדול והנמלה קטנה! בואו נלמד לתאר: big, small, tall ו-long.',
+        grammarTopic: 'Sizes: The ... is big',
+        skills: ['Big & Small', 'Describing', 'Listening'],
+        sentenceEn: 'The elephant is big and the ant is small.',
+        sentenceHe: 'הפיל גדול והנמלה קטנה.',
+        vocab: [
+          ['big', 'adjective', 'גדול / גדולה', '🐘', 'My bag is big.', 'התיק שלי גדול.'],
+          ['small', 'adjective', 'קטן / קטנה', '🐜', 'The ant is very small.', 'הנמלה קטנה מאוד.'],
+          ['tall', 'adjective', 'גבוה / גבוהה', '🌲', 'The tree is tall.', 'העץ גבוה.'],
+          ['long', 'adjective', 'ארוך / ארוכה', '🐍', 'The snake is long.', 'הנחש ארוך.'],
+        ],
+        seed: {
+          wrongWords: [
+            { wordEn: 'happy', translationHe: 'שמח / שמחה' },
+            { wordEn: 'red', translationHe: 'אדום' },
+          ],
+          shortSentenceEn: 'The ant is small.',
+          shortSentenceHe: 'הנמלה קטנה.',
+          rule: {
+            questionEn: 'An elephant and an ant. Which sentence is correct?',
+            correct: 'The elephant is big.',
+            wrong: ['The elephant is small.', 'The ant is big.'],
+            explainHe: 'הפיל גדול (big) והנמלה קטנה (small).',
+            hintHe: 'כדאי לחשוב: מי ענק ומי זעיר? ואיזו מילה מתאימה לכל אחד?',
+          },
+          story: {
+            passageEn: 'I see a giraffe. It is tall. I see a snake. It is long. I see an ant. It is small.',
+            passageHe: 'אני רואה ג׳ירפה. היא גבוהה. אני רואה נחש. הוא ארוך. אני רואה נמלה. היא קטנה.',
+            questionEn: 'What is long?',
+            questionHe: 'מה ארוך?',
+            correct: 'the snake',
+            wrong: ['the giraffe', 'the ant'],
+          },
+        },
+      },
+      {
+        icon: '🧩',
+        isBoss: true,
+        titleEn: 'Boss: The Shape Show',
+        titleHe: 'אתגר הבוס: מופע הצורות',
+        storyHookHe: 'בסוף עונה 2 מחכה מופע צורות גדול! הראו שאתם מכירים צורות, צבעים וגדלים.',
+        grammarTopic: 'Shapes, Sizes & Review',
+        skills: ['Shapes', 'Sizes', 'Review'],
+        sentenceEn: 'I see a big round shape. It is a circle.',
+        sentenceHe: 'אני רואה צורה גדולה ועגולה. זה עיגול.',
+        vocab: [
+          ['shape', 'noun', 'צורה', '🧩', 'A square is a shape.', 'ריבוע הוא צורה.'],
+          ['round', 'adjective', 'עגול / עגולה', '🪙', 'The coin is round.', 'המטבע עגול.'],
+          ['short', 'adjective', 'קצר / קצרה', '🖍️', 'My crayon is short.', 'הצבע שלי קצר.'],
+          ['thin', 'adjective', 'דק / דקה', '🧵', 'The thread is thin.', 'החוט דק.'],
+        ],
+        seed: {
+          wrongWords: [
+            { wordEn: 'hand', translationHe: 'יד' },
+            { wordEn: 'star', translationHe: 'כוכב' },
+          ],
+          shortSentenceEn: 'It is a shape.',
+          shortSentenceHe: 'זו צורה.',
+          rule: {
+            questionEn: 'Which word is the opposite of long?',
+            correct: 'short',
+            wrong: ['tall', 'round'],
+            explainHe: 'long זה ארוך, ו-short זה קצר: הם הפכים.',
+            hintHe: 'חשבו על עיפרון חדש ועל עיפרון ישן ושחוק. איך אומרים את ההפך של ארוך?',
+          },
+          story: {
+            passageEn: 'Look at my shapes! The circle is big and round. The square is small. The triangle is red.',
+            passageHe: 'תסתכלו על הצורות שלי! העיגול גדול ועגול. הריבוע קטן. המשולש אדום.',
+            questionEn: 'What is small?',
+            questionHe: 'מה קטן?',
+            correct: 'the square',
+            wrong: ['the circle', 'the triangle'],
+          },
+        },
+      },
+    ],
+  },
+];
+
+export const CORE_PLUS_GRADE_1_CURRICULUM: GradeCurriculumPack = /*#__PURE__*/ buildElementaryGrade('grade-1', UNITS);
