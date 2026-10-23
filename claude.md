@@ -18,6 +18,7 @@ npm run typecheck    # tsc -b
 npm run build        # tsc -b && vite build  (run test + build before committing)
 npm run tts:check    # phrases without a read-aloud clip
 npm run tts:render   # render missing clips, rewrite public/tts/manifest.json
+npm run tts:upload   # upload clips to the R2 bucket (skips existing; --force replaces, --dry-run counts)
 node scripts/emulator/rulesSmoke.mjs   # firestore.rules vs. running emulators
 ```
 Emulator testing: never sign in or create accounts against the live Firebase project. Use the emulator user `emutest` (PIN in gitignored `.claude/test-user-emulator.md`); steps in `docs/architecture.md` §8.
@@ -27,9 +28,9 @@ Emulator testing: never sign in or create accounts against the live Firebase pro
 **TTS corpus** (any change to English text the app reads aloud):
 - Hebrew shown to grades 1–2 is read aloud too (Feature 47): it must be built by the generators `scripts/tts/hebrewCorpus.ts` runs (or added there), and rendered with Gemini's batch API: `npm run tts:render:he -- submit`, then `-- collect` when `-- status` shows it done (needs `GEMINI_API_KEY` in `.env.local`).
 - Fixed spoken text must be in `scripts/tts/corpus.ts` (new data file or new `onSpeakEnglish(...)` call on fixed text → add it there). Learner-typed text is not.
-- After editing curriculum, mini-lessons, exam banks, vocabulary, room/wardrobe names, voice messages, dream words: `npm run tts:check` → `npm run tts:render` (needs `AZURE_SPEECH_KEY`/`AZURE_SPEECH_REGION` in `.env.local`) → `tts:check` again → commit new `public/tts/v<N>/female/*.mp3` + `manifest.json` in the same commit.
+- After editing curriculum, mini-lessons, exam banks, vocabulary, room/wardrobe names, voice messages, dream words: `npm run tts:check` → `npm run tts:render` (needs `AZURE_SPEECH_KEY`/`AZURE_SPEECH_REGION` in `.env.local`) → `tts:check` again → `npm run tts:upload` (clips live in the Cloudflare R2 bucket, not in git or the Vercel deployment; needs `R2_*` in `.env.local`) → commit the new `public/tts/manifest.json`, after the upload, so the app never lists a clip that isn't online. The app reads clips from `VITE_TTS_CLIP_BASE_URL` (set in Vercel Production + Preview and `.env.local`).
 - Changing voice/SSML (`api/_lib/azureTts.ts`) means bumping `TTS_AUDIO_VERSION` in `src/services/tts/ttsText.ts` and re-rendering everything. Changing only the Hebrew clips' sound (`scripts/tts/geminiTts.ts`, or the niqqud in `scripts/tts/geminiSpelling.ts`, checked by ear) bumps `HEBREW_AUDIO_VERSION` instead and re-renders with `tts:render:he`. `api/_lib/hebrewPronunciation.ts` (IPA) only shapes the online Azure fallback.
-- A clip re-rendered after it shipped (`npm run tts:render:he -- redo "<text>"`) keeps its file name, so `redo` bumps its revision in `src/services/tts/clipRevisions.ts` (adds `?r=N` to its URL); commit that file with the new mp3, or devices keep the old take for a year.
+- A clip re-rendered after it shipped (`npm run tts:render:he -- redo "<text>"`) keeps its file name, so `redo` bumps its revision in `src/services/tts/clipRevisions.ts` (adds `?r=N` to its URL); commit that file, and run `npm run tts:upload -- --force` to replace the clip in R2, or devices keep the old take for a year.
 - All read-aloud goes through `getTtsService().speak(...)`; 🔊 buttons use `useSpeechToggle`; screens that read aloud use `useStopSpeechOnLeave`.
 
 **Profile sync**:

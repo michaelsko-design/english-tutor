@@ -9,6 +9,7 @@ const CACHE_NAME = `englishvibe-${BUILD_ID}`;
 const TTS_CLIP_CACHE = 'englishvibe-tts-v1';
 // Caches owned by the read-aloud service (src/services/tts) are kept on activate.
 const TTS_CACHE_PREFIX = 'englishvibe-tts-';
+const R2_CLIP_HOST_SUFFIX = '.r2.dev';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -53,7 +54,9 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin) return;
+  // The clips may be served from the Cloudflare R2 bucket (VITE_TTS_CLIP_BASE_URL); nothing else is.
+  const isR2Clip = url.protocol === 'https:' && url.hostname.endsWith(R2_CLIP_HOST_SUFFIX);
+  if (url.origin !== self.location.origin && !isR2Clip) return;
   // The online voice is cached by the page itself.
   if (url.pathname.startsWith('/api/')) return;
 

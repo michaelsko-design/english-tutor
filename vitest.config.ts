@@ -15,7 +15,8 @@ export default defineConfig({
     projects: [
       {
         ...shared,
-        test: { name: 'unit', environment: 'node', include: ['**/*.test.ts'], exclude },
+        // The clip base URL is a deploy setting; tests expect the app's own /tts/ paths.
+        test: { name: 'unit', environment: 'node', include: ['**/*.test.ts'], exclude, env: { VITE_TTS_CLIP_BASE_URL: '' } },
       },
       {
         // Component tests (Testing Library) render in jsdom
@@ -28,6 +29,7 @@ export default defineConfig({
           setupFiles: ['src/test/setup.ts'],
           // Calls recorded on vi.fn mocks never carry over to the next test
           clearMocks: true,
+          env: { VITE_TTS_CLIP_BASE_URL: '' },
         },
       },
     ],
