@@ -1,14 +1,15 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ModalPortal } from './ModalPortal';
 import { useDialog } from '../hooks/useDialog';
 import { useGradeCurricula } from '../hooks/useGradeCurricula';
-import { LearnerProfile, PlacementResult, SUPPORTED_GRADES } from '../types/learner';
+import { GradeId, LearnerProfile, PlacementResult, SUPPORTED_GRADES } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
 import {
   PLACEMENT_QUESTION_COUNT,
   PLACEMENT_REWARD_DIAMONDS,
   PLACEMENT_REWARD_XP,
   PlacementAnswer,
+  PlacementQuestion,
   buildNonReaderResult,
   computePlacementResult,
   getReadGateCopy,
@@ -46,35 +47,46 @@ type Phase = 'canRead' | 'intro' | 'question' | 'result';
 type PendingPick = number | 'dont-know' | null;
 
 const ALL_GRADE_IDS = SUPPORTED_GRADES.map((grade) => grade.id);
+const NO_GRADES: GradeId[] = [];
+
+/** Shown only until the curriculum has loaded; the test can't start before then */
+const PENDING_QUESTION: PlacementQuestion = { id: 'pending', gradeNum: 1, kind: 'vocab', promptHe: '', questionEn: '', options: [] };
 
 /**
- * The staircase can reach any grade, so the test loads every grade's curriculum when it opens
- * (the dialog is lazy and rare, so the first download stays small).
+ * The staircase can reach any grade, so the test loads every grade's curriculum once the learner
+ * gets past the "can you read English" question (a learner who can't never downloads them).
  */
 export const PlacementTest: React.FC<PlacementTestProps> = (props) => {
-  const { status, retry } = useGradeCurricula(ALL_GRADE_IDS);
-  if (status === 'ready') return <PlacementTestDialog {...props} />;
+  const [isCurriculumWanted, setIsCurriculumWanted] = useState(false);
+  const { status, retry } = useGradeCurricula(isCurriculumWanted ? ALL_GRADE_IDS : NO_GRADES);
+  const handleNeedCurriculum = useCallback(() => setIsCurriculumWanted(true), []);
   return (
-    <ModalPortal>
-      <div role="status" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div className={`rounded-3xl p-6 text-center space-y-3 max-w-sm ${props.theme.cardBgClass}`}>
-          <p className="font-bold">{status === 'error' ? 'לא הצלחנו לטעון את המבחן. בדקו את החיבור ונסו שוב.' : 'טוענים את המבחן…'}</p>
-          {status === 'error' && (
-            <div className="flex gap-2 justify-center">
-              <Button theme={props.theme} onClick={retry}>נסו שוב</Button>
-              <Button theme={props.theme} variant="secondary" onClick={props.onClose}>סגירה</Button>
-            </div>
-          )}
-        </div>
-      </div>
-    </ModalPortal>
+    <PlacementTestDialog
+      {...props}
+      isReady={isCurriculumWanted && status === 'ready'}
+      hasLoadFailed={isCurriculumWanted && status === 'error'}
+      onNeedCurriculum={handleNeedCurriculum}
+      onRetryLoad={retry}
+    />
   );
 };
 
-const PlacementTestDialog: React.FC<PlacementTestProps> = ({
+interface PlacementTestDialogProps extends PlacementTestProps {
+  /** Every grade's curriculum is loaded */
+  isReady: boolean;
+  hasLoadFailed: boolean;
+  onNeedCurriculum: () => void;
+  onRetryLoad: () => void;
+}
+
+const PlacementTestDialog: React.FC<PlacementTestDialogProps> = ({
   profile,
   theme,
   mode,
+  isReady,
+  hasLoadFailed,
+  onNeedCurriculum,
+  onRetryLoad,
   onFinish,
   onClose,
 }) => {
@@ -108,16 +120,23 @@ const PlacementTestDialog: React.FC<PlacementTestProps> = ({
   const dialogRef = useRef<HTMLDivElement>(null);
   const nextBtnRef = useRef<HTMLButtonElement>(null);
 
+  // The curriculum is wanted from the intro on, which is where the learner is about to start
+  useEffect(() => {
+    if (phase === 'intro') onNeedCurriculum();
+  }, [phase, onNeedCurriculum]);
+
   const question = useMemo(
     () =>
-      pickNextQuestion(
+      !isReady
+        ? PENDING_QUESTION
+        : pickNextQuestion(
         difficulty,
         answers.length,
         answers.map((a) => a.questionId),
         profile.gender,
         salt
       ),
-    [difficulty, answers, profile.gender, salt]
+    [isReady, difficulty, answers, profile.gender, salt]
   );
 
   const previousGrade = profile.placementResult
@@ -284,8 +303,18 @@ const PlacementTestDialog: React.FC<PlacementTestProps> = ({
             )}
 
             <div className="flex flex-col sm:flex-row gap-2.5">
-              <Button theme={theme} size="lg" className="flex-1" onClick={handleStart}>
-                {inflectHebrew('בואי נתחיל! 🚀', profile.gender)}
+              <Button
+                theme={theme}
+                size="lg"
+                className="flex-1"
+                onClick={hasLoadFailed ? onRetryLoad : handleStart}
+                disabled={!isReady && !hasLoadFailed}
+              >
+                {hasLoadFailed
+                  ? 'לא הצלחנו לטעון את המבחן. נסו שוב'
+                  : isReady
+                  ? inflectHebrew('בואי נתחיל! 🚀', profile.gender)
+                  : 'טוענים את המבחן…'}
               </Button>
               <Button theme={theme} variant="secondary" size="lg" onClick={onClose}>
                 {mode === 'onboarding'
