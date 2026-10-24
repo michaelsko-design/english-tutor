@@ -497,6 +497,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </Button>
               </form>
 
+              {mode === 'login' && (
+                <p className="text-xs text-center opacity-80">
+                  שכחתם את הקוד? אם חיברתם חשבון Google לחשבון, אפשר להיכנס איתו למעלה ואז להחליף קוד בהגדרות.
+                </p>
+              )}
+
               <div className="text-center">
                 <button
                   type="button"

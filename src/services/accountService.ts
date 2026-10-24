@@ -7,6 +7,7 @@ import {
   linkWithPopup,
   reauthenticateWithCredential,
   reauthenticateWithPopup,
+  updatePassword,
   updateProfile,
 } from 'firebase/auth';
 import { collection, deleteDoc, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
@@ -50,6 +51,29 @@ async function reauthenticate(user: User, pin: string): Promise<void> {
     await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, pin));
   } else if (kind === 'google' && googleProvider) {
     await reauthenticateWithPopup(user, googleProvider);
+  }
+}
+
+/** Firebase Auth's minimum password length, so also the shortest PIN */
+export const MIN_PIN_LENGTH = 6;
+
+/**
+ * Changes the PIN of a username + PIN account after proving the current one. A learner who forgot
+ * it leaves it empty and proves ownership with the linked Google account instead.
+ */
+export async function changePin(currentPin: string, newPin: string): Promise<AccountResult> {
+  const user = auth?.currentUser;
+  if (!user || getAccountKind(user) !== 'password') return { ok: false, errorHe: 'אפשר להחליף קוד רק בחשבון עם שם משתמש.' };
+  if (newPin.trim().length < MIN_PIN_LENGTH) return { ok: false, errorHe: 'הקוד החדש צריך לפחות 6 תווים.' };
+  const usesGoogle = !currentPin.trim() && hasGoogleLinked(user);
+  if (!currentPin.trim() && !usesGoogle) return { ok: false, errorHe: 'צריך לכתוב את הקוד הסודי הנוכחי.' };
+  try {
+    if (usesGoogle && googleProvider) await reauthenticateWithPopup(user, googleProvider);
+    else await reauthenticate(user, currentPin.trim());
+    await updatePassword(user, newPin.trim());
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, errorHe: describeAuthError(error) };
   }
 }
 

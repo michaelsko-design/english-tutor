@@ -14,7 +14,11 @@ vi.mock('../../services/firebase', () => ({
 
 vi.mock('firebase/auth', () => ({ signOut: vi.fn() }));
 
+const changePin = vi.fn<(currentPin: string, newPin: string) => Promise<AccountResult>>();
+
 vi.mock('../../services/accountService', () => ({
+  MIN_PIN_LENGTH: 6,
+  changePin: (currentPin: string, newPin: string) => changePin(currentPin, newPin),
   downloadProfileJson: vi.fn(),
   getAccountKind: () => 'password',
   hasGoogleLinked: () => false,
@@ -46,6 +50,41 @@ describe('AccountPrivacyCard: signing out', () => {
     await user.click(screen.getByRole('button', { name: 'התנתקות מהחשבון' }));
 
     expect(onSignOut).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('AccountPrivacyCard: changing the PIN', () => {
+  beforeEach(() => {
+    changePin.mockReset();
+  });
+
+  it('needs both PINs, then changes it and confirms', async () => {
+    const user = userEvent.setup();
+    changePin.mockResolvedValue({ ok: true });
+    renderCard();
+
+    await user.click(screen.getByRole('button', { name: 'החלפת קוד סודי' }));
+    const save = screen.getByRole('button', { name: 'שמירת הקוד החדש' });
+    expect(save).toBeDisabled();
+    await user.type(screen.getByLabelText(/הקוד הסודי הנוכחי/), PIN);
+    await user.type(screen.getByLabelText(/הקוד הסודי החדש/), '135790');
+    await user.click(save);
+
+    expect(changePin).toHaveBeenCalledWith(PIN, '135790');
+    expect(await screen.findByRole('status')).toHaveTextContent('הקוד הסודי הוחלף.');
+  });
+
+  it('shows the error and keeps the form when the change fails', async () => {
+    const user = userEvent.setup();
+    changePin.mockResolvedValue({ ok: false, errorHe: 'הקוד הסודי לא נכון.' });
+    renderCard();
+
+    await user.click(screen.getByRole('button', { name: 'החלפת קוד סודי' }));
+    await user.type(screen.getByLabelText(/הקוד הסודי הנוכחי/), PIN);
+    await user.type(screen.getByLabelText(/הקוד הסודי החדש/), '135790');
+    await user.click(screen.getByRole('button', { name: 'שמירת הקוד החדש' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('הקוד הסודי לא נכון.');
   });
 });
 

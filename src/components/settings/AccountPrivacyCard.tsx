@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Download, LogOut, ShieldCheck, Trash2, UserPlus } from 'lucide-react';
+import { Download, KeyRound, LogOut, ShieldCheck, Trash2, UserPlus } from 'lucide-react';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { auth } from '../../services/firebase';
 import {
   AccountResult,
+  MIN_PIN_LENGTH,
+  changePin,
   downloadProfileJson,
   getAccountKind,
   hasGoogleLinked,
@@ -66,6 +68,32 @@ export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile,
     setIsBusy(false);
   };
 
+  const [isPinOpen, setIsPinOpen] = useState(false);
+  const [currentPin, setCurrentPin] = useState('');
+  const [newPin, setNewPin] = useState('');
+  const [pinMessageHe, setPinMessageHe] = useState<string | null>(null);
+  const [pinErrorHe, setPinErrorHe] = useState<string | null>(null);
+
+  const closePinForm = () => {
+    setIsPinOpen(false);
+    setCurrentPin('');
+    setNewPin('');
+    setPinErrorHe(null);
+  };
+
+  const handleChangePin = async () => {
+    setIsBusy(true);
+    setPinErrorHe(null);
+    const result = await changePin(currentPin, newPin);
+    setIsBusy(false);
+    if (result.ok) {
+      closePinForm();
+      setPinMessageHe('הקוד הסודי הוחלף.');
+    } else {
+      setPinErrorHe(result.errorHe);
+    }
+  };
+
   const handleLogOut = async () => {
     if (!auth) return;
     if (isGuest && !isConfirmingGuestSignOut) {
@@ -117,6 +145,60 @@ export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile,
       {accountKind === 'password' && isGoogleLinked && (
         <p className={`text-xs sm:text-sm font-bold text-center ${theme.mutedTextClass}`}>
           חשבון Google מחובר. אפשר להיכנס גם איתו.
+        </p>
+      )}
+      {accountKind === 'password' &&
+        (isPinOpen ? (
+          <div className="p-3.5 rounded-2xl border border-current/20 space-y-2.5">
+            {([(isGoogleLinked ? 'הקוד הסודי הנוכחי (אם שכחתם, השאירו ריק ונאשר עם Google):' : 'הקוד הסודי הנוכחי:'), 'הקוד הסודי החדש (לפחות 6 תווים):'] as const).map((label, index) => (
+              <label key={label} className="block text-xs font-bold">
+                {label}
+                <input
+                  type="password"
+                  dir="ltr"
+                  lang="en"
+                  autoComplete={index === 0 ? 'current-password' : 'new-password'}
+                  value={index === 0 ? currentPin : newPin}
+                  onChange={(e) => (index === 0 ? setCurrentPin(e.target.value) : setNewPin(e.target.value))}
+                  className={`mt-1 w-full px-3 py-2.5 rounded-xl text-base font-bold outline-none ${theme.inputBgClass}`}
+                />
+              </label>
+            ))}
+            {pinErrorHe && (
+              <p role="alert" className="text-xs font-extrabold text-rose-700 dark:text-rose-300">
+                {pinErrorHe}
+              </p>
+            )}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                disabled={isBusy || (!isGoogleLinked && currentPin.trim().length < MIN_PIN_LENGTH) || newPin.trim().length < MIN_PIN_LENGTH}
+                onClick={handleChangePin}
+                className={`flex-1 min-h-11 rounded-2xl text-sm font-extrabold disabled:opacity-50 ${theme.primaryBtnClass}`}
+              >
+                שמירת הקוד החדש
+              </button>
+              <Button theme={theme} variant="secondary" onClick={closePinForm}>
+                ביטול
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              setPinMessageHe(null);
+              setIsPinOpen(true);
+            }}
+            className={`w-full min-h-11 p-2.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 ${theme.secondaryBtnClass}`}
+          >
+            <KeyRound className="w-4 h-4" aria-hidden="true" />
+            החלפת קוד סודי
+          </button>
+        ))}
+      {pinMessageHe && (
+        <p role="status" className={`text-xs sm:text-sm font-bold text-center ${theme.mutedTextClass}`}>
+          {pinMessageHe}
         </p>
       )}
       {errorHe && !isDeleteOpen && (
