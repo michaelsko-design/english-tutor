@@ -50,6 +50,7 @@ import { HomeHero } from './home/HomeHero';
 import { QuestRings } from './home/QuestRings';
 import { MapPeek } from './home/MapPeek';
 import { NewPackCard } from './home/NewPackCard';
+import { ParentNudgeCard } from './home/ParentNudgeCard';
 import { readSeenPacks, rememberSeenPack } from './home/seenPacks';
 import { getNewPackOffer } from '../data/contentPacks';
 import { StatsSheet } from './home/StatsSheet';
@@ -428,6 +429,9 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             onClose={() => dismissPackOffer(newPackOffer.pack.id)}
           />
         )}
+
+        {/* AN OPTIONAL, CLOSABLE INVITE FOR A PARENT */}
+        <ParentNudgeCard profile={profile} theme={theme} />
 
         {/* FEATURE 27: MAP PEEK, THEN THE FULL MAP */}
         {mapPeek && (
