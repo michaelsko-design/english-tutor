@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { CURRICULUM_BY_GRADE, isPhonicsUnit, MissionNode } from './curriculum';
+import { isPhonicsUnit, MissionNode } from './curriculum';
+import { CURRICULUM_BY_GRADE } from '../test/curriculum';
 import { ALPHABET } from './alphabet';
 import { BLEND_WORDS, getBlendWord } from './blendingWords';
 import { getExercisesForMission } from './missionExercises';

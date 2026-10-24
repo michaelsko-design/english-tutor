@@ -1,5 +1,5 @@
 import { Locator, Page } from '@playwright/test';
-import { CURRICULUM_BY_GRADE } from '../../src/data/curriculum';
+import { CURRICULUM_BY_GRADE } from '../../src/test/curriculum';
 import { expect } from './test';
 
 /** The step's done button, or the last step's finish button */

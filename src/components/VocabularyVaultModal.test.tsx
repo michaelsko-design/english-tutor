@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { CURRICULUM_BY_GRADE } from '../data/curriculum';
+import { CURRICULUM_BY_GRADE } from '../test/curriculum';
 import { TEST_THEME } from '../test/fixtures';
 import { VocabularyVaultModal } from './VocabularyVaultModal';
 

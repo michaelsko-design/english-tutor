@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { celebrate } from '../../../utils/celebrate';
 import { Lock } from 'lucide-react';
 import { RoomActivityReward, isActivityRewardedToday } from '../../../data/roomActivities';
@@ -11,9 +11,10 @@ import {
   buildScramble,
   buildSearchPuzzle,
   getBestGameScore,
-  getGameWords,
+  GameWord,
   getWordGame,
   isGameUnlocked,
+  loadGameWords,
   recordGameResult,
 } from '../../../data/wordGames';
 import { LearnerProfile } from '../../../types/learner';
@@ -50,10 +51,22 @@ const newSeed = () => Math.floor(Math.random() * 1_000_000_000);
 /** Feature 12, phase 5: the Games Book — word games that unlock with stars. */
 export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, onUpdateProfile, onSpeakEnglish, onClose }) => {
   const [view, setView] = useState<BookView>({ kind: 'menu' });
-  const words = useMemo(() => getGameWords(profile), [profile]);
+  // The grade's vocabulary loads when the book opens (a few KB; nearby grades only if it is thin)
+  const [words, setWords] = useState<GameWord[] | null>(null);
+  useEffect(() => {
+    let isActive = true;
+    loadGameWords(profile).then((loaded) => isActive && setWords(loaded));
+    return () => {
+      isActive = false;
+    };
+    // The words are read when the book opens; later profile updates don't reshuffle the games.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile.gradeId]);
   const stars = profile.stats.stars || 0;
 
-  const play = (gameId: WordGameId) => setView({ kind: 'play', gameId, seed: newSeed() });
+  const play = (gameId: WordGameId) => {
+    if (words) setView({ kind: 'play', gameId, seed: newSeed() });
+  };
 
   const handleFinish = (gameId: WordGameId, score: number) => {
     const now = new Date();
@@ -69,7 +82,7 @@ export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, 
   const playSeed = view.kind === 'play' ? view.seed : null;
   const playGameId = view.kind === 'play' ? view.gameId : null;
   const puzzle = useMemo(() => {
-    if (playSeed === null || playGameId === null) return null;
+    if (playSeed === null || playGameId === null || !words) return null;
     if (playGameId === 'scramble') return { kind: 'scramble' as const, rounds: buildScramble(words, playSeed) };
     if (playGameId === 'crossword') return { kind: 'crossword' as const, puzzle: buildCrosswordPuzzle(words, playSeed) };
     if (playGameId === 'search') return { kind: 'search' as const, puzzle: buildSearchPuzzle(words, profile.preferredTier, playSeed) };

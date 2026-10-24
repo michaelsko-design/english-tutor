@@ -14,7 +14,8 @@ import {
   placeOnRegion,
   sampleCenterline,
 } from './worldMap';
-import { CURRICULUM_BY_GRADE, CurriculumUnit, MissionNode } from './curriculum';
+import { CurriculumUnit, MissionNode } from './curriculum';
+import { CURRICULUM_BY_GRADE } from '../test/curriculum';
 import { MAP_BG_ASPECT, MAP_PATH_BY_THEME, MapPoint } from '../themes/themeArt';
 
 const makeMission = (unitNumber: number, missionNumber: number, isBoss = false): MissionNode =>

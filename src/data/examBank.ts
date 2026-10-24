@@ -19,7 +19,7 @@ import {
 } from './curriculum/examBank/types';
 import { getSentenceOrderHintHe, isolateLtr } from '../utils/hints';
 import { hebrewTemplate } from '../utils/hebrewGender';
-import { CURRICULUM_BY_GRADE } from './curriculum';
+import { loadGradeCurriculum } from './curriculum/loader';
 import { ALL_PACK_EXAM_BANK_LOADERS } from './curriculum/packs';
 import { mergeExamBank } from './curriculum/packs/merge';
 import { IS_PACK_PREVIEW } from './curriculum/packs/registry';
@@ -76,7 +76,8 @@ export async function loadExamBank(gradeId: GradeId): Promise<ExamBankPack | nul
   const packLoads = Object.values(PACK_EXAM_BANK_LOADERS).flatMap((loaders) => loaders?.[grade] ?? []);
   try {
     const [base, ...packBanks] = await Promise.all([load(), ...packLoads.map((loadPack) => loadPack())]);
-    return packBanks.length === 0 ? base : mergeExamBank(base, packBanks, CURRICULUM_BY_GRADE[gradeId]?.units ?? []);
+    if (packBanks.length === 0) return base;
+    return mergeExamBank(base, packBanks, (await loadGradeCurriculum(gradeId)).units);
   } catch {
     // A missing chunk (offline, or a new release) only means the session uses the mission questions.
     return null;

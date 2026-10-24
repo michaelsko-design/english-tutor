@@ -14,6 +14,7 @@ import { ExamPrepPlan, ExamSkill, LearnerProfile, SUPPORTED_GRADES } from '../..
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from './ExamModalShell';
 import { Button } from '../ui/Button';
+import { useGradeCurriculum } from '../../hooks/useGradeCurricula';
 
 interface ExamPrepSetupProps {
   profile: LearnerProfile;
@@ -33,6 +34,8 @@ export const ExamPrepSetup: React.FC<ExamPrepSetupProps> = ({ profile, theme, on
   const isGirl = profile.gender === 'girl';
   const todayStr = toLocalDateStr(new Date());
   const maxDateStr = addDays(todayStr, EXAM_MAX_DAYS_AHEAD);
+  const { status: curriculumStatus, retry: retryCurriculum } = useGradeCurriculum(profile.gradeId);
+  // Empty until the grade's curriculum has loaded
   const units = getUnitOptions(profile.gradeId);
   const gradeLabel = SUPPORTED_GRADES.find((g) => g.id === profile.gradeId)?.labelHe ?? '';
   const hasActivePlan = Boolean(profile.examPrep && !profile.examPrep.archivedAt);
@@ -112,6 +115,16 @@ export const ExamPrepSetup: React.FC<ExamPrepSetupProps> = ({ profile, theme, on
 
         <section className="space-y-2">
           <h3 className="font-extrabold text-sm">2. {isGirl ? 'אילו יחידות במבחן? (בחרי אחת או יותר)' : 'אילו יחידות במבחן? (בחר אחת או יותר)'}</h3>
+          {curriculumStatus !== 'ready' && (
+            <p role="status" className={`text-xs font-bold ${theme.mutedTextClass}`}>
+              {curriculumStatus === 'error' ? 'לא הצלחנו לטעון את היחידות. ' : 'טוענים את היחידות…'}
+              {curriculumStatus === 'error' && (
+                <button type="button" className="underline" onClick={retryCurriculum}>
+                  נסו שוב
+                </button>
+              )}
+            </p>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {units.map((u) => {
               const isOn = unitNumbers.includes(u.unitNumber);

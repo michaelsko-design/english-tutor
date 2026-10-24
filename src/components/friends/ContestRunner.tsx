@@ -15,6 +15,7 @@ import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { isolateLtr } from '../../utils/bidi';
 import { MagnetChange } from '../../utils/magnetOrder';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
+import { useGradeCurriculum } from '../../hooks/useGradeCurricula';
 import { normalizeSentence, useDrillSession } from '../../hooks/useDrillSession';
 import { Button } from '../ui/Button';
 
@@ -50,11 +51,16 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
 }) => {
   useStopSpeechOnLeave();
   const isGirl = profile.gender === 'girl';
+  const { status: curriculumStatus, pack: gradePack, retry: retryCurriculum } = useGradeCurriculum(profile.gradeId);
   const steps: ContestStep[] = useMemo(
-    () => buildContestSteps(profile.gradeId, contest, profile.gender),
-    [profile.gradeId, contest, profile.gender]
+    () => (gradePack ? buildContestSteps(gradePack, contest, profile.gender) : []),
+    [gradePack, contest, profile.gender]
   );
   const startedAtRef = useRef(Date.now());
+  // The clock starts when the questions do, not while the grade is still loading
+  useEffect(() => {
+    if (gradePack) startedAtRef.current = Date.now();
+  }, [gradePack]);
   const [elapsedMs, setElapsedMs] = useState(0);
   const session = useDrillSession<boolean>();
   const { stepIdx, answers, isResolved, feedback, selectedIdx, wordIndices } = session;
@@ -146,6 +152,23 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
       </span>
     </div>
   );
+
+  if (curriculumStatus !== 'ready') {
+    return (
+      <ExamModalShell theme={theme} labelHe="אתגר יומי" onClose={onClose}>
+        <div className="p-6 text-center space-y-3" role="status">
+          <p className="font-bold">
+            {curriculumStatus === 'error' ? 'לא הצלחנו לטעון את השאלות. בדקו את החיבור ונסו שוב.' : 'טוענים את השאלות…'}
+          </p>
+          {curriculumStatus === 'error' && (
+            <Button theme={theme} onClick={retryCurriculum}>
+              נסו שוב
+            </Button>
+          )}
+        </div>
+      </ExamModalShell>
+    );
+  }
 
   if (!step) {
     return (

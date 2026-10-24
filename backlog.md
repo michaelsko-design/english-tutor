@@ -5,13 +5,11 @@
 
 ### UI
 
-- [x] **Audit UI text for cut-off words and sentences** - Done for the home, bottom-bar screens, word-list drill, Vault, shop, profile and the word cards: fixed fixed-copy `truncate` (map peek, unit banner, Vault/shop headers, theme names, word-list title), and a lone English word in the question card now shrinks to fit instead of breaking mid-word. `e2e/text-fit-audit.spec.ts` (phone project, 320/360/390 wide) reports cut text to `test-results/text-fit-audit-*.json`. Still to audit: friends, weekly report, stats sheet, exam prep, room/wardrobe, contests, and the non-first drill types.
 - [ ] **UI** - Think about introducing another theme that will fit better for older students (not so much "kid-like" as the current themes).
 
 ### Technical
 
 - [ ] **Retire the old Firebase API key** - The old browser key (`AIzaSyAXCk…`) is still unrestricted and still works against this project. Find which of the other projects (Maps APIs showed active usage) use it, move them to their own keys, then restrict or delete it.
-- [ ] **Per-grade curriculum loading** - The curriculum (all 12 grades, ~116 KB gzipped) is in the first download because nine modules read `CURRICULUM_BY_GRADE` synchronously. Give it an async per-grade loader (the placement test, word games, contests, the report and the Vault load more grades on demand) to bring the first load under ~350 KB gzipped.
 - [ ] **Domain and Email update** - After buying a domain - update the contact email in the privacy notice.
 
 ### Features
@@ -28,6 +26,8 @@
 
 
 ## Completed Features
+- [x] **Per-grade curriculum loading** - The curriculum loads one grade at a time (`data/curriculum/loader.ts`, `hooks/useGradeCurricula.ts`; `docs/architecture.md` §3 lazy screens): the Dashboard loads the learner's grade, and the placement test, word-list importer, weekly report and games book load others on demand. App code never imports `curriculum/base.ts` (tests and scripts use `src/test/curriculum.ts`). The main bundle dropped by the ~116 KB gzipped of the other grades.
+- [x] **Audit UI text for cut-off words and sentences** - Done for the home, bottom-bar screens, word-list drill, Vault, shop, profile and the word cards: fixed fixed-copy `truncate` (map peek, unit banner, Vault/shop headers, theme names, word-list title), and a lone English word in the question card now shrinks to fit instead of breaking mid-word. `e2e/text-fit-audit.spec.ts` (phone project, 320/360/390 wide) reports cut text to `test-results/text-fit-audit-*.json`. Still to audit: friends, weekly report, stats sheet, exam prep, room/wardrobe, contests, and the non-first drill types.
 - [x] **Content expansion packs** - Two hidden packs double every grade (`docs/architecture.md` §4.26): `core-plus` ("עונה 2", units after unit 4 with one new structure each) and `holidays` (autumn–winter and spring–summer holidays, review-level grammar, playable at once). Each adds 2 units × 3 missions per grade with 4 new words per mission, mini-lessons, exam banks, drawn icons and read-aloud clips. Released one at a time via `RELEASED_CONTENT_PACKS`; a new pack gets a "חדש!" tag on its map units and a one-time home card. `npm run dev:packs` previews them against the emulators.
 - [x] **Mission screens fit on mobile** - The intro, mini-lesson, all step types, the feedback sheet and the victory screen fit a 360×640 phone: the steps fill the screen on phones, the peeking companion overlaps the card's corner instead of taking a row, the big items (question text, letters, the mic, companions) scale smoothly with the screen height, and a `short:` breakpoint (height ≤ 720px) tightens spacing. The sentence / spelling check buttons and the lesson's Next sit in a sticky bar, the victory's Collect is sticky, and on short screens the story passage scrolls in its own box (the story picture is hidden). `e2e/mission-fit.spec.ts` checks every screen's main control is on screen without scrolling.
 - [x] **UI** - Room items, mission objects, shop avatars/decor, wardrobe items, the avatar with its outfit and the home dock tiles now have drawn icons (see `docs/architecture.md` §4.17, "Catalog icons"). The curriculum/word emoji (~280) and button icons are drawn too. Plain symbols (✓ ➡ ⬅ ⬆ ↩ ⏹ ➕ ⚙ ⚪ 🔊) are Lucide icons and the tile-background word icons were redrawn. Checked: no emoji sit in `title`/`placeholder`/`<option>` text or in non-JSX strings; the one emoji in an `aria-label` (friend reaction, `FriendCard.tsx`) is read by screen readers and never shown. Still to do: the clock faces for different times.

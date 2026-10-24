@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { CURRICULUM_BY_GRADE } from '../test/curriculum';
 import {
   FINDING_WORD_COUNT,
   GameWord,
@@ -67,7 +68,7 @@ const readCells = (grid: string[][], cells: [number, number][]) => cells.map(([r
 describe('getGameWords', () => {
   it('gives at least ten single upper-case words of 3–8 letters with meanings', () => {
     (['grade-1', 'grade-5', 'grade-12'] as const).forEach((gradeId) => {
-      const words = getGameWords({ ...baseProfile, gradeId });
+      const words = getGameWords({ ...baseProfile, gradeId }, CURRICULUM_BY_GRADE);
       expect(words.length).toBeGreaterThanOrEqual(10);
       words.forEach((w) => {
         expect(w.word).toMatch(/^[A-Z]{3,8}$/);
@@ -92,7 +93,7 @@ describe('getGameWords', () => {
         },
       ],
     };
-    const words = getGameWords(withList);
+    const words = getGameWords(withList, CURRICULUM_BY_GRADE);
     expect(words[0]).toMatchObject({ word: 'ZEBRA', he: 'זברה' });
     expect(words.map((w) => w.word)).not.toContain('ICE CREAM');
   });
@@ -206,7 +207,7 @@ describe('buildCrossword', () => {
 describe('puzzles from real grade words', () => {
   it('fit all search words and at least four crossword words for every grade', () => {
     (['grade-1', 'grade-4', 'grade-8', 'grade-12'] as const).forEach((gradeId) => {
-      const words = getGameWords({ ...baseProfile, gradeId });
+      const words = getGameWords({ ...baseProfile, gradeId }, CURRICULUM_BY_GRADE);
       for (let seed = 0; seed < 25; seed++) {
         expect(buildSearchPuzzle(words, 'explorer', seed).placed).toHaveLength(SEARCH_WORD_COUNT);
         expect(buildCrosswordPuzzle(words, seed).entries.length).toBeGreaterThanOrEqual(4);

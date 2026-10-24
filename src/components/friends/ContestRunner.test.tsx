@@ -4,7 +4,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { buildContestSteps, ContestDoc, createContest } from '../../data/contests';
 import { answerCorrectly, TestUser } from '../../test/drillAnswers';
 import { makeProfile, TEST_THEME } from '../../test/fixtures';
+import { CURRICULUM_BY_GRADE } from '../../test/curriculum';
 import { ContestRunner } from './ContestRunner';
+import { preloadCurriculum } from '../../test/curriculum';
+
+// These tests read the loaded grades (the app loads them per grade, see the loader)
+await preloadCurriculum();
 
 const NOW = new Date('2026-10-20T10:00:00');
 const profile = makeProfile({ gradeId: 'grade-3' });
@@ -14,9 +19,9 @@ const contest: ContestDoc = createContest(
   NOW,
   () => 0.42
 );
-const steps = buildContestSteps(profile.gradeId, contest, profile.gender);
+const steps = buildContestSteps(CURRICULUM_BY_GRADE[profile.gradeId], contest, profile.gender);
 
-function renderContest() {
+async function renderContest() {
   const handlers = { onFinish: vi.fn(), onClose: vi.fn() };
   render(
     <ContestRunner
@@ -28,6 +33,8 @@ function renderContest() {
       {...handlers}
     />
   );
+  // The grade's curriculum loads first (the loader caches it, so this settles at once)
+  await screen.findByRole('progressbar');
   return handlers;
 }
 
@@ -47,7 +54,7 @@ describe('ContestRunner', () => {
 
   it('plays every question and finishes with all answers right and the time', async () => {
     const user = userEvent.setup();
-    const { onFinish } = renderContest();
+    const { onFinish } = await renderContest();
 
     for (let i = 0; i < steps.length; i++) await answerAndContinue(user, i);
 
@@ -59,7 +66,7 @@ describe('ContestRunner', () => {
 
   it('leaving before the first answer just closes', async () => {
     const user = userEvent.setup();
-    const { onClose, onFinish } = renderContest();
+    const { onClose, onFinish } = await renderContest();
 
     await user.click(screen.getByRole('button', { name: 'סגירה' }));
 
@@ -69,7 +76,7 @@ describe('ContestRunner', () => {
 
   it('leaving after an answer ends the contest, the rest counted wrong', async () => {
     const user = userEvent.setup();
-    const { onClose, onFinish } = renderContest();
+    const { onClose, onFinish } = await renderContest();
     await answerAndContinue(user, 0);
 
     await user.click(screen.getByRole('button', { name: 'סגירה' }));

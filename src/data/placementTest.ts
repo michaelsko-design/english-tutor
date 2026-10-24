@@ -1,4 +1,5 @@
-import { CURRICULUM_BY_GRADE, MissionNode } from './curriculum';
+import type { MissionNode } from './curriculum';
+import { getLoadedGrade } from './curriculum/loader';
 import {
   GradeId,
   LearnerGender,
@@ -99,9 +100,13 @@ function buildMissionQuestions(
   return [vocab, rule];
 }
 
-/** All placement items for one grade, in curriculum order (options unshuffled). */
+/**
+ * All placement items for one grade, in curriculum order (options unshuffled). The grade's
+ * curriculum must be loaded (`loadGradeCurriculum`); a grade that isn't has no items.
+ */
 export function buildPlacementPool(gradeNum: number, gender: LearnerGender): PlacementQuestion[] {
-  const pack = CURRICULUM_BY_GRADE[gradeNumberToId(gradeNum)];
+  const pack = getLoadedGrade(gradeNumberToId(gradeNum));
+  if (!pack) return [];
   return pack.units
     .flatMap((u) => u.missions)
     .flatMap((m) => buildMissionQuestions(m, gradeNum, gender));

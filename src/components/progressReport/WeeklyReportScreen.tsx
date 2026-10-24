@@ -7,7 +7,9 @@ import {
   formatShortDateHe,
   getAvailableWeeks,
   getGradeLabelHe,
+  getReportGradeIds,
 } from '../../data/progressReport';
+import { useGradeCurricula } from '../../hooks/useGradeCurricula';
 import { LearnerProfile } from '../../types/learner';
 import { TIER_CONFIG, ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
@@ -51,7 +53,27 @@ function getTrackingNoteHe(report: WeeklyReport): string | null {
 }
 
 /** Feature 9: the full weekly report, with week navigation and a shareable text summary. */
-export const WeeklyReportScreen: React.FC<WeeklyReportScreenProps> = ({
+export const WeeklyReportScreen: React.FC<WeeklyReportScreenProps> = (props) => {
+  // The report counts words from every grade the learner has progress in
+  const { status, retry } = useGradeCurricula(getReportGradeIds(props.profile));
+  if (status === 'ready') return <WeeklyReportBody {...props} />;
+  return (
+    <ExamModalShell theme={props.theme} labelHe="דוח התקדמות שבועי" onClose={props.onClose}>
+      <div role="status" className="p-6 text-center space-y-3">
+        <p className="font-bold">
+          {status === 'error' ? 'לא הצלחנו לטעון את הדוח. בדקו את החיבור ונסו שוב.' : 'טוענים את הדוח…'}
+        </p>
+        {status === 'error' && (
+          <button type="button" className={`px-4 py-2 rounded-xl font-bold ${props.theme.secondaryBtnClass}`} onClick={retry}>
+            נסו שוב
+          </button>
+        )}
+      </div>
+    </ExamModalShell>
+  );
+};
+
+const WeeklyReportBody: React.FC<WeeklyReportScreenProps> = ({
   profile,
   theme,
   todayStr,

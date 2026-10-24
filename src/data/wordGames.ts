@@ -1,6 +1,7 @@
 import { GradeId, LearnerProfile, ProficiencyTier } from '../types/learner';
 import { seededShuffle, seededShuffleNotIdentity } from '../utils/shuffle';
-import { CURRICULUM_BY_GRADE } from './curriculum';
+import type { GradeCurriculumPack } from './curriculum';
+import { loadGradeCurriculum } from './curriculum/loader';
 import { getActiveLists } from './customWordLists';
 import { ROOM_ITEMS, getRoom } from './room';
 import {
@@ -60,8 +61,11 @@ export function isGameUnlocked(profile: LearnerProfile, gameId: WordGameId): boo
   return (profile.stats.stars || 0) >= getWordGame(gameId).starsRequired;
 }
 
-function gradeWords(gradeId: GradeId): GameWord[] {
-  const pack = CURRICULUM_BY_GRADE[gradeId];
+/** The grades loaded so far (`loadGradeCurriculum`); a grade missing here adds no words. */
+export type GradePacks = Partial<Record<GradeId, GradeCurriculumPack>>;
+
+function gradeWords(packs: GradePacks, gradeId: GradeId): GameWord[] {
+  const pack = packs[gradeId];
   if (!pack) return [];
   return pack.units.flatMap((unit) =>
     unit.missions.flatMap((mission) =>
@@ -82,7 +86,7 @@ function gradesByDistance(gradeId: GradeId): GradeId[] {
  * Single words of 3–8 letters with a Hebrew meaning: the learner's word lists and grade vocabulary,
  * then nearby grades and the room's item names until there are enough.
  */
-export function getGameWords(profile: LearnerProfile): GameWord[] {
+export function getGameWords(profile: LearnerProfile, packs: GradePacks): GameWord[] {
   const fromLists: GameWord[] = getActiveLists(profile).flatMap((list) =>
     list.items
       .filter((item) => item.kind === 'word' && item.translationHe)
@@ -102,10 +106,23 @@ export function getGameWords(profile: LearnerProfile): GameWord[] {
   add(fromLists);
   for (const gradeId of gradesByDistance(profile.gradeId)) {
     if (result.length >= MIN_WORDS && gradeId !== profile.gradeId) break;
-    add(gradeWords(gradeId));
+    add(gradeWords(packs, gradeId));
   }
   if (result.length < MIN_WORDS) add(fromRoom);
   return result;
+}
+
+/**
+ * `getGameWords` with the curriculum it needs: the learner's grade first, then nearby grades only
+ * while there are too few words, so most learners download just their own grade.
+ */
+export async function loadGameWords(profile: LearnerProfile): Promise<GameWord[]> {
+  const packs: GradePacks = {};
+  for (const gradeId of gradesByDistance(profile.gradeId)) {
+    packs[gradeId] = await loadGradeCurriculum(gradeId);
+    if (getGameWords(profile, packs).length >= MIN_WORDS) break;
+  }
+  return getGameWords(profile, packs);
 }
 
 export function pickWords(words: GameWord[], count: number, seed: string | number): GameWord[] {

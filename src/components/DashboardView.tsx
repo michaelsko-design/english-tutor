@@ -14,7 +14,9 @@ import { DEFAULT_VOICE_PREFERENCE } from '../utils/ttsVoice';
 import { DEFAULT_SPEECH_RATE, getTtsService } from '../services/tts';
 import { playsHebrewAloud, type SpokenPart } from '../data/hebrewAudio';
 import { toSpeakableText } from '../services/tts/ttsText';
-import { CURRICULUM_BY_GRADE, MissionNode } from '../data/curriculum';
+import type { GradeCurriculumPack, MissionNode } from '../data/curriculum';
+import { getLoadedGrade, gradesInMissionIds } from '../data/curriculum/loader';
+import { useGradeCurricula } from '../hooks/useGradeCurricula';
 import { countCompletedMissions, getSuggestedMission } from '../data/milestones';
 import { DailyQuestDefinition, RewardShopItem, getDailyQuests } from '../data/rewardShop';
 import { getHomeGreetingHe, getMapPeek, getQuestRings } from '../data/homeBase';
@@ -80,7 +82,38 @@ const ROOM_TOAST_MS = 6000;
 /** The size the mission runner first shows the companion at (the peek over the question card) */
 const COMPANION_PRELOAD_SIZE = 64;
 
-export const DashboardView: React.FC<DashboardViewProps> = ({
+/**
+ * Loads the learner's grade (and the grades they have progress in, for the mastered-words count)
+ * before the home screen opens; once the learner's own grade is there the screen stays up while
+ * other grades load.
+ */
+export const DashboardView: React.FC<DashboardViewProps> = (props) => {
+  const { profile } = props;
+  const gradeId = SUPPORTED_GRADES.some((g) => g.id === profile.gradeId) ? profile.gradeId : 'grade-7';
+  const gradeIds = [gradeId, ...gradesInMissionIds(Object.keys(profile.missionProgress || {}))];
+  const { status, retry } = useGradeCurricula(gradeIds);
+  const gradeCurriculum = getLoadedGrade(gradeId);
+
+  if (gradeCurriculum) return <LoadedDashboardView {...props} gradeCurriculum={gradeCurriculum} />;
+  if (status === 'error') {
+    return (
+      <div role="alert" className="min-h-screen flex flex-col items-center justify-center gap-3 p-6 text-center">
+        <p className="font-bold">לא הצלחנו לטעון את השיעורים. בדקו את החיבור ונסו שוב.</p>
+        <button type="button" className="px-4 py-2 rounded-xl font-bold bg-purple-600 text-white" onClick={retry}>
+          נסו שוב
+        </button>
+      </div>
+    );
+  }
+  return <ScreenLoading />;
+};
+
+interface LoadedDashboardViewProps extends DashboardViewProps {
+  gradeCurriculum: GradeCurriculumPack;
+}
+
+const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
+  gradeCurriculum,
   profile,
   authUser,
   syncStatus,
@@ -121,8 +154,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const currentGradeMeta =
     SUPPORTED_GRADES.find((g) => g.id === profile.gradeId) || SUPPORTED_GRADES[6];
 
-  const gradeCurriculum =
-    CURRICULUM_BY_GRADE[profile.gradeId] || CURRICULUM_BY_GRADE['grade-7'];
   const totalGradeStarsPossible =
     gradeCurriculum.units.reduce((acc, u) => acc + u.missions.length * 3, 0) || 36;
   const { mission: todaysMission, bossGate: todaysBossGate } = getSuggestedMission(

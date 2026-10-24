@@ -1,5 +1,6 @@
-import { ActivityLogEntry, LearnerProfile, SUPPORTED_GRADES } from '../types/learner';
-import { CURRICULUM_BY_GRADE, MissionNode } from './curriculum';
+import { ActivityLogEntry, GradeId, LearnerProfile, SUPPORTED_GRADES } from '../types/learner';
+import type { GradeCurriculumPack, MissionNode } from './curriculum';
+import { getLoadedGrade, gradeIdFromMissionId, gradesInMissionIds } from './curriculum/loader';
 import { addDays, parseDateStr } from './examPrep';
 import { countCompletedMissions } from './milestones';
 import { getCurrentStreak } from './streak';
@@ -88,24 +89,38 @@ export function getAvailableWeeks(profile: LearnerProfile, todayStr: string): st
   return weeks;
 }
 
-let missionsById: Map<string, MissionNode> | null = null;
+const missionsByPack = new WeakMap<GradeCurriculumPack, Map<string, MissionNode>>();
 
-/** Every mission of every grade by id; built once, on first use. */
-function getMissionsById(): Map<string, MissionNode> {
-  if (!missionsById) {
-    const missions = Object.values(CURRICULUM_BY_GRADE).flatMap((pack) =>
-      pack.units.flatMap((unit) => unit.missions)
-    );
-    missionsById = new Map(missions.map((mission) => [mission.id, mission]));
+/** A mission by id, from its grade's loaded curriculum (undefined while that grade isn't loaded). */
+function findMission(missionId: string): MissionNode | undefined {
+  const gradeId = gradeIdFromMissionId(missionId);
+  const pack = gradeId ? getLoadedGrade(gradeId) : undefined;
+  if (!pack) return undefined;
+  let missions = missionsByPack.get(pack);
+  if (!missions) {
+    missions = new Map(pack.units.flatMap((unit) => unit.missions).map((mission) => [mission.id, mission]));
+    missionsByPack.set(pack, missions);
   }
-  return missionsById;
+  return missions.get(missionId);
+}
+
+/**
+ * The grades the report reads: the learner's own and every grade they have progress in. They must
+ * be loaded (`useGradeCurricula`) before the report is built, or their words are left out.
+ */
+export function getReportGradeIds(profile: LearnerProfile): GradeId[] {
+  const missionIds = [
+    ...Object.keys(profile.missionProgress || {}),
+    ...(profile.activityLog || []).flatMap((entry) => Object.keys(entry.missionStars)),
+  ];
+  return [...new Set([profile.gradeId, ...gradesInMissionIds(missionIds)])];
 }
 
 /** The vocabulary of the given missions, without repeated words. */
 export function collectMissionWords(missionIds: string[]): MasteredWord[] {
   const byWord = new Map<string, MasteredWord>();
   for (const missionId of missionIds) {
-    for (const item of getMissionsById().get(missionId)?.vocabulary || []) {
+    for (const item of findMission(missionId)?.vocabulary || []) {
       const key = item.wordEn.trim().toLowerCase();
       if (!byWord.has(key)) {
         byWord.set(key, { wordEn: item.wordEn, translationHe: item.translationHe, emoji: item.emoji });
@@ -130,7 +145,7 @@ export function getOverallProgress(profile: LearnerProfile, todayStr: string): O
   const progress = profile.missionProgress || {};
   const missionsCompleted = countCompletedMissions(progress);
   const totalStars = Object.values(progress).reduce((sum, stars) => sum + Math.max(0, stars), 0);
-  const gradeMissions = (CURRICULUM_BY_GRADE[profile.gradeId]?.units || []).flatMap((unit) => unit.missions);
+  const gradeMissions = (getLoadedGrade(profile.gradeId)?.units || []).flatMap((unit) => unit.missions);
   const gradeStarsEarned = gradeMissions.reduce((sum, mission) => sum + (progress[mission.id] || 0), 0);
   const gradeStarsPossible = gradeMissions.length * 3;
   return {

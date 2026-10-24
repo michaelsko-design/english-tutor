@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CURRICULUM_BY_GRADE, MissionNode } from '../data/curriculum';
+import { MissionNode } from '../data/curriculum';
+import { CURRICULUM_BY_GRADE } from '../test/curriculum';
 import { getExercisesForMission } from '../data/missionExercises';
 import { GradeId } from '../types/learner';
 import { answerCorrectly, answerWrongly } from '../test/drillAnswers';

@@ -7,7 +7,8 @@ import {
   defaultListTitle,
   parseWordListText,
 } from '../../data/customWordLists';
-import { CustomWordList, LearnerGender } from '../../types/learner';
+import { CustomWordList, LearnerGender, SUPPORTED_GRADES } from '../../types/learner';
+import { useGradeCurricula } from '../../hooks/useGradeCurricula';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { Button } from '../ui/Button';
@@ -19,6 +20,8 @@ interface WordListImporterProps {
   onClose: () => void;
 }
 
+const ALL_GRADE_IDS = SUPPORTED_GRADES.map((grade) => grade.id);
+
 const PLACEHOLDER = ['1. window - חלון', '2. blanket - שמיכה', '3. pillow', 'I sleep in my bed every night.'].join('\n');
 
 /** Paste a school worksheet word list, preview how it was read, and save it. */
@@ -26,7 +29,10 @@ export const WordListImporter: React.FC<WordListImporterProps> = ({ gender, them
   const isGirl = gender === 'girl';
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
-  const parsed = useMemo(() => parseWordListText(text), [text]);
+  // Translations come from the curriculum's vocabulary; the preview re-reads the text once it has loaded
+  const { status: curriculumStatus } = useGradeCurricula(ALL_GRADE_IDS);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const parsed = useMemo(() => parseWordListText(text), [text, curriculumStatus]);
   const wordCount = parsed.items.filter((i) => i.kind === 'word').length;
   const sentenceCount = parsed.items.length - wordCount;
   const canSave = parsed.items.length >= MIN_ITEMS_PER_LIST;

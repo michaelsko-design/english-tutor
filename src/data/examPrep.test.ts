@@ -30,6 +30,10 @@ import {
 import { ExamPrepPlan, ExamSkill, LearnerProfile } from '../types/learner';
 import { GRADE_7_EXAM_BANK } from './curriculum/examBank/grade7';
 import { EXAM_MOCK_RESERVED_PER_LIST, EXAM_BANK_ITEMS_PER_LIST } from './curriculum/examBank/types';
+import { preloadCurriculum } from '../test/curriculum';
+
+// These tests read the loaded grades (the app loads them per grade, see the loader)
+await preloadCurriculum();
 
 /** 2026-10-18 is a Sunday; 2026-10-24 is a Saturday. */
 const SUNDAY = '2026-10-18';

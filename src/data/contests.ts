@@ -1,5 +1,5 @@
-import { ContestOutcome, ContestRecord, GradeId, LearnerGender, LearnerProfile } from '../types/learner';
-import { CURRICULUM_BY_GRADE, isPhonicsUnit, MissionNode, VocabularyItem } from './curriculum';
+import { ContestOutcome, ContestRecord, LearnerGender, LearnerProfile } from '../types/learner';
+import { GradeCurriculumPack, isPhonicsUnit, MissionNode, VocabularyItem } from './curriculum';
 import { MissionExerciseStep, getExercisesForMission } from './missionExercises';
 import { toLocalDateStr } from './examPrep';
 import { levelForXp } from './progressRewards';
@@ -169,13 +169,13 @@ function buildSentenceStep(mission: MissionNode, seed: number, index: number, ge
  * unit, then one sentence magnet per mission of that unit.
  */
 export function buildContestSteps(
-  gradeId: GradeId,
+  gradePack: GradeCurriculumPack | undefined,
   contest: Pick<ContestDoc, 'seed' | 'unitNumber'>,
   gender: LearnerGender
 ): ContestStep[] {
   // Grade 1's letters and blending units have no sentences, so a contest unit N is the grade's Nth
   // unit with sentence missions (the same unit number for every other grade)
-  const units = (CURRICULUM_BY_GRADE[gradeId]?.units || []).filter((u) => !isPhonicsUnit(u));
+  const units = (gradePack?.units || []).filter((u) => !isPhonicsUnit(u));
   const unit = units[contest.unitNumber - 1] || units[0];
   if (!unit) return [];
   const gradeWords = uniqueByWord(units.flatMap((u) => u.missions.flatMap((m) => m.vocabulary)));

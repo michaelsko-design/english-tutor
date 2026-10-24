@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CURRICULUM_BY_GRADE } from './curriculum';
+import { CURRICULUM_BY_GRADE } from '../test/curriculum';
 import {
   PLACEMENT_QUESTION_COUNT,
   PLACEMENT_REWARD_DIAMONDS,
@@ -17,6 +17,10 @@ import {
   pickNextQuestion,
 } from './placementTest';
 import { LearnerProfile, PlacementResult } from '../types/learner';
+import { preloadCurriculum } from '../test/curriculum';
+
+// These tests read the loaded grades (the app loads them per grade, see the loader)
+await preloadCurriculum();
 
 const ALL_GRADES = Array.from({ length: 12 }, (_, i) => i + 1);
 

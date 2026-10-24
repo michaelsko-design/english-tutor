@@ -1,4 +1,5 @@
-import { CURRICULUM_BY_GRADE, isPhonicsUnit } from './curriculum';
+import { isPhonicsUnit } from './curriculum';
+import { getLoadedGrade } from './curriculum/loader';
 import { addDays, daysBetween, parseDateStr, toLocalDateStr } from '../utils/dates';
 import { DrillType, MissionExerciseStep, getExercisesForMission } from './missionExercises';
 import { levelForXp, recordDailyActivity } from './progressRewards';
@@ -148,8 +149,13 @@ export function getStudyDates(
 
 // ---- Plan building ---------------------------------------------------------------------
 
+/**
+ * The grade's units to choose from. The grade's curriculum must be loaded (`useGradeCurriculum`,
+ * `loadGradeCurriculum`) before any exam-prep function runs; until then there are no units.
+ */
 export function getUnitOptions(gradeId: GradeId): ExamUnitOption[] {
-  const pack = CURRICULUM_BY_GRADE[gradeId] || CURRICULUM_BY_GRADE['grade-7'];
+  const pack = getLoadedGrade(gradeId);
+  if (!pack) return [];
   // Grade 1's letters and blending units have no exam questions (Feature 48)
   return pack.units.filter((u) => !isPhonicsUnit(u)).map((u) => ({
     unitNumber: u.unitNumber,
@@ -266,7 +272,7 @@ function getBlockSteps(
  * moved past them.
  */
 function toTopicUnitBlock(gradeId: GradeId, block: ExamFocusBlock): ExamFocusBlock {
-  const units = CURRICULUM_BY_GRADE[gradeId]?.units ?? [];
+  const units = getLoadedGrade(gradeId)?.units ?? [];
   const unit = units.find((u) => u.unitNumber === block.unitNumber);
   if (!unit || !isPhonicsUnit(unit)) return block;
   return { ...block, unitNumber: block.unitNumber + units.filter(isPhonicsUnit).length };
@@ -280,8 +286,7 @@ function getMissionBlockSteps(
   salt: number,
   badgeLabelHe: string
 ): ExamSessionStep[] {
-  const pack = CURRICULUM_BY_GRADE[plan.gradeId] || CURRICULUM_BY_GRADE['grade-7'];
-  const unit = pack.units.find((u) => u.unitNumber === block.unitNumber);
+  const unit = getLoadedGrade(plan.gradeId)?.units.find((u) => u.unitNumber === block.unitNumber);
   if (!unit) return [];
 
   const meta = EXAM_SKILL_META[block.skill];

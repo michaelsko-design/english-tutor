@@ -13,6 +13,10 @@ import {
   getWeekDays,
   getWeekStart,
 } from './progressReport';
+import { preloadCurriculum } from '../test/curriculum';
+
+// These tests read the loaded grades (the app loads them per grade, see the loader)
+await preloadCurriculum();
 
 // Thursday; its week runs from Sunday 2026-10-11 to Saturday 2026-10-17
 const TODAY = '2026-10-15';

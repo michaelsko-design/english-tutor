@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ModalPortal } from './ModalPortal';
 import { useDialog } from '../hooks/useDialog';
+import { useGradeCurricula } from '../hooks/useGradeCurricula';
 import { LearnerProfile, PlacementResult, SUPPORTED_GRADES } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
 import {
@@ -44,7 +45,33 @@ type Phase = 'canRead' | 'intro' | 'question' | 'result';
 /** Index of the picked option, or 'dont-know' when the learner chose "I don't know". */
 type PendingPick = number | 'dont-know' | null;
 
-export const PlacementTest: React.FC<PlacementTestProps> = ({
+const ALL_GRADE_IDS = SUPPORTED_GRADES.map((grade) => grade.id);
+
+/**
+ * The staircase can reach any grade, so the test loads every grade's curriculum when it opens
+ * (the dialog is lazy and rare, so the first download stays small).
+ */
+export const PlacementTest: React.FC<PlacementTestProps> = (props) => {
+  const { status, retry } = useGradeCurricula(ALL_GRADE_IDS);
+  if (status === 'ready') return <PlacementTestDialog {...props} />;
+  return (
+    <ModalPortal>
+      <div role="status" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className={`rounded-3xl p-6 text-center space-y-3 max-w-sm ${props.theme.cardBgClass}`}>
+          <p className="font-bold">{status === 'error' ? 'לא הצלחנו לטעון את המבחן. בדקו את החיבור ונסו שוב.' : 'טוענים את המבחן…'}</p>
+          {status === 'error' && (
+            <div className="flex gap-2 justify-center">
+              <Button theme={props.theme} onClick={retry}>נסו שוב</Button>
+              <Button theme={props.theme} variant="secondary" onClick={props.onClose}>סגירה</Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </ModalPortal>
+  );
+};
+
+const PlacementTestDialog: React.FC<PlacementTestProps> = ({
   profile,
   theme,
   mode,

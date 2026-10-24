@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CURRICULUM_BY_GRADE } from './curriculum';
+import { CURRICULUM_BY_GRADE } from '../test/curriculum';
 import {
   MAX_ACTIVE_LISTS,
   MAX_ITEMS_PER_LIST,
@@ -26,6 +26,10 @@ import {
 } from './customWordLists';
 import { toLocalDateStr } from './examPrep';
 import { CustomWordList, LearnerProfile } from '../types/learner';
+import { preloadCurriculum } from '../test/curriculum';
+
+// These tests read the loaded grades (the app loads them per grade, see the loader)
+await preloadCurriculum();
 
 const NOW = new Date(2026, 9, 18, 10, 0);
 const TODAY = toLocalDateStr(NOW);

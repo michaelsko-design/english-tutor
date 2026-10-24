@@ -1,4 +1,4 @@
-import { CURRICULUM_BY_GRADE } from './curriculum';
+import { areAllGradesLoaded, getLoadedGrades } from './curriculum/loader';
 import { MultipleChoiceOption } from './missionExercises';
 import { levelForXp, recordDailyActivity } from './progressRewards';
 import { toLocalDateStr } from './examPrep';
@@ -89,10 +89,14 @@ export interface ParsedWordList {
 
 let wordBank: Map<string, string> | null = null;
 
+/**
+ * Built from the grades loaded so far, and kept once all of them are (`loadAllGrades`): the
+ * importer waits for that before it parses, so a translation is never missed.
+ */
 function getWordBank(): Map<string, string> {
   if (wordBank) return wordBank;
   const bank = new Map<string, string>();
-  Object.values(CURRICULUM_BY_GRADE).forEach((pack) =>
+  getLoadedGrades().forEach((pack) =>
     pack.units.forEach((unit) =>
       unit.missions.forEach((mission) =>
         mission.vocabulary.forEach((v) => {
@@ -102,7 +106,7 @@ function getWordBank(): Map<string, string> {
       )
     )
   );
-  wordBank = bank;
+  if (areAllGradesLoaded()) wordBank = bank;
   return bank;
 }
 

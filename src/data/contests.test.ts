@@ -26,7 +26,7 @@ import {
   keepRecentRecords,
   scoreContestAnswers,
 } from './contests';
-import { CURRICULUM_BY_GRADE } from './curriculum';
+import { CURRICULUM_BY_GRADE } from '../test/curriculum';
 import { MAX_FRIENDS, getPairId } from './friends';
 import { GradeId, LearnerProfile } from '../types/learner';
 
@@ -110,14 +110,14 @@ describe('buildContestSteps', () => {
 
   it('gives every player the same layout from their own grade', () => {
     const grades: GradeId[] = ['grade-2', 'grade-5', 'grade-8', 'grade-11'];
-    const layouts = grades.map((g) => buildContestSteps(g, contest, 'girl').map((s) => s.kind));
+    const layouts = grades.map((g) => buildContestSteps(CURRICULUM_BY_GRADE[g], contest, 'girl').map((s) => s.kind));
     const expected = [...Array(CONTEST_MEANING_COUNT).fill('meaning'), 'sentence', 'sentence', 'sentence'];
     for (const layout of layouts) expect(layout).toEqual(expected);
   });
 
   it("uses words from the contest unit of the player's grade", () => {
     const unitWords = CURRICULUM_BY_GRADE['grade-8'].units[2].missions.flatMap((m) => m.vocabulary.map((v) => v.wordEn));
-    const steps = buildContestSteps('grade-8', contest, 'boy').filter((s) => s.kind === 'meaning');
+    const steps = buildContestSteps(CURRICULUM_BY_GRADE['grade-8'], contest, 'boy').filter((s) => s.kind === 'meaning');
     for (const step of steps) {
       const word = step.questionEn;
       expect(unitWords).toContain(word);
@@ -125,7 +125,7 @@ describe('buildContestSteps', () => {
   });
 
   it('gives each meaning question one right answer among distinct options', () => {
-    for (const step of buildContestSteps('grade-5', contest, 'girl').filter((s) => s.kind === 'meaning')) {
+    for (const step of buildContestSteps(CURRICULUM_BY_GRADE['grade-5'], contest, 'girl').filter((s) => s.kind === 'meaning')) {
       expect(step.options).toHaveLength(CONTEST_OPTION_COUNT);
       expect(step.options!.filter((o) => o.isCorrect)).toHaveLength(1);
       expect(new Set(step.options!.map((o) => o.textEn)).size).toBe(CONTEST_OPTION_COUNT);
@@ -133,16 +133,16 @@ describe('buildContestSteps', () => {
   });
 
   it('is the same for the same contest and changes with the seed', () => {
-    const a = buildContestSteps('grade-6', contest, 'girl');
-    expect(buildContestSteps('grade-6', contest, 'girl')).toEqual(a);
-    const b = buildContestSteps('grade-6', { ...contest, seed: 999 }, 'girl');
+    const a = buildContestSteps(CURRICULUM_BY_GRADE['grade-6'], contest, 'girl');
+    expect(buildContestSteps(CURRICULUM_BY_GRADE['grade-6'], contest, 'girl')).toEqual(a);
+    const b = buildContestSteps(CURRICULUM_BY_GRADE['grade-6'], { ...contest, seed: 999 }, 'girl');
     expect(b.map((s) => s.questionEn + JSON.stringify(s.options))).not.toEqual(
       a.map((s) => s.questionEn + JSON.stringify(s.options))
     );
   });
 
   it('gives sentence magnets with all the words of the target sentence', () => {
-    for (const step of buildContestSteps('grade-9', contest, 'boy').filter((s) => s.kind === 'sentence')) {
+    for (const step of buildContestSteps(CURRICULUM_BY_GRADE['grade-9'], contest, 'boy').filter((s) => s.kind === 'sentence')) {
       expect(step.scrambledWords!.length).toBeGreaterThan(1);
       expect(step.targetSentenceEn).toBeTruthy();
     }

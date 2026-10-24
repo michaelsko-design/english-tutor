@@ -24,6 +24,7 @@ import { ExamModalShell } from './ExamModalShell';
 import { ExamSessionResult } from './ExamSessionResult';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { useExamBank } from '../../hooks/useExamBank';
+import { useGradeCurriculum } from '../../hooks/useGradeCurricula';
 import { ScreenLoading } from '../ScreenLoading';
 import { normalizeSentence, useDrillSession } from '../../hooks/useDrillSession';
 
@@ -62,7 +63,9 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
   // A new salt per run gives new questions and option order, stable across re-renders.
   const [salt] = useState(() => Math.floor(Math.random() * 1_000_000_000));
   const bankState = useExamBank(plan.gradeId);
-  const isBankLoading = bankState.status === 'loading';
+  const { status: curriculumStatus } = useGradeCurriculum(plan.gradeId);
+  // The step builders read the grade's loaded curriculum, so the session waits for it too
+  const isBankLoading = bankState.status === 'loading' || curriculumStatus === 'loading';
   const steps: ExamSessionStep[] = useMemo(() => {
     if (isBankLoading) return [];
     return isMock

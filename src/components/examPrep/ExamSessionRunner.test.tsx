@@ -7,6 +7,10 @@ import { answerCorrectly, answerWrongly } from '../../test/drillAnswers';
 import { makeProfile, TEST_THEME } from '../../test/fixtures';
 import { ExamPlanDay } from '../../types/learner';
 import { ExamSessionRunner } from './ExamSessionRunner';
+import { preloadCurriculum } from '../../test/curriculum';
+
+// These tests read the loaded grades (the app loads them per grade, see the loader)
+await preloadCurriculum();
 
 const profile = makeProfile({ gradeId: 'grade-5', preferredTier: 'challenger' });
 const plan = buildExamPlan({
