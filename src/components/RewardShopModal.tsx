@@ -112,7 +112,7 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
               <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-sm sm:text-lg md:text-xl font-extrabold truncate">
+              <h2 className="text-sm sm:text-lg md:text-xl font-extrabold leading-tight">
                 🛍️ {theme.shopTitleHe}
               </h2>
               <p className={`text-xs hidden sm:block ${theme.mutedTextClass}`}>

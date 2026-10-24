@@ -5,7 +5,7 @@
 
 ### UI
 
-- [ ] **Audit UI text for cut-off words and sentences** - Audit the UI screens for words and sentences that are cut off, clipped or truncated (buttons, cards, dock tiles, tabs, stat labels, the mission sheet, dialogs and Hebrew/English mixed lines) at phone and small-phone widths, and in RTL. Suggest the fixes needed for each (wrapping, sizing, `min-w-0`, line clamps with full text in a tooltip or sheet, or layout changes).
+- [x] **Audit UI text for cut-off words and sentences** - Done for the home, bottom-bar screens, word-list drill, Vault, shop, profile and the word cards: fixed fixed-copy `truncate` (map peek, unit banner, Vault/shop headers, theme names, word-list title), and a lone English word in the question card now shrinks to fit instead of breaking mid-word. `e2e/text-fit-audit.spec.ts` (phone project, 320/360/390 wide) reports cut text to `test-results/text-fit-audit-*.json`. Still to audit: friends, weekly report, stats sheet, exam prep, room/wardrobe, contests, and the non-first drill types.
 - [ ] **UI** - Think about introducing another theme that will fit better for older students (not so much "kid-like" as the current themes).
 
 ### Technical

@@ -22,10 +22,10 @@ export const MapPeek: React.FC<MapPeekProps> = ({ peek, gradeLabelHe, theme, onO
       {peek.unitEmoji || '🗺️'}
     </span>
     <span className="flex-1 min-w-0">
-      <span className="block font-extrabold text-sm truncate">
+      <span className="block font-extrabold text-sm leading-tight line-clamp-2">
         יחידה {peek.unitNumber}: {peek.unitTitleHe}
       </span>
-      <span className={`block text-xs font-bold truncate ${theme.mutedTextClass}`}>
+      <span className={`block text-xs font-bold leading-tight ${theme.mutedTextClass}`}>
         🗺️ המפה שלי · {gradeLabelHe} · {peek.missionsCompleted}/{peek.missionsTotal} משימות
       </span>
     </span>

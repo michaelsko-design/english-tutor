@@ -30,6 +30,30 @@ const BlankSlot: React.FC<{ text: string }> = ({ text }) => (
   </span>
 );
 
+const MIN_FIT_SCALE = 0.5;
+const FIT_STEP = 0.04;
+
+/** Shrinks a single word's font until it fits on one line, so a long word is never broken mid-word. */
+function useFitWord(ref: React.RefObject<HTMLElement>, isEnabled: boolean, text: string): void {
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!isEnabled || !el) return undefined;
+    const fit = () => {
+      el.style.fontSize = '';
+      const basePx = parseFloat(getComputedStyle(el).fontSize);
+      let scale = 1;
+      while (el.scrollWidth > el.clientWidth + 1 && scale > MIN_FIT_SCALE) {
+        scale -= FIT_STEP;
+        el.style.fontSize = `${basePx * scale}px`;
+      }
+    };
+    fit();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(fit);
+    observer?.observe(el);
+    return () => observer?.disconnect();
+  }, [ref, isEnabled, text]);
+}
+
 /** The central question card: the exercise itself, in the largest text on the screen. */
 export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
   content,
@@ -45,6 +69,10 @@ export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
   const speech = useSpeechToggle(onSpeakEnglish, spokenText, 0.92);
   const label = speech.isSpeaking ? STOP_SPEECH_LABEL : 'השמעת השאלה';
   const isWord = content.size !== 'sentence';
+  const textRef = React.useRef<HTMLParagraphElement>(null);
+  // A lone English word (no spaces) shrinks to fit; sentences and Hebrew wrap normally
+  const isFitWord = isWord && isEnglish && !/\s/.test(content.text.trim());
+  useFitWord(textRef, isFitWord, content.text);
 
   return (
     <div
@@ -58,7 +86,8 @@ export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
       <div className={`flex-1 min-w-0 ${isWord ? 'py-2 short:py-0' : ''}`}>
         {speakerName && <div className="text-xs font-bold opacity-75 mb-1">{speakerName}</div>}
         <p
-          className={`${TEXT_SIZE_CLASS[content.size]} font-black break-words`}
+          ref={textRef}
+          className={`${TEXT_SIZE_CLASS[content.size]} font-black ${isFitWord ? 'whitespace-nowrap' : 'break-words'}`}
           dir={isEnglish ? 'ltr' : 'rtl'}
           lang={content.lang}
         >

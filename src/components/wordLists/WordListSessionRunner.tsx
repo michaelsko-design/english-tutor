@@ -198,8 +198,11 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   }
 
   const progressHeader = (
-    <div className="flex items-center gap-2">
-      <span className="text-xs font-extrabold shrink-0 truncate max-w-[40%]">📋 {list.title}</span>
+    <div className="flex-1 min-w-0 space-y-1.5">
+      <p className="text-xs font-extrabold leading-tight line-clamp-2 break-words" dir="auto" title={list.title}>
+        📋 {list.title}
+      </p>
+      <div className="flex items-center gap-2">
       <div
         role="progressbar"
         aria-label="התקדמות"
@@ -217,6 +220,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
         {stepIdx + 1}/{steps.length}
       </span>
       {step.hintHe && <HintPopover hintHe={step.hintHe} isOpen={showHint} onToggle={setShowHint} theme={theme} />}
+      </div>
     </div>
   );
 

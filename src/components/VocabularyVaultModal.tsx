@@ -195,8 +195,11 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
               <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-sm sm:text-lg md:text-xl font-extrabold truncate">
-                📚 מאגר מילים והגייה · {gradeLabel || ''} {ministryBand && <bdi>({ministryBand})</bdi>} ({allVocabWithUnit.length})
+              <h2 className="text-sm sm:text-lg md:text-xl font-extrabold leading-tight">
+                📚 מאגר מילים והגייה
+                <span className="block text-xs sm:text-sm font-bold opacity-85">
+                  {gradeLabel || ''} {ministryBand && <bdi>({ministryBand})</bdi>} ({allVocabWithUnit.length})
+                </span>
               </h2>
               <p className={`text-xs hidden sm:block ${theme.mutedTextClass}`}>
                 {isGirl

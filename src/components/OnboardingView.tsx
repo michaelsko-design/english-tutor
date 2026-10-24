@@ -357,7 +357,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
               <Palette className="w-4 h-4" />
               <span>ערכת עיצוב:</span>
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
               {(Object.keys(THEME_REGISTRY) as ThemeId[]).map((tKey) => {
                 const tItem = THEME_REGISTRY[tKey];
                 const isSelected = tKey === themeId;
@@ -368,12 +368,12 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                     onClick={() => setThemeId(tKey)}
                     aria-pressed={isSelected}
                     aria-label={tItem.name}
-                    className={`p-2.5 rounded-xl text-center transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border border-current/20 ${
+                    className={`px-1 py-2.5 sm:p-2.5 rounded-xl text-center transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border border-current/20 ${
                       tItem.pageBgClass
                     } ${isSelected ? 'ring-2 ring-offset-2 ring-fuchsia-500' : 'opacity-75 hover:opacity-100'}`}
                   >
                     <Companion theme={tItem} pose="idle" size={40} hasShadow={false} />
-                    <span className="font-extrabold text-xs sm:text-xs truncate max-w-full" dir="ltr" lang="en">
+                    <span className="font-extrabold text-xs sm:text-xs leading-tight break-words max-w-full" dir="ltr" lang="en">
                       {tItem.name}
                     </span>
                   </button>

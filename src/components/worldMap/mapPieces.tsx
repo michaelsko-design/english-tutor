@@ -73,7 +73,7 @@ export const UnitBanner: React.FC<UnitBannerProps> = ({
       <span className="flex-1 min-w-0 leading-tight">
         <span className="block text-xs font-extrabold opacity-75">יחידה {unit.unitNumber}</span>
         <span className="block text-sm sm:text-base font-extrabold line-clamp-2">{unit.titleHe}</span>
-        <span className="block text-xs font-bold opacity-80 truncate" dir="ltr" lang="en">
+        <span className="block text-xs font-bold opacity-80 line-clamp-2" dir="ltr" lang="en">
           {unit.titleEn}
         </span>
       </span>
