@@ -108,5 +108,63 @@ await expect('a sticker picture with extra fields is denied', false, () =>
   setDoc(stickerRef(a.db, ua.uid), { ...stickerDoc(png(1000)), note: 'x' }));
 await expect('a learner can delete their own sticker picture', true, () => deleteDoc(stickerRef(a.db, ua.uid)));
 
+// Parents: A is the learner, B the parent (clean up from an earlier run first)
+const CODE = 'ABCD2345';
+const linkId = `${ub.uid}_${ua.uid}`;
+const invite = (overrides = {}) => ({
+  childUid: ua.uid, childName: 'Noa', childAvatar: '🐱', expiresAtMs: Date.now() + 24 * 3600 * 1000, ...overrides,
+});
+const linkData = (overrides = {}) => ({
+  parentUid: ub.uid, childUid: ua.uid, childName: 'Noa', childAvatar: '🐱', inviteCode: CODE,
+  linkedAt: new Date().toISOString(), ...overrides,
+});
+const snapshot = (overrides = {}) => ({
+  name: 'Noa', gender: 'girl', gradeId: 'grade-7', preferredTier: 'explorer', isShabbatObserver: true,
+  stats: { level: 2, streakDays: 1 }, missionProgress: { 'g7-u1-m1': 3 }, activityLog: [],
+  updatedAt: new Date().toISOString(), ...overrides,
+});
+const claim = (db, overrides) => {
+  const batch = writeBatch(db);
+  batch.set(doc(db, 'parentLinks', linkId), linkData(overrides));
+  batch.delete(doc(db, 'parentInvites', CODE));
+  return batch.commit();
+};
+await deleteDoc(doc(b.db, 'parentLinks', linkId)).catch(() => {});
+await deleteDoc(doc(a.db, 'parentInvites', CODE)).catch(() => {});
+await deleteDoc(doc(a.db, 'reportSnapshots', ua.uid)).catch(() => {});
+
+await expect('a parent code naming another learner is denied', false, () =>
+  setDoc(doc(a.db, 'parentInvites', CODE), invite({ childUid: ub.uid })));
+await expect('a parent code that expires in a month is denied', false, () =>
+  setDoc(doc(a.db, 'parentInvites', CODE), invite({ expiresAtMs: Date.now() + 30 * 24 * 3600 * 1000 })));
+await expect('a malformed parent code is denied', false, () =>
+  setDoc(doc(a.db, 'parentInvites', 'ABCD0OIL'), invite()));
+await expect('a learner can make a parent code', true, () => setDoc(doc(a.db, 'parentInvites', CODE), invite()));
+await expect('a snapshot is unreadable by an unlinked parent', false, () => getDoc(doc(b.db, 'reportSnapshots', ua.uid)));
+await expect('a link without deleting the code is denied', false, () =>
+  setDoc(doc(b.db, 'parentLinks', linkId), linkData()));
+await expect('a link with another child name is denied', false, () => claim(b.db, { childName: 'Dana' }));
+await expect('a link for another parent is denied', false, () => claim(b.db, { parentUid: ua.uid }));
+await expect('a parent can claim the code', true, () => claim(b.db));
+await expect('the claimed code is gone', true, async () => {
+  if ((await getDoc(doc(b.db, 'parentInvites', CODE))).exists()) throw new Error('still there');
+});
+await expect('the learner can read their own link', true, () => getDoc(doc(a.db, 'parentLinks', linkId)));
+await expect('the learner can save a report snapshot', true, () =>
+  setDoc(doc(a.db, 'reportSnapshots', ua.uid), snapshot()));
+await expect('a snapshot with extra fields is denied', false, () =>
+  setDoc(doc(a.db, 'reportSnapshots', ua.uid), snapshot({ age: 9 })));
+await expect('a parent cannot write a snapshot', false, () => setDoc(doc(b.db, 'reportSnapshots', ua.uid), snapshot()));
+await expect('the linked parent can read the snapshot', true, () => getDoc(doc(b.db, 'reportSnapshots', ua.uid)));
+await expect('the learner profile stays unreadable by the parent', false, () => getDoc(doc(b.db, 'learners', ua.uid)));
+await expect('the parent can unlink', true, () => deleteDoc(doc(b.db, 'parentLinks', linkId)));
+await expect('an unlinked parent can no longer read the snapshot', false, () => getDoc(doc(b.db, 'reportSnapshots', ua.uid)));
+await deleteDoc(doc(a.db, 'reportSnapshots', ua.uid)).catch(() => {});
+await expect('a parent marker is created by its owner only', false, () =>
+  setDoc(doc(a.db, 'parents', ub.uid), { createdAt: new Date().toISOString() }));
+await expect('a parent can mark their own account', true, () =>
+  setDoc(doc(b.db, 'parents', ub.uid), { createdAt: new Date().toISOString() }));
+await deleteDoc(doc(b.db, 'parents', ub.uid)).catch(() => {});
+
 for (const [status, label, detail] of results) console.log(`${status}  ${label}${detail ? `  (${detail})` : ''}`);
 process.exit(results.some(([s]) => s === 'FAIL') ? 1 : 0);

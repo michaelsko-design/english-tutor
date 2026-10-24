@@ -324,5 +324,110 @@ service cloud.firestore {
       // A player deleting their account removes the pair's contests
       allow delete: if isRealAccount() && request.auth.uid in resource.data.uids;
     }
+
+    // Parents (optional). A learner makes a one-time parent code; a parent signed in with their own
+    // Google account claims it, which creates a parentLinks document and deletes the code in the
+    // same write. A paired learner keeps a small report snapshot the linked parent can read.
+    function linkPath(parentUid, childUid) {
+      return docPath('parentLinks', parentUid + '_' + childUid);
+    }
+
+    function isParentInvite(data) {
+      let keys = ['childUid', 'childName', 'childAvatar', 'expiresAtMs'];
+      return data.keys().hasOnly(keys)
+        && data.keys().hasAll(keys)
+        && data.childUid == request.auth.uid
+        && isShortString(data.childName, 24)
+        && isAvatar(data.childAvatar)
+        && data.expiresAtMs is int
+        && data.expiresAtMs > request.time.toMillis()
+        && data.expiresAtMs <= request.time.toMillis() + 8 * 24 * 60 * 60 * 1000;
+    }
+
+    match /parentInvites/{code} {
+      // One code at a time, no listing
+      allow get: if isRealAccount();
+      allow create: if isRealAccount()
+        && code.matches('^[A-HJKMNP-Z2-9]{8}$')
+        && isParentInvite(request.resource.data);
+      allow update: if isRealAccount()
+        && resource.data.childUid == request.auth.uid
+        && isParentInvite(request.resource.data);
+      // The learner withdraws it, or the claiming parent's link replaces it
+      allow delete: if isRealAccount()
+        && (resource.data.childUid == request.auth.uid
+            || existsAfter(linkPath(request.auth.uid, resource.data.childUid)));
+    }
+
+    function isNewParentLink(data, linkId) {
+      let keys = ['parentUid', 'childUid', 'childName', 'childAvatar', 'inviteCode', 'linkedAt'];
+      let invitePath = docPath('parentInvites', data.inviteCode);
+      return data.keys().hasOnly(keys)
+        && data.keys().hasAll(keys)
+        && data.parentUid == request.auth.uid
+        && data.childUid is string
+        && data.childUid != request.auth.uid
+        && linkId == data.parentUid + '_' + data.childUid
+        && data.inviteCode is string
+        && data.inviteCode.matches('^[A-HJKMNP-Z2-9]{8}$')
+        && exists(invitePath)
+        && get(invitePath).data.childUid == data.childUid
+        && get(invitePath).data.childName == data.childName
+        && get(invitePath).data.childAvatar == data.childAvatar
+        && get(invitePath).data.expiresAtMs > request.time.toMillis()
+        && !existsAfter(invitePath)
+        && isIsoTime(data.linkedAt);
+    }
+
+    match /parentLinks/{linkId} {
+      allow read: if isRealAccount()
+        && (request.auth.uid == resource.data.parentUid || request.auth.uid == resource.data.childUid);
+      allow create: if isRealAccount() && isNewParentLink(request.resource.data, linkId);
+      // Either side can end the link
+      allow delete: if isRealAccount()
+        && (request.auth.uid == resource.data.parentUid || request.auth.uid == resource.data.childUid);
+    }
+
+    // Marks a Google account as a parent account, so the learner app can tell them apart
+    match /parents/{userId} {
+      allow read, delete: if isRealAccount() && request.auth.uid == userId;
+      allow create: if isRealAccount()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['createdAt'])
+        && isIsoTime(request.resource.data.createdAt);
+    }
+
+    // Only what the weekly report reads (src/data/parentLink.ts buildReportSnapshot): no age,
+    // school, journal, voice messages or friends.
+    function isReportSnapshot(data) {
+      let keys = ['name', 'gender', 'gradeId', 'preferredTier', 'isShabbatObserver', 'stats',
+                  'missionProgress', 'activityLog', 'updatedAt'];
+      return data.keys().hasOnly(keys)
+        && data.keys().hasAll(keys)
+        && data.name is string
+        && data.name.size() <= 40
+        && data.gender in ['girl', 'boy']
+        && isShortString(data.gradeId, 20)
+        && data.preferredTier in ['explorer', 'challenger', 'master']
+        && data.isShabbatObserver is bool
+        && data.stats is map
+        && data.stats.keys().hasOnly(['level', 'streakDays', 'streakLastDateStr', 'streakShieldsBought',
+                                      'streakShieldsUsed', 'totalActiveDays'])
+        && data.stats.keys().hasAll(['level', 'streakDays'])
+        && data.missionProgress is map
+        && data.missionProgress.size() <= 400
+        && data.activityLog is list
+        && data.activityLog.size() <= 84
+        && isIsoTime(data.updatedAt);
+    }
+
+    match /reportSnapshots/{childUid} {
+      allow read: if isRealAccount()
+        && (request.auth.uid == childUid || exists(linkPath(request.auth.uid, childUid)));
+      allow create, update: if isRealAccount()
+        && request.auth.uid == childUid
+        && isReportSnapshot(request.resource.data);
+      allow delete: if isRealAccount() && request.auth.uid == childUid;
+    }
   }
 }

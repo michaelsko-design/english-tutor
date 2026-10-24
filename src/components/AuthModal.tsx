@@ -512,6 +512,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   🔒 פרטיות ומידע להורים
                 </button>
               </div>
+              {isMandatory && (
+                <div className="text-center">
+                  <a href="/?parent" className="text-xs underline opacity-75 hover:opacity-100">
+                    אני הורה: לדוח ההתקדמות
+                  </a>
+                </div>
+              )}
 
               {!isMandatory && (
                 <div className="pt-1 text-center">

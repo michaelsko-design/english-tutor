@@ -25,6 +25,7 @@ import {
   setUsernameSearchable,
 } from '../data/friends';
 import { AccountPrivacyCard } from './settings/AccountPrivacyCard';
+import { ParentLinkCard } from './settings/ParentLinkCard';
 import { PrivacyNoticeDialog } from './privacy/PrivacyNoticeDialog';
 import { auth } from '../services/firebase';
 import type { AccountResult } from '../services/accountService';
@@ -519,7 +520,15 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
             </div>
           )}
 
-          {/* 8. Privacy, data download and account deletion, in the settings only */}
+          {/* 8. The optional link to a parent, in the settings only */}
+          {onCancel && (
+            <div className="space-y-1.5 lg:col-span-2">
+              <span className="block text-xs sm:text-sm font-bold">הורים:</span>
+              <ParentLinkCard profile={initialProfile} theme={activeTheme} />
+            </div>
+          )}
+
+          {/* 9. Privacy, data download and account deletion, in the settings only */}
           {onCancel && (
             <div className="space-y-1.5 lg:col-span-2">
               <span className="block text-xs sm:text-sm font-bold">פרטיות וחשבון:</span>

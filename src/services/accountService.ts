@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth';
 import { collection, deleteDoc, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { auth, db, googleProvider } from './firebase';
+import { deleteLearnerParentData } from './parentService';
 import { deleteAllStickerImages, loadAllStickerImages } from './stickerImages';
 import { LearnerProfile } from '../types/learner';
 import { normalizeIdentifierToEmail, toUsernameSlug, usernameFromEmail } from '../utils/username';
@@ -99,6 +100,7 @@ async function deleteLearnerData(user: User, friendCode: string | undefined): Pr
   }
   // A document's subcollections are not deleted with it
   await deleteAllStickerImages(uid);
+  await deleteLearnerParentData(uid);
   await Promise.all([
     deleteDoc(doc(db, 'friendCodeOwners', uid)),
     deleteDoc(doc(db, 'publicProfiles', uid)),

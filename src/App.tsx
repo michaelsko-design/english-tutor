@@ -23,6 +23,7 @@ import { recordActivityLog } from './data/activityLog';
 import { getFirstLaunchSteps } from './data/homeBase';
 import { THEME_REGISTRY } from './themes/themeRegistry';
 import { useFriendPresence } from './hooks/useFriendPresence';
+import { useReportSnapshotPublisher } from './hooks/useReportSnapshotPublisher';
 import { useStickerImageSync } from './hooks/useStickerImageSync';
 import { usePendingInvite } from './hooks/usePendingInvite';
 import { CloudLoadErrorScreen } from './components/CloudLoadErrorScreen';
@@ -307,6 +308,8 @@ export function App() {
     getLatestProfile: () => profileRef.current,
     onUpdateProfile: handleUpdateProfile,
   });
+
+  useReportSnapshotPublisher({ authUser, profile, isSynced: !isAuthInitializing && syncStatus === 'synced' });
 
   if (isAuthInitializing) {
     return (
