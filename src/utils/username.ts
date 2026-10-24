@@ -24,3 +24,6 @@ export function usernameFromEmail(email: string | null | undefined): string | nu
   if (!email || !email.endsWith(suffix)) return null;
   return email.slice(0, -suffix.length) || null;
 }
+
+/** Firebase Auth's minimum password length, so also the shortest PIN */
+export const MIN_PIN_LENGTH = 6;

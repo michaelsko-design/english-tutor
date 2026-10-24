@@ -15,7 +15,7 @@ import { auth, db, googleProvider } from './firebase';
 import { deleteLearnerParentData } from './parentService';
 import { deleteAllStickerImages, loadAllStickerImages } from './stickerImages';
 import { LearnerProfile } from '../types/learner';
-import { normalizeIdentifierToEmail, toUsernameSlug, usernameFromEmail } from '../utils/username';
+import { MIN_PIN_LENGTH, normalizeIdentifierToEmail, toUsernameSlug, usernameFromEmail } from '../utils/username';
 
 /**
  * Account-level actions for the settings: deleting the account with all of its data, exporting
@@ -54,9 +54,6 @@ async function reauthenticate(user: User, pin: string): Promise<void> {
     await reauthenticateWithPopup(user, googleProvider);
   }
 }
-
-/** Firebase Auth's minimum password length, so also the shortest PIN */
-export const MIN_PIN_LENGTH = 6;
 
 /**
  * Changes the PIN of a username + PIN account after proving the current one. A learner who forgot

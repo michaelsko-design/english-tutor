@@ -17,7 +17,6 @@ vi.mock('firebase/auth', () => ({ signOut: vi.fn() }));
 const changePin = vi.fn<(currentPin: string, newPin: string) => Promise<AccountResult>>();
 
 vi.mock('../../services/accountService', () => ({
-  MIN_PIN_LENGTH: 6,
   changePin: (currentPin: string, newPin: string) => changePin(currentPin, newPin),
   downloadProfileJson: vi.fn(),
   getAccountKind: () => 'password',

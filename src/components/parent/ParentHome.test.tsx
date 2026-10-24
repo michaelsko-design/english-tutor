@@ -12,6 +12,7 @@ const parentService = vi.hoisted(() => ({
   claimParentCode: vi.fn(),
   loadReportSnapshot: vi.fn(),
   unlinkParent: vi.fn(),
+  resetChildPin: vi.fn(),
 }));
 vi.mock('../../services/parentService', () => parentService);
 vi.mock('../progressReport/WeeklyReportScreen', () => ({
@@ -92,5 +93,20 @@ describe('ParentHome', () => {
 
     expect(await screen.findByRole('status')).toHaveTextContent('עדיין אין דוח');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('sets a new PIN for a learner after the parent types it twice', async () => {
+    const user = userEvent.setup();
+    parentService.listChildrenOfParent.mockResolvedValue([LINK]);
+    parentService.resetChildPin.mockResolvedValue({ ok: true, value: undefined });
+    renderHome();
+
+    await user.click(await screen.findByRole('button', { name: 'החלפת קוד סודי' }));
+    await user.type(screen.getByLabelText('הקוד החדש:'), '246810');
+    await user.type(screen.getByLabelText('שוב, לאישור:'), '246810');
+    await user.click(screen.getByRole('button', { name: 'החלפת הקוד' }));
+
+    expect(parentService.resetChildPin).toHaveBeenCalledWith('child-1', '246810');
+    expect(await screen.findByRole('status')).toHaveTextContent('הקוד הסודי של נועה הוחלף');
   });
 });

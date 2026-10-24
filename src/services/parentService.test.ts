@@ -21,10 +21,14 @@ vi.mock('firebase/firestore', () => ({
   setDoc: firestore.setDoc,
   writeBatch: () => ({ set: firestore.batchSet, delete: firestore.batchDelete, commit: firestore.commit }),
 }));
-vi.mock('./firebase', () => ({ db: {} }));
+const firebase = vi.hoisted(() => ({
+  auth: { currentUser: { getIdToken: async () => 'id-token' } as { getIdToken: () => Promise<string> } | null },
+  getAppCheckToken: vi.fn(async () => 'ac-token' as string | null),
+}));
+vi.mock('./firebase', () => ({ db: {}, auth: firebase.auth, getAppCheckToken: firebase.getAppCheckToken }));
 
 import { PARENT_CODE_DAYS } from '../data/parentLink';
-import { claimParentCode, createParentInvite, previewParentCode } from './parentService';
+import { claimParentCode, createParentInvite, previewParentCode, resetChildPin } from './parentService';
 
 const NOW = new Date('2026-03-04T10:00:00.000Z');
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -142,5 +146,51 @@ describe('createParentInvite', () => {
     await createParentInvite('child-1', 'א'.repeat(60), '🐱', NOW);
 
     expect(firestore.setDoc.mock.calls[0][1]).toMatchObject({ childName: 'א'.repeat(24) });
+  });
+});
+
+describe('resetChildPin', () => {
+  const okResponse = (status = 200) => vi.fn(async () => new Response('{}', { status }));
+
+  it('sends the PIN with the parent token and the App Check token', async () => {
+    const fetchMock = okResponse();
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await resetChildPin('child-1', ' 246810 ');
+
+    expect(result.ok).toBe(true);
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('/api/parent-reset-pin');
+    expect(init.method).toBe('POST');
+    expect(init.headers).toMatchObject({ 'X-Firebase-Token': 'id-token', 'X-Firebase-AppCheck': 'ac-token' });
+    expect(JSON.parse(init.body as string)).toEqual({ childUid: 'child-1', newPin: '246810' });
+  });
+
+  it('does not call the server for a short PIN or without a signed-in parent', async () => {
+    const fetchMock = okResponse();
+    vi.stubGlobal('fetch', fetchMock);
+
+    expect((await resetChildPin('child-1', '12345')).ok).toBe(false);
+    firebase.auth.currentUser = null;
+    expect((await resetChildPin('child-1', '246810')).ok).toBe(false);
+    firebase.auth.currentUser = { getIdToken: async () => 'id-token' };
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('explains the server refusals in Hebrew', async () => {
+    vi.stubGlobal('fetch', okResponse(409));
+    expect(await resetChildPin('child-1', '246810')).toEqual({ ok: false, errorHe: expect.stringContaining('Google') });
+
+    vi.stubGlobal('fetch', okResponse(403));
+    expect(await resetChildPin('child-1', '246810')).toEqual({ ok: false, errorHe: expect.stringContaining('הרשאה') });
+
+    vi.stubGlobal('fetch', okResponse(500));
+    expect((await resetChildPin('child-1', '246810')).ok).toBe(false);
+  });
+
+  it('reports no connection when the request cannot be sent', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Failed to fetch'); }));
+
+    expect(await resetChildPin('child-1', '246810')).toEqual({ ok: false, errorHe: expect.stringContaining('אין חיבור') });
   });
 });

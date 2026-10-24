@@ -8,6 +8,9 @@
   "functions": {
     "api/tts.ts": {
       "maxDuration": 10
+    },
+    "api/parent-reset-pin.ts": {
+      "maxDuration": 10
     }
   },
   "headers": [

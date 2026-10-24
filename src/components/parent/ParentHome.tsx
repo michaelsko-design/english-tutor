@@ -14,6 +14,7 @@ import { getTtsService } from '../../services/tts';
 import { toLocalDateStr } from '../../utils/dates';
 import { lazyNamed } from '../../utils/lazyNamed';
 import { ScreenLoading } from '../ScreenLoading';
+import { ResetPinForm } from './ResetPinForm';
 
 const WeeklyReportScreen = lazyNamed(() => import('../progressReport/WeeklyReportScreen'), 'WeeklyReportScreen');
 
@@ -44,6 +45,7 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
   const [preview, setPreview] = useState<ParentInvite | null>(null);
   const [codeInput, setCodeInput] = useState('');
   const [openReport, setOpenReport] = useState<OpenReport | null>(null);
+  const [resetPinFor, setResetPinFor] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
   const [noticeHe, setNoticeHe] = useState<string | null>(null);
@@ -184,28 +186,52 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
           </p>
         )}
         {children?.map((link) => (
-          <div key={link.childUid} className="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-black/5 dark:bg-white/5">
-            <span className="font-extrabold text-sm">
-              <span aria-hidden="true">{link.childAvatar}</span> {link.childName}
-            </span>
-            <span className="flex gap-2">
-              <button
-                type="button"
-                disabled={isBusy}
-                onClick={() => void handleOpenReport(link)}
-                className={`${buttonClass} ${theme.primaryBtnClass}`}
-              >
-                הדוח השבועי
-              </button>
-              <button
-                type="button"
-                disabled={isBusy}
-                onClick={() => void handleUnlink(link)}
-                className={`${buttonClass} border border-rose-500/50 text-rose-700 dark:text-rose-300`}
-              >
-                ניתוק
-              </button>
-            </span>
+          <div key={link.childUid} className="space-y-2">
+            <div className="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-black/5 dark:bg-white/5">
+              <span className="font-extrabold text-sm">
+                <span aria-hidden="true">{link.childAvatar}</span> {link.childName}
+              </span>
+              <span className="flex flex-wrap justify-end gap-2">
+                <button
+                  type="button"
+                  disabled={isBusy}
+                  onClick={() => void handleOpenReport(link)}
+                  className={`${buttonClass} ${theme.primaryBtnClass}`}
+                >
+                  הדוח השבועי
+                </button>
+                <button
+                  type="button"
+                  disabled={isBusy}
+                  onClick={() => setResetPinFor(resetPinFor === link.childUid ? null : link.childUid)}
+                  aria-expanded={resetPinFor === link.childUid}
+                  className={`${buttonClass} ${theme.secondaryBtnClass}`}
+                >
+                  החלפת קוד סודי
+                </button>
+                <button
+                  type="button"
+                  disabled={isBusy}
+                  onClick={() => void handleUnlink(link)}
+                  className={`${buttonClass} border border-rose-500/50 text-rose-700 dark:text-rose-300`}
+                >
+                  ניתוק
+                </button>
+              </span>
+            </div>
+            {resetPinFor === link.childUid && (
+              <ResetPinForm
+                childUid={link.childUid}
+                childName={link.childName}
+                theme={theme}
+                onDone={(message) => {
+                  setResetPinFor(null);
+                  setErrorHe(null);
+                  setNoticeHe(message);
+                }}
+                onCancel={() => setResetPinFor(null)}
+              />
+            )}
           </div>
         ))}
       </section>

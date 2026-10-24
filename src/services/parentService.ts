@@ -1,5 +1,7 @@
 import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where, writeBatch } from 'firebase/firestore';
-import { db } from './firebase';
+import { auth, db, getAppCheckToken } from './firebase';
+import { MIN_PIN_LENGTH } from '../utils/username';
+import { APP_CHECK_HEADER, TTS_TOKEN_HEADER } from './tts/ttsText';
 import {
   ParentInvite,
   ParentLink,
@@ -226,5 +228,38 @@ export async function previewParentCode(rawCode: string, now: Date = new Date())
     return { ok: true, value: invite };
   } catch (error) {
     return { ok: false, errorHe: describeError(error) };
+  }
+}
+
+const RESET_PIN_URL = '/api/parent-reset-pin';
+const RESET_ERRORS_HE: Record<number, string> = {
+  401: 'צריך להתחבר מחדש כהורה ולנסות שוב.',
+  403: 'אין הרשאה לשנות את הקוד של הלומד הזה. אולי החיבור נותק.',
+  404: 'לא מצאנו את החשבון של הלומד.',
+  409: 'הלומד הזה נכנס עם Google ואין לו קוד סודי להחלפה.',
+  503: 'החלפת קוד על ידי הורה עדיין לא זמינה.',
+};
+
+/** A parent sets a paired learner's PIN (the server checks the pairing and changes the sign-in). */
+export async function resetChildPin(childUid: string, newPin: string): Promise<ParentResult> {
+  const user = auth?.currentUser;
+  if (!user) return { ok: false, errorHe: 'צריך להתחבר כהורה.' };
+  if (newPin.trim().length < MIN_PIN_LENGTH) return { ok: false, errorHe: 'הקוד החדש צריך לפחות 6 תווים.' };
+  try {
+    const [idToken, appCheckToken] = await Promise.all([user.getIdToken(), getAppCheckToken()]);
+    const response = await fetch(RESET_PIN_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        [TTS_TOKEN_HEADER]: idToken,
+        ...(appCheckToken ? { [APP_CHECK_HEADER]: appCheckToken } : {}),
+      },
+      body: JSON.stringify({ childUid, newPin: newPin.trim() }),
+    });
+    if (response.ok) return { ok: true, value: undefined };
+    return { ok: false, errorHe: RESET_ERRORS_HE[response.status] ?? GENERIC_ERROR_HE };
+  } catch {
+    // fetch only throws when there is no connection
+    return { ok: false, errorHe: OFFLINE_ERROR_HE };
   }
 }

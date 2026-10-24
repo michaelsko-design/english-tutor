@@ -5,13 +5,13 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { auth } from '../../services/firebase';
 import {
   AccountResult,
-  MIN_PIN_LENGTH,
   changePin,
   downloadProfileJson,
   getAccountKind,
   hasGoogleLinked,
   linkGoogleToAccount,
 } from '../../services/accountService';
+import { MIN_PIN_LENGTH } from '../../utils/username';
 import { PrivacyNoticeDialog } from '../privacy/PrivacyNoticeDialog';
 import { Button } from '../ui/Button';
 

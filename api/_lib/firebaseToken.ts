@@ -20,6 +20,7 @@ export interface TokenPayload {
   sub?: string;
   iat?: number;
   exp?: number;
+  firebase?: { sign_in_provider?: string };
 }
 
 export interface VerifierDeps {
@@ -126,3 +127,19 @@ export function createFirebaseTokenVerifier(deps: VerifierDeps = {}) {
 }
 
 export const verifyFirebaseIdToken = createFirebaseTokenVerifier();
+
+export interface FirebaseClaims {
+  uid: string;
+  /** `google.com`, `password`, `anonymous`, ... */
+  signInProvider: string;
+}
+
+/**
+ * The uid and sign-in provider of an ID token. Only for a token `verifyFirebaseIdToken` already
+ * accepted: this reads the payload without checking the signature again.
+ */
+export function readFirebaseClaims(token: string): FirebaseClaims | null {
+  const payload = decodePart<TokenPayload>(token.split('.')[1] ?? '');
+  if (!payload || typeof payload.sub !== 'string' || !payload.sub) return null;
+  return { uid: payload.sub, signInProvider: payload.firebase?.sign_in_provider ?? '' };
+}
