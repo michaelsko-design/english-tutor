@@ -134,7 +134,7 @@ export const BossCastleStop: React.FC<StopProps> = ({ stop, mapHeight, theme, ge
   const isOpen = status !== 'locked' && !isShut;
   const isCompanionOnRight = stop.position.x < 0.5;
 
-  const art = getCommonArt(isOpen ? 'boss-open' : 'boss-locked');
+  const art = getCommonArt(theme, isOpen ? 'boss-open' : 'boss-locked');
   const fallback = (
     <div
       className={`absolute inset-[10%] rounded-[30%] border-4 flex items-center justify-center text-5xl shadow-lg ${

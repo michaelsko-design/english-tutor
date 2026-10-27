@@ -4,6 +4,9 @@ Cut-outs (drawn on a plain white background) become transparent squares, 512px a
     art-src/<theme>/companion-<pose>.jpg  -> public/art/<theme>/companion-<pose>.webp + @256
     art-src/common/<name>.jpg             -> public/art/common/<name>.webp + @256
     art-src/landmarks/g<grade>-u<unit>.jpg -> public/art/landmarks/g<grade>-u<unit>.webp + @256
+    art-src/common/<theme>/<name>.png, art-src/landmarks/<theme>/<id>.png -> the same under public/art
+                                             (a theme's own mission art, from scripts/art/renderMissionArt.mjs;
+                                             a "<left>+<right>" sheet is split into two pictures of one size)
     art-src/icons/<id>.png                -> public/art/icons/<id>.webp (256px) + @128  (from scripts/art/slice_icon_sheets.py)
     art-src/companions/<id>/companion-<pose>.png -> public/art/companions/<id>/companion-<pose>.webp + @256
                                              (mascots that work on any theme; from scripts/art/slice_companion_sheets.py)
@@ -23,7 +26,7 @@ bottom-centred on the same square canvas, so poses swap in place.
 
 Usage:  python scripts/process_art.py [only ...] [--src DIR] [--out DIR]
         only: theme ids (cozy-studio, neon-pop, starlight-rpg, focus-desk, urban-night, travel-journal),
-              common, landmarks, stories, icons, companions
+              common, landmarks, stories, icons, companions, common/<theme>, landmarks/<theme>
         (default: everything found in art-src/)
 Needs:  Python 3.10+, Pillow and numpy  (pip install pillow numpy); the companions target also needs scipy
 """
@@ -46,6 +49,8 @@ ICON_MARGIN = 0.08  # free space around an icon, as a share of its longest side
 SCENE_WIDTHS = {"map-bg": 1080, "home-scene": 1200, "room-bg": 1600}
 STORY_WIDTH = 960
 SOURCE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
+PAIR_SEPARATOR = "+"  # "chest-closed+chest-open.png" is a sheet of two pictures, left and right
+MISSION_ART_GROUPS = [f"{group}/{theme}" for group in ("common", "landmarks") for theme in THEMES]
 
 BACKGROUND_TOLERANCE = 22  # how far from pure white a background pixel may be
 SHADOW_MAX_SATURATION = 40  # the ground shadow is a low-saturation grey-mauve
@@ -149,14 +154,14 @@ def main_figure_mask(background: np.ndarray) -> np.ndarray:
 
 
 def cut_out(
-    path: Path, clear_enclosed_white: bool = False, clear_head_gap: bool = False, keep_main_figure: bool = False
+    path: Path | Image.Image, clear_enclosed_white: bool = False, clear_head_gap: bool = False, keep_main_figure: bool = False
 ) -> Image.Image:
     """The drawing on a transparent background, cropped to the drawing.
 
     clear_enclosed_white also removes near-white areas the outline closes off (the hole of a necklace);
     clear_head_gap removes only those at the top of the drawing (see head_gap_mask);
     keep_main_figure drops everything but the largest shape (a mascot sliced from a sheet, see main_figure_mask)."""
-    image = Image.open(path).convert("RGB")
+    image = (Image.open(path) if isinstance(path, Path) else path).convert("RGB")
     rgb = np.asarray(image)
     background = background_mask(rgb)
     if clear_enclosed_white:
@@ -235,17 +240,37 @@ def process_mascots(src_root: Path, out_root: Path, report: Report) -> None:
         process_companion(f"companions/{mascot}", src_root, out_root, report)
 
 
+def split_pair_sheet(path: Path) -> tuple[Image.Image, Image.Image]:
+    """The left and right pictures of a pair sheet, split at the whitest column of its middle fifth."""
+    image = Image.open(path).convert("RGB")
+    darkness = 255 - np.asarray(image).astype(int).min(axis=2)
+    middle_start, middle_end = image.width * 2 // 5, image.width * 3 // 5
+    split_x = middle_start + int(np.argmin(darkness[:, middle_start:middle_end].sum(axis=0)))
+    return image.crop((0, 0, split_x, image.height)), image.crop((split_x, 0, image.width, image.height))
+
+
+def save_on_shared_square(cuts: list[tuple[str, Image.Image]], output_dir: Path, report: Report) -> None:
+    """Cut-outs bottom-centred on squares of one size, so a pair (closed / open) swaps in place."""
+    tallest = max(max(cut.width, cut.height) for _, cut in cuts)
+    canvas_side = round(tallest * (1 + CANVAS_MARGIN))
+    for name, cut in cuts:
+        canvas = place_on_square(cut, canvas_side, round(cut.height * FLOOR_MARGIN))
+        save_cutout_sizes(canvas, output_dir, name, report)
+
+
 def process_single_cutouts(folder_name: str, src_root: Path, out_root: Path, report: Report) -> None:
-    """Every picture in the folder on its own square (chests, Boss castles, landmarks)."""
+    """Every picture in the folder on its own square (chests, Boss stops, landmarks, level badge)."""
     sources = list_sources(src_root / folder_name)
     if not sources:
         report.skip(f"{folder_name}/ (no source files)")
         return
     for path in sources:
-        cut = cut_out(path)
-        canvas_side = round(max(cut.width, cut.height) * (1 + CANVAS_MARGIN))
-        canvas = place_on_square(cut, canvas_side, round(cut.height * FLOOR_MARGIN))
-        save_cutout_sizes(canvas, out_root / folder_name, path.stem, report)
+        if PAIR_SEPARATOR in path.stem:
+            names = path.stem.split(PAIR_SEPARATOR)
+            cuts = [cut_out(half) for half in split_pair_sheet(path)]
+            save_on_shared_square(list(zip(names, cuts)), out_root / folder_name, report)
+        else:
+            save_on_shared_square([(path.stem, cut_out(path))], out_root / folder_name, report)
 
 
 def save_resized(path: Path, target: Path, width: int, report: Report) -> None:
@@ -291,8 +316,8 @@ def process_stories(src_root: Path, out_root: Path, report: Report) -> None:
 
 def run(only: list[str], src_root: Path, out_root: Path) -> Report:
     report = Report()
-    groups = only or THEMES + OTHER_GROUPS
-    unknown = [group for group in groups if group not in THEMES + OTHER_GROUPS]
+    groups = only or THEMES + OTHER_GROUPS + MISSION_ART_GROUPS
+    unknown = [group for group in groups if group not in THEMES + OTHER_GROUPS + MISSION_ART_GROUPS]
     if unknown:
         sys.exit(f"Unknown group(s): {', '.join(unknown)}")
     if not src_root.is_dir():
@@ -317,7 +342,7 @@ def run(only: list[str], src_root: Path, out_root: Path) -> Report:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Make the app's WebP art from art-src/.")
-    parser.add_argument("only", nargs="*", help="theme ids, common, landmarks, stories, icons or companions (default: all)")
+    parser.add_argument("only", nargs="*", help="theme ids, common, landmarks, stories, icons, companions, common/<theme> or landmarks/<theme> (default: all)")
     parser.add_argument("--src", type=Path, default=ROOT / "art-src", help="sources folder (default: art-src)")
     parser.add_argument("--out", type=Path, default=ROOT / "public" / "art", help="output folder (default: public/art)")
     args = parser.parse_args()

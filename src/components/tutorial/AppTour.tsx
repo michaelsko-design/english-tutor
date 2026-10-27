@@ -146,7 +146,7 @@ export const AppTour: React.FC<AppTourProps> = ({ theme, slides, avatarEmoji, is
           key={slide.id}
           className={`relative h-48 sm:h-56 rounded-[2rem] overflow-hidden shadow-2xl ring-4 ring-white/40 bg-gradient-to-br animate-tour-pop ${accent.stageClass}`}
         >
-          <TourScene slide={slide} avatarEmoji={avatarEmoji} isShabbatObserver={isShabbatObserver} />
+          <TourScene theme={theme} slide={slide} avatarEmoji={avatarEmoji} isShabbatObserver={isShabbatObserver} />
         </div>
 
         {/* The companion and its speech card */}

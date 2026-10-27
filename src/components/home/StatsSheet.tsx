@@ -115,7 +115,7 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
               רמה {level.level} · עוד <VibeAmount amount={level.xpToNextLevel} /> לרמה {level.level + 1}
             </p>
           </div>
-          <LevelBadge level={level.level} size={STATS_LEVEL_BADGE_SIZE} className="ms-auto" />
+          <LevelBadge theme={theme} level={level.level} size={STATS_LEVEL_BADGE_SIZE} className="ms-auto" />
         </div>
 
         {/* The five stat tiles */}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { COMPANION_POSES } from './themeArt';
+import { COMMON_ART_NAMES, COMPANION_POSES, getCommonArt, getLandmarkArt } from './themeArt';
 import {
   COMPANION_IDS,
   COMPANION_REGISTRY,
@@ -12,6 +12,12 @@ import {
   isCompanionId,
 } from './companionRegistry';
 import { getPickableThemeIds, resolveTheme, THEME_BASES, THEME_IDS } from './themeRegistry';
+
+/** Every unit landmark, as [grade, unit], read from the shared set that each theme's own set mirrors */
+const LANDMARK_IDS: Array<[number, number]> = readdirSync(join(process.cwd(), 'public/art/landmarks'))
+  .map((file) => /^g(\d+)-u(\d+)\.webp$/.exec(file))
+  .filter((match): match is RegExpExecArray => match !== null)
+  .map((match) => [Number(match[1]), Number(match[2])]);
 
 describe('companion registry', () => {
   it('points every pose at the 512px and 256px WebP files', () => {
@@ -81,10 +87,22 @@ describe('pickable themes and mascots', () => {
   });
 
   it('has every picture of a released theme and mascot in public/art', () => {
+    expect(LANDMARK_IDS.length).toBeGreaterThan(50);
     const toFile = (url: string) => join(process.cwd(), 'public', url);
     for (const id of THEME_IDS.filter((t) => THEME_BASES[t].isReleased)) {
       const { mapBg, homeScene, roomBg } = THEME_BASES[id].art;
       for (const url of [mapBg, homeScene, roomBg]) expect(existsSync(toFile(url)), url).toBe(true);
+    }
+    for (const id of THEME_IDS.filter((t) => THEME_BASES[t].isReleased)) {
+      const theme = THEME_BASES[id];
+      const missionArt = [
+        ...COMMON_ART_NAMES.map((name) => getCommonArt(theme, name)),
+        ...LANDMARK_IDS.map(([grade, unit]) => getLandmarkArt(theme, grade, unit)),
+      ];
+      for (const art of missionArt) {
+        expect(existsSync(toFile(art.full)), art.full).toBe(true);
+        expect(existsSync(toFile(art.small)), art.small).toBe(true);
+      }
     }
     for (const id of COMPANION_IDS.filter((c) => COMPANION_REGISTRY[c].isReleased)) {
       for (const art of Object.values(COMPANION_REGISTRY[id].art)) {

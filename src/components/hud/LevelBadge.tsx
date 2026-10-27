@@ -1,8 +1,10 @@
 import React from 'react';
-import { getCommonArt, pickCutoutSrc } from '../../themes/themeArt';
+import { MissionArtTheme, getCommonArt, getLevelBadgeCentre, pickCutoutSrc } from '../../themes/themeArt';
 import { ArtImage } from '../art/ArtImage';
 
 interface LevelBadgeProps {
+  /** Whose badge art to draw */
+  theme: MissionArtTheme;
   level: number;
   /** Width and height in CSS pixels */
   size: number;
@@ -10,12 +12,6 @@ interface LevelBadgeProps {
   className?: string;
 }
 
-/**
- * Where the blank violet centre of /art/common/level-badge.webp sits, as a share of the image
- * (measured on the 512px file; the ribbon covers the lower part of the disc).
- */
-const BADGE_CENTRE_X = 0.495;
-const BADGE_CENTRE_Y = 0.48;
 /** The level number's font size as a share of the badge size */
 const BADGE_NUMBER_SCALE = 0.3;
 
@@ -27,17 +23,18 @@ function getDevicePixelRatio(): number {
  * The level-up badge art with the level number drawn on its blank centre. Without the art it
  * falls back to a plain gold circle of the same size, so nothing jumps.
  */
-export const LevelBadge: React.FC<LevelBadgeProps> = ({ level, size, className = '' }) => {
+export const LevelBadge: React.FC<LevelBadgeProps> = ({ theme, level, size, className = '' }) => {
+  const centre = getLevelBadgeCentre(theme);
   const numberStyle: React.CSSProperties = {
-    left: `${BADGE_CENTRE_X * 100}%`,
-    top: `${BADGE_CENTRE_Y * 100}%`,
+    left: `${centre.x * 100}%`,
+    top: `${centre.y * 100}%`,
     fontSize: Math.round(size * BADGE_NUMBER_SCALE),
   };
 
   return (
     <div className={`relative shrink-0 ${className}`} style={{ width: size, height: size }} aria-hidden="true">
       <ArtImage
-        src={pickCutoutSrc(getCommonArt('level-badge'), size, getDevicePixelRatio())}
+        src={pickCutoutSrc(getCommonArt(theme, 'level-badge'), size, getDevicePixelRatio())}
         className="w-full h-full"
         fallback={
           <span className="absolute inset-[12%] rounded-full bg-violet-500 border-4 border-amber-400 shadow-md" />

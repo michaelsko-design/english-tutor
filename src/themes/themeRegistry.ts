@@ -37,6 +37,12 @@ export interface ThemeBase {
   inputBgClass: string;
   /** Generated scene art for this theme (Feature 25) */
   art: ThemeArt;
+  /**
+   * The folder of this theme's own landmarks, chests, Boss and level badge
+   * (/art/landmarks/<folder>, /art/common/<folder>), or null for the shared set.
+   * Set it only once the theme's whole set is in public/art, so no stop falls back to an emoji.
+   */
+  missionArtFolder: string | null;
 }
 
 /** The theme the app draws with: its look plus the learner's mascot. */
@@ -82,6 +88,7 @@ export const THEME_BASES: Record<ThemeId, ThemeBase> = {
     inputBgClass:
       'bg-white border border-purple-200 text-slate-800 focus:border-purple-500 focus:ring-2 focus:ring-purple-200',
     art: buildThemeArt('cozy-studio'),
+    missionArtFolder: null,
   },
   'neon-pop': {
     id: 'neon-pop',
@@ -116,6 +123,7 @@ export const THEME_BASES: Record<ThemeId, ThemeBase> = {
     inputBgClass:
       'bg-black/30 border border-white/25 text-white focus:border-pink-400 focus:ring-2 focus:ring-pink-500/30',
     art: buildThemeArt('neon-pop'),
+    missionArtFolder: null,
   },
   'starlight-rpg': {
     id: 'starlight-rpg',
@@ -150,6 +158,7 @@ export const THEME_BASES: Record<ThemeId, ThemeBase> = {
     inputBgClass:
       'bg-slate-900/90 border border-cyan-400/30 text-cyan-50 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30',
     art: buildThemeArt('starlight-rpg'),
+    missionArtFolder: null,
   },
   // Grown-up themes for older learners: flat surfaces, one accent colour, no glow
   'focus-desk': {
@@ -178,6 +187,7 @@ export const THEME_BASES: Record<ThemeId, ThemeBase> = {
     inputBgClass:
       'bg-white border border-stone-300 text-slate-800 focus:border-teal-600 focus:ring-2 focus:ring-teal-100',
     art: buildThemeArt('focus-desk'),
+    missionArtFolder: 'focus-desk',
   },
   'urban-night': {
     id: 'urban-night',
@@ -205,6 +215,7 @@ export const THEME_BASES: Record<ThemeId, ThemeBase> = {
     inputBgClass:
       'bg-zinc-950 border border-zinc-600 text-zinc-100 focus:border-lime-400 focus:ring-2 focus:ring-lime-400/30',
     art: buildThemeArt('urban-night'),
+    missionArtFolder: null,
   },
   'travel-journal': {
     id: 'travel-journal',
@@ -232,6 +243,7 @@ export const THEME_BASES: Record<ThemeId, ThemeBase> = {
     inputBgClass:
       'bg-[#fffaf0] border border-[#c9b48a] text-[#1f2a37] focus:border-[#1e3a5f] focus:ring-2 focus:ring-[#1e3a5f]/20',
     art: buildThemeArt('travel-journal'),
+    missionArtFolder: null,
   },
 };
 

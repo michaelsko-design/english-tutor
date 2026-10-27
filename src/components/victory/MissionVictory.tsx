@@ -181,7 +181,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
         <div className="relative p-3.5 short:p-2.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10 space-y-2" aria-hidden="true">
           {frame.hasLeveledUp && (
             <div className="absolute -top-10 -right-4 animate-reward-pop">
-              <LevelBadge level={frame.level} size={LEVEL_BADGE_SIZE} />
+              <LevelBadge theme={theme} level={frame.level} size={LEVEL_BADGE_SIZE} />
             </div>
           )}
           <div className="flex items-center justify-between text-xs font-extrabold" dir="ltr" lang="en">

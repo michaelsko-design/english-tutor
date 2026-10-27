@@ -1,7 +1,7 @@
 import React from 'react';
 import { Lock } from 'lucide-react';
 import { CurriculumUnit } from '../../data/curriculum';
-import { MapPoint, getUnitLandmarkArt, pickCutoutSrc } from '../../themes/themeArt';
+import { MapPoint, MissionArtTheme, getUnitLandmarkArt, pickCutoutSrc } from '../../themes/themeArt';
 import { MAP_BANNER_HEIGHT } from '../../data/worldMap';
 import { HudIcon } from '../hud/HudIcon';
 import { ArtImage } from '../art/ArtImage';
@@ -90,6 +90,7 @@ export const UnitBanner: React.FC<UnitBannerProps> = ({
 );
 
 interface MapLandmarkProps {
+  theme: MissionArtTheme;
   unit: CurriculumUnit;
   gradeNumber: number | null;
   position: MapPoint;
@@ -97,7 +98,7 @@ interface MapLandmarkProps {
 }
 
 /** The unit's landmark beside the path; its badge emoji until the picture is generated. */
-export const MapLandmark: React.FC<MapLandmarkProps> = ({ unit, gradeNumber, position, mapHeight }) => {
+export const MapLandmark: React.FC<MapLandmarkProps> = ({ theme, unit, gradeNumber, position, mapHeight }) => {
   const fallback = (
     <div className="absolute inset-[18%] rounded-full bg-white/80 ring-4 ring-white/40 shadow-lg flex items-center justify-center">
       <span className="text-4xl leading-none">{unit.badgeEmoji}</span>
@@ -113,7 +114,7 @@ export const MapLandmark: React.FC<MapLandmarkProps> = ({ unit, gradeNumber, pos
         <div className="relative aspect-square">{fallback}</div>
       ) : (
         <ArtImage
-          src={pickCutoutSrc(getUnitLandmarkArt(gradeNumber, unit), LANDMARK_DISPLAY_PX, getDevicePixelRatio())}
+          src={pickCutoutSrc(getUnitLandmarkArt(theme, gradeNumber, unit), LANDMARK_DISPLAY_PX, getDevicePixelRatio())}
           className="aspect-square w-full"
           imgClassName="drop-shadow-lg"
           fallback={fallback}

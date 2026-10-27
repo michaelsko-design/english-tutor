@@ -149,6 +149,7 @@ export const MissionMap: React.FC<MissionMapProps> = ({
             {layout.regions.map((region) => (
               <MapLandmark
                 key={`landmark-${region.unit.unitNumber}`}
+                theme={theme}
                 unit={region.unit}
                 gradeNumber={getUnitGradeNumber(region.unit)}
                 position={region.landmark.position}

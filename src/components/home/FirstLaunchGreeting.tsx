@@ -41,8 +41,8 @@ export const FirstLaunchGreeting: React.FC<FirstLaunchGreetingProps> = ({
   const isGirl = gender === 'girl';
   const cleanName = name.trim() || (isGirl ? 'אלופה' : 'אלוף');
   const devicePixelRatio = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1;
-  const chestClosedSrc = pickCutoutSrc(getCommonArt('chest-closed'), CHEST_PX, devicePixelRatio);
-  const chestOpenSrc = pickCutoutSrc(getCommonArt('chest-open'), CHEST_PX, devicePixelRatio);
+  const chestClosedSrc = pickCutoutSrc(getCommonArt(theme, 'chest-closed'), CHEST_PX, devicePixelRatio);
+  const chestOpenSrc = pickCutoutSrc(getCommonArt(theme, 'chest-open'), CHEST_PX, devicePixelRatio);
 
   useEffect(() => {
     preloadArt(chestOpenSrc);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TutorialSlide, TutorialSlideId } from '../../data/appTutorial';
 import { APP_NAME } from '../../config/appInfo';
-import { getCommonArt, pickCutoutSrc } from '../../themes/themeArt';
+import { MissionArtTheme, getCommonArt, pickCutoutSrc } from '../../themes/themeArt';
 import { useCountUp } from '../../hooks/useCountUp';
 import { AppLogo } from '../AppLogo';
 import { ArtImage } from '../art/ArtImage';
@@ -127,9 +127,9 @@ const MapCoin: React.FC<{ stars: number; isLocked?: boolean; index: number; offs
   </div>
 );
 
-const MapScene: React.FC = () => {
+const MapScene: React.FC<{ theme: MissionArtTheme }> = ({ theme }) => {
   const devicePixelRatio = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1;
-  const castleSrc = pickCutoutSrc(getCommonArt('boss-locked'), CASTLE_PX, devicePixelRatio);
+  const castleSrc = pickCutoutSrc(getCommonArt(theme, 'boss-locked'), CASTLE_PX, devicePixelRatio);
   return (
     <div className="h-full flex items-center justify-center px-4" aria-hidden="true">
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 320 200" preserveAspectRatio="none">
@@ -255,19 +255,21 @@ const FinishScene: React.FC = () => (
 );
 
 interface TourSceneProps {
+  /** Whose Boss art the map scene shows */
+  theme: MissionArtTheme;
   slide: TutorialSlide;
   avatarEmoji: string;
   isShabbatObserver: boolean;
 }
 
-export const TourScene: React.FC<TourSceneProps> = ({ slide, avatarEmoji, isShabbatObserver }) => {
+export const TourScene: React.FC<TourSceneProps> = ({ theme, slide, avatarEmoji, isShabbatObserver }) => {
   switch (slide.id) {
     case 'welcome':
       return <WelcomeScene />;
     case 'missions':
       return <MissionsScene slide={slide} />;
     case 'map':
-      return <MapScene />;
+      return <MapScene theme={theme} />;
     case 'economy':
       return <EconomyScene avatarEmoji={avatarEmoji} />;
     case 'streak':

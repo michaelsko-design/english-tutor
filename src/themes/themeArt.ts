@@ -53,7 +53,9 @@ export interface ThemeArt {
   roomBg: string;
 }
 
-export type CommonArtName = 'chest-closed' | 'chest-open' | 'boss-locked' | 'boss-open' | 'level-badge';
+export const COMMON_ART_NAMES = ['chest-closed', 'chest-open', 'boss-locked', 'boss-open', 'level-badge'] as const;
+
+export type CommonArtName = (typeof COMMON_ART_NAMES)[number];
 
 const ART_ROOT = '/art';
 /** Rendered at this many device pixels or fewer, the 256px file is sharp enough. */
@@ -161,14 +163,40 @@ export function buildThemeArt(themeId: ThemeId): ThemeArt {
   };
 }
 
-/** Shared pictures for every theme: chests, Boss castles and the level badge. */
-export function getCommonArt(name: CommonArtName): CutoutArt {
-  return getCutoutArt('common', name);
+/**
+ * What picks a theme's mission art (landmarks, chests, Boss and level badge): its own folder
+ * under /art/landmarks and /art/common, or null for the shared set first drawn for Cozy.
+ */
+export interface MissionArtTheme {
+  missionArtFolder: string | null;
+}
+
+function missionArtFolder(group: 'common' | 'landmarks', theme: MissionArtTheme): string {
+  return theme.missionArtFolder === null ? group : `${group}/${theme.missionArtFolder}`;
+}
+
+/** The chests, Boss stop and level badge of a theme, e.g. /art/common/focus-desk/boss-open.webp */
+export function getCommonArt(theme: MissionArtTheme, name: CommonArtName): CutoutArt {
+  return getCutoutArt(missionArtFolder('common', theme), name);
+}
+
+/**
+ * Where the blank centre of each set's level badge sits, as shares of the image (measured on the
+ * 512px file), so the level number is drawn on it. Keyed by missionArtFolder; SHARED is the null set.
+ */
+const SHARED_LEVEL_BADGE_CENTRE: MapPoint = { x: 0.495, y: 0.48 };
+const LEVEL_BADGE_CENTRE_BY_FOLDER: Record<string, MapPoint> = {
+  'focus-desk': { x: 0.5, y: 0.438 },
+};
+
+export function getLevelBadgeCentre(theme: MissionArtTheme): MapPoint {
+  const folder = theme.missionArtFolder;
+  return (folder !== null && LEVEL_BADGE_CENTRE_BY_FOLDER[folder]) || SHARED_LEVEL_BADGE_CENTRE;
 }
 
 /** The landmark of a unit on the world map, e.g. /art/landmarks/g7-u3.webp */
-export function getLandmarkArt(gradeNumber: number, unitNumber: number): CutoutArt {
-  return getCutoutArt('landmarks', `g${gradeNumber}-u${unitNumber}`);
+export function getLandmarkArt(theme: MissionArtTheme, gradeNumber: number, unitNumber: number): CutoutArt {
+  return getCutoutArt(missionArtFolder('landmarks', theme), `g${gradeNumber}-u${unitNumber}`);
 }
 
 /** What a unit's landmark is named by: its place on the map and its missions' ids. */
@@ -184,10 +212,10 @@ const MISSION_ID_UNIT = /^g\d+-u(\d+)-m\d+$/;
  * That differs from the unit's place in grade 1, where the letters units (ids g1-u11…) came
  * first later; a unit with no readable mission id falls back to its place.
  */
-export function getUnitLandmarkArt(gradeNumber: number, unit: LandmarkUnit): CutoutArt {
+export function getUnitLandmarkArt(theme: MissionArtTheme, gradeNumber: number, unit: LandmarkUnit): CutoutArt {
   const match = unit.missions[0] && MISSION_ID_UNIT.exec(unit.missions[0].id);
   const idUnitNumber = match ? Number(match[1]) : unit.unitNumber;
-  return getLandmarkArt(gradeNumber, idUnitNumber);
+  return getLandmarkArt(theme, gradeNumber, idUnitNumber);
 }
 
 /** The spot illustration of a mission's story step, e.g. /art/stories/g7-u3-m2.webp */
