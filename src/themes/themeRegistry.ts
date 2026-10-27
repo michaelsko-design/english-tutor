@@ -243,7 +243,7 @@ export const THEME_BASES: Record<ThemeId, ThemeBase> = {
     inputBgClass:
       'bg-[#fffaf0] border border-[#c9b48a] text-[#1f2a37] focus:border-[#1e3a5f] focus:ring-2 focus:ring-[#1e3a5f]/20',
     art: buildThemeArt('travel-journal'),
-    missionArtFolder: null,
+    missionArtFolder: 'travel-journal',
   },
 };
 

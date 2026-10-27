@@ -12,6 +12,7 @@
  *   node scripts/art/renderMissionArt.mjs pilot <theme> [key ...]  render now (default: the pilot keys)
  *   node scripts/art/renderMissionArt.mjs submit <theme> [key ...]  every missing picture, plus the keys named
  *                                                                   (drawn again), as one batch (50% discount)
+ *   node scripts/art/renderMissionArt.mjs submit <theme> --pilot    only the first of those sheets, as a batch pilot
  *   node scripts/art/renderMissionArt.mjs status
  *   node scripts/art/renderMissionArt.mjs collect
  *   node scripts/art/renderMissionArt.mjs list <theme>             every key and whether its file exists
@@ -34,6 +35,7 @@ const ART_SRC = join(process.cwd(), 'art-src');
 const SHEETS_DIR = join(ART_SRC, 'mission-sheets');
 const SLICER = join(process.cwd(), 'scripts', 'art', 'slice_mission_sheet.py');
 const PILOT_KEYS = ['boss', 'chest', 'g1-u12', 'g5-u2', 'g8-u1', 'g12-u3'];
+const PILOT_FLAG = '--pilot';
 
 const NO_TEXT =
   'No text, no words, no numbers, no logos, no watermark, no signature anywhere in the image, except the letters or digits a subject names. Maps, pages, screens, tickets and signs show only plain shapes and blank lines, never labels or place names.';
@@ -185,12 +187,15 @@ async function pilot(apiKey, theme, keys) {
   }
 }
 
-async function submit(apiKey, theme, redrawKeys) {
+async function submit(apiKey, theme, args) {
   if (readState().length > 0) console.log('Warning: a batch is already in progress.');
+  const isPilot = args.includes(PILOT_FLAG);
+  const redrawKeys = args.filter((arg) => arg !== PILOT_FLAG);
   const redraw = jobsByKey(theme, redrawKeys).filter((job) => existsSync(job.path));
-  const missing = [...missingJobs(theme), ...redraw];
+  const allSheets = packSheets([...missingJobs(theme), ...redraw]);
+  const sheets = isPilot ? allSheets.slice(0, 1) : allSheets;
+  const missing = sheets.flatMap((sheet) => sheet.cells.map((cell) => cell.job));
   if (missing.length === 0) return console.log('Nothing to draw.');
-  const sheets = packSheets(missing);
   console.log(`${describeSheets(sheets)} to draw (${redraw.length} picture(s) again).`);
 
   const stamp = Date.now();

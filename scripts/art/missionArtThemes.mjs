@@ -182,4 +182,96 @@ export const MISSION_ART_THEMES = {
       'g12-u4': 'Global Horizons & Professional Future: an office tower entrance with a globe sculpture in front and lit amber windows above.',
     },
   },
+
+  // Journey's map is flat sand #f3ead8 with olive continents in navy ink: the pictures need a firm
+  // navy outline and cream or terracotta parts so they still read where they sit on the olive land.
+  'travel-journal': {
+    style: [
+      'Polished 2.5D illustration for an English-learning app for teenagers (ages 12–18), in a warm travel-journal style, like a high-quality mobile game diorama of a souvenir miniature: a three-quarter view from above with real volume and depth. Every object has a lit top face, a mid side face and a darker side face, soft gradients, gentle ambient shading where surfaces meet, slightly rounded edges and a little material texture (stone, wood, canvas, leather). Daylight. Still a clean illustration, not a photo and not a busy realistic 3D render.',
+      'Palette: navy #1E3A5F for dark shapes and a thin navy outline that closes the whole silhouette, warm sand #D9C7A3 and #E8DCC2, cream #FFFAF0 for lit faces (never pure white), olive #5B6B3A and light olive #8A9A5B for plants and fabric, and terracotta #B45309 only for one or two small accents per picture. Every picture has a cream or sand part and a navy part, so it reads on both sand and olive ground.',
+      'Calm and adventurous. Not childish: no faces on objects, no blush, no sparkles, no glitter, no hearts, no stars, no rainbow colours, no glow effects, and no writing anywhere: signs, labels, stickers and tickets are blank or show only a simple picture.',
+    ].join('\n'),
+    // The flat style the pilot compared against (renderMissionArt.mjs travel-journal:flat)
+    styleVariants: {
+      flat: [
+        'Flat illustration for an English-learning app for teenagers (ages 12–18), in a hand-made travel-journal style, like a well-drawn sticker from a traveller’s sketchbook: flat colour fills with a faint paper grain, confident navy ink outlines of even weight, at most one soft shade per colour, simple sturdy shapes, a slightly vintage travel-poster feel.',
+        'Palette: navy ink #1E3A5F for outlines and dark shapes, warm sand #D9C7A3 and #E8DCC2, cream paper #FFFAF0 for light areas (never pure white), olive #5B6B3A and light olive #8A9A5B for plants and fabric, and terracotta #B45309 only for one or two small accents per picture (a roof, a flag, a strap). Every picture has a cream or sand part and a navy part, so it reads on both sand and olive ground.',
+        'Calm and adventurous. Not childish: no faces on objects, no blush, no sparkles, no glitter, no hearts, no stars, no rainbow colours, no glow effects, and no writing anywhere: signs, labels, stickers and tickets are blank or show only a simple picture.',
+      ].join('\n'),
+    },
+    landmarkIdea:
+      'Each picture is one small free-standing place a traveller visits, drawn like a souvenir miniature built on its own small rounded base of sand, grass or cobbles that is part of the miniature: a market stall, a harbour pier, a mountain hut, a station, a lighthouse, a café terrace, with one or two travel objects in front that together show one unit topic. The places feel like many countries, never one real famous building.',
+    pairs: {
+      boss: {
+        names: ['boss-locked', 'boss-open'],
+        subject:
+          'The end-of-unit challenge, drawn as a mountain border gate: a small stone archway in a low stone wall, with a little navy-roofed guard booth beside it, a terracotta-and-cream striped barrier arm across the road, and behind the arch a snowy mountain peak with a small terracotta flag on its summit. Left: the barrier arm is down and a heavy iron gate is shut in the arch, chained with a big padlock; the flag hangs limp. Right: the very same gate, booth and mountain with the barrier arm raised high, the iron gate swung open, and a winding path running through the arch up to the summit, where the flag flies out in the wind.',
+      },
+      chest: {
+        names: ['chest-closed', 'chest-open'],
+        subject:
+          'A reward, drawn as a vintage travel suitcase, the two suitcases standing free on the white background with no frame or panel around them: a sand-coloured hard suitcase with navy leather corners, two olive leather straps, a navy handle and a few round and square travel stickers that show only simple pictures (a mountain, a sailboat, a palm), seen from a slight three-quarter angle. Left: the suitcase is shut, its straps buckled. Right: the very same suitcase lying open with the lid up and the straps loose, full of small faceted terracotta and navy gems on a folded cream scarf.',
+      },
+    },
+    singles: {
+      'level-badge':
+        "The learner's level, drawn as a brass compass seen straight from the front: a sand-coloured round case with a thin navy outline, a ring of short navy tick marks, four plain navy triangle points sticking out at top, right, bottom and left (no letters), and a large plain cream #FFFAF0 centre disc that is completely empty (a number is written on it later, so no needle). The centre disc is in the middle of the picture and takes about half its width. Perfectly round and symmetric.",
+    },
+    landmarks: {
+      'g1-u11': 'ABC Friends: a little seaside beach hut with three big wooden letter blocks, A, B and C, stacked on the sand in front of it.',
+      'g1-u12': 'Letter Parade: two old lamp posts standing on a small round cobbled base, with a string of three bunting flags showing the letters G, H and I strung between them. No buildings.',
+      'g1-u13': 'Letter Garden: a small allotment garden with a wooden gate and three seed markers in the soil showing the letters N, O and P.',
+      'g1-u14': 'All the Letters: a little post office whose sign is only an envelope picture, with a terracotta postbox in front and a stack of letter blocks, X, Y and Z, beside it. No words on the building.',
+      'g1-u15': 'Word Builder: a small harbour crate stall with three wooden crates stencilled C, A and T in a row, and a cat sleeping on top.',
+      'g1-u16': 'I Can Read!: a little reading nook under a shady tree, with a wooden bench and an open picture book with only pictures on its pages.',
+      'g1-u1': 'Hello Forest Friends: a wooden forest cabin among pine trees with a fox sitting on its doorstep.',
+      'g1-u2': 'Numbers & Sunshine: a beach with a striped umbrella under a bright round sun, and three sandcastles of size 1, 2 and 3 in a row.',
+      'g1-u3': 'My Body & Classroom: a little countryside schoolhouse with a bell on its roof and a school bag hanging by the door.',
+      'g1-u4': 'Fruit Picnic & Playtime: a picnic blanket on a grassy hill with a basket of apples and bananas and a ball beside it.',
+      'g2-u1': 'Toy Shop & CVC Words: a small market toy stall with a ball, a small bat and a cap laid out on the counter.',
+      'g2-u2': 'My Family & Healthy Snacks: a family camping tent with three folding chairs in front and a crate of apples.',
+      'g2-u3': 'Farm & Pet Friends: a little farmhouse with a cow by the fence and a dog sitting by the gate.',
+      'g2-u4': 'My Home & My Clothes: a stone cottage with a washing line of shirts and a hat strung beside it.',
+      'g3-u1': 'Little Artists & School Supplies: a painter’s easel set up on a cliff path, with a jar of brushes and a box of pencils beside it.',
+      'g3-u2': 'Days, Weather & Feelings: a small weather station hut with a wind vane and a rain gauge, under a sun half behind a cloud with a few raindrops.',
+      'g3-u3': 'Zoo Animals & I Can: a savanna lookout tower with a giraffe and a lion standing near its foot.',
+      'g3-u4': 'My Birthday Party: a garden gazebo with balloons tied to its posts and a birthday cake with one candle on a table.',
+      'g4-u1': 'Superhero Action Academy: a lighthouse on a rock with a caped hero figure standing on its balcony.',
+      'g4-u2': 'Around the House & My Room: a traditional two-storey house cut open at the front, showing three furnished rooms: a bedroom, a kitchen and a living room.',
+      'g4-u3': 'Sports Stars & Hobbies: a small mountain bike trail start with a bicycle, a helmet and a football on the grass.',
+      'g4-u4': 'The Healthy Food Market: an open-air market stall under a canvas awning with crates of carrots, leafy greens and apples.',
+      'g5-u1': 'Pet Café & Animals: a little café terrace with one table, a coffee cup on it and a cat curled on the chair.',
+      'g5-u2': 'Town Explorers & Telling Time: an old town gate with a big round clock above the arch and a blank signpost beside it.',
+      'g5-u3': 'My Daily Routine: a small railway platform with a station clock on a post, a bench and a breakfast mug on it.',
+      'g5-u4': 'Free Time & Weekends: a lakeside dock with a small rowing boat, a fishing rod and a guitar leaning on a post.',
+      'g6-u1': 'After-School Creators Club: a village hall doorway with a chess table outside and a paint palette picture on its hanging sign.',
+      'g6-u2': 'Digital Skills: a travel kiosk with a laptop on the counter and a big phone-shaped sign whose screen shows a simple sound wave.',
+      'g6-u3': 'Last Weekend & Holiday Memories: a seaside pier end with a festive eye mask hanging on the rail and a small firework bursting above.',
+      'g6-u4': 'Ready for Grade 7: a small airfield with a propeller plane on the runway, ready for take-off, and a windsock.',
+      'g7-u1': 'Café & Daily Vibes: a little street café kiosk with a giant bubble tea cup on its roof and a bicycle parked in front.',
+      'g7-u2': 'Backstage Studio & Live Vlogs: a festival stage tent with a microphone on a stand and a camera on a tripod in front.',
+      'g7-u3': 'London Mystery Diary: a foggy cobbled street corner with a gas street lamp, an old phone box and footprints leading away.',
+      'g7-u4': 'Future Creators & Teen Advice: a small workshop shed with its doors open, a workbench inside and a light-bulb picture on its sign.',
+      'g8-u1': 'Global Travellers & Past Adventures: a little airport check-in hut with a suitcase, a backpack and a globe on a stand.',
+      'g8-u2': 'London Clues & Future Plans: a small train station with a blank round sign on a post and a ticket and a pocket watch lying on the platform.',
+      'g8-u3': 'Life Milestones & Experiences: a rocky mountain ledge with a climbing rope, a hiking boot and a medal hanging on a cairn of stones.',
+      'g8-u4': 'Planet Earth & Eco-Warriors: an eco lodge with a grass roof, two solar panels and a young tree being planted beside it.',
+      'g9-u1': 'Future Innovators & Teen Podcast: a small radio hut on a hilltop with a tall antenna mast and a big microphone picture on its sign.',
+      'g9-u2': 'The AI Revolution & Debate Club: a robot statue on a plinth in a small town square, facing a wooden speaker’s podium.',
+      'g9-u3': 'Media Literacy & the News: a newspaper kiosk at a station with racks of folded papers and magazines with blank covers.',
+      'g9-u4': 'Global Citizens & High School Countdown: a school building with a graduation cap and a globe on a blank flag above the door. The whole building fits inside the picture, roof included.',
+      'g10-u1': 'Global Youth Summit & Environment: a hillside with three wind turbines, a small recycling station and young trees. Any flag or banner shows only a leaf picture, never words.',
+      'g10-u2': 'Media Literacy & Digital Footprints: a sandy beach with a trail of footprints leading up to a big phone standing in the sand, its screen showing a padlock picture.',
+      'g10-u3': 'Scientific Inquiries: a seaside research station with a telescope dome on its roof, a microscope on an outside table and a diving bell on the pier.',
+      'g10-u4': 'Technology Ethics & Future Dilemmas: a crossroads with a signpost of two blank arrows pointing different ways and a small robot standing at the fork.',
+      'g11-u1': 'Literature, Cinema & Critical Minds: an open-air cinema with a blank screen, a film reel and a stack of books on a deck chair.',
+      'g11-u2': 'Perspectives & Comparative Literature: a small open-air amphitheatre of stone steps with the two theatre masks carved above its stage.',
+      'g11-u3': 'Modals in the Past & Turning Points: an old harbour clock tower with an hourglass picture on a hanging sign and a brass compass on the quay.',
+      'g11-u4': 'Reading Comprehension & Scientific Unseens: a small library with an open-book picture on its sign and a big map board showing a bar chart and a pie chart. No words on the building.',
+      'g12-u1': 'Academic Connectors: a stone arch bridge linking two cliffs, with a chain railing across it.',
+      'g12-u2': 'The Bagrut Opinion Essay: a writer’s desk set out on a seaside terrace, with a fountain pen, a blank lined page and a stack of drafts.',
+      'g12-u3': "Author's Tone & Unseen Texts: a music shop by a canal with a big volume dial picture on its sign and a magnifying glass picture in the window.",
+      'g12-u4': 'Global Horizons & Professional Future: a modern glass terminal building with a big globe sculpture in front and a plane taking off above it.',
+    },
+  },
 };
