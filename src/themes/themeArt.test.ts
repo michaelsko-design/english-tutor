@@ -51,7 +51,7 @@ describe('mission art paths', () => {
 
   it("draws the level number on each set's own badge centre", () => {
     expect(getLevelBadgeCentre(SHARED)).toEqual({ x: 0.495, y: 0.48 });
-    expect(getLevelBadgeCentre(FOCUS)).toEqual({ x: 0.5, y: 0.438 });
+    expect(getLevelBadgeCentre(FOCUS)).toEqual({ x: 0.5, y: 0.414 });
     expect(getLevelBadgeCentre({ missionArtFolder: 'urban-night' })).toEqual({ x: 0.5, y: 0.5 });
     expect(getLevelBadgeCentre({ missionArtFolder: 'travel-journal' })).toEqual({ x: 0.5, y: 0.5 });
     expect(getLevelBadgeCentre({ missionArtFolder: 'neon-pop' })).toEqual({ x: 0.5, y: 0.5 });

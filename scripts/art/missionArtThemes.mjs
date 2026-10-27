@@ -11,10 +11,18 @@
 export const MISSION_ART_THEMES = {
   'focus-desk': {
     style: [
-      'Flat vector illustration for an English-learning app for teenagers (ages 12–18), in a calm, grown-up study-desk style: flat colour fills, thin even slate outlines, at most one soft shade per colour, simple geometric shapes, like a good editorial icon illustration.',
-      'Palette: slate ink #334155 for outlines and dark shapes, slate greys #475569, #94A3B8 and #CBD5E1, warm paper #F1EEE8 for light areas (never pure white), one teal accent #0F9D8A, and orange #F97316 only for one or two small highlights per picture (a light, a tab, a dot).',
-      'Muted and quiet. Not childish: no faces on objects, no blush, no sparkles, no glitter, no hearts, no stars, no rainbow colours, no glow effects.',
+      'Polished 2.5D illustration for an English-learning app for teenagers (ages 12–18), in a calm, grown-up study-desk style, like a high-quality mobile game diorama of a tidy desk corner: a three-quarter view from above with real volume and depth. Every object has a lit top face, a mid side face and a darker side face, soft gradients, gentle ambient shading where surfaces meet, slightly rounded bevelled edges and a little material texture (paper, wood, matte plastic, metal). Soft daylight from a window. Still a clean illustration, not a photo and not a busy realistic 3D render.',
+      'Palette: slate ink #334155 for outlines and dark shapes, slate greys #475569, #94A3B8 and #CBD5E1, warm paper #F1EEE8 for light areas (never pure white), one teal accent #0F9D8A, and orange #F97316 only for one or two small highlights per picture (a light, a tab, a dot). A thin slate outline still closes the whole silhouette.',
+      'Muted and quiet. Not childish: no faces on objects, no blush, no sparkles, no glitter, no hearts, no stars, no rainbow colours, no glow halos floating in the air.',
     ].join('\n'),
+    // The flat look Focus first shipped with (renderMissionArt.mjs focus-desk:flat)
+    styleVariants: {
+      flat: [
+        'Flat vector illustration for an English-learning app for teenagers (ages 12–18), in a calm, grown-up study-desk style: flat colour fills, thin even slate outlines, at most one soft shade per colour, simple geometric shapes, like a good editorial icon illustration.',
+        'Palette: slate ink #334155 for outlines and dark shapes, slate greys #475569, #94A3B8 and #CBD5E1, warm paper #F1EEE8 for light areas (never pure white), one teal accent #0F9D8A, and orange #F97316 only for one or two small highlights per picture (a light, a tab, a dot).',
+        'Muted and quiet. Not childish: no faces on objects, no blush, no sparkles, no glitter, no hearts, no stars, no rainbow colours, no glow effects.',
+      ].join('\n'),
+    },
     landmarkIdea:
       'Each picture is a small desk still life: two or three everyday study-desk objects that together show one unit topic, standing close together as one group.',
     pairs: {
@@ -34,10 +42,10 @@ export const MISSION_ART_THEMES = {
         "The learner's level, drawn as a flat round seal: a wide teal ring with a thin slate outline around a large plain slate #334155 centre disc that is completely empty (a number is written on it later), and a short orange bookmark ribbon with a notched end hanging from the bottom of the ring. The centre disc is in the middle of the picture and takes about half its width. Seen straight from the front, symmetric.",
     },
     landmarks: {
-      'g1-u11': 'ABC Friends: three chunky wooden letter tiles, A, B and C, standing in a row beside a short pencil.',
+      'g1-u11': 'ABC Friends: three chunky wooden letter tiles, A, B and C, standing in a row, with a short pencil standing upright on its end beside them.',
       'g1-u12': 'Letter Parade: three letter cards, G, H and I, hanging in a row from a string line between two binder clips on a small desk stand, like a little parade of flags.',
       'g1-u13': 'Letter Garden: a small potted plant with a few leaves, with three letter tiles, N, O and P, leaning against the pot.',
-      'g1-u14': 'All the Letters: an index-card box packed with letter cards fanned upright, the front cards showing X, Y and Z.',
+      'g1-u14': 'All the Letters: an index-card box packed with letter cards fanned upright, the three front cards showing X, Y and Z, one letter on each card, all three letters clearly visible.',
       'g1-u15': 'Word Builder: a tile rack holding three letter tiles that spell C A T, with a small cat figurine sitting beside it.',
       'g1-u16': 'I Can Read!: a picture book standing open on a wooden book stand, its pages showing only simple pictures and blank lines (no title, no writing), with a small desk lamp leaning over it.',
       'g1-u1': 'Hello Forest Friends: a round glass terrarium with a tiny pine tree inside and a small fox figurine sitting beside it.',
