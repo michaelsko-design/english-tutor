@@ -215,7 +215,7 @@ export const THEME_BASES: Record<ThemeId, ThemeBase> = {
     inputBgClass:
       'bg-zinc-950 border border-zinc-600 text-zinc-100 focus:border-lime-400 focus:ring-2 focus:ring-lime-400/30',
     art: buildThemeArt('urban-night'),
-    missionArtFolder: null,
+    missionArtFolder: 'urban-night',
   },
   'travel-journal': {
     id: 'travel-journal',

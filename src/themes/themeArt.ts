@@ -187,6 +187,7 @@ export function getCommonArt(theme: MissionArtTheme, name: CommonArtName): Cutou
 const SHARED_LEVEL_BADGE_CENTRE: MapPoint = { x: 0.495, y: 0.48 };
 const LEVEL_BADGE_CENTRE_BY_FOLDER: Record<string, MapPoint> = {
   'focus-desk': { x: 0.5, y: 0.438 },
+  'urban-night': { x: 0.5, y: 0.5 },
 };
 
 export function getLevelBadgeCentre(theme: MissionArtTheme): MapPoint {
