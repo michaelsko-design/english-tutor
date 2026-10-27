@@ -1,5 +1,6 @@
 import { LearnerProfile, LearnerStats } from '../types/learner';
-import { addDays, parseDateStr } from '../utils/dates';
+// Explicit .js: api/streak-reminder.ts runs this file under Node ESM, which needs the extension.
+import { addDays, parseDateStr } from '../utils/dates.js';
 
 /**
  * The learning streak: consecutive days with a finished session. For a Shabbat observer,
