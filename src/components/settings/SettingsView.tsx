@@ -27,10 +27,10 @@ type SettingsTabId = 'profile' | 'look' | 'voice' | 'friends' | 'account';
 
 const SETTINGS_TABS: SettingsTabItem<SettingsTabId>[] = [
   { id: 'profile', labelHe: 'פרופיל', icon: '👤' },
-  { id: 'look', labelHe: 'עיצוב ושבת', icon: '🎨' },
-  { id: 'voice', labelHe: 'הקראה ותזכורת', icon: '🔊' },
-  { id: 'friends', labelHe: 'חברים והורים', icon: '👫' },
-  { id: 'account', labelHe: 'פרטיות וחשבון', icon: '🔒' },
+  { id: 'look', labelHe: 'עיצוב', icon: '🎨' },
+  { id: 'voice', labelHe: 'הקראה', icon: '🔊' },
+  { id: 'friends', labelHe: 'חברים', icon: '👫' },
+  { id: 'account', labelHe: 'חשבון', icon: '🔒' },
 ];
 
 const VOICE_OPTIONS: { id: VoicePreference; labelHe: string }[] = [
@@ -171,8 +171,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     id: tabPanelId(idPrefix, id),
     role: 'tabpanel' as const,
     'aria-labelledby': tabButtonId(idPrefix, id),
-    hidden: activeTab !== id,
-    className: 'space-y-5',
+    // Every panel sits in the same grid cell, so the card is as tall as the tallest tab
+    'aria-hidden': activeTab !== id,
+    className: `space-y-5 [grid-area:1/1] ${activeTab === id ? '' : 'invisible'}`,
   });
 
   return (
@@ -195,7 +196,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300">
             <span>{APP_NAME}</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">הגדרות ⚙️</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">הגדרות</h1>
           <p className={`text-xs sm:text-sm ${activeTheme.mutedTextClass}`}>{heb.onboardingSubtitle}</p>
           <p role="status" aria-live="polite" className="min-h-4 text-xs font-bold text-emerald-600 dark:text-emerald-400">
             {isSavedShown ? 'נשמר ✓' : ''}
@@ -210,6 +211,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           onChange={setActiveTab}
         />
 
+        <div className="grid">
         <div {...panelProps('profile')}>
           <NameField
             value={draft.name}
@@ -302,6 +304,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               onDeleteAccount={onDeleteAccount}
             />
           </div>
+        </div>
         </div>
       </div>
     </div>

@@ -43,9 +43,9 @@ describe('SettingsView', () => {
     const user = userEvent.setup();
     renderSettings();
 
-    await user.click(screen.getByRole('tab', { name: /חברים והורים/ }));
+    await user.click(screen.getByRole('tab', { name: /חברים/ }));
 
-    expect(screen.getByRole('tabpanel', { name: /חברים והורים/ })).toBeVisible();
+    expect(screen.getByRole('tabpanel', { name: /חברים/ })).toBeVisible();
     expect(screen.queryByRole('tabpanel', { name: /פרופיל/ })).not.toBeInTheDocument();
   });
 
@@ -53,7 +53,7 @@ describe('SettingsView', () => {
     const user = userEvent.setup();
     const { onProfileChange } = renderSettings();
 
-    await user.click(screen.getByRole('tab', { name: /עיצוב ושבת/ }));
+    await user.click(screen.getByRole('tab', { name: /עיצוב/ }));
     const themeButtons = screen.getAllByRole('button', { pressed: false });
     await user.click(themeButtons[0]);
 
@@ -64,8 +64,8 @@ describe('SettingsView', () => {
     const user = userEvent.setup();
     const { onProfileChange } = renderSettings();
 
-    const select = screen.getByRole('combobox', { name: /שכבת לימוד/ });
-    await user.selectOptions(select, 'grade-9');
+    await user.click(screen.getByRole('combobox', { name: /כיתה/ }));
+    await user.click(screen.getByRole('option', { name: 'כיתה ט׳' }));
 
     expect(onProfileChange).toHaveBeenCalledTimes(1);
     expect(onProfileChange.mock.calls[0][0]).toMatchObject({ gradeId: 'grade-9', schoolGradeId: 'grade-9' });
@@ -75,7 +75,8 @@ describe('SettingsView', () => {
     const user = userEvent.setup();
     const { onProfileChange } = renderSettings();
 
-    await user.selectOptions(screen.getByRole('combobox', { name: /שכבת לימוד/ }), 'grade-8');
+    await user.click(screen.getByRole('combobox', { name: /כיתה/ }));
+    await user.click(screen.getByRole('option', { name: 'כיתה ח׳' }));
 
     expect(onProfileChange).not.toHaveBeenCalled();
   });
@@ -109,7 +110,7 @@ describe('SettingsView', () => {
     const user = userEvent.setup();
     const { onProfileChange } = renderSettings({ age: 10 });
 
-    await user.click(screen.getByRole('tab', { name: /חברים והורים/ }));
+    await user.click(screen.getByRole('tab', { name: /חברים/ }));
     await user.click(screen.getByRole('button', { name: /מרכז החברים כבוי/ }));
     expect(onProfileChange).not.toHaveBeenCalled();
 

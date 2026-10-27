@@ -18,7 +18,7 @@ interface SettingsTabsProps<Id extends string> {
 export const tabButtonId = (idPrefix: string, id: string) => `${idPrefix}-tab-${id}`;
 export const tabPanelId = (idPrefix: string, id: string) => `${idPrefix}-panel-${id}`;
 
-/** An accessible tab bar (roving tabindex, arrow keys follow the page's right-to-left order) */
+/** An accessible tab bar: all tabs share one row (icon over a short label), arrow keys follow the right-to-left order */
 export function SettingsTabs<Id extends string>({
   tabs,
   activeId,
@@ -49,7 +49,7 @@ export function SettingsTabs<Id extends string>({
       role="tablist"
       aria-label="קטגוריות הגדרות"
       onKeyDown={handleKeyDown}
-      className="flex gap-1.5 overflow-x-auto pb-1"
+      className="grid grid-cols-5 gap-1"
     >
       {tabs.map((tab) => {
         const isActive = tab.id === activeId;
@@ -63,12 +63,12 @@ export function SettingsTabs<Id extends string>({
             aria-controls={tabPanelId(idPrefix, tab.id)}
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(tab.id)}
-            className={`min-h-11 shrink-0 px-3 rounded-xl font-extrabold text-xs sm:text-sm flex items-center gap-1.5 transition-colors ${
+            className={`min-h-14 min-w-0 px-0.5 py-1.5 rounded-xl font-extrabold text-xs flex flex-col items-center justify-center gap-0.5 transition-colors ${
               isActive ? theme.primaryBtnClass : theme.secondaryBtnClass
             }`}
           >
-            <span aria-hidden="true">{tab.icon}</span>
-            <span>{tab.labelHe}</span>
+            <span aria-hidden="true" className="text-base leading-none">{tab.icon}</span>
+            <span className="leading-tight">{tab.labelHe}</span>
           </button>
         );
       })}
