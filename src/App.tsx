@@ -38,6 +38,7 @@ import { DEFAULT_PROFILE, WELCOME_GIFT_DIAMONDS } from './data/defaultProfile';
 
 // Screens most visits never open load in their own chunks
 const OnboardingView = lazyNamed(() => import('./components/OnboardingView'), 'OnboardingView');
+const SettingsView = lazyNamed(() => import('./components/settings/SettingsView'), 'SettingsView');
 const PlacementTest = lazyNamed(() => import('./components/PlacementTest'), 'PlacementTest');
 const FirstLaunchGreeting = lazyNamed(() => import('./components/home/FirstLaunchGreeting'), 'FirstLaunchGreeting');
 const ProfileTour = lazyNamed(() => import('./components/tutorial/ProfileTour'), 'ProfileTour');
@@ -358,20 +359,27 @@ export function App() {
     );
   }
 
-  if (!profile.isOnboarded || isEditingOnboarding) {
+  if (!profile.isOnboarded) {
     return (
       <Suspense fallback={<ScreenLoading />}>
       <OnboardingView
         initialProfile={profile}
         onComplete={(updated) => {
-          const isFirstOnboarding = !profile.isOnboarded;
           handleUpdateProfile(updated);
-          setIsEditingOnboarding(false);
-          setIsOfferingPlacement(isFirstOnboarding);
+          setIsOfferingPlacement(true);
         }}
-        onCancel={
-          profile.isOnboarded ? () => setIsEditingOnboarding(false) : undefined
-        }
+      />
+      </Suspense>
+    );
+  }
+
+  if (isEditingOnboarding) {
+    return (
+      <Suspense fallback={<ScreenLoading />}>
+      <SettingsView
+        profile={profile}
+        onProfileChange={handleUpdateProfile}
+        onClose={() => setIsEditingOnboarding(false)}
         onSignOut={signOutAfterSaving}
         onDeleteAccount={deleteAccountAfterSaving}
       />

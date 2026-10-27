@@ -1,0 +1,132 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
+import { makeProfile } from '../../test/fixtures';
+import { SettingsView } from './SettingsView';
+
+vi.mock('../../services/firebase', () => ({
+  auth: { currentUser: null },
+  isFirebaseConfigured: false,
+  getAppCheckToken: async () => null,
+}));
+vi.mock('./AccountPrivacyCard', () => ({ AccountPrivacyCard: () => <div>account-card</div> }));
+vi.mock('./ParentLinkCard', () => ({ ParentLinkCard: () => <div>parent-card</div> }));
+vi.mock('./StreakReminderCard', () => ({ StreakReminderCard: () => <div>reminder-card</div> }));
+vi.mock('./VoiceLabCard', () => ({ VoiceLabCard: () => <div>voice-card</div> }));
+
+function renderSettings(overrides = {}) {
+  const onProfileChange = vi.fn();
+  const onClose = vi.fn();
+  const profile = makeProfile({ name: 'נועה', age: 14, gender: 'girl', gradeId: 'grade-8', ...overrides });
+  render(
+    <SettingsView
+      profile={profile}
+      onProfileChange={onProfileChange}
+      onClose={onClose}
+      onSignOut={async () => {}}
+      onDeleteAccount={async () => ({ ok: true, value: undefined })}
+    />
+  );
+  return { onProfileChange, onClose, profile };
+}
+
+describe('SettingsView', () => {
+  it('shows the profile tab first and no save button', () => {
+    renderSettings();
+
+    expect(screen.getByRole('tab', { name: /פרופיל/ })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tabpanel', { name: /פרופיל/ })).toBeVisible();
+    expect(screen.queryByRole('button', { name: /שמירת שינויים/ })).not.toBeInTheDocument();
+  });
+
+  it('switches tabs and shows only that tab\'s panel', async () => {
+    const user = userEvent.setup();
+    renderSettings();
+
+    await user.click(screen.getByRole('tab', { name: /חברים והורים/ }));
+
+    expect(screen.getByRole('tabpanel', { name: /חברים והורים/ })).toBeVisible();
+    expect(screen.queryByRole('tabpanel', { name: /פרופיל/ })).not.toBeInTheDocument();
+  });
+
+  it('saves a new theme at once', async () => {
+    const user = userEvent.setup();
+    const { onProfileChange } = renderSettings();
+
+    await user.click(screen.getByRole('tab', { name: /עיצוב ושבת/ }));
+    const themeButtons = screen.getAllByRole('button', { pressed: false });
+    await user.click(themeButtons[0]);
+
+    expect(onProfileChange).toHaveBeenCalledTimes(1);
+  });
+
+  it('saves a different grade from the dropdown', async () => {
+    const user = userEvent.setup();
+    const { onProfileChange } = renderSettings();
+
+    const select = screen.getByRole('combobox', { name: /שכבת לימוד/ });
+    await user.selectOptions(select, 'grade-9');
+
+    expect(onProfileChange).toHaveBeenCalledTimes(1);
+    expect(onProfileChange.mock.calls[0][0]).toMatchObject({ gradeId: 'grade-9', schoolGradeId: 'grade-9' });
+  });
+
+  it('does not save when the choice is already the saved one', async () => {
+    const user = userEvent.setup();
+    const { onProfileChange } = renderSettings();
+
+    await user.selectOptions(screen.getByRole('combobox', { name: /שכבת לימוד/ }), 'grade-8');
+
+    expect(onProfileChange).not.toHaveBeenCalled();
+  });
+
+  it('does not save an empty name and says why', async () => {
+    const user = userEvent.setup();
+    const { onProfileChange } = renderSettings();
+
+    const nameInput = screen.getByRole('textbox');
+    await user.clear(nameInput);
+    await user.tab();
+
+    expect(onProfileChange).not.toHaveBeenCalled();
+    expect(screen.getByText(/כתבי את השם שלך/)).toBeInTheDocument();
+  });
+
+  it('saves a changed name when the field loses focus', async () => {
+    const user = userEvent.setup();
+    const { onProfileChange } = renderSettings();
+
+    const nameInput = screen.getByRole('textbox');
+    await user.clear(nameInput);
+    await user.type(nameInput, 'מיכל');
+    await user.tab();
+
+    expect(onProfileChange).toHaveBeenCalledTimes(1);
+    expect(onProfileChange.mock.calls[0][0]).toMatchObject({ name: 'מיכל' });
+  });
+
+  it('waits for a parent before turning the friends hub on for a child', async () => {
+    const user = userEvent.setup();
+    const { onProfileChange } = renderSettings({ age: 10 });
+
+    await user.click(screen.getByRole('tab', { name: /חברים והורים/ }));
+    await user.click(screen.getByRole('button', { name: /מרכז החברים כבוי/ }));
+    expect(onProfileChange).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('checkbox', { name: /אני הורה ומאשר/ }));
+    expect(onProfileChange).toHaveBeenCalledTimes(1);
+  });
+
+  it('saves a pending name before going back', async () => {
+    const user = userEvent.setup();
+    const { onProfileChange, onClose } = renderSettings();
+
+    const nameInput = screen.getByRole('textbox');
+    await user.clear(nameInput);
+    await user.type(nameInput, 'דנה');
+    await user.click(screen.getByRole('button', { name: 'חזרה לדשבורד' }));
+
+    expect(onProfileChange).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalled();
+  });
+});
