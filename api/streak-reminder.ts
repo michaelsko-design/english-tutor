@@ -8,7 +8,7 @@
  */
 import webpush from 'web-push';
 import { createFirestoreAdmin, type FirestoreAdmin, type PlainDocument } from './_lib/firestoreAdmin.js';
-import { parseServiceAccount } from './_lib/googleAdmin.js';
+import { AdminError, parseServiceAccount } from './_lib/googleAdmin.js';
 import {
   buildReminderMessage,
   getReminderKind,
@@ -112,8 +112,9 @@ export async function handleStreakReminderRequest(
         }
       }
     }
-  } catch {
-    console.error('streak-reminder: could not read subscriptions');
+  } catch (error) {
+    // Only the failing step and status are logged: never the key or the token.
+    console.error(`streak-reminder: could not read subscriptions (${error instanceof AdminError ? `${error.message}, status ${error.status}` : 'unexpected'})`);
     return jsonResponse(502, { error: 'Reminder run failed' });
   }
 
