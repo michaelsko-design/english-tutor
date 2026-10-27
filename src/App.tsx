@@ -18,6 +18,7 @@ import { createProfileSaveQueue } from './services/profileSaveQueue';
 import { getDeviceId } from './utils/deviceId';
 import { DashboardView } from './components/DashboardView';
 import { AuthModal } from './components/AuthModal';
+import { AppLogo } from './components/AppLogo';
 import { applyPlacementToProfile } from './data/placementTest';
 import { recordActivityLog } from './data/activityLog';
 import { getFirstLaunchSteps } from './data/homeBase';
@@ -319,11 +320,7 @@ export function App() {
         className={`min-h-screen w-full ${activeTheme.pageBgClass} flex items-center justify-center p-6`}
       >
         <div className="text-center space-y-3">
-          <div
-            className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl ${activeTheme.primaryBtnClass} animate-bounce`}
-          >
-            {activeTheme.avatarEmoji}
-          </div>
+          <AppLogo size={80} className="mx-auto shadow-xl animate-bounce" />
           <p className="font-extrabold text-sm md:text-base">
             בודק חיבור לחשבון...
           </p>

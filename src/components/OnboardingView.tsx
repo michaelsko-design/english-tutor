@@ -164,13 +164,8 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
 
         {/* Header */}
         <div className="text-center space-y-1.5">
-          <div
-            className={`w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl ${activeTheme.primaryBtnClass} animate-float`}
-          >
-            {activeTheme.avatarEmoji}
-          </div>
-          <div className="inline-flex items-center gap-1.5 ps-1 pe-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300">
-            <AppLogo size={20} />
+          <AppLogo size={64} className="mx-auto shadow-lg animate-float" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300">
             <span>{APP_NAME}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
