@@ -5,6 +5,7 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { isEverySlotFilled, placeLetter, takeBackLetter, toSlots } from '../../utils/letterSlots';
 import { playSfx } from '../../utils/sfx';
 import { useSpeechToggle } from '../../hooks/useSpeech';
+import { getLetterNameSpeech } from '../../data/alphabet';
 import { SpeakIcon, STOP_SPEECH_TEXT } from '../SpeakIcon';
 import { LetterSlot, useLetterSlotDrag } from './letterSlotDrag';
 import { DraggableMagnet, MAGNET_BANK_ID, MagnetDragOverlay, MagnetDropZone } from './magnetDrag';
@@ -28,6 +29,10 @@ interface SpellingMagnetDrillProps {
   listenEn: string;
   listenRate: number;
   onSpeakEnglish: (text: string, rate?: number) => void;
+  /** Grade 1 blending: tapping a tile also says the letter's name (a clip), for learners who can't read it yet */
+  speaksLetters?: boolean;
+  /** False when the question card already has the 🔊 that reads the word */
+  hasListenButton?: boolean;
   theme: ThemeDefinition;
 }
 
@@ -50,9 +55,14 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
   listenEn,
   listenRate,
   onSpeakEnglish,
+  speaksLetters = false,
+  hasListenButton = true,
   theme,
 }) => {
   const listenSpeech = useSpeechToggle(onSpeakEnglish, listenEn, listenRate);
+  const speakLetter = (letter: string) => {
+    if (speaksLetters && SPELLED_CHAR.test(letter)) onSpeakEnglish(getLetterNameSpeech(letter));
+  };
   const slotCount = letterTiles.length;
   const filledSlots = toSlots(slots, slotCount);
   const drag = useLetterSlotDrag({
@@ -67,12 +77,14 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
   const handleTapBank = (tileIdx: number) => {
     if (drag.shouldIgnoreClick()) return;
     playSfx('tap');
+    speakLetter(letterTiles[tileIdx] ?? '');
     onChangeSlots(placeLetter(filledSlots, slotCount, tileIdx));
   };
 
   const handleTapPlaced = (tileIdx: number) => {
     if (drag.shouldIgnoreClick()) return;
     playSfx('tap');
+    speakLetter(letterTiles[tileIdx] ?? '');
     onChangeSlots(takeBackLetter(filledSlots, slotCount, tileIdx));
   };
 
@@ -118,17 +130,21 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
   return (
     <DndContext {...drag.contextProps}>
       <div className="space-y-3 sm:space-y-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <Button theme={theme} variant="secondary" onClick={listenSpeech.toggle}>
-            <SpeakIcon isSpeaking={listenSpeech.isSpeaking} />
-            <span>{listenSpeech.isSpeaking ? STOP_SPEECH_TEXT : '🔊 האזנה למילה'}</span>
-          </Button>
-          {translationHe && (
-            <span className="text-sm font-bold opacity-85">
-              פירוש: &ldquo;{translationHe}&rdquo;
-            </span>
-          )}
-        </div>
+        {(hasListenButton || translationHe) && (
+          <div className="flex flex-wrap items-center gap-3">
+            {hasListenButton && (
+              <Button theme={theme} variant="secondary" onClick={listenSpeech.toggle}>
+                <SpeakIcon isSpeaking={listenSpeech.isSpeaking} />
+                <span>{listenSpeech.isSpeaking ? STOP_SPEECH_TEXT : '🔊 האזנה למילה'}</span>
+              </Button>
+            )}
+            {translationHe && (
+              <span className="text-sm font-bold opacity-85">
+                פירוש: &ldquo;{translationHe}&rdquo;
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Letter slots */}
         <div

@@ -659,6 +659,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     listenEn={currentStep.targetSentenceEn}
                     listenRate={0.7}
                     onSpeakEnglish={onSpeakEnglish}
+                    speaksLetters
+                    hasListenButton={false}
                     theme={theme}
                   />
                 )}
