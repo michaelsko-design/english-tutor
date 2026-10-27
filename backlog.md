@@ -13,12 +13,15 @@
 - [ ] **Retire the old Firebase API key** - The old browser key (`AIzaSyAXCk…`) is still unrestricted and still works against this project. Find which of the other projects (Maps APIs showed active usage) use it, move them to their own keys, then restrict or delete it.
 - [ ] **Domain and Email update** - After buying a domain - update the contact email in the privacy notice.
 
-### Features
+### Content
 
 - [ ] **Publish the new seasons** - Remember to publish the new seasons once the decision is made. Release them through `RELEASED_CONTENT_PACKS` and the three `RELEASED_PACK_*` maps (`docs/architecture.md` §4.26), confirm their clips are uploaded and in the manifest, then check them on desktop and phone before they go live.
+- [ ] **Summer vacation season content** - Special content for the summer break, at the transition between grades: a recap of the grade just finished, a "getting ready for the next grade" preview, and special summer games and content (kept out of the normal mission path until the season, like the content packs).
+
+### Features
+
 - [ ] **Vibe-o-meter** - A 0-100% gauge derived from `profile.activityLog` (no stored field, no sync change): it fills with recent practice and cools gently when days go quiet (Shabbat and shielded days count as active). It never removes points or levels, and its copy is encouraging, not punishing.
 - [ ] **Daily streak reminders** - Web-native daily reminders without migrating to a native app: Web Push notifications via `public/sw.js` + VAPID keys (with an iOS "Add to Home Screen" guide), a scheduled Vercel Cron job that checks `streakLastDateStr` and respects `isShabbatObserver` (skipping Friday/Shabbat), optional parent/learner email streak-saver & Sunday weekly report emails via Resend, and a 1-tap `.ics` / Google Calendar recurring reminder option.
-- [ ] **Summer vacation season content** - Special content for the summer break, at the transition between grades: a recap of the grade just finished, a "getting ready for the next grade" preview, and special summer games and content (kept out of the normal mission path until the season, like the content packs).
 - [ ] **Pro tier and payments plan** - Define the Freemium vs. "EnglishVibe Pro" / one-time "Exam Booster Pass" tier boundaries (keeping Unit 1, Placement Test and Friends Hub free while gating full curriculum, unlimited Exam Prep / Mock Exams and unlimited School Word Lists), design the kid-safe "Ask a Parent on WhatsApp" payment link flow (use the parent pairing code, `/?parent=<code>`, not the learner's uid; the payer is the paired parent account, and entitlements are written by the server to `entitlements/{childUid}`), and plan integration with an Israeli payment gateway (Bit / Apple Pay / Google Pay + automatic tax invoices via Grow/PayPlus/Morning) and server-verified Firestore subscription status. Also create a coupon system for discounts, promotions etc.
 - [ ] **Self-issued PIN recovery code** (low priority) - A child with no parent can save a recovery code from settings and later set a new PIN with username + code (`api/recover-pin.ts`: look up the uid via `usernames/{slug}`, constant-time hash compare, rotate the code). Needs the same `FIREBASE_SERVICE_ACCOUNT_JSON` as the parent PIN reset, plus a Firestore-backed attempt limit per username because the call is unauthenticated. Until then an unpaired child who forgets the PIN and has no linked Google account still needs `scripts/resetLearnerPin.mjs`.
 
