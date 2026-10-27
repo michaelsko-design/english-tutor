@@ -24,6 +24,7 @@ import { getFirstLaunchSteps } from './data/homeBase';
 import { THEME_REGISTRY } from './themes/themeRegistry';
 import { useFriendPresence } from './hooks/useFriendPresence';
 import { useReportSnapshotPublisher } from './hooks/useReportSnapshotPublisher';
+import { useReminderSync } from './hooks/useReminderSync';
 import { useStickerImageSync } from './hooks/useStickerImageSync';
 import { usePendingInvite } from './hooks/usePendingInvite';
 import { CloudLoadErrorScreen } from './components/CloudLoadErrorScreen';
@@ -310,6 +311,7 @@ export function App() {
   });
 
   useReportSnapshotPublisher({ authUser, profile, isSynced: !isAuthInitializing && syncStatus === 'synced' });
+  useReminderSync({ authUser, profile, isSynced: !isAuthInitializing && syncStatus === 'synced' });
 
   if (isAuthInitializing) {
     return (

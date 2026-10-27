@@ -107,3 +107,32 @@ self.addEventListener('fetch', (event) => {
       .catch(() => caches.match(request).then((cached) => cached || Response.error()))
   );
 });
+
+// Streak reminder (api/streak-reminder.ts): a Hebrew notification; a tap opens or focuses the app.
+self.addEventListener('push', (event) => {
+  let message = { title: 'EnglishVibe', body: '' };
+  try {
+    message = { ...message, ...event.data.json() };
+  } catch {
+    // An unreadable payload still shows the plain title.
+  }
+  event.waitUntil(
+    self.registration.showNotification(message.title, {
+      body: message.body,
+      icon: '/apple-touch-icon.png',
+      lang: 'he',
+      dir: 'rtl',
+      tag: 'streak-reminder',
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+      const open = windows.find((w) => new URL(w.url).origin === self.location.origin);
+      return open ? open.focus() : self.clients.openWindow('/');
+    })
+  );
+});

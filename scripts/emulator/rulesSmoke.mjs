@@ -166,5 +166,30 @@ await expect('a parent can mark their own account', true, () =>
   setDoc(doc(b.db, 'parents', ub.uid), { createdAt: new Date().toISOString() }));
 await deleteDoc(doc(b.db, 'parents', ub.uid)).catch(() => {});
 
+// Streak reminder subscriptions: owner only, strict fields
+const pushSub = (extra = {}) => ({
+  endpoint: 'https://push.example/abc',
+  p256dh: 'key',
+  auth: 'auth',
+  streakDays: 3,
+  streakLastDateStr: '2026-10-26',
+  isShabbatObserver: true,
+  gender: 'girl',
+  updatedAt: new Date().toISOString(),
+  ...extra,
+});
+await expect('the learner can save a reminder subscription', true, () =>
+  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub()));
+await expect('a subscription with an extra field is denied', false, () =>
+  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ email: 'x@y.z' })));
+await expect('a subscription with a non-https endpoint is denied', false, () =>
+  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ endpoint: 'http://push.example/abc' })));
+await expect('a subscription with a stray remindHour is denied', false, () =>
+  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ remindHour: 18 })));
+await expect('another user cannot read a subscription', false, () => getDoc(doc(b.db, 'pushSubscriptions', ua.uid)));
+await expect('another user cannot write a subscription', false, () =>
+  setDoc(doc(b.db, 'pushSubscriptions', ua.uid), pushSub()));
+await expect('the learner can delete their subscription', true, () => deleteDoc(doc(a.db, 'pushSubscriptions', ua.uid)));
+
 for (const [status, label, detail] of results) console.log(`${status}  ${label}${detail ? `  (${detail})` : ''}`);
 process.exit(results.some(([s]) => s === 'FAIL') ? 1 : 0);

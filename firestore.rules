@@ -429,5 +429,28 @@ service cloud.firestore {
         && isReportSnapshot(request.resource.data);
       allow delete: if isRealAccount() && request.auth.uid == childUid;
     }
+
+    // Streak reminder: the learner's Web Push subscription plus the streak facts the daily cron needs
+    // (src/services/push/pushSubscription.ts). Only the cron (service account) reads it besides the owner.
+    function isPushSubscription(data) {
+      return data.keys().hasOnly(['endpoint', 'p256dh', 'auth', 'streakDays', 'streakLastDateStr',
+          'isShabbatObserver', 'gender', 'updatedAt'])
+        && data.keys().hasAll(['endpoint', 'p256dh', 'auth', 'streakDays', 'isShabbatObserver', 'updatedAt'])
+        && data.endpoint is string && data.endpoint.matches('https://.*') && data.endpoint.size() <= 600
+        && isShortString(data.p256dh, 200)
+        && isShortString(data.auth, 100)
+        && isCount(data.streakDays)
+        && (!('streakLastDateStr' in data) || data.streakLastDateStr.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}'))
+        && data.isShabbatObserver is bool
+        && (!('gender' in data) || data.gender in ['girl', 'boy'])
+        && isIsoTime(data.updatedAt);
+    }
+
+    match /pushSubscriptions/{userId} {
+      allow read, delete: if isRealAccount() && request.auth.uid == userId;
+      allow create, update: if isRealAccount()
+        && request.auth.uid == userId
+        && isPushSubscription(request.resource.data);
+    }
   }
 }

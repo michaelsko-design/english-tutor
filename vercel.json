@@ -11,8 +11,17 @@
     },
     "api/parent-reset-pin.ts": {
       "maxDuration": 10
+    },
+    "api/streak-reminder.ts": {
+      "maxDuration": 60
     }
   },
+  "crons": [
+    {
+      "path": "/api/streak-reminder",
+      "schedule": "0 12 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

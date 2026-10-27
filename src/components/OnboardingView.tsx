@@ -26,6 +26,7 @@ import {
 } from '../data/friends';
 import { AccountPrivacyCard } from './settings/AccountPrivacyCard';
 import { ParentLinkCard } from './settings/ParentLinkCard';
+import { StreakReminderCard } from './settings/StreakReminderCard';
 import { PrivacyNoticeDialog } from './privacy/PrivacyNoticeDialog';
 import { auth } from '../services/firebase';
 import type { AccountResult } from '../services/accountService';
@@ -517,6 +518,14 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                 ))}
               </div>
               <VoiceLabCard voicePreference={voicePreference} theme={activeTheme} />
+            </div>
+          )}
+
+          {/* 7b. The optional daily streak reminder, in the settings only */}
+          {onCancel && (
+            <div className="space-y-1.5 lg:col-span-2">
+              <span className="block text-xs sm:text-sm font-bold">תזכורת יומית:</span>
+              <StreakReminderCard profile={initialProfile} theme={activeTheme} />
             </div>
           )}
 

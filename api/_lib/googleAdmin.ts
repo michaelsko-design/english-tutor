@@ -77,11 +77,11 @@ export interface AuthUserInfo {
   providerIds: string[];
 }
 
-/** The Firebase Auth operations the PIN reset needs. */
-export function createAuthAdmin(account: ServiceAccount, projectId: string, { fetchImpl = fetch, nowMs = Date.now }: AdminDeps = {}) {
+/** Returns a function that gives the service account's OAuth access token, renewed shortly before it expires. */
+export function createAccessTokenProvider(account: ServiceAccount, { fetchImpl = fetch, nowMs = Date.now }: AdminDeps = {}) {
   let cached: { token: string; expiresAtMs: number } | null = null;
 
-  async function getAccessToken(): Promise<string> {
+  return async function getAccessToken(): Promise<string> {
     if (cached && nowMs() < cached.expiresAtMs) return cached.token;
     const assertion = await signServiceAccountJwt(account, Math.floor(nowMs() / 1000));
     const response = await fetchImpl(TOKEN_URL, {
@@ -94,7 +94,12 @@ export function createAuthAdmin(account: ServiceAccount, projectId: string, { fe
     if (!body.access_token) throw new AdminError('Service account token missing', 502);
     cached = { token: body.access_token, expiresAtMs: nowMs() + ((body.expires_in ?? JWT_LIFETIME_S) - RENEW_MARGIN_S) * 1000 };
     return body.access_token;
-  }
+  };
+}
+
+/** The Firebase Auth operations the PIN reset needs. */
+export function createAuthAdmin(account: ServiceAccount, projectId: string, { fetchImpl = fetch, nowMs = Date.now }: AdminDeps = {}) {
+  const getAccessToken = createAccessTokenProvider(account, { fetchImpl, nowMs });
 
   async function call(path: string, body: unknown): Promise<Response> {
     const token = await getAccessToken();
