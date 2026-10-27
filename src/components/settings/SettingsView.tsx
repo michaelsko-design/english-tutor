@@ -172,7 +172,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     'aria-labelledby': tabButtonId(idPrefix, id),
     // Every panel sits in the same grid cell, so the card is as tall as the tallest tab
     'aria-hidden': activeTab !== id,
-    className: `space-y-5 [grid-area:1/1] ${activeTab === id ? '' : 'invisible'}`,
+    // Transparent, not display:none or visibility:hidden: the browser keeps the hidden tabs'
+    // pictures painted and decoded, so a tab appears at once. `inert` keeps them out of reach.
+    ref: (el: HTMLDivElement | null) => {
+      if (el) el.inert = activeTab !== id;
+    },
+    className: `space-y-5 [grid-area:1/1] ${activeTab === id ? '' : 'opacity-0 pointer-events-none'}`,
   });
 
   return (
