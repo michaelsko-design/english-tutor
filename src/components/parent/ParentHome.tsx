@@ -1,6 +1,14 @@
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import { User } from 'firebase/auth';
-import { ParentInvite, ParentLink, maskParentEmail, normalizeParentCode, snapshotToProfile } from '../../data/parentLink';
+import {
+  ChildGlance,
+  ParentInvite,
+  ParentLink,
+  buildChildGlance,
+  maskParentEmail,
+  normalizeParentCode,
+  snapshotToProfile,
+} from '../../data/parentLink';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import {
@@ -14,6 +22,7 @@ import { getTtsService } from '../../services/tts';
 import { toLocalDateStr } from '../../utils/dates';
 import { lazyNamed } from '../../utils/lazyNamed';
 import { ScreenLoading } from '../ScreenLoading';
+import { ChildCard } from './ChildCard';
 import { ResetPinForm } from './ResetPinForm';
 
 const WeeklyReportScreen = lazyNamed(() => import('../progressReport/WeeklyReportScreen'), 'WeeklyReportScreen');
@@ -46,6 +55,7 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
   const [codeInput, setCodeInput] = useState('');
   const [openReport, setOpenReport] = useState<OpenReport | null>(null);
   const [resetPinFor, setResetPinFor] = useState<string | null>(null);
+  const [glances, setGlances] = useState<Record<string, ChildGlance | null>>({});
   const [isAdultConfirmed, setIsAdultConfirmed] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
@@ -63,6 +73,28 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  // Each learner's one-line summary comes from the same report snapshot as the weekly report
+  useEffect(() => {
+    if (!children?.length) return undefined;
+    let isCancelled = false;
+    const today = toLocalDateStr(new Date());
+    void Promise.all(
+      children.map(async (link): Promise<[string, ChildGlance | null]> => {
+        try {
+          const snapshot = await loadReportSnapshot(link.childUid);
+          return [link.childUid, snapshot ? buildChildGlance(snapshot, today) : null];
+        } catch {
+          return [link.childUid, null];
+        }
+      })
+    ).then((entries) => {
+      if (!isCancelled) setGlances(Object.fromEntries(entries));
+    });
+    return () => {
+      isCancelled = true;
+    };
+  }, [children]);
 
   // A code from the link or the input is looked up first, so the parent sees whose it is
   useEffect(() => {
@@ -197,39 +229,17 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
           </p>
         )}
         {children?.map((link) => (
-          <div key={link.childUid} className="space-y-2">
-            <div className="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-black/5 dark:bg-white/5">
-              <span className="font-extrabold text-sm">
-                <span aria-hidden="true">{link.childAvatar}</span> {link.childName}
-              </span>
-              <span className="flex flex-wrap justify-end gap-2">
-                <button
-                  type="button"
-                  disabled={isBusy}
-                  onClick={() => void handleOpenReport(link)}
-                  className={`${buttonClass} ${theme.primaryBtnClass}`}
-                >
-                  הדוח השבועי
-                </button>
-                <button
-                  type="button"
-                  disabled={isBusy}
-                  onClick={() => setResetPinFor(resetPinFor === link.childUid ? null : link.childUid)}
-                  aria-expanded={resetPinFor === link.childUid}
-                  className={`${buttonClass} ${theme.secondaryBtnClass}`}
-                >
-                  החלפת קוד סודי
-                </button>
-                <button
-                  type="button"
-                  disabled={isBusy}
-                  onClick={() => void handleUnlink(link)}
-                  className={`${buttonClass} border border-rose-500/50 text-rose-700 dark:text-rose-300`}
-                >
-                  ניתוק
-                </button>
-              </span>
-            </div>
+          <ChildCard
+            key={link.childUid}
+            link={link}
+            glance={glances[link.childUid]}
+            theme={theme}
+            isBusy={isBusy}
+            isResetOpen={resetPinFor === link.childUid}
+            onOpenReport={() => void handleOpenReport(link)}
+            onToggleReset={() => setResetPinFor(resetPinFor === link.childUid ? null : link.childUid)}
+            onUnlink={() => void handleUnlink(link)}
+          >
             {resetPinFor === link.childUid && (
               <ResetPinForm
                 childUid={link.childUid}
@@ -243,7 +253,7 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
                 onCancel={() => setResetPinFor(null)}
               />
             )}
-          </div>
+          </ChildCard>
         ))}
       </section>
 

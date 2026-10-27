@@ -5,6 +5,7 @@ import {
   PARENT_CODE_LENGTH,
   buildParentMessageHe,
   buildParentUrl,
+  buildChildGlance,
   buildReportSnapshot,
   generateParentCode,
   getInviteExpiry,
@@ -119,5 +120,37 @@ describe('report snapshot', () => {
     expect(snapshotContentKey(first)).toBe(snapshotContentKey(later));
     const changed = buildReportSnapshot({ ...profile, missionProgress: {} }, NOW);
     expect(snapshotContentKey(changed)).not.toBe(snapshotContentKey(first));
+  });
+});
+
+describe('child glance', () => {
+  const snapshot = (overrides: object = {}) =>
+    ({
+      name: 'נועה', gender: 'girl', gradeId: 'grade-7', preferredTier: 'explorer', isShabbatObserver: true,
+      stats: { level: 3, streakDays: 5, streakLastDateStr: '2026-03-04' }, missionProgress: {},
+      activityLog: [
+        { dateStr: '2026-02-27', sessions: 1 },
+        { dateStr: '2026-03-02', sessions: 2 },
+        { dateStr: '2026-03-03', sessions: 0 },
+        { dateStr: '2026-03-04', sessions: 1 },
+      ],
+      updatedAt: '2026-03-04T10:00:00.000Z', ...overrides,
+    }) as never;
+
+  it('counts the practice days of this week (the week starts on Sunday) and the last one', () => {
+    // 2026-03-04 is a Wednesday: the week started on 03-01
+    expect(buildChildGlance(snapshot(), '2026-03-04')).toEqual({
+      level: 3, streakDays: 5, activeDaysThisWeek: 2, daysSinceActive: 0,
+    });
+    expect(buildChildGlance(snapshot(), '2026-03-06').daysSinceActive).toBe(2);
+  });
+
+  it('ends the streak when the last streak day is more than two days back', () => {
+    expect(buildChildGlance(snapshot(), '2026-03-06').streakDays).toBe(5);
+    expect(buildChildGlance(snapshot(), '2026-03-07').streakDays).toBe(0);
+  });
+
+  it('has no last practice day for an empty log', () => {
+    expect(buildChildGlance(snapshot({ activityLog: [] }), '2026-03-04').daysSinceActive).toBeNull();
   });
 });

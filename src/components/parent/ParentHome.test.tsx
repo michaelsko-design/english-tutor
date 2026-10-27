@@ -4,6 +4,7 @@ import type { User } from 'firebase/auth';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ParentLink } from '../../data/parentLink';
 import { TEST_THEME } from '../../test/fixtures';
+import { toLocalDateStr } from '../../utils/dates';
 import { ParentHome } from './ParentHome';
 
 const parentService = vi.hoisted(() => ({
@@ -73,6 +74,29 @@ describe('ParentHome', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('הקוד לא נמצא');
     expect(screen.queryByRole('button', { name: 'אישור החיבור' })).not.toBeInTheDocument();
+  });
+
+  it('shows a stats line on each learner card, without opening the report', async () => {
+    parentService.listChildrenOfParent.mockResolvedValue([LINK]);
+    parentService.loadReportSnapshot.mockResolvedValue({
+      ...SNAPSHOT,
+      stats: { level: 4, streakDays: 6, streakLastDateStr: toLocalDateStr(new Date()) },
+      activityLog: [{ dateStr: toLocalDateStr(new Date()), sessions: 2 }],
+    });
+    renderHome();
+
+    const line = await screen.findByRole('list', { name: 'תמצית' });
+    expect(line).toHaveTextContent('6 ימים ברצף');
+    expect(line).toHaveTextContent('רמה 4');
+    expect(line).toHaveTextContent('אחרון: היום');
+  });
+
+  it('says there is no data yet for a learner without a snapshot', async () => {
+    parentService.listChildrenOfParent.mockResolvedValue([LINK]);
+    parentService.loadReportSnapshot.mockResolvedValue(null);
+    renderHome();
+
+    expect(await screen.findByText(/עוד אין נתונים/)).toBeInTheDocument();
   });
 
   it('opens the weekly report from the learner snapshot', async () => {

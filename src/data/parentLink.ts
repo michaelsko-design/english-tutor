@@ -1,4 +1,5 @@
 import { DEFAULT_PROFILE } from './defaultProfile';
+import { addDays, daysBetween, parseDateStr } from '../utils/dates';
 import { ActivityLogEntry, GradeId, LearnerGender, LearnerProfile, LearnerStats, ProficiencyTier } from '../types/learner';
 
 /**
@@ -167,6 +168,34 @@ export function snapshotToProfile(snapshot: ReportSnapshot): LearnerProfile {
 /** The snapshot without its publish time, to tell whether anything changed since the last publish. */
 export function snapshotContentKey(snapshot: ReportSnapshot): string {
   return JSON.stringify({ ...snapshot, updatedAt: '' });
+}
+
+/** A streak that skipped one day (a Shabbat, say) is still running; older than this it has ended. */
+const STREAK_GRACE_DAYS = 2;
+
+/** The few numbers a parent sees on a learner's card, without opening the weekly report. */
+export interface ChildGlance {
+  level: number;
+  /** 0 when the streak has ended */
+  streakDays: number;
+  /** Days with practice since this week's Sunday */
+  activeDaysThisWeek: number;
+  /** Days since the last practice day; null when there is none yet */
+  daysSinceActive: number | null;
+}
+
+export function buildChildGlance(snapshot: ReportSnapshot, todayStr: string): ChildGlance {
+  const weekStart = addDays(todayStr, -parseDateStr(todayStr).getDay());
+  const practiced = snapshot.activityLog.filter((entry) => entry.sessions > 0).map((entry) => entry.dateStr);
+  const lastDay = practiced.reduce<string | null>((latest, day) => (latest === null || day > latest ? day : latest), null);
+  const { streakDays, streakLastDateStr, level } = snapshot.stats;
+  const isStreakRunning = Boolean(streakLastDateStr) && daysBetween(streakLastDateStr as string, todayStr) <= STREAK_GRACE_DAYS;
+  return {
+    level,
+    streakDays: isStreakRunning ? streakDays : 0,
+    activeDaysThisWeek: new Set(practiced.filter((day) => day >= weekStart && day <= todayStr)).size,
+    daysSinceActive: lastDay === null ? null : Math.max(0, daysBetween(lastDay, todayStr)),
+  };
 }
 
 /** Fired on `window` when the learner's list of paired parents may have changed. */
