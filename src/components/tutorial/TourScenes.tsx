@@ -3,6 +3,7 @@ import { TutorialSlide, TutorialSlideId } from '../../data/appTutorial';
 import { APP_NAME } from '../../config/appInfo';
 import { getCommonArt, pickCutoutSrc } from '../../themes/themeArt';
 import { useCountUp } from '../../hooks/useCountUp';
+import { AppLogo } from '../AppLogo';
 import { ArtImage } from '../art/ArtImage';
 import { HudIcon } from '../hud/HudIcon';
 import { ProgressRing } from '../home/ProgressRing';
@@ -62,6 +63,7 @@ const WelcomeScene: React.FC = () => (
     <Sparkle emoji="⭐" className="top-8 left-8" delayMs={500} />
     <Sparkle emoji="💫" className="bottom-6 right-10" delayMs={900} />
     <Sparkle emoji="✨" className="bottom-8 left-6" delayMs={1300} />
+    <AppLogo size={64} className="animate-tour-pop shadow-lg ring-2 ring-white/40" />
     <p className="animate-tour-pop text-4xl font-black text-white drop-shadow-lg" dir="ltr" lang="en" style={popDelay(0)}>
       {APP_NAME}
     </p>

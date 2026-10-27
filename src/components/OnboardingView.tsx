@@ -9,7 +9,7 @@ import {
 } from '../types/learner';
 import { THEME_REGISTRY } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
-import { Sparkles, UserCheck, GraduationCap, Palette, ShieldCheck, Users, Volume2, X } from 'lucide-react';
+import { UserCheck, GraduationCap, Palette, ShieldCheck, Users, Volume2, X } from 'lucide-react';
 import { DEFAULT_VOICE_PREFERENCE, type VoicePreference } from '../utils/ttsVoice';
 import { VoiceLabCard } from './settings/VoiceLabCard';
 
@@ -32,6 +32,7 @@ import { auth } from '../services/firebase';
 import type { AccountResult } from '../services/accountService';
 import { usernameFromEmail } from '../utils/username';
 import { APP_NAME } from '../config/appInfo';
+import { AppLogo } from './AppLogo';
 import { Button } from './ui/Button';
 import { Companion } from './companion/Companion';
 
@@ -168,8 +169,8 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           >
             {activeTheme.avatarEmoji}
           </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 ps-1 pe-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300">
+            <AppLogo size={20} />
             <span>{APP_NAME}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">

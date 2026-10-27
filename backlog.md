@@ -5,9 +5,8 @@
 
 ### UI
 
-- [ ] **UI** - Introduce the EnglishVibe app icon everywhere applicable.
 - [ ] **UI** - Think about introducing another theme that will fit better for older students (not so much "kid-like" as the current themes).
-- [ ] **UI** - Create a short 20 seconds video animation with natural language hebrew narrations that will be used as an add for this app, targeted at both children and parents.
+- [ ] **UI** - Create a short 20 seconds video animation with natural language hebrew narrations that will be used as an ad for this app, targeted at both children and parents.
 
 ### Technical
 
@@ -32,6 +31,7 @@
 
 
 ## Completed Features
+- [x] **App icon everywhere** - The new round EnglishVibe icon (yellow "E" with headphones on purple) replaces the old one: favicon (`favicon-32.png`, `icon-192.png`), PWA manifest icons (round "any" 192/512 plus full-bleed maskable 192/512 with the art inside the 80% safe zone), `apple-touch-icon.png` (also the push-notification icon), and `theme-color` / manifest `theme_color` `#5d489c`, plus `og:title`/`og:image` tags. In the app the `AppLogo` component shows it in the onboarding header pill, the tour welcome scene and the mandatory sign-in modal. The old `favicon.svg` is gone and the service worker precache lists `favicon-32.png`.
 - [x] **Daily streak reminders** - ~~Web Push notifications via `public/sw.js` + VAPID keys, with an iOS "Add to Home Screen" guide~~ ~~a scheduled Vercel Cron job that checks `streakLastDateStr` and respects `isShabbatObserver`~~ ~~a 1-tap `.ics` / Google Calendar recurring reminder~~. Done (`docs/architecture.md` §4.27): Settings → "תזכורת יומית לרצף" turns on a push at about 15:00 Israel time (one Vercel Cron run a day, works on the Hobby plan; no per-learner hour) on every day the learner hasn't practised yet, never on Friday/Shabbat for Shabbat observers: "keep going" with a live streak, otherwise "it's been a while, just 5 minutes". Before it works live: set `VITE_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `CRON_SECRET` in Vercel and deploy `firestore.rules`. The email part moved to its own item above.
 - [x] **Grade 1 letter missions: audio** - In the grade 1 letters missions (units 1–4) there is no way to hear the letters in the answer options, and there are two redundant 🔊 buttons that both read the English word in the question. Make every letter answer option listenable (as the other answer options are), and keep one 🔊 for the question's English word.
 - [x] **Parent view and PIN recovery** - Optional parent accounts (`docs/architecture.md` §4.21). A learner never needs a parent: Settings → "הורים" (and a closable home card) makes a one-time code or `/?parent=CODE` link; a parent signs in with their own Google account at `/?parent`, confirms whose code it is, and reads the weekly report (a small snapshot the learner's app publishes only while a parent is linked: no age, school, journal or messages). Either side can unlink; account deletion removes the links, code and snapshot; the privacy notice covers it. PIN recovery: Settings → "החלפת קוד סודי" (Google can confirm when the old PIN is forgotten) and a paired parent can set the learner's PIN (`api/parent-reset-pin.ts`, service-account password change; needs `FIREBASE_SERVICE_ACCOUNT_JSON` in Vercel). Firestore rules for `parentInvites`, `parentLinks`, `parents` and `reportSnapshots` are deployed and covered by the rules smoke test; unit, component and Playwright tests cover the flow (the real Google popup is only checked by hand). The Pro tier plan below now uses the parent pairing code and a server-written `entitlements/{childUid}`.

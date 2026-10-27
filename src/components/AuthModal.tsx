@@ -19,6 +19,7 @@ import { ThemeDefinition } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
 import { normalizeIdentifierToEmail, usernameFromEmail } from '../utils/username';
 import { APP_NAME } from '../config/appInfo';
+import { AppLogo } from './AppLogo';
 import { saveGuestWithGoogle, saveGuestWithUsername } from '../services/accountService';
 import { PrivacyNoticeDialog } from './privacy/PrivacyNoticeDialog';
 import {
@@ -260,7 +261,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div
               className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl ${theme.primaryBtnClass}`}
             >
-              {syncStatus === 'synced' ? (
+              {isMandatory && !authUser ? (
+                <AppLogo size={36} />
+              ) : syncStatus === 'synced' ? (
                 <Cloud className="w-5 h-5" />
               ) : (
                 <LogIn className="w-5 h-5" />

@@ -399,7 +399,7 @@ Optional, per device. Part of the backlog item "Daily streak reminders"; the Res
 ```text
 ├── api/                    # Vercel Functions: tts.ts (online Azure voice, signed-in learners only), _lib/azureTts.ts (SSML & Azure call, shared with scripts/tts), _lib/firebaseToken.ts (ID token check)
 ├── docs/                   # tts-evaluation.md (read-aloud voice decision)
-├── public/                 # Static assets & favicon; tts/ (rendered read-aloud clips + manifest.json, see 4.20); sfx/ (Kenney CC0 sounds + CREDITS.md), art/icons/ (drawn icons, see 4.17), art/<theme>/ etc. (generated WebP art, see 4.17)
+├── public/                 # Static assets & the round app icon (icon-192/512, favicon-32, apple-touch-icon, icon-maskable-*; `AppLogo` shows it in-app); tts/ (rendered read-aloud clips + manifest.json, see 4.20); sfx/ (Kenney CC0 sounds + CREDITS.md), art/icons/ (drawn icons, see 4.17), art/<theme>/ etc. (generated WebP art, see 4.17)
 ├── scripts/                # process_art.py (art-src/ -> public/art/ WebP pipeline), cutout_companion.py (one theme's poses), tts/ (read-aloud corpus, clip render & check), emulator/rulesSmoke.mjs (firestore.rules check against the emulators)
 ├── src/
 │   ├── components/         # React UI Components

@@ -16,7 +16,7 @@ const APP_SHELL = [
   '/manifest.webmanifest',
   '/icon-192.png',
   '/icon-512.png',
-  '/favicon.svg',
+  '/favicon-32.png',
 ];
 
 self.addEventListener('install', (event) => {
