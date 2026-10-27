@@ -71,6 +71,33 @@ async function isParentLinked(
   return response.status === 200;
 }
 
+/**
+ * Leaves the reset time on the link, as the parent (the rules allow only that field), so the
+ * learner's app can tell them. Done before the change: a reset is never made without a notice.
+ */
+async function recordPinReset(
+  parentUid: string,
+  childUid: string,
+  idToken: string,
+  appCheckToken: string,
+  projectId: string,
+  fetchImpl: typeof fetch
+): Promise<boolean> {
+  const url =
+    `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/parentLinks/${parentUid}_${childUid}` +
+    '?updateMask.fieldPaths=pinResetAt&currentDocument.exists=true';
+  const response = await fetchImpl(url, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+      'Content-Type': 'application/json',
+      ...(appCheckToken ? { [APP_CHECK_HEADER]: appCheckToken } : {}),
+    },
+    body: JSON.stringify({ fields: { pinResetAt: { stringValue: new Date().toISOString() } } }),
+  });
+  return response.status === 200;
+}
+
 export async function handleResetPinRequest(
   request: Request,
   env: Record<string, string | undefined>,
@@ -110,6 +137,9 @@ export async function handleResetPinRequest(
     const child: AuthUserInfo | null = await admin.lookupUser(body.childUid);
     if (!child) return errorResponse(404, 'Learner not found');
     if (!child.providerIds.includes('password')) return errorResponse(409, 'This learner signs in with Google, not a PIN');
+    if (!(await recordPinReset(claims.uid, body.childUid, idToken, appCheckToken, projectId, fetchImpl))) {
+      return errorResponse(502, 'PIN reset failed');
+    }
     await admin.setPassword(body.childUid, body.newPin);
     return jsonResponse(200, { ok: true });
   } catch (error) {

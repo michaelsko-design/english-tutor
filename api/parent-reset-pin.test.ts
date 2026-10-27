@@ -18,7 +18,9 @@ function makeRequest(body: unknown, headers: Record<string, string> = { 'X-Fireb
 }
 
 function setup(overrides: { linkStatus?: number; user?: { uid: string; providerIds: string[] } | null; verify?: boolean } = {}) {
-  const fetchImpl = vi.fn(async () => new Response('{}', { status: overrides.linkStatus ?? 200 }));
+  const fetchImpl = vi.fn<(url?: unknown, init?: RequestInit) => Promise<Response>>(
+    async () => new Response('{}', { status: overrides.linkStatus ?? 200 })
+  );
   const admin = {
     lookupUser: vi.fn(async () => (overrides.user === undefined ? { uid: 'child1', providerIds: ['password'] } : overrides.user)),
     setPassword: vi.fn(async () => {}),
@@ -45,6 +47,35 @@ describe('handleResetPinRequest', () => {
     const [url, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toContain('/documents/parentLinks/parent1_child1');
     expect(init.headers).toMatchObject({ Authorization: `Bearer ${idToken('parent1')}`, 'X-Firebase-AppCheck': 'ac' });
+  });
+
+  it('leaves a reset time on the link, as the parent, before it changes the PIN', async () => {
+    const { fetchImpl, admin, deps } = setup();
+    const order: string[] = [];
+    fetchImpl.mockImplementation(async (_url: unknown, init?: RequestInit) => {
+      if (init?.method === 'PATCH') order.push('notice');
+      return new Response('{}', { status: 200 });
+    });
+    admin.setPassword.mockImplementation(async () => {
+      order.push('password');
+    });
+
+    await handleResetPinRequest(makeRequest(VALID), ENV, deps);
+
+    const patch = (fetchImpl.mock.calls as unknown as [string, RequestInit][]).find(([, init]) => init?.method === 'PATCH');
+    expect(patch?.[0]).toContain('/documents/parentLinks/parent1_child1?updateMask.fieldPaths=pinResetAt');
+    expect(patch?.[1].headers).toMatchObject({ Authorization: `Bearer ${idToken('parent1')}` });
+    expect(order).toEqual(['notice', 'password']);
+  });
+
+  it('does not change the PIN when the notice could not be recorded', async () => {
+    const { fetchImpl, admin, deps } = setup();
+    fetchImpl.mockImplementation(async (_url: unknown, init?: RequestInit) => new Response('{}', { status: init?.method === 'PATCH' ? 403 : 200 }));
+
+    const response = await handleResetPinRequest(makeRequest(VALID), ENV, deps);
+
+    expect(response.status).toBe(502);
+    expect(admin.setPassword).not.toHaveBeenCalled();
   });
 
   it('refuses anything but POST', async () => {

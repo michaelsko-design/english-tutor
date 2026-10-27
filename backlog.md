@@ -5,6 +5,7 @@
 
 ### UI
 
+- [ ] **UI** - the settings screen is very long and cluttered. split it into tabs, auto save changes so no need for the save button, change the way the grade is selected (maybe a dropdown list instead of all the grades cards open.
 - [ ] **UI** - Think about introducing another theme that will fit better for older students (not so much "kid-like" as the current themes).
 - [ ] **UI** - Create a short 20 seconds video animation with natural language hebrew narrations that will be used as an ad for this app, targeted at both children and parents.
 

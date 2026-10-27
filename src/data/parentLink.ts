@@ -60,6 +60,8 @@ export interface ParentLink {
   linkedAt: string;
   /** The parent's masked email, shown to the learner (missing on links made before it existed) */
   parentLabel?: string;
+  /** ISO time of the parent's latest PIN reset, written by api/parent-reset-pin */
+  pinResetAt?: string;
 }
 
 export function generateParentCode(randomBytes: (length: number) => Uint8Array = defaultRandomBytes): string {

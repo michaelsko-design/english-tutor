@@ -384,6 +384,12 @@ service cloud.firestore {
       allow read: if isRealAccount()
         && (request.auth.uid == resource.data.parentUid || request.auth.uid == resource.data.childUid);
       allow create: if isRealAccount() && isNewParentLink(request.resource.data, linkId);
+      // The parent's PIN reset (api/parent-reset-pin, with the parent's token) leaves a time on the
+      // link, which the learner's app shows as a notice. Nothing else on the link can change.
+      allow update: if isRealAccount()
+        && request.auth.uid == resource.data.parentUid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pinResetAt'])
+        && isIsoTime(request.resource.data.pinResetAt);
       // Either side can end the link
       allow delete: if isRealAccount()
         && (request.auth.uid == resource.data.parentUid || request.auth.uid == resource.data.childUid);

@@ -6,7 +6,7 @@
 import { initializeApp } from 'firebase/app';
 import { connectAuthEmulator, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import {
-  connectFirestoreEmulator, deleteDoc, doc, getDoc, getFirestore, setDoc, writeBatch,
+  connectFirestoreEmulator, deleteDoc, doc, getDoc, getFirestore, setDoc, updateDoc, writeBatch,
 } from 'firebase/firestore';
 
 const PIN = process.env.EMU_PIN || 'emu-test-1234';
@@ -160,6 +160,16 @@ await expect('a snapshot with extra fields is denied', false, () =>
 await expect('a parent cannot write a snapshot', false, () => setDoc(doc(b.db, 'reportSnapshots', ua.uid), snapshot()));
 await expect('the linked parent can read the snapshot', true, () => getDoc(doc(b.db, 'reportSnapshots', ua.uid)));
 await expect('the learner profile stays unreadable by the parent', false, () => getDoc(doc(b.db, 'learners', ua.uid)));
+const resetTime = () => ({ pinResetAt: new Date().toISOString() });
+await expect('the parent can leave a PIN reset time on the link', true, () => updateDoc(doc(b.db, 'parentLinks', linkId), resetTime()));
+await expect('the learner cannot write a PIN reset time', false, () => updateDoc(doc(a.db, 'parentLinks', linkId), resetTime()));
+await expect('the parent cannot change anything else on the link', false, () =>
+  updateDoc(doc(b.db, 'parentLinks', linkId), { childName: 'Dana' }));
+await expect('the parent cannot change the label with the reset time', false, () =>
+  updateDoc(doc(b.db, 'parentLinks', linkId), { ...resetTime(), parentLabel: 'x' }));
+await expect('the learner can read the reset time', true, async () => {
+  if (!(await getDoc(doc(a.db, 'parentLinks', linkId))).data()?.pinResetAt) throw new Error('missing');
+});
 await expect('the parent can unlink', true, () => deleteDoc(doc(b.db, 'parentLinks', linkId)));
 await expect('an unlinked parent can no longer read the snapshot', false, () => getDoc(doc(b.db, 'reportSnapshots', ua.uid)));
 await deleteDoc(doc(a.db, 'reportSnapshots', ua.uid)).catch(() => {});

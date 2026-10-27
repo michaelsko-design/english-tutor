@@ -50,6 +50,7 @@ import { HomeHero } from './home/HomeHero';
 import { QuestRings } from './home/QuestRings';
 import { MapPeek } from './home/MapPeek';
 import { NewPackCard } from './home/NewPackCard';
+import { ParentNoticeCard } from './home/ParentNoticeCard';
 import { ParentNudgeCard } from './home/ParentNudgeCard';
 import { readSeenPacks, rememberSeenPack } from './home/seenPacks';
 import { getNewPackOffer } from '../data/contentPacks';
@@ -429,6 +430,9 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             onClose={() => dismissPackOffer(newPackOffer.pack.id)}
           />
         )}
+
+        {/* A PARENT JOINED, OR RESET THE PIN: THE LEARNER IS TOLD */}
+        <ParentNoticeCard profile={profile} theme={theme} />
 
         {/* AN OPTIONAL, CLOSABLE INVITE FOR A PARENT */}
         <ParentNudgeCard profile={profile} theme={theme} />
