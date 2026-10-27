@@ -14,7 +14,7 @@ test.describe('onboarding', () => {
     await nameInput.fill('עידו');
     await page.getByRole('button', { name: /בן/ }).click();
     await page.getByLabel('גיל').selectOption('6');
-    await page.getByRole('button', { name: 'VibeLingua' }).click();
+    await page.getByRole('button', { name: 'Pop' }).click();
     await page.getByRole('button', { name: /שמירה וכניסה לדשבורד/ }).click();
     await expect(page.getByText(/צריך שהורה יאשר/)).toBeVisible();
     await page.getByRole('checkbox', { name: /אני הורה וקראתי/ }).check();

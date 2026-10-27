@@ -68,6 +68,14 @@ describe('getTutorialSlides', () => {
     }
   });
 
+  it('is word for word the same on every theme', () => {
+    const [first, ...others] = Object.values(THEME_REGISTRY).map((theme) =>
+      getTutorialSlides(input({ currencyNameHe: theme.currencyNameHe }))
+    );
+
+    for (const slides of others) expect(slides).toEqual(first);
+  });
+
   it('keeps every slide short', () => {
     for (const slide of getTutorialSlides(input())) {
       expect(slide.titleHe.length, slide.id).toBeLessThanOrEqual(30);

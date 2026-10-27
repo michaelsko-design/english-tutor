@@ -83,23 +83,16 @@ const WelcomeScene: React.FC = () => (
 
 const MissionsScene: React.FC<{ slide: TutorialSlide }> = ({ slide }) => (
   <div className="h-full flex flex-col items-center justify-center gap-5 px-3">
-    <div className="relative animate-tour-pop" style={popDelay(0)} aria-hidden="true">
-      <span className="absolute inset-0 rounded-full bg-white/60 animate-coin-pulse" />
-      <span className="relative block px-6 py-3 rounded-full bg-white text-orange-600 font-black text-lg shadow-xl">
-        ▶ בואו נשחק!
-      </span>
-      <span className="absolute -bottom-5 -left-4 text-3xl animate-tour-tap">👆</span>
-    </div>
     {/* The five steps, in reading order along a trail */}
     <div className="relative w-full max-w-xs" aria-hidden="true">
       <span className="absolute top-1/2 inset-x-5 h-1.5 -translate-y-1/2 rounded-full bg-white/30" />
-      <span className="absolute top-1/2 inset-x-5 h-1.5 -translate-y-1/2 rounded-full bg-white animate-tour-fill" style={popDelay(1)} />
+      <span className="absolute top-1/2 inset-x-5 h-1.5 -translate-y-1/2 rounded-full bg-white animate-tour-fill" style={popDelay(0)} />
       <div className="relative flex justify-between">
         {slide.points.map((point, i) => (
           <span
             key={point.emoji}
             className="animate-tour-pop w-11 h-11 rounded-full bg-white shadow-lg flex items-center justify-center text-xl"
-            style={popDelay(i + 2)}
+            style={popDelay(i + 1)}
           >
             {point.emoji}
           </span>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
-import { TutorialSlide } from '../../data/appTutorial';
+import { TOUR_COMPANION_PX, TutorialSlide } from '../../data/appTutorial';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { useDialog } from '../../hooks/useDialog';
 import { celebrate } from '../../utils/celebrate';
@@ -19,7 +19,7 @@ interface AppTourProps {
   onDone: () => void;
 }
 
-const COMPANION_PX = 84;
+const COMPANION_PX = TOUR_COMPANION_PX;
 /** A horizontal swipe longer than this turns the page */
 const SWIPE_MIN_PX = 50;
 

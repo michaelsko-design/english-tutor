@@ -42,7 +42,7 @@ describe('buildThemeArt', () => {
     expect(buildThemeArt('starlight-rpg', { companionRim: LIGHT_COMPANION_RIM }).companionRim).toBe(LIGHT_COMPANION_RIM);
   });
 
-  it('gives Nova a light rim on the dark Starlight theme only', () => {
+  it('gives Comet a light rim on the dark Stars theme only', () => {
     expect(THEME_REGISTRY['starlight-rpg'].art.companionRim).toBe(LIGHT_COMPANION_RIM);
     expect(THEME_REGISTRY['cozy-studio'].art.companionRim).toBeNull();
     expect(THEME_REGISTRY['neon-pop'].art.companionRim).toBeNull();

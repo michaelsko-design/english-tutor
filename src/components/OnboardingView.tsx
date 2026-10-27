@@ -1,4 +1,4 @@
-import React, { useId, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import {
   GradeId,
   LearnerGender,
@@ -34,7 +34,9 @@ import { usernameFromEmail } from '../utils/username';
 import { APP_NAME } from '../config/appInfo';
 import { AppLogo } from './AppLogo';
 import { Button } from './ui/Button';
-import { Companion } from './companion/Companion';
+import { Companion, preloadCompanion } from './companion/Companion';
+import { COMPANION_POSES } from '../themes/themeArt';
+import { TOUR_COMPANION_PX } from '../data/appTutorial';
 
 interface OnboardingViewProps {
   initialProfile: LearnerProfile;
@@ -83,6 +85,13 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
     initialProfile.voicePreference ?? DEFAULT_VOICE_PREFERENCE
   );
   const [errorMsg, setErrorMsg] = useState('');
+
+  // Warm every mascot pose of every theme now, so the tour (which follows) never waits on art
+  useEffect(() => {
+    Object.values(THEME_REGISTRY).forEach((theme) =>
+      preloadCompanion(theme, COMPANION_POSES, TOUR_COMPANION_PX)
+    );
+  }, []);
 
   const activeTheme = THEME_REGISTRY[themeId];
   const heb = getHebrewCopy(gender, name || (gender === 'girl' ? 'נועה' : 'עידו'));

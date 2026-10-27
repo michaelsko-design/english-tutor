@@ -8,6 +8,9 @@ import { CompanionPose } from '../themes/themeArt';
  * The Hebrew is gender-neutral plural ("לוחצים", "בואו"), so it reads the same for every learner.
  */
 
+/** The companion's size on a tour slide; the onboarding preloads the art at this size. */
+export const TOUR_COMPANION_PX = 84;
+
 export type TutorialSlideId = 'welcome' | 'missions' | 'map' | 'economy' | 'streak' | 'dock' | 'finish';
 
 export interface TutorialPoint {

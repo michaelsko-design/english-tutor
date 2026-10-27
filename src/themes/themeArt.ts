@@ -45,7 +45,7 @@ export interface ThemeArt {
   companion: Record<CompanionPose, CutoutArt>;
   /**
    * CSS filter drawn around the companion art, or null. A dark companion on a dark theme
-   * (Nova on Starlight) gets a soft light rim so it doesn't vanish into the background.
+   * (Comet on Stars) gets a soft light rim so it doesn't vanish into the background.
    */
   companionRim: string | null;
   /** World map background (Feature 26), 1080px wide, one copy per unit */
@@ -78,7 +78,7 @@ const toPoints = (pairs: Array<[number, number]>): MapPoint[] => pairs.map(([x, 
 
 /**
  * The world map path of each theme (Feature 26). The centerlines were traced on the map
- * backgrounds; trace again when a background is replaced. PeachNote's path is a sandy road on
+ * backgrounds; trace again when a background is replaced. Cozy's path is a sandy road on
  * the grass; the dark themes get a light, glowing path so it shows on the near-black band.
  */
 export const MAP_PATH_BY_THEME: Record<ThemeId, MapPathStyle> = {

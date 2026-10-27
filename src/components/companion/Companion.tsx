@@ -50,7 +50,7 @@ export function preloadCompanion(theme: ThemeDefinition, poses: CompanionPose[],
 }
 
 /**
- * The theme's companion (Feature 25): Mochi, DJ Lexi or Nova in one of five poses, with CSS
+ * The theme's companion (Feature 25): Mochi, DJ Beat or Comet in one of five poses, with CSS
  * motion and a ground shadow. Until a theme's art exists it shows the theme's avatar emoji
  * in a soft bubble of the same size, so nothing moves when the art arrives.
  */
