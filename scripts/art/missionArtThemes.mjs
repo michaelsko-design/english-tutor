@@ -366,4 +366,96 @@ export const MISSION_ART_THEMES = {
       'g12-u4': 'Global Horizons & Professional Future: a modern tower entrance on its base with a globe sculpture in front, lit windows and a small toy-like plane on a pole on its roof. No sky, no night backdrop and no panel behind it: plain white all around.',
     },
   },
+
+  // Stars' map is a deep indigo starry sky with small floating grass islands, waterfalls, crystals and
+  // star-trees: each picture is its own little floating island, bright enough to read on the night sky.
+  'starlight-rpg': {
+    style: [
+      'Polished 2.5D illustration for an English-learning app for children and teenagers, in a magical starlight-academy fantasy style, like a high-quality cosy mobile RPG: a three-quarter view from above with real volume and depth. Every object has a lit top face, a mid side face and a darker side face, soft gradients, gentle ambient shading and soft rounded storybook shapes. Lanterns, crystals and starlight cast soft warm or cool light onto nearby surfaces. Still a clean illustration, not a photo and not a busy realistic 3D render.',
+      'Palette: fresh grass green #A3D65C and #6FAF3A, warm stone #E7DCC8 and #B9A88E, soft pink #F9A8D4, gold #FCD34D for stars, lanterns and trims, crystal cyan #67E8F9, lavender #C4B5FD and indigo #4F46E5 for roofs, rocks and shaded faces, cream #FFF7E0 for the lightest areas (never pure white). The big shapes are bright and light, never near-black, because the picture is shown on a dark indigo night sky. A thin deep-indigo #1E1B4B outline still closes the whole silhouette.',
+      'Magical, cosy and friendly. No faces on objects, no hearts, no rainbow colours and no writing anywhere: signs, banners, books and scrolls are blank or show only a simple picture. Small five-pointed gold stars are welcome as decoration. Lights and crystals light the surfaces around them but have no glow halo floating in the air.',
+    ].join('\n'),
+    // The flat look, to compare in the pilot (renderMissionArt.mjs starlight-rpg:flat)
+    styleVariants: {
+      flat: [
+        'Flat illustration for an English-learning app for children and teenagers, in a magical starlight-academy fantasy style: flat colour fills, clean even deep-indigo #1E1B4B outlines, at most one soft shade per colour, soft rounded storybook shapes, like a good cosy RPG sticker.',
+        'Palette: fresh grass green #A3D65C and #6FAF3A, warm stone #E7DCC8 and #B9A88E, soft pink #F9A8D4, gold #FCD34D for stars, lanterns and trims, crystal cyan #67E8F9, lavender #C4B5FD and indigo #4F46E5 for roofs, rocks and shaded areas, cream #FFF7E0 for the lightest areas (never pure white). The big shapes are bright and light, never near-black, because the picture is shown on a dark indigo night sky.',
+        'Magical, cosy and friendly. No faces on objects, no hearts, no rainbow colours and no writing anywhere: signs, banners, books and scrolls are blank or show only a simple picture. Small five-pointed gold stars are welcome as decoration. Lights and crystals are drawn as flat shapes with no glow halo.',
+      ].join('\n'),
+    },
+    landmarkIdea:
+      'Each picture is one small floating island of the starlight academy: a rounded patch of green grass on top of a lavender rock that tapers to a point underneath, with one magical place on it (a tower, a hut, a garden, a classroom, a stall, a pond) and one or two objects that together show one unit topic. A few small gold stars, crystals or a lantern decorate the island. No waterfall leaving the island and no clouds around it: the island floats alone on the white background.',
+    pairs: {
+      boss: {
+        names: ['boss-locked', 'boss-open'],
+        subject:
+          'The end-of-unit challenge, drawn as a star gate on a floating island: a tall rounded stone archway with a gold five-pointed star at its top and two cyan crystal pillars on its sides, standing on a floating island of grass and lavender rock. Left: the arch is sealed by a pair of heavy indigo doors held shut by a big gold star-shaped padlock and two crossed gold bars; the crystals and the star are dull and unlit. Right: the very same arch and island with the doors swung wide open onto a swirling portal of soft blue and pink starlight with tiny gold stars in it, a short path of glowing stepping stones leading in, and the crystals and the star lit gold and cyan.',
+      },
+      chest: {
+        names: ['chest-closed', 'chest-open'],
+        subject:
+          'A reward, drawn as a big magic spellbook used as a treasure box, the two books standing free on the white background with no frame or panel around them: a thick indigo spellbook with gold corners, a gold star on the cover and a gold clasp, lying flat and seen from a slight three-quarter angle from above. Left: the book is shut and clasped. Right: the very same book lying open, its pages hollowed out into a box full of small faceted gold, cyan and pink gems, with a few tiny gold stars floating up out of it.',
+      },
+    },
+    singles: {
+      'level-badge':
+        "The learner's level, drawn as a round gold star medallion seen straight from the front: a thick gold #FCD34D ring with eight small five-pointed gold stars set evenly around it and a thin deep-indigo outline, around a large plain cream #FFF7E0 centre disc that is completely empty (a number is written on it later). The medallion fills the picture, the centre disc takes about half its width, perfectly round and symmetric.",
+    },
+    landmarks: {
+      'g1-u11': 'ABC Friends: three big crystal letter stones, A, B and C, standing in a row on the island beside a small lantern.',
+      'g1-u12': 'Letter Parade: a little procession of three paper lanterns on poles shaped like the letters G, H and I, with gold stars hanging between them.',
+      'g1-u13': 'Letter Garden: a flower garden with three hedge bushes clipped into the letters N, O and P.',
+      'g1-u14': 'All the Letters: a small round library tower with three big glowing letter tiles, X, Y and Z, floating beside it.',
+      'g1-u15': 'Word Builder: three stone blocks spelling C A T, with a little cat sitting on top of the last block.',
+      'g1-u16': 'I Can Read!: a cosy reading nook under a pink star-tree, with a wooden bench and an open picture book with only pictures on its pages.',
+      'g1-u1': 'Hello Forest Friends: a tiny forest of pine trees with a fox and a rabbit sitting by a mushroom.',
+      'g1-u2': 'Numbers & Sunshine: a sundial in a sunny garden with three small stepping stones carved with the digits 1, 2 and 3, and a round gold sun lamp on a post.',
+      'g1-u3': 'My Body & Classroom: a little academy classroom hut with a blank blackboard leaning outside and a school satchel by the door.',
+      'g1-u4': 'Fruit Picnic & Playtime: a picnic blanket with a basket of apples and bananas and a ball beside it.',
+      'g2-u1': 'Toy Shop & CVC Words: a little toy stall with a ball, a small bat and a cap on its counter.',
+      'g2-u2': 'My Family & Healthy Snacks: a cosy cottage with three garden chairs of different sizes and a bowl of apples on a table.',
+      'g2-u3': 'Farm & Pet Friends: a little barn with a cow by a fence and a dog sitting by the gate.',
+      'g2-u4': 'My Home & My Clothes: a round cottage with a washing line of shirts and a wizard hat strung beside it.',
+      'g3-u1': 'Little Artists & School Supplies: an easel with a blank canvas, a jar of brushes and a box of crayons on the grass.',
+      'g3-u2': 'Days, Weather & Feelings: a little weather tower with a wind vane, a small rain cloud on one side and a sun on the other, and an umbrella.',
+      'g3-u3': 'Zoo Animals & I Can: a lion and a giraffe standing by a small round enclosure with a wooden fence.',
+      'g3-u4': 'My Birthday Party: a party table with a birthday cake with one candle, wrapped presents and balloons tied to a star-tree.',
+      'g4-u1': 'Superhero Action Academy: a training tower with a caped hero figure standing on top and a target board on the grass.',
+      'g4-u2': 'Around the House & My Room: a cottage cut open at the front, showing three cosy rooms: a bedroom, a kitchen and a living room.',
+      'g4-u3': 'Sports Stars & Hobbies: a small sports field with a goal, a football, a broom and a guitar leaning on the fence.',
+      'g4-u4': 'The Healthy Food Market: a market stall under a striped awning with baskets of carrots, leafy greens and apples.',
+      'g5-u1': 'Pet Café & Animals: a little café table with a cup of cocoa and a cat curled on the chair beside a lantern. No night sky and no dark backdrop: plain white all around the island.',
+      'g5-u2': 'Town Explorers & Telling Time: a clock tower with a big round clock face and a signpost with blank arrows. No night sky and no dark backdrop: plain white all around the island.',
+      'g5-u3': 'My Daily Routine: a little dormitory hut with an alarm clock in the window, a toothbrush cup on the sill and a breakfast bowl on a table. No night sky and no dark backdrop: plain white all around the island.',
+      'g5-u4': 'Free Time & Weekends: a pond with a small rowing boat, a fishing rod and a kite flying from a post. No night sky and no dark backdrop: plain white all around the island.',
+      'g6-u1': 'After-School Creators Club: a club hut with a chess table outside and a paint palette picture on its hanging sign. No night sky and no dark backdrop: plain white all around the island.',
+      'g6-u2': 'Digital Skills: a crystal ball on a stand showing a simple sound wave, with a laptop on a small table beside it. No night sky and no dark backdrop: plain white all around the island.',
+      'g6-u3': 'Last Weekend & Holiday Memories: a festival stall with a festive eye mask hanging on it and small fireworks bursting above. No night sky and no dark backdrop: plain white all around the island.',
+      'g6-u4': 'Ready for Grade 7: a launch pad with a small storybook rocket ready to lift off. No night sky and no dark backdrop: plain white all around the island.',
+      'g7-u1': 'Café & Daily Vibes: a little tea kiosk with a giant bubble tea cup on its roof and two stools in front. No night sky and no dark backdrop: plain white all around the island.',
+      'g7-u2': 'Backstage Studio & Live Vlogs: a small stage with a microphone on a stand and a camera on a tripod.',
+      'g7-u3': 'London Mystery Diary: a small cobbled corner on bright green grass with an old gas lamp, a closed diary with a key and footprints leading away. No mist, no fog and no smoke: plain white all around the island.',
+      'g7-u4': 'Future Creators & Teen Advice: an inventor’s workshop hut with a workbench and a big light-bulb picture on its sign.',
+      'g8-u1': 'Global Travellers & Past Adventures: a hot-air balloon tied to a post on the island, with a suitcase and a globe beside it.',
+      'g8-u2': 'London Clues & Future Plans: a little train station with a blank round sign on a post, a ticket and a pocket watch on the platform.',
+      'g8-u3': 'Life Milestones & Experiences: a rocky peak with a climbing rope, a hiking boot and a medal hanging on a flag at the top.',
+      'g8-u4': 'Planet Earth & Eco-Warriors: a greenhouse with plants, a small tree being planted and two solar panels.',
+      'g9-u1': 'Future Innovators & Teen Podcast: a small recording hut with a big microphone on its roof and headphones hanging by the door.',
+      'g9-u2': 'The AI Revolution & Debate Club: a friendly robot standing at one of two facing wooden podiums.',
+      'g9-u3': 'Media Literacy & the News: a news kiosk with racks of folded papers and scrolls with blank pages.',
+      'g9-u4': 'Global Citizens & High School Countdown: the academy building with a graduation cap and a globe on a blank flag above the door. The whole building fits inside the picture, roof included.',
+      'g10-u1': 'Global Youth Summit & Environment: a gathering circle of stone seats with a small wind turbine and young trees. Any banner shows only a leaf picture, never words.',
+      'g10-u2': 'Media Literacy & Digital Footprints: a big magic mirror on a stand showing a padlock picture, with glowing footprints leading to it.',
+      'g10-u3': 'Scientific Inquiries: an observatory with a telescope dome, a microscope on a table and a round fishbowl with a deep-sea fish.',
+      'g10-u4': 'Technology Ethics & Future Dilemmas: a crossroads with a signpost of two blank arrows pointing different ways and a small robot at the fork.',
+      'g11-u1': 'Literature, Cinema & Critical Minds: an open-air screen with a blank screen, a film reel and a stack of books on a bench.',
+      'g11-u2': 'Perspectives & Comparative Literature: a small open-air amphitheatre with the two theatre masks carved above its stage.',
+      'g11-u3': 'Modals in the Past & Turning Points: a tall hourglass on a stone plinth beside a small clock tower.',
+      'g11-u4': 'Reading Comprehension & Scientific Unseens: a small library with an open-book picture on its sign and a board showing a bar chart and a pie chart. No words on it.',
+      'g12-u1': 'Academic Connectors: a little stone bridge linking two halves of the island, with a chain railing.',
+      'g12-u2': 'The Bagrut Opinion Essay: a writing desk under a star-tree with a quill pen, a blank scroll and a stack of drafts.',
+      'g12-u3': "Author's Tone & Unseen Texts: a music pavilion with a big volume dial on a stand and a magnifying glass picture on its banner.",
+      'g12-u4': 'Global Horizons & Professional Future: a tall academy spire with a globe sculpture in front and lit windows above.',
+    },
+  },
 };

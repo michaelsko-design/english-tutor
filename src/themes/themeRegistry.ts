@@ -158,7 +158,7 @@ export const THEME_BASES: Record<ThemeId, ThemeBase> = {
     inputBgClass:
       'bg-slate-900/90 border border-cyan-400/30 text-cyan-50 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30',
     art: buildThemeArt('starlight-rpg'),
-    missionArtFolder: null,
+    missionArtFolder: 'starlight-rpg',
   },
   // Grown-up themes for older learners: flat surfaces, one accent colour, no glow
   'focus-desk': {

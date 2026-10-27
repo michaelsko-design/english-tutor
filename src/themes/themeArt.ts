@@ -190,6 +190,7 @@ const LEVEL_BADGE_CENTRE_BY_FOLDER: Record<string, MapPoint> = {
   'urban-night': { x: 0.5, y: 0.5 },
   'travel-journal': { x: 0.5, y: 0.5 },
   'neon-pop': { x: 0.5, y: 0.5 },
+  'starlight-rpg': { x: 0.5, y: 0.5 },
 };
 
 export function getLevelBadgeCentre(theme: MissionArtTheme): MapPoint {

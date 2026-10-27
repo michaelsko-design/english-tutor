@@ -55,6 +55,7 @@ describe('mission art paths', () => {
     expect(getLevelBadgeCentre({ missionArtFolder: 'urban-night' })).toEqual({ x: 0.5, y: 0.5 });
     expect(getLevelBadgeCentre({ missionArtFolder: 'travel-journal' })).toEqual({ x: 0.5, y: 0.5 });
     expect(getLevelBadgeCentre({ missionArtFolder: 'neon-pop' })).toEqual({ x: 0.5, y: 0.5 });
+    expect(getLevelBadgeCentre({ missionArtFolder: 'starlight-rpg' })).toEqual({ x: 0.5, y: 0.5 });
     expect(getLevelBadgeCentre({ missionArtFolder: 'not-measured-yet' })).toEqual(getLevelBadgeCentre(SHARED));
   });
 });
