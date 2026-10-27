@@ -399,8 +399,8 @@ Optional, per device. Part of the backlog item "Daily streak reminders"; the Res
 
 ### 4.28. Pro Tier & Payments (planned; design in `docs/feature-pro-tier.md`)
 Not built yet. **EnglishVibe Pro** is a monthly or yearly subscription per learner, paid only by a paired parent from the parent portal.
-- **Free:** Unit 1 of every grade, the placement test, friends and contests, the room and shop, and 2 word lists.
-- **Pro:** every unit, full exam prep and 10 word lists.
+- **Free:** units 1–2 of every grade (grade 1: units 1–5), packs released as free, 2 themes and 2 mascots (`cozy-studio` + Mochi, `urban-night` + Kai; the other themes and mascots can be previewed), the placement test, friends and contests, the room and shop, and 2 word lists.
+- **Pro:** every unit, packs released as Pro only (`ReleasedPack.access`), every theme and mascot, full exam prep and 10 word lists.
 - **Kept progress:** starred missions stay playable without Pro.
 - **Entitlements:** `entitlements/{childUid}` is written only by Vercel Functions, with the gateway transaction re-checked on the server. It is readable by the learner and linked parents, and kept off `LearnerProfile`, so sync is unchanged.
 - **Gating:** a separate layer (`data/proGate.ts`, a `'pro'` map status) sits on top of the progress locks, behind `PRO_GATING_ENABLED`.
