@@ -192,7 +192,8 @@ async function submit(apiKey, theme, args) {
   const isPilot = args.includes(PILOT_FLAG);
   const redrawKeys = args.filter((arg) => arg !== PILOT_FLAG);
   const redraw = jobsByKey(theme, redrawKeys).filter((job) => existsSync(job.path));
-  const allSheets = packSheets([...missingJobs(theme), ...redraw]);
+  // Redraws first, so a --pilot sheet redraws the pictures named
+  const allSheets = packSheets([...redraw, ...missingJobs(theme)]);
   const sheets = isPilot ? allSheets.slice(0, 1) : allSheets;
   const missing = sheets.flatMap((sheet) => sheet.cells.map((cell) => cell.job));
   if (missing.length === 0) return console.log('Nothing to draw.');

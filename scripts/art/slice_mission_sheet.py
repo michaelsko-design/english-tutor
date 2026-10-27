@@ -84,13 +84,23 @@ def is_cut_through_drawing(picture: Image.Image) -> bool:
     return any(edge.sum() > NOISE_PIXELS for edge in edges)
 
 
+def crop_cells(sheet: Image.Image, cell_box_list: list[tuple[int, int, int, int]]) -> Image.Image:
+    """The cells' bounding box on white, holding only each cell's own box: the row cuts of a pair's two
+    columns differ, so a plain bounding box would take in a piece of the picture below the higher cut."""
+    left, top = min(box[0] for box in cell_box_list), min(box[1] for box in cell_box_list)
+    right, bottom = max(box[2] for box in cell_box_list), max(box[3] for box in cell_box_list)
+    picture = Image.new("RGB", (right - left, bottom - top), "white")
+    for box in cell_box_list:
+        picture.paste(sheet.crop(box), (box[0] - left, box[1] - top))
+    return picture
+
+
 def slice_sheet(sheet_path: Path, layout: dict) -> int:
     sheet = Image.open(sheet_path).convert("RGB")
     boxes = cell_boxes(sheet, layout["columns"])
     for cell in layout["cells"]:
-        first = boxes[(cell["row"], cell["col"])]
-        last = boxes[(cell["row"], cell["col"] + cell["span"] - 1)]
-        picture = sheet.crop((first[0], min(first[1], last[1]), last[2], max(first[3], last[3])))
+        span = range(cell["col"], cell["col"] + cell["span"])
+        picture = crop_cells(sheet, [boxes[(cell["row"], col)] for col in span])
         out = Path(cell["path"])
         if is_cut_through_drawing(picture):
             print(f"warning {out.stem}: the cut runs through drawing in {sheet_path.name}; draw it again")

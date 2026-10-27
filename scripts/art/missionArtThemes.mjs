@@ -274,4 +274,96 @@ export const MISSION_ART_THEMES = {
       'g12-u4': 'Global Horizons & Professional Future: a modern glass terminal building with a big globe sculpture in front and a plane taking off above it.',
     },
   },
+
+  // Pop's map is a dark violet night of isometric rooftops with pink and cyan neon, speakers and
+  // string lights: the pictures need light big shapes so they read on the near-black road band.
+  'neon-pop': {
+    style: [
+      'Polished 2.5D illustration for an English-learning app for children and teenagers, in a bright pop-music night style, like a high-quality mobile game diorama: a three-quarter view from above with real volume and depth. Every object has a lit top face, a mid side face and a darker side face, soft gradients, gentle ambient shading where surfaces meet and slightly rounded, toy-like bevelled edges. Neon tubes and little bulbs cast soft coloured light onto nearby surfaces. Fun and upbeat, still a clean illustration, not a photo and not a busy realistic 3D render.',
+      'Palette: a colourful mix, never all violet. Hot pink #F472B6, cyan #22D3EE and lime #A3E635 are main colours that fill whole parts (a roof, an awning, a speaker box, a car body, a curtain, a stage floor), not only thin trims, and every picture uses at least two of them as large areas. Lavender #DDD6FE and violet #8B5CF6 / #6D28D9 are only for some walls and shaded side faces, and warm yellow #FDE68A for bulbs and small highlights (never pure white). The big shapes are bright and light, never near-black, because the picture is shown on a dark violet map. A thin deep-violet #1E1033 outline still closes the whole silhouette.',
+      'Night-time and cheerful. No faces on objects, no hearts, no rainbow colours, no graffiti tags and no writing anywhere: signs, posters, screens and labels are blank or show only a simple picture. Neon tubes light the surfaces around them but have no glow halo floating in the air.',
+    ].join('\n'),
+    // The flat look, to compare in the pilot (renderMissionArt.mjs neon-pop:flat)
+    styleVariants: {
+      flat: [
+        'Flat vector illustration for an English-learning app for children and teenagers, in a bright pop-music night style: flat colour fills, clean even deep-violet #1E1033 outlines, at most one soft shade per colour, bold rounded toy-like shapes, like a good music-game sticker.',
+        'Palette: a colourful mix, never all violet. Hot pink #F472B6, cyan #22D3EE and lime #A3E635 are main colours that fill whole parts (a roof, an awning, a speaker box, a curtain), not only thin trims, and every picture uses at least two of them as large areas. Lavender #DDD6FE and violet #8B5CF6 / #6D28D9 are only for some walls and shaded areas, and warm yellow #FDE68A for bulbs and small highlights (never pure white). The big shapes are bright and light, never near-black, because the picture is shown on a dark violet map.',
+        'Night-time and cheerful. No faces on objects, no hearts, no rainbow colours, no graffiti tags and no writing anywhere: signs, posters, screens and labels are blank or show only a simple picture. Neon is drawn as flat pink or cyan tubes with no glow halo.',
+      ].join('\n'),
+    },
+    landmarkIdea:
+      'Each picture is one small free-standing piece of a pop-music city at night, built on its own small rounded rooftop or stage base that is part of the piece: a mini stage, a karaoke booth, a record kiosk, a dance floor, a tour bus, a rooftop studio, with one or two objects in front that together show one unit topic. Every sign, poster and screen is blank or shows only a simple picture, never words.',
+    pairs: {
+      boss: {
+        names: ['boss-locked', 'boss-open'],
+        subject:
+          'The end-of-unit challenge, drawn as a concert main stage: a round stage with a domed shell roof edged in pink neon and a lighting rig across the top, and on each side of the stage a tall cyan speaker tower of three big stacked speaker boxes, as tall as the shell roof. The two speaker towers are part of the stage in both pictures. Left: heavy pink curtains are drawn shut across the stage, a velvet rope on two brass posts runs in front with a big padlock hanging from it, and the neon edge and the lights are dark. Right: the very same stage with the curtains swept open and the rope unhooked, the neon edge lit pink and cyan, a microphone on a stand in the middle of the lit stage, two spotlight beams and a little burst of pink and cyan confetti.',
+      },
+      chest: {
+        names: ['chest-closed', 'chest-open'],
+        subject:
+          'A reward, drawn as a music box, the two boxes standing free on the white background with no frame or panel around them: a lavender jewellery music box with violet sides, a cyan neon trim around the lid and a tiny pink record turntable on top of the lid, seen from a slight three-quarter angle from above. Left: the box is shut, a small pink clasp closed. Right: the very same box with the lid tipped up and back, full of small faceted pink and cyan gems with a few tiny music notes floating up out of it.',
+      },
+    },
+    singles: {
+      'level-badge':
+        "The learner's level, drawn as a round speaker seen straight from the front: a light violet #C4B5FD speaker rim with a cyan neon ring around its outer edge and four small pink screws at top, right, bottom and left, around a large plain lavender #DDD6FE centre cap that is completely empty (a number is written on it later). The speaker fills the picture, the centre cap takes about half its width, perfectly round and symmetric.",
+    },
+    landmarks: {
+      'g1-u11': 'ABC Friends: a small round stage with three big glowing marquee-bulb letters, A, B and C, standing on it in a row.',
+      'g1-u12': 'Letter Parade: a little parade float on wheels, decorated with pink neon, carrying three big balloon letters, G, H and I.',
+      'g1-u13': 'Letter Garden: a rooftop flower bed with neon-lit flowers and three letter-shaped topiaries, N, O and P.',
+      'g1-u14': 'All the Letters: a jukebox with three big letter buttons on its front showing X, Y and Z, and a record lying beside it.',
+      'g1-u15': 'Word Builder: a karaoke booth with three big light-up letter blocks spelling C A T on its roof and a cat sitting on the step.',
+      'g1-u16': 'I Can Read!: a cosy rooftop reading corner with a beanbag, a lamp with a warm bulb and an open picture book with only pictures on its pages.',
+      'g1-u1': 'Hello Forest Friends: a small woodland stage made of logs among pine trees strung with fairy lights, with a fox and a rabbit in front.',
+      'g1-u2': 'Numbers & Sunshine: a rooftop pool deck with a beach umbrella under a round sun-shaped yellow lamp, and three floats shaped like the digits 1, 2 and 3.',
+      'g1-u3': 'My Body & Classroom: a little dance studio with a mirror wall and a ballet bar, and a school backpack on the floor.',
+      'g1-u4': 'Fruit Picnic & Playtime: a rooftop picnic with a blanket, a basket of apples and bananas and a bouncy ball, under a string of bulbs.',
+      'g2-u1': 'Toy Shop & CVC Words: a toy kiosk with neon trim showing a ball, a small bat and a cap on its counter.',
+      'g2-u2': 'My Family & Healthy Snacks: a smoothie bar with three tall stools of different sizes and a bowl of apples on the counter.',
+      'g2-u3': 'Farm & Pet Friends: a little barn-shaped stage with a cow and a dog standing by a hay bale, pink neon around the barn door.',
+      'g2-u4': 'My Home & My Clothes: a small rooftop flat with a dressing rail of shirts and a hat outside its lit window.',
+      'g3-u1': 'Little Artists & School Supplies: a rooftop art corner with an easel, a jar of brushes, a box of crayons and paint splashes on the floor.',
+      'g3-u2': 'Days, Weather & Feelings: a small outdoor stage with a cloud with raindrops on one side and a sun on the other side above it, and an umbrella on the stage.',
+      'g3-u3': 'Zoo Animals & I Can: a circus-style stage with a lion standing proudly on a round drum and a giraffe peeking over the back.',
+      'g3-u4': 'My Birthday Party: a rooftop party table with a birthday cake with one candle, wrapped presents and balloons tied to the railing.',
+      'g4-u1': 'Superhero Action Academy: a rooftop with a caped hero figure standing on a water tank, a spotlight beam pointing up behind.',
+      'g4-u2': 'Around the House & My Room: a doll-house style apartment cut open at the front, showing three lit rooms: a bedroom, a kitchen and a living room.',
+      'g4-u3': 'Sports Stars & Hobbies: a rooftop sports court with a basketball hoop, a ball, a skateboard and a guitar leaning on the fence.',
+      'g4-u4': 'The Healthy Food Market: a night-market food stall with crates of carrots, leafy greens and apples under a neon-edged awning.',
+      'g5-u1': 'Pet Café & Animals: a little café booth with a cat curled on a cushion and a coffee cup picture on its hanging sign.',
+      'g5-u2': 'Town Explorers & Telling Time: a street corner with a big round neon-ringed clock on a post and a signpost with blank arrows.',
+      'g5-u3': 'My Daily Routine: a small bedroom pod on a rooftop with an alarm clock, a toothbrush cup and a breakfast bowl on a shelf.',
+      'g5-u4': 'Free Time & Weekends: a mini cinema booth with a popcorn bucket, a game controller and headphones on a bench.',
+      'g6-u1': 'After-School Creators Club: a club room on a rooftop with a chess table, a keyboard and a paint palette on the wall.',
+      'g6-u2': 'Digital Skills: a gaming setup with a laptop, a big phone-shaped screen showing a cyan sound wave and a ring light.',
+      'g6-u3': 'Last Weekend & Holiday Memories: a festival booth with a festive eye mask hanging on it and small fireworks bursting above.',
+      'g6-u4': 'Ready for Grade 7: a rooftop launch pad with a small toy-like rocket ready to lift off, pink neon lights around the pad.',
+      'g7-u1': 'Café & Daily Vibes: a bubble tea kiosk with a giant bubble tea cup on its roof and two stools in front.',
+      'g7-u2': 'Backstage Studio & Live Vlogs: a backstage door with a lit on-air bulb above it, a camera on a tripod and a ring light outside.',
+      'g7-u3': 'London Mystery Diary: a misty corner with an old phone box, a street lamp and glowing footprints leading away.',
+      'g7-u4': 'Future Creators & Teen Advice: a maker studio with its door open, a workbench inside and a big light-bulb picture on its sign.',
+      'g8-u1': 'Global Travellers & Past Adventures: a tour bus with neon trim, a suitcase and a guitar case on its roof rack and a globe painted on its side.',
+      'g8-u2': 'London Clues & Future Plans: an underground station entrance with a blank round sign on a pole, a ticket and a pocket watch on the steps.',
+      'g8-u3': 'Life Milestones & Experiences: a winners’ podium with three steps, a medal hanging on the top step and a trophy beside it.',
+      'g8-u4': 'Planet Earth & Eco-Warriors: a rooftop garden with planters, a small tree, two solar panels and a recycling bin.',
+      'g9-u1': 'Future Innovators & Teen Podcast: a podcast booth with a big microphone on its roof, two headphones on hooks and one plain round pink bulb lit above the door. No signs and no words anywhere on the booth.',
+      'g9-u2': 'The AI Revolution & Debate Club: a friendly robot standing at one of two facing podiums on a small stage.',
+      'g9-u3': 'Media Literacy & the News: a news kiosk with racks of folded papers and magazines with blank covers and a small TV screen on top.',
+      'g9-u4': 'Global Citizens & High School Countdown: a school building front with a graduation cap and a globe on a blank flag above the door. The whole building fits inside the picture, roof included.',
+      'g10-u1': 'Global Youth Summit & Environment: a festival stage with a small wind turbine on each side and a banner showing only a leaf picture, never words.',
+      'g10-u2': 'Media Literacy & Digital Footprints: a giant phone standing on a small plaza, its screen showing a padlock picture, with glowing footprints leading to it.',
+      'g10-u3': 'Scientific Inquiries: a rooftop lab with a telescope dome, a microscope on a table and a round aquarium with a deep-sea fish.',
+      'g10-u4': 'Technology Ethics & Future Dilemmas: a crossroads with a signpost of two blank arrows pointing different ways and a small robot standing at the fork.',
+      'g11-u1': 'Literature, Cinema & Critical Minds: a drive-in screen on a rooftop showing a blank screen, a film reel and a stack of books on a beanbag.',
+      'g11-u2': 'Perspectives & Comparative Literature: a small theatre stage with the two theatre masks in neon above its arch.',
+      'g11-u3': 'Modals in the Past & Turning Points: a clock tower with a neon-ringed clock face and an hourglass picture on a hanging sign.',
+      'g11-u4': 'Reading Comprehension & Scientific Unseens: a small library booth with an open-book picture on its sign and a big screen showing a bar chart and a pie chart. No words on it.',
+      'g12-u1': 'Academic Connectors: a small neon-lit footbridge linking two rooftops, with chain railings.',
+      'g12-u2': 'The Bagrut Opinion Essay: a speaker’s soapbox with a megaphone on it, in front of a big billboard showing a fountain pen picture.',
+      'g12-u3': "Author's Tone & Unseen Texts: a DJ booth with a big volume dial on its front and a magnifying glass picture on its banner.",
+      'g12-u4': 'Global Horizons & Professional Future: a modern tower entrance on its base with a globe sculpture in front, lit windows and a small toy-like plane on a pole on its roof. No sky, no night backdrop and no panel behind it: plain white all around.',
+    },
+  },
 };

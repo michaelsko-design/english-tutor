@@ -123,7 +123,7 @@ export const THEME_BASES: Record<ThemeId, ThemeBase> = {
     inputBgClass:
       'bg-black/30 border border-white/25 text-white focus:border-pink-400 focus:ring-2 focus:ring-pink-500/30',
     art: buildThemeArt('neon-pop'),
-    missionArtFolder: null,
+    missionArtFolder: 'neon-pop',
   },
   'starlight-rpg': {
     id: 'starlight-rpg',
