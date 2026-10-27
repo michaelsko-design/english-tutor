@@ -10,8 +10,8 @@ export function getHebrewCopy(gender: LearnerGender, name: string) {
 
   return {
     welcomeTitle: isGirl
-      ? `ברוכה הבאה, ${cleanName}! איזה כיף שחזרת ✨`
-      : `ברוך הבא, ${cleanName}! איזה כיף שחזרת ✨`,
+      ? `ברוכה הבאה, ${cleanName}! נעים להכיר ✨`
+      : `ברוך הבא, ${cleanName}! נעים להכיר ✨`,
     onboardingSubtitle: isGirl
       ? 'בואי נכיר אותך כדי שנתאים את המשימות, הקול והאתגרים בדיוק בשבילך!'
       : 'בוא נכיר אותך כדי שנתאים את המשימות, הקול והאתגרים בדיוק בשבילך!',
