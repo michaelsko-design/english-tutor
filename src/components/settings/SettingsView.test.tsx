@@ -60,6 +60,18 @@ describe('SettingsView', () => {
     expect(onProfileChange).toHaveBeenCalledTimes(1);
   });
 
+  it('saves a chosen mascot, which stays on the current theme', async () => {
+    const user = userEvent.setup();
+    const { onProfileChange } = renderSettings({ themeId: 'cozy-studio' });
+
+    await user.click(screen.getByRole('tab', { name: /עיצוב/ }));
+    expect(screen.getByRole('button', { name: 'Mochi the Cat' })).toHaveAttribute('aria-pressed', 'true');
+    await user.click(screen.getByRole('button', { name: 'Comet (Star Fox)' }));
+
+    expect(onProfileChange).toHaveBeenCalledTimes(1);
+    expect(onProfileChange.mock.calls[0][0]).toMatchObject({ themeId: 'cozy-studio', companionId: 'comet' });
+  });
+
   it('saves a different grade from the dropdown', async () => {
     const user = userEvent.setup();
     const { onProfileChange } = renderSettings();

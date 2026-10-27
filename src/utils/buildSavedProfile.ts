@@ -1,4 +1,4 @@
-import type { GradeId, LearnerGender, LearnerProfile, ThemeId } from '../types/learner';
+import type { CompanionId, GradeId, LearnerGender, LearnerProfile, ThemeId } from '../types/learner';
 import {
   PARENT_APPROVAL_AGE,
   isFriendsHubEnabled,
@@ -15,6 +15,8 @@ export interface ProfileDraft {
   gender: LearnerGender;
   gradeId: GradeId;
   themeId: ThemeId;
+  /** Unset until the learner picks a mascot (then the theme's default one is shown) */
+  companionId?: CompanionId;
   isShabbatObserver: boolean;
   isFriendsHubOn: boolean;
   isUsernameSearchOn: boolean;
@@ -54,6 +56,7 @@ export function buildSavedProfile(
         ? (initialProfile.schoolGradeId ?? draft.gradeId)
         : draft.gradeId,
     themeId: draft.themeId,
+    ...(draft.companionId ? { companionId: draft.companionId } : {}),
     isShabbatObserver: draft.isShabbatObserver,
     voicePreference: draft.voicePreference,
     stats: {

@@ -9,7 +9,7 @@ import {
   ProficiencyTier,
   SUPPORTED_GRADES,
 } from '../types/learner';
-import { THEME_REGISTRY, TIER_CONFIG } from '../themes/themeRegistry';
+import { resolveTheme, TIER_CONFIG } from '../themes/themeRegistry';
 import { DEFAULT_VOICE_PREFERENCE } from '../utils/ttsVoice';
 import { DEFAULT_SPEECH_RATE, getTtsService } from '../services/tts';
 import { playsHebrewAloud, type SpokenPart } from '../data/hebrewAudio';
@@ -144,13 +144,13 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     return () => window.clearTimeout(timer);
   }, [roomRewardToast]);
 
-  const theme = THEME_REGISTRY[profile.themeId] || THEME_REGISTRY['cozy-studio'];
+  const theme = resolveTheme(profile.themeId, profile.companionId);
 
   // The companion's idle pose is the first one a mission shows (Feature 25).
   useEffect(() => {
     preloadCompanion(theme, ['idle'], COMPANION_PRELOAD_SIZE);
   }, [theme]);
-  const activeAvatarEmoji = profile.equippedAvatarEmoji || theme.avatarEmoji;
+  const activeAvatarEmoji = profile.equippedAvatarEmoji || theme.companion.avatarEmoji;
   useStickerImages();
   const backgroundSticker = getBackgroundSticker(profile);
   const currentGradeMeta =

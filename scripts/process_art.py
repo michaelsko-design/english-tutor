@@ -5,6 +5,8 @@ Cut-outs (drawn on a plain white background) become transparent squares, 512px a
     art-src/common/<name>.jpg             -> public/art/common/<name>.webp + @256
     art-src/landmarks/g<grade>-u<unit>.jpg -> public/art/landmarks/g<grade>-u<unit>.webp + @256
     art-src/icons/<id>.png                -> public/art/icons/<id>.webp (256px) + @128  (from scripts/art/slice_icon_sheets.py)
+    art-src/companions/<id>/companion-<pose>.png -> public/art/companions/<id>/companion-<pose>.webp + @256
+                                             (mascots that work on any theme; from scripts/art/slice_companion_sheets.py)
 Full-frame pictures are only resized (never enlarged):
     art-src/<theme>/map-bg.jpg      -> public/art/<theme>/map-bg.webp      (1080 wide)
     art-src/<theme>/home-scene.jpg  -> public/art/<theme>/home-scene.webp  (1200 wide)
@@ -16,13 +18,14 @@ what it wrote and what it skipped. The app shows a fallback for any file that is
 
 The thick dark outline closes each cut-out, so a flood fill from the image edges removes the
 white background. The soft ground shadow is removed too; the app draws its own shadow so the
-companion can bob and jump. The five companion poses are scaled to the same height and placed
+companion can bob and jump. The five companion poses (of a theme or of a mascot) are scaled to the same height and placed
 bottom-centred on the same square canvas, so poses swap in place.
 
 Usage:  python scripts/process_art.py [only ...] [--src DIR] [--out DIR]
-        only: theme ids (cozy-studio, neon-pop, starlight-rpg), common, landmarks, stories, icons
+        only: theme ids (cozy-studio, neon-pop, starlight-rpg, focus-desk, urban-night, travel-journal),
+              common, landmarks, stories, icons, companions
         (default: everything found in art-src/)
-Needs:  Python 3.10+, Pillow and numpy  (pip install pillow numpy)
+Needs:  Python 3.10+, Pillow and numpy  (pip install pillow numpy); the companions target also needs scipy
 """
 import argparse
 import sys
@@ -33,7 +36,8 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
-THEMES = ["cozy-studio", "neon-pop", "starlight-rpg"]
+THEMES = ["cozy-studio", "neon-pop", "starlight-rpg", "focus-desk", "urban-night", "travel-journal"]
+OTHER_GROUPS = ["common", "landmarks", "stories", "icons", "companions"]
 POSES = ["idle", "cheer", "think", "oops", "wave"]
 CUTOUT_SIZES = (512, 256)
 ICON_SIZES = (256, 128)
@@ -46,6 +50,8 @@ SOURCE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
 BACKGROUND_TOLERANCE = 22  # how far from pure white a background pixel may be
 SHADOW_MAX_SATURATION = 40  # the ground shadow is a low-saturation grey-mauve
 SHADOW_MIN_BRIGHTNESS = 150
+HEAD_GAP_SHARE = 0.18  # enclosed white starting this high on the drawing is a gap under a headband
+HEADBAND_MASCOTS = {"sage"}  # mascots whose headband closes off white over the head (others keep white teeth)
 CANVAS_MARGIN = 0.04  # free space around the tallest cut-out, as a share of its height
 FLOOR_MARGIN = 0.02  # gap under the feet, as a share of the cut-out height
 CUTOUT_QUALITY = 85
@@ -93,12 +99,17 @@ def background_mask(rgb: np.ndarray) -> np.ndarray:
     near_white = (255 - darkest) <= BACKGROUND_TOLERANCE
     shadow = ((brightest - darkest) <= SHADOW_MAX_SATURATION) & (darkest >= SHADOW_MIN_BRIGHTNESS)
     passable = near_white | shadow
-
-    seen = np.zeros((height, width), dtype=bool)
-    queue = deque()
     edge_points = [(y, x) for x in range(width) for y in (0, height - 1)]
     edge_points += [(y, x) for y in range(height) for x in (0, width - 1)]
-    for y, x in edge_points:
+    return flood(passable, edge_points)
+
+
+def flood(passable: np.ndarray, seeds: list[tuple[int, int]]) -> np.ndarray:
+    """True for the passable pixels reachable from the seeds."""
+    height, width = passable.shape
+    seen = np.zeros((height, width), dtype=bool)
+    queue = deque()
+    for y, x in seeds:
         if passable[y, x] and not seen[y, x]:
             seen[y, x] = True
             queue.append((y, x))
@@ -112,15 +123,48 @@ def background_mask(rgb: np.ndarray) -> np.ndarray:
     return seen
 
 
-def cut_out(path: Path, clear_enclosed_white: bool = False) -> Image.Image:
+def head_gap_mask(rgb: np.ndarray, background: np.ndarray) -> np.ndarray:
+    """Enclosed near-white areas that start at the very top of the drawing (between a headband and the head).
+
+    Eye whites sit lower on the drawing, so they stay."""
+    enclosed_white = ((255 - rgb.astype(int).min(axis=2)) <= BACKGROUND_TOLERANCE) & ~background
+    drawn_rows = np.flatnonzero((~background).any(axis=1))
+    if drawn_rows.size == 0:
+        return enclosed_white & False
+    top = drawn_rows[0]
+    band_end = top + round((drawn_rows[-1] - top) * HEAD_GAP_SHARE)
+    seeds = [(int(y), int(x)) for y, x in np.argwhere(enclosed_white[top:band_end + 1]) + (top, 0)]
+    return flood(enclosed_white, seeds)
+
+
+def main_figure_mask(background: np.ndarray) -> np.ndarray:
+    """True outside the largest drawn shape, so stray bits of a neighbouring pose on a sheet are dropped."""
+    from scipy import ndimage  # only the mascot cut-outs need it
+
+    labels, count = ndimage.label(~background)
+    if count <= 1:
+        return background
+    sizes = ndimage.sum(~background, labels, range(1, count + 1))
+    return labels != (int(np.argmax(sizes)) + 1)
+
+
+def cut_out(
+    path: Path, clear_enclosed_white: bool = False, clear_head_gap: bool = False, keep_main_figure: bool = False
+) -> Image.Image:
     """The drawing on a transparent background, cropped to the drawing.
 
-    clear_enclosed_white also removes near-white areas the outline closes off (the hole of a necklace)."""
+    clear_enclosed_white also removes near-white areas the outline closes off (the hole of a necklace);
+    clear_head_gap removes only those at the top of the drawing (see head_gap_mask);
+    keep_main_figure drops everything but the largest shape (a mascot sliced from a sheet, see main_figure_mask)."""
     image = Image.open(path).convert("RGB")
     rgb = np.asarray(image)
     background = background_mask(rgb)
     if clear_enclosed_white:
         background = background | ((255 - rgb.astype(int).min(axis=2)) <= BACKGROUND_TOLERANCE)
+    elif clear_head_gap:
+        background = background | head_gap_mask(rgb, background)
+    if keep_main_figure:
+        background = main_figure_mask(background)
     alpha = Image.fromarray(np.where(background, 0, 255).astype("uint8"))
     # Shrink the edge by a pixel and soften it, so no white fringe is left.
     alpha = alpha.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(0.8))
@@ -147,20 +191,25 @@ def save_cutout_sizes(
         report.wrote(target)
 
 
-def process_companion(theme: str, src_root: Path, out_root: Path, report: Report) -> None:
-    source_dir = src_root / theme
+def process_companion(name: str, src_root: Path, out_root: Path, report: Report) -> None:
+    """The five poses of one companion, from src_root/<name>/ to out_root/<name>/ (name: a theme or companions/<id>)."""
+    source_dir = src_root / name
     sources = {pose: find_source(source_dir, f"companion-{pose}") for pose in POSES}
     missing = [pose for pose, path in sources.items() if path is None]
     for pose in missing:
-        report.skip(f"{theme}/companion-{pose} (no source file)")
+        report.skip(f"{name}/companion-{pose} (no source file)")
     present = {pose: path for pose, path in sources.items() if path is not None}
     if not present:
         return
     if missing:
-        print(f"note    {theme}: sizes are evened out over the {len(present)} poses present; "
+        print(f"note    {name}: sizes are evened out over the {len(present)} poses present; "
               "run again when all five exist")
 
-    poses = {pose: cut_out(path) for pose, path in present.items()}
+    is_mascot = name.startswith("companions/")
+    has_headband = is_mascot and name.split("/")[-1] in HEADBAND_MASCOTS
+    poses = {
+        pose: cut_out(path, clear_head_gap=has_headband, keep_main_figure=is_mascot) for pose, path in present.items()
+    }
     # Even out the sizes: scale every pose down to the shortest pose's height.
     pose_height = min(cut.height for cut in poses.values())
     scaled = {
@@ -172,7 +221,18 @@ def process_companion(theme: str, src_root: Path, out_root: Path, report: Report
     floor_gap = round(pose_height * FLOOR_MARGIN)
     for pose, cut in scaled.items():
         canvas = place_on_square(cut, canvas_side, floor_gap)
-        save_cutout_sizes(canvas, out_root / theme, f"companion-{pose}", report)
+        save_cutout_sizes(canvas, out_root / name, f"companion-{pose}", report)
+
+
+def process_mascots(src_root: Path, out_root: Path, report: Report) -> None:
+    """Every mascot in art-src/companions/<id>/, the same way as a theme's companion."""
+    folder = src_root / "companions"
+    mascots = sorted(p.name for p in folder.iterdir() if p.is_dir()) if folder.is_dir() else []
+    if not mascots:
+        report.skip("companions/ (no source folders)")
+        return
+    for mascot in mascots:
+        process_companion(f"companions/{mascot}", src_root, out_root, report)
 
 
 def process_single_cutouts(folder_name: str, src_root: Path, out_root: Path, report: Report) -> None:
@@ -231,8 +291,8 @@ def process_stories(src_root: Path, out_root: Path, report: Report) -> None:
 
 def run(only: list[str], src_root: Path, out_root: Path) -> Report:
     report = Report()
-    groups = only or THEMES + ["common", "landmarks", "stories", "icons"]
-    unknown = [group for group in groups if group not in THEMES + ["common", "landmarks", "stories", "icons"]]
+    groups = only or THEMES + OTHER_GROUPS
+    unknown = [group for group in groups if group not in THEMES + OTHER_GROUPS]
     if unknown:
         sys.exit(f"Unknown group(s): {', '.join(unknown)}")
     if not src_root.is_dir():
@@ -246,6 +306,8 @@ def run(only: list[str], src_root: Path, out_root: Path) -> Report:
             process_stories(src_root, out_root, report)
         elif group == "icons":
             process_icons(src_root, out_root, report)
+        elif group == "companions":
+            process_mascots(src_root, out_root, report)
         else:
             process_single_cutouts(group, src_root, out_root, report)
 
@@ -255,7 +317,7 @@ def run(only: list[str], src_root: Path, out_root: Path) -> Report:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Make the app's WebP art from art-src/.")
-    parser.add_argument("only", nargs="*", help="theme ids, common, landmarks, stories or icons (default: all)")
+    parser.add_argument("only", nargs="*", help="theme ids, common, landmarks, stories, icons or companions (default: all)")
     parser.add_argument("--src", type=Path, default=ROOT / "art-src", help="sources folder (default: art-src)")
     parser.add_argument("--out", type=Path, default=ROOT / "public" / "art", help="output folder (default: public/art)")
     args = parser.parse_args()

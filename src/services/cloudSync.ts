@@ -178,6 +178,10 @@ export function mergeLearnerProfiles(
   // The first consent stays (an earlier ISO time sorts first)
   const resolvedConsent = [local.parentalConsentAt, cloud.parentalConsentAt].filter(Boolean).sort()[0];
 
+  const resolvedCompanion = preferCloudPrefs
+    ? cloud.companionId ?? local.companionId
+    : local.companionId ?? cloud.companionId;
+
   const resolvedVoice = preferCloudPrefs
     ? cloud.voicePreference ?? local.voicePreference
     : local.voicePreference ?? cloud.voicePreference;
@@ -195,6 +199,7 @@ export function mergeLearnerProfiles(
       'challenger',
     themeId:
       (preferCloudPrefs ? cloud.themeId : local.themeId) || 'cozy-studio',
+    ...(resolvedCompanion ? { companionId: resolvedCompanion } : {}),
     isShabbatObserver:
       preferCloudPrefs
         ? (cloud.isShabbatObserver ?? local.isShabbatObserver ?? true)

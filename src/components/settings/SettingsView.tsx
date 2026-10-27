@@ -1,7 +1,7 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { Volume2, X } from 'lucide-react';
 import { getRecommendedGradeForAge, type LearnerProfile } from '../../types/learner';
-import { THEME_REGISTRY } from '../../themes/themeRegistry';
+import { resolveTheme } from '../../themes/themeRegistry';
 import { getHebrewCopy } from '../../utils/hebrewGender';
 import { DEFAULT_VOICE_PREFERENCE, type VoicePreference } from '../../utils/ttsVoice';
 import {
@@ -21,6 +21,7 @@ import { StreakReminderCard } from './StreakReminderCard';
 import { VoiceLabCard } from './VoiceLabCard';
 import { GradeSelect } from './GradeSelect';
 import { FriendsHubFields, GenderAgeFields, NameField, ShabbatToggle, ThemePicker } from './ProfileFields';
+import { CompanionPicker } from './CompanionPicker';
 import { SettingsTabs, tabButtonId, tabPanelId, type SettingsTabItem } from './SettingsTabs';
 
 type SettingsTabId = 'profile' | 'look' | 'friends' | 'account';
@@ -56,6 +57,7 @@ function toDraft(profile: LearnerProfile): ProfileDraft {
     gender: profile.gender || 'girl',
     gradeId: profile.gradeId || getRecommendedGradeForAge(12),
     themeId: profile.themeId || 'cozy-studio',
+    ...(profile.companionId ? { companionId: profile.companionId } : {}),
     isShabbatObserver: profile.isShabbatObserver !== undefined ? profile.isShabbatObserver : true,
     isFriendsHubOn: isFriendsHubEnabled(profile),
     isUsernameSearchOn: isUsernameSearchable(profile),
@@ -94,7 +96,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const nameTimerRef = useRef<number | undefined>(undefined);
   const savedTimerRef = useRef<number | undefined>(undefined);
 
-  const activeTheme = THEME_REGISTRY[draft.themeId];
+  const activeTheme = resolveTheme(draft.themeId, draft.companionId);
   const heb = getHebrewCopy(draft.gender, draft.name || (draft.gender === 'girl' ? 'נועה' : 'עידו'));
   const isChild = draft.age < PARENT_APPROVAL_AGE;
   const isTurningFriendsOnForChild =
@@ -246,7 +248,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
 
         <div {...panelProps('look')}>
-          <ThemePicker themeId={draft.themeId} onChange={(themeId) => commit({ themeId })} />
+          <ThemePicker themeId={draft.themeId} companionId={draft.companionId} onChange={(themeId) => commit({ themeId })} />
+          <CompanionPicker theme={activeTheme} onChange={(companionId) => commit({ companionId })} />
           <div className="space-y-1.5">
             <span className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
               <Volume2 className="w-4 h-4 text-pink-500" />

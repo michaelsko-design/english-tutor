@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getTutorialSlides, TutorialInput, TutorialSlide } from './appTutorial';
-import { THEME_REGISTRY } from '../themes/themeRegistry';
+import { THEME_BASES } from '../themes/themeRegistry';
 import { inflectHebrew } from '../utils/hebrewGender';
 
 const input = (overrides: Partial<TutorialInput> = {}): TutorialInput => ({
@@ -58,7 +58,7 @@ describe('getTutorialSlides', () => {
   });
 
   it('writes the Hebrew gender-neutral for every theme, so it reads the same for every learner', () => {
-    for (const theme of Object.values(THEME_REGISTRY)) {
+    for (const theme of Object.values(THEME_BASES)) {
       for (const slide of getTutorialSlides(input({ currencyNameHe: theme.currencyNameHe }))) {
         for (const text of textsOf(slide)) {
           expect(inflectHebrew(text, 'boy'), `${theme.id}/${slide.id}`).toBe(text);
@@ -69,7 +69,7 @@ describe('getTutorialSlides', () => {
   });
 
   it('is word for word the same on every theme', () => {
-    const [first, ...others] = Object.values(THEME_REGISTRY).map((theme) =>
+    const [first, ...others] = Object.values(THEME_BASES).map((theme) =>
       getTutorialSlides(input({ currencyNameHe: theme.currencyNameHe }))
     );
 

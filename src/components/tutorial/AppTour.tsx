@@ -157,7 +157,7 @@ export const AppTour: React.FC<AppTourProps> = ({ theme, slides, avatarEmoji, is
           <div className={`relative flex-1 min-w-0 rounded-3xl rounded-tr-md p-4 shadow-lg animate-tour-rise ${theme.cardBgClass}`}>
             {slide.id === 'welcome' && (
               <p className={`text-sm font-extrabold ${theme.accentTextClass}`}>
-                היי! אני <bdi>{theme.companionName}</bdi> 👋
+                היי! אני <bdi>{theme.companion.name}</bdi> 👋
               </p>
             )}
             <h2 ref={headingRef} tabIndex={-1} className="text-xl font-black leading-tight outline-none">

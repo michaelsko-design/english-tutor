@@ -6,7 +6,7 @@ import {
   ThemeId,
   getRecommendedGradeForAge,
 } from '../types/learner';
-import { THEME_REGISTRY } from '../themes/themeRegistry';
+import { resolveTheme, THEME_IDS } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
 import { UserCheck } from 'lucide-react';
 import { PARENT_APPROVAL_AGE } from '../data/friends';
@@ -45,14 +45,14 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, 
   const [errorMsg, setErrorMsg] = useState('');
   const isChild = age < PARENT_APPROVAL_AGE;
 
-  // Warm every mascot pose of every theme now, so the tour (which follows) never waits on art
+  // Warm every pose of each theme's mascot now, so the tour (which follows) never waits on art
   useEffect(() => {
-    Object.values(THEME_REGISTRY).forEach((theme) =>
-      preloadCompanion(theme, COMPANION_POSES, TOUR_COMPANION_PX)
+    THEME_IDS.forEach((id) =>
+      preloadCompanion(resolveTheme(id, initialProfile.companionId), COMPANION_POSES, TOUR_COMPANION_PX)
     );
-  }, []);
+  }, [initialProfile.companionId]);
 
-  const activeTheme = THEME_REGISTRY[themeId];
+  const activeTheme = resolveTheme(themeId, initialProfile.companionId);
   const heb = getHebrewCopy(gender, name || (gender === 'girl' ? 'נועה' : 'עידו'));
 
   const handleAgeChange = (newAge: number) => {

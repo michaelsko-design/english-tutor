@@ -16,7 +16,16 @@ export type GradeId =
 
 export type ProficiencyTier = 'explorer' | 'challenger' | 'master';
 
-export type ThemeId = 'cozy-studio' | 'neon-pop' | 'starlight-rpg';
+export type ThemeId =
+  | 'cozy-studio'
+  | 'neon-pop'
+  | 'starlight-rpg'
+  | 'focus-desk'
+  | 'urban-night'
+  | 'travel-journal';
+
+/** The mascot; any mascot can go with any theme (each theme has a default one) */
+export type CompanionId = 'mochi' | 'dj-beat' | 'comet' | 'sage' | 'kai' | 'atlas';
 
 export type CloudSyncStatus = 'synced' | 'syncing' | 'local-only' | 'offline-error';
 
@@ -316,6 +325,8 @@ export interface LearnerProfile {
   schoolGradeId?: GradeId;
   preferredTier: ProficiencyTier;
   themeId: ThemeId;
+  /** The chosen mascot; unset means the theme's default mascot */
+  companionId?: CompanionId;
   stats: LearnerStats;
   /** Maps missionId -> stars earned (0 to 3) */
   missionProgress: Record<string, number>;

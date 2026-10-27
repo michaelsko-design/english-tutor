@@ -10,7 +10,7 @@ import {
 } from '../../data/roomPlacement';
 import { WardrobeItem } from '../../data/wardrobe';
 import { ThemeId } from '../../types/learner';
-import { THEME_REGISTRY } from '../../themes/themeRegistry';
+import { resolveTheme } from '../../themes/themeRegistry';
 import { useArtStatus } from '../../hooks/useArtStatus';
 import { DressedAvatar } from './DressedAvatar';
 import { ItemIcon } from './ItemIcon';
@@ -87,7 +87,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
 }) => {
   const palette = SCENE_PALETTES[themeId] || SCENE_PALETTES['cozy-studio'];
   const isInteractive = Boolean(onTapEntry);
-  const roomBgSrc = (THEME_REGISTRY[themeId] || THEME_REGISTRY['cozy-studio']).art.roomBg;
+  const roomBgSrc = resolveTheme(themeId).art.roomBg;
   const hasRoomArt = useArtStatus(roomBgSrc) === 'loaded';
   const sceneRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});

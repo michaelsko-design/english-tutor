@@ -4,7 +4,7 @@ import { auth, googleProvider } from '../../services/firebase';
 import { getAccountKind } from '../../services/accountService';
 import { writeAccountRole } from '../../services/accountRole';
 import { hasLearnerProfile, isParentAccount, markParentAccount } from '../../services/parentService';
-import { THEME_REGISTRY } from '../../themes/themeRegistry';
+import { resolveTheme } from '../../themes/themeRegistry';
 import { ParentHome } from './ParentHome';
 
 interface ParentPortalProps {
@@ -12,7 +12,7 @@ interface ParentPortalProps {
   initialCode: string | null;
 }
 
-const theme = THEME_REGISTRY['cozy-studio'];
+const theme = resolveTheme('cozy-studio');
 
 type AccountCheck = 'checking' | 'ok' | 'not-google' | 'is-learner' | 'error';
 

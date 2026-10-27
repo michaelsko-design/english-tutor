@@ -5,7 +5,6 @@
 
 ### UI
 
-- [ ] **UI** - Think about introducing another theme that will fit better for older students (not so much "kid-like" as the current themes).
 - [ ] **UI** - Create a short 20 seconds video animation with natural language hebrew narrations that will be used as an ad for this app, targeted at both children and parents.
 
 ### Technical
@@ -31,6 +30,7 @@
 
 
 ## Completed Features
+- [x] **Grown-up themes and mascot choice** - Three calmer themes for older students sit beside the three playful ones, grouped in the theme picker ("כיפי וצבעוני" / "בוגר ונקי"): **Focus** (light study desk, teal), **Street** (dark city at night, lime) and **Journey** (travel journal, sand/olive/navy), each with its own art (map, home scene, room) and its own new mascot: Sage the owl, Kai the raccoon and Atlas the otter. The mascot is now separate from the theme: any of the six mascots on any theme, chosen in settings → "עיצוב וקול" (`LearnerProfile.companionId`, synced); a learner who never chose one gets each theme's own. `docs/architecture.md` §4.3, §4.17.
 - [x] **Settings screen: tabs and autosave** - The settings screen (`components/settings/SettingsView.tsx`, `docs/architecture.md` §4.x voice line) is split into five tabs (profile, look and Shabbat, read-aloud and reminder, friends and parents, privacy and account) and saves every change as it is made through `App.handleUpdateProfile` (name on blur or after 600 ms; no save button). The grade is a dropdown (`GradeSelect`) grouped by school stage. First run keeps its own form (`OnboardingView`); both build the profile with `utils/buildSavedProfile.ts`.
 - [x] **App icon everywhere** - The new round EnglishVibe icon (yellow "E" with headphones on purple) replaces the old one: favicon (`favicon-32.png`, `icon-192.png`), PWA manifest icons (round "any" 192/512 plus full-bleed maskable 192/512 with the art inside the 80% safe zone), `apple-touch-icon.png` (also the push-notification icon), and `theme-color` / manifest `theme_color` `#5d489c`, plus `og:title`/`og:image` tags. In the app the `AppLogo` component shows it in the onboarding header pill, the tour welcome scene and the mandatory sign-in modal. The old `favicon.svg` is gone and the service worker precache lists `favicon-32.png`.
 - [x] **Daily streak reminders** - ~~Web Push notifications via `public/sw.js` + VAPID keys, with an iOS "Add to Home Screen" guide~~ ~~a scheduled Vercel Cron job that checks `streakLastDateStr` and respects `isShabbatObserver`~~ ~~a 1-tap `.ics` / Google Calendar recurring reminder~~. Done (`docs/architecture.md` §4.27): Settings → "תזכורת יומית לרצף" turns on a push at about 15:00 Israel time (one Vercel Cron run a day, works on the Hobby plan; no per-learner hour) on every day the learner hasn't practised yet, never on Friday/Shabbat for Shabbat observers: "keep going" with a live streak, otherwise "it's been a while, just 5 minutes". Before it works live: set `VITE_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `CRON_SECRET` in Vercel and deploy `firestore.rules`. The email part moved to its own item above.

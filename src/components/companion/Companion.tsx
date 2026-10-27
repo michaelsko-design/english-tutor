@@ -41,7 +41,7 @@ function getDevicePixelRatio(): number {
 
 /** The file a companion pose shows at this size: the 256px one when it is sharp enough. */
 export function getCompanionSrc(theme: ThemeDefinition, pose: CompanionPose, size: number): string {
-  return pickCutoutSrc(theme.art.companion[pose], size, getDevicePixelRatio());
+  return pickCutoutSrc(theme.companion.art[pose], size, getDevicePixelRatio());
 }
 
 /** Starts loading poses before they are shown, so a pose change never flashes empty. */
@@ -50,8 +50,8 @@ export function preloadCompanion(theme: ThemeDefinition, poses: CompanionPose[],
 }
 
 /**
- * The theme's companion (Feature 25): Mochi, DJ Beat or Comet in one of five poses, with CSS
- * motion and a ground shadow. Until a theme's art exists it shows the theme's avatar emoji
+ * The learner's mascot (Feature 25), e.g. Mochi, DJ Beat or Comet, in one of five poses, with CSS
+ * motion and a ground shadow. Until the mascot's art exists it shows the mascot's avatar emoji
  * in a soft bubble of the same size, so nothing moves when the art arrives.
  */
 export const Companion: React.FC<CompanionProps> = ({ theme, pose, size, sizeClassName, className = '', hasShadow = true }) => {
@@ -65,7 +65,7 @@ export const Companion: React.FC<CompanionProps> = ({ theme, pose, size, sizeCla
         className="rounded-full bg-white/85 ring-4 ring-white/40 shadow-lg flex items-center justify-center"
         style={{ width: '72%', height: '72%', fontSize: size * 0.4 }}
       >
-        <span className="leading-none">{theme.avatarEmoji}</span>
+        <span className="leading-none">{theme.companion.avatarEmoji}</span>
       </div>
     </div>
   );
@@ -86,7 +86,7 @@ export const Companion: React.FC<CompanionProps> = ({ theme, pose, size, sizeCla
         <ArtImage
           src={getCompanionSrc(theme, pose, size)}
           className="w-full h-full"
-          imgStyle={theme.art.companionRim ? { filter: theme.art.companionRim } : undefined}
+          imgStyle={theme.companionRim ? { filter: theme.companionRim } : undefined}
           fallback={fallback}
         />
       </div>

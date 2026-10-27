@@ -1,19 +1,18 @@
 import React from 'react';
 import { RefreshCw } from 'lucide-react';
-import { THEME_REGISTRY } from '../themes/themeRegistry';
-import { ThemeId } from '../types/learner';
+import { resolveTheme, ThemeDefinition } from '../themes/themeRegistry';
 import { Companion } from './companion/Companion';
 
 const STORAGE_KEY = 'english_tutor_learner_profile_v2';
 const COMPANION_SIZE = 140;
 
-/** The learner's theme from the local profile copy; the boundary sits above the app's state. */
-function readStoredThemeId(): ThemeId {
+/** The learner's theme and mascot from the local profile copy; the boundary sits above the app's state. */
+function readStoredTheme(): ThemeDefinition {
   try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') as { themeId?: ThemeId };
-    return stored.themeId && stored.themeId in THEME_REGISTRY ? stored.themeId : 'cozy-studio';
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') as { themeId?: string; companionId?: string };
+    return resolveTheme(stored.themeId, stored.companionId);
   } catch {
-    return 'cozy-studio';
+    return resolveTheme(undefined);
   }
 }
 
@@ -38,7 +37,7 @@ export class AppErrorBoundary extends React.Component<{ children: React.ReactNod
 
   render(): React.ReactNode {
     if (!this.state.hasError) return this.props.children;
-    const theme = THEME_REGISTRY[readStoredThemeId()];
+    const theme = readStoredTheme();
     return (
       <div className={`min-h-screen w-full ${theme.pageBgClass} flex items-center justify-center p-6`}>
         <div role="alert" className={`max-w-sm w-full rounded-3xl p-6 text-center space-y-4 ${theme.cardBgClass}`}>

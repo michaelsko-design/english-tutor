@@ -26,7 +26,7 @@ export const ProfileTour: React.FC<ProfileTourProps> = ({ profile, theme, authUs
     <AppTour
       theme={theme}
       slides={slides}
-      avatarEmoji={profile.equippedAvatarEmoji || theme.avatarEmoji}
+      avatarEmoji={profile.equippedAvatarEmoji || theme.companion.avatarEmoji}
       isShabbatObserver={isShabbatObserver}
       finishLabelHe={finishLabelHe}
       onDone={onDone}

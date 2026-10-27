@@ -82,7 +82,7 @@ export const FirstLaunchGreeting: React.FC<FirstLaunchGreetingProps> = ({
                 'אלה יהלומי הפתיחה שלך.'
               ) : (
                 <>
-                  אני <bdi>{theme.companionName}</bdi>, ויש לי מתנה בשבילך.
+                  אני <bdi>{theme.companion.name}</bdi>, ויש לי מתנה בשבילך.
                 </>
               )}
             </p>

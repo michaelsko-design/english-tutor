@@ -74,7 +74,7 @@ export const ParentLinkCard: React.FC<ParentLinkCardProps> = ({ profile, theme }
   const handleCreate = async () => {
     setIsBusy(true);
     setErrorHe(null);
-    const result = await createParentInvite(uid, profile.name, profile.equippedAvatarEmoji || theme.avatarEmoji);
+    const result = await createParentInvite(uid, profile.name, profile.equippedAvatarEmoji || theme.companion.avatarEmoji);
     setIsBusy(false);
     if (result.ok) setActive(result.value);
     else setErrorHe(result.errorHe);

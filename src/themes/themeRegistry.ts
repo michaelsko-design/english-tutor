@@ -1,7 +1,11 @@
-import { GradeId, ProficiencyTier, ThemeId, TodaysMissionSuggestion } from '../types/learner';
-import { buildThemeArt, LIGHT_COMPANION_RIM, ThemeArt } from './themeArt';
+import { CompanionId, GradeId, ProficiencyTier, ThemeId, TodaysMissionSuggestion } from '../types/learner';
+import { buildThemeArt, ThemeArt } from './themeArt';
+import { CompanionDefinition, getCompanion, getCompanionRim, IS_ART_PREVIEW } from './companionRegistry';
 
-export interface ThemeDefinition {
+export type ThemeAudience = 'young' | 'teen';
+
+/** A theme's look, without the mascot (`ThemeDefinition` adds the learner's mascot). */
+export interface ThemeBase {
   id: ThemeId;
   name: string;
   /** A dark page: the `dark:` colours apply (tailwind darkMode 'class', set by App) */
@@ -11,8 +15,12 @@ export interface ThemeDefinition {
   optionLabel: string;
   taglineEn: string;
   taglineHe: string;
-  avatarEmoji: string;
-  companionName: string;
+  /** The mascot of a learner who hasn't chosen one */
+  defaultCompanionId: CompanionId;
+  /** Playful themes for younger learners, or calmer grown-up ones; the picker groups them */
+  audience: ThemeAudience;
+  /** Offered in the picker; a theme stays hidden (except on the dev server) until its art is in */
+  isReleased: boolean;
   currencyNameEn: string;
   currencyNameHe: string;
   shopTitleHe: string;
@@ -27,11 +35,20 @@ export interface ThemeDefinition {
   accentTextClass: string;
   mutedTextClass: string;
   inputBgClass: string;
-  /** Generated art for this theme: companion poses and scene backgrounds (Feature 25) */
+  /** Generated scene art for this theme (Feature 25) */
   art: ThemeArt;
 }
 
-export const THEME_REGISTRY: Record<ThemeId, ThemeDefinition> = {
+/** The theme the app draws with: its look plus the learner's mascot. */
+export interface ThemeDefinition extends ThemeBase {
+  companion: CompanionDefinition;
+  /** CSS filter drawn around the mascot art, or null (a light rim for dark art on a dark theme) */
+  companionRim: string | null;
+}
+
+export const DEFAULT_THEME_ID: ThemeId = 'cozy-studio';
+
+export const THEME_BASES: Record<ThemeId, ThemeBase> = {
   'cozy-studio': {
     id: 'cozy-studio',
     isDark: false,
@@ -40,8 +57,9 @@ export const THEME_REGISTRY: Record<ThemeId, ThemeDefinition> = {
     optionLabel: 'Option B: Cozy Pastel Studio (Default)',
     taglineEn: 'Aesthetic Journal, Café Quests & Sticker Studio',
     taglineHe: 'סטודיו פסטל חמים, יומן מדבקות ומשימות קפה וטיולים',
-    avatarEmoji: '🧋',
-    companionName: 'Mochi the Cat',
+    defaultCompanionId: 'mochi',
+    audience: 'young',
+    isReleased: true,
     currencyNameEn: 'Diamonds',
     currencyNameHe: 'יהלומים',
     shopTitleHe: 'חדר מעוצב ואלבום מדבקות',
@@ -73,8 +91,9 @@ export const THEME_REGISTRY: Record<ThemeId, ThemeDefinition> = {
     optionLabel: 'Option A: Neon Pop & Social Quest',
     taglineEn: 'Backstage Pass, Group Chats & Pop Music Quests',
     taglineHe: 'אווירת פופ ומוזיקה, צ׳אטים עם חברים ואתגרי קצב',
-    avatarEmoji: '🎧',
-    companionName: 'DJ Beat',
+    defaultCompanionId: 'dj-beat',
+    audience: 'young',
+    isReleased: true,
     currencyNameEn: 'Diamonds',
     currencyNameHe: 'יהלומים',
     shopTitleHe: 'סטודיו מוזיקה ולוקים לאווטאר',
@@ -106,8 +125,9 @@ export const THEME_REGISTRY: Record<ThemeId, ThemeDefinition> = {
     optionLabel: 'Option C: Starlight Academy RPG',
     taglineEn: 'Cosmic Mysteries, Spell Codes & Pet Evolution',
     taglineHe: 'אקדמיית הכוכבים, תעלומות קסם ושדרוג חיית מחמד',
-    avatarEmoji: '🦊',
-    companionName: 'Comet (Star Fox)',
+    defaultCompanionId: 'comet',
+    audience: 'young',
+    isReleased: true,
     currencyNameEn: 'Diamonds',
     currencyNameHe: 'יהלומים',
     shopTitleHe: 'מקדש הכוכבים ושדרוג השועל',
@@ -129,10 +149,120 @@ export const THEME_REGISTRY: Record<ThemeId, ThemeDefinition> = {
     mutedTextClass: 'text-cyan-200/75',
     inputBgClass:
       'bg-slate-900/90 border border-cyan-400/30 text-cyan-50 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30',
-    // Comet is dark navy: a light rim keeps the fox visible on the midnight background
-    art: buildThemeArt('starlight-rpg', { companionRim: LIGHT_COMPANION_RIM }),
+    art: buildThemeArt('starlight-rpg'),
+  },
+  // Grown-up themes for older learners: flat surfaces, one accent colour, no glow
+  'focus-desk': {
+    id: 'focus-desk',
+    isDark: false,
+    themeColor: '#0f766e',
+    name: 'Focus',
+    optionLabel: 'Focus: Clean Study Desk',
+    taglineEn: 'Study Desk, Clear Goals & Calm Focus',
+    taglineHe: 'שולחן עבודה נקי, מטרות ברורות וריכוז רגוע',
+    defaultCompanionId: 'sage',
+    audience: 'teen',
+    isReleased: true,
+    currencyNameEn: 'Diamonds',
+    currencyNameHe: 'יהלומים',
+    shopTitleHe: 'פינת העבודה והסגנון האישי',
+    pageBgClass: 'bg-[#f6f4ef] text-slate-800',
+    cardBgClass: 'bg-white border border-stone-200 shadow-sm',
+    heroCardClass: 'bg-white border border-stone-300 border-s-4 border-s-teal-600 shadow-md shadow-stone-300/40',
+    hudBgClass: 'bg-[#f6f4ef]/90 backdrop-blur-md border-b border-stone-200',
+    primaryBtnClass: 'bg-teal-700 text-white shadow-sm hover:bg-teal-800 active:scale-[0.99]',
+    secondaryBtnClass: 'bg-stone-100 hover:bg-stone-200 text-slate-800 border border-stone-300',
+    badgeClass: 'bg-teal-50 border border-teal-200 text-teal-800',
+    accentTextClass: 'text-teal-700',
+    mutedTextClass: 'text-slate-600',
+    inputBgClass:
+      'bg-white border border-stone-300 text-slate-800 focus:border-teal-600 focus:ring-2 focus:ring-teal-100',
+    art: buildThemeArt('focus-desk'),
+  },
+  'urban-night': {
+    id: 'urban-night',
+    isDark: true,
+    themeColor: '#16181d',
+    name: 'Street',
+    optionLabel: 'Street: City at Night',
+    taglineEn: 'City Nights, Street Art & Skate Sessions',
+    taglineHe: 'לילות בעיר, אמנות רחוב וסשן סקייט',
+    defaultCompanionId: 'kai',
+    audience: 'teen',
+    isReleased: true,
+    currencyNameEn: 'Diamonds',
+    currencyNameHe: 'יהלומים',
+    shopTitleHe: 'הסטודיו בעיר והסטייל שלך',
+    pageBgClass: 'bg-[#16181d] text-zinc-100',
+    cardBgClass: 'bg-zinc-900 border border-zinc-700/80 shadow-md shadow-black/30',
+    heroCardClass: 'bg-zinc-900 border-2 border-lime-400/70 shadow-lg shadow-black/40',
+    hudBgClass: 'bg-[#16181d]/90 backdrop-blur-md border-b border-zinc-800',
+    primaryBtnClass: 'bg-lime-400 text-zinc-950 shadow-sm hover:bg-lime-300 active:scale-[0.99]',
+    secondaryBtnClass: 'bg-zinc-800 hover:bg-zinc-700 text-zinc-100 border border-zinc-600',
+    badgeClass: 'bg-lime-400/15 border border-lime-400/40 text-lime-300',
+    accentTextClass: 'text-lime-400',
+    mutedTextClass: 'text-zinc-400',
+    inputBgClass:
+      'bg-zinc-950 border border-zinc-600 text-zinc-100 focus:border-lime-400 focus:ring-2 focus:ring-lime-400/30',
+    art: buildThemeArt('urban-night'),
+  },
+  'travel-journal': {
+    id: 'travel-journal',
+    isDark: false,
+    themeColor: '#1e3a5f',
+    name: 'Journey',
+    optionLabel: 'Journey: Travel Journal',
+    taglineEn: 'Boarding Passes, Field Notes & World Routes',
+    taglineHe: 'כרטיסי טיסה, יומן מסע ומסלולים בעולם',
+    defaultCompanionId: 'atlas',
+    audience: 'teen',
+    isReleased: true,
+    currencyNameEn: 'Diamonds',
+    currencyNameHe: 'יהלומים',
+    shopTitleHe: 'תיק הגב ומזכרות מהדרך',
+    pageBgClass: 'bg-[#f3ead8] text-[#1f2a37]',
+    cardBgClass: 'bg-[#fffaf0] border border-[#d9c7a3] shadow-sm shadow-amber-900/10',
+    heroCardClass: 'bg-[#fffaf0] border-2 border-dashed border-[#1e3a5f]/40 shadow-md shadow-amber-900/10',
+    hudBgClass: 'bg-[#f3ead8]/90 backdrop-blur-md border-b border-[#d9c7a3]',
+    primaryBtnClass: 'bg-[#1e3a5f] text-[#fffaf0] shadow-sm hover:bg-[#274b78] active:scale-[0.99]',
+    secondaryBtnClass: 'bg-[#e8dcc2] hover:bg-[#dfd0b0] text-[#1f2a37] border border-[#c9b48a]',
+    badgeClass: 'bg-[#5b6b3a]/10 border border-[#5b6b3a]/40 text-[#3f4d24]',
+    accentTextClass: 'text-[#5b6b3a]',
+    mutedTextClass: 'text-[#5a5346]',
+    inputBgClass:
+      'bg-[#fffaf0] border border-[#c9b48a] text-[#1f2a37] focus:border-[#1e3a5f] focus:ring-2 focus:ring-[#1e3a5f]/20',
+    art: buildThemeArt('travel-journal'),
   },
 };
+
+export const THEME_IDS = Object.keys(THEME_BASES) as ThemeId[];
+
+/** The themes the picker offers: the released ones, plus the chosen one so it never disappears. */
+export function getPickableThemeIds(chosenId?: ThemeId, isPreview = IS_ART_PREVIEW): ThemeId[] {
+  return THEME_IDS.filter((id) => isPreview || THEME_BASES[id].isReleased || id === chosenId);
+}
+
+export function isThemeId(value: unknown): value is ThemeId {
+  return typeof value === 'string' && Object.prototype.hasOwnProperty.call(THEME_BASES, value);
+}
+
+/** Resolved themes are cached, so each theme + mascot pair is one stable object (safe as a hook dependency). */
+const resolvedThemes = new Map<string, ThemeDefinition>();
+
+/**
+ * The theme to draw with: the theme's look and the learner's mascot (the theme's default one when
+ * none is chosen). An unknown theme or mascot id, e.g. saved by a newer app version, falls back.
+ */
+export function resolveTheme(themeId: string | undefined, companionId?: string): ThemeDefinition {
+  const base = THEME_BASES[isThemeId(themeId) ? themeId : DEFAULT_THEME_ID];
+  const companion = getCompanion(companionId, base.defaultCompanionId);
+  const key = `${base.id}|${companion.id}`;
+  const cached = resolvedThemes.get(key);
+  if (cached) return cached;
+  const resolved: ThemeDefinition = { ...base, companion, companionRim: getCompanionRim(companion, base.isDark) };
+  resolvedThemes.set(key, resolved);
+  return resolved;
+}
 
 export const TIER_CONFIG: Record<
   ProficiencyTier,

@@ -22,7 +22,7 @@ import { AppLogo } from './components/AppLogo';
 import { applyPlacementToProfile } from './data/placementTest';
 import { recordActivityLog } from './data/activityLog';
 import { getFirstLaunchSteps } from './data/homeBase';
-import { THEME_REGISTRY } from './themes/themeRegistry';
+import { resolveTheme } from './themes/themeRegistry';
 import { useFriendPresence } from './hooks/useFriendPresence';
 import { useReportSnapshotPublisher } from './hooks/useReportSnapshotPublisher';
 import { useReminderSync } from './hooks/useReminderSync';
@@ -286,8 +286,7 @@ export function App() {
     }
   };
 
-  const activeTheme =
-    THEME_REGISTRY[profile.themeId] || THEME_REGISTRY['cozy-studio'];
+  const activeTheme = resolveTheme(profile.themeId, profile.companionId);
 
   // Dark themes switch on the dark: colours, and the browser bar follows the theme
   useEffect(() => {
@@ -307,7 +306,7 @@ export function App() {
     authUser,
     profile,
     isSynced: !isAuthInitializing && syncStatus === 'synced',
-    avatarEmoji: profile.equippedAvatarEmoji || activeTheme.avatarEmoji,
+    avatarEmoji: profile.equippedAvatarEmoji || activeTheme.companion.avatarEmoji,
     getLatestProfile: () => profileRef.current,
     onUpdateProfile: handleUpdateProfile,
   });

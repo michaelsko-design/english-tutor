@@ -101,6 +101,17 @@ describe('mergeLearnerProfiles voicePreference', () => {
   });
 });
 
+describe('mergeLearnerProfiles companionId', () => {
+  it('keeps a mascot chosen on only one side', () => {
+    expect(mergeLearnerProfiles(baseProfile, { ...baseProfile, companionId: 'comet' }).companionId).toBe('comet');
+    expect(mergeLearnerProfiles({ ...baseProfile, companionId: 'comet' }, baseProfile).companionId).toBe('comet');
+  });
+
+  it('leaves the field out when neither side chose', () => {
+    expect('companionId' in mergeLearnerProfiles(baseProfile, baseProfile)).toBe(false);
+  });
+});
+
 function makeExamPlan(id: string, createdAt: string, days: ExamPlanDay[] = []): ExamPrepPlan {
   return {
     id,

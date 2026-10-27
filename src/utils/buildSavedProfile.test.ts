@@ -22,6 +22,11 @@ function draftOf(overrides: Partial<ProfileDraft> = {}): ProfileDraft {
 }
 
 describe('buildSavedProfile', () => {
+  it('saves a chosen mascot and keeps the field out until one is chosen', () => {
+    expect(buildSavedProfile(makeProfile(), draftOf({ companionId: 'dj-beat' }), NOW).companionId).toBe('dj-beat');
+    expect('companionId' in buildSavedProfile(makeProfile(), draftOf(), NOW)).toBe(false);
+  });
+
   it('applies the draft, trims the name and marks the profile onboarded', () => {
     const saved = buildSavedProfile(makeProfile(), draftOf(), NOW);
 

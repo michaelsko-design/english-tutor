@@ -41,13 +41,8 @@ export interface MapPathStyle {
   glowColor: string | null;
 }
 
+/** A theme's scene art; the mascot's art is in companionRegistry.ts. */
 export interface ThemeArt {
-  companion: Record<CompanionPose, CutoutArt>;
-  /**
-   * CSS filter drawn around the companion art, or null. A dark companion on a dark theme
-   * (Comet on Stars) gets a soft light rim so it doesn't vanish into the background.
-   */
-  companionRim: string | null;
   /** World map background (Feature 26), 1080px wide, one copy per unit */
   mapBg: string;
   /** How the world map path runs and looks on this theme's map background */
@@ -117,19 +112,48 @@ export const MAP_PATH_BY_THEME: Record<ThemeId, MapPathStyle> = {
     trailColor: '#fcd34d',
     glowColor: '#7dd3fc',
   },
+  'focus-desk': {
+    centerline: toPoints([
+      [0.5, 0], [0.5, 0.05], [0.5, 0.1], [0.5, 0.15], [0.483, 0.2], [0.416, 0.25], [0.334, 0.3], [0.294, 0.35],
+      [0.3, 0.4], [0.36, 0.45], [0.498, 0.5], [0.631, 0.55], [0.696, 0.6], [0.705, 0.625], [0.696, 0.675],
+      [0.649, 0.725], [0.581, 0.775], [0.525, 0.825], [0.502, 0.875], [0.5, 0.925], [0.5, 1],
+    ]),
+    edgeColor: '#0f766e',
+    fillColor: '#ffffff',
+    dashColor: '#99f6e4',
+    trailColor: '#f97316',
+    glowColor: null,
+  },
+  'urban-night': {
+    centerline: toPoints([
+      [0.5, 0], [0.5, 0.05], [0.5, 0.1], [0.511, 0.15], [0.557, 0.2], [0.649, 0.25], [0.725, 0.3],
+      [0.743, 0.35], [0.717, 0.4], [0.628, 0.45], [0.495, 0.5], [0.354, 0.55], [0.27, 0.6], [0.255, 0.65],
+      [0.265, 0.7], [0.326, 0.75], [0.454, 0.8], [0.506, 0.85], [0.506, 0.9], [0.5, 0.95], [0.5, 1],
+    ]),
+    edgeColor: '#a3e635',
+    fillColor: '#27272a',
+    dashColor: '#fafafa',
+    trailColor: '#a3e635',
+    glowColor: '#65a30d',
+  },
+  'travel-journal': {
+    // Crosses between the continents at about 0.78, where the drawn band fades into the sea
+    centerline: toPoints([
+      [0.509, 0], [0.508, 0.05], [0.509, 0.1], [0.51, 0.15], [0.54, 0.2], [0.68, 0.25], [0.675, 0.3],
+      [0.502, 0.35], [0.377, 0.4], [0.388, 0.45], [0.484, 0.5], [0.626, 0.55], [0.655, 0.6], [0.527, 0.65],
+      [0.419, 0.7], [0.425, 0.73], [0.435, 0.755], [0.47, 0.778], [0.525, 0.8], [0.535, 0.82], [0.52, 0.845],
+      [0.478, 0.875], [0.465, 0.925], [0.463, 1],
+    ]),
+    edgeColor: '#c9b48a',
+    fillColor: '#fffaf0',
+    dashColor: '#1e3a5f',
+    trailColor: '#b45309',
+    glowColor: null,
+  },
 };
 
-/** A soft white edge plus a faint cyan glow, for dark art on a dark background. */
-export const LIGHT_COMPANION_RIM =
-  'drop-shadow(0 0 2px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 10px rgba(127, 214, 255, 0.35))';
-
-export function buildThemeArt(themeId: ThemeId, options: { companionRim?: string } = {}): ThemeArt {
-  const companion = Object.fromEntries(
-    COMPANION_POSES.map((pose) => [pose, getCutoutArt(themeId, `companion-${pose}`)])
-  ) as Record<CompanionPose, CutoutArt>;
+export function buildThemeArt(themeId: ThemeId): ThemeArt {
   return {
-    companion,
-    companionRim: options.companionRim ?? null,
     mapBg: `${ART_ROOT}/${themeId}/map-bg.webp`,
     mapPath: MAP_PATH_BY_THEME[themeId],
     homeScene: `${ART_ROOT}/${themeId}/home-scene.webp`,

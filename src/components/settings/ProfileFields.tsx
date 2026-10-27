@@ -1,7 +1,13 @@
 import React, { useId } from 'react';
 import { Palette, ShieldCheck, Users } from 'lucide-react';
-import type { LearnerGender, ThemeId } from '../../types/learner';
-import { THEME_REGISTRY, type ThemeDefinition } from '../../themes/themeRegistry';
+import type { CompanionId, LearnerGender, ThemeId } from '../../types/learner';
+import {
+  getPickableThemeIds,
+  resolveTheme,
+  THEME_BASES,
+  type ThemeAudience,
+  type ThemeDefinition,
+} from '../../themes/themeRegistry';
 import { Companion } from '../companion/Companion';
 
 interface ThemedProps {
@@ -110,40 +116,61 @@ export const GenderAgeFields: React.FC<GenderAgeFieldsProps> = ({
 
 interface ThemePickerProps {
   themeId: ThemeId;
+  /** The learner's chosen mascot, shown on every theme; unset shows each theme's own mascot */
+  companionId?: CompanionId;
   onChange: (themeId: ThemeId) => void;
 }
 
-export const ThemePicker: React.FC<ThemePickerProps> = ({ themeId, onChange }) => (
-  <div className="space-y-1.5">
-    <span className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
-      <Palette className="w-4 h-4" />
-      <span>ערכת עיצוב:</span>
-    </span>
-    <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-      {(Object.keys(THEME_REGISTRY) as ThemeId[]).map((tKey) => {
-        const tItem = THEME_REGISTRY[tKey];
-        const isSelected = tKey === themeId;
-        return (
-          <button
-            key={tKey}
-            type="button"
-            onClick={() => onChange(tKey)}
-            aria-pressed={isSelected}
-            aria-label={tItem.name}
-            className={`px-1 py-2.5 sm:p-2.5 rounded-xl text-center transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border border-current/20 ${
-              tItem.pageBgClass
-            } ${isSelected ? 'ring-2 ring-offset-2 ring-fuchsia-500' : 'opacity-75 hover:opacity-100'}`}
-          >
-            <Companion theme={tItem} pose="idle" size={40} hasShadow={false} />
-            <span className="font-extrabold text-xs leading-tight break-words max-w-full" dir="ltr" lang="en">
-              {tItem.name}
-            </span>
-          </button>
-        );
-      })}
+const AUDIENCE_GROUPS: ReadonlyArray<{ audience: ThemeAudience; labelHe: string }> = [
+  { audience: 'young', labelHe: 'כיפי וצבעוני' },
+  { audience: 'teen', labelHe: 'בוגר ונקי' },
+];
+
+export const ThemePicker: React.FC<ThemePickerProps> = ({ themeId, companionId, onChange }) => {
+  const pickableIds = getPickableThemeIds(themeId);
+  const groups = AUDIENCE_GROUPS.map((group) => ({
+    ...group,
+    ids: pickableIds.filter((id) => THEME_BASES[id].audience === group.audience),
+  })).filter((group) => group.ids.length > 0);
+  const isGrouped = groups.length > 1;
+
+  return (
+    <div className="space-y-1.5">
+      <span className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
+        <Palette className="w-4 h-4" />
+        <span>ערכת עיצוב:</span>
+      </span>
+      {groups.map((group) => (
+        <div key={group.audience} role="group" aria-label={isGrouped ? group.labelHe : undefined} className="space-y-1">
+          {isGrouped && <span className="block text-xs font-bold opacity-75">{group.labelHe}</span>}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+            {group.ids.map((tKey) => {
+              const tItem = resolveTheme(tKey, companionId);
+              const isSelected = tKey === themeId;
+              return (
+                <button
+                  key={tKey}
+                  type="button"
+                  onClick={() => onChange(tKey)}
+                  aria-pressed={isSelected}
+                  aria-label={tItem.name}
+                  className={`px-1 py-2.5 sm:p-2.5 rounded-xl text-center transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border border-current/20 ${
+                    tItem.pageBgClass
+                  } ${isSelected ? 'ring-2 ring-offset-2 ring-fuchsia-500' : 'opacity-75 hover:opacity-100'}`}
+                >
+                  <Companion theme={tItem} pose="idle" size={40} hasShadow={false} />
+                  <span className="font-extrabold text-xs leading-tight break-words max-w-full" dir="ltr" lang="en">
+                    {tItem.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
-  </div>
-);
+  );
+};
 
 interface ShabbatToggleProps extends ThemedProps {
   gender: LearnerGender;
