@@ -1,9 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
-import { isParentRoute, parseParentParam } from './data/parentLink';
-import { lazyNamed } from './utils/lazyNamed';
-import { ScreenLoading } from './components/ScreenLoading';
+import { AppRoot } from './components/AppRoot';
 import { AppErrorBoundary } from './components/AppErrorBoundary';
 // Fonts are bundled with the app (not loaded from Google), so they work offline and send no requests out
 import '@fontsource-variable/plus-jakarta-sans';
@@ -24,20 +21,10 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// The parent area is a separate, lazy screen: it never starts the learner app or its cloud sync
-const ParentPortal = lazyNamed(() => import('./components/parent/ParentPortal'), 'ParentPortal');
-const isParentView = isParentRoute(window.location.search);
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <AppErrorBoundary>
-      {isParentView ? (
-        <React.Suspense fallback={<ScreenLoading />}>
-          <ParentPortal initialCode={parseParentParam(window.location.search)} />
-        </React.Suspense>
-      ) : (
-        <App />
-      )}
+      <AppRoot />
     </AppErrorBoundary>
   </React.StrictMode>
 );

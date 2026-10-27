@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { User, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth';
 import { auth, googleProvider } from '../../services/firebase';
 import { getAccountKind } from '../../services/accountService';
+import { writeAccountRole } from '../../services/accountRole';
 import { hasLearnerProfile, isParentAccount, markParentAccount } from '../../services/parentService';
 import { THEME_REGISTRY } from '../../themes/themeRegistry';
 import { ParentHome } from './ParentHome';
@@ -21,8 +22,13 @@ async function checkParentAccount(user: User): Promise<AccountCheck> {
   if (getAccountKind(user) !== 'google') return 'not-google';
   try {
     // A Google learner has a profile; a real parent account has the marker instead
-    if ((await hasLearnerProfile(user.uid)) && !(await isParentAccount(user.uid))) return 'is-learner';
+    if ((await hasLearnerProfile(user.uid)) && !(await isParentAccount(user.uid))) {
+      writeAccountRole(user.uid, 'learner');
+      return 'is-learner';
+    }
     await markParentAccount(user.uid);
+    // The app icon now opens this screen for this account (AppRoot)
+    writeAccountRole(user.uid, 'parent');
     return 'ok';
   } catch {
     return 'error';
@@ -81,6 +87,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({ initialCode }) => {
   };
 
   const handleSignOut = () => {
+    if (user) writeAccountRole(user.uid, null);
     if (auth) void signOut(auth);
   };
 
