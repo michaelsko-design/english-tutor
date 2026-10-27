@@ -6,6 +6,7 @@
 ### UI
 
 - [ ] **UI** - Think about introducing another theme that will fit better for older students (not so much "kid-like" as the current themes).
+- [ ] **Grade 1 letter missions: audio** - In the grade 1 letters missions (units 1–4) there is no way to hear the letters in the answer options, and there are two redundant 🔊 buttons that both read the English word in the question. Make every letter answer option listenable (as the other answer options are), and keep one 🔊 for the question's English word.
 
 ### Technical
 
@@ -18,6 +19,7 @@
 - [ ] **Vibe-o-meter** - A 0-100% gauge derived from `profile.activityLog` (no stored field, no sync change): it fills with recent practice and cools gently when days go quiet (Shabbat and shielded days count as active). It never removes points or levels, and its copy is encouraging, not punishing.
 - [ ] **Parent view and PIN recovery** - Done so far (`docs/architecture.md` §4.21): an optional parent account paired to a learner with a one-time code, a read-only weekly report for the parent, and a change-PIN option in settings. Also done: the parent sets a child's PIN (`api/parent-reset-pin.ts`, needs `FIREBASE_SERVICE_ACCOUNT_JSON` in Vercel) and a closable home card inviting a parent. Still to do: a self-issued recovery code so a child with no parent can recover (`api/recover-pin.ts`, same secret, with a Firestore-backed attempt limit). A learner must always be able to use the app with no parent.
 - [ ] **Daily streak reminders** - Web-native daily reminders without migrating to a native app: Web Push notifications via `public/sw.js` + VAPID keys (with an iOS "Add to Home Screen" guide), a scheduled Vercel Cron job that checks `streakLastDateStr` and respects `isShabbatObserver` (skipping Friday/Shabbat), optional parent/learner email streak-saver & Sunday weekly report emails via Resend, and a 1-tap `.ics` / Google Calendar recurring reminder option.
+- [ ] **Summer vacation season content** - Special content for the summer break, at the transition between grades: a recap of the grade just finished, a "getting ready for the next grade" preview, and special summer games and content (kept out of the normal mission path until the season, like the content packs).
 - [ ] **Pro tier and payments plan** - Define the Freemium vs. "EnglishVibe Pro" / one-time "Exam Booster Pass" tier boundaries (keeping Unit 1, Placement Test and Friends Hub free while gating full curriculum, unlimited Exam Prep / Mock Exams and unlimited School Word Lists), design the kid-safe "Ask a Parent on WhatsApp" payment link flow (use the parent pairing code, `/?parent=<code>`, not the learner's uid; the payer is the paired parent account, and entitlements are written by the server to `entitlements/{childUid}`), and plan integration with an Israeli payment gateway (Bit / Apple Pay / Google Pay + automatic tax invoices via Grow/PayPlus/Morning) and server-verified Firestore subscription status. Also create a coupon system for discounts, promotions etc.
 
 
