@@ -49,7 +49,7 @@ export function SettingsTabs<Id extends string>({
       role="tablist"
       aria-label="קטגוריות הגדרות"
       onKeyDown={handleKeyDown}
-      className="grid grid-cols-5 gap-1"
+      className="flex gap-1.5"
     >
       {tabs.map((tab) => {
         const isActive = tab.id === activeId;
@@ -63,7 +63,7 @@ export function SettingsTabs<Id extends string>({
             aria-controls={tabPanelId(idPrefix, tab.id)}
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(tab.id)}
-            className={`min-h-14 min-w-0 px-0.5 py-1.5 rounded-xl font-extrabold text-xs flex flex-col items-center justify-center gap-0.5 transition-colors ${
+            className={`min-h-14 min-w-0 flex-1 px-0.5 py-1.5 rounded-xl font-extrabold text-xs flex flex-col items-center justify-center gap-0.5 transition-colors ${
               isActive ? theme.primaryBtnClass : theme.secondaryBtnClass
             }`}
           >

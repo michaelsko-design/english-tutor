@@ -23,12 +23,11 @@ import { GradeSelect } from './GradeSelect';
 import { FriendsHubFields, GenderAgeFields, NameField, ShabbatToggle, ThemePicker } from './ProfileFields';
 import { SettingsTabs, tabButtonId, tabPanelId, type SettingsTabItem } from './SettingsTabs';
 
-type SettingsTabId = 'profile' | 'look' | 'voice' | 'friends' | 'account';
+type SettingsTabId = 'profile' | 'look' | 'friends' | 'account';
 
 const SETTINGS_TABS: SettingsTabItem<SettingsTabId>[] = [
   { id: 'profile', labelHe: 'פרופיל', icon: '👤' },
-  { id: 'look', labelHe: 'עיצוב', icon: '🎨' },
-  { id: 'voice', labelHe: 'הקראה', icon: '🔊' },
+  { id: 'look', labelHe: 'עיצוב וקול', icon: '🎨' },
   { id: 'friends', labelHe: 'חברים', icon: '👫' },
   { id: 'account', labelHe: 'חשבון', icon: '🔒' },
 ];
@@ -229,19 +228,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             onAgeChange={handleAgeChange}
           />
           <GradeSelect gradeId={draft.gradeId} theme={activeTheme} onChange={(gradeId) => commit({ gradeId })} />
-        </div>
-
-        <div {...panelProps('look')}>
-          <ThemePicker themeId={draft.themeId} onChange={(themeId) => commit({ themeId })} />
           <ShabbatToggle
             gender={draft.gender}
             isOn={draft.isShabbatObserver}
             theme={activeTheme}
             onToggle={() => commit({ isShabbatObserver: !draft.isShabbatObserver })}
           />
+          <div className="space-y-1.5">
+            <span className="block text-xs sm:text-sm font-bold">תזכורת יומית:</span>
+            <StreakReminderCard profile={profile} theme={activeTheme} />
+          </div>
         </div>
 
-        <div {...panelProps('voice')}>
+        <div {...panelProps('look')}>
+          <ThemePicker themeId={draft.themeId} onChange={(themeId) => commit({ themeId })} />
           <div className="space-y-1.5">
             <span className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
               <Volume2 className="w-4 h-4 text-pink-500" />
@@ -266,10 +266,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
             <VoiceLabCard voicePreference={draft.voicePreference} theme={activeTheme} />
           </div>
-          <div className="space-y-1.5">
-            <span className="block text-xs sm:text-sm font-bold">תזכורת יומית:</span>
-            <StreakReminderCard profile={profile} theme={activeTheme} />
-          </div>
         </div>
 
         <div {...panelProps('friends')}>
@@ -288,13 +284,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             onParentApprovalChange={handleParentApproval}
             onUsernameSearchChange={(isUsernameSearchOn) => commit({ isUsernameSearchOn })}
           />
+        </div>
+
+        <div {...panelProps('account')}>
           <div className="space-y-1.5">
             <span className="block text-xs sm:text-sm font-bold">הורים:</span>
             <ParentLinkCard profile={profile} theme={activeTheme} />
           </div>
-        </div>
-
-        <div {...panelProps('account')}>
           <div className="space-y-1.5">
             <span className="block text-xs sm:text-sm font-bold">פרטיות וחשבון:</span>
             <AccountPrivacyCard
