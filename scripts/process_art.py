@@ -28,7 +28,7 @@ Usage:  python scripts/process_art.py [only ...] [--src DIR] [--out DIR]
         only: theme ids (cozy-studio, neon-pop, starlight-rpg, focus-desk, urban-night, travel-journal),
               common, landmarks, stories, icons, companions, common/<theme>, landmarks/<theme>
         (default: everything found in art-src/)
-Needs:  Python 3.10+, Pillow and numpy  (pip install pillow numpy); the companions target also needs scipy
+Needs:  Python 3.10+, Pillow and numpy  (pip install pillow numpy); the companions and the themes' mission art also need scipy
 """
 import argparse
 import sys
@@ -57,6 +57,21 @@ SHADOW_MAX_SATURATION = 40  # the ground shadow is a low-saturation grey-mauve
 SHADOW_MIN_BRIGHTNESS = 150
 HEAD_GAP_SHARE = 0.18  # enclosed white starting this high on the drawing is a gap under a headband
 HEADBAND_MASCOTS = {"sage"}  # mascots whose headband closes off white over the head (others keep white teeth)
+# Mission art: enclosed white the colour of the background (neutral and very light, unlike the warm
+# paper the themes paint) is background showing through a loop or a gap, such as inside headphones.
+HOLE_MIN_PIXELS = 150  # smaller white specks are highlights
+HOLE_MIN_BRIGHTNESS = 248  # the area's mean darkest channel
+HOLE_MAX_WARMTH = 3  # the area's mean red minus blue; painted paper is warmer
+# Pictures whose enclosed background-coloured white is paint (snow, a blank canvas, ball panels, a shine)
+KEEP_ENCLOSED_WHITE = {
+    "common/travel-journal/boss-locked",
+    "common/travel-journal/boss-open",
+    "landmarks/focus-desk/g7-u1",
+    "landmarks/neon-pop/g1-u3",
+    "landmarks/neon-pop/g3-u1",
+    "landmarks/starlight-rpg/g1-u4",
+    "landmarks/starlight-rpg/g6-u2",
+}
 CANVAS_MARGIN = 0.04  # free space around the tallest cut-out, as a share of its height
 FLOOR_MARGIN = 0.02  # gap under the feet, as a share of the cut-out height
 CUTOUT_QUALITY = 85
@@ -142,6 +157,24 @@ def head_gap_mask(rgb: np.ndarray, background: np.ndarray) -> np.ndarray:
     return flood(enclosed_white, seeds)
 
 
+def background_hole_mask(rgb: np.ndarray, background: np.ndarray) -> np.ndarray:
+    """Enclosed areas coloured like the background (see HOLE_MIN_BRIGHTNESS): the background seen through a gap."""
+    from scipy import ndimage
+
+    channels = rgb.astype(int)
+    enclosed_white = ((255 - channels.min(axis=2)) <= BACKGROUND_TOLERANCE) & ~background
+    labels, count = ndimage.label(enclosed_white)
+    holes = np.zeros_like(enclosed_white)
+    for label in range(1, count + 1):
+        area = labels == label
+        if area.sum() < HOLE_MIN_PIXELS:
+            continue
+        mean = channels[area].mean(axis=0)
+        if mean.min() >= HOLE_MIN_BRIGHTNESS and mean[0] - mean[2] < HOLE_MAX_WARMTH:
+            holes |= area
+    return holes
+
+
 def main_figure_mask(background: np.ndarray) -> np.ndarray:
     """True outside the largest drawn shape, so stray bits of a neighbouring pose on a sheet are dropped."""
     from scipy import ndimage  # only the mascot cut-outs need it
@@ -154,12 +187,17 @@ def main_figure_mask(background: np.ndarray) -> np.ndarray:
 
 
 def cut_out(
-    path: Path | Image.Image, clear_enclosed_white: bool = False, clear_head_gap: bool = False, keep_main_figure: bool = False
+    path: Path | Image.Image,
+    clear_enclosed_white: bool = False,
+    clear_head_gap: bool = False,
+    keep_main_figure: bool = False,
+    clear_holes: bool = False,
 ) -> Image.Image:
     """The drawing on a transparent background, cropped to the drawing.
 
     clear_enclosed_white also removes near-white areas the outline closes off (the hole of a necklace);
     clear_head_gap removes only those at the top of the drawing (see head_gap_mask);
+    clear_holes removes those coloured like the background (see background_hole_mask);
     keep_main_figure drops everything but the largest shape (a mascot sliced from a sheet, see main_figure_mask)."""
     image = (Image.open(path) if isinstance(path, Path) else path).convert("RGB")
     rgb = np.asarray(image)
@@ -168,6 +206,8 @@ def cut_out(
         background = background | ((255 - rgb.astype(int).min(axis=2)) <= BACKGROUND_TOLERANCE)
     elif clear_head_gap:
         background = background | head_gap_mask(rgb, background)
+    elif clear_holes:
+        background = background | background_hole_mask(rgb, background)
     if keep_main_figure:
         background = main_figure_mask(background)
     alpha = Image.fromarray(np.where(background, 0, 255).astype("uint8"))
@@ -264,13 +304,20 @@ def process_single_cutouts(folder_name: str, src_root: Path, out_root: Path, rep
     if not sources:
         report.skip(f"{folder_name}/ (no source files)")
         return
+    is_theme_set = folder_name in MISSION_ART_GROUPS
+
+    def clears_holes(name: str) -> bool:
+        return is_theme_set and f"{folder_name}/{name}" not in KEEP_ENCLOSED_WHITE
+
     for path in sources:
         if PAIR_SEPARATOR in path.stem:
             names = path.stem.split(PAIR_SEPARATOR)
-            cuts = [cut_out(half) for half in split_pair_sheet(path)]
+            halves = split_pair_sheet(path)
+            cuts = [cut_out(half, clear_holes=clears_holes(name)) for name, half in zip(names, halves)]
             save_on_shared_square(list(zip(names, cuts)), out_root / folder_name, report)
         else:
-            save_on_shared_square([(path.stem, cut_out(path))], out_root / folder_name, report)
+            cut = cut_out(path, clear_holes=clears_holes(path.stem))
+            save_on_shared_square([(path.stem, cut)], out_root / folder_name, report)
 
 
 def save_resized(path: Path, target: Path, width: int, report: Report) -> None:
