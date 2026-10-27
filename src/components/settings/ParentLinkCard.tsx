@@ -108,7 +108,14 @@ export const ParentLinkCard: React.FC<ParentLinkCardProps> = ({ profile, theme }
       {parents.map((link, index) => (
         <div key={link.parentUid} className="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-black/5 dark:bg-white/5">
           <span className="text-xs sm:text-sm font-bold">
-            הורה מחובר/ת {parents.length > 1 ? index + 1 : ''} · מאז {formatShortDateHe(link.linkedAt.slice(0, 10))}
+            הורה מחובר/ת {parents.length > 1 ? index + 1 : ''}
+            {link.parentLabel && (
+              <>
+                {' '}
+                (<bdi dir="ltr" lang="en">{link.parentLabel}</bdi>)
+              </>
+            )}{' '}
+            · מאז {formatShortDateHe(link.linkedAt.slice(0, 10))}
           </span>
           <button
             type="button"

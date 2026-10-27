@@ -135,6 +135,8 @@ await deleteDoc(doc(a.db, 'reportSnapshots', ua.uid)).catch(() => {});
 
 await expect('a parent code naming another learner is denied', false, () =>
   setDoc(doc(a.db, 'parentInvites', CODE), invite({ childUid: ub.uid })));
+await expect('a parent code that lives 4 days is denied', false, () =>
+  setDoc(doc(a.db, 'parentInvites', CODE), invite({ expiresAtMs: Date.now() + 4 * 24 * 3600 * 1000 })));
 await expect('a parent code that expires in a month is denied', false, () =>
   setDoc(doc(a.db, 'parentInvites', CODE), invite({ expiresAtMs: Date.now() + 30 * 24 * 3600 * 1000 })));
 await expect('a malformed parent code is denied', false, () =>
@@ -145,7 +147,8 @@ await expect('a link without deleting the code is denied', false, () =>
   setDoc(doc(b.db, 'parentLinks', linkId), linkData()));
 await expect('a link with another child name is denied', false, () => claim(b.db, { childName: 'Dana' }));
 await expect('a link for another parent is denied', false, () => claim(b.db, { parentUid: ua.uid }));
-await expect('a parent can claim the code', true, () => claim(b.db));
+await expect('a link with a huge parent label is denied', false, () => claim(b.db, { parentLabel: 'x'.repeat(200) }));
+await expect('a parent can claim the code (with a masked email label)', true, () => claim(b.db, { parentLabel: 'p***@example.com' }));
 await expect('the claimed code is gone', true, async () => {
   if ((await getDoc(doc(b.db, 'parentInvites', CODE))).exists()) throw new Error('still there');
 });

@@ -155,7 +155,8 @@ export async function hasLearnerProfile(uid: string): Promise<boolean> {
 export async function claimParentCode(
   parentUid: string,
   rawCode: string,
-  now: Date = new Date()
+  now: Date = new Date(),
+  parentLabel = ''
 ): Promise<ParentResult<ParentLink>> {
   const code = normalizeParentCode(rawCode);
   if (!db || !isParentCode(code)) return { ok: false, errorHe: 'הקוד לא נראה תקין. כדאי לבדוק אותו עם הילד או הילדה.' };
@@ -174,6 +175,7 @@ export async function claimParentCode(
       childAvatar: invite.childAvatar,
       inviteCode: code,
       linkedAt: now.toISOString(),
+      ...(parentLabel ? { parentLabel } : {}),
     };
     const batch = writeBatch(db);
     batch.set(doc(db, 'parentLinks', parentLinkId(parentUid, invite.childUid)), link);

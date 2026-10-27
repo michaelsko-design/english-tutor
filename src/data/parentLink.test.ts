@@ -11,6 +11,7 @@ import {
   isInviteExpired,
   isParentCode,
   isParentRoute,
+  maskParentEmail,
   normalizeParentCode,
   parentLinkId,
   parseParentParam,
@@ -54,11 +55,17 @@ describe('parent code', () => {
     expect(buildParentUrl('https://app.example/', 'ABCD2345')).toBe('https://app.example/?parent=ABCD2345');
   });
 
-  it('expires after a week', () => {
+  it('expires after two days', () => {
     const expiresAtMs = getInviteExpiry(NOW);
-    expect(new Date(expiresAtMs).toISOString()).toBe('2026-03-11T10:00:00.000Z');
-    expect(isInviteExpired({ expiresAtMs }, new Date('2026-03-11T09:59:59.000Z'))).toBe(false);
-    expect(isInviteExpired({ expiresAtMs }, new Date('2026-03-11T10:00:00.000Z'))).toBe(true);
+    expect(new Date(expiresAtMs).toISOString()).toBe('2026-03-06T10:00:00.000Z');
+    expect(isInviteExpired({ expiresAtMs }, new Date('2026-03-06T09:59:59.000Z'))).toBe(false);
+    expect(isInviteExpired({ expiresAtMs }, new Date('2026-03-06T10:00:00.000Z'))).toBe(true);
+  });
+
+  it('hides most of the parent email', () => {
+    expect(maskParentEmail('maya.cohen@gmail.com')).toBe('m***@gmail.com');
+    expect(maskParentEmail(null)).toBe('');
+    expect(maskParentEmail('no-at-sign')).toBe('');
   });
 
   it('writes the message in the sender\'s gender and falls back without a name', () => {

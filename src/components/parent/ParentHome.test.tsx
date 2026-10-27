@@ -19,7 +19,7 @@ vi.mock('../progressReport/WeeklyReportScreen', () => ({
   WeeklyReportScreen: ({ profile }: { profile: { name: string } }) => <div role="dialog">דוח של {profile.name}</div>,
 }));
 
-const USER = { uid: 'parent-1' } as User;
+const USER = { uid: 'parent-1', email: 'parent@example.com' } as User;
 const LINK: ParentLink = {
   parentUid: 'parent-1', childUid: 'child-1', childName: 'נועה', childAvatar: '🐱', inviteCode: 'ABCD2345',
   linkedAt: '2026-03-04T10:00:00.000Z',
@@ -57,9 +57,12 @@ describe('ParentHome', () => {
 
     expect(await screen.findByText(/לחבר את/)).toHaveTextContent('נועה');
     expect(parentService.claimParentCode).not.toHaveBeenCalled();
+    // The parent must first say they are the child's parent or guardian
+    expect(screen.getByRole('button', { name: 'אישור החיבור' })).toBeDisabled();
+    await user.click(screen.getByRole('checkbox', { name: /ההורה או האפוטרופוס/ }));
     await user.click(screen.getByRole('button', { name: 'אישור החיבור' }));
 
-    expect(parentService.claimParentCode).toHaveBeenCalledWith('parent-1', 'ABCD2345');
+    expect(parentService.claimParentCode).toHaveBeenCalledWith('parent-1', 'ABCD2345', expect.any(Date), 'p***@example.com');
     expect(await screen.findByRole('status')).toHaveTextContent('מחובר/ת');
     expect(await screen.findByRole('button', { name: 'הדוח השבועי' })).toBeInTheDocument();
   });

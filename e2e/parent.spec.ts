@@ -45,6 +45,8 @@ test.describe('parent', () => {
 
       // The parent sees whose code it is and confirms
       await expect(parent.page.getByText(/לחבר את/)).toContainText('נועה', { timeout: CLOUD_TIMEOUT_MS });
+      await expect(parent.page.getByRole('button', { name: 'אישור החיבור' })).toBeDisabled();
+      await parent.page.getByRole('checkbox', { name: /ההורה או האפוטרופוס/ }).check();
       await parent.page.getByRole('button', { name: 'אישור החיבור' }).click();
       await expect(parent.page.getByRole('status')).toContainText('מחובר/ת');
       await expect(parent.page.getByRole('button', { name: 'הדוח השבועי' })).toBeVisible();

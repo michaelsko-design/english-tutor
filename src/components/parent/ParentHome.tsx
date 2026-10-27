@@ -1,6 +1,6 @@
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import { User } from 'firebase/auth';
-import { ParentInvite, ParentLink, normalizeParentCode, snapshotToProfile } from '../../data/parentLink';
+import { ParentInvite, ParentLink, maskParentEmail, normalizeParentCode, snapshotToProfile } from '../../data/parentLink';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import {
@@ -46,6 +46,7 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
   const [codeInput, setCodeInput] = useState('');
   const [openReport, setOpenReport] = useState<OpenReport | null>(null);
   const [resetPinFor, setResetPinFor] = useState<string | null>(null);
+  const [isAdultConfirmed, setIsAdultConfirmed] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
   const [noticeHe, setNoticeHe] = useState<string | null>(null);
@@ -96,8 +97,9 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
     if (!pendingCode) return;
     setIsBusy(true);
     setErrorHe(null);
-    const result = await claimParentCode(user.uid, pendingCode);
+    const result = await claimParentCode(user.uid, pendingCode, new Date(), maskParentEmail(user.email));
     setIsBusy(false);
+    setIsAdultConfirmed(false);
     if (result.ok) {
       setNoticeHe(`${result.value.childName} מחובר/ת. הדוח יופיע אחרי שייכנסו לאפליקציה.`);
       setPendingCode(null);
@@ -154,10 +156,19 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
             לחבר את <span className="font-black">{preview.childName}</span> {preview.childAvatar} לחשבון ההורה שלך? תראו את
             הדוח השבועי של ההתקדמות בלבד.
           </p>
+          <label className="flex items-start gap-2 text-xs sm:text-sm font-bold">
+            <input
+              type="checkbox"
+              checked={isAdultConfirmed}
+              onChange={(e) => setIsAdultConfirmed(e.target.checked)}
+              className="mt-0.5 w-5 h-5 shrink-0"
+            />
+            אני ההורה או האפוטרופוס של {preview.childName}, בן/בת 18 ומעלה. הקוד נמסר לי על ידי {preview.childName}.
+          </label>
           <div className="flex gap-2">
             <button
               type="button"
-              disabled={isBusy}
+              disabled={isBusy || !isAdultConfirmed}
               onClick={() => void handleConfirm()}
               className={`${buttonClass} flex-1 ${theme.primaryBtnClass}`}
             >

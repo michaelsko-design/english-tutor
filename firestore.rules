@@ -341,7 +341,7 @@ service cloud.firestore {
         && isAvatar(data.childAvatar)
         && data.expiresAtMs is int
         && data.expiresAtMs > request.time.toMillis()
-        && data.expiresAtMs <= request.time.toMillis() + 8 * 24 * 60 * 60 * 1000;
+        && data.expiresAtMs <= request.time.toMillis() + 3 * 24 * 60 * 60 * 1000;
     }
 
     match /parentInvites/{code} {
@@ -362,8 +362,9 @@ service cloud.firestore {
     function isNewParentLink(data, linkId) {
       let keys = ['parentUid', 'childUid', 'childName', 'childAvatar', 'inviteCode', 'linkedAt'];
       let invitePath = docPath('parentInvites', data.inviteCode);
-      return data.keys().hasOnly(keys)
+      return data.keys().hasOnly(keys.concat(['parentLabel']))
         && data.keys().hasAll(keys)
+        && (!('parentLabel' in data) || isShortString(data.parentLabel, 60))
         && data.parentUid == request.auth.uid
         && data.childUid is string
         && data.childUid != request.auth.uid

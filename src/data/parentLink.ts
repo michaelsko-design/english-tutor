@@ -13,8 +13,16 @@ export const PARENT_PARAM = 'parent';
 export const PARENT_CODE_LENGTH = 8;
 /** Same letters as the friend codes: no 0/O, 1/I/L */
 export const PARENT_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-export const PARENT_CODE_DAYS = 7;
+/** Short on purpose: an old code left in a chat shouldn't stay useful */
+export const PARENT_CODE_DAYS = 2;
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** The parent's email with most of it hidden (m***@gmail.com), so the learner can tell who is linked. */
+export function maskParentEmail(email: string | null | undefined): string {
+  const [local, domain] = (email ?? '').trim().split('@');
+  if (!local || !domain) return '';
+  return `${local.slice(0, 1)}***@${domain}`;
+}
 
 /** The part of the profile the weekly report reads; nothing else leaves the learner's account. */
 export interface ReportSnapshot {
@@ -50,6 +58,8 @@ export interface ParentLink {
   inviteCode: string;
   /** ISO time */
   linkedAt: string;
+  /** The parent's masked email, shown to the learner (missing on links made before it existed) */
+  parentLabel?: string;
 }
 
 export function generateParentCode(randomBytes: (length: number) => Uint8Array = defaultRandomBytes): string {
