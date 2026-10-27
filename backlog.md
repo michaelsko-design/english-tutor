@@ -6,6 +6,7 @@
 ### UI
 
 - [ ] **UI** - Think about introducing another theme that will fit better for older students (not so much "kid-like" as the current themes).
+- [ ] **UI** - Create a short 20 seconds video animation with natural language hebrew narrations that will be used as an add for this app, targeted at both children and parents.
 - [ ] **Grade 1 letter missions: audio** - In the grade 1 letters missions (units 1–4) there is no way to hear the letters in the answer options, and there are two redundant 🔊 buttons that both read the English word in the question. Make every letter answer option listenable (as the other answer options are), and keep one 🔊 for the question's English word.
 
 ### Technical

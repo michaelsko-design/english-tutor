@@ -118,3 +118,30 @@ export async function listDocumentIds(path: string): Promise<string[]> {
   const body = (await response.json()) as { documents?: { name: string }[] };
   return (body.documents ?? []).map((d) => d.name.split('/').pop() ?? '');
 }
+
+export interface GoogleTestAccount {
+  uid: string;
+  email: string;
+  idToken: string;
+  refreshToken: string;
+  /** Seconds the id token is valid */
+  expiresIn: number;
+}
+
+/** A Google-provider account in the Auth emulator (a fake id_token the emulator accepts). */
+export async function createGoogleAccount(): Promise<GoogleTestAccount> {
+  const suffix = `${Date.now().toString(36)}${Math.floor(Math.random() * 1e4).toString(36)}`;
+  const email = `parent${suffix}@example.com`;
+  const response = await request(`${AUTH_ORIGIN}/identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      postBody: `id_token=${encodeURIComponent(JSON.stringify({ sub: `google-${suffix}`, email, email_verified: true }))}&providerId=google.com`,
+      requestUri: 'http://localhost',
+      returnIdpCredential: true,
+      returnSecureToken: true,
+    }),
+  });
+  const body = (await response.json()) as { localId: string; idToken: string; refreshToken: string; expiresIn: string };
+  return { uid: body.localId, email, idToken: body.idToken, refreshToken: body.refreshToken, expiresIn: Number(body.expiresIn) };
+}
