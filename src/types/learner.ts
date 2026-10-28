@@ -177,6 +177,8 @@ export interface ExamPrepPlan {
    * because a removed field would come back from another device on the next merge.
    */
   archivedAt?: string;
+  /** Made by a Pro learner: every day stays playable until the exam, even if Pro lapses */
+  madeWithPro?: boolean;
 }
 
 /** A school word-list line: a word or short phrase, or a whole sentence (Feature 10). */

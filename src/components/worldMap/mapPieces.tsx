@@ -125,6 +125,16 @@ export const MapLandmark: React.FC<MapLandmarkProps> = ({ theme, unit, gradeNumb
 };
 
 /** The small lock badge on a locked stop. */
+/** The small crown on a stop that needs EnglishVibe Pro (docs/feature-pro-tier.md) */
+export const ProBadge: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <span
+    className={`absolute flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 text-amber-950 border-2 border-white shadow text-xs ${className}`}
+    aria-hidden="true"
+  >
+    👑
+  </span>
+);
+
 export const LockBadge: React.FC<{ className?: string }> = ({ className = '' }) => (
   <span
     className={`absolute flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-white border-2 border-white shadow ${className}`}

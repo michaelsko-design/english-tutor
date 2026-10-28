@@ -115,19 +115,43 @@ export const GenderAgeFields: React.FC<GenderAgeFieldsProps> = ({
 };
 
 interface ThemePickerProps {
+  /** The theme shown as chosen (a Pro theme being previewed, or the saved one) */
   themeId: ThemeId;
   /** The learner's chosen mascot, shown on every theme; unset shows each theme's own mascot */
   companionId?: CompanionId;
   onChange: (themeId: ThemeId) => void;
+  /** Themes that need Pro get a crown badge (docs/feature-pro-tier.md) */
+  isProOnly?: (themeId: ThemeId) => boolean;
+  /** Onboarding offers only the themes the learner can keep */
+  isProOnlyHidden?: boolean;
+  /** The saved theme: a Pro one the learner no longer has is marked as theirs */
+  savedThemeId?: ThemeId;
 }
+
+/** The crown on a theme or mascot that needs Pro, or "yours with Pro" on a saved one */
+export const ProChoiceBadge: React.FC<{ isSaved?: boolean }> = ({ isSaved = false }) => (
+  <span className="absolute -top-2 start-1 px-1.5 py-0.5 rounded-full text-xs font-extrabold bg-violet-500 text-white shadow whitespace-nowrap">
+    👑 {isSaved ? 'שלך עם ' : ''}
+    <span dir="ltr" lang="en">
+      Pro
+    </span>
+  </span>
+);
 
 const AUDIENCE_GROUPS: ReadonlyArray<{ audience: ThemeAudience; labelHe: string }> = [
   { audience: 'young', labelHe: 'כיפי וצבעוני' },
   { audience: 'teen', labelHe: 'בוגר ונקי' },
 ];
 
-export const ThemePicker: React.FC<ThemePickerProps> = ({ themeId, companionId, onChange }) => {
-  const pickableIds = getPickableThemeIds(themeId);
+export const ThemePicker: React.FC<ThemePickerProps> = ({
+  themeId,
+  companionId,
+  onChange,
+  isProOnly = () => false,
+  isProOnlyHidden = false,
+  savedThemeId,
+}) => {
+  const pickableIds = getPickableThemeIds(themeId).filter((id) => !isProOnlyHidden || !isProOnly(id));
   const groups = AUDIENCE_GROUPS.map((group) => ({
     ...group,
     ids: pickableIds.filter((id) => THEME_BASES[id].audience === group.audience),
@@ -153,11 +177,12 @@ export const ThemePicker: React.FC<ThemePickerProps> = ({ themeId, companionId, 
                   type="button"
                   onClick={() => onChange(tKey)}
                   aria-pressed={isSelected}
-                  aria-label={tItem.name}
-                  className={`px-1 py-2.5 sm:p-2.5 rounded-xl text-center transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border border-current/20 ${
+                  aria-label={isProOnly(tKey) ? `${tItem.name}, זמין ב-Pro` : tItem.name}
+                  className={`relative px-1 py-2.5 sm:p-2.5 rounded-xl text-center transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border border-current/20 ${
                     tItem.pageBgClass
                   } ${isSelected ? 'ring-2 ring-offset-2 ring-fuchsia-500' : 'opacity-75 hover:opacity-100'}`}
                 >
+                  {isProOnly(tKey) && <ProChoiceBadge isSaved={tKey === savedThemeId} />}
                   <Companion theme={tItem} pose="idle" size={40} hasShadow={false} />
                   <span className="font-extrabold text-xs leading-tight break-words max-w-full" dir="ltr" lang="en">
                     {tItem.name}

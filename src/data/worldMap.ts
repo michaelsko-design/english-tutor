@@ -1,5 +1,6 @@
 import { CurriculumUnit, MissionNode } from './curriculum/types';
 import { BossGate, getBossGate, getSuggestedMission, isMissionUnlocked } from './milestones';
+import { canPlayMission, getPlayableUnits, getProAccess, type ProAccess } from './proGate';
 import { MapPoint } from '../themes/themeArt';
 
 /**
@@ -21,12 +22,12 @@ const SAMPLES_PER_SEGMENT = 12;
 /** Centre of a landmark beside the path, as a share of the map width */
 export const LANDMARK_CENTER_X = { left: 0.21, right: 0.79 } as const;
 
-export type MapStopStatus = 'done' | 'open' | 'locked';
+export type MapStopStatus = 'done' | 'open' | 'locked' | 'pro';
 export type LandmarkSide = keyof typeof LANDMARK_CENTER_X;
 
 export interface MapStopState {
   mission: MissionNode;
-  /** done: has stars; open: can be played; locked: by the sequential rule or the Boss gate */
+  /** done: has stars; open: can be played; locked: by the sequential rule or the Boss gate; pro: needs Pro */
   status: MapStopStatus;
   stars: number;
   /** The suggested mission (as on the dashboard): the companion stands on it */
@@ -177,17 +178,30 @@ export function getLandmarkPlacement(
   return { position: { x: LANDMARK_CENTER_X[side], y }, side };
 }
 
-/** State of every mission stop: stars, unlocks and the Boss gate exactly as in milestones.ts. */
-export function getMapStopStates(units: CurriculumUnit[], progress: Record<string, number>): MapStopState[][] {
-  const currentId = units.some((u) => u.missions.length > 0)
-    ? getSuggestedMission(units, progress).mission.id
+/** Pro access that holds nothing back (the default where a caller doesn't pass one) */
+const FULL_ACCESS = getProAccess(true);
+
+/**
+ * State of every mission stop: stars, unlocks and the Boss gate exactly as in milestones.ts, and
+ * Pro stops (docs/feature-pro-tier.md) for a free learner. The companion stands on the next mission
+ * the learner can play.
+ */
+export function getMapStopStates(
+  units: CurriculumUnit[],
+  progress: Record<string, number>,
+  access: ProAccess = FULL_ACCESS
+): MapStopState[][] {
+  const playable = getPlayableUnits(units, access);
+  const currentId = playable.some((u) => u.missions.length > 0)
+    ? getSuggestedMission(playable, progress).mission.id
     : null;
   return units.map((unit) => {
     const gate = getBossGate(unit, progress);
     return unit.missions.map((mission) => {
       const stars = progress[mission.id] || 0;
       const isUnlocked = isMissionUnlocked(units, progress, mission.id);
-      const status: MapStopStatus = stars > 0 ? 'done' : isUnlocked ? 'open' : 'locked';
+      const isProOnly = !canPlayMission(unit, mission.id, progress, access);
+      const status: MapStopStatus = stars > 0 ? 'done' : isProOnly ? 'pro' : isUnlocked ? 'open' : 'locked';
       return {
         mission,
         status,
@@ -204,11 +218,12 @@ export function buildWorldMap(
   units: CurriculumUnit[],
   progress: Record<string, number>,
   centerline: MapPoint[],
-  backgroundAspect: number
+  backgroundAspect: number,
+  access: ProAccess = FULL_ACCESS
 ): WorldMapLayout {
   const samples = sampleCenterline(centerline);
   const { frames, height } = getRegionFrames(units.length, backgroundAspect);
-  const states = getMapStopStates(units, progress);
+  const states = getMapStopStates(units, progress, access);
 
   const regions: MapRegion[] = units.map((unit, index) => {
     const frame = frames[index];

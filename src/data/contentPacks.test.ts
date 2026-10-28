@@ -3,7 +3,7 @@ import type { CurriculumUnit, MissionNode } from './curriculum/types';
 import { CONTENT_PACKS, RELEASED_CONTENT_PACKS } from './curriculum/packs/registry';
 import { getNewPackCopy, getNewPackOffer, isPackNew, NEW_PACK_DAYS, type PackReleaseState } from './contentPacks';
 
-const RELEASED: PackReleaseState = { released: [{ id: 'holidays', releasedAt: '2026-12-01' }], isPreview: false };
+const RELEASED: PackReleaseState = { released: [{ id: 'holidays', releasedAt: '2026-12-01', access: 'free' }], isPreview: false };
 const NOTHING_RELEASED: PackReleaseState = { released: [], isPreview: false };
 const PREVIEW: PackReleaseState = { released: [], isPreview: true };
 

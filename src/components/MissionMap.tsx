@@ -6,6 +6,8 @@ import { ThemeDefinition } from '../themes/themeRegistry';
 import { MAP_BG_ASPECT } from '../themes/themeArt';
 import { MapStop, buildWorldMap, getUnitGradeNumber } from '../data/worldMap';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { useProAccess } from '../hooks/useProAccess';
+import { useOpenProUpsell } from './pro/proUpsellContext';
 import { isPackNew } from '../data/contentPacks';
 import { toLocalDateStr } from '../utils/dates';
 import { ArtImage } from './art/ArtImage';
@@ -55,10 +57,12 @@ export const MissionMap: React.FC<MissionMapProps> = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const [openMissionId, setOpenMissionId] = useState<string | null>(null);
+  const proAccess = useProAccess();
+  const openProUpsell = useOpenProUpsell();
 
   const layout = useMemo(
-    () => buildWorldMap(units, missionProgress, theme.art.mapPath.centerline, MAP_BG_ASPECT),
-    [units, missionProgress, theme]
+    () => buildWorldMap(units, missionProgress, theme.art.mapPath.centerline, MAP_BG_ASPECT, proAccess),
+    [units, missionProgress, theme, proAccess]
   );
   const allStops = layout.regions.flatMap((r) => r.stops);
   const openStop = allStops.find((s) => s.state.mission.id === openMissionId) ?? null;
@@ -200,6 +204,10 @@ export const MissionMap: React.FC<MissionMapProps> = ({
           onStart={() => {
             setOpenMissionId(null);
             onStartMission(openStop.state.mission);
+          }}
+          onAskParent={() => {
+            setOpenMissionId(null);
+            openProUpsell('missions');
           }}
           onClose={handleCloseSheet}
           onSpeakEnglish={onSpeakEnglish}

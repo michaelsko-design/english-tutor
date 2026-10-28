@@ -14,6 +14,8 @@ import { StarRow } from './mapPieces';
 import { WorldMapStyle } from './worldMapStyles';
 import { Button } from '../ui/Button';
 import { VibeAmount } from '../ui/VibeAmount';
+import { ASK_PARENT_LABEL_HE } from '../../data/proAsk';
+import { APP_NAME } from '../../config/appInfo';
 
 interface MissionSheetProps {
   stop: MapStop;
@@ -25,6 +27,8 @@ interface MissionSheetProps {
   style: WorldMapStyle;
   gender: LearnerGender;
   onStart: () => void;
+  /** A Pro stop: opens the "ask a parent" sheet */
+  onAskParent: () => void;
   onClose: () => void;
   onSpeakEnglish: (text: string, rate?: number) => void;
 }
@@ -54,6 +58,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
   style,
   gender,
   onStart,
+  onAskParent,
   onClose,
   onSpeakEnglish,
 }) => {
@@ -142,7 +147,11 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
             )}
           </div>
 
-          {status === 'locked' ? (
+          {status === 'pro' ? (
+            <p className="p-3.5 rounded-2xl bg-violet-500/15 border-2 border-violet-400/60 text-sm font-extrabold leading-relaxed">
+              👑 המשימה הזו היא חלק מ-<bdi dir="ltr" lang="en">{APP_NAME} Pro</bdi>. רוצה להמשיך? אפשר לבקש מהורה לפתוח את כל המשימות.
+            </p>
+          ) : status === 'locked' ? (
             <p className="p-3.5 rounded-2xl bg-amber-400/15 border-2 border-amber-400/60 text-sm font-extrabold leading-relaxed">
               {getLockedMessage(stop, previousTitleHe, gender)}
             </p>
@@ -221,7 +230,14 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
           </div>
         </div>
 
-        {status !== 'locked' && (
+        {status === 'pro' && (
+          <div className={`sticky bottom-0 px-4 sm:px-6 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))] ${style.sheetBgClass}`}>
+            <Button theme={theme} size="lg" className="btn-chunky w-full" onClick={onAskParent}>
+              {ASK_PARENT_LABEL_HE}
+            </Button>
+          </div>
+        )}
+        {(status === 'open' || status === 'done') && (
           <div className={`sticky bottom-0 px-4 sm:px-6 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))] ${style.sheetBgClass}`}>
             <Button theme={theme} size="lg" className="btn-chunky w-full" onClick={onStart}>
               <Play className="w-5 h-5 fill-current" />

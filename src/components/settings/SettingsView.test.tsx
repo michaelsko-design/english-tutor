@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { makeProfile } from '../../test/fixtures';
 import { SettingsView } from './SettingsView';
+import { ProAccessContext } from '../../hooks/useProAccess';
+import { getProAccess } from '../../data/proGate';
 
 vi.mock('../../services/firebase', () => ({
   auth: { currentUser: null },
@@ -14,18 +16,20 @@ vi.mock('./ParentLinkCard', () => ({ ParentLinkCard: () => <div>parent-card</div
 vi.mock('./StreakReminderCard', () => ({ StreakReminderCard: () => <div>reminder-card</div> }));
 vi.mock('./VoiceLabCard', () => ({ VoiceLabCard: () => <div>voice-card</div> }));
 
-function renderSettings(overrides = {}) {
+function renderSettings(overrides = {}, proAccess = getProAccess(false)) {
   const onProfileChange = vi.fn();
   const onClose = vi.fn();
   const profile = makeProfile({ name: 'נועה', age: 14, gender: 'girl', gradeId: 'grade-8', ...overrides });
   render(
-    <SettingsView
-      profile={profile}
-      onProfileChange={onProfileChange}
-      onClose={onClose}
-      onSignOut={async () => {}}
-      onDeleteAccount={async () => ({ ok: true, value: undefined })}
-    />
+    <ProAccessContext.Provider value={proAccess}>
+      <SettingsView
+        profile={profile}
+        onProfileChange={onProfileChange}
+        onClose={onClose}
+        onSignOut={async () => {}}
+        onDeleteAccount={async () => ({ ok: true, value: undefined })}
+      />
+    </ProAccessContext.Provider>
   );
   return { onProfileChange, onClose, profile };
 }
@@ -47,6 +51,31 @@ describe('SettingsView', () => {
 
     expect(screen.getByRole('tabpanel', { name: /חברים/ })).toBeVisible();
     expect(screen.queryByRole('tabpanel', { name: /פרופיל/ })).not.toBeInTheDocument();
+  });
+
+  it('previews a Pro theme for a free learner without saving it', async () => {
+    const user = userEvent.setup();
+    const { onProfileChange } = renderSettings({ themeId: 'cozy-studio' }, getProAccess(false, true));
+
+    await user.click(screen.getByRole('tab', { name: /עיצוב/ }));
+    await user.click(screen.getByRole('button', { name: /^Pop, זמין ב-Pro$/ }));
+
+    expect(screen.getByText(/תצוגה מקדימה/)).toBeInTheDocument();
+    expect(onProfileChange).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'חזרה לעיצוב שלי' }));
+    expect(screen.queryByText(/תצוגה מקדימה/)).not.toBeInTheDocument();
+    expect(onProfileChange).not.toHaveBeenCalled();
+  });
+
+  it('saves a free theme at once for a free learner', async () => {
+    const user = userEvent.setup();
+    const { onProfileChange } = renderSettings({ themeId: 'cozy-studio' }, getProAccess(false, true));
+
+    await user.click(screen.getByRole('tab', { name: /עיצוב/ }));
+    await user.click(screen.getByRole('button', { name: /^Street$/ }));
+
+    expect(onProfileChange).toHaveBeenCalledWith(expect.objectContaining({ themeId: 'urban-night' }));
   });
 
   it('saves a new theme at once', async () => {

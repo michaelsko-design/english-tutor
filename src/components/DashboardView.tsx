@@ -9,7 +9,7 @@ import {
   ProficiencyTier,
   SUPPORTED_GRADES,
 } from '../types/learner';
-import { resolveTheme, TIER_CONFIG } from '../themes/themeRegistry';
+import { TIER_CONFIG } from '../themes/themeRegistry';
 import { DEFAULT_VOICE_PREFERENCE } from '../utils/ttsVoice';
 import { DEFAULT_SPEECH_RATE, getTtsService } from '../services/tts';
 import { playsHebrewAloud, type SpokenPart } from '../data/hebrewAudio';
@@ -57,6 +57,11 @@ import { getNewPackOffer } from '../data/contentPacks';
 import { StatsSheet } from './home/StatsSheet';
 import { BookOpen, Home, Map as MapIcon, Settings, ShoppingBag } from 'lucide-react';
 import { lazyNamed } from '../utils/lazyNamed';
+import { useProAccess } from '../hooks/useProAccess';
+import { getPlayableUnits, hasFinishedFreeMissions, resolveLearnerTheme } from '../data/proGate';
+import { ProUpsellContext, type ProUpsellFocus } from './pro/proUpsellContext';
+import { ProUpsellSheet } from './pro/ProUpsellSheet';
+import { FreeMissionsDoneCard } from './pro/FreeMissionsDoneCard';
 import { ScreenLoading } from './ScreenLoading';
 
 const MissionRunner = lazyNamed(() => import('./MissionRunner'), 'MissionRunner');
@@ -144,7 +149,9 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     return () => window.clearTimeout(timer);
   }, [roomRewardToast]);
 
-  const theme = resolveTheme(profile.themeId, profile.companionId);
+  const proAccess = useProAccess();
+  const [upsellFocus, setUpsellFocus] = useState<ProUpsellFocus | null>(null);
+  const theme = resolveLearnerTheme(profile.themeId, profile.companionId, proAccess);
 
   // The companion's idle pose is the first one a mission shows (Feature 25).
   useEffect(() => {
@@ -158,10 +165,12 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
   const totalGradeStarsPossible =
     gradeCurriculum.units.reduce((acc, u) => acc + u.missions.length * 3, 0) || 36;
+  // The Play button never points at a Pro mission
   const { mission: todaysMission, bossGate: todaysBossGate } = getSuggestedMission(
-    gradeCurriculum.units,
+    getPlayableUnits(gradeCurriculum.units, proAccess),
     profile.missionProgress || {}
   );
+  const isFreeMissionsDone = hasFinishedFreeMissions(gradeCurriculum.units, profile.missionProgress || {}, proAccess);
   const missionsCompletedCount = countCompletedMissions(profile.missionProgress || {});
   const masteredWordCount = countMasteredWords(profile.missionProgress || {});
   const activeTier = TIER_CONFIG[profile.preferredTier];
@@ -351,6 +360,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   };
 
   return (
+    <ProUpsellContext.Provider value={setUpsellFocus}>
     <div className={`relative isolate min-h-screen w-full ${theme.pageBgClass} pb-24 md:pb-14 transition-colors duration-300`}>
       {/* FEATURE 12: STICKER STUDIO BACKGROUND */}
       {backgroundSticker && <StickerBackground sticker={backgroundSticker} />}
@@ -383,6 +393,11 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
           diamondReward={calculatedDiamonds}
           onPlay={() => handleLaunchMission(todaysMission)}
         />
+
+        {/* EVERY FREE MISSION OF THE GRADE IS DONE: ASK A PARENT FOR PRO */}
+        {isFreeMissionsDone && (
+          <FreeMissionsDoneCard theme={theme} onAsk={() => setUpsellFocus('missions')} />
+        )}
 
         {/* FEATURE 5: DAILY QUESTS AS RINGS (the full card opens in a sheet) */}
         <QuestRings rings={questRings} theme={theme} onOpen={() => setOpenSheet('quests')} />
@@ -686,6 +701,22 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
           onSignOut={onSignOut}
         />
       )}
+
+      {upsellFocus && authUser && (
+        <ProUpsellSheet
+          learner={{
+            uid: authUser.uid,
+            name: profile.name,
+            gender: profile.gender,
+            avatarEmoji: activeAvatarEmoji,
+            isGuest: authUser.isAnonymous,
+          }}
+          focus={upsellFocus}
+          theme={theme}
+          onClose={() => setUpsellFocus(null)}
+        />
+      )}
     </div>
+    </ProUpsellContext.Provider>
   );
 };

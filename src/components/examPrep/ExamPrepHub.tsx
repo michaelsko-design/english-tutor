@@ -8,6 +8,9 @@ import { ExamPrepCard } from './ExamPrepCard';
 import type { ExamSessionNext } from './ExamSessionRunner';
 import { lazyNamed } from '../../utils/lazyNamed';
 import { ScreenLoading } from '../ScreenLoading';
+import { useProAccess } from '../../hooks/useProAccess';
+import { canOpenExamDay } from '../../data/proGate';
+import { useOpenProUpsell } from '../pro/proUpsellContext';
 
 const ExamPrepSetup = lazyNamed(() => import('./ExamPrepSetup'), 'ExamPrepSetup');
 const ExamPrepPlanView = lazyNamed(() => import('./ExamPrepPlanView'), 'ExamPrepPlanView');
@@ -40,14 +43,26 @@ export const ExamPrepHub: React.FC<ExamPrepHubProps> = ({
   onSpeakEnglish,
 }) => {
   const [view, setView] = useState<HubView>({ kind: 'none' });
+  const proAccess = useProAccess();
+  const openProUpsell = useOpenProUpsell();
   const todayStr = toLocalDateStr(new Date());
   const plan = profile.examPrep && !profile.examPrep.archivedAt ? profile.examPrep : undefined;
   const close = () => setView({ kind: 'none' });
 
-  const startDay = (dayIndex: number) => setView({ kind: 'session', dayIndex, runId: Date.now() });
+  const startDay = (dayIndex: number) => {
+    // Every way into a session (the card's next-session button too) checks Pro here
+    const day = plan?.days.find((d) => d.dayIndex === dayIndex);
+    if (plan && day && !canOpenExamDay(plan, day, proAccess)) {
+      openProUpsell('exam');
+      return;
+    }
+    setView({ kind: 'session', dayIndex, runId: Date.now() });
+  };
 
   const handleCreate = (newPlan: ExamPrepPlan) => {
-    onUpdateProfile({ ...profile, examPrep: newPlan });
+    // A plan made with Pro keeps every day open until the exam, even if Pro lapses
+    const saved = proAccess.isPro && proAccess.isGatingOn ? { ...newPlan, madeWithPro: true } : newPlan;
+    onUpdateProfile({ ...profile, examPrep: saved });
     setView({ kind: 'plan' });
   };
 

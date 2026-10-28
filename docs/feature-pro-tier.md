@@ -2,7 +2,7 @@
 
 > Backlog: "Define the Freemium vs. 'EnglishVibe Pro' tier boundaries … design the kid-safe 'Ask a Parent on WhatsApp' payment link flow … plan integration with an Israeli payment gateway … and server-verified Firestore subscription status. Also create a coupon system."
 
-Status: **server payments layer built** (checkout, webhook, plan changes, Grow adapter, rules; see "Server (built)"). No UI or learner gating yet. The phases in "Implementation phases" are the build order.
+Status: **server payments layer and Phase 1 built**: checkout, webhook, plan changes, Grow adapter and rules ("Server (built)"), and the learner-side gating with its "ask a parent" sheet, switched off (`PRO_GATING_ENABLED = false`). No checkout UI yet. The phases in "Implementation phases" are the build order.
 
 ## Goal
 Most of the app stays free. A paid **EnglishVibe Pro** subscription (monthly or yearly) unlocks the full curriculum and the Pro content packs, full exam prep, more word lists and every theme and mascot. The learner never pays and never sees a checkout. They ask a parent, and the paired parent pays from the parent portal. Only the server decides who has Pro.
@@ -159,10 +159,9 @@ One pure, tested module. It takes the entitlement and returns decisions; the UI 
 
 **Themes and mascots (settings → "עיצוב וקול").**
 - Both pickers (the theme buttons in `components/settings/ProfileFields.tsx` and `components/settings/CompanionPicker.tsx`) still show **all** six themes and six mascots. The non-free ones get a small "Pro" crown badge and no grey-out: they should look as good as they are.
-- **Preview.** Tapping a Pro theme or mascot as a free learner shows it at once, as a temporary preview held in memory in `App` (`previewThemeId` / `previewCompanionId` state that `resolveTheme` uses before the profile value); nothing is saved through `handleUpdateProfile`. While a preview is on:
-  - A sticky banner at the bottom of settings says "תצוגה מקדימה: <theme name>" and has two buttons: "לבקש מהורה" (opens the `ProUpsellSheet`) and "חזרה לעיצוב שלי".
-  - The learner can move around inside settings and try the other Pro themes and mascots.
-  - The preview ends, back to the saved look, when the learner leaves settings or closes the app. It is never written to localStorage or the cloud.
+- **Preview.** Tapping a Pro theme or mascot as a free learner opens a preview sheet (`ThemePreviewSheet`): a piece of the world map in that theme (`ThemeMapPreview`, drawn with the map's own parts: background, path, landmark, coins, the Boss castle and the mascot on the next coin, which pulses unless reduced motion is on). A Pro mascot is shown on the learner's own map. Settings itself stays in the learner's look; nothing is saved through `handleUpdateProfile`.
+  - The sheet has two buttons: "לבקש מהורה" (opens the `ProUpsellSheet`) and "חזרה לעיצוב שלי".
+  - The preview is held only in `SettingsView` state and is never written to localStorage or the cloud.
 - The free themes and mascots work exactly as today: one tap saves them.
 - **Onboarding** (`OnboardingView`) offers only the free themes, and a learner who already has Pro sees all of them. The default stays `cozy-studio` / `mochi`.
 - **A lapsed Pro learner**:
@@ -374,17 +373,19 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
 3. A WhatsApp Business number to replace the private one in `SUPPORT_WHATSAPP_NUMBER`.
 4. The domain for the contact email ("Domain and Email update" item).
 
-**Phase 1: entitlements and gating, switched off.**
+**Phase 1: entitlements and gating, switched off (built).**
 - New:
-  - `data/proGate.ts` (+ tests): free units per grade (units 1–2; grade 1: 1–5), exam prep (setup and day 1), Pro packs, 2 free word lists, the 2 free themes and mascots.
-  - `services/entitlementService.ts` and `hooks/useEntitlement.ts`: an `onSnapshot` on `entitlements/{uid}`, cached in localStorage for offline use.
-  - `components/pro/ProUpsellSheet.tsx` (+ component test): the kid-safe "ask a parent" sheet and its WhatsApp share.
-  - `scripts/grantPro.mjs`: the `comp` grant.
+  - `data/proGate.ts` (+ tests): free units per grade (units 1–2; grade 1: 1–5), exam prep (setup and day 1), Pro packs, 2 free word lists, the 2 free themes and mascots, `resolveAllowedLook` / `resolveLearnerTheme`.
+  - `services/entitlementService.ts` and `hooks/useProAccess.ts`: an `onSnapshot` on `entitlements/{uid}` (only while gating is on), cached in localStorage for offline use. App provides `ProAccessContext` to onboarding, settings and home.
+  - `components/pro/ProUpsellSheet.tsx` (+ component test) and `data/proAsk.ts`: the kid-safe "ask a parent" sheet, opened from anywhere on the home screen through `ProUpsellContext`; and `FreeMissionsDoneCard` on the home screen.
+  - `scripts/grantPro.mjs <username or uid> [--revoke]`: the `comp` grant (open-ended `periodEnd`).
 - Changes:
-  - The `'pro'` map status in `worldMap.ts` / `MapStops` / `MissionSheet`; starred missions stay playable.
-  - The `canAddList` limit; exam-prep session checks; `ReleasedPack.access` and Pro pack stops.
-  - Theme and mascot gating: the Pro badges in `ProfileFields` / `CompanionPicker`, the in-memory preview and its banner, `resolveAllowedLook` in `App` (+ a component test that the preview never saves).
+  - The `'pro'` map status in `worldMap.ts` / `MapStops` (violet coin with a crown) / `MissionSheet` (Pro card and "לבקש מהורה"); starred missions stay playable; the companion and the Play button only point at playable missions.
+  - Word lists: `canAddList` / `addWordList` take a limit. Exam prep: `canOpenExamDay` in `ExamPrepHub.startDay` and a Pro button on the plan; `ExamPrepPlan.madeWithPro` (merged in `mergeExamPrep`). `ReleasedPack.access`.
+  - Theme and mascot gating: the Pro badges ("שלך עם Pro" on a saved one) in `ProfileFields` / `CompanionPicker`, the map preview sheet (`ThemePreviewSheet`, `ThemeMapPreview`), onboarding offering only the free themes, and `resolveLearnerTheme` in `App` and `DashboardView` (+ a component test that the preview never saves).
 - Tests run with the flag on; the app ships with it off.
+- Before switching gating on: exam plans made before then have no `madeWithPro`, so a free learner's existing plan would lock from day 2. Decide whether to mark the plans that exist at the switch as kept.
+- Not done here: the new-pack card still says "start" for a Pro pack (its text is read aloud to grades 1–2, so new copy needs Hebrew clips), and the sheet's texts are not read aloud yet.
 
 **Phase 2: parents can pay, on the mock provider.**
 - The plan picker leads to a checkout panel: pick the children for the seats, the payer's full name and mobile, "המשך לתשלום" → `api/checkout.ts` → the hosted page.

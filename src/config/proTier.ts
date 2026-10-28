@@ -2,6 +2,8 @@
  * EnglishVibe Pro: prices and seats (docs/feature-pro-tier.md, "Pricing and seats"). The server
  * computes every charge from these; the parent's plan picker only shows them.
  */
+import type { CompanionId, ThemeId } from '../types/learner';
+
 export type BillingPeriod = 'monthly' | 'yearly';
 
 export const BILLING_PERIODS: readonly BillingPeriod[] = ['monthly', 'yearly'];
@@ -24,6 +26,29 @@ export const PRO_PRICES_AGOROT: Record<ProSeatCount, Record<BillingPeriod, numbe
 
 /** The parent portal shows the plans on the dev server only, until checkout is wired to it */
 export const IS_PRO_PLAN_VISIBLE = import.meta.env?.DEV === true;
+
+/**
+ * The free/Pro limits switch (docs/feature-pro-tier.md, "Tier boundaries"). Off until payments work
+ * end to end: until then every learner plays everything, and the app reads no entitlements.
+ */
+export const PRO_GATING_ENABLED = false;
+
+/** The core units each grade gives free learners; grades not listed use `DEFAULT_FREE_CORE_UNITS` */
+export const FREE_CORE_UNITS_BY_GRADE: Readonly<Record<number, readonly number[]>> = {
+  // Grade 1 has 10 units: the whole alphabet (1–4) and the first blending unit stay free
+  1: [1, 2, 3, 4, 5],
+};
+export const DEFAULT_FREE_CORE_UNITS: readonly number[] = [1, 2];
+
+/** One playful light theme and one grown-up dark one, with their own mascots */
+export const FREE_THEME_IDS: readonly ThemeId[] = ['cozy-studio', 'urban-night'];
+export const FREE_COMPANION_IDS: readonly CompanionId[] = ['mochi', 'kai'];
+
+/** Active school word lists a free learner can keep (Pro: `MAX_ACTIVE_LISTS`) */
+export const FREE_WORD_LISTS = 2;
+
+/** Practice days of an exam plan a free learner can play */
+export const FREE_EXAM_PREP_DAYS = 1;
 
 /** Pro stays on this long after `periodEnd`, so a late renewal never locks a learner out */
 export const PRO_GRACE_DAYS = 3;

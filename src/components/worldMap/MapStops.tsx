@@ -7,7 +7,7 @@ import { LearnerGender } from '../../types/learner';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { Companion } from '../companion/Companion';
 import { ArtImage } from '../art/ArtImage';
-import { LockBadge, StarRow, getPinStyle } from './mapPieces';
+import { LockBadge, ProBadge, StarRow, getPinStyle } from './mapPieces';
 import { WorldMapStyle } from './worldMapStyles';
 import { hasSeenCastleOpen, rememberCastleOpen } from './castleMemory';
 
@@ -32,6 +32,7 @@ function getStopLabel(stop: MapStop, gender: LearnerGender): string {
   const { mission, status, stars } = stop.state;
   const title = `משימה ${mission.unitNumber}.${mission.missionNumber}: ${inflectHebrew(mission.titleHe, gender)}`;
   if (status === 'locked') return `${title}, נעולה`;
+  if (status === 'pro') return `${title}, זמינה ב-Pro`;
   if (status === 'done') return `${title}, ${stars} מתוך 3 כוכבים`;
   return `${title}, ${stop.state.isCurrent ? 'המשימה הבאה' : 'פתוחה'}`;
 }
@@ -39,12 +40,23 @@ function getStopLabel(stop: MapStop, gender: LearnerGender): string {
 const DONE_COIN_CLASS =
   'bg-gradient-to-b from-amber-200 via-amber-300 to-amber-500 border-amber-600 text-amber-950 [--chunky-edge:#b45309]';
 const LOCKED_COIN_CLASS = 'bg-gradient-to-b from-slate-300 to-slate-400 border-slate-500 text-slate-600';
+/** Not grey: a Pro mission should look as good as it is */
+const PRO_COIN_CLASS = 'bg-gradient-to-b from-violet-300 to-violet-500 border-violet-700 text-violet-950';
 
-/** A mission coin: gold with stars when done, pulsing with the companion on it when it's next, grey when locked. */
+const COIN_CLASS_BY_STATUS: Record<Exclude<MapStop['state']['status'], 'open'>, string> = {
+  done: DONE_COIN_CLASS,
+  locked: LOCKED_COIN_CLASS,
+  pro: PRO_COIN_CLASS,
+};
+
+/**
+ * A mission coin: gold with stars when done, pulsing with the companion on it when it's next, grey
+ * when locked, violet with a crown when it needs Pro.
+ */
 export const MissionCoinStop: React.FC<StopProps> = ({ stop, mapHeight, theme, gender, style, onSelect }) => {
   const isReducedMotion = usePrefersReducedMotion();
   const { mission, status, stars, isCurrent } = stop.state;
-  const coinClass = status === 'done' ? DONE_COIN_CLASS : status === 'open' ? style.openCoinClass : LOCKED_COIN_CLASS;
+  const coinClass = status === 'open' ? style.openCoinClass : COIN_CLASS_BY_STATUS[status];
 
   return (
     <div
@@ -67,7 +79,7 @@ export const MissionCoinStop: React.FC<StopProps> = ({ stop, mapHeight, theme, g
         aria-label={getStopLabel(stop, gender)}
         className={`btn-chunky relative w-full h-full rounded-full border-4 flex items-center justify-center text-2xl ${coinClass}`}
       >
-        {isCurrent && status !== 'locked' && !isReducedMotion && (
+        {isCurrent && status !== 'locked' && status !== 'pro' && !isReducedMotion && (
           <span
             className={`absolute -inset-1.5 rounded-full border-4 animate-coin-pulse pointer-events-none ${style.pulseRingClass}`}
             aria-hidden="true"
@@ -82,6 +94,7 @@ export const MissionCoinStop: React.FC<StopProps> = ({ stop, mapHeight, theme, g
           <span aria-hidden="true">{mission.icon}</span>
         )}
         {status === 'locked' && <LockBadge className="-bottom-1 -right-1" />}
+        {status === 'pro' && <ProBadge className="-bottom-1 -right-1" />}
       </button>
       <div className="absolute top-full mt-1.5 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none">
         {status === 'done' ? (
@@ -131,7 +144,7 @@ export const BossCastleStop: React.FC<StopProps> = ({ stop, mapHeight, theme, ge
   const { mission, status, stars, isCurrent, bossGate } = stop.state;
   const isNewlyOpen = status === 'open' && Boolean(bossGate?.isMet);
   const { isShut, isOpening } = useCastleOpening(mission.id, isNewlyOpen);
-  const isOpen = status !== 'locked' && !isShut;
+  const isOpen = status !== 'locked' && status !== 'pro' && !isShut;
   const isCompanionOnRight = stop.position.x < 0.5;
 
   const art = getCommonArt(theme, isOpen ? 'boss-open' : 'boss-locked');
@@ -144,7 +157,7 @@ export const BossCastleStop: React.FC<StopProps> = ({ stop, mapHeight, theme, ge
       }`}
     >
       <span className={isOpen ? '' : 'grayscale opacity-70'}>🏰</span>
-      {!isOpen && <LockBadge className="-bottom-1 -right-1 w-8 h-8" />}
+      {!isOpen && status !== 'pro' && <LockBadge className="-bottom-1 -right-1 w-8 h-8" />}
     </div>
   );
 
@@ -187,6 +200,10 @@ export const BossCastleStop: React.FC<StopProps> = ({ stop, mapHeight, theme, ge
         {status === 'done' ? (
           <span className={`flex px-1.5 py-0.5 rounded-full ${style.stopLabelClass}`}>
             <StarRow stars={stars} />
+          </span>
+        ) : status === 'pro' ? (
+          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-extrabold bg-violet-500 text-white border-2 border-violet-700 shadow">
+            👑 <span dir="ltr" lang="en">Pro</span>
           </span>
         ) : bossGate && !bossGate.isMet ? (
           <span

@@ -13,6 +13,9 @@ import { ExamPlanDay, ExamPrepPlan, LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from './ExamModalShell';
 import { describeDayFocus, formatExamDate, getCountdownHe, getStartLabel } from './examPrepFormat';
+import { canOpenExamDay } from '../../data/proGate';
+import { useProAccess } from '../../hooks/useProAccess';
+import { useOpenProUpsell } from '../pro/proUpsellContext';
 
 interface ExamPrepPlanViewProps {
   plan: ExamPrepPlan;
@@ -50,6 +53,8 @@ export const ExamPrepPlanView: React.FC<ExamPrepPlanViewProps> = ({
   const doneCount = plan.days.filter((d) => d.completedAt).length;
   const nextDay = getNextSession(plan, todayStr);
   const mockUnlocked = isMockUnlocked(plan, todayStr);
+  const proAccess = useProAccess();
+  const openProUpsell = useOpenProUpsell();
 
   const canStart = (day: ExamPlanDay) =>
     day.kind === 'mock' ? mockUnlocked : Boolean(day.completedAt) || day.dateStr <= todayStr;
@@ -117,6 +122,8 @@ export const ExamPrepPlanView: React.FC<ExamPrepPlanViewProps> = ({
             const badge = STATUS_BADGE[status];
             const isNext = nextDay?.dayIndex === day.dayIndex;
             const startable = canStart(day);
+            // Shown before its date too, so a free learner sees from the start what Pro adds
+            const isProDay = !canOpenExamDay(plan, day, proAccess);
             return (
               <li
                 key={day.dayIndex}
@@ -138,7 +145,16 @@ export const ExamPrepPlanView: React.FC<ExamPrepPlanViewProps> = ({
                   </div>
                   <p className="text-xs sm:text-sm font-bold">{describeDayFocus(day)}</p>
                 </div>
-                {startable ? (
+                {isProDay ? (
+                  <button
+                    type="button"
+                    onClick={() => openProUpsell('exam')}
+                    aria-label={`${describeDayFocus(day)}: זמין ב-Pro`}
+                    className="px-3.5 py-2 rounded-xl text-xs font-extrabold shrink-0 bg-violet-500 text-white"
+                  >
+                    👑 <span dir="ltr" lang="en">Pro</span>
+                  </button>
+                ) : startable ? (
                   <button
                     type="button"
                     onClick={() => onStartDay(day.dayIndex)}

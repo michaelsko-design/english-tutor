@@ -318,6 +318,7 @@ function mergeExamPrep(
       : {}),
     ...(certificateEarnedAt ? { certificateEarnedAt } : {}),
     ...(archivedAt ? { archivedAt } : {}),
+    ...(local.madeWithPro || cloud.madeWithPro ? { madeWithPro: true } : {}),
   };
 }
 

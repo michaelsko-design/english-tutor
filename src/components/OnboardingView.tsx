@@ -21,6 +21,8 @@ import { COMPANION_POSES } from '../themes/themeArt';
 import { TOUR_COMPANION_PX } from '../data/appTutorial';
 import { GradeSelect } from './settings/GradeSelect';
 import { GenderAgeFields, NameField, ShabbatToggle, ThemePicker } from './settings/ProfileFields';
+import { canUseTheme } from '../data/proGate';
+import { useProAccess } from '../hooks/useProAccess';
 
 interface OnboardingViewProps {
   initialProfile: LearnerProfile;
@@ -36,6 +38,8 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, 
     initialProfile.gradeId || getRecommendedGradeForAge(12)
   );
   const [themeId, setThemeId] = useState<ThemeId>(initialProfile.themeId || 'cozy-studio');
+  // Onboarding offers only the themes the learner can keep (all of them with Pro)
+  const proAccess = useProAccess();
   const [isShabbatObserver, setIsShabbatObserver] = useState<boolean>(
     initialProfile.isShabbatObserver !== undefined ? initialProfile.isShabbatObserver : true
   );
@@ -136,7 +140,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, 
             onAgeChange={handleAgeChange}
           />
           <GradeSelect gradeId={gradeId} theme={activeTheme} onChange={setGradeId} />
-          <ThemePicker themeId={themeId} onChange={setThemeId} />
+          <ThemePicker themeId={themeId} onChange={setThemeId} isProOnly={(id) => !canUseTheme(id, proAccess)} isProOnlyHidden />
           <ShabbatToggle
             gender={gender}
             isOn={isShabbatObserver}

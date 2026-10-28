@@ -14,6 +14,7 @@ import {
   placeOnRegion,
   sampleCenterline,
 } from './worldMap';
+import { getProAccess } from './proGate';
 import { CurriculumUnit, MissionNode } from './curriculum';
 import { CURRICULUM_BY_GRADE } from '../test/curriculum';
 import { MAP_BG_ASPECT, MAP_PATH_BY_THEME, MapPoint } from '../themes/themeArt';
@@ -185,6 +186,19 @@ describe('getLandmarkPlacement', () => {
 });
 
 describe('getMapStopStates', () => {
+  it('shows Pro units to a free learner, keeping starred missions and the companion on free ones', () => {
+    const grade5 = CURRICULUM_BY_GRADE['grade-5'].units;
+    const freeAccess = getProAccess(false, true);
+    const starred = grade5[2].missions[0].id;
+    const states = getMapStopStates(grade5, { [starred]: 1 }, freeAccess);
+
+    expect(states[2][0].status).toBe('done');
+    expect(states[2].slice(1).every((s) => s.status === 'pro')).toBe(true);
+    expect(states[3].every((s) => s.status === 'pro')).toBe(true);
+    expect(states[0][0].isCurrent).toBe(true);
+    expect(getMapStopStates(grade5, {}, getProAccess(true, true))[3].some((s) => s.status === 'pro')).toBe(false);
+  });
+
   it('opens only the first mission at the start, with the companion on it', () => {
     const [unit1, unit2] = getMapStopStates(UNITS, {});
 

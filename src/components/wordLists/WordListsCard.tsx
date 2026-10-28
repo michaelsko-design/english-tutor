@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ClipboardList, Play, Trash2 } from 'lucide-react';
-import { MAX_ACTIVE_LISTS } from '../../data/customWordLists';
 import { CustomWordList, LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { Button } from '../ui/Button';
@@ -9,6 +8,10 @@ interface WordListsCardProps {
   /** Active lists, newest first */
   lists: CustomWordList[];
   canAdd: boolean;
+  /** Active lists the learner can keep (fewer without Pro) */
+  maxLists: number;
+  /** A free learner at the limit can ask a parent for Pro */
+  onAskPro?: () => void;
   gender: LearnerGender;
   theme: ThemeDefinition;
   onImport: () => void;
@@ -22,6 +25,8 @@ const COLLAPSED_COUNT = 3;
 export const WordListsCard: React.FC<WordListsCardProps> = ({
   lists,
   canAdd,
+  maxLists,
+  onAskPro,
   gender,
   theme,
   onImport,
@@ -68,7 +73,18 @@ export const WordListsCard: React.FC<WordListsCardProps> = ({
       </div>
       {!canAdd && (
         <p className={`text-xs ${theme.mutedTextClass}`}>
-          אפשר לשמור עד {MAX_ACTIVE_LISTS} רשימות. {isGirl ? 'מחקי' : 'מחק'} רשימה ישנה כדי להוסיף חדשה.
+          אפשר לשמור עד {maxLists} רשימות. {isGirl ? 'מחקי' : 'מחק'} רשימה ישנה כדי להוסיף חדשה
+          {onAskPro ? (
+            <>
+              , או{' '}
+              <button type="button" onClick={onAskPro} className="underline font-extrabold">
+                {isGirl ? 'בקשי' : 'בקש'} מהורה עוד רשימות עם <bdi dir="ltr" lang="en">Pro</bdi>
+              </button>
+              .
+            </>
+          ) : (
+            '.'
+          )}
         </p>
       )}
 

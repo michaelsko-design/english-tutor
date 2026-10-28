@@ -3,15 +3,18 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { CURRICULUM_BY_GRADE } from '../../test/curriculum';
 import { getMapStopStates, MapStop } from '../../data/worldMap';
+import { getProAccess } from '../../data/proGate';
 import { TEST_THEME } from '../../test/fixtures';
 import { MissionSheet } from './MissionSheet';
 import { WORLD_MAP_STYLES } from './worldMapStyles';
 
 const [firstUnitStops] = getMapStopStates(CURRICULUM_BY_GRADE['grade-1'].units, {});
 const toStop = (index: number): MapStop => ({ state: firstUnitStops[index], position: { x: 0.5, y: 0.5 } });
+// Grade 1's sixth unit is a Pro unit for a free learner once gating is on
+const proStops = getMapStopStates(CURRICULUM_BY_GRADE['grade-1'].units, {}, getProAccess(false, true))[5];
 
 function renderSheet(stop: MapStop) {
-  const handlers = { onStart: vi.fn(), onClose: vi.fn(), onSelectTier: vi.fn() };
+  const handlers = { onStart: vi.fn(), onClose: vi.fn(), onSelectTier: vi.fn(), onAskParent: vi.fn() };
   render(
     <MissionSheet
       stop={stop}
@@ -52,6 +55,18 @@ describe('MissionSheet', () => {
     const { onStart } = renderSheet(toStop(1));
 
     expect(screen.getByText(/סיימי קודם את המשימה/)).toHaveTextContent(firstUnitStops[0].mission.titleHe);
+    expect(screen.queryByRole('button', { name: /התחילי את המשימה/ })).not.toBeInTheDocument();
+    expect(onStart).not.toHaveBeenCalled();
+  });
+
+  it('a Pro mission asks a parent instead of starting', async () => {
+    const user = userEvent.setup();
+    expect(proStops[0].status).toBe('pro');
+    const { onStart, onAskParent } = renderSheet({ state: proStops[0], position: { x: 0.5, y: 0.5 } });
+
+    await user.click(screen.getByRole('button', { name: /לבקש מהורה/ }));
+
+    expect(onAskParent).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole('button', { name: /התחילי את המשימה/ })).not.toBeInTheDocument();
     expect(onStart).not.toHaveBeenCalled();
   });

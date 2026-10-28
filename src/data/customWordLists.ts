@@ -238,12 +238,13 @@ export function getActiveLists(profile: LearnerProfile): CustomWordList[] {
     .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
 }
 
-export function canAddList(profile: LearnerProfile): boolean {
-  return getActiveLists(profile).length < MAX_ACTIVE_LISTS;
+/** Room for another list under `limit` (lower for free learners, `proGate.maxWordLists`). */
+export function canAddList(profile: LearnerProfile, limit: number = MAX_ACTIVE_LISTS): boolean {
+  return getActiveLists(profile).length < limit;
 }
 
-export function addWordList(profile: LearnerProfile, list: CustomWordList): LearnerProfile {
-  if (!canAddList(profile) || list.items.length < MIN_ITEMS_PER_LIST) return profile;
+export function addWordList(profile: LearnerProfile, list: CustomWordList, limit: number = MAX_ACTIVE_LISTS): LearnerProfile {
+  if (!canAddList(profile, limit) || list.items.length < MIN_ITEMS_PER_LIST) return profile;
   return { ...profile, customWordLists: [...(profile.customWordLists || []), list] };
 }
 

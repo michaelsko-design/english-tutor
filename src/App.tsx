@@ -22,7 +22,8 @@ import { AppLogo } from './components/AppLogo';
 import { applyPlacementToProfile } from './data/placementTest';
 import { recordActivityLog } from './data/activityLog';
 import { getFirstLaunchSteps } from './data/homeBase';
-import { resolveTheme } from './themes/themeRegistry';
+import { resolveLearnerTheme } from './data/proGate';
+import { ProAccessContext, useLearnerProAccess } from './hooks/useProAccess';
 import { useFriendPresence } from './hooks/useFriendPresence';
 import { useReportSnapshotPublisher } from './hooks/useReportSnapshotPublisher';
 import { useReminderSync } from './hooks/useReminderSync';
@@ -286,7 +287,8 @@ export function App() {
     }
   };
 
-  const activeTheme = resolveTheme(profile.themeId, profile.companionId);
+  const proAccess = useLearnerProAccess(authUser?.uid);
+  const activeTheme = resolveLearnerTheme(profile.themeId, profile.companionId, proAccess);
 
   // Dark themes switch on the dark: colours, and the browser bar follows the theme
   useEffect(() => {
@@ -360,6 +362,7 @@ export function App() {
 
   if (!profile.isOnboarded) {
     return (
+      <ProAccessContext.Provider value={proAccess}>
       <Suspense fallback={<ScreenLoading />}>
       <OnboardingView
         initialProfile={profile}
@@ -369,11 +372,13 @@ export function App() {
         }}
       />
       </Suspense>
+      </ProAccessContext.Provider>
     );
   }
 
   if (isEditingOnboarding) {
     return (
+      <ProAccessContext.Provider value={proAccess}>
       <Suspense fallback={<ScreenLoading />}>
       <SettingsView
         profile={profile}
@@ -383,6 +388,7 @@ export function App() {
         onDeleteAccount={deleteAccountAfterSaving}
       />
       </Suspense>
+      </ProAccessContext.Provider>
     );
   }
 
@@ -458,6 +464,7 @@ export function App() {
   }
 
   return (
+    <ProAccessContext.Provider value={proAccess}>
     <HebrewAudioContext.Provider value={playsHebrewAloud(profile.gradeId)}>
     <DashboardView
       profile={profile}
@@ -470,6 +477,7 @@ export function App() {
       onInviteHandled={clearPendingInvite}
     />
     </HebrewAudioContext.Provider>
+    </ProAccessContext.Provider>
   );
 }
 

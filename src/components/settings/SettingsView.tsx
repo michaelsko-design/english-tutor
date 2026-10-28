@@ -1,7 +1,11 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { Volume2, X } from 'lucide-react';
-import { getRecommendedGradeForAge, type LearnerProfile } from '../../types/learner';
+import { getRecommendedGradeForAge, type CompanionId, type LearnerProfile, type ThemeId } from '../../types/learner';
 import { resolveTheme } from '../../themes/themeRegistry';
+import { canUseCompanion, canUseTheme, resolveAllowedLook } from '../../data/proGate';
+import { useProAccess } from '../../hooks/useProAccess';
+import { ProUpsellSheet } from '../pro/ProUpsellSheet';
+import { ThemePreviewSheet } from './ThemePreviewSheet';
 import { getHebrewCopy } from '../../utils/hebrewGender';
 import { DEFAULT_VOICE_PREFERENCE, type VoicePreference } from '../../utils/ttsVoice';
 import {
@@ -89,6 +93,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [isParentApprovingFriends, setIsParentApprovingFriends] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSavedShown, setIsSavedShown] = useState(false);
+  const proAccess = useProAccess();
+  // A Pro theme or mascot tried by a free learner: held here only, never saved (ends with settings)
+  const [preview, setPreview] = useState<{ themeId?: ThemeId; companionId?: CompanionId }>({});
+  const [isUpsellOpen, setIsUpsellOpen] = useState(false);
 
   const draftRef = useRef(draft);
   const profileRef = useRef(profile);
@@ -96,7 +104,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const nameTimerRef = useRef<number | undefined>(undefined);
   const savedTimerRef = useRef<number | undefined>(undefined);
 
-  const activeTheme = resolveTheme(draft.themeId, draft.companionId);
+  const allowedLook = resolveAllowedLook(draft.themeId, draft.companionId, proAccess);
+  const isPreviewing = Boolean(preview.themeId || preview.companionId);
+  const activeTheme = resolveTheme(allowedLook.themeId, allowedLook.companionId);
+  const previewTheme = resolveTheme(preview.themeId ?? allowedLook.themeId, preview.companionId ?? allowedLook.companionId);
   const heb = getHebrewCopy(draft.gender, draft.name || (draft.gender === 'girl' ? 'נועה' : 'עידו'));
   const isChild = draft.age < PARENT_APPROVAL_AGE;
   const isTurningFriendsOnForChild =
@@ -159,6 +170,22 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const handleClose = () => {
     flushName();
     onClose();
+  };
+
+  const handleThemeChange = (themeId: ThemeId) => {
+    if (!canUseTheme(themeId, proAccess)) {
+      setPreview({ themeId });
+      return;
+    }
+    commit({ themeId });
+  };
+
+  const handleCompanionChange = (companionId: CompanionId) => {
+    if (!canUseCompanion(companionId, proAccess)) {
+      setPreview({ companionId });
+      return;
+    }
+    commit({ companionId });
   };
 
   const handleAgeChange = (age: number) => commit({ age, gradeId: getRecommendedGradeForAge(age) });
@@ -248,8 +275,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
 
         <div {...panelProps('look')}>
-          <ThemePicker themeId={draft.themeId} companionId={draft.companionId} onChange={(themeId) => commit({ themeId })} />
-          <CompanionPicker theme={activeTheme} onChange={(companionId) => commit({ companionId })} />
+          <ThemePicker
+            themeId={activeTheme.id}
+            companionId={allowedLook.companionId}
+            onChange={handleThemeChange}
+            isProOnly={(id) => !canUseTheme(id, proAccess)}
+            savedThemeId={draft.themeId}
+          />
+          <CompanionPicker
+            theme={activeTheme}
+            onChange={handleCompanionChange}
+            isProOnly={(id) => !canUseCompanion(id, proAccess)}
+            savedCompanionId={draft.companionId}
+          />
           <div className="space-y-1.5">
             <span className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
               <Volume2 className="w-4 h-4 text-pink-500" />
@@ -311,6 +349,33 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
         </div>
       </div>
+
+      {isPreviewing && (
+        <ThemePreviewSheet
+          previewTheme={previewTheme}
+          theme={activeTheme}
+          gender={draft.gender}
+          onAskParent={() => {
+            setPreview({});
+            setIsUpsellOpen(true);
+          }}
+          onClose={() => setPreview({})}
+        />
+      )}
+      {isUpsellOpen && auth?.currentUser && (
+        <ProUpsellSheet
+          learner={{
+            uid: auth.currentUser.uid,
+            name: draft.name,
+            gender: draft.gender,
+            avatarEmoji: profile.equippedAvatarEmoji || activeTheme.companion.avatarEmoji,
+            isGuest: auth.currentUser.isAnonymous,
+          }}
+          focus="themes"
+          theme={activeTheme}
+          onClose={() => setIsUpsellOpen(false)}
+        />
+      )}
     </div>
   );
 };

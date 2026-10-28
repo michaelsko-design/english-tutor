@@ -45,8 +45,12 @@ export interface PackContent {
   examBanks: Partial<Record<number, ExamBankPack>>;
 }
 
-/** A pack switched on in the app, with the local day it shipped (`YYYY-MM-DD`) */
+/** Who plays a released pack: every learner, or Pro learners only (docs/feature-pro-tier.md) */
+export type PackAccess = 'free' | 'pro';
+
+/** A pack switched on in the app, with the local day it shipped (`YYYY-MM-DD`) and who plays it */
 export interface ReleasedPack {
   id: ContentPackId;
   releasedAt: string;
+  access: PackAccess;
 }
