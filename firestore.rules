@@ -459,5 +459,30 @@ service cloud.firestore {
         && request.auth.uid == userId
         && isPushSubscription(request.resource.data);
     }
+
+    // EnglishVibe Pro (docs/feature-pro-tier.md). Only the payment functions write these, with the
+    // service account. A learner and their linked parents can read the learner's entitlement; the
+    // rest holds the gateway's secret process and transaction ids, so no client reads it.
+    match /entitlements/{childUid} {
+      allow read: if isRealAccount()
+        && (request.auth.uid == childUid || exists(linkPath(request.auth.uid, childUid)));
+      allow write: if false;
+    }
+
+    match /subscriptions/{subscriptionId} {
+      allow read, write: if false;
+    }
+
+    match /checkouts/{checkoutId} {
+      allow read, write: if false;
+    }
+
+    match /payments/{paymentId} {
+      allow read, write: if false;
+    }
+
+    match /recurringRefs/{refId} {
+      allow read, write: if false;
+    }
   }
 }

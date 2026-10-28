@@ -22,7 +22,9 @@ import { getTtsService } from '../../services/tts';
 import { toLocalDateStr } from '../../utils/dates';
 import { lazyNamed } from '../../utils/lazyNamed';
 import { ScreenLoading } from '../ScreenLoading';
+import { IS_PRO_PLAN_VISIBLE } from '../../config/proTier';
 import { ChildCard } from './ChildCard';
+import { ProPlanPicker } from './ProPlanPicker';
 import { ResetPinForm } from './ResetPinForm';
 
 const WeeklyReportScreen = lazyNamed(() => import('../progressReport/WeeklyReportScreen'), 'WeeklyReportScreen');
@@ -256,6 +258,8 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
           </ChildCard>
         ))}
       </section>
+
+      {IS_PRO_PLAN_VISIBLE && <ProPlanPicker theme={theme} initialChildren={children?.length || 1} />}
 
       <form onSubmit={handleLookup} className={`${sectionClass} ${theme.cardBgClass}`}>
         <label className="block text-sm font-bold">

@@ -12,6 +12,15 @@
     "api/parent-reset-pin.ts": {
       "maxDuration": 10
     },
+    "api/checkout.ts": {
+      "maxDuration": 15
+    },
+    "api/payment-webhook.ts": {
+      "maxDuration": 15
+    },
+    "api/subscription.ts": {
+      "maxDuration": 15
+    },
     "api/streak-reminder.ts": {
       "maxDuration": 60
     }

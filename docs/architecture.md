@@ -398,14 +398,14 @@ Optional, per device. Part of the backlog item "Daily streak reminders"; the Res
 - **Setup**: `npx web-push generate-vapid-keys`; set `VITE_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `CRON_SECRET` in Vercel (Production + Preview) and `.env.local`; deploy `firestore.rules`.
 
 ### 4.28. Pro Tier & Payments (planned; design in `docs/feature-pro-tier.md`)
-Not built yet. **EnglishVibe Pro** is a monthly or yearly subscription per learner, paid only by a paired parent from the parent portal.
+Server payments layer built (Grow; `api/checkout.ts`, `api/payment-webhook.ts`, `api/subscription.ts`); no UI or gating yet. **EnglishVibe Pro** is a monthly or yearly subscription for 1–4 children (₪39/349, 2: ₪64/569, 3: ₪89/799, 4: ₪114/999, VAT included; more children: WhatsApp). The parent's plan picker is `components/parent/ProPlanPicker.tsx` (dev server only until checkout is wired), paid only by a paired parent from the parent portal. Seats can be swapped once every 30 days. Parent-to-parent referrals give a free month, with no cap.
 - **Free:** units 1–2 of every grade (grade 1: units 1–5), packs released as free, 2 themes and 2 mascots (`cozy-studio` + Mochi, `urban-night` + Kai; the other themes and mascots can be previewed), the placement test, friends and contests, the room and shop, and 2 word lists.
 - **Pro:** every unit, packs released as Pro only (`ReleasedPack.access`), every theme and mascot, full exam prep and 10 word lists.
 - **Kept progress:** starred missions stay playable without Pro.
 - **Entitlements:** `entitlements/{childUid}` is written only by Vercel Functions, with the gateway transaction re-checked on the server. It is readable by the learner and linked parents, and kept off `LearnerProfile`, so sync is unchanged.
 - **Gating:** a separate layer (`data/proGate.ts`, a `'pro'` map status) sits on top of the progress locks, behind `PRO_GATING_ENABLED`.
 - **Asking a parent:** the learner's "ask a parent" sheet shows no prices and shares a `/?parent=CODE&pro=1` (or `/?parent&pro=1`) link.
-- **Payments:** the gateway sits behind a `PaymentProvider` interface (Grow or SUMIT, with a mock for the emulators). Coupons and comp grants are handled server-side through admin scripts.
+- **Payments:** Grow (Meshulam) sits behind a `PaymentProvider` interface (`api/_lib/payments/`, with a mock for the emulators): monthly plans are Grow recurring charges, yearly plans one-time payments. Coupons and comp grants are handled server-side through admin scripts.
 
 ---
 

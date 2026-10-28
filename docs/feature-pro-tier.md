@@ -2,7 +2,7 @@
 
 > Backlog: "Define the Freemium vs. 'EnglishVibe Pro' tier boundaries … design the kid-safe 'Ask a Parent on WhatsApp' payment link flow … plan integration with an Israeli payment gateway … and server-verified Firestore subscription status. Also create a coupon system."
 
-Status: **design only**. Nothing here is built yet. The phases in "Implementation phases" are the build order.
+Status: **server payments layer built** (checkout, webhook, plan changes, Grow adapter, rules; see "Server (built)"). No UI or learner gating yet. The phases in "Implementation phases" are the build order.
 
 ## Goal
 Most of the app stays free. A paid **EnglishVibe Pro** subscription (monthly or yearly) unlocks the full curriculum and the Pro content packs, full exam prep, more word lists and every theme and mascot. The learner never pays and never sees a checkout. They ask a parent, and the paired parent pays from the parent portal. Only the server decides who has Pro.
@@ -18,11 +18,12 @@ Most of the app stays free. A paid **EnglishVibe Pro** subscription (monthly or 
 ## Decisions
 | Question | Decision |
 | :--- | :--- |
-| Product | One plan, **EnglishVibe Pro**, billed monthly or yearly (the yearly price is cheaper per month). |
+| Product | One plan, **EnglishVibe Pro**, billed monthly or yearly. The price depends on how many children it covers (1–4; larger families contact us on WhatsApp); see "Pricing and seats". |
 | Exam Booster Pass (one-time) | Not now. Exam prep is a Pro feature. It is an open question for later. |
-| Gateway | Gateway-agnostic `PaymentProvider` interface. Expected **Grow (Meshulam)**, possibly **SUMIT**; the choice is open. A `mock` provider is used for the emulators and e2e. |
+| Gateway | **Grow (Meshulam)** behind a `PaymentProvider` interface, with a `mock` provider for the emulators and e2e. Monthly plans are Grow recurring charges; yearly plans are one-time payments that don't renew by themselves. |
 | Where Pro lives | `entitlements/{childUid}`, **not** on `LearnerProfile`. Sync and `mergeLearnerProfiles` are not affected. |
-| One subscription covers | One child. A family plan or sibling discount is open. |
+| One subscription covers | 1 to 5 children of the paying parent (seats). |
+| Referrals | Parent invites parent. The new family gets 50% off its first month. The inviting parent gets a free month once the new family's first full-price charge goes through. No cap. Children never get paid rewards. |
 | Existing users | None yet besides the developer's own children, who get a `comp` grant (`scripts/grantPro.mjs`). Starred missions stay playable for everyone. |
 | Rollout switch | `PRO_GATING_ENABLED` (in `config/proTier.ts`) stays `false` until payments work end to end. Until then everyone plays everything. |
 | Diamonds-bought items | Separate from Pro. The Sticker Studio Pass (`hasStickerPass`, `data/stickers.ts`) stays a 150-diamond shop item. Diamonds never buy Pro, and Pro never grants diamonds. |
@@ -57,6 +58,43 @@ All limits are named constants in one file, `config/proTier.ts`:
 - `PRO_GRACE_DAYS = 3`
 - `PRO_GATING_ENABLED`
 
+## Pricing and seats
+All prices include VAT and live in `config/proTier.ts` as `PRO_PRICES_AGOROT`, keyed by the number of children (1–4) and period. The server reads them; the parent's plan picker only shows them (`quoteProPrice`).
+- **Monthly:** ₪39 for the first child and ₪25 for each more.
+- **Yearly:** about 9 monthly charges ("3 months free"), rounded down to end in 9.
+
+| Children | Monthly | Yearly | Yearly per month | Saved per year |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | ₪39 | ₪349 | ≈ ₪29.08 | ₪119 |
+| 2 | ₪64 | ₪569 | ≈ ₪47.42 | ₪199 |
+| 3 | ₪89 | ₪799 | ≈ ₪66.58 | ₪269 |
+| 4 | ₪114 | ₪999 | ≈ ₪83.25 | ₪369 |
+
+Families with more than 4 children contact us on WhatsApp (the plan picker's button) for an extended plan.
+
+**Plan picker** (`components/parent/ProPlanPicker.tsx`, in the parent portal; shown on the dev server only until checkout is wired, `IS_PRO_PLAN_VISIBLE`):
+- **Billing switch:** חודשי / שנתי (3 חודשים מתנה), yearly by default.
+- **Counter:** a 1–4 children stepper, starting at the parent's linked children.
+- **Price box:** the charge, the per-month rate (yearly), the per-child monthly rate (2+ children), and the yearly saving. On monthly it says what yearly would save.
+- **WhatsApp button:** "צריכים מנוי ליותר מ-4 ילדים? דברו איתנו בוואטסאפ" opens a WhatsApp chat with a prefilled message. Pressing + at 4 children highlights it and moves focus to it. The number is `SUPPORT_WHATSAPP_NUMBER` (`config/appInfo.ts`) (for now the owner's private number; replace it with a business number before launch).
+- **Footer:** "התחברות אחת להורה עם פרופיל נפרד לכל ילד • אפשר לבטל בכל עת".
+- **Continue button:** "המשך לתשלום" appears once checkout is wired (`onContinue`).
+
+- **One subscription per paying parent.** `subscriptions/{id}` (server-only) holds:
+  - `payerParentUid`, `period`, `seatLimit` (1–4) and `childUids` (at most `seatLimit`).
+  - `status`, `periodEnd`, `provider`, `providerRef`, `lastSwapAt`, `freeMonthsBanked`.
+  - Every child in `childUids` gets an `entitlements/{childUid}` mirror (`source: 'subscription'`, `subscriptionId`), so the learner app keeps reading one document.
+- **Seats need a pairing.** A child can take a seat only if `parentLinks/{payer}_{child}` exists, checked on the server as the parent.
+  - A child can be in only one active subscription at a time. `entitlements/{childUid}` already says which one, and `api/checkout.ts` refuses a second one.
+  - A parent account can be linked to at most `MAX_LINKED_CHILDREN = 6` children (`api/checkout.ts` checks this; the pairing itself stays as it is).
+- **Adding a child** to a monthly plan (e.g. 2 → 3) costs nothing extra now: the new child is Pro at once, and the higher price applies **from the next charge**.
+  - The same goes for removing one. A yearly plan only fills the seats already paid for.
+  - This needs the gateway to support changing a recurring amount; check it in P3. If it can't, cancel and re-create the recurring payment with the same next date.
+- **Swapping a child** means removing one from a seat and putting another in. It is allowed **once every 30 days** (`SEAT_SWAP_COOLDOWN_DAYS`, `lastSwapAt`), on monthly and yearly plans alike.
+  - A removed child keeps Pro until the end of the current period, but at most a month, so nothing is taken away mid-month and swapping can't pass a yearly plan's remaining months from child to child.
+  - Filling an empty seat (one that was never used, or after adding a seat) is not a swap.
+- **The parent portal** shows every seat with the child's name and avatar. Removing a child needs a confirm step. A parent sharing seats with another family would be handing that family visibility and control, which puts most people off.
+
 ## Entitlement model
 `entitlements/{childUid}` holds one document per learner:
 
@@ -79,7 +117,7 @@ All limits are named constants in one file, `config/proTier.ts`:
 - **Rules** (`firestore.rules`, a new block after `pushSubscriptions`):
   - **Read:** `request.auth.uid == childUid`, or the reader is a linked parent (`exists(linkPath(request.auth.uid, childUid))`, reusing the parent block's helper).
   - **Write:** `false`. Only the service account writes, and it bypasses the rules.
-  - Same for `checkouts`, `payments`, `coupons` and `couponRedemptions`: no client reads or writes, except a parent reading their own `checkouts/{id}` for the return page.
+  - Same for `subscriptions`, `checkouts`, `payments`, `recurringRefs` (and later `coupons`, `couponRedemptions`): no client reads or writes. The return page watches the child's entitlement instead of the checkout.
 - **Smoke test** (`scripts/emulator/rulesSmoke.mjs`), a new "entitlements" section:
   - A learner can read their own document.
   - A linked parent can read it; an unlinked user cannot.
@@ -179,7 +217,10 @@ sequenceDiagram
   - Canceled: "בוטל, פעיל עד …".
   - Comp: "Pro (מתנה)".
 - **`ProCheckoutPanel`** (new):
-  - Monthly vs. yearly with prices (VAT included) and an optional coupon field ("קוד הנחה"). The price shown after a coupon comes from the server (`api/checkout` with `dryRun: true`).
+  - Starts from the plan picker's choice. Then pick which linked children take the seats (checkboxes), and enter the payer's full name and Israeli mobile number (Grow requires both).
+  - Monthly vs. yearly, with prices (VAT included).
+  - An optional coupon or referral code field ("קוד הנחה"). The price shown after a code comes from the server (`api/checkout` with `dryRun: true`).
+  - Opened from a learner's ask, that learner is already checked.
   - The recurring-charge notice and the cancellation terms appear next to the button, as consumer-protection law requires.
   - "המשך לתשלום" goes to the hosted page.
 - **Return page** `/?parent&paid=<checkoutId>`:
@@ -188,47 +229,74 @@ sequenceDiagram
 - **"ביטול המנוי"** sits on the Pro card behind a confirm step (as easy to find as the upgrade). It calls `api/subscription.ts`. Pro stays on until `periodEnd`.
 - `parseParentParam` / `isParentRoute` (`data/parentLink.ts`) already accept extra params. New helpers `readProIntent(search)` and `readPaidCheckout(search)` sit next to them.
 
-## Server
-All functions follow `api/parent-reset-pin.ts`:
-- POST only.
-- The parent's Google ID token (`verifyFirebaseIdToken` + `readFirebaseClaims`, `signInProvider === 'google.com'`).
-- App Check when `APPCHECK_ENFORCE === 'on'`.
-- The pairing checked by reading `parentLinks/{parent}_{child}` **as the parent**.
-- Writes with `createFirestoreAdmin` (`api/_lib/firestoreAdmin.ts`).
-- Injectable deps for unit tests; only an error status is logged (no tokens, no card data).
+## Server (built)
+Built in phases P2–P3 (server only, no UI yet). All three functions are POST only. They log a status or a gateway error id, never tokens, payer details or keys, and take injectable deps for their unit tests.
+- **`api/checkout.ts` and `api/subscription.ts`** are called by the parent. They use `api/_lib/parentRequest.ts`, shared with `api/parent-reset-pin.ts`:
+  - the parent's Google ID token;
+  - App Check when `APPCHECK_ENFORCE === 'on'`;
+  - the pairing, read from `parentLinks/{parent}_{child}` **as the parent**.
+- **Server-only records** are written with the service account (`api/_lib/firestoreAdmin.ts`: `getDocument`, and `commit` for atomic multi-document writes with `exists` / `updateTime` preconditions).
+- **The billing model and seat rules** are pure functions in `api/_lib/proBilling.ts`.
+
+**Collections** (all written by the server only):
+
+| Collection | Holds |
+| :--- | :--- |
+| `checkouts/{id}` | One payment page: `parentUid`, `childUids`, `period`, `seatLimit`, `amountAgorot`, `status` (`pending`/`paid`), `provider`, and the gateway's secret `processId`/`processToken`. |
+| `subscriptions/{id}` | `id` = the checkout that started it. Holds `payerParentUid`, `childUids`, `seatLimit`, `period`, `status` (`active`/`past_due`/`canceled`), `periodEnd`, `amountAgorot`, `provider`, `recurringRef`, `billing` (the gateway's opaque transaction ids), `lastRemovalAt`, `lastSwapAt`. |
+| `entitlements/{childUid}` | The mirror the learner's app reads (see "Entitlement model"). |
+| `payments/{provider}_{transactionId}` | One per charge, created with `exists: false`, so a repeated notification is recorded once. |
+| `recurringRefs/{provider}_{ref}` | Maps the gateway's recurring-charge id to a subscription, for the renewal webhooks. |
+
+**Rules.** Only `entitlements` can be read by clients (the learner and linked parents). `subscriptions` and `checkouts` hold the gateway's secret ids, which Grow says must never reach the payer, so nothing can be read there. The parent portal will show the plan from the entitlements, so any plan fields it needs are added there. The rules smoke test covers all of this.
 
 | Function | Does |
 | :--- | :--- |
-| `api/checkout.ts` | Validates `{childUid, period, couponCode?, dryRun?}`, computes the price on the server from `config/proTier.ts` prices and the coupon (the client price is never trusted), and writes `checkouts/{id}` (`childUid`, `parentUid`, `period`, `amountAgorot`, `couponCode`, `status: 'pending'`, `createdAt`). It calls `provider.createPaymentPage(...)` with the success, fail and webhook URLs and returns `{ url }`. A 100% / `comp` coupon writes the entitlement directly and returns `{ activated: true }`. |
-| `api/payment-webhook.ts` | Gets the gateway's notification and calls `provider.verifyNotification(req)`, which **re-queries the gateway API** for the transaction, its amount and status. It is idempotent on `payments/{provider}_{txnId}` (create-if-absent). On success it sets `entitlements/{childUid}` (`active`, `periodEnd` = the later of now or the current `periodEnd`, plus the period) and marks the checkout `paid`. Recurring charges, failures and cancellations from the gateway update `status`. It answers 200 quickly, as gateways retry on errors. |
-| `api/subscription.ts` | `cancel`: checks the parent owns the subscription (`payerParentUid`), calls `provider.cancel(providerRef)` and sets `status: 'canceled'`. |
-| `api/streak-reminder.ts` (the daily cron) | One more step: `reconcileEntitlements` sets `expired` where `periodEnd + grace` has passed, and asks the provider about `past_due` subscriptions to catch a missed webhook. It stays one cron (Hobby plan). |
+| `api/checkout.ts` | Takes `{childUids, period, payerName, payerPhone, payerEmail?, dryRun?}`. <br>• **Validates:** 1–4 distinct children, each paired with the caller and none holding a live seat. Grow needs a first and last name in letters only, and an Israeli mobile number (`05XXXXXXXX`). <br>• **Prices** the order from `PRO_PRICES_AGOROT`; `dryRun` returns only `{amountAgorot, seatBand}`. <br>• **Opens the page:** writes the checkout, opens the payment page, saves the page's process ids on the checkout, and returns `{url}`. Without a provider, service account or webhook secret it answers 503. |
+| `api/payment-webhook.ts` | `?key=<PAYMENT_WEBHOOK_SECRET>` is checked first. <br>• **`source=process`** (Grow's `notifyUrl`, form fields): `cField1` names the checkout. The payment is confirmed by asking Grow about **that checkout's own** process ids (`getPaymentProcessInfo`, and `getTransactionInfo` for the recurring id), never from the body. The amount must equal the checkout's. A child who got Pro on another plan since the checkout keeps that seat; they are left out and listed on the payment (`seatedElsewhere`) for a manual refund. One commit then records the payment (once), the subscription, every seat's entitlement, the recurring ref and the checkout as paid. If that commit is blocked while no payment is recorded, it answers 503 so Grow retries. Then `approveTransaction`; if that fails it is only logged, because Grow keeps the payment either way. <br>• **`source=account`** (Grow account webhooks, JSON, checked by `GROW_WEBHOOK_KEY`): a monthly charge after the first extends `periodEnd` by a month, once per `transactionCode`, and only within 10 days of `periodEnd` (an early one, such as the first charge sent again, is ignored). A failed charge marks the plan and its seats `past_due`; the learner keeps Pro until `periodEnd` plus the grace days, while Grow retries. <br>• Anything it will never act on gets a 200, so Grow stops retrying. |
+| `api/subscription.ts` | Takes `{action, subscriptionId, childUid?}` from the paying parent only; another parent's plan answers 404. <br>• **`cancel`:** `updateDirectDebit changeStatus=2` on monthly plans; Pro stays on until `periodEnd`. A yearly plan has nothing to cancel (409). <br>• **`addChild` / `removeChild`:** the seat rules from "Pricing and seats". A monthly price change goes to Grow first (`updateDirectDebit sum`, from the next charge), then the records are saved with an `updateTime` precondition. If the save loses a race, the Grow amount is put back and the call answers 409. |
+
+**Grow (Meshulam)** (`api/_lib/payments/grow.ts`, Light API, FormData POSTs answering `{status, err, data}`):
+- **Monthly** uses Grow Billing ("הוראת קבע"), the recurring pageCode `GROW_RECURRING_PAGE_CODE`. Grow charges every month. It notifies `notifyUrl` only for the first charge; later charges and failures come as **account webhooks**, which Grow support must enable and point at `/api/payment-webhook?source=account&key=…`.
+- **Yearly** is one regular payment on `GROW_REGULAR_PAGE_CODE`. Grow Billing only charges monthly, so **a yearly plan does not renew by itself**. Renewal is a new checkout, and a renewal reminder is still to build.
+- **Sandbox** `https://sandbox.meshulam.co.il/api/light/server/1.0/` (test card 4580 4580 4580 4580); production `https://secure.meshulam.co.il/...` with `GROW_ENV=production`. Bit, Apple Pay and Google Pay have no sandbox (real charges only).
+- **Not yet checked against a real account:**
+  - whether `paymentNum` must be set for an open-ended recurring charge (left unset);
+  - the exact content type of the account webhooks (JSON and form are both accepted);
+  - that `getTransactionInfo` returns `directDebitId` on the first recurring charge.
+  Check all of these in the sandbox before going live.
 
 **Provider interface** (`api/_lib/payments/provider.ts`):
 ```ts
 interface PaymentProvider {
-  createPaymentPage(input: { checkoutId: string; amountAgorot: number; period: 'monthly' | 'yearly';
-    payerEmail: string; payerName: string; description: string; successUrl: string; failUrl: string;
-    notifyUrl: string }): Promise<{ url: string; providerRef: string }>;
-  verifyNotification(req: Request): Promise<VerifiedPayment | null>;   // re-queries the gateway
-  cancel(providerRef: string): Promise<void>;
+  readonly id: 'grow' | 'mock';
+  createPaymentPage(input: PaymentPageInput): Promise<{ url; processId; processToken }>;
+  confirmPayment(period, page: { processId; processToken }): Promise<ConfirmedPayment | null>; // asks the gateway
+  acknowledge(period, payment: ConfirmedPayment): Promise<void>;                             // Grow: approveTransaction
+  updateRecurring(billing: string, change: { amountAgorot?; cancel? }): Promise<void>;       // Grow: updateDirectDebit
 }
 ```
-- `api/_lib/payments/grow.ts`: Grow (Meshulam) "create payment process" with a recurring-payment setting; the notify callback is followed by a transaction lookup / approve call.
-- `api/_lib/payments/sumit.ts`: SUMIT recurring billing with a redirect page; the notification is followed by a payment lookup.
-- `api/_lib/payments/mock.ts`: for the emulators and e2e. `createPaymentPage` returns `/?parent&mockpay=<id>`, a tiny "pay / fail" page in dev builds only, which posts a signed fake notification.
-- The adapter is chosen by `PAYMENT_PROVIDER`. `mock` is refused when `VERCEL_ENV === 'production'`.
-- Exact endpoint names and fields come from the chosen gateway's docs at build time (phase 3). The interface is the contract.
+- `api/_lib/payments/mock.ts` (`PAYMENT_PROVIDER=mock`, local runs against a `demo-` project only: refused on any Vercel deployment and with the live project id, both of which write to the live Firebase project) treats every page as paid in full. Its page URL is `/?parent&mockpay=<checkoutId>`; the parent portal will handle it in P2's UI.
+- The adapter is picked by `createPaymentProvider` (`api/_lib/payments/index.ts`). A SUMIT adapter would implement the same interface.
 
-**Env** (Vercel Production + Preview, and `.env.local`):
-- `PAYMENT_PROVIDER`
-- `GROW_API_KEY`, `GROW_PAGE_CODE`, `GROW_USER_ID` (or `SUMIT_COMPANY_ID`, `SUMIT_API_KEY`)
-- `PAYMENT_WEBHOOK_SECRET`, a path token on the notify URL, as a first filter before the API re-check
+**Env** (Vercel Production + Preview, and `.env.local`; listed in `.env.example`):
+- `PAYMENT_PROVIDER` (`grow` / `mock`)
+- `PAYMENT_WEBHOOK_SECRET`, a long random string carried by both webhook URLs
+- `APP_ORIGIN` (required on Vercel: the webhook URL is built from it)
+- `GROW_ENV`, `GROW_USER_ID`, `GROW_RECURRING_PAGE_CODE`, `GROW_REGULAR_PAGE_CODE`, `GROW_API_KEY` (platforms only), `GROW_WEBHOOK_KEY`
 - The existing `FIREBASE_SERVICE_ACCOUNT_JSON`
 
 **`vercel.json`.**
-- Add `maxDuration` for the new functions.
-- The redirect is a top-level navigation (`window.location.assign`), so `connect-src`, `form-action 'self'` and `Permissions-Policy: payment=()` stay as they are. The hosted page is never embedded in an iframe, so `frame-src` does not change.
+- `maxDuration` 15 s for the three functions.
+- The redirect to Grow is a top-level navigation, so `connect-src`, `form-action 'self'` and `Permissions-Policy: payment=()` stay as they are.
+- The page is never embedded in an iframe.
+
+**Not built yet:**
+- The daily reconcile step in the cron (expire lapsed entitlements, ask Grow about `past_due` plans).
+- Account-deletion cleanup of entitlements.
+- The `MAX_LINKED_CHILDREN` check, and a cap on pending checkouts per parent (each opens a Grow payment process).
+- Gateway ids are checked (`GATEWAY_ID_PATTERN`) before they become document ids; Grow ids that don't match are ignored.
+- Coupons and referrals (P4).
 
 ## Payment methods and invoices
 - Bit, Apple Pay, Google Pay and cards are all handled on the gateway's hosted page. Apple Pay needs the gateway's domain verification for the production domain (depends on the "Domain and Email" backlog item).
@@ -247,7 +315,35 @@ interface PaymentProvider {
 - `comp` / 100% creates an entitlement with no payment (`source: 'coupon'`).
 - `redeemedCount` is incremented in the same commit that writes the redemption, so `maxRedemptions` holds under races.
 - Coupons are made by an admin script, `scripts/coupons.mjs create|list|disable`, which uses the service account like `scripts/resetLearnerPin.mjs`. No admin UI.
+- **Promotions** are ordinary coupons with dates and a redemption cap:
+  - Launch: "השקה", first month ₪9.90, for the first 200 families.
+  - Seasonal: back to school (late August–September), before exams and the Bagrut (April–May), Hanukkah, summer.
+  - Teachers: a class code, 20% off, one per teacher.
+  - Win-back: a one-time ₪19 first month for a parent who canceled at least 30 days ago.
+  - No free trial: the free tier already works as one.
 - **Comp grants:** `scripts/grantPro.mjs <username> [--until YYYY-MM-DD]` looks the uid up through `usernames/{slug}` and writes `source: 'comp'`. This is how the developer's own children get Pro.
+
+## Referrals
+**Paid rewards go to parents only.** Getting a child to recruit friends so that their parent pays less is a dark pattern in a children's app, and advertising to minors is legally sensitive.
+
+**Parent invites parent.**
+- Every paying parent has a personal referral code (`referralCodes/{CODE}` → `parentUid`, server-only) and a WhatsApp share button in the parent portal: "קבלו חודש ראשון ב-50% הנחה עם הקוד שלי".
+- **The new family** enters the code in the checkout panel's code field and gets **50% off its first month**, for any number of children. On a yearly plan that is half a month's price off the yearly charge.
+- **The inviting parent** gets **one free month of their own plan** (`freeMonthsBanked + 1`) when the new family's **first full-price charge** goes through, i.e. their second monthly charge. For a yearly plan, the reward comes once the yearly charge is past the 14-day cancellation window.
+  - Rewarding the full-price charge, not the discounted one, is what makes a cap unnecessary. Faking a family costs ₪19.50 + ₪39 = ₪58.50 to earn one ₪39 month, so it never pays.
+- **No cap** on free months. A parent who keeps bringing families earns free Pro, and that is worth it.
+- **Free months** push the next charge back by one month each, and a yearly payer's renewal by one month each. If the gateway can't move a recurring date, they are given as a discount on the next charge(s) instead.
+- **Checks in `api/checkout.ts` / the webhook:**
+  - The new family's children must never have had a subscription.
+  - None of them may be linked to the inviting parent.
+  - The two parents must be different Google accounts.
+  - A card fingerprint, if the gateway exposes one, must differ from the inviting parent's.
+  - A parent can't use their own code.
+- `referrals/{newParentUid}` holds `referrerUid`, `code`, `status: 'pending' | 'rewarded' | 'void'`, `checkoutId` and `rewardedAt`. A referral is void if the new family cancels before its first full-price charge.
+
+**Children: invite a friend, with no money involved.**
+- The existing friend invite (§4.14) stays free. When a friend accepts, the inviting child gets an in-app reward (diamonds, or an exclusive sticker or room item) through `handleUpdateProfile`, at most once per new friend.
+- It brings families to the free tier, and some of them upgrade later. Payment never enters the child's side.
 
 ## Privacy and legal (checklist before going live)
 - **Privacy notice** (`PrivacyNoticeDialog`): a payments paragraph.
@@ -289,7 +385,7 @@ Each phase ships on its own. `PRO_GATING_ENABLED` stays `false` until phase 5.
 3. **P3: the real gateway.**
    - The Grow (or SUMIT) adapter in sandbox, the recurring charge, the invoice, cancel, and the cron reconcile.
    - Then the live keys, with one real low-price charge and its refund done by hand.
-4. **P4: coupons.** `coupons` / `couponRedemptions`, the checks in `api/checkout.ts`, `scripts/coupons.mjs`, the coupon field in the panel.
+4. **P4: coupons and referrals.** `coupons` / `couponRedemptions`, `referralCodes` / `referrals`, the checks in `api/checkout.ts` and the reward in the webhook, `scripts/coupons.mjs`, the code field and the referral share card in the panel, and the children's friend-invite reward.
 5. **P5: launch.**
    - The privacy notice and legal checklist.
    - Turn on `PRO_GATING_ENABLED`.
@@ -297,11 +393,10 @@ Each phase ships on its own. `PRO_GATING_ENABLED` stays `false` until phase 5.
    - Check on desktop and phone.
 
 ## Open questions
-- Prices: monthly ₪? yearly ₪? (Suggested shape: yearly ≈ 8 × monthly.)
 - Free word lists: 2? Exam prep free taste: day 1 only, or one full skill?
 - Grade 1's free units: 1–5 (all letters plus the first blending unit), or 1–4 (the letters only)?
-- Family plan or sibling discount (several children under one parent)?
-- A free trial (e.g. 7 days of Pro on the parent's first upgrade), or coupons only?
-- Final gateway: Grow vs. SUMIT. Compare fees, Bit support **for recurring** charges, invoice API, sandbox quality and payout terms.
+- Two parents of the same child (both paired): can either one manage the subscription, or only the payer?
+- Friend-invite reward for children: how many diamonds, or which exclusive item?
+- Grow account: open it, get sandbox ids (userId, a recurring and a regular pageCode), ask Grow support to enable the recurring and failed-recurring webhooks, then run the sandbox checks listed in "Server (built)".
 - Bring back a one-time "Exam Booster Pass" (e.g. 30 days of exam prep) later?
 - Yearly-renewal reminder: from the gateway's email, or our own push to the parent?

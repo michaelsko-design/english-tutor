@@ -204,5 +204,52 @@ await expect('another user cannot write a subscription', false, () =>
   setDoc(doc(b.db, 'pushSubscriptions', ua.uid), pushSub()));
 await expect('the learner can delete their subscription', true, () => deleteDoc(doc(a.db, 'pushSubscriptions', ua.uid)));
 
+// EnglishVibe Pro: the server writes entitlements (seeded here with the emulator's owner token,
+// which bypasses the rules); a learner and a linked parent can read one, nobody can write.
+const ownerDoc = (path) =>
+  `http://127.0.0.1:8080/v1/projects/demo-english-vibe/databases/(default)/documents/${path}`;
+const seedAsServer = (path, fields) =>
+  fetch(ownerDoc(path), {
+    method: 'PATCH',
+    headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fields }),
+  }).then((response) => {
+    if (!response.ok) throw new Error(`seed ${path} failed: ${response.status}`);
+  });
+const entitlement = () => ({
+  plan: 'pro', status: 'active', source: 'subscription', billingPeriod: 'monthly',
+  periodEnd: Date.now() + 30 * 24 * 3600 * 1000, payerParentUid: ub.uid, subscriptionId: 'x'.repeat(32),
+  provider: 'mock', updatedAt: Date.now(),
+});
+await seedAsServer(`entitlements/${ua.uid}`, {
+  plan: { stringValue: 'pro' }, status: { stringValue: 'active' }, payerParentUid: { stringValue: ub.uid },
+});
+await seedAsServer(`subscriptions/${'x'.repeat(32)}`, { payerParentUid: { stringValue: ub.uid } });
+await seedAsServer(`checkouts/${'x'.repeat(32)}`, { parentUid: { stringValue: ub.uid }, processToken: { stringValue: 'secret' } });
+
+await expect('a learner can read their own entitlement', true, () => getDoc(doc(a.db, 'entitlements', ua.uid)));
+await expect('an unlinked user cannot read an entitlement', false, () => getDoc(doc(b.db, 'entitlements', ua.uid)));
+await expect('a learner cannot write their own entitlement', false, () =>
+  setDoc(doc(a.db, 'entitlements', ua.uid), entitlement()));
+await expect('a learner cannot delete their own entitlement', false, () => deleteDoc(doc(a.db, 'entitlements', ua.uid)));
+await expect('a parent cannot give a learner Pro', false, () => setDoc(doc(b.db, 'entitlements', ua.uid), entitlement()));
+await deleteDoc(doc(b.db, 'parentLinks', linkId)).catch(() => {});
+await deleteDoc(doc(a.db, 'parentInvites', CODE)).catch(() => {});
+await setDoc(doc(a.db, 'parentInvites', CODE), invite());
+await claim(b.db, {});
+await expect('a linked parent can read the learner entitlement', true, () => getDoc(doc(b.db, 'entitlements', ua.uid)));
+await expect('a linked parent still cannot write it', false, () =>
+  updateDoc(doc(b.db, 'entitlements', ua.uid), { status: 'active' }));
+await expect('the paying parent cannot read the subscription record', false, () =>
+  getDoc(doc(b.db, 'subscriptions', 'x'.repeat(32))));
+await expect('the paying parent cannot read the checkout record', false, () =>
+  getDoc(doc(b.db, 'checkouts', 'x'.repeat(32))));
+await expect('nobody can write a payment record', false, () =>
+  setDoc(doc(b.db, 'payments', 'mock_1'), { subscriptionId: 'x', amountAgorot: 0, at: 0 }));
+await deleteDoc(doc(b.db, 'parentLinks', linkId)).catch(() => {});
+for (const path of [`entitlements/${ua.uid}`, `subscriptions/${'x'.repeat(32)}`, `checkouts/${'x'.repeat(32)}`]) {
+  await fetch(ownerDoc(path), { method: 'DELETE', headers: { Authorization: 'Bearer owner' } }).catch(() => {});
+}
+
 for (const [status, label, detail] of results) console.log(`${status}  ${label}${detail ? `  (${detail})` : ''}`);
 process.exit(results.some(([s]) => s === 'FAIL') ? 1 : 0);

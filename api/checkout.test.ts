@@ -1,0 +1,117 @@
+import { describe, expect, it, vi } from 'vitest';
+import { handleCheckoutRequest } from './checkout';
+import { createFakeFirestore } from './_lib/testing/fakeFirestoreAdmin';
+import { linksFetch, parentRequest, SERVICE_ACCOUNT_JSON } from './_lib/testing/parentRequestFixtures';
+import type { PaymentProvider } from './_lib/payments/provider';
+
+const NOW = Date.UTC(2026, 9, 28);
+const CHECKOUT_ID = 'c'.repeat(32);
+const ENV = { FIREBASE_SERVICE_ACCOUNT_JSON: SERVICE_ACCOUNT_JSON, PAYMENT_WEBHOOK_SECRET: 'hook-secret', APP_ORIGIN: 'https://app.example' };
+const PAYER = { payerName: 'ישראל ישראלי', payerPhone: '050-123-4567' };
+
+function setup({ linked = ['parent1_kid1', 'parent1_kid2'], provider = true } = {}) {
+  const fake = createFakeFirestore();
+  const gateway = {
+    id: 'grow',
+    createPaymentPage: vi.fn(async () => ({ url: 'https://pay.example/page', processId: 'p1', processToken: 'secret-token' })),
+    confirmPayment: vi.fn(),
+    acknowledge: vi.fn(),
+    updateRecurring: vi.fn(),
+  } satisfies PaymentProvider;
+  const deps = {
+    fetchImpl: linksFetch(linked) as unknown as typeof fetch,
+    verifyToken: vi.fn(async () => true),
+    nowMs: () => NOW,
+    newId: () => CHECKOUT_ID,
+    createAdmin: vi.fn(() => fake.admin) as never,
+    createProvider: vi.fn(() => (provider ? gateway : null)) as never,
+  };
+  return { fake, gateway, deps };
+}
+
+const checkout = (body: Record<string, unknown>, uid = 'parent1') => parentRequest('/api/checkout', body, uid);
+
+describe('handleCheckoutRequest', () => {
+  it('prices a dry run without opening a payment page', async () => {
+    const { gateway, deps } = setup();
+
+    const response = await handleCheckoutRequest(checkout({ childUids: ['kid1', 'kid2'], period: 'yearly', dryRun: true }), ENV, deps);
+
+    expect(await response.json()).toEqual({ amountAgorot: 56900 });
+    expect(gateway.createPaymentPage).not.toHaveBeenCalled();
+  });
+
+  it('records the checkout, opens the page with the server price and keeps the process ids', async () => {
+    const { fake, gateway, deps } = setup();
+
+    const response = await handleCheckoutRequest(checkout({ childUids: ['kid1', 'kid2'], period: 'monthly', ...PAYER }), ENV, deps);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ url: 'https://pay.example/page' });
+    expect(gateway.createPaymentPage).toHaveBeenCalledWith(expect.objectContaining({
+      checkoutId: CHECKOUT_ID,
+      amountAgorot: 6400,
+      payerPhone: '0501234567',
+      description: 'EnglishVibe Pro monthly 2 children',
+      successUrl: `https://app.example/?parent&paid=${CHECKOUT_ID}`,
+      notifyUrl: 'https://app.example/api/payment-webhook?source=process&key=hook-secret',
+    }));
+    expect(fake.get('checkouts', CHECKOUT_ID)).toMatchObject({
+      parentUid: 'parent1', childUids: ['kid1', 'kid2'], period: 'monthly', seatLimit: 2, amountAgorot: 6400,
+      status: 'pending', provider: 'grow', processId: 'p1', processToken: 'secret-token',
+    });
+  });
+
+  it('refuses a child the parent is not linked to', async () => {
+    const { fake, deps } = setup({ linked: ['parent1_kid1'] });
+    const response = await handleCheckoutRequest(checkout({ childUids: ['kid1', 'kid2'], period: 'monthly', ...PAYER }), ENV, deps);
+    expect(response.status).toBe(403);
+    expect(fake.docs.size).toBe(0);
+  });
+
+  it('refuses a child who already holds a live seat', async () => {
+    const { fake, deps } = setup();
+    fake.seed('entitlements', 'kid2', { status: 'active', periodEnd: NOW + 86400000 });
+    const response = await handleCheckoutRequest(checkout({ childUids: ['kid1', 'kid2'], period: 'monthly', ...PAYER }), ENV, deps);
+    expect(response.status).toBe(409);
+  });
+
+  it.each([
+    ['five children', { childUids: ['a', 'b', 'c', 'd', 'e'], period: 'monthly', ...PAYER }],
+    ['a repeated child', { childUids: ['kid1', 'kid1'], period: 'monthly', ...PAYER }],
+    ['an unknown period', { childUids: ['kid1'], period: 'weekly', ...PAYER }],
+    ['a one-word name', { childUids: ['kid1'], period: 'monthly', payerName: 'ישראל', payerPhone: '0501234567' }],
+    ['a name with symbols', { childUids: ['kid1'], period: 'monthly', payerName: 'Dan <b>Cohen</b>', payerPhone: '0501234567' }],
+    ['a landline', { childUids: ['kid1'], period: 'monthly', payerName: 'Dan Cohen', payerPhone: '031234567' }],
+  ])('rejects %s', async (_label, body) => {
+    const { deps } = setup();
+    expect((await handleCheckoutRequest(checkout(body), ENV, deps)).status).toBe(400);
+  });
+
+  it('refuses the parent paying for themself, and a non-Google caller', async () => {
+    const { deps } = setup();
+    expect((await handleCheckoutRequest(checkout({ childUids: ['parent1'], period: 'monthly', ...PAYER }), ENV, deps)).status).toBe(403);
+    const pinUser = parentRequest('/api/checkout', { childUids: ['kid1'], period: 'monthly', ...PAYER }, 'kid9', 'password');
+    expect((await handleCheckoutRequest(pinUser, ENV, deps)).status).toBe(403);
+  });
+
+  it('answers 503 when payments are not configured', async () => {
+    const { deps } = setup({ provider: false });
+    expect((await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER }), ENV, deps)).status).toBe(503);
+    const { deps: deps2 } = setup();
+    const noSecret = { ...ENV, PAYMENT_WEBHOOK_SECRET: '' };
+    expect((await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER }), noSecret, deps2)).status).toBe(503);
+    const deployedWithoutOrigin = { ...ENV, APP_ORIGIN: '', VERCEL_ENV: 'production' };
+    expect((await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER }), deployedWithoutOrigin, deps2)).status).toBe(503);
+  });
+
+  it('answers 502 and returns no page when the gateway refuses', async () => {
+    const { gateway, deps } = setup();
+    gateway.createPaymentPage.mockRejectedValueOnce(new Error('down'));
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const response = await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER }), ENV, deps);
+    expect(response.status).toBe(502);
+    expect(errors).toHaveBeenCalledWith('checkout: failed (unexpected)');
+    errors.mockRestore();
+  });
+});
