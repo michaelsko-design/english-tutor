@@ -22,7 +22,9 @@ Most of the app stays free. A paid **EnglishVibe Pro** subscription (monthly or 
 | Exam Booster Pass (one-time) | Not now. Exam prep is a Pro feature. It is an open question for later. |
 | Gateway | **Grow (Meshulam)** behind a `PaymentProvider` interface, with a `mock` provider for the emulators and e2e. Monthly plans are Grow recurring charges; yearly plans are one-time payments that don't renew by themselves. |
 | Where Pro lives | `entitlements/{childUid}`, **not** on `LearnerProfile`. Sync and `mergeLearnerProfiles` are not affected. |
-| One subscription covers | 1 to 5 children of the paying parent (seats). |
+| One subscription covers | 1 to 4 children of the paying parent (seats). |
+| Who manages it | **Only the paying parent.** Another parent paired with the same child sees the Pro status but cannot cancel or change the plan (`api/subscription.ts` answers 404 for another parent's plan). |
+| Yearly renewal | Yearly plans don't renew by themselves, so Grow sends no reminder. **Our own in-app notice:** from 14 days before `periodEnd`, the parent portal's Pro card shows the end date and a renew button. No email or push to build. |
 | Referrals | Parent invites parent. The new family gets 50% off its first month. The inviting parent gets a free month once the new family's first full-price charge goes through. No cap. Children never get paid rewards. |
 | Existing users | None yet besides the developer's own children, who get a `comp` grant (`scripts/grantPro.mjs`). Starred missions stay playable for everyone. |
 | Rollout switch | `PRO_GATING_ENABLED` (in `config/proTier.ts`) stays `false` until payments work end to end. Until then everyone plays everything. |
@@ -258,7 +260,7 @@ Built in phases P2–P3 (server only, no UI yet). All three functions are POST o
 
 **Grow (Meshulam)** (`api/_lib/payments/grow.ts`, Light API, FormData POSTs answering `{status, err, data}`):
 - **Monthly** uses Grow Billing ("הוראת קבע"), the recurring pageCode `GROW_RECURRING_PAGE_CODE`. Grow charges every month. It notifies `notifyUrl` only for the first charge; later charges and failures come as **account webhooks**, which Grow support must enable and point at `/api/payment-webhook?source=account&key=…`.
-- **Yearly** is one regular payment on `GROW_REGULAR_PAGE_CODE`. Grow Billing only charges monthly, so **a yearly plan does not renew by itself**. Renewal is a new checkout, and a renewal reminder is still to build.
+- **Yearly** is one regular payment on `GROW_REGULAR_PAGE_CODE`. Grow Billing only charges monthly, so **a yearly plan does not renew by itself**. Renewal is a new checkout, prompted by the parent portal's renew notice (Phase 2).
 - **Sandbox** `https://sandbox.meshulam.co.il/api/light/server/1.0/` (test card 4580 4580 4580 4580); production `https://secure.meshulam.co.il/...` with `GROW_ENV=production`. Bit, Apple Pay and Google Pay have no sandbox (real charges only).
 - **Not yet checked against a real account:**
   - whether `paymentNum` must be set for an open-ended recurring charge (left unset);
@@ -351,52 +353,63 @@ interface PaymentProvider {
   - The app stores the subscription status, period, payer parent account and payment record ids.
   - Invoices are kept as tax law requires.
 - **Data export** (`downloadProfileJson`) includes the entitlement. Account deletion removes it. Payment records keep the amounts and dates with only the uid, no name, as tax records require.
+- **Legal texts:** drafted by the developer's assistant (Claude) in Phase 3, approved by the owner before launch:
+  - Terms of service: subscription, price and VAT, monthly renewal and cancellation, yearly plans, refunds and the distance-sale cancellation right, seats and swaps, the WhatsApp contact.
+  - The privacy notice's payments paragraph (below).
+  - The checkout screen's short terms line and consent checkbox.
 - **Consumer protection** (Israel):
   - Clear price and renewal terms before payment.
   - Cancellation as simple as signing up (online, from the same screen).
-  - Notice before a yearly renewal (an email from the gateway, or a push to the parent; to decide).
+  - Notice before a yearly plan ends: the parent portal's renew notice (see Decisions). No charge renews without the parent, so no renewal consent is needed.
   - The cancellation rights for distance sales. Get a short legal review before launch.
 - **Business:** registration (עוסק פטור / מורשה) decides VAT on invoices, and must be settled with the gateway account.
 - The contact email in the privacy notice and on invoices should use the new domain ("Domain and Email update" item).
 
 ## Implementation phases
-Each phase ships on its own. `PRO_GATING_ENABLED` stays `false` until phase 5.
+The server layer (checkout, webhooks, subscriptions, Grow and mock providers, rules) is built. Each phase below ships on its own: `PRO_GATING_ENABLED` and `IS_PRO_PLAN_VISIBLE` stay off until Phase 4, so the live app doesn't change.
 
-1. **P1: entitlements and gating, no payments.**
-   - New files:
-     - `config/proTier.ts`
-     - `data/proGate.ts` (+ tests)
-     - `services/entitlementService.ts`
-     - `hooks/useEntitlement.ts`
-     - `components/pro/ProUpsellSheet.tsx` (+ component test)
-     - `scripts/grantPro.mjs`
-   - Changes:
-     - The `'pro'` map status in `worldMap.ts` / `MapStops` / `MissionSheet`.
-     - The `canAddList` limit.
-     - Exam-prep session checks.
-     - `ReleasedPack.access` and Pro pack stops.
-     - Theme and mascot gating: the Pro badges in `ProfileFields` / `CompanionPicker`, the in-memory preview and its banner, `resolveAllowedLook` in `App` (+ component test for the preview never saving).
-     - The rules block and the smoke-test section.
-   - Tests run with the flag on, and the app ships with it off.
-2. **P2: checkout on the mock provider.**
-   - `api/checkout.ts`, `api/payment-webhook.ts`, `api/subscription.ts`, `api/_lib/payments/{provider,mock}.ts` (unit tests with injected deps).
-   - The parent portal's Pro card, checkout panel and return page.
-   - A Playwright e2e: learner asks → parent pays (mock) → learner's map unlocks.
-3. **P3: the real gateway.**
-   - The Grow (or SUMIT) adapter in sandbox, the recurring charge, the invoice, cancel, and the cron reconcile.
-   - Then the live keys, with one real low-price charge and its refund done by hand.
-4. **P4: coupons and referrals.** `coupons` / `couponRedemptions`, `referralCodes` / `referrals`, the checks in `api/checkout.ts` and the reward in the webhook, `scripts/coupons.mjs`, the code field and the referral share card in the panel, and the children's friend-invite reward.
-5. **P5: launch.**
-   - The privacy notice and legal checklist.
-   - Turn on `PRO_GATING_ENABLED`.
-   - `comp` grants for family accounts.
-   - Check on desktop and phone.
+**Track A: business setup (the owner, alongside Phases 1–3).**
+1. Register the business (עוסק פטור / מורשה). Grow and the invoices need it.
+2. Open the Grow account: sandbox ids (`userId`, a recurring and a regular `pageCode`, the API key). Ask Grow support to enable the recurring and failed-recurring webhooks and automatic invoices.
+3. A WhatsApp Business number to replace the private one in `SUPPORT_WHATSAPP_NUMBER`.
+4. The domain for the contact email ("Domain and Email update" item).
+
+**Phase 1: entitlements and gating, switched off.**
+- New:
+  - `data/proGate.ts` (+ tests): free units per grade (units 1–2; grade 1: 1–5), exam prep (setup and day 1), Pro packs, 2 free word lists, the 2 free themes and mascots.
+  - `services/entitlementService.ts` and `hooks/useEntitlement.ts`: an `onSnapshot` on `entitlements/{uid}`, cached in localStorage for offline use.
+  - `components/pro/ProUpsellSheet.tsx` (+ component test): the kid-safe "ask a parent" sheet and its WhatsApp share.
+  - `scripts/grantPro.mjs`: the `comp` grant.
+- Changes:
+  - The `'pro'` map status in `worldMap.ts` / `MapStops` / `MissionSheet`; starred missions stay playable.
+  - The `canAddList` limit; exam-prep session checks; `ReleasedPack.access` and Pro pack stops.
+  - Theme and mascot gating: the Pro badges in `ProfileFields` / `CompanionPicker`, the in-memory preview and its banner, `resolveAllowedLook` in `App` (+ a component test that the preview never saves).
+- Tests run with the flag on; the app ships with it off.
+
+**Phase 2: parents can pay, on the mock provider.**
+- The plan picker leads to a checkout panel: pick the children for the seats, the payer's full name and mobile, "המשך לתשלום" → `api/checkout.ts` → the hosted page.
+- The return page `/?parent&paid=<checkoutId>`: "processing…" until the entitlement snapshot flips, and a cancelled-payment state.
+- The Pro card on each child in the parent portal: status, end or renewal date, cancel (monthly), add or remove a child, and the yearly renew notice from 14 days before the end. Only the paying parent gets the controls.
+- A Playwright e2e on the emulators: the learner asks → the parent pays (mock) → the learner's map unlocks.
+
+**Phase 3: real Grow, hardening and legal texts.**
+- Grow sandbox (test card 4580458045804580): a monthly and a yearly payment, the webhook's content type, `paymentNum`, the `directDebitId`, a renewal, a failed charge and a cancel. Fix the adapter where it assumed wrong.
+- Not built yet:
+  - A daily reconcile in the existing cron: expire ended plans, catch missed webhooks.
+  - Entitlement cleanup on account deletion, and the entitlement in the data export.
+  - `MAX_LINKED_CHILDREN`, and a cap on pending checkouts per parent.
+- A security review of the whole payment flow.
+- The legal texts (see "Privacy and legal"), drafted for the owner's approval.
+- Vercel env (Grow ids, `PAYMENT_WEBHOOK_SECRET`, `APP_ORIGIN`, `GROW_WEBHOOK_KEY`) and Grow's origin in the `vercel.json` CSP where the redirect needs it.
+
+**Phase 4: launch.**
+- The approved terms and privacy texts in the app.
+- `comp` grants for the family's children, then `PRO_GATING_ENABLED` and `IS_PRO_PLAN_VISIBLE` on.
+- Live Grow keys: one real low-price charge, check the invoice, refund it by hand.
+- Check on desktop and phone, then push.
+
+**After launch (not needed to ship):** coupons and promotions (`coupons` / `couponRedemptions`, `scripts/coupons.mjs`, the code field), parent referrals (`referralCodes` / `referrals`, the reward in the webhook, the share card), and the children's friend-invite reward.
 
 ## Open questions
-- Free word lists: 2? Exam prep free taste: day 1 only, or one full skill?
-- Grade 1's free units: 1–5 (all letters plus the first blending unit), or 1–4 (the letters only)?
-- Two parents of the same child (both paired): can either one manage the subscription, or only the payer?
 - Friend-invite reward for children: how many diamonds, or which exclusive item?
-- Grow account: open it, get sandbox ids (userId, a recurring and a regular pageCode), ask Grow support to enable the recurring and failed-recurring webhooks, then run the sandbox checks listed in "Server (built)".
 - Bring back a one-time "Exam Booster Pass" (e.g. 30 days of exam prep) later?
-- Yearly-renewal reminder: from the gateway's email, or our own push to the parent?
