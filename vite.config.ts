@@ -33,6 +33,56 @@ function ttsApiDevPlugin(env: Record<string, string>): Plugin {
   };
 }
 
+const DEV_PAYMENT_PATHS = ['/api/checkout', '/api/subscription', '/api/mock-pay'];
+const MAX_DEV_BODY_BYTES = 8 * 1024;
+
+/**
+ * Emulator mode only: the payment functions against the local emulators, with the stand-in gateway
+ * (api/_lib/devPaymentsApi.ts). They never run like this anywhere else.
+ */
+function paymentsApiDevPlugin(): Plugin {
+  const firestoreOrigin = `http://${process.env.FIRESTORE_EMULATOR_HOST || '127.0.0.1:8080'}`;
+  return {
+    name: 'payments-api-dev',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        const path = (req.url ?? '').split('?')[0];
+        if (!DEV_PAYMENT_PATHS.includes(path)) return next();
+        try {
+          const chunks: Buffer[] = [];
+          let size = 0;
+          for await (const chunk of req) {
+            size += (chunk as Buffer).length;
+            if (size > MAX_DEV_BODY_BYTES) throw new Error('body too large');
+            chunks.push(chunk as Buffer);
+          }
+          const headers = new Headers();
+          for (const [key, value] of Object.entries(req.headers)) if (typeof value === 'string') headers.set(key, value);
+          const request = new Request(`http://${req.headers.host ?? 'localhost'}${req.url ?? ''}`, {
+            method: req.method,
+            headers,
+            ...(req.method === 'POST' ? { body: Buffer.concat(chunks) } : {}),
+          });
+          const { handleDevPaymentsRequest } = await server.ssrLoadModule('/api/_lib/devPaymentsApi.ts');
+          const response: Response | null = await handleDevPaymentsRequest(path, request, {
+            firestoreOrigin,
+            projectId: 'demo-english-vibe',
+          });
+          if (!response) return next();
+          res.statusCode = response.status;
+          response.headers.forEach((value, key) => res.setHeader(key, value));
+          res.end(Buffer.from(await response.arrayBuffer()));
+        } catch (error) {
+          server.config.logger.error(`payments-api-dev: ${error instanceof Error ? error.message : String(error)}`);
+          res.statusCode = 500;
+          res.end();
+        }
+      });
+    },
+  };
+}
+
 const SW_BUILD_ID_LINE = "const BUILD_ID = 'dev';";
 const SW_PRECACHE_LINE = 'const PRECACHE_ASSETS = [];';
 
@@ -88,7 +138,12 @@ export default defineConfig(({ mode }) => ({
   resolve: { alias: { 'emoji-jsx': resolve(__dirname, 'src/emojiJsx') } },
   // The JSX runtime is app source (it reads the icon map): served as is, not pre-bundled as a stale copy
   optimizeDeps: { exclude: ['emoji-jsx/jsx-runtime', 'emoji-jsx/jsx-dev-runtime'] },
-  plugins: [react({ jsxImportSource: 'emoji-jsx' }), ttsApiDevPlugin(loadEnv(mode, process.cwd(), 'AZURE_')), swPrecachePlugin()],
+  plugins: [
+    react({ jsxImportSource: 'emoji-jsx' }),
+    ttsApiDevPlugin(loadEnv(mode, process.cwd(), 'AZURE_')),
+    ...(mode === 'emulator' ? [paymentsApiDevPlugin()] : []),
+    swPrecachePlugin(),
+  ],
   build: {
     rollupOptions: { output: { manualChunks: vendorChunk } },
   },

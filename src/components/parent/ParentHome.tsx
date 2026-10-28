@@ -24,8 +24,8 @@ import { lazyNamed } from '../../utils/lazyNamed';
 import { ScreenLoading } from '../ScreenLoading';
 import { IS_PRO_PLAN_VISIBLE } from '../../config/proTier';
 import { ChildCard } from './ChildCard';
-import { ProPlanPicker } from './ProPlanPicker';
 import { ResetPinForm } from './ResetPinForm';
+import { useParentPro } from './useParentPro';
 
 const WeeklyReportScreen = lazyNamed(() => import('../progressReport/WeeklyReportScreen'), 'WeeklyReportScreen');
 
@@ -62,6 +62,18 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
   const [noticeHe, setNoticeHe] = useState<string | null>(null);
+
+  const pro = useParentPro({
+    user,
+    theme,
+    links: children,
+    isEnabled: IS_PRO_PLAN_VISIBLE,
+    onNotice: (message) => {
+      setErrorHe(null);
+      setNoticeHe(message);
+    },
+    onError: setErrorHe,
+  });
 
   const refresh = useCallback(async () => {
     try {
@@ -173,6 +185,7 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
 
   return (
     <>
+      {pro.topArea}
       {noticeHe && (
         <p role="status" className={`${sectionClass} ${theme.cardBgClass} text-sm font-bold`}>
           {noticeHe}
@@ -241,6 +254,7 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
             onOpenReport={() => void handleOpenReport(link)}
             onToggleReset={() => setResetPinFor(resetPinFor === link.childUid ? null : link.childUid)}
             onUnlink={() => void handleUnlink(link)}
+            proSection={pro.renderChildSection(link)}
           >
             {resetPinFor === link.childUid && (
               <ResetPinForm
@@ -259,7 +273,7 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
         ))}
       </section>
 
-      {IS_PRO_PLAN_VISIBLE && <ProPlanPicker theme={theme} initialChildren={children?.length || 1} />}
+      {pro.plansArea}
 
       <form onSubmit={handleLookup} className={`${sectionClass} ${theme.cardBgClass}`}>
         <label className="block text-sm font-bold">

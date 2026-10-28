@@ -27,7 +27,7 @@ export function buildWhatsAppChatUrl(phoneDigits: string, message: string): stri
 }
 
 /** Shekels from agorot: whole shekels for charges, agorot kept for per-month figures. */
-function shekels(agorot: number, hasAgorot = false): string {
+export function formatShekels(agorot: number, hasAgorot = false): string {
   return new Intl.NumberFormat('he-IL', {
     style: 'currency',
     currency: 'ILS',
@@ -109,17 +109,17 @@ export const ProPlanPicker: React.FC<ProPlanPickerProps> = ({ theme, initialChil
 
       <div className={`p-4 rounded-2xl text-center space-y-1 ${theme.inputBgClass}`} aria-live="polite" data-testid="pro-price-box">
         <p className="text-3xl font-black">
-          {shekels(quote.chargeAgorot)}
+          {formatShekels(quote.chargeAgorot)}
           <span className="text-base font-extrabold"> {period === 'yearly' ? 'לשנה' : 'לחודש'}</span>
         </p>
-        {period === 'yearly' && <p className="text-sm font-bold">כ-{shekels(quote.perMonthAgorot, true)} לחודש</p>}
+        {period === 'yearly' && <p className="text-sm font-bold">כ-{formatShekels(quote.perMonthAgorot, true)} לחודש</p>}
         {children > 1 && (
-          <p className={`text-sm font-bold ${theme.mutedTextClass}`}>כ-{shekels(quote.perChildMonthAgorot, true)} לחודש לכל ילד</p>
+          <p className={`text-sm font-bold ${theme.mutedTextClass}`}>כ-{formatShekels(quote.perChildMonthAgorot, true)} לחודש לכל ילד</p>
         )}
         <p className={`text-sm font-extrabold ${theme.accentTextClass}`}>
           {period === 'yearly'
-            ? `חוסכים ${shekels(quote.yearlySavingsAgorot)} בשנה לעומת תשלום חודשי`
-            : `במנוי שנתי חוסכים ${shekels(quote.yearlySavingsAgorot)} בשנה`}
+            ? `חוסכים ${formatShekels(quote.yearlySavingsAgorot)} בשנה לעומת תשלום חודשי`
+            : `במנוי שנתי חוסכים ${formatShekels(quote.yearlySavingsAgorot)} בשנה`}
         </p>
       </div>
 

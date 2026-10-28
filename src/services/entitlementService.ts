@@ -34,14 +34,16 @@ function cacheEntitlement(uid: string, entitlement: Entitlement | null): void {
 export function watchEntitlement(
   uid: string,
   onChange: (entitlement: Entitlement | null) => void,
-  onError: (error: unknown) => void
+  onError: (error: unknown) => void,
+  /** The parent portal follows its children's plans live and keeps nothing on the device */
+  { shouldCache = true }: { shouldCache?: boolean } = {}
 ): () => void {
   if (!db) return () => undefined;
   return onSnapshot(
     doc(db, 'entitlements', uid),
     (snapshot) => {
       const entitlement = snapshot.exists() ? parseEntitlement(snapshot.data()) : null;
-      cacheEntitlement(uid, entitlement);
+      if (shouldCache) cacheEntitlement(uid, entitlement);
       onChange(entitlement);
     },
     onError

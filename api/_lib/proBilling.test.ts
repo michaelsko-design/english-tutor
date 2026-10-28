@@ -4,6 +4,7 @@ import {
   addPeriods,
   holdsLiveSeat,
   readSubscription,
+  renewableSeatEnd,
   removeChildFromSubscription,
   subscriptionFields,
   type Subscription,
@@ -86,6 +87,26 @@ describe('holdsLiveSeat', () => {
     expect(holdsLiveSeat(doc({ status: 'canceled', periodEnd: NOW + DAY }), NOW)).toBe(false);
     expect(holdsLiveSeat(null, NOW)).toBe(false);
     expect(holdsLiveSeat(doc({ status: 'active', periodEnd: NOW + DAY, subscriptionId: 's1' }), NOW, 's1')).toBe(false);
+  });
+});
+
+describe('renewableSeatEnd', () => {
+  const yearly = (fields: Record<string, string | number> = {}) => ({
+    id: 'kid1',
+    fields: { status: 'active', billingPeriod: 'yearly', payerParentUid: 'p1', periodEnd: NOW + 10 * DAY, ...fields },
+  });
+
+  it("gives the end of the payer's yearly seat in its last 14 days and grace days", () => {
+    expect(renewableSeatEnd(yearly(), 'p1', NOW)).toBe(NOW + 10 * DAY);
+    expect(renewableSeatEnd(yearly({ periodEnd: NOW - DAY }), 'p1', NOW)).toBe(NOW - DAY);
+  });
+
+  it('refuses earlier, another payer, a monthly plan or an ended seat', () => {
+    expect(renewableSeatEnd(yearly({ periodEnd: NOW + 20 * DAY }), 'p1', NOW)).toBeNull();
+    expect(renewableSeatEnd(yearly(), 'p2', NOW)).toBeNull();
+    expect(renewableSeatEnd(yearly({ billingPeriod: 'monthly' }), 'p1', NOW)).toBeNull();
+    expect(renewableSeatEnd(yearly({ status: 'canceled' }), 'p1', NOW)).toBeNull();
+    expect(renewableSeatEnd(null, 'p1', NOW)).toBeNull();
   });
 });
 

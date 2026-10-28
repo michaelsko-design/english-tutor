@@ -44,8 +44,13 @@ const entitlement = (overrides: Partial<Entitlement> = {}): Entitlement => ({
 
 describe('parseEntitlement', () => {
   it('reads a valid document and drops unknown fields', () => {
-    const parsed = parseEntitlement({ ...entitlement(), payerParentUid: 'p1', updatedAt: 1 });
+    const parsed = parseEntitlement({ ...entitlement(), provider: 'grow', updatedAt: 1 });
     expect(parsed).toEqual(entitlement());
+  });
+
+  it("keeps a paid plan's payer, id and seats for the parent portal", () => {
+    const parsed = parseEntitlement({ ...entitlement(), payerParentUid: 'p1', subscriptionId: 'sub1', seatLimit: 2 });
+    expect(parsed).toEqual(entitlement({ payerParentUid: 'p1', subscriptionId: 'sub1', seatLimit: 2 }));
   });
 
   it('refuses malformed documents', () => {

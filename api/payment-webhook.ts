@@ -22,6 +22,7 @@ import {
   holdsLiveSeat,
   readCheckout,
   readSubscription,
+  renewableSeatEnd,
   subscriptionFields,
   type Checkout,
   type Subscription,
@@ -114,8 +115,20 @@ async function handleProcessNotification(fields: Record<string, string>, admin: 
   }
   // A child can get Pro on another plan between this checkout and its payment: never take their seat
   const seatedElsewhere: string[] = [];
+  // A renewed yearly plan starts where the old one ends, so no paid day is lost
+  // Only a yearly checkout renews: a monthly one would push its first charge a year ahead of the plan
+  let startsAt = nowMs;
+  const renewedPlans = new Map<string, string[]>();
   for (const childUid of checkout.childUids) {
-    if (holdsLiveSeat(await admin.getDocument('entitlements', childUid), nowMs)) seatedElsewhere.push(childUid);
+    const entitlement = await admin.getDocument('entitlements', childUid);
+    const renewedEnd = checkout.period === 'yearly' ? renewableSeatEnd(entitlement, checkout.parentUid, nowMs) : null;
+    const oldPlanId = entitlement?.fields.subscriptionId;
+    if (renewedEnd !== null && typeof oldPlanId === 'string') {
+      startsAt = Math.max(startsAt, renewedEnd);
+      renewedPlans.set(oldPlanId, [...(renewedPlans.get(oldPlanId) ?? []), childUid]);
+    } else if (holdsLiveSeat(entitlement, nowMs)) {
+      seatedElsewhere.push(childUid);
+    }
   }
   if (seatedElsewhere.length > 0) console.error('payment-webhook: a child already has Pro, refund needed');
   const sub: Subscription = {
@@ -125,7 +138,7 @@ async function handleProcessNotification(fields: Record<string, string>, admin: 
     seatLimit: checkout.seatLimit,
     period: checkout.period,
     status: 'active',
-    periodEnd: addPeriods(nowMs, checkout.period),
+    periodEnd: addPeriods(startsAt, checkout.period),
     amountAgorot: checkout.amountAgorot,
     provider: provider.id,
     recurringRef: payment.recurringRef,
@@ -134,8 +147,20 @@ async function handleProcessNotification(fields: Record<string, string>, admin: 
     lastSwapAt: 0,
     createdAt: nowMs,
   };
+  // The renewed children leave their old plan, or a later change to it would rewrite their entitlement
+  const oldPlanWrites: DocumentWrite[] = [];
+  for (const [oldPlanId, renewed] of renewedPlans) {
+    const old = readSubscription(await admin.getDocument('subscriptions', oldPlanId));
+    if (!old) continue;
+    oldPlanWrites.push({
+      collection: 'subscriptions',
+      id: old.id,
+      fields: subscriptionFields({ ...old, childUids: old.childUids.filter((uid) => !renewed.includes(uid)) }, nowMs),
+      ...(old.updateTime ? { precondition: { updateTime: old.updateTime } } : {}),
+    });
+  }
   try {
-    await admin.commit(activationWrites(checkout, sub, provider, payment.transactionId, seatedElsewhere, nowMs));
+    await admin.commit([...activationWrites(checkout, sub, provider, payment.transactionId, seatedElsewhere, nowMs), ...oldPlanWrites]);
   } catch (error) {
     if (!(error instanceof ConflictError)) throw error;
     // Recorded by a parallel notification, or something else blocked it: a 503 makes the gateway retry

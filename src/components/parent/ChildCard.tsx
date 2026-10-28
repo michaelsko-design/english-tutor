@@ -12,6 +12,8 @@ interface ChildCardProps {
   onOpenReport: () => void;
   onToggleReset: () => void;
   onUnlink: () => void;
+  /** The child's Pro line (parent portal Pro), under the stats */
+  proSection?: React.ReactNode;
   /** The PIN form, shown under the card while it is open */
   children?: React.ReactNode;
 }
@@ -46,6 +48,7 @@ export const ChildCard: React.FC<ChildCardProps> = ({
   onOpenReport,
   onToggleReset,
   onUnlink,
+  proSection,
   children,
 }) => (
   <div className="space-y-2">
@@ -68,6 +71,7 @@ export const ChildCard: React.FC<ChildCardProps> = ({
           </p>
         )}
         {glance && <GlanceLine glance={glance} theme={theme} />}
+        {proSection}
       </div>
       <div className="grid grid-cols-2 gap-2">
         <button

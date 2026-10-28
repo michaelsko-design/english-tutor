@@ -190,6 +190,41 @@ describe('handlePaymentWebhook: races', () => {
     expect(fake.get('payments', 'grow_T100')).toMatchObject({ seatedElsewhere: ['kid2'] });
   });
 
+  it("renews the parent's yearly plan from its end, and takes the children off the old plan", async () => {
+    const { fake, deps } = setup();
+    fake.seed('checkouts', CHECKOUT_ID, {
+      parentUid: 'parent1', childUids: ['kid1', 'kid2'], period: 'yearly', seatLimit: 2, amountAgorot: 6400,
+      status: 'pending', provider: 'grow', processId: 'P-REAL', processToken: 'TOK-REAL', createdAt: NOW - 60000,
+    });
+    fake.seed('subscriptions', 'old', {
+      payerParentUid: 'parent1', childUids: ['kid1', 'kid2', 'kid3'], seatLimit: 3, period: 'yearly', status: 'active',
+      periodEnd: NOW + 10 * DAY, amountAgorot: 79900, provider: 'grow', recurringRef: null, billing: '', lastRemovalAt: 0, lastSwapAt: 0, createdAt: 0,
+    });
+    const oldEnd = NOW + 10 * DAY;
+    for (const kid of ['kid1', 'kid2']) {
+      fake.seed('entitlements', kid, { status: 'active', billingPeriod: 'yearly', payerParentUid: 'parent1', periodEnd: oldEnd, subscriptionId: 'old' });
+    }
+
+    await handlePaymentWebhook(processCallback(GROW_CALLBACK), ENV, deps);
+
+    expect(fake.get('payments', 'grow_T100')).toMatchObject({ seatedElsewhere: [] });
+    expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ childUids: ['kid1', 'kid2'], periodEnd: Date.UTC(2027, 10, 7, 12) });
+    expect(fake.get('entitlements', 'kid1')).toMatchObject({ subscriptionId: CHECKOUT_ID, seatLimit: 2 });
+    expect(fake.get('subscriptions', 'old')).toMatchObject({ childUids: ['kid3'] });
+  });
+
+  it('never lets a monthly payment renew a yearly plan', async () => {
+    const { fake, deps } = setup();
+    fake.seed('entitlements', 'kid1', { status: 'active', billingPeriod: 'yearly', payerParentUid: 'parent1', periodEnd: NOW + 10 * DAY, subscriptionId: 'old' });
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await handlePaymentWebhook(processCallback(GROW_CALLBACK), ENV, deps);
+
+    errors.mockRestore();
+    expect(fake.get('payments', 'grow_T100')).toMatchObject({ seatedElsewhere: ['kid1'] });
+    expect(fake.get('entitlements', 'kid1')).toMatchObject({ subscriptionId: 'old' });
+  });
+
   it('asks the gateway to retry when the activation is blocked but no payment was recorded', async () => {
     const { fake, deps } = setup();
     fake.seed('subscriptions', CHECKOUT_ID, { payerParentUid: 'someone' });

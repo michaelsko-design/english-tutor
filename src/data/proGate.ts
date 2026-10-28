@@ -39,6 +39,10 @@ export interface Entitlement {
   /** Pro until this time (ms), plus `PRO_GRACE_DAYS` */
   periodEnd: number;
   billingPeriod: BillingPeriod | null;
+  /** A paid plan's details, for the parent portal: who pays, the plan, and its seats */
+  payerParentUid?: string;
+  subscriptionId?: string;
+  seatLimit?: number;
 }
 
 /** An entitlement document (or a cached copy), or null when it is missing or malformed. */
@@ -56,6 +60,9 @@ export function parseEntitlement(data: unknown): Entitlement | null {
     source: source as EntitlementSource,
     periodEnd,
     billingPeriod: isBillingPeriod(billingPeriod) ? billingPeriod : null,
+    ...(typeof doc.payerParentUid === 'string' ? { payerParentUid: doc.payerParentUid } : {}),
+    ...(typeof doc.subscriptionId === 'string' ? { subscriptionId: doc.subscriptionId } : {}),
+    ...(typeof doc.seatLimit === 'number' ? { seatLimit: doc.seatLimit } : {}),
   };
 }
 

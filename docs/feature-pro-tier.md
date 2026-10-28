@@ -2,7 +2,7 @@
 
 > Backlog: "Define the Freemium vs. 'EnglishVibe Pro' tier boundaries … design the kid-safe 'Ask a Parent on WhatsApp' payment link flow … plan integration with an Israeli payment gateway … and server-verified Firestore subscription status. Also create a coupon system."
 
-Status: **server payments layer and Phase 1 built**: checkout, webhook, plan changes, Grow adapter and rules ("Server (built)"), and the learner-side gating with its "ask a parent" sheet, switched off (`PRO_GATING_ENABLED = false`). No checkout UI yet. The phases in "Implementation phases" are the build order.
+Status: **server payments layer, Phase 1 and Phase 2 built**: checkout, webhook, plan changes, Grow adapter and rules ("Server (built)"), the learner-side gating with its "ask a parent" sheet, switched off (`PRO_GATING_ENABLED = false`), and the parent portal's checkout and Pro lines on the mock provider (dev server only). The phases in "Implementation phases" are the build order.
 
 ## Goal
 Most of the app stays free. A paid **EnglishVibe Pro** subscription (monthly or yearly) unlocks the full curriculum and the Pro content packs, full exam prep, more word lists and every theme and mascot. The learner never pays and never sees a checkout. They ask a parent, and the paired parent pays from the parent portal. Only the server decides who has Pro.
@@ -259,7 +259,7 @@ Built in phases P2–P3 (server only, no UI yet). All three functions are POST o
 
 **Grow (Meshulam)** (`api/_lib/payments/grow.ts`, Light API, FormData POSTs answering `{status, err, data}`):
 - **Monthly** uses Grow Billing ("הוראת קבע"), the recurring pageCode `GROW_RECURRING_PAGE_CODE`. Grow charges every month. It notifies `notifyUrl` only for the first charge; later charges and failures come as **account webhooks**, which Grow support must enable and point at `/api/payment-webhook?source=account&key=…`.
-- **Yearly** is one regular payment on `GROW_REGULAR_PAGE_CODE`. Grow Billing only charges monthly, so **a yearly plan does not renew by itself**. Renewal is a new checkout, prompted by the parent portal's renew notice (Phase 2).
+- **Yearly** is one regular payment on `GROW_REGULAR_PAGE_CODE`. Grow Billing only charges monthly, so **a yearly plan does not renew by itself**. Renewal is a new checkout, prompted by the parent portal's renew notice (Phase 2); it starts at the old plan's end.
 - **Sandbox** `https://sandbox.meshulam.co.il/api/light/server/1.0/` (test card 4580 4580 4580 4580); production `https://secure.meshulam.co.il/...` with `GROW_ENV=production`. Bit, Apple Pay and Google Pay have no sandbox (real charges only).
 - **Not yet checked against a real account:**
   - whether `paymentNum` must be set for an open-ended recurring charge (left unset);
@@ -277,7 +277,7 @@ interface PaymentProvider {
   updateRecurring(billing: string, change: { amountAgorot?; cancel? }): Promise<void>;       // Grow: updateDirectDebit
 }
 ```
-- `api/_lib/payments/mock.ts` (`PAYMENT_PROVIDER=mock`, local runs against a `demo-` project only: refused on any Vercel deployment and with the live project id, both of which write to the live Firebase project) treats every page as paid in full. Its page URL is `/?parent&mockpay=<checkoutId>`; the parent portal will handle it in P2's UI.
+- `api/_lib/payments/mock.ts` (`PAYMENT_PROVIDER=mock`, local runs against a `demo-` project only: refused on any Vercel deployment and with the live project id, both of which write to the live Firebase project) treats every page as paid in full. Its page URL is `/?parent&mockpay=<checkoutId>`, the parent portal's test payment page (Phase 2).
 - The adapter is picked by `createPaymentProvider` (`api/_lib/payments/index.ts`). A SUMIT adapter would implement the same interface.
 
 **Env** (Vercel Production + Preview, and `.env.local`; listed in `.env.example`):
@@ -387,11 +387,20 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
 - Before switching gating on: exam plans made before then have no `madeWithPro`, so a free learner's existing plan would lock from day 2. Decide whether to mark the plans that exist at the switch as kept.
 - Not done here: the new-pack card still says "start" for a Pro pack (its text is read aloud to grades 1–2, so new copy needs Hebrew clips), and the sheet's texts are not read aloud yet.
 
-**Phase 2: parents can pay, on the mock provider.**
-- The plan picker leads to a checkout panel: pick the children for the seats, the payer's full name and mobile, "המשך לתשלום" → `api/checkout.ts` → the hosted page.
-- The return page `/?parent&paid=<checkoutId>`: "processing…" until the entitlement snapshot flips, and a cancelled-payment state.
-- The Pro card on each child in the parent portal: status, end or renewal date, cancel (monthly), add or remove a child, and the yearly renew notice from 14 days before the end. Only the paying parent gets the controls.
-- A Playwright e2e on the emulators: the learner asks → the parent pays (mock) → the learner's map unlocks.
+**Phase 2: parents can pay, on the mock provider (built).**
+- **Checkout** (`components/parent/useParentPro.tsx` places the pieces in `ParentHome`): the plan picker's "המשך לתשלום" opens `ProCheckoutPanel`: tick the children (the price follows the count), the payer's full name and mobile (checked like the server does), an optional e-mail for the receipt (the parent's Google e-mail prefilled), then `startProCheckout` (`services/proBillingService.ts`) → `api/checkout.ts` → the page's address. Only an `https://` page or our own origin is followed.
+- **Return page** `/?parent&paid=<id>` (`ProPaymentReturn`, `data/parentProRoute.ts`): "confirming…" until a linked child's entitlement carries that plan's id, then "Pro is on for …"; after a minute, "still being checked, don't pay again". `&status=cancel`: "cancelled, nothing was charged". A learner's `&pro=1` scrolls to the plans.
+- **Each child's Pro line** (`ChildProSection`, from `data/proPlanStatus.ts` over `useChildEntitlements`, live and not cached on the parent's device): free (upgrade, or "add to my plan" when the paying parent has a monthly plan under 4 children, with the new monthly price, or a yearly plan with a paid seat left), a gift (`comp`), or the plan: monthly renewing on a date, cancelled and valid until a date, or yearly valid until a date. Only the payer (`payerParentUid`) gets the controls: cancel the renewal and take a child off a shared plan, each after a confirm step; other linked parents see the status. The plan picker hides once every linked child has Pro.
+- **Yearly renewal:** from 14 days before the end (`YEARLY_RENEW_NOTICE_DAYS`), the payer sees "ends on … and does not renew by itself" and "renew for another year", a yearly checkout for the plan's children. The server lets the paying parent's own yearly seats into that checkout (`renewableSeatEnd`, in its last 14 days or grace days), and the webhook starts the new plan at the old `periodEnd`, so no paid day is lost, and takes the renewed children off the old plan in the same write (or a later change to the old plan would rewrite their entitlements). Only a yearly checkout renews: a monthly one would push its first Grow charge a year past the plan's start.
+- Entitlements also carry `seatLimit` (the payer's card shows free yearly seats from it); `parseEntitlement` keeps `payerParentUid`, `subscriptionId` and `seatLimit`.
+- **Local runs on the emulators** (`npm run dev:emu`): the dev server answers `/api/checkout`, `/api/subscription` and `/api/mock-pay` itself (`api/_lib/devPaymentsApi.ts`, loaded only by `vite.config.ts` in emulator mode): Firestore goes to the emulator as its admin, emulator sign-ins are read without a signature, a throwaway service account, the mock gateway. The mock's page (`/?parent&mockpay=<id>`, `MockPaymentPage`, emulator builds only) has "pay for testing" (→ `/api/mock-pay`, which calls the webhook as the gateway would) and "cancel".
+- **Gating on in emulator runs:** `localStorage.english_tutor_pro_gating = 'on'` turns `PRO_GATING_ENABLED` on in emulator mode only, for the e2e and local checks.
+- **E2E** `e2e/pro.spec.ts`: the learner taps a Pro stop and asks a parent → the parent pairs, pays monthly on the mock page → the return page confirms → the learner's map has no Pro stops → the parent cancels the renewal.
+- Still dev-only: `IS_PRO_PLAN_VISIBLE` keeps the picker and the Pro lines on the dev server until launch.
+- A parent who buys again for a child whose monthly plan they cancelled starts the new plan now; the rest of the old month is not carried over.
+- Known limits, for Phase 3:
+  - A renewal checkout that also adds a free child starts everyone at the old plan's end, so the new child gets up to 14 extra days.
+  - Two renewal checkouts paid at the same moment both renew from the same end date (one year for two payments). Paid one after the other, the second is recorded in `seatedElsewhere` for a refund. The cap on pending checkouts per parent (Phase 3) covers it.
 
 **Phase 3: real Grow, hardening and legal texts.**
 - Grow sandbox (test card 4580458045804580): a monthly and a yearly payment, the webhook's content type, `paymentNum`, the `directDebitId`, a renewal, a failed charge and a cancel. Fix the adapter where it assumed wrong.

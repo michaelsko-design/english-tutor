@@ -18,7 +18,7 @@ import {
 } from './_lib/parentRequest.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
 import { PaymentError, type PaymentProvider } from './_lib/payments/provider.js';
-import { holdsLiveSeat, UID_PATTERN } from './_lib/proBilling.js';
+import { holdsLiveSeat, renewableSeatEnd, UID_PATTERN } from './_lib/proBilling.js';
 import { isBillingPeriod, MAX_PRO_SEATS, proPriceAgorot, type BillingPeriod } from '../src/config/proTier.js';
 
 const MAX_BODY_BYTES = 2048;
@@ -164,7 +164,10 @@ export async function handleCheckoutRequest(
     const admin = createAdmin(account, caller.projectId, { fetchImpl });
     const now = nowMs();
     for (const childUid of body.childUids) {
-      if (holdsLiveSeat(await admin.getDocument('entitlements', childUid), now)) {
+      const entitlement = await admin.getDocument('entitlements', childUid);
+      // The parent's own yearly plan near its end is renewed by a yearly checkout, not refused
+      const isRenewal = body.period === 'yearly' && renewableSeatEnd(entitlement, caller.parentUid, now) !== null;
+      if (holdsLiveSeat(entitlement, now) && !isRenewal) {
         return errorResponse(409, 'A child already has Pro');
       }
     }

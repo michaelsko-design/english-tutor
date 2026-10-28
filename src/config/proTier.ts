@@ -27,11 +27,24 @@ export const PRO_PRICES_AGOROT: Record<ProSeatCount, Record<BillingPeriod, numbe
 /** The parent portal shows the plans on the dev server only, until checkout is wired to it */
 export const IS_PRO_PLAN_VISIBLE = import.meta.env?.DEV === true;
 
+/** Emulator runs only (`npm run dev:emu`, e2e): this localStorage value set to `on` turns the limits on */
+export const PRO_GATING_EMULATOR_KEY = 'english_tutor_pro_gating';
+
+function isGatingForcedOnInEmulator(): boolean {
+  if (import.meta.env?.MODE !== 'emulator') return false;
+  try {
+    return localStorage.getItem(PRO_GATING_EMULATOR_KEY) === 'on';
+  } catch {
+    return false;
+  }
+}
+
 /**
  * The free/Pro limits switch (docs/feature-pro-tier.md, "Tier boundaries"). Off until payments work
  * end to end: until then every learner plays everything, and the app reads no entitlements.
  */
-export const PRO_GATING_ENABLED = false;
+const IS_PRO_GATING_ON = false;
+export const PRO_GATING_ENABLED = IS_PRO_GATING_ON || isGatingForcedOnInEmulator();
 
 /** The core units each grade gives free learners; grades not listed use `DEFAULT_FREE_CORE_UNITS` */
 export const FREE_CORE_UNITS_BY_GRADE: Readonly<Record<number, readonly number[]>> = {
@@ -52,6 +65,12 @@ export const FREE_EXAM_PREP_DAYS = 1;
 
 /** Pro stays on this long after `periodEnd`, so a late renewal never locks a learner out */
 export const PRO_GRACE_DAYS = 3;
+
+/**
+ * A yearly plan does not renew by itself: from this many days before its end the paying parent sees a
+ * renew notice, and a new checkout for the same children continues from the old end date.
+ */
+export const YEARLY_RENEW_NOTICE_DAYS = 14;
 
 /** A child can be put into a seat that another child left at most once in this many days */
 export const SEAT_SWAP_COOLDOWN_DAYS = 30;

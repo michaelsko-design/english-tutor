@@ -76,6 +76,29 @@ describe('handleCheckoutRequest', () => {
     expect(response.status).toBe(409);
   });
 
+  it("renews the parent's own yearly plan in its last days, but not earlier or someone else's", async () => {
+    const yearly = (periodEnd: number, payerParentUid = 'parent1') =>
+      ({ status: 'active', billingPeriod: 'yearly', payerParentUid, periodEnd, subscriptionId: 'old' });
+    const renew = () => checkout({ childUids: ['kid1'], period: 'yearly', ...PAYER });
+
+    const inWindow = setup();
+    inWindow.fake.seed('entitlements', 'kid1', yearly(NOW + 10 * 86400000));
+    expect((await handleCheckoutRequest(renew(), ENV, inWindow.deps)).status).toBe(200);
+
+    const early = setup();
+    early.fake.seed('entitlements', 'kid1', yearly(NOW + 60 * 86400000));
+    expect((await handleCheckoutRequest(renew(), ENV, early.deps)).status).toBe(409);
+
+    const monthlyRenewal = setup();
+    monthlyRenewal.fake.seed('entitlements', 'kid1', yearly(NOW + 10 * 86400000));
+    const monthly = checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER });
+    expect((await handleCheckoutRequest(monthly, ENV, monthlyRenewal.deps)).status).toBe(409);
+
+    const otherPayer = setup();
+    otherPayer.fake.seed('entitlements', 'kid1', yearly(NOW + 10 * 86400000, 'parent2'));
+    expect((await handleCheckoutRequest(renew(), ENV, otherPayer.deps)).status).toBe(409);
+  });
+
   it.each([
     ['five children', { childUids: ['a', 'b', 'c', 'd', 'e'], period: 'monthly', ...PAYER }],
     ['a repeated child', { childUids: ['kid1', 'kid1'], period: 'monthly', ...PAYER }],

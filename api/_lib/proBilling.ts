@@ -12,6 +12,7 @@ import {
   PRO_GRACE_DAYS,
   proPriceAgorot,
   SEAT_SWAP_COOLDOWN_DAYS,
+  YEARLY_RENEW_NOTICE_DAYS,
   type BillingPeriod,
 } from '../../src/config/proTier.js';
 import type { PlainDocument, PlainValue } from './firestoreAdmin.js';
@@ -131,6 +132,8 @@ export function entitlementFields(sub: Subscription, nowMs: number, status: Subs
     periodEnd: sub.periodEnd,
     payerParentUid: sub.payerParentUid,
     subscriptionId: sub.id,
+    // The paying parent's card shows the free seats from it (the subscription itself is server-only)
+    seatLimit: sub.seatLimit,
     provider: sub.provider,
     updatedAt: nowMs,
   };
@@ -154,6 +157,18 @@ export function holdsLiveSeat(doc: PlainDocument | null, nowMs: number, exceptSu
   if (f.status !== 'active' && f.status !== 'past_due') return false;
   if (exceptSubscriptionId && f.subscriptionId === exceptSubscriptionId) return false;
   return num(f.periodEnd) + PRO_GRACE_DAYS * DAY_MS > nowMs;
+}
+
+/**
+ * The end of a yearly seat this parent pays for, when it is in its renew window (the last
+ * YEARLY_RENEW_NOTICE_DAYS, or the grace days after): a new checkout may renew it. Otherwise null.
+ */
+export function renewableSeatEnd(doc: PlainDocument | null, parentUid: string, nowMs: number): number | null {
+  if (!doc || !holdsLiveSeat(doc, nowMs)) return null;
+  const f = doc.fields;
+  if (f.billingPeriod !== 'yearly' || f.payerParentUid !== parentUid) return null;
+  const periodEnd = num(f.periodEnd);
+  return periodEnd - nowMs <= YEARLY_RENEW_NOTICE_DAYS * DAY_MS ? periodEnd : null;
 }
 
 export type SeatChange =
