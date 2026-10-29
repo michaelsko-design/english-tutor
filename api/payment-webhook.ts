@@ -28,6 +28,7 @@ import {
   type Subscription,
 } from './_lib/proBilling.js';
 import type { DocumentWrite } from './_lib/firestoreAdmin.js';
+import { proPriceAgorot } from '../src/config/proTier.js';
 
 const MAX_BODY_BYTES = 16 * 1024;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -112,11 +113,37 @@ function activationWrites(
   return writes;
 }
 
+interface PlanTerms {
+  seatLimit: number;
+  amountAgorot: number;
+  status: Subscription['status'];
+  /** The recurring charge was opened for more children than got a seat */
+  gatewayFix: { cancel: true } | { amountAgorot: number } | null;
+}
+
+/**
+ * A plan's seats and price when some children got Pro on another plan before the payment: their
+ * seats are not kept (they are refunded by hand), and a monthly charge drops to the price for the
+ * children seated, or stops when none is.
+ */
+function planTerms(checkout: Checkout, seatedCount: number, isRecurring: boolean): PlanTerms {
+  const paid: PlanTerms = { seatLimit: checkout.seatLimit, amountAgorot: checkout.amountAgorot, status: 'active', gatewayFix: null };
+  if (seatedCount === checkout.childUids.length) return paid;
+  if (checkout.period === 'yearly') return { ...paid, seatLimit: seatedCount };
+  if (seatedCount === 0) {
+    return { ...paid, seatLimit: 0, status: 'canceled', gatewayFix: isRecurring ? { cancel: true } : null };
+  }
+  const amountAgorot = proPriceAgorot(seatedCount, 'monthly') ?? checkout.amountAgorot;
+  return { seatLimit: seatedCount, amountAgorot, status: 'active', gatewayFix: isRecurring ? { amountAgorot } : null };
+}
+
 async function handleProcessNotification(fields: Record<string, string>, admin: FirestoreAdmin, provider: PaymentProvider, nowMs: number): Promise<Response> {
   const checkoutId = fields.cField1 ?? '';
   if (!CHECKOUT_ID_PATTERN.test(checkoutId)) return ignored('no checkout');
   const checkout = readCheckout(await admin.getDocument('checkouts', checkoutId));
   if (!checkout || !checkout.processId) return ignored('unknown checkout');
+  // A page opened on one gateway is only ever confirmed by that gateway
+  if (checkout.provider !== provider.id) return ignored('other gateway');
   if (checkout.status === 'paid') return ignored('already paid');
 
   const payment = await provider.confirmPayment(checkout.period, { processId: checkout.processId, processToken: checkout.processToken });
@@ -145,15 +172,17 @@ async function handleProcessNotification(fields: Record<string, string>, admin: 
     }
   }
   if (seatedElsewhere.length > 0) console.error('payment-webhook: a child already has Pro, refund needed');
+  const seated = checkout.childUids.filter((uid) => !seatedElsewhere.includes(uid));
+  const terms = planTerms(checkout, seated.length, payment.recurringRef !== null);
   const sub: Subscription = {
     id: checkout.id,
     payerParentUid: checkout.parentUid,
-    childUids: checkout.childUids.filter((uid) => !seatedElsewhere.includes(uid)),
-    seatLimit: checkout.seatLimit,
+    childUids: seated,
+    seatLimit: terms.seatLimit,
     period: checkout.period,
-    status: 'active',
+    status: terms.status,
     periodEnd: addPeriods(startsAt, checkout.period),
-    amountAgorot: checkout.amountAgorot,
+    amountAgorot: terms.amountAgorot,
     provider: provider.id,
     recurringRef: payment.recurringRef,
     billing: payment.billing,
@@ -186,6 +215,14 @@ async function handleProcessNotification(fields: Record<string, string>, admin: 
   } catch (error) {
     // The gateway keeps the payment either way; only the acknowledgement is missing
     console.error(`payment-webhook: acknowledge failed (${error instanceof PaymentError ? error.code : 'unexpected'})`);
+  }
+  if (terms.gatewayFix) {
+    try {
+      await provider.updateRecurring(payment.billing, terms.gatewayFix);
+    } catch (error) {
+      // Recorded already; the next charge would be for the children who were seated elsewhere
+      console.error(`payment-webhook: recurring charge not reduced, fix it by hand (${error instanceof PaymentError ? error.code : 'unexpected'})`);
+    }
   }
   return jsonResponse(200, { ok: true });
 }

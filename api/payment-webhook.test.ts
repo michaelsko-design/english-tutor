@@ -20,7 +20,7 @@ function setup(payment: ConfirmedPayment | null = PAID) {
     createPaymentPage: vi.fn(),
     confirmPayment: vi.fn(async () => payment),
     acknowledge: vi.fn(async () => {}),
-    updateRecurring: vi.fn(),
+    updateRecurring: vi.fn(async (): Promise<void> => {}),
   } satisfies PaymentProvider;
   const clock = { now: NOW };
   const deps = { nowMs: () => clock.now, createAdmin: vi.fn(() => fake.admin) as never, createProvider: vi.fn(() => gateway) as never };
@@ -101,6 +101,14 @@ describe('handlePaymentWebhook: payment page notifications', () => {
     const unknown = await handlePaymentWebhook(processCallback({ ...GROW_CALLBACK, 'data[customFields][cField1]': 'd'.repeat(32) }), ENV, deps);
     expect(await unknown.json()).toMatchObject({ ignored: 'unknown checkout' });
     expect((await handlePaymentWebhook(processCallback(GROW_CALLBACK, 'guess'), ENV, deps)).status).toBe(401);
+    expect(gateway.confirmPayment).not.toHaveBeenCalled();
+  });
+
+  it('never confirms a checkout opened on another gateway', async () => {
+    const { fake, gateway, deps } = setup();
+    fake.seed('checkouts', CHECKOUT_ID, { ...fake.get('checkouts', CHECKOUT_ID)!, provider: 'mock' });
+    const response = await handlePaymentWebhook(processCallback(GROW_CALLBACK), ENV, deps);
+    expect(await response.json()).toMatchObject({ ignored: 'other gateway' });
     expect(gateway.confirmPayment).not.toHaveBeenCalled();
   });
 
@@ -203,7 +211,44 @@ describe('handlePaymentWebhook: races', () => {
     expect(fake.get('entitlements', 'kid2')).toMatchObject({ subscriptionId: 'other' });
     expect(fake.get('entitlements', 'kid1')).toMatchObject({ subscriptionId: CHECKOUT_ID });
     expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ childUids: ['kid1'] });
-    expect(fake.get('payments', 'grow_T100')).toMatchObject({ seatedElsewhere: ['kid2'] });
+    expect(fake.get('payments', 'grow_T100')).toMatchObject({ seatedElsewhere: ['kid2'], amountAgorot: 6400 });
+  });
+
+  it('bills a monthly plan only for the children it seated, and stops it when none is', async () => {
+    const oneLeft = setup();
+    oneLeft.fake.seed('entitlements', 'kid2', { status: 'active', periodEnd: NOW + 9 * DAY, subscriptionId: 'other' });
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await handlePaymentWebhook(processCallback(GROW_CALLBACK), ENV, oneLeft.deps);
+
+    expect(oneLeft.fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ seatLimit: 1, amountAgorot: 3900, status: 'active' });
+    expect(oneLeft.fake.get('entitlements', 'kid1')).toMatchObject({ seatLimit: 1 });
+    expect(oneLeft.gateway.updateRecurring).toHaveBeenCalledWith(PAID.billing, { amountAgorot: 3900 });
+
+    const noneLeft = setup();
+    for (const kid of ['kid1', 'kid2']) {
+      noneLeft.fake.seed('entitlements', kid, { status: 'active', periodEnd: NOW + 9 * DAY, subscriptionId: 'other' });
+    }
+    await handlePaymentWebhook(processCallback(GROW_CALLBACK), ENV, noneLeft.deps);
+
+    errors.mockRestore();
+    expect(noneLeft.fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ childUids: [], status: 'canceled' });
+    expect(noneLeft.gateway.updateRecurring).toHaveBeenCalledWith(PAID.billing, { cancel: true });
+    expect(noneLeft.fake.get('entitlements', 'kid1')).toMatchObject({ subscriptionId: 'other' });
+  });
+
+  it('keeps the plan recorded when the gateway refuses to lower the charge', async () => {
+    const { fake, gateway, deps } = setup();
+    fake.seed('entitlements', 'kid2', { status: 'active', periodEnd: NOW + 9 * DAY, subscriptionId: 'other' });
+    gateway.updateRecurring = vi.fn(async () => { throw new Error('down'); });
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const response = await handlePaymentWebhook(processCallback(GROW_CALLBACK), ENV, deps);
+
+    expect(errors).toHaveBeenCalledWith('payment-webhook: recurring charge not reduced, fix it by hand (unexpected)');
+    errors.mockRestore();
+    expect(response.status).toBe(200);
+    expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ amountAgorot: 3900 });
   });
 
   it("renews the parent's yearly plan from its end, and takes the children off the old plan", async () => {

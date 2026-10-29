@@ -9,7 +9,7 @@ import { ConflictError, createFirestoreAdmin, type DocumentWrite, type Firestore
 import { AdminError, createAuthAdmin, parseServiceAccount } from './_lib/googleAdmin.js';
 import { firebaseProjectId, jsonResponse } from './_lib/parentRequest.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
-import { PaymentError, type PaymentProvider } from './_lib/payments/provider.js';
+import { PaymentError, safeEqual, type PaymentProvider } from './_lib/payments/provider.js';
 import { entitlementFields, readSubscription, subscriptionFields, type Subscription } from './_lib/proBilling.js';
 import { checkLapse, entitlementAction, repairForDeletedAccounts, type PlanRepair } from './_lib/proReconcile.js';
 
@@ -114,7 +114,7 @@ export async function handleProReconcileRequest(
   deps: ReconcileDeps = {}
 ): Promise<Response> {
   const secret = env.CRON_SECRET;
-  if (!secret || request.headers.get('authorization') !== `Bearer ${secret}`) return jsonResponse(401, { error: 'Unauthorized' });
+  if (!secret || !safeEqual(request.headers.get('authorization') ?? '', `Bearer ${secret}`)) return jsonResponse(401, { error: 'Unauthorized' });
   const account = parseServiceAccount(env.FIREBASE_SERVICE_ACCOUNT_JSON);
   if (!account) return jsonResponse(503, { error: 'Reconcile is not configured' });
 

@@ -17,7 +17,7 @@ Status (2026-10-29): **server payments layer, Phase 1, Phase 2 and the server ha
 - A WhatsApp Business number, and the domain for the contact email.
 
 **Next, in order**
-1. **Phase 3a, what is left (needs no Grow):** the exam-plan `madeWithPro` decision (the owner's call), the Pro pack card's copy with Hebrew clips, reading the "ask a parent" sheet aloud, a security review of the whole payment flow, and the legal text drafts. `CRON_SECRET` must be set in Vercel for the reconcile (the streak reminder already uses it).
+1. **Phase 3a, what is left (needs no Grow):** the exam-plan `madeWithPro` decision (the owner's call), the Pro pack card's copy with Hebrew clips, reading the "ask a parent" sheet aloud, and the legal text drafts. The security review is done (its open items are listed under "Phase 3a"). `CRON_SECRET` must be set in Vercel for the reconcile (the streak reminder already uses it).
 2. **Phase 3b (needs the Grow sandbox):** run the real adapter against the sandbox, fix what it assumed wrong, set the Vercel env.
 3. **Phase 4:** launch.
 4. After launch: coupons, referrals, and the children's friend-invite reward.
@@ -425,11 +425,21 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
   - **Seat races:** the webhook writes every new seat with the entitlement's `updateTime` from when it was read (or `exists: false`), and so does `addChild`. Two plans paid at the same moment can no longer both take a child: the later one gets a 503, Grow retries, and the child is listed in `seatedElsewhere`. This closes the double-renewal limit from Phase 2.
   - **Checkout limits** (`api/checkout.ts`, refusals carry a `code` that the parent portal explains in Hebrew): a parent linked to more than `MAX_LINKED_CHILDREN = 6` children (`too_many_children`, 409); at most `MAX_PENDING_CHECKOUTS_PER_DAY = 5` unpaid payment pages in 24 hours (`too_many_checkouts`, 429); a renewal checkout renews one plan's children only, with no new child or second plan (`renewal_separate`, 409), which closes the "14 extra days" limit from Phase 2. Both counts use `FirestoreAdmin.queryDocuments` (one equality filter, no index).
   - **Data export:** `downloadProfileJson` adds `proEntitlement` when the learner has one.
+  - **Security review of the payment flow (2026-10-29).** Fixed:
+    - A child who got Pro on another plan before the payment loses their seat on the new plan (refunded by hand), but a monthly plan kept billing for them every month. Now `planTerms` in the webhook sizes the plan to the children seated: the recurring charge drops to their price (`updateRecurring` after the commit; if Grow refuses, it is logged "fix it by hand"), or stops when no child was seated. A yearly plan's `seatLimit` shrinks too, so a refunded seat can't be filled again.
+    - A checkout is confirmed only by the gateway it was opened on (`checkout.provider`).
+    - The cron secret is compared in constant time (`pro-reconcile`, `streak-reminder`).
+  - Checked and sound: parent ID tokens (RS256, audience, issuer, expiry, Google sign-in only); the pairing read as the parent, so the rules decide; prices only from `config/proTier.ts`; payments confirmed by asking Grow with the checkout's own stored process ids, the amount matched, recorded once; no client access to `subscriptions`, `checkouts`, `payments`, `recurringRefs`; the mock gateway and the dev payment API can't run on Vercel or against the live project; return and notify URLs built from `APP_ORIGIN` on Vercel; the portal follows only an `https://` or same-origin payment URL; logs carry no payer details, tokens or keys; gateway ids checked before they become document ids.
+  - Open, for launch (Phase 4) or the owner:
+    - Set `APPCHECK_ENFORCE=on` in Production before switching Pro on.
+    - `PAYMENT_WEBHOOK_SECRET` travels in the notify URL's query (Grow can't send headers), so it shows in Vercel's request logs: keep log access to the owner, and rotate it if logs are ever shared.
+    - Renewal and failed-charge webhooks are trusted on `GROW_WEBHOOK_KEY` plus the secret; a renewal amount that differs from the plan is only logged. Check in the sandbox (Phase 3b) whether Grow can confirm a renewal by API.
+    - Refunds for `seatedElsewhere` are manual: watch the logs for "refund needed" (rare: it takes two plans for the same child at once).
+    - Any linked parent can read a child's entitlement, which names the paying parent's uid (no name or contact). Accepted.
 - Left from Phase 1:
   - Decide whether exam plans that exist at the switch are kept (`madeWithPro`).
   - The new-pack card's text for a Pro pack, with Hebrew clips for grades 1–2.
   - Reading the "ask a parent" sheet aloud.
-- A security review of the whole payment flow.
 - The legal texts (see "Privacy and legal"), drafted for the owner's approval.
 
 **Phase 3b: real Grow (not started; needs Track A steps 1–2).**

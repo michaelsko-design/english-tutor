@@ -9,6 +9,7 @@
 import webpush from 'web-push';
 import { createFirestoreAdmin, type FirestoreAdmin, type PlainDocument } from './_lib/firestoreAdmin.js';
 import { AdminError, parseServiceAccount } from './_lib/googleAdmin.js';
+import { safeEqual } from './_lib/payments/provider.js';
 import {
   buildReminderMessage,
   getReminderKind,
@@ -75,7 +76,7 @@ export async function handleStreakReminderRequest(
   { nowMs = Date.now, createAdmin = createFirestoreAdmin, sendPush = defaultSendPush }: StreakReminderDeps = {}
 ): Promise<Response> {
   const secret = env.CRON_SECRET;
-  if (!secret || request.headers.get('authorization') !== `Bearer ${secret}`) {
+  if (!secret || !safeEqual(request.headers.get('authorization') ?? '', `Bearer ${secret}`)) {
     return jsonResponse(401, { error: 'Unauthorized' });
   }
 
