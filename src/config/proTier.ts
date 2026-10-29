@@ -11,6 +11,9 @@ export const BILLING_PERIODS: readonly BillingPeriod[] = ['monthly', 'yearly'];
 /** Most children one subscription covers; families with more contact us */
 export const MAX_PRO_SEATS = 4;
 
+/** A parent account can buy Pro only while linked to at most this many children (seat sharing stays family-sized) */
+export const MAX_LINKED_CHILDREN = 6;
+
 export type ProSeatCount = 1 | 2 | 3 | 4;
 
 /**

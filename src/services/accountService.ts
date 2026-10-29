@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth';
 import { collection, deleteDoc, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { auth, db, googleProvider } from './firebase';
+import { readEntitlementOnce } from './entitlementService';
 import { deleteLearnerParentData } from './parentService';
 import { deleteAllStickerImages, loadAllStickerImages } from './stickerImages';
 import { LearnerProfile } from '../types/learner';
@@ -138,7 +139,11 @@ async function withStickerImages(profile: LearnerProfile): Promise<LearnerProfil
 
 /** The learner's data as a JSON file the browser downloads (no server involved). */
 export async function downloadProfileJson(profile: LearnerProfile): Promise<void> {
-  const blob = new Blob([JSON.stringify(await withStickerImages(profile), null, 2)], { type: 'application/json' });
+  const uid = auth?.currentUser?.uid;
+  // The Pro status lives apart from the profile (written by the server); it is part of the learner's data too
+  const proEntitlement = uid ? await readEntitlementOnce(uid) : null;
+  const data = { ...(await withStickerImages(profile)), ...(proEntitlement ? { proEntitlement } : {}) };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;

@@ -23,7 +23,10 @@ const MONTHS_PER_PERIOD: Record<BillingPeriod, number> = { monthly: 1, yearly: 1
 export const UID_PATTERN = /^[A-Za-z0-9]{1,128}$/;
 export const CHECKOUT_ID_PATTERN = /^[a-f0-9]{32}$/;
 
-export type SubscriptionStatus = 'active' | 'past_due' | 'canceled';
+/** `expired`: ended and past the grace days (the daily reconcile); a late renewal can still bring it back */
+export type SubscriptionStatus = 'active' | 'past_due' | 'canceled' | 'expired';
+
+const SUBSCRIPTION_STATUSES: readonly SubscriptionStatus[] = ['active', 'past_due', 'canceled', 'expired'];
 
 export interface Checkout {
   id: string;
@@ -82,8 +85,8 @@ export function readCheckout(doc: PlainDocument | null): Checkout | null {
 export function readSubscription(doc: PlainDocument | null): Subscription | null {
   if (!doc) return null;
   const f = doc.fields;
-  const status = f.status;
-  if (!isBillingPeriod(f.period) || (status !== 'active' && status !== 'past_due' && status !== 'canceled')) return null;
+  const status = SUBSCRIPTION_STATUSES.find((value) => value === f.status);
+  if (!isBillingPeriod(f.period) || !status) return null;
   return {
     id: doc.id,
     payerParentUid: str(f.payerParentUid),
@@ -156,8 +159,11 @@ export function holdsLiveSeat(doc: PlainDocument | null, nowMs: number, exceptSu
   const f = doc.fields;
   if (f.status !== 'active' && f.status !== 'past_due') return false;
   if (exceptSubscriptionId && f.subscriptionId === exceptSubscriptionId) return false;
-  return num(f.periodEnd) + PRO_GRACE_DAYS * DAY_MS > nowMs;
+  return !isLapsed(num(f.periodEnd), nowMs);
 }
+
+/** Whether Pro bought until `periodEnd` has ended, grace days included */
+export const isLapsed = (periodEnd: number, nowMs: number): boolean => periodEnd + PRO_GRACE_DAYS * DAY_MS <= nowMs;
 
 /**
  * The end of a yearly seat this parent pays for, when it is in its renew window (the last

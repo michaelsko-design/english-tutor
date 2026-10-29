@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { handleCheckoutRequest } from './checkout';
+import { handleCheckoutRequest, MAX_PENDING_CHECKOUTS_PER_DAY } from './checkout';
 import { createFakeFirestore } from './_lib/testing/fakeFirestoreAdmin';
 import { linksFetch, parentRequest, SERVICE_ACCOUNT_JSON } from './_lib/testing/parentRequestFixtures';
 import type { PaymentProvider } from './_lib/payments/provider';
@@ -97,6 +97,57 @@ describe('handleCheckoutRequest', () => {
     const otherPayer = setup();
     otherPayer.fake.seed('entitlements', 'kid1', yearly(NOW + 10 * 86400000, 'parent2'));
     expect((await handleCheckoutRequest(renew(), ENV, otherPayer.deps)).status).toBe(409);
+  });
+
+  it('renews one plan at a time: no new child or second plan in a renewal checkout', async () => {
+    const yearly = (subscriptionId: string) =>
+      ({ status: 'active', billingPeriod: 'yearly', payerParentUid: 'parent1', periodEnd: NOW + 10 * 86400000, subscriptionId });
+    const both = () => checkout({ childUids: ['kid1', 'kid2'], period: 'yearly', ...PAYER });
+
+    const withNewChild = setup();
+    withNewChild.fake.seed('entitlements', 'kid1', yearly('old'));
+    const mixed = await handleCheckoutRequest(both(), ENV, withNewChild.deps);
+    expect(mixed.status).toBe(409);
+    expect(await mixed.json()).toMatchObject({ code: 'renewal_separate' });
+
+    const twoPlans = setup();
+    twoPlans.fake.seed('entitlements', 'kid1', yearly('old'));
+    twoPlans.fake.seed('entitlements', 'kid2', yearly('other'));
+    expect((await handleCheckoutRequest(both(), ENV, twoPlans.deps)).status).toBe(409);
+
+    const onePlan = setup();
+    onePlan.fake.seed('entitlements', 'kid1', yearly('old'));
+    onePlan.fake.seed('entitlements', 'kid2', yearly('old'));
+    expect((await handleCheckoutRequest(both(), ENV, onePlan.deps)).status).toBe(200);
+  });
+
+  it('refuses a parent linked to more than six children', async () => {
+    const { fake, gateway, deps } = setup();
+    for (let i = 1; i <= 7; i += 1) fake.seed('parentLinks', `parent1_kid${i}`, { parentUid: 'parent1', childUid: `kid${i}` });
+
+    const response = await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER }), ENV, deps);
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({ code: 'too_many_children' });
+    expect(gateway.createPaymentPage).not.toHaveBeenCalled();
+  });
+
+  it('caps the unpaid payment pages a parent opens in a day', async () => {
+    const { fake, gateway, deps } = setup();
+    const seedCheckout = (id: string, fields: Record<string, string | number>) =>
+      fake.seed('checkouts', id, { parentUid: 'parent1', status: 'pending', createdAt: NOW - 3600000, ...fields });
+    for (let i = 1; i < MAX_PENDING_CHECKOUTS_PER_DAY; i += 1) seedCheckout(`pending${i}`, {});
+    seedCheckout('paid', { status: 'paid' });
+    seedCheckout('yesterday', { createdAt: NOW - 2 * 86400000 });
+    seedCheckout('otherParent', { parentUid: 'parent2' });
+    const body = { childUids: ['kid1'], period: 'monthly', ...PAYER };
+
+    expect((await handleCheckoutRequest(checkout(body), ENV, deps)).status).toBe(200);
+    // The one just opened is the fifth today
+    const capped = await handleCheckoutRequest(checkout(body), ENV, { ...deps, newId: () => 'd'.repeat(32) });
+    expect(capped.status).toBe(429);
+    expect(await capped.json()).toMatchObject({ code: 'too_many_checkouts' });
+    expect(gateway.createPaymentPage).toHaveBeenCalledTimes(1);
   });
 
   it.each([

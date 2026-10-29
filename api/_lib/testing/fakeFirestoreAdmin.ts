@@ -19,9 +19,15 @@ export function createFakeFirestore(): FakeFirestore {
     docs.set(key(collection, id), { id, fields, updateTime: `v${version}` });
   };
 
+  const inCollection = (collection: string): PlainDocument[] =>
+    [...docs.entries()].filter(([path]) => path.startsWith(`${collection}/`)).map(([, doc]) => doc);
+
   const admin = {
     async listDocuments(collection: string) {
-      return [...docs.entries()].filter(([path]) => path.startsWith(`${collection}/`)).map(([, doc]) => doc);
+      return inCollection(collection);
+    },
+    async queryDocuments(collection: string, field: string, value: string) {
+      return inCollection(collection).filter((doc) => doc.fields[field] === value);
     },
     async getDocument(collection: string, id: string) {
       return docs.get(key(collection, id)) ?? null;

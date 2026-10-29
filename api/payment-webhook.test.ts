@@ -160,6 +160,22 @@ describe('handlePaymentWebhook: Grow account webhooks', () => {
     expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ status: 'canceled', periodEnd: NOW + 61 * DAY });
   });
 
+  it('brings back an expired plan on a late charge, but not over a seat on a newer plan', async () => {
+    const { fake, deps, clock } = await activated();
+    clock.now = Date.UTC(2026, 11, 3, 12);
+    const sub = fake.get('subscriptions', CHECKOUT_ID)!;
+    fake.seed('subscriptions', CHECKOUT_ID, { ...sub, status: 'expired' });
+    fake.seed('entitlements', 'kid2', { status: 'active', periodEnd: clock.now + 300 * DAY, subscriptionId: 'newer' });
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await handlePaymentWebhook(accountWebhook({ webhookKey: 'GROWKEY', transactionCode: 'R4', paymentSum: 64, directDebitId: 'DD7' }), ENV, deps);
+
+    errors.mockRestore();
+    expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ status: 'active', childUids: ['kid1'], periodEnd: Date.UTC(2027, 0, 3, 12) });
+    expect(fake.get('entitlements', 'kid1')).toMatchObject({ status: 'active', subscriptionId: CHECKOUT_ID });
+    expect(fake.get('entitlements', 'kid2')).toMatchObject({ subscriptionId: 'newer' });
+  });
+
   it('ignores a charge long before the plan is due, such as the first charge sent again', async () => {
     const { fake, deps, clock } = await activated();
     clock.now = NOW + DAY;
@@ -223,6 +239,31 @@ describe('handlePaymentWebhook: races', () => {
     errors.mockRestore();
     expect(fake.get('payments', 'grow_T100')).toMatchObject({ seatedElsewhere: ['kid1'] });
     expect(fake.get('entitlements', 'kid1')).toMatchObject({ subscriptionId: 'old' });
+  });
+
+  it('never seats a child on two plans paid at the same moment: the later one retries and finds the seat taken', async () => {
+    const { fake, deps } = setup();
+    const commit = fake.admin.commit;
+    let isRaced = false;
+    // Another plan's payment takes kid1 between this notification's read and its write
+    fake.admin.commit = async (writes) => {
+      if (!isRaced) {
+        isRaced = true;
+        fake.seed('entitlements', 'kid1', { status: 'active', periodEnd: NOW + 30 * DAY, subscriptionId: 'other' });
+      }
+      return commit(writes);
+    };
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const first = await handlePaymentWebhook(processCallback(GROW_CALLBACK), ENV, deps);
+    const retry = await handlePaymentWebhook(processCallback(GROW_CALLBACK), ENV, deps);
+
+    errors.mockRestore();
+    expect(first.status).toBe(503);
+    expect(retry.status).toBe(200);
+    expect(fake.get('entitlements', 'kid1')).toMatchObject({ subscriptionId: 'other' });
+    expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ childUids: ['kid2'] });
+    expect(fake.get('payments', 'grow_T100')).toMatchObject({ seatedElsewhere: ['kid1'] });
   });
 
   it('asks the gateway to retry when the activation is blocked but no payment was recorded', async () => {

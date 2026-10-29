@@ -48,6 +48,25 @@ describe('createFirestoreAdmin', () => {
     expect(await admin.getDocument('entitlements', 'kid2')).toBeNull();
   });
 
+  it('queries a collection by one field and skips the empty result entry', async () => {
+    const { fetchImpl, make } = adminWith(() =>
+      new Response(JSON.stringify([
+        { document: { name: 'x/checkouts/c1', fields: { parentUid: { stringValue: 'p1' } } } },
+        { readTime: '2026-10-29T10:00:00Z' },
+      ]))
+    );
+    const admin = await make();
+
+    const docs = await admin.queryDocuments('checkouts', 'parentUid', 'p1');
+
+    expect(docs).toEqual([{ id: 'c1', fields: { parentUid: 'p1' } }]);
+    const [url, init] = fetchImpl.mock.calls[1] as [string, RequestInit];
+    expect(url).toBe('https://firestore.googleapis.com/v1/projects/proj/databases/(default)/documents:runQuery');
+    expect(JSON.parse(String(init.body)).structuredQuery.where.fieldFilter).toEqual({
+      field: { fieldPath: 'parentUid' }, op: 'EQUAL', value: { stringValue: 'p1' },
+    });
+  });
+
   it('commits writes with field masks and preconditions in one request', async () => {
     const { fetchImpl, make } = adminWith(() => new Response('{}'));
     const admin = await make();

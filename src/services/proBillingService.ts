@@ -1,6 +1,6 @@
 import { auth, getAppCheckToken } from './firebase';
 import { APP_CHECK_HEADER, TTS_TOKEN_HEADER } from './tts/ttsText';
-import type { BillingPeriod } from '../config/proTier';
+import { MAX_LINKED_CHILDREN, type BillingPeriod } from '../config/proTier';
 import type { ParentResult } from './parentService';
 
 /**
@@ -24,6 +24,19 @@ const CHECKOUT_ERRORS_HE: Record<number, string> = {
   409: 'לאחד הילדים כבר יש Pro.',
   503: 'התשלום עדיין לא זמין. כדאי לנסות שוב מאוחר יותר.',
 };
+
+/** Refusals the server names with a `code`, more specific than the status */
+const CHECKOUT_CODE_ERRORS_HE: Record<string, string> = {
+  renewal_separate: 'חידוש מנוי שנתי נעשה לבד: כדאי לבחור רק את הילדים שהמנוי שלהם מתחדש, ולהוסיף ילדים אחרים בתשלום נפרד.',
+  too_many_children: `החשבון הזה מחובר ליותר מ-${MAX_LINKED_CHILDREN} ילדים. כדאי לכתוב לנו בוואטסאפ ונמצא פתרון.`,
+  too_many_checkouts: 'נפתחו היום יותר מדי דפי תשלום. כדאי לנסות שוב מחר, או לכתוב לנו בוואטסאפ.',
+};
+
+async function checkoutErrorHe(response: Response): Promise<string> {
+  const body = (await response.json().catch(() => null)) as { code?: unknown } | null;
+  const byCode = typeof body?.code === 'string' ? CHECKOUT_CODE_ERRORS_HE[body.code] : undefined;
+  return byCode ?? CHECKOUT_ERRORS_HE[response.status] ?? GENERIC_ERROR_HE;
+}
 
 const PLAN_ERRORS_HE: Record<number, string> = {
   401: SIGN_IN_ERROR_HE,
@@ -68,7 +81,7 @@ async function postAsParent(url: string, body: Record<string, unknown>): Promise
 export async function startProCheckout(request: CheckoutRequest): Promise<ParentResult<string>> {
   const response = await postAsParent(CHECKOUT_URL, { ...request });
   if (!(response instanceof Response)) return response;
-  if (!response.ok) return { ok: false, errorHe: CHECKOUT_ERRORS_HE[response.status] ?? GENERIC_ERROR_HE };
+  if (!response.ok) return { ok: false, errorHe: await checkoutErrorHe(response) };
   const body = (await response.json().catch(() => null)) as { url?: unknown } | null;
   const url = typeof body?.url === 'string' ? body.url : '';
   // Only an https page, or our own origin (the stand-in gateway's page)

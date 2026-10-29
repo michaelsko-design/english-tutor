@@ -5,7 +5,7 @@
  * `dryRun` only returns the price. Otherwise it records `checkouts/{id}`, opens the gateway's payment
  * page and returns its URL; the payment itself is confirmed later by /api/payment-webhook.
  */
-import { createFirestoreAdmin } from './_lib/firestoreAdmin.js';
+import { createFirestoreAdmin, type FirestoreAdmin } from './_lib/firestoreAdmin.js';
 import { AdminError, parseServiceAccount } from './_lib/googleAdmin.js';
 import {
   authenticateParent,
@@ -19,7 +19,7 @@ import {
 import { createPaymentProvider } from './_lib/payments/index.js';
 import { PaymentError, type PaymentProvider } from './_lib/payments/provider.js';
 import { holdsLiveSeat, renewableSeatEnd, UID_PATTERN } from './_lib/proBilling.js';
-import { isBillingPeriod, MAX_PRO_SEATS, proPriceAgorot, type BillingPeriod } from '../src/config/proTier.js';
+import { isBillingPeriod, MAX_LINKED_CHILDREN, MAX_PRO_SEATS, proPriceAgorot, type BillingPeriod } from '../src/config/proTier.js';
 
 const MAX_BODY_BYTES = 2048;
 const MAX_NAME_LENGTH = 60;
@@ -29,6 +29,12 @@ const PAYER_NAME_PATTERN = /^\p{L}+(?:['-]\p{L}+)*(?: \p{L}+(?:['-]\p{L}+)*)+$/u
 /** An Israeli mobile number, as Grow requires */
 const PAYER_PHONE_PATTERN = /^05\d{8}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const DAY_MS = 24 * 60 * 60 * 1000;
+/** Unpaid payment pages one parent can open a day (each one opens a process at the gateway) */
+export const MAX_PENDING_CHECKOUTS_PER_DAY = 5;
+
+/** A refusal the parent portal explains in its own words (`code`), beyond what the status says */
+const refusal = (status: number, error: string, code: string) => jsonResponse(status, { error, code });
 
 export interface CheckoutDeps extends ParentRequestDeps {
   nowMs?: () => number;
@@ -72,6 +78,43 @@ async function readBody(request: Request): Promise<CheckoutBody | null> {
   if (dryRun) return { childUids, period: body.period, dryRun, payerName: '', payerPhone: '', payerEmail: '' };
   const payer = readPayer(body);
   return payer ? { childUids, period: body.period, dryRun, ...payer } : null;
+}
+
+/** Whether the parent is linked to more children than one family's plan is meant for */
+async function hasTooManyLinks(admin: FirestoreAdmin, parentUid: string): Promise<boolean> {
+  const links = await admin.queryDocuments('parentLinks', 'parentUid', parentUid);
+  return links.length > MAX_LINKED_CHILDREN;
+}
+
+async function countRecentPendingCheckouts(admin: FirestoreAdmin, parentUid: string, nowMs: number): Promise<number> {
+  const checkouts = await admin.queryDocuments('checkouts', 'parentUid', parentUid);
+  return checkouts.filter((doc) => doc.fields.status === 'pending' && Number(doc.fields.createdAt) > nowMs - DAY_MS).length;
+}
+
+type SeatCheck = { ok: true } | { ok: false; response: Response };
+
+/**
+ * No child may hold a live seat, except on the parent's own yearly plan in its renew window. A
+ * renewal starts at the old plan's end, so it renews one plan's children only: a new child or a
+ * second plan in the same checkout would get the days until then for free.
+ */
+async function checkSeats(admin: FirestoreAdmin, body: CheckoutBody, parentUid: string, nowMs: number): Promise<SeatCheck> {
+  const renewedPlans = new Set<string>();
+  let renewals = 0;
+  for (const childUid of body.childUids) {
+    const entitlement = await admin.getDocument('entitlements', childUid);
+    const isRenewal = body.period === 'yearly' && renewableSeatEnd(entitlement, parentUid, nowMs) !== null;
+    if (isRenewal) {
+      renewals += 1;
+      renewedPlans.add(String(entitlement?.fields.subscriptionId));
+    } else if (holdsLiveSeat(entitlement, nowMs)) {
+      return { ok: false, response: refusal(409, 'A child already has Pro', 'has_pro') };
+    }
+  }
+  if (renewals > 0 && (renewals < body.childUids.length || renewedPlans.size > 1)) {
+    return { ok: false, response: refusal(409, 'Renew one plan on its own', 'renewal_separate') };
+  }
+  return { ok: true };
 }
 
 function describePlan(period: BillingPeriod, children: number): string {
@@ -163,14 +206,12 @@ export async function handleCheckoutRequest(
     }
     const admin = createAdmin(account, caller.projectId, { fetchImpl });
     const now = nowMs();
-    for (const childUid of body.childUids) {
-      const entitlement = await admin.getDocument('entitlements', childUid);
-      // The parent's own yearly plan near its end is renewed by a yearly checkout, not refused
-      const isRenewal = body.period === 'yearly' && renewableSeatEnd(entitlement, caller.parentUid, now) !== null;
-      if (holdsLiveSeat(entitlement, now) && !isRenewal) {
-        return errorResponse(409, 'A child already has Pro');
-      }
+    if (await hasTooManyLinks(admin, caller.parentUid)) return refusal(409, 'Too many linked children', 'too_many_children');
+    if ((await countRecentPendingCheckouts(admin, caller.parentUid, now)) >= MAX_PENDING_CHECKOUTS_PER_DAY) {
+      return refusal(429, 'Too many payment pages today', 'too_many_checkouts');
     }
+    const seats = await checkSeats(admin, body, caller.parentUid, now);
+    if (!seats.ok) return seats.response;
     const url = await openPaymentPage(
       provider,
       admin,

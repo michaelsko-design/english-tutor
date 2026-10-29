@@ -2,13 +2,14 @@
 
 > Backlog: "Define the Freemium vs. 'EnglishVibe Pro' tier boundaries … design the kid-safe 'Ask a Parent on WhatsApp' payment link flow … plan integration with an Israeli payment gateway … and server-verified Firestore subscription status. Also create a coupon system."
 
-Status (2026-10-29): **server payments layer, Phase 1 and Phase 2 built and committed**: checkout, webhook, plan changes, Grow adapter and rules ("Server (built)"), the learner-side gating with its "ask a parent" sheet, switched off (`PRO_GATING_ENABLED = false`), and the parent portal's checkout and Pro lines on the mock provider (dev server only). **Paused** while the owner waits for the business registration and the Grow account to be approved. The live app is unchanged. The phases in "Implementation phases" are the build order.
+Status (2026-10-29): **server payments layer, Phase 1, Phase 2 and the server half of Phase 3a built**: checkout, webhook, plan changes, Grow adapter and rules ("Server (built)"), the learner-side gating with its "ask a parent" sheet, switched off (`PRO_GATING_ENABLED = false`), and the parent portal's checkout and Pro lines on the mock provider (dev server only). **Paused** while the owner waits for the business registration and the Grow account to be approved. The live app is unchanged. The phases in "Implementation phases" are the build order.
 
 ## Where we stopped (start here in a new session)
 **Done**
 - Server layer: `api/checkout.ts`, `api/payment-webhook.ts`, `api/subscription.ts`, `api/_lib/proBilling.ts`, `api/_lib/payments/` (Grow + mock), and `firestore.rules` for `entitlements`, `subscriptions`, `checkouts` and `payments` (covered by the rules smoke test).
 - Phase 1: learner gating and the kid-safe "ask a parent" sheet, behind `PRO_GATING_ENABLED` (off). Comp grants: `scripts/grantPro.mjs`.
 - Phase 2: the parent's checkout, return page and per-child Pro lines (cancel, add or remove a child, the yearly renew notice), on the mock gateway, behind `IS_PRO_PLAN_VISIBLE` (dev server only). Local runs: `npm run dev:emu` serves the payment functions against the emulators.
+- Phase 3a, server half: the daily reconcile (`api/pro-reconcile.ts`), seat races closed, `MAX_LINKED_CHILDREN`, the daily cap on unpaid checkouts, one-plan-only renewals, the entitlement in the data export. Details under "Phase 3a".
 - Tests: unit and component tests for all of it, and `e2e/pro.spec.ts` (learner asks → parent pays on the mock page → map opens → parent cancels). The whole e2e suite passes on desktop and phone (`npm run test:e2e`).
 
 **Waiting on the owner (Track A)**
@@ -16,7 +17,7 @@ Status (2026-10-29): **server payments layer, Phase 1 and Phase 2 built and comm
 - A WhatsApp Business number, and the domain for the contact email.
 
 **Next, in order**
-1. **Phase 3a (can start now, needs no Grow):** the daily reconcile, entitlement cleanup on deletion and in the data export, `MAX_LINKED_CHILDREN` and the pending-checkout cap, the Phase 2 known limits, the exam-plan `madeWithPro` decision, the Pro pack card's copy, a security review of the whole payment flow, and the legal text drafts. Details under "Phase 3a".
+1. **Phase 3a, what is left (needs no Grow):** the exam-plan `madeWithPro` decision (the owner's call), the Pro pack card's copy with Hebrew clips, reading the "ask a parent" sheet aloud, a security review of the whole payment flow, and the legal text drafts. `CRON_SECRET` must be set in Vercel for the reconcile (the streak reminder already uses it).
 2. **Phase 3b (needs the Grow sandbox):** run the real adapter against the sandbox, fix what it assumed wrong, set the Vercel env.
 3. **Phase 4:** launch.
 4. After launch: coupons, referrals, and the children's friend-invite reward.
@@ -142,8 +143,8 @@ Families with more than 4 children contact us on WhatsApp (the plan picker's but
   - A linked parent can read it; an unlinked user cannot.
   - Nobody can write (create, update, delete).
   - `coupons` cannot be read.
-- **Account deletion** (`deleteAccount`) cannot delete `entitlements` from the client, so a server step does it. The client calls the new `api/account-cleanup.ts`, or the daily cron removes entitlements whose learner no longer exists.
-  - The parent is told that an active subscription keeps billing until it is canceled. Deletion cancels it through the provider, in the same server step.
+- **Account deletion** (`deleteAccount`) cannot delete `entitlements` from the client, so the daily reconcile (`api/pro-reconcile.ts`) does it: an entitlement whose learner no longer exists is deleted, and their seat is freed (see "Phase 3a").
+  - A deleted payer's monthly plan stops renewing in the same run; the children keep Pro until `periodEnd`.
 
 ## Gating layer (`data/proGate.ts`)
 One pure, tested module. It takes the entitlement and returns decisions; the UI only reads them.
@@ -310,9 +311,7 @@ interface PaymentProvider {
 - The page is never embedded in an iframe.
 
 **Not built yet:**
-- The daily reconcile step in the cron (expire lapsed entitlements, ask Grow about `past_due` plans).
-- Account-deletion cleanup of entitlements.
-- The `MAX_LINKED_CHILDREN` check, and a cap on pending checkouts per parent (each opens a Grow payment process).
+- Asking Grow about a monthly plan whose renewal webhook went missing (the reconcile only reports it; Phase 3b).
 - Gateway ids are checked (`GATEWAY_ID_PATTERN`) before they become document ids; Grow ids that don't match are ignored.
 - Coupons and referrals (P4).
 
@@ -415,15 +414,17 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
 - **E2E** `e2e/pro.spec.ts`: the learner taps a Pro stop and asks a parent → the parent pairs, pays monthly on the mock page → the return page confirms → the learner's map has no Pro stops → the parent cancels the renewal.
 - Still dev-only: `IS_PRO_PLAN_VISIBLE` keeps the picker and the Pro lines on the dev server until launch.
 - A parent who buys again for a child whose monthly plan they cancelled starts the new plan now; the rest of the old month is not carried over.
-- Known limits, for Phase 3:
+- Known limits (both closed in Phase 3a):
   - A renewal checkout that also adds a free child starts everyone at the old plan's end, so the new child gets up to 14 extra days.
   - Two renewal checkouts paid at the same moment both renew from the same end date (one year for two payments). Paid one after the other, the second is recorded in `seatedElsewhere` for a refund. The cap on pending checkouts per parent (Phase 3) covers it.
 
-**Phase 3a: hardening and legal texts (not started; needs no Grow account).**
-- A daily reconcile in the existing cron: expire ended plans and catch missed webhooks (tested on the mock provider until Grow is ready).
-- Entitlement cleanup on account deletion, and the entitlement in the data export (`downloadProfileJson`).
-- `MAX_LINKED_CHILDREN`, and a cap on pending checkouts per parent (this also closes the double-renewal limit from Phase 2).
-- The other Phase 2 known limit: a free child added to a renewal checkout gets up to 14 extra days.
+**Phase 3a: hardening and legal texts (server half built; needs no Grow account).**
+- **Built:**
+  - **Daily reconcile** `api/pro-reconcile.ts` (its own Vercel cron, 03:00 UTC, `CRON_SECRET`; pure rules in `api/_lib/proReconcile.ts`). It looks up which accounts still exist (Auth `accounts:lookup`, 100 at a time; if none is found it changes nothing). A deleted learner's entitlement is deleted and their seat freed: a monthly plan moves to the lower price at the gateway first, or is canceled when no child is left; a yearly or canceled plan only empties the seat. A deleted payer's monthly plan is canceled. A plan or entitlement past `periodEnd` plus the grace days becomes `expired`, except a monthly plan still `active`, which means a renewal webhook went missing: it is counted as `missedRenewals` and logged (Phase 3b asks Grow). Answers `{released, expired, deleted, missedRenewals, failed}`.
+  - **`expired` subscriptions:** a late Grow charge on one brings it back, but children who got a seat on a newer plan meanwhile are left out (logged for a refund). `cancel` on an expired plan is a no-op.
+  - **Seat races:** the webhook writes every new seat with the entitlement's `updateTime` from when it was read (or `exists: false`), and so does `addChild`. Two plans paid at the same moment can no longer both take a child: the later one gets a 503, Grow retries, and the child is listed in `seatedElsewhere`. This closes the double-renewal limit from Phase 2.
+  - **Checkout limits** (`api/checkout.ts`, refusals carry a `code` that the parent portal explains in Hebrew): a parent linked to more than `MAX_LINKED_CHILDREN = 6` children (`too_many_children`, 409); at most `MAX_PENDING_CHECKOUTS_PER_DAY = 5` unpaid payment pages in 24 hours (`too_many_checkouts`, 429); a renewal checkout renews one plan's children only, with no new child or second plan (`renewal_separate`, 409), which closes the "14 extra days" limit from Phase 2. Both counts use `FirestoreAdmin.queryDocuments` (one equality filter, no index).
+  - **Data export:** `downloadProfileJson` adds `proEntitlement` when the learner has one.
 - Left from Phase 1:
   - Decide whether exam plans that exist at the switch are kept (`madeWithPro`).
   - The new-pack card's text for a Pro pack, with Hebrew clips for grades 1–2.

@@ -1,4 +1,4 @@
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
 import { parseEntitlement, type Entitlement } from '../data/proGate';
 
@@ -48,4 +48,15 @@ export function watchEntitlement(
     },
     onError
   );
+}
+
+/** The entitlement as the server has it now (the data export); null when there is none or it can't be read. */
+export async function readEntitlementOnce(uid: string): Promise<Entitlement | null> {
+  if (!db) return null;
+  try {
+    const snapshot = await getDoc(doc(db, 'entitlements', uid));
+    return snapshot.exists() ? parseEntitlement(snapshot.data()) : null;
+  } catch {
+    return null;
+  }
 }

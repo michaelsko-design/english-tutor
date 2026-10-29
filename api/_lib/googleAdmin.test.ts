@@ -105,6 +105,25 @@ describe('createAuthAdmin', () => {
     expect(tokenCalls()).toBe(2);
   });
 
+  it('finds which accounts still exist, 100 per lookup', async () => {
+    const { account } = await makeAccount();
+    const asked: string[][] = [];
+    const fetchImpl = tokenFetch((url, init) => {
+      if (!url.endsWith('accounts:lookup')) return undefined;
+      const ids = (JSON.parse(String(init?.body)) as { localId: string[] }).localId;
+      asked.push(ids);
+      return new Response(JSON.stringify({ users: ids.filter((id) => id !== 'gone7').map((localId) => ({ localId })) }));
+    });
+    const admin = createAuthAdmin(account, 'proj', { fetchImpl: fetchImpl as typeof fetch, nowMs: () => NOW_MS });
+    const uids = Array.from({ length: 150 }, (_, i) => (i === 7 ? 'gone7' : `kid${i}`));
+
+    const existing = await admin.findExistingUids(uids);
+
+    expect(asked.map((ids) => ids.length)).toEqual([100, 50]);
+    expect(existing.size).toBe(149);
+    expect(existing.has('gone7')).toBe(false);
+  });
+
   it('throws an AdminError with the status when Google refuses', async () => {
     const { account } = await makeAccount();
     const fetchImpl = tokenFetch((url) => (url.endsWith('accounts:update') ? new Response('{}', { status: 403 }) : undefined));

@@ -117,6 +117,20 @@ describe('handleSubscriptionRequest', () => {
     expect(gateway.updateRecurring).toHaveBeenNthCalledWith(2, 'BILLING', { amountAgorot: 6400 });
   });
 
+  it("refuses the seat when another plan took the child meanwhile, and puts the amount back", async () => {
+    const { fake, gateway, deps } = setup();
+    const commit = fake.admin.commit;
+    fake.admin.commit = async (writes) => {
+      fake.seed('entitlements', 'kid3', { status: 'active', periodEnd: NOW + 30 * DAY, subscriptionId: 'other' });
+      return commit(writes);
+    };
+
+    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps)).status).toBe(409);
+    expect(fake.get('entitlements', 'kid3')).toMatchObject({ subscriptionId: 'other' });
+    expect(fake.get('subscriptions', SUB_ID)).toMatchObject({ childUids: ['kid1', 'kid2'] });
+    expect(gateway.updateRecurring).toHaveBeenNthCalledWith(2, 'BILLING', { amountAgorot: 6400 });
+  });
+
   it('changes nothing when the gateway refuses', async () => {
     const { fake, gateway, deps } = setup();
     gateway.updateRecurring.mockRejectedValueOnce(new Error('down'));

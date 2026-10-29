@@ -74,14 +74,17 @@ async function readFields(request: Request): Promise<Record<string, string> | nu
   return Object.fromEntries([...params.entries()].map(([key, value]) => [key.replace(/^.*\[([^\]]*)\]$/, '$1'), value.trim()]));
 }
 
+/** Each seat's entitlement as it was read: a write over it must find it unchanged */
+type SeatVersions = Map<string, string | null>;
+
 function activationWrites(
   checkout: Checkout,
   sub: Subscription,
   provider: PaymentProvider,
-  transactionId: string,
-  seatedElsewhere: string[],
+  payment: { transactionId: string; seatedElsewhere: string[]; seatVersions: SeatVersions },
   nowMs: number
 ): DocumentWrite[] {
+  const { transactionId, seatedElsewhere, seatVersions } = payment;
   const writes: DocumentWrite[] = [
     {
       collection: 'payments',
@@ -92,7 +95,16 @@ function activationWrites(
     },
     { collection: 'subscriptions', id: sub.id, precondition: { exists: false }, fields: subscriptionFields(sub, nowMs) },
     { collection: 'checkouts', id: checkout.id, mergeFields: ['status', 'paidAt'], fields: { status: 'paid', paidAt: nowMs } },
-    ...sub.childUids.map((childUid) => ({ collection: 'entitlements', id: childUid, fields: entitlementFields(sub, nowMs) })),
+    // Another plan paid at the same moment can't take the same child: one of the two commits fails
+    ...sub.childUids.map((childUid): DocumentWrite => {
+      const version = seatVersions.get(childUid) ?? null;
+      return {
+        collection: 'entitlements',
+        id: childUid,
+        fields: entitlementFields(sub, nowMs),
+        precondition: version ? { updateTime: version } : { exists: false },
+      };
+    }),
   ];
   if (sub.recurringRef) {
     writes.push({ collection: 'recurringRefs', id: `${provider.id}_${sub.recurringRef}`, fields: { subscriptionId: sub.id } });
@@ -119,8 +131,10 @@ async function handleProcessNotification(fields: Record<string, string>, admin: 
   // Only a yearly checkout renews: a monthly one would push its first charge a year ahead of the plan
   let startsAt = nowMs;
   const renewedPlans = new Map<string, string[]>();
+  const seatVersions: SeatVersions = new Map();
   for (const childUid of checkout.childUids) {
     const entitlement = await admin.getDocument('entitlements', childUid);
+    seatVersions.set(childUid, entitlement?.updateTime ?? null);
     const renewedEnd = checkout.period === 'yearly' ? renewableSeatEnd(entitlement, checkout.parentUid, nowMs) : null;
     const oldPlanId = entitlement?.fields.subscriptionId;
     if (renewedEnd !== null && typeof oldPlanId === 'string') {
@@ -160,7 +174,7 @@ async function handleProcessNotification(fields: Record<string, string>, admin: 
     });
   }
   try {
-    await admin.commit([...activationWrites(checkout, sub, provider, payment.transactionId, seatedElsewhere, nowMs), ...oldPlanWrites]);
+    await admin.commit([...activationWrites(checkout, sub, provider, { transactionId: payment.transactionId, seatedElsewhere, seatVersions }, nowMs), ...oldPlanWrites]);
   } catch (error) {
     if (!(error instanceof ConflictError)) throw error;
     // Recorded by a parallel notification, or something else blocked it: a 503 makes the gateway retry
@@ -194,6 +208,14 @@ function updatedSubscriptionWrites(sub: Subscription, nowMs: number): DocumentWr
   ];
 }
 
+async function childrenStillFree(admin: FirestoreAdmin, sub: Subscription, nowMs: number): Promise<string[]> {
+  const free: string[] = [];
+  for (const childUid of sub.childUids) {
+    if (!holdsLiveSeat(await admin.getDocument('entitlements', childUid), nowMs, sub.id)) free.push(childUid);
+  }
+  return free;
+}
+
 async function handleAccountEvent(event: GrowAccountEvent, admin: FirestoreAdmin, nowMs: number): Promise<Response> {
   const sub = await findSubscriptionByRef(admin, 'grow', event.recurringRef);
   if (!sub) return ignored('unknown recurring charge');
@@ -206,8 +228,12 @@ async function handleAccountEvent(event: GrowAccountEvent, admin: FirestoreAdmin
   if (await admin.getDocument('payments', paymentId)) return ignored('already recorded');
   if (nowMs < sub.periodEnd - RENEWAL_WINDOW_DAYS * DAY_MS) return ignored('renewal not due');
   if (event.amountAgorot !== sub.amountAgorot) console.error('payment-webhook: renewal amount differs from the plan');
+  // A late charge on a plan the reconcile expired brings it back, but not over a seat on a newer plan
+  const childUids = sub.status === 'expired' ? await childrenStillFree(admin, sub, nowMs) : sub.childUids;
+  if (childUids.length < sub.childUids.length) console.error('payment-webhook: a child moved to another plan, refund needed');
   const renewed: Subscription = {
     ...sub,
+    childUids,
     status: sub.status === 'canceled' ? 'canceled' : 'active',
     periodEnd: addPeriods(Math.max(sub.periodEnd, nowMs), 'monthly'),
   };

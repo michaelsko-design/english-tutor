@@ -10,6 +10,8 @@ const SCOPE = 'https://www.googleapis.com/auth/cloud-platform';
 const JWT_LIFETIME_S = 3600;
 /** A cached access token is renewed this long before it expires */
 const RENEW_MARGIN_S = 60;
+/** Accounts asked about in one Auth lookup */
+const LOOKUP_BATCH = 100;
 
 export interface ServiceAccount {
   client_email: string;
@@ -119,6 +121,18 @@ export function createAuthAdmin(account: ServiceAccount, projectId: string, { fe
       const user = body.users?.[0];
       if (!user) return null;
       return { uid: user.localId, providerIds: (user.providerUserInfo ?? []).map((p) => p.providerId) };
+    },
+
+    /** Which of these accounts still exist (looked up 100 at a time). */
+    async findExistingUids(uids: readonly string[]): Promise<Set<string>> {
+      const existing = new Set<string>();
+      for (let start = 0; start < uids.length; start += LOOKUP_BATCH) {
+        const response = await call('accounts:lookup', { localId: uids.slice(start, start + LOOKUP_BATCH) });
+        if (!response.ok) throw new AdminError('Auth lookup failed', response.status);
+        const body = (await response.json()) as { users?: { localId: string }[] };
+        for (const user of body.users ?? []) existing.add(user.localId);
+      }
+      return existing;
     },
 
     async setPassword(uid: string, password: string): Promise<void> {

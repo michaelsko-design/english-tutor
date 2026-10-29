@@ -23,12 +23,19 @@
     },
     "api/streak-reminder.ts": {
       "maxDuration": 60
+    },
+    "api/pro-reconcile.ts": {
+      "maxDuration": 60
     }
   },
   "crons": [
     {
       "path": "/api/streak-reminder",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/pro-reconcile",
+      "schedule": "0 3 * * *"
     }
   ],
   "headers": [

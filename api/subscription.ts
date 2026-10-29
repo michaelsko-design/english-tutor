@@ -59,7 +59,16 @@ async function readBody(request: Request): Promise<SubscriptionBody | null> {
   return { action, subscriptionId: body.subscriptionId, childUid };
 }
 
-function saveWrites(sub: Subscription, nowMs: number, extra: DocumentWrite[] = []): DocumentWrite[] {
+/** A child taking a seat, and their entitlement's version when it was read (null: none) */
+interface NewSeat {
+  childUid: string;
+  version: string | null;
+}
+
+function saveWrites(sub: Subscription, nowMs: number, extra: DocumentWrite[] = [], newSeat?: NewSeat): DocumentWrite[] {
+  // The new seat's entitlement must be unchanged since it was checked, or another plan took the child
+  const seatPrecondition = (childUid: string) =>
+    newSeat?.childUid === childUid ? { precondition: newSeat.version ? { updateTime: newSeat.version } : { exists: false as const } } : {};
   return [
     {
       collection: 'subscriptions',
@@ -67,7 +76,12 @@ function saveWrites(sub: Subscription, nowMs: number, extra: DocumentWrite[] = [
       fields: subscriptionFields(sub, nowMs),
       ...(sub.updateTime ? { precondition: { updateTime: sub.updateTime } } : {}),
     },
-    ...sub.childUids.map((childUid) => ({ collection: 'entitlements', id: childUid, fields: entitlementFields(sub, nowMs) })),
+    ...sub.childUids.map((childUid) => ({
+      collection: 'entitlements',
+      id: childUid,
+      fields: entitlementFields(sub, nowMs),
+      ...seatPrecondition(childUid),
+    })),
     ...extra,
   ];
 }
@@ -83,7 +97,7 @@ interface ActionContext {
 }
 
 async function cancel({ sub, admin, provider, nowMs }: ActionContext): Promise<Response> {
-  if (sub.status === 'canceled') return jsonResponse(200, { ok: true });
+  if (sub.status === 'canceled' || sub.status === 'expired') return jsonResponse(200, { ok: true });
   if (sub.period === 'yearly') return errorResponse(409, 'A yearly plan does not renew, so there is nothing to cancel');
   await provider.updateRecurring(sub.billing, { cancel: true });
   await admin.commit(saveWrites({ ...sub, status: 'canceled' }, nowMs));
@@ -91,13 +105,13 @@ async function cancel({ sub, admin, provider, nowMs }: ActionContext): Promise<R
 }
 
 /** Changes the gateway's amount, then saves; if the save loses a race, the gateway amount goes back. */
-async function applySeatChange(context: ActionContext, change: SeatChange, extra: DocumentWrite[]): Promise<Response> {
+async function applySeatChange(context: ActionContext, change: SeatChange, extra: DocumentWrite[], newSeat?: NewSeat): Promise<Response> {
   if (!change.ok) return errorResponse(change.status, change.error);
   const { sub, admin, provider, nowMs } = context;
   const changesAmount = change.amountChanged && sub.period === 'monthly';
   if (changesAmount) await provider.updateRecurring(sub.billing, { amountAgorot: change.sub.amountAgorot });
   try {
-    await admin.commit(saveWrites(change.sub, nowMs, extra));
+    await admin.commit(saveWrites(change.sub, nowMs, extra, newSeat));
   } catch (error) {
     if (changesAmount) await provider.updateRecurring(sub.billing, { amountAgorot: sub.amountAgorot }).catch(() => undefined);
     if (error instanceof ConflictError) return errorResponse(409, 'The plan changed, try again');
@@ -110,10 +124,10 @@ async function addChild(context: ActionContext): Promise<Response> {
   const { sub, body, admin, caller, fetchImpl, nowMs } = context;
   if (body.childUid === caller.parentUid) return errorResponse(403, 'Not allowed');
   if (!(await isParentLinked(caller, body.childUid, fetchImpl))) return errorResponse(403, 'This parent is not linked to that learner');
-  if (holdsLiveSeat(await admin.getDocument('entitlements', body.childUid), nowMs, sub.id)) {
-    return errorResponse(409, 'This child already has Pro');
-  }
-  return applySeatChange(context, addChildToSubscription(sub, body.childUid, nowMs), []);
+  const entitlement = await admin.getDocument('entitlements', body.childUid);
+  if (holdsLiveSeat(entitlement, nowMs, sub.id)) return errorResponse(409, 'This child already has Pro');
+  const newSeat = { childUid: body.childUid, version: entitlement?.updateTime ?? null };
+  return applySeatChange(context, addChildToSubscription(sub, body.childUid, nowMs), [], newSeat);
 }
 
 async function removeChild(context: ActionContext): Promise<Response> {
