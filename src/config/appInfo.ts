@@ -11,4 +11,4 @@ export const VIBE_CHEER_HE = 'יש לך וייב טוב!';
 export const SUPPORT_WHATSAPP_NUMBER = '972529282667';
 
 /** Where parents send privacy questions and requests (shown in the privacy notice). */
-export const PRIVACY_CONTACT_EMAIL = 'michaelsko@gmail.com';
+export const PRIVACY_CONTACT_EMAIL = 'support@englishvibe.co.il';

@@ -316,7 +316,7 @@ interface PaymentProvider {
 - Coupons and referrals (P4).
 
 ## Payment methods and invoices
-- Bit, Apple Pay, Google Pay and cards are all handled on the gateway's hosted page. Apple Pay needs the gateway's domain verification for the production domain (depends on the "Domain and Email" backlog item).
+- Bit, Apple Pay, Google Pay and cards are all handled on the gateway's hosted page. Apple Pay needs the gateway's domain verification for the production domain `englishvibe.co.il`.
 - **Invoices.** Both Grow and SUMIT can issue the tax invoice/receipt (חשבונית מס / קבלה) automatically for every charge, including recurring ones, and email it to the parent. Morning (Green Invoice) is needed only if the chosen gateway's invoicing doesn't fit. The invoice name and email are the parent's, from Google, and can be edited on the hosted page.
 - Prices are stored in agorot and shown VAT-inclusive.
 
@@ -378,7 +378,7 @@ interface PaymentProvider {
   - Notice before a yearly plan ends: the parent portal's renew notice (see Decisions). No charge renews without the parent, so no renewal consent is needed.
   - The cancellation rights for distance sales. Get a short legal review before launch.
 - **Business:** registration (עוסק פטור / מורשה) decides VAT on invoices, and must be settled with the gateway account.
-- The contact email in the privacy notice and on invoices should use the new domain ("Domain and Email update" item).
+- The contact email in the privacy notice is `support@englishvibe.co.il` (done); set the same address on the gateway's invoices.
 
 ## Implementation phases
 The server layer (checkout, webhooks, subscriptions, Grow and mock providers, rules) is built. Each phase below ships on its own: `PRO_GATING_ENABLED` and `IS_PRO_PLAN_VISIBLE` stay off until Phase 4, so the live app doesn't change.
@@ -387,7 +387,7 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
 1. Register the business (עוסק פטור / מורשה). Grow and the invoices need it.
 2. Open the Grow account: sandbox ids (`userId`, a recurring and a regular `pageCode`, the API key). Ask Grow support to enable the recurring and failed-recurring webhooks and automatic invoices.
 3. A WhatsApp Business number to replace the private one in `SUPPORT_WHATSAPP_NUMBER`.
-4. The domain for the contact email ("Domain and Email update" item).
+4. ~~The domain for the contact email~~ Done: `englishvibe.co.il`, `support@englishvibe.co.il`.
 
 **Phase 1: entitlements and gating, switched off (built).**
 - New:

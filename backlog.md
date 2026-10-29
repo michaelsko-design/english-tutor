@@ -3,13 +3,18 @@
 ## Future / Next Up Ideas
 *Grouped by type (UI, technical, features). Within each group, highest priority first. Completed features keep their numbers as stable IDs.*
 
-### UI
+### Business
+- [ ] **Approve business registration** - Osek Patur.
+- [ ] **Open a business bank account** - Otsar Hahayal - app.
+- [ ] **Reply to GROW** - using the Osek Patur number and follow the link they sent on whatsapp.
+- [ ] **Create a new Google account for EnglishVibe** - In order to send and receive emails and to set the email logo.
 
+### UI
 
 ### Technical
 
 - [ ] **Retire the old Firebase API key** - The old browser key (`AIzaSyAXCk…`) is still unrestricted and still works against this project. Find which of the other projects (Maps APIs showed active usage) use it, move them to their own keys, then restrict or delete it.
-- [ ] **Domain and Email update** - After buying a domain - update the contact email in the privacy notice.
+- [x] **Domain and Email update** - ~~After buying a domain - update the contact email in the privacy notice.~~ Done: `englishvibe.co.il`, contact `support@englishvibe.co.il` (`PRIVACY_CONTACT_EMAIL`, docs). The Firebase Auth support email stays the personal Gmail (the console only allows the signed-in account or a Google Group it owns); the public-facing name should be "EnglishVibe". Still manual: `APP_ORIGIN` and `VAPID_SUBJECT=mailto:support@englishvibe.co.il` in Vercel, `englishvibe.co.il` in Firebase Auth authorized domains, and a working `support@` mailbox.
 - [ ] **Set up product analytics** - Choose and wire up analytics: Firebase Analytics / Google Analytics 4, Vercel Analytics, or another tool (e.g. a privacy-first one). Weigh children's privacy (Privacy Protection Law Amendment 13, consent), the CSP in `vercel.json` (new third-party origins), cost, and what we need beyond the owner dashboard (funnels, retention, screen/feature usage, crash and error reporting).
 
 ### Content

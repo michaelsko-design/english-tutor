@@ -16,7 +16,7 @@
 **עודכן לאחרונה:** [תאריך]
 
 ### 1. מי אנחנו
-EnglishVibe ("האפליקציה") מופעלת על ידי [שם העסק], [עוסק פטור / עוסק מורשה] מספר [מספר], [כתובת] ("אנחנו"). אפשר לפנות אלינו בוואטסאפ [מספר העסק] או באימייל [כתובת אימייל בדומיין העסק].
+EnglishVibe ("האפליקציה") מופעלת על ידי [שם העסק], [עוסק פטור / עוסק מורשה] מספר [מספר], [כתובת] ("אנחנו"). אפשר לפנות אלינו בוואטסאפ [מספר העסק] או באימייל support@englishvibe.co.il.
 
 ### 2. השימוש באפליקציה
 - האפליקציה מיועדת ללימוד אנגלית של ילדים ובני נוער בכיתות א׳–י״ב. רוב האפליקציה חינמית.
@@ -111,7 +111,7 @@ To add to `SECTIONS` in `PrivacyNoticeDialog.tsx`, after "מה הורים רוא
 
 Also:
 - The "מה נשמר" section: add "מצב המנוי ל-Pro, אם יש" to its first line.
-- `PRIVACY_CONTACT_EMAIL` (`config/appInfo.ts`) moves to the business domain address before launch.
+- `PRIVACY_CONTACT_EMAIL` (`config/appInfo.ts`) is now `support@englishvibe.co.il` (done).
 
 ---
 
