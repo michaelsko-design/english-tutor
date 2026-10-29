@@ -35,7 +35,7 @@ export async function completeOnboarding(page: Page, choices: OnboardingChoices)
   const nameInput = page.getByLabel('איך קוראים לך?');
   await expect(nameInput).toBeVisible({ timeout: CLOUD_TIMEOUT_MS });
   await nameInput.fill(choices.name);
-  await page.getByLabel('גיל').selectOption(String(choices.age));
+  await page.getByLabel('גיל', { exact: true }).selectOption(String(choices.age));
   await page.getByRole('checkbox', { name: /אני הורה וקראתי/ }).check();
   await page.getByRole('button', { name: /שמירה וכניסה לדשבורד/ }).click();
 }
@@ -73,10 +73,11 @@ export async function readHudDiamonds(page: Page): Promise<number> {
   return Number(match[0]);
 }
 
-/** Opens the profile settings (the form that also holds sign-out and account deletion). */
+/** Opens the settings on the account tab (sign-out and account deletion). */
 export async function openSettings(page: Page): Promise<void> {
   await profileButton(page).click();
-  await expect(page.getByRole('button', { name: 'שמירת שינויים' })).toBeVisible();
+  await page.getByRole('tab', { name: /חשבון/ }).click();
+  await expect(page.getByRole('button', { name: 'התנתקות מהחשבון' })).toBeVisible();
 }
 
 export async function signOutFromSettings(page: Page): Promise<void> {

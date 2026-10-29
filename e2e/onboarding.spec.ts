@@ -13,7 +13,7 @@ test.describe('onboarding', () => {
     await expect(page.getByText(/כתבי את השם שלך/)).toBeVisible();
     await nameInput.fill('עידו');
     await page.getByRole('button', { name: /בן/ }).click();
-    await page.getByLabel('גיל').selectOption('6');
+    await page.getByLabel('גיל', { exact: true }).selectOption('6');
     await page.getByRole('button', { name: 'Pop' }).click();
     await page.getByRole('button', { name: /שמירה וכניסה לדשבורד/ }).click();
     await expect(page.getByText(/צריך שהורה יאשר/)).toBeVisible();

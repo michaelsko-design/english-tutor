@@ -80,7 +80,7 @@ export const GradeSelect: React.FC<GradeSelectProps> = ({ gradeId, theme, onChan
     <div ref={rootRef} className="space-y-1.5 lg:col-span-2 relative">
       <span id={labelId} className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
         <GraduationCap className="w-4 h-4" />
-        <span>כיתה (מותאם אוטומטית לפי הגיל):</span>
+        <span>כיתה:</span>
       </span>
       <button
         type="button"

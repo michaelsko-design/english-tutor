@@ -48,7 +48,7 @@ test.describe('parent', () => {
       await expect(parent.page.getByRole('button', { name: 'אישור החיבור' })).toBeDisabled();
       await parent.page.getByRole('checkbox', { name: /ההורה או האפוטרופוס/ }).check();
       await parent.page.getByRole('button', { name: 'אישור החיבור' }).click();
-      await expect(parent.page.getByRole('status')).toContainText('מחובר/ת');
+      await expect(parent.page.getByRole('status').filter({ hasText: 'מחובר/ת' })).toBeVisible();
       await expect(parent.page.getByRole('button', { name: 'הדוח השבועי' })).toBeVisible();
 
       // The code is used up, and the parent has no learner profile of their own
@@ -58,7 +58,7 @@ test.describe('parent', () => {
 
       // No report until the learner's app has seen the new link
       await parent.page.getByRole('button', { name: 'הדוח השבועי' }).click();
-      await expect(parent.page.getByRole('status')).toContainText('עדיין אין דוח');
+      await expect(parent.page.getByRole('status').filter({ hasText: 'עדיין אין דוח' })).toBeVisible();
 
       // The learner's app finds the link on its next start and publishes the report snapshot
       await expect.poll(() => readDocument(`learners/${childUid}`), { timeout: CLOUD_TIMEOUT_MS }).toMatchObject({ isOnboarded: true });

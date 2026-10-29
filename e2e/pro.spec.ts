@@ -53,7 +53,7 @@ test.describe('Pro', () => {
       await expect(parent.page.getByTestId('child-pro-status')).toContainText('חשבון חינמי', { timeout: CLOUD_TIMEOUT_MS });
 
       // Monthly for one child, the payer's details, then the stand-in gateway's page
-      await parent.page.getByRole('radio', { name: 'חודשי' }).click();
+      await parent.page.getByRole('radio', { name: 'חודשי', exact: true }).click();
       await parent.page.getByRole('button', { name: 'המשך לתשלום' }).click();
       const checkout = parent.page.getByRole('form', { name: /תשלום על/ });
       await expect(checkout.getByRole('checkbox', { name: /נועה/ })).toBeChecked();
