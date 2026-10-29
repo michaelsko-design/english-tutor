@@ -7,14 +7,27 @@
 - [ ] **Approve business registration** - Osek Patur.
 - [ ] **Open a business bank account** - Otsar Hahayal - app.
 - [ ] **Reply to GROW** - using the Osek Patur number and follow the link they sent on whatsapp.
-- [ ] **Create a new Google account for EnglishVibe** - In order to send and receive emails and to set the email logo.
+- [x] **Create a new Google account for EnglishVibe** - In order to send and receive emails and to set the email logo.
 
 ### UI
 
 ### Technical
 
+- [ ] **Friend requests only to learners with the hub on** (audit M1) - `firestore.rules` `isNewFriendRequest`: require `exists(publicProfiles/{uids[1]})` and `addresseeName` equal to that profile's name, so a stranger who learned a uid can't reach a child who turned the Friends Hub off. Consider limiting display names to letters, digits and spaces. Add the smoke-test deny cases. `docs/audits/2026-10-code-security-audit.md`.
+- [ ] **CSP for the auth-handler proxy** (audit M2) - `/__/auth/(.*)` in `vercel.json` serves Firebase's pages on our origin with no CSP. Add a minimal one (`frame-ancestors 'self'` plus the handler's script sources) and an explicit `Strict-Transport-Security`, then test Google sign-in on desktop and phone.
+- [ ] **Confirm App Check and TTS abuse limits** (audit M3, M4) - Check in the consoles that App Check is enforced on Firestore and that `APPCHECK_ENFORCE=on` is set in Vercel Production. Add a per-uid cap on `/api/tts` cache misses (or a Vercel WAF rate rule), and move to 8-character friend codes.
+- [ ] **Validate the saved profile on load** (audit M5) - `src/App.tsx:57` spreads `JSON.parse` of local storage straight into state; add a shape check that falls back to `DEFAULT_PROFILE`, so a corrupt or old profile can't trap the learner on the error screen.
+- [ ] **Audit low-severity fixes** (audit LOW list) - Log duplicate payments, and refuse short renewals in `payment-webhook.ts`. Require `GROW_ENV` and `VAPID_SUBJECT` in Production. Refetch JWKS on an unknown `kid`. Log invite-cleanup errors in `parentService.ts`. Use the later `updatedAt` in `mergeLearnerProfiles`. Type the Web Speech API. Re-check the `@grpc/grpc-js` advisory on the next `firebase` release. Full list in the audit report.
+- [ ] **Raise test coverage** (audit) - Baseline 61% lines (`npm run test:coverage`; floors in `vitest.config.ts`). Priority order:
+  - `friendsService` (0%).
+  - The rules smoke-test gaps listed in the report.
+  - `parentService`.
+  - The sync and reporting hooks.
+  - RTL tests for sign-in and PIN, parent pairing and PIN reset, checkout, settings and deletion, and the mission flow.
+  - End-to-end tests for friends and a guest upgrading to a saved account.
+  
+  Target: 80% on `api/`, `src/services`, `src/utils` and `src/hooks`. Raise the floors as tests land.
 - [ ] **Retire the old Firebase API key** - The old browser key (`AIzaSyAXCk…`) is still unrestricted and still works against this project. Find which of the other projects (Maps APIs showed active usage) use it, move them to their own keys, then restrict or delete it.
-- [x] **Domain and Email update** - ~~After buying a domain - update the contact email in the privacy notice.~~ Done: `englishvibe.co.il`, contact `support@englishvibe.co.il` (`PRIVACY_CONTACT_EMAIL`, docs). The Firebase Auth support email stays the personal Gmail (the console only allows the signed-in account or a Google Group it owns); the public-facing name is "EnglishVibe". Google sign-in now shows `englishvibe.co.il` (auth proxy, see `docs/architecture.md`, "Google sign-in domain"). `APP_ORIGIN`, `VAPID_SUBJECT`, the authorized domains and the `support@` mailbox are all set up.
 - [ ] **Set up product analytics** - Choose and wire up analytics: Firebase Analytics / Google Analytics 4, Vercel Analytics, or another tool (e.g. a privacy-first one). Weigh children's privacy (Privacy Protection Law Amendment 13, consent), the CSP in `vercel.json` (new third-party origins), cost, and what we need beyond the owner dashboard (funnels, retention, screen/feature usage, crash and error reporting).
 
 ### Content
@@ -41,6 +54,8 @@
 
 
 ## Completed Features
+- [x] **Code and Security Audit** - Full audit of code and security: `docs/audits/2026-10-code-security-audit.md`. No critical issues. Two high ones were fixed, each with regression tests. First, push endpoints are limited to the browser push services, with a send timeout, so one user can no longer stall or misuse the reminder cron. Second, deleting an account now deletes its push subscription. Also: non-breaking dependency updates, data-export folders gitignored, and coverage measured (`npm run test:coverage`, with floors). Medium and low findings and the coverage plan are in Technical.
+- [x] **Domain and Email update** - ~~After buying a domain - update the contact email in the privacy notice.~~ Done: `englishvibe.co.il`, contact `support@englishvibe.co.il` (`PRIVACY_CONTACT_EMAIL`, docs). The Firebase Auth support email stays the personal Gmail (the console only allows the signed-in account or a Google Group it owns); the public-facing name is "EnglishVibe". Google sign-in now shows `englishvibe.co.il` (auth proxy, see `docs/architecture.md`, "Google sign-in domain"). `APP_ORIGIN`, `VAPID_SUBJECT`, the authorized domains and the `support@` mailbox are all set up.
 - [x] **UI** - Create a short 20 seconds video animation with natural language hebrew narrations that will be used as an ad for this app, targeted at both children and parents.
 - [x] **Grown-up themes and mascot choice** - Three calmer themes for older students sit beside the three playful ones, grouped in the theme picker ("כיפי וצבעוני" / "בוגר ונקי"): **Focus** (light study desk, teal), **Street** (dark city at night, lime) and **Journey** (travel journal, sand/olive/navy), each with its own art (map, home scene, room) and its own new mascot: Sage the owl, Kai the raccoon and Atlas the otter. The mascot is now separate from the theme: any of the six mascots on any theme, chosen in settings → "עיצוב וקול" (`LearnerProfile.companionId`, synced); a learner who never chose one gets each theme's own. `docs/architecture.md` §4.3, §4.17.
 - [x] **Settings screen: tabs and autosave** - The settings screen (`components/settings/SettingsView.tsx`, `docs/architecture.md` §4.x voice line) is split into five tabs (profile, look and Shabbat, read-aloud and reminder, friends and parents, privacy and account) and saves every change as it is made through `App.handleUpdateProfile` (name on blur or after 600 ms; no save button). The grade is a dropdown (`GradeSelect`) grouped by school stage. First run keeps its own form (`OnboardingView`); both build the profile with `utils/buildSavedProfile.ts`.
