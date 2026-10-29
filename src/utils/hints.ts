@@ -7,6 +7,7 @@
  */
 
 const BLANK = '____';
+const SHORT_SENTENCE_MAX_WORDS = 4;
 
 const STOP_WORDS = new Set([
   'a', 'an', 'the', 'is', 'are', 'am', 'was', 'were', 'be', 'to', 'of', 'in', 'on', 'at', 'and',
@@ -99,10 +100,41 @@ function stripEdgePunctuation(word: string): string {
 export function getSentenceOrderHintHe(words: string[]): string {
   const first = stripEdgePunctuation(words[0] ?? '');
   const last = stripEdgePunctuation(words[words.length - 1] ?? '');
-  if (words.length <= 4) {
-    return `המשפט מסתיים במילה "${last}" ויש בו ${words.length} מילים.`;
+  if (words.length <= SHORT_SENTENCE_MAX_WORDS) {
+    return `המשפט מסתיים במילה "${last}".`;
   }
-  return `המשפט מתחיל ב-"${first}" ומסתיים ב-"${last}" (${words.length} מילים).`;
+  return `המשפט מתחיל ב-"${first}" ומסתיים ב-"${last}".`;
+}
+
+/** How many words of the sentence the learner may ask a translation for. */
+export function getWordRevealLimit(wordCount: number): number {
+  return wordCount <= SHORT_SENTENCE_MAX_WORDS ? 1 : 2;
+}
+
+export interface WordGloss {
+  wordEn: string;
+  translationHe: string;
+}
+
+/**
+ * The sentence's words that have a Hebrew translation, one entry per distinct word, in
+ * sentence order. `preferred` (the mission's own vocabulary) wins over `lookup`.
+ */
+export function getWordGlosses(
+  words: string[],
+  lookup: (wordEn: string) => string | undefined,
+  preferred: ReadonlyArray<WordGloss> = []
+): WordGloss[] {
+  const seen = new Set<string>();
+  return words.flatMap((word) => {
+    const wordEn = stripEdgePunctuation(word);
+    const key = wordEn.toLowerCase();
+    if (!key || seen.has(key)) return [];
+    seen.add(key);
+    const translationHe =
+      preferred.find((p) => p.wordEn.trim().toLowerCase() === key)?.translationHe ?? lookup(key);
+    return translationHe ? [{ wordEn, translationHe }] : [];
+  });
 }
 
 /** Short function words: a tip on a content word helps more, so these are tried last. */

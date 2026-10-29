@@ -296,7 +296,7 @@ describe('buildWordListSteps', () => {
     const builder = steps.find((s) => s.type === 'sentence-builder')!;
     const words = builder.textEn.split(' ');
     expect(builder.hintHe).toContain(words[words.length - 1].replace(/[^A-Za-z0-9']+$/, ''));
-    expect(builder.hintHe).toContain(`${words.length} מילים`);
+    expect(builder.hintHe).not.toMatch(/\d/);
     for (const step of steps.filter((s) => s.type === 'voice-speak')) {
       expect(step.hintHe.startsWith('טיפ:')).toBe(true);
     }

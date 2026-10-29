@@ -5,6 +5,7 @@ import { seededShuffle, seededShuffleNotIdentity } from '../utils/shuffle';
 import { buildElementaryExercises } from './elementaryExercises';
 import { buildLetterExercises } from './letterExercises';
 import { buildBlendingExercises } from './blendingExercises';
+import { getSentenceHintWords } from './wordGlosses';
 import {
   findAnswerSentenceNumber,
   getPronunciationTipHe,
@@ -57,6 +58,8 @@ export interface MissionExerciseStep {
   targetSentenceEn?: string;
   targetSentenceHe?: string;
   scrambledWords?: string[];
+  /** Sentence-builder: words whose Hebrew translation the hint lets the learner reveal */
+  hintWords?: { wordEn: string; translationHe: string }[];
   // For voice-speak
   speakTargetEn?: string;
   speakTargetHe?: string;
@@ -203,6 +206,7 @@ export function getRawExercisesForMission(
       targetSentenceEn: cleanWords.join(' '),
       targetSentenceHe: mission.sampleSentenceHe,
       scrambledWords: [...cleanWords],
+      hintWords: getSentenceHintWords(cleanWords, mission.vocabulary),
     },
     {
       id: `${mission.id}-s3`,

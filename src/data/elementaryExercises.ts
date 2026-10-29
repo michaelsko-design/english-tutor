@@ -10,6 +10,7 @@ import {
   toClozeSentence,
 } from '../utils/hints';
 import { hebrewTemplate } from '../utils/hebrewGender';
+import { getSentenceHintWords } from './wordGlosses';
 
 /**
  * Generates the 5-step mission for elementary missions (Grades 1–6) from the
@@ -140,6 +141,7 @@ export function buildElementaryExercises(
     targetSentenceEn: sentenceEn,
     targetSentenceHe: sentenceHe,
     scrambledWords: [...cleanWords],
+    hintWords: getSentenceHintWords(cleanWords, mission.vocabulary),
   };
 
   // ---- Step 3: voice drill ------------------------------------------------------

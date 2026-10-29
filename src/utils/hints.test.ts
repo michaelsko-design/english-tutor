@@ -4,6 +4,8 @@ import {
   getPronunciationTipHe,
   getSentenceOrderHintHe,
   getSpellingHintHe,
+  getWordGlosses,
+  getWordRevealLimit,
   getWordShapeHintHe,
   toClozeSentence,
 } from './hints';
@@ -55,15 +57,40 @@ describe('toClozeSentence', () => {
 });
 
 describe('getSentenceOrderHintHe', () => {
-  it('gives the last word and the count for short sentences, without punctuation', () => {
-    expect(getSentenceOrderHintHe(['My', 'dog', 'is', 'big.'])).toBe('המשפט מסתיים במילה "big" ויש בו 4 מילים.');
+  it('gives only the last word for short sentences, without punctuation', () => {
+    expect(getSentenceOrderHintHe(['My', 'dog', 'is', 'big.'])).toBe('המשפט מסתיים במילה "big".');
   });
 
-  it('gives the first and last words for longer sentences', () => {
+  it('gives the first and last words for longer sentences, without a word count', () => {
     const hint = getSentenceOrderHintHe(['I', 'have', 'a', 'red', 'ball.']);
     expect(hint).toContain('"I"');
     expect(hint).toContain('"ball"');
-    expect(hint).toContain('5 מילים');
+    expect(hint).not.toMatch(/\d/);
+  });
+});
+
+describe('getWordRevealLimit', () => {
+  it('allows one word on short sentences and two on longer ones', () => {
+    expect(getWordRevealLimit(4)).toBe(1);
+    expect(getWordRevealLimit(5)).toBe(2);
+  });
+});
+
+describe('getWordGlosses', () => {
+  const lookup = (w: string) => ({ dog: 'כלב', big: 'גדול' } as Record<string, string>)[w];
+
+  it('keeps sentence order, drops punctuation and words without a translation', () => {
+    expect(getWordGlosses(['My', 'dog', 'is', 'big.'], lookup)).toEqual([
+      { wordEn: 'dog', translationHe: 'כלב' },
+      { wordEn: 'big', translationHe: 'גדול' },
+    ]);
+  });
+
+  it('prefers the mission vocabulary and lists a repeated word once', () => {
+    const preferred = [{ wordEn: 'Dog', translationHe: 'כלבלב' }];
+    expect(getWordGlosses(['dog', 'and', 'Dog'], lookup, preferred)).toEqual([
+      { wordEn: 'dog', translationHe: 'כלבלב' },
+    ]);
   });
 });
 

@@ -535,6 +535,9 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                   onToggle={setShowHint}
                   theme={theme}
                   readsAloud={readsHebrewAloud}
+                  hintWords={currentStep.hintWords}
+                  sentenceWordCount={currentStep.scrambledWords?.length}
+                  stepId={currentStep.id}
                 />
               </div>
 
