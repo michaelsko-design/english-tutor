@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { RoomSlotKind } from '../../data/room';
+import { getRoomGeometry } from '../../data/roomGeometry';
 import {
-  DEFAULT_DESK_POINT,
   DESK_OBJECT_ID,
   OBJECT_KEY_PREFIX,
   PlacedRoomEntry,
   getDepthScale,
+  getEntryMoveKinds,
   getSurfaces,
 } from '../../data/roomPlacement';
 import { WardrobeItem } from '../../data/wardrobe';
@@ -17,8 +18,8 @@ import { ItemIcon } from './ItemIcon';
 import { IconBounds, ROOM_ICON_BOUNDS } from '../../data/roomIconBounds';
 import { useRoomItemDrag } from './useRoomItemDrag';
 import {
-  FURNITURE_PIECES,
   SCENE_PALETTES,
+  getFurniturePieces,
   STANDING_KINDS,
   SURFACE_LABELS_HE,
   ScenePoint,
@@ -87,14 +88,19 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
 }) => {
   const palette = SCENE_PALETTES[themeId] || SCENE_PALETTES['cozy-studio'];
   const isInteractive = Boolean(onTapEntry);
-  const roomBgSrc = resolveTheme(themeId).art.roomBg;
+  const roomBgSrc = resolveTheme(themeId).art.roomCorner;
   const hasRoomArt = useArtStatus(roomBgSrc) === 'loaded';
   const sceneRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
+  const geometry = getRoomGeometry(themeId);
+  const furniture = getFurniturePieces(geometry);
   const layout = useMemo(
-    () => ({ deskPoint: entries.find((entry) => entry.key === `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`)?.point ?? DEFAULT_DESK_POINT }),
-    [entries]
+    () => ({
+      deskPoint: entries.find((entry) => entry.key === `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`)?.point ?? geometry.defaults.desk,
+      geometry,
+    }),
+    [entries, geometry]
   );
   const { drag, handlers, startKeyboardMove, getAnnouncement } = useRoomItemDrag({
     sceneRef,
@@ -114,12 +120,13 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [moveRequestKey]);
 
-  const dragKind = drag ? entries.find((entry) => entry.key === drag.key)?.item.slotKind ?? null : null;
-  const zoneKind = placingKind ?? dragKind;
+  const dragged = drag ? entries.find((entry) => entry.key === drag.key) : undefined;
+  const zoneKinds = placingKind ? [placingKind] : dragged ? getEntryMoveKinds(dragged.key, dragged.item) : [];
+  const zoneSurfaces = zoneKinds.flatMap((kind) => getSurfaces(kind, layout));
 
   const handleZoneClick = (event: React.MouseEvent, surfaceId: string) => {
     const rect = sceneRef.current?.getBoundingClientRect();
-    const surface = getSurfaces(zoneKind ?? 'floor', layout).find((candidate) => candidate.id === surfaceId);
+    const surface = zoneSurfaces.find((candidate) => candidate.id === surfaceId);
     if (!rect || !surface) return;
     const isPointer = event.detail > 0 && rect.width > 0 && rect.height > 0;
     onPlaceAt?.(
@@ -160,7 +167,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
       )}
 
       {/* Shelves, sill, desk and sticker board */}
-      {FURNITURE_PIECES.map((piece) => (
+      {furniture.map((piece) => (
         <img
           key={piece.id}
           src={piece.src}
@@ -181,30 +188,29 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
       ))}
 
       {/* Drop zones: where the picked or dragged item can go */}
-      {zoneKind &&
-        getSurfaces(zoneKind, layout).map((surface) => {
-          const isStanding = STANDING_KINDS.includes(zoneKind);
-          const height = surface.yMax - surface.yMin;
-          const style: React.CSSProperties = {
-            left: `${surface.xMin - 3}%`,
-            width: `${surface.xMax - surface.xMin + 6}%`,
-            top: isStanding ? `calc(${surface.yMin}% - ${ZONE_TOP_PAD_CQW}cqw)` : `${surface.yMin - 4}%`,
-            height: isStanding ? `calc(${height}% + ${ZONE_TOP_PAD_CQW + 1}cqw)` : `${height + 8}%`,
-          };
-          const className = `absolute z-[25] rounded-2xl border-[0.4cqw] border-dashed motion-safe:animate-pulse ${palette.highlightClass}`;
-          return placingKind && isInteractive ? (
-            <button
-              key={surface.id}
-              type="button"
-              className={`${className} focus-visible:outline focus-visible:outline-2`}
-              style={style}
-              aria-label={`להניח כאן: ${SURFACE_LABELS_HE[surface.id] ?? ''}`}
-              onClick={(event) => handleZoneClick(event, surface.id)}
-            />
-          ) : (
-            <span key={surface.id} className={`${className} pointer-events-none`} style={style} aria-hidden="true" />
-          );
-        })}
+      {zoneSurfaces.map((surface) => {
+        const isStanding = STANDING_KINDS.includes(surface.kind);
+        const height = surface.yMax - surface.yMin;
+        const style: React.CSSProperties = {
+          left: `${surface.xMin - 3}%`,
+          width: `${surface.xMax - surface.xMin + 6}%`,
+          top: isStanding ? `calc(${surface.yMin}% - ${ZONE_TOP_PAD_CQW}cqw)` : `${surface.yMin - 4}%`,
+          height: isStanding ? `calc(${height}% + ${ZONE_TOP_PAD_CQW + 1}cqw)` : `${height + 8}%`,
+        };
+        const className = `absolute z-[25] rounded-2xl border-[0.4cqw] border-dashed motion-safe:animate-pulse ${palette.highlightClass}`;
+        return placingKind && isInteractive ? (
+          <button
+            key={surface.id}
+            type="button"
+            className={`${className} focus-visible:outline focus-visible:outline-2`}
+            style={style}
+            aria-label={`להניח כאן: ${SURFACE_LABELS_HE[surface.id] ?? ''}`}
+            onClick={(event) => handleZoneClick(event, surface.id)}
+          />
+        ) : (
+          <span key={surface.id} className={`${className} pointer-events-none`} style={style} aria-hidden="true" />
+        );
+      })}
 
       {/* Placed items */}
       {entries.map((entry) => {
@@ -212,9 +218,13 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
         const isMoving = drag?.key === entry.key;
         const point = isMoving ? drag.point : entry.point;
         const isStanding = STANDING_KINDS.includes(kind);
-        const size = entry.width * getDepthScale(kind, point.y);
+        const size = entry.width * getDepthScale(kind, point.y, geometry);
         const isDesk = entry.key === `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`;
-        const bounds = getBounds(entry.item, isDesk);
+        const baseBounds = getBounds(entry.item, isDesk);
+        // A turned item is mirrored, so its feet and shadow mirror with it
+        const bounds = entry.isFlipped
+          ? { ...baseBounds, left: 1 - baseBounds.right, right: 1 - baseBounds.left }
+          : baseBounds;
         // The picture's box is bigger than the drawn object: the feet are the object's visible bottom
         const padBottom = (1 - bounds.bottom) * size;
         const footprint = (bounds.right - bounds.left) * size;
@@ -244,11 +254,16 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
               className={`relative flex justify-center leading-none ${isMoving ? 'scale-110 drop-shadow-lg' : 'drop-shadow-sm'}`}
               style={{ fontSize: `${size}cqw`, ...(isDesk ? {} : { height: `${size}cqw` }) }}
             >
-              {isDesk ? (
-                <img src={entry.item.imageUrl} alt="" draggable={false} className="block w-full h-auto" />
-              ) : (
-                <ItemIcon item={entry.item} size={`${size}cqw`} />
-              )}
+              <span
+                className={`${isDesk ? 'block w-full' : 'inline-flex'} motion-safe:transition-transform motion-safe:duration-300`}
+                style={entry.isFlipped ? { transform: 'scaleX(-1)' } : undefined}
+              >
+                {isDesk ? (
+                  <img src={entry.item.imageUrl} alt="" draggable={false} className="block w-full h-auto" />
+                ) : (
+                  <ItemIcon item={entry.item} size={`${size}cqw`} />
+                )}
+              </span>
             </span>
           </>
         );

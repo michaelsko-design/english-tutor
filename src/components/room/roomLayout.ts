@@ -1,4 +1,5 @@
 import { RoomSlotKind } from '../../data/room';
+import { LEGACY_GEOMETRY, RoomGeometry, ShelfLine, floorEdgeY } from '../../data/roomGeometry';
 import { ThemeId } from '../../types/learner';
 
 import type { ScenePoint } from '../../data/roomPlacement';
@@ -38,19 +39,61 @@ export const FURNITURE_PIECES: FurniturePiece[] = [
   { id: 'board', src: '/art/room/board.webp', x: 80, y: 30, width: 22, anchorY: 0.5 },
 ];
 
+/** The furniture sprites a theme's room shows: placed on the shelf lines, the sill and the board of its geometry. */
+export function getFurniturePieces(geometry: RoomGeometry): FurniturePiece[] {
+  if (geometry.isLegacy) return FURNITURE_PIECES;
+  const shelfSprites: Record<ShelfLine['id'], Pick<FurniturePiece, 'src' | 'anchorY'>> = {
+    'shelf-high': { src: '/art/room/shelf-short.webp', anchorY: 0.25 },
+    'shelf-low': { src: '/art/room/shelf-long.webp', anchorY: 0.25 },
+    'window-sill': { src: '/art/room/sill.webp', anchorY: 0.2 },
+  };
+  const shelves = geometry.shelves.map((shelf) => ({
+    id: shelf.id,
+    ...shelfSprites[shelf.id],
+    x: (shelf.xMin + shelf.xMax) / 2,
+    y: shelf.y,
+    width: (shelf.xMax - shelf.xMin) * SPRITE_WIDTH_OF_SHELF,
+  }));
+  const { board } = geometry;
+  return [
+    ...shelves,
+    {
+      id: 'board',
+      src: '/art/room/board.webp',
+      x: (board.xMin + board.xMax) / 2,
+      y: (board.yMin + board.yMax) / 2,
+      width: (board.xMax - board.xMin) * SPRITE_WIDTH_OF_BOARD,
+      anchorY: 0.5,
+    },
+  ];
+}
+
+/** A sprite is drawn a bit wider than the stretch of surface items can stand on. */
+const SPRITE_WIDTH_OF_SHELF = 1.3;
+const SPRITE_WIDTH_OF_BOARD = 1.4;
+
 /** Kinds whose items stand on their surface (anchored at their feet); the others hang. */
 export const STANDING_KINDS: RoomSlotKind[] = ['shelf', 'desk', 'floor'];
 
-export const AVATAR_HOME: ScenePoint = { x: 50, y: 68 };
+export const AVATAR_HOME: ScenePoint = LEGACY_GEOMETRY.avatarHome;
+
+const AVATAR_BESIDE_ITEM = 9;
+const AVATAR_BELOW_WALL_ITEM = 10;
+const AVATAR_FROM_BASEBOARD = 4;
 
 /** The avatar stands on the floor next to whatever it walks to. */
-export function getStandingPoint(target: ScenePoint): ScenePoint {
-  const isOnFloor = target.y >= 62;
-  const x = isOnFloor ? target.x + (target.x > 50 ? -9 : 9) : target.x;
-  return {
-    x: Math.min(92, Math.max(8, x)),
-    y: Math.min(80, Math.max(66, target.y)),
-  };
+export function getStandingPoint(target: ScenePoint, geometry: RoomGeometry = LEGACY_GEOMETRY): ScenePoint {
+  if (geometry.isLegacy) {
+    const isOnFloor = target.y >= 62;
+    const x = isOnFloor ? target.x + (target.x > 50 ? -9 : 9) : target.x;
+    return { x: Math.min(92, Math.max(8, x)), y: Math.min(80, Math.max(66, target.y)) };
+  }
+  const isOnFloor = target.y >= floorEdgeY(geometry, target.x);
+  const beside = target.x + (target.x > geometry.cornerX ? -AVATAR_BESIDE_ITEM : AVATAR_BESIDE_ITEM);
+  const x = Math.min(92, Math.max(8, isOnFloor ? beside : target.x));
+  const baseboard = floorEdgeY(geometry, x);
+  const wanted = isOnFloor ? target.y : baseboard + AVATAR_BELOW_WALL_ITEM;
+  return { x, y: Math.min(geometry.floorMaxY - 2, Math.max(baseboard + AVATAR_FROM_BASEBOARD, wanted)) };
 }
 
 /** Scene colours per theme, so the room matches the rest of the app. */

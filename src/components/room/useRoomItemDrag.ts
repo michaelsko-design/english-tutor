@@ -5,6 +5,7 @@ import {
   RoomLayoutContext,
   ScenePoint,
   cycleSurface,
+  getEntryMoveKinds,
   snapToSurface,
   stepPoint,
 } from '../../data/roomPlacement';
@@ -94,7 +95,7 @@ export function useRoomItemDrag({ sceneRef, layout, onMove, onTap }: UseRoomItem
     const pointer = toScene(event.clientX, event.clientY);
     if (!pointer) return;
     const raw = { x: pointer.x - current.offset.x, y: pointer.y - current.offset.y };
-    setDrag({ key: entry.key, point: snapToSurface(entry.item.slotKind, raw, optionsFor(entry)).point, source: 'pointer' });
+    setDrag({ key: entry.key, point: snapToSurface(getEntryMoveKinds(entry.key, entry.item), raw, optionsFor(entry)).point, source: 'pointer' });
   };
 
   const onPointerUp = (entry: PlacedRoomEntry) => {
@@ -115,7 +116,7 @@ export function useRoomItemDrag({ sceneRef, layout, onMove, onTap }: UseRoomItem
   };
 
   const getKeyboardTarget = (entry: PlacedRoomEntry, event: React.KeyboardEvent): ScenePoint | null => {
-    const kind = entry.item.slotKind;
+    const kind = getEntryMoveKinds(entry.key, entry.item);
     const point = drag?.key === entry.key ? drag.point : entry.point;
     const step = event.shiftKey ? KEY_STEP_BIG : KEY_STEP;
     const options = optionsFor(entry);
@@ -168,7 +169,7 @@ export function useRoomItemDrag({ sceneRef, layout, onMove, onTap }: UseRoomItem
   const getAnnouncement = (entries: PlacedRoomEntry[]): string => {
     const moving = drag && entries.find((entry) => entry.key === drag.key);
     if (!moving || drag.source !== 'keyboard') return '';
-    const surface = snapToSurface(moving.item.slotKind, drag.point, optionsFor(moving)).surface;
+    const surface = snapToSurface(getEntryMoveKinds(moving.key, moving.item), drag.point, optionsFor(moving)).surface;
     return `${moving.item.nameHe}: ${SURFACE_LABELS_HE[surface.id] ?? ''}`;
   };
 

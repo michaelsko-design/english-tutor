@@ -17,9 +17,11 @@ import {
   placeRoomItemAt,
   snapToSurface,
   stepPoint,
+  toggleRoomItemFlip,
 } from './roomPlacement';
 import { ROOM_NAMING_XP, ROOM_SLOTS, RoomSlotKind, getUnplacedRoomItems, removeRoomItem } from './room';
-import { LearnerProfile } from '../types/learner';
+import { LearnerProfile, ThemeId } from '../types/learner';
+import { floorEdgeY, getRoomGeometry } from './roomGeometry';
 
 const NOW = new Date('2026-10-17T10:00:00.000Z');
 
@@ -53,6 +55,73 @@ describe('surfaces', () => {
       expect(s.yMax).toBeLessThanOrEqual(100);
       expect(s.xMin).toBeLessThanOrEqual(s.xMax);
       expect(s.yMin).toBeLessThanOrEqual(s.yMax);
+    });
+  });
+});
+
+describe('themed room geometry', () => {
+  const THEMES: ThemeId[] = ['cozy-studio', 'neon-pop', 'starlight-rpg', 'focus-desk', 'urban-night', 'travel-journal'];
+  const themed = (themeId: ThemeId) => ({ ...baseProfile, themeId }) as LearnerProfile;
+
+  it('falls back to the original room for a profile without a themed room', () => {
+    expect(getRoomGeometry(undefined).isLegacy).toBe(true);
+    expect(getRoomLayout(baseProfile).geometry.isLegacy).toBe(true);
+  });
+
+  THEMES.forEach((themeId) => {
+    describe(themeId, () => {
+      const geometry = getRoomGeometry(themeId);
+      const layout = getRoomLayout(themed(themeId));
+
+      it('has a baseboard line across the whole room, with the corner inside it', () => {
+        expect(geometry.isLegacy).toBeFalsy();
+        expect(geometry.floorEdge[0].x).toBe(0);
+        expect(geometry.floorEdge[geometry.floorEdge.length - 1].x).toBe(100);
+        expect(geometry.cornerX).toBeGreaterThan(30);
+        expect(geometry.cornerX).toBeLessThan(70);
+      });
+
+      it('keeps every surface inside the scene', () => {
+        KINDS.forEach((kind) =>
+          getSurfaces(kind, layout).forEach((s) => {
+            expect(s.xMin).toBeGreaterThanOrEqual(0);
+            expect(s.xMax).toBeLessThanOrEqual(100);
+            expect(s.yMax).toBeLessThanOrEqual(100);
+            expect(s.xMin).toBeLessThanOrEqual(s.xMax);
+            expect(s.yMin).toBeLessThanOrEqual(s.yMax);
+          })
+        );
+      });
+
+      it('never lets floor items stand above the baseboard, wherever they are dropped', () => {
+        [0, 12, 30, 50, 70, 88, 100].forEach((x) => {
+          [0, 50, 100].forEach((y) => {
+            const { point } = snapToSurface('floor', { x, y }, { layout, width: 8 });
+            expect(point.y, `${x},${y}`).toBeGreaterThanOrEqual(floorEdgeY(geometry, point.x));
+            expect(point.y).toBeLessThanOrEqual(100);
+          });
+        });
+      });
+
+      it('puts every default mission object on the floor, the phone on the desk top', () => {
+        const entries = getPlacedRoomEntries(themed(themeId));
+        ['bed', 'wardrobe', 'desk', 'games-book'].forEach((id) => {
+          const entry = entries.find((e) => e.key === `object:${id}`)!;
+          expect(entry.item.slotKind, id).toBe('floor');
+          expect(entry.point.y, id).toBeGreaterThanOrEqual(floorEdgeY(geometry, entry.point.x));
+        });
+        const phone = entries.find((e) => e.key === 'object:phone')!;
+        expect(phone.item.slotKind).toBe('desk');
+        expect(phone.point.y).toBeCloseTo(getDeskTopPoint(layout.deskPoint, geometry).y);
+      });
+
+      it('makes floor items smaller far back and bigger near the front', () => {
+        const far = getDepthScale('floor', geometry.floorMinY, geometry);
+        const near = getDepthScale('floor', geometry.floorMaxY, geometry);
+        expect(far).toBeLessThan(near);
+        expect(far).toBeCloseTo(0.85);
+        expect(near).toBeCloseTo(1.1);
+      });
     });
   });
 });
@@ -232,7 +301,8 @@ describe('mission objects and the desk', () => {
     const moved = moveRoomObject(withLamp, 'desk', { x: 40, y: 85 }, NOW);
     const desk = findEntry(moved, 'object:desk')!.point;
     const dx = desk.x - DEFAULT_DESK_POINT.x;
-    const dy = desk.y - DEFAULT_DESK_POINT.y;
+    // The desk top moves a little less than the desk's feet (the desk is drawn bigger further down)
+    const dy = getDeskTopPoint(desk).y - getDeskTopPoint(DEFAULT_DESK_POINT).y;
     expect(findEntry(moved, 'room-lamp')!.point.x).toBeCloseTo(lampBefore.x + dx);
     expect(findEntry(moved, 'room-lamp')!.point.y).toBeCloseTo(lampBefore.y + dy);
     expect(findEntry(moved, 'object:phone')!.point.y).toBeCloseTo(phoneBefore.y + dy);
@@ -243,6 +313,83 @@ describe('mission objects and the desk', () => {
     expect(findEntry(moveRoomEntry(baseProfile, 'object:wardrobe', { x: 70, y: 90 }, NOW), 'object:wardrobe')?.point.y).toBe(90);
     expect(moveRoomEntry(baseProfile, 'nope', { x: 10, y: 10 }, NOW)).toBe(baseProfile);
     expect(moveRoomEntry(baseProfile, 'object:nope', { x: 10, y: 10 }, NOW)).toBe(baseProfile);
+  });
+
+  describe('the games book', () => {
+    const deskTop = getDeskTopPoint(DEFAULT_DESK_POINT);
+    const onDesk = moveRoomObject(baseProfile, 'games-book', deskTop, NOW);
+
+    it('stands on the floor by default', () => {
+      expect(findEntry(baseProfile, 'object:games-book')?.item.slotKind).toBe('floor');
+    });
+
+    it('can be put on the desk top, where it counts as a desk item', () => {
+      const entry = findEntry(onDesk, 'object:games-book')!;
+      expect(entry.item.slotKind).toBe('desk');
+      expect(entry.point.y).toBeCloseTo(deskTop.y);
+      expect(Math.abs(entry.point.x - deskTop.x)).toBeLessThanOrEqual(9);
+    });
+
+    it('goes back to the floor when it is dropped there', () => {
+      const entry = findEntry(moveRoomObject(onDesk, 'games-book', { x: 30, y: 90 }, NOW), 'object:games-book')!;
+      expect(entry.item.slotKind).toBe('floor');
+      expect(entry.point.y).toBe(90);
+    });
+
+    it('moves with the desk and stays on it', () => {
+      const moved = moveRoomObject(onDesk, 'desk', { x: 40, y: 85 }, NOW);
+      const desk = findEntry(moved, 'object:desk')!.point;
+      const book = findEntry(moved, 'object:games-book')!;
+      expect(book.item.slotKind).toBe('desk');
+      expect(book.point.y).toBeCloseTo(getDeskTopPoint(desk).y);
+    });
+
+    it('does not let other objects onto the desk', () => {
+      const entry = findEntry(moveRoomObject(baseProfile, 'bed', deskTop, NOW), 'object:bed')!;
+      expect(entry.item.slotKind).toBe('floor');
+    });
+  });
+
+  describe('rotating big items', () => {
+    const withSofa = placeRoomItemAt(baseProfile, 'room-sofa', { x: 40, y: 84 }, NOW);
+
+    it('marks only furniture with a front and a side as rotatable', () => {
+      ['room-sofa', 'object:bed', 'object:wardrobe', 'object:desk'].forEach((key) =>
+        expect(findEntry(key === 'room-sofa' ? withSofa : baseProfile, key)?.canRotate, key).toBe(true)
+      );
+      expect(findEntry(baseProfile, 'object:phone')?.canRotate).toBe(false);
+      expect(findEntry(placeRoomItemAt(baseProfile, 'room-books', { x: 17, y: 30 }, NOW), 'room-books')?.canRotate).toBe(false);
+    });
+
+    it('turns a rotatable item and turns it back', () => {
+      const turned = toggleRoomItemFlip(withSofa, 'room-sofa', NOW);
+      expect(findEntry(turned, 'room-sofa')?.isFlipped).toBe(true);
+      expect(turned.room?.updatedAt).toBe(NOW.toISOString());
+      expect(findEntry(toggleRoomItemFlip(turned, 'room-sofa', NOW), 'room-sofa')?.isFlipped).toBe(false);
+    });
+
+    it('turns mission objects and the desk too', () => {
+      expect(findEntry(toggleRoomItemFlip(baseProfile, 'object:bed', NOW), 'object:bed')?.isFlipped).toBe(true);
+      expect(findEntry(toggleRoomItemFlip(baseProfile, 'object:desk', NOW), 'object:desk')?.isFlipped).toBe(true);
+    });
+
+    it('leaves items that cannot rotate, and unknown keys, unchanged', () => {
+      expect(toggleRoomItemFlip(baseProfile, 'object:phone', NOW)).toBe(baseProfile);
+      expect(toggleRoomItemFlip(baseProfile, 'nope', NOW)).toBe(baseProfile);
+    });
+
+    it('keeps the turn when the item moves and forgets it when the item goes back to the box', () => {
+      const turned = toggleRoomItemFlip(withSofa, 'room-sofa', NOW);
+      expect(findEntry(moveRoomEntry(turned, 'room-sofa', { x: 70, y: 88 }, NOW), 'room-sofa')?.isFlipped).toBe(true);
+      const removed = removeRoomItem(turned, 'room-sofa', NOW);
+      expect(removed.room?.flips ?? {}).not.toHaveProperty('room-sofa');
+    });
+  });
+
+  it('snaps to the nearest surface across several kinds', () => {
+    const top = getDeskTopPoint(DEFAULT_DESK_POINT);
+    expect(snapToSurface(['floor', 'desk'], { x: top.x, y: top.y - 1 }).surface.kind).toBe('desk');
+    expect(snapToSurface(['floor', 'desk'], { x: 30, y: 90 }).surface.kind).toBe('floor');
   });
 
   it('keeps object positions when an item is placed or removed', () => {

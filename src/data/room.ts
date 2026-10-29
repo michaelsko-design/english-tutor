@@ -192,13 +192,29 @@ export function placeRoomItem(
   };
 }
 
+/** The turned placement keys that `isKept` accepts (plus `extraKey`), or undefined when none is left. */
+export function pickFlips(
+  flips: Record<string, true> | undefined,
+  isKept: (key: string) => boolean,
+  extraKey?: string
+): Record<string, true> | undefined {
+  const kept: Record<string, true> = Object.fromEntries(
+    Object.keys(flips ?? {})
+      .filter(isKept)
+      .map((key) => [key, true as const])
+  );
+  const all = extraKey ? { ...kept, [extraKey]: true as const } : kept;
+  return Object.keys(all).length > 0 ? all : undefined;
+}
+
 /** Takes the item out of its slot or position (the placement key) and back to the inventory. */
 export function removeRoomItem(profile: LearnerProfile, placementKey: string, now: Date): LearnerProfile {
   const room = getRoom(profile);
   if (!(placementKey in room.placements)) return profile;
   const placements = Object.fromEntries(Object.entries(room.placements).filter(([id]) => id !== placementKey));
   const positions = Object.fromEntries(Object.entries(room.positions ?? {}).filter(([id]) => id !== placementKey));
-  return { ...profile, room: { ...room, placements, positions, updatedAt: now.toISOString() } };
+  const flips = pickFlips(room.flips, (id) => id !== placementKey);
+  return { ...profile, room: { ...room, placements, positions, flips, updatedAt: now.toISOString() } };
 }
 
 /** Records that the learner said or spelled the item's name; the first time earns XP. */

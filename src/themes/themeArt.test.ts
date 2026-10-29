@@ -20,6 +20,7 @@ describe('buildThemeArt', () => {
     expect(art.mapBg).toBe('/art/starlight-rpg/map-bg.webp');
     expect(art.homeScene).toBe('/art/starlight-rpg/home-scene.webp');
     expect(art.roomBg).toBe('/art/starlight-rpg/room-bg.webp');
+    expect(art.roomCorner).toBe('/art/starlight-rpg/room-corner.webp');
   });
 
   it('has a world map path for the theme, light and glowing on the dark themes', () => {

@@ -15,6 +15,7 @@ import {
   isObjectKey,
   moveRoomEntry,
   placeNamedRoomItemAt,
+  toggleRoomItemFlip,
 } from '../../data/roomPlacement';
 import { getAlbumStickers } from '../../data/stickers';
 import { useStickerImages } from '../../hooks/useStickerImages';
@@ -31,7 +32,8 @@ import { StickerStudioPanel } from './stickers/StickerStudioPanel';
 import { StickersLockedSheet } from './StickersLockedSheet';
 import { PhonePanel } from './PhonePanel';
 import { WardrobePanel } from './WardrobePanel';
-import { AVATAR_HOME, ScenePoint, getStandingPoint } from './roomLayout';
+import { getRoomGeometry } from '../../data/roomGeometry';
+import { ScenePoint, getStandingPoint } from './roomLayout';
 import { formatVibeGain } from '../../utils/bidi';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { Button } from '../ui/Button';
@@ -77,7 +79,8 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   const ownedItems = getOwnedRoomItems(profile);
   const placedItemIds = Object.values(room.placements);
 
-  const [avatarPos, setAvatarPos] = useState<ScenePoint>(AVATAR_HOME);
+  const geometry = getRoomGeometry(profile.themeId);
+  const [avatarPos, setAvatarPos] = useState<ScenePoint>(geometry.avatarHome);
   const [isFacingLeft, setIsFacingLeft] = useState(false);
   const [bubble, setBubble] = useState<SceneBubble | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -99,7 +102,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
 
   /** Moves the avatar next to `target`, then runs `onArrive` once it gets there. */
   const walkTo = (target: ScenePoint, onArrive: () => void) => {
-    const standAt = getStandingPoint(target);
+    const standAt = getStandingPoint(target, geometry);
     window.clearTimeout(walkTimer.current);
     setBubble(null);
     setIsFacingLeft(standAt.x < avatarPos.x);
@@ -167,14 +170,28 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     setMoveRequestKey(key);
   };
 
+  /** The turn button: the big item faces the other wall (its picture mirrors). */
+  const handleRotate = (key: string) => {
+    onUpdateProfile(toggleRoomItemFlip(profile, key, new Date()));
+    setBubble(null);
+  };
+
+  /** Big mission objects (bed, wardrobe, desk) keep the rotate button next to them after a tap. */
+  const getObjectFocusKey = (objectId: string): string | null => {
+    const key = `object:${objectId}`;
+    return entries.find((entry) => entry.key === key)?.canRotate ? key : null;
+  };
+
   const handleTapObject = (objectId: string, point: ScenePoint) => {
     const object = ROOM_OBJECTS.find((o) => o.id === objectId);
     if (!object) {
+      setSelectedItemId(null);
+      setFocusedKey(getObjectFocusKey(objectId));
       walkTo(point, () => setBubble({ at: point, textEn: 'desk', textHe: 'שולחן' }));
       return;
     }
     setSelectedItemId(null);
-    setFocusedKey(null);
+    setFocusedKey(getObjectFocusKey(objectId));
     setStatusText(null);
     setActivePanel(null);
     walkTo(point, () => {
@@ -220,7 +237,8 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     setBubble(null);
   };
 
-  const focusedItem = focusedKey ? getRoomItemFor(profile, room.placements[focusedKey]) : undefined;
+  const focusedEntry = focusedKey ? entries.find((entry) => entry.key === focusedKey) : undefined;
+  const focusedItem = focusedEntry?.item;
   const namingItem = naming ? getRoomItemFor(profile, naming.itemId) : undefined;
 
   const header = (
@@ -277,9 +295,22 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
             <Button theme={theme} variant="secondary" size="sm" onClick={() => handleStartMove(focusedKey)}>
               🔀 הזזה ({focusedItem.nameEn})
             </Button>
-            <Button theme={theme} variant="secondary" size="sm" onClick={() => handleRemove(focusedKey)}>
-              📦 החזרה לארגז
-            </Button>
+            {focusedEntry?.canRotate && (
+              <Button
+                theme={theme}
+                variant="secondary"
+                size="sm"
+                onClick={() => handleRotate(focusedKey)}
+                aria-label="סיבוב הפריט"
+              >
+                <EmojiIcon emoji="🔄" size="1.25rem" />
+              </Button>
+            )}
+            {!isObjectKey(focusedKey) && (
+              <Button theme={theme} variant="secondary" size="sm" onClick={() => handleRemove(focusedKey)}>
+                📦 החזרה לארגז
+              </Button>
+            )}
           </div>
         )}
 

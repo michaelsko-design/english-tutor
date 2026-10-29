@@ -49,8 +49,10 @@ export interface ThemeArt {
   mapPath: MapPathStyle;
   /** Home base hero scene (Feature 27), 1200px wide */
   homeScene: string;
-  /** English Room background, 1600px wide */
+  /** English Room background, 1600px wide (the first, front-on room picture) */
   roomBg: string;
+  /** English Room corner picture, 4:3, 1280px wide: the room the placement geometry (roomGeometry.ts) is measured on */
+  roomCorner: string;
 }
 
 export const COMMON_ART_NAMES = ['chest-closed', 'chest-open', 'boss-locked', 'boss-open', 'level-badge'] as const;
@@ -160,6 +162,7 @@ export function buildThemeArt(themeId: ThemeId): ThemeArt {
     mapPath: MAP_PATH_BY_THEME[themeId],
     homeScene: `${ART_ROOT}/${themeId}/home-scene.webp`,
     roomBg: `${ART_ROOT}/${themeId}/room-bg.webp`,
+    roomCorner: `${ART_ROOT}/${themeId}/room-corner.webp`,
   };
 }
 

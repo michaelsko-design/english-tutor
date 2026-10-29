@@ -264,6 +264,8 @@ export interface LearnerRoom {
   placements: Record<string, string>;
   /** Placement key -> point in the scene (% of its width and height); a placement without one sits at its old slot's default point */
   positions?: Record<string, { x: number; y: number }>;
+  /** Placement keys of big items turned to face the other wall (the picture is mirrored); saved and merged with the layout */
+  flips?: Record<string, true>;
   /** Maps wardrobe layer -> worn wardrobe item id; saved with the layout */
   outfit?: Record<string, string>;
   dressUpDay?: DressUpDay;

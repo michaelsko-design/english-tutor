@@ -90,8 +90,8 @@ describe('pickable themes and mascots', () => {
     expect(LANDMARK_IDS.length).toBeGreaterThan(50);
     const toFile = (url: string) => join(process.cwd(), 'public', url);
     for (const id of THEME_IDS.filter((t) => THEME_BASES[t].isReleased)) {
-      const { mapBg, homeScene, roomBg } = THEME_BASES[id].art;
-      for (const url of [mapBg, homeScene, roomBg]) expect(existsSync(toFile(url)), url).toBe(true);
+      const { mapBg, homeScene, roomBg, roomCorner } = THEME_BASES[id].art;
+      for (const url of [mapBg, homeScene, roomBg, roomCorner]) expect(existsSync(toFile(url)), url).toBe(true);
     }
     for (const id of THEME_IDS.filter((t) => THEME_BASES[t].isReleased)) {
       const theme = THEME_BASES[id];

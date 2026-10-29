@@ -1,4 +1,5 @@
 import { LearnerProfile } from '../types/learner';
+import { LEGACY_GEOMETRY, RoomGeometry, getFixedSurfaces, getRoomGeometry } from './roomGeometry';
 import {
   ROOM_OBJECTS,
   RoomItem,
@@ -7,6 +8,7 @@ import {
   getOwnedRoomItems,
   getRoom,
   getRoomItemFor,
+  pickFlips,
 } from './room';
 
 /**
@@ -36,11 +38,14 @@ export interface RoomSurface {
   xMax: number;
   yMin: number;
   yMax: number;
+  /** Floor only: the smallest feet y at `x` (the baseboard line, which is not level in a corner room) */
+  minYAt?: (x: number) => number;
 }
 
-/** Where the movable desk is: its top is a surface for the small items (kind `desk`). */
+/** What the room looks like: where its desk is (its top is a surface for small items) and its theme's geometry. */
 export interface RoomLayoutContext {
   deskPoint: ScenePoint;
+  geometry: RoomGeometry;
 }
 
 export const SCENE_ASPECT = 4 / 3;
@@ -50,16 +55,18 @@ const CQW_TO_HEIGHT_PERCENT = SCENE_ASPECT;
 export const OBJECT_KEY_PREFIX = 'object:';
 export const DESK_OBJECT_ID = 'desk';
 
-/** Fixed surfaces (the desk top depends on the desk, see getSurfaces). */
-export const ROOM_SURFACES: RoomSurface[] = [
-  { id: 'wall-left', kind: 'wall', xMin: 7, xMax: 30, yMin: 8, yMax: 17 },
-  { id: 'wall-right', kind: 'wall', xMin: 70, xMax: 93, yMin: 8, yMax: 17 },
-  { id: 'board', kind: 'board', xMin: 72, xMax: 88, yMin: 25, yMax: 34 },
-  { id: 'shelf-high', kind: 'shelf', xMin: 8, xMax: 26, yMin: 30, yMax: 30 },
-  { id: 'shelf-low', kind: 'shelf', xMin: 8, xMax: 26, yMin: 43, yMax: 43 },
-  { id: 'window-sill', kind: 'shelf', xMin: 37, xMax: 53, yMin: 52, yMax: 52 },
-  { id: 'floor', kind: 'floor', xMin: 8, xMax: 92, yMin: 74, yMax: 92 },
-];
+/** Fixed surfaces of the original room (the desk top depends on the desk, see getSurfaces). */
+export const ROOM_SURFACES: RoomSurface[] = getFixedSurfaces(LEGACY_GEOMETRY);
+
+const fixedSurfacesCache = new WeakMap<RoomGeometry, RoomSurface[]>();
+
+function fixedSurfacesOf(geometry: RoomGeometry): RoomSurface[] {
+  const cached = fixedSurfacesCache.get(geometry);
+  if (cached) return cached;
+  const surfaces = getFixedSurfaces(geometry);
+  fixedSurfacesCache.set(geometry, surfaces);
+  return surfaces;
+}
 
 /** Item width per id, in container-width units (the depth scale is applied on top). */
 const ITEM_WIDTHS: Record<string, number> = {
@@ -89,35 +96,33 @@ export function getItemWidth(item: Pick<RoomItem, 'id' | 'slotKind'>): number {
 const DESK_ASPECT = 153 / 264;
 const DESK_TOP_ANCHOR = 0.3;
 const DESK_TOP_HALF_WIDTH = 9;
-export const DEFAULT_DESK_POINT: ScenePoint = { x: 66, y: 80 };
+export const DEFAULT_DESK_POINT: ScenePoint = LEGACY_GEOMETRY.defaults.desk;
 
 const FLOOR_SCALE_FAR = 0.85;
 const FLOOR_SCALE_NEAR = 1.1;
-const FLOOR_Y_MIN = 74;
-const FLOOR_Y_MAX = 92;
 
 /** Floor items are drawn a little smaller further back (higher up) in the room. */
-export function getDepthScale(kind: RoomSlotKind, y: number): number {
+export function getDepthScale(kind: RoomSlotKind, y: number, geometry: RoomGeometry = LEGACY_GEOMETRY): number {
   if (kind !== 'floor') return 1;
-  const depth = (y - FLOOR_Y_MIN) / (FLOOR_Y_MAX - FLOOR_Y_MIN);
+  const depth = (y - geometry.floorMinY) / (geometry.floorMaxY - geometry.floorMinY);
   return FLOOR_SCALE_FAR + (FLOOR_SCALE_NEAR - FLOOR_SCALE_FAR) * Math.min(1, Math.max(0, depth));
 }
 
 /** Scene point of the middle of the desk top, for a desk standing with its feet at `desk`. */
-export function getDeskTopPoint(desk: ScenePoint): ScenePoint {
-  const width = getItemWidth({ id: 'object:desk', slotKind: 'floor' }) * getDepthScale('floor', desk.y);
+export function getDeskTopPoint(desk: ScenePoint, geometry: RoomGeometry = LEGACY_GEOMETRY): ScenePoint {
+  const width = getItemWidth({ id: 'object:desk', slotKind: 'floor' }) * getDepthScale('floor', desk.y, geometry);
   const heightPercent = width * DESK_ASPECT * CQW_TO_HEIGHT_PERCENT;
   return { x: desk.x, y: desk.y - heightPercent * (1 - DESK_TOP_ANCHOR) };
 }
 
-export const DEFAULT_LAYOUT: RoomLayoutContext = { deskPoint: DEFAULT_DESK_POINT };
+export const DEFAULT_LAYOUT: RoomLayoutContext = { deskPoint: DEFAULT_DESK_POINT, geometry: LEGACY_GEOMETRY };
 
 export function getSurfaces(kind: RoomSlotKind, layout: RoomLayoutContext = DEFAULT_LAYOUT): RoomSurface[] {
   if (kind === 'desk') {
-    const top = getDeskTopPoint(layout.deskPoint);
+    const top = getDeskTopPoint(layout.deskPoint, layout.geometry);
     return [{ id: 'desk-top', kind, xMin: top.x - DESK_TOP_HALF_WIDTH, xMax: top.x + DESK_TOP_HALF_WIDTH, yMin: top.y, yMax: top.y }];
   }
-  return ROOM_SURFACES.filter((surface) => surface.kind === kind);
+  return fixedSurfacesOf(layout.geometry).filter((surface) => surface.kind === kind);
 }
 
 /** Default point of each old fixed slot, so placements made before free placement keep their spot. */
@@ -137,13 +142,14 @@ export const LEGACY_SLOT_POINTS: Record<string, ScenePoint> = {
 
 /** Where the mission objects and the desk stand until they are moved (the phone lies on the desk). */
 function getDefaultObjectPoint(objectId: string, layout: RoomLayoutContext): ScenePoint {
-  const top = getDeskTopPoint(layout.deskPoint);
+  const { defaults } = layout.geometry;
+  const top = getDeskTopPoint(layout.deskPoint, layout.geometry);
   const points: Record<string, ScenePoint> = {
-    bed: { x: 17, y: 82 },
-    wardrobe: { x: 85, y: 80 },
-    'games-book': { x: 40, y: 91 },
+    bed: defaults.bed,
+    wardrobe: defaults.wardrobe,
+    'games-book': defaults.gamesBook,
     phone: { x: top.x + 4, y: top.y },
-    [DESK_OBJECT_ID]: DEFAULT_DESK_POINT,
+    [DESK_OBJECT_ID]: defaults.desk,
   };
   return points[objectId] ?? { x: 50, y: 85 };
 }
@@ -155,6 +161,39 @@ const OBJECT_KINDS: Record<string, RoomSlotKind> = {
   phone: 'desk',
   [DESK_OBJECT_ID]: 'floor',
 };
+
+/** Surfaces an object may also stand on besides its own kind: the games book can lie on the desk. */
+const OBJECT_EXTRA_KINDS: Record<string, RoomSlotKind[]> = { 'games-book': ['desk'] };
+
+/** Every kind of surface a mission object can be put on (its own first). */
+export function getObjectMoveKinds(objectId: string): RoomSlotKind[] {
+  const own = OBJECT_KINDS[objectId];
+  return own ? [own, ...(OBJECT_EXTRA_KINDS[objectId] ?? [])] : [];
+}
+
+/** The kinds the entry can be moved between: placed items have one, some mission objects two. */
+export function getEntryMoveKinds(key: string, item: Pick<RoomItem, 'slotKind'>): RoomSlotKind[] {
+  const kinds = isObjectKey(key) ? getObjectMoveKinds(getObjectIdFromKey(key)) : [];
+  return kinds.length > 0 ? kinds : [item.slotKind];
+}
+
+const ON_SURFACE_TOLERANCE = 0.75;
+
+function isOnSurface(surface: RoomSurface, point: ScenePoint): boolean {
+  return (
+    point.x >= surface.xMin - ON_SURFACE_TOLERANCE &&
+    point.x <= surface.xMax + ON_SURFACE_TOLERANCE &&
+    point.y >= surface.yMin - ON_SURFACE_TOLERANCE &&
+    point.y <= surface.yMax + ON_SURFACE_TOLERANCE
+  );
+}
+
+/** The kind of surface an object stands on at `point`: an object that has extra kinds follows its position. */
+function getObjectKindAt(objectId: string, point: ScenePoint, layout: RoomLayoutContext): RoomSlotKind {
+  const [own, ...extras] = getObjectMoveKinds(objectId);
+  const extra = extras.find((kind) => getSurfaces(kind, layout).some((surface) => isOnSurface(surface, point)));
+  return extra ?? own;
+}
 
 const OBJECT_ITEMS: RoomItem[] = [
   ...ROOM_OBJECTS.map((object) => ({
@@ -187,23 +226,30 @@ export interface PlacementOptions {
 
 function clampToSurface(surface: RoomSurface, point: ScenePoint, width: number): ScenePoint {
   const inset = surface.kind === 'floor' ? Math.min(width / 2 + FLOOR_EDGE_MARGIN, (surface.xMax - surface.xMin) / 2) : 0;
-  return {
-    x: Math.min(surface.xMax - inset, Math.max(surface.xMin + inset, point.x)),
-    y: Math.min(surface.yMax, Math.max(surface.yMin, point.y)),
-  };
+  const x = Math.min(surface.xMax - inset, Math.max(surface.xMin + inset, point.x));
+  const yMin = Math.max(surface.yMin, surface.minYAt?.(x) ?? surface.yMin);
+  return { x, y: Math.min(surface.yMax, Math.max(yMin, point.y)) };
 }
 
 function distance(a: ScenePoint, b: ScenePoint): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
+/** One kind of surface, or several (an item that may stand on more than one, like the games book). */
+export type KindSpec = RoomSlotKind | readonly RoomSlotKind[];
+
+function surfacesOf(kinds: KindSpec, layout?: RoomLayoutContext): RoomSurface[] {
+  const list: readonly RoomSlotKind[] = typeof kinds === 'string' ? [kinds] : kinds;
+  return list.flatMap((kind) => getSurfaces(kind, layout));
+}
+
 /** The nearest point on any surface of `kind`, and which surface it is on. */
 export function snapToSurface(
-  kind: RoomSlotKind,
+  kind: KindSpec,
   point: ScenePoint,
   options: PlacementOptions = {}
 ): { surface: RoomSurface; point: ScenePoint } {
-  const candidates = getSurfaces(kind, options.layout).map((surface) => {
+  const candidates = surfacesOf(kind, options.layout).map((surface) => {
     const snapped = clampToSurface(surface, point, options.width ?? 0);
     return { surface, point: snapped, gap: distance(snapped, point) };
   });
@@ -253,7 +299,7 @@ export function findFreePoint(
 
 /** One keyboard step from `point`, kept on the surfaces of `kind`. */
 export function stepPoint(
-  kind: RoomSlotKind,
+  kind: KindSpec,
   point: ScenePoint,
   dx: number,
   dy: number,
@@ -264,12 +310,12 @@ export function stepPoint(
 
 /** Moves to the next (`direction` 1) or previous (-1) surface of the kind, keeping x as far as it fits. */
 export function cycleSurface(
-  kind: RoomSlotKind,
+  kind: KindSpec,
   point: ScenePoint,
   direction: 1 | -1,
   options: PlacementOptions = {}
 ): ScenePoint {
-  const surfaces = [...getSurfaces(kind, options.layout)].sort((a, b) => a.yMin - b.yMin || a.xMin - b.xMin);
+  const surfaces = surfacesOf(kind, options.layout).sort((a, b) => a.yMin - b.yMin || a.xMin - b.xMin);
   const current = surfaces.findIndex((surface) => surface.id === snapToSurface(kind, point, options).surface.id);
   const target = surfaces[(current + direction + surfaces.length) % surfaces.length];
   return clampToSurface(target, point, options.width ?? 0);
@@ -282,7 +328,14 @@ export interface PlacedRoomEntry {
   point: ScenePoint;
   /** Width in container-width units, before the depth scale */
   width: number;
+  /** Turned to face the other wall (its picture is mirrored) */
+  isFlipped: boolean;
+  /** Has a front and a side, so facing either wall looks different */
+  canRotate: boolean;
 }
+
+/** Furniture that can be turned to face the other wall: room items by id, mission objects as `object:<id>`. */
+const ROTATABLE_KEYS = new Set(['room-sofa', 'room-chair', 'object:bed', 'object:wardrobe', 'object:desk']);
 
 export function isObjectKey(key: string): boolean {
   return key.startsWith(OBJECT_KEY_PREFIX);
@@ -292,31 +345,63 @@ export function getObjectIdFromKey(key: string): string {
   return key.slice(OBJECT_KEY_PREFIX.length);
 }
 
-/** The desk the learner moved to (or the default), which the desk-top surface follows. */
+/**
+ * A saved point put back inside the room of the theme the learner has now (another theme, or a new
+ * room picture, can leave it outside). The original room keeps points exactly as saved.
+ */
+function settle(kinds: KindSpec, point: ScenePoint, layout: RoomLayoutContext, width: number): ScenePoint {
+  return layout.geometry.isLegacy ? point : snapToSurface(kinds, point, { layout, width }).point;
+}
+
+/** The theme's room and the desk the learner moved to (or the default), which the desk-top surface follows. */
 export function getRoomLayout(profile: LearnerProfile): RoomLayoutContext {
+  const geometry = getRoomGeometry(profile.themeId);
   const saved = getRoom(profile).positions?.[`${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`];
-  return { deskPoint: saved ?? DEFAULT_DESK_POINT };
+  const roomOnly: RoomLayoutContext = { deskPoint: geometry.defaults.desk, geometry };
+  const deskWidth = getItemWidth({ id: `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`, slotKind: 'floor' });
+  return { ...roomOnly, deskPoint: saved ? settle('floor', saved, roomOnly, deskWidth) : geometry.defaults.desk };
 }
 
 /** Every thing in the room that can be moved: placed items, the mission objects and the desk. */
 export function getPlacedRoomEntries(profile: LearnerProfile): PlacedRoomEntry[] {
   const room = getRoom(profile);
   const layout = getRoomLayout(profile);
+  const flips = room.flips ?? {};
   const items = Object.entries(room.placements).flatMap(([key, itemId]) => {
     const item = getRoomItemFor(profile, itemId);
-    const point = room.positions?.[key] ?? LEGACY_SLOT_POINTS[key];
-    return item && point ? [{ key, item, point, width: getItemWidth(item) }] : [];
+    const saved = room.positions?.[key] ?? LEGACY_SLOT_POINTS[key];
+    if (!item || !saved) return [];
+    const width = getItemWidth(item);
+    const canRotate = ROTATABLE_KEYS.has(itemId);
+    const point = settle(item.slotKind, saved, layout, width);
+    return [{ key, item, point, width, isFlipped: canRotate && Boolean(flips[key]), canRotate }];
   });
-  const objects = OBJECT_ITEMS.map((item) => {
-    const key = `${OBJECT_KEY_PREFIX}${item.id}`;
-    return {
-      key,
-      item,
-      point: room.positions?.[key] ?? getDefaultObjectPoint(item.id, layout),
-      width: getItemWidth({ id: key, slotKind: item.slotKind }),
-    };
+  const objects = OBJECT_ITEMS.map((base) => {
+    const key = `${OBJECT_KEY_PREFIX}${base.id}`;
+    const saved = base.id === DESK_OBJECT_ID ? layout.deskPoint : room.positions?.[key] ?? getDefaultObjectPoint(base.id, layout);
+    const point = settle(getObjectMoveKinds(base.id), saved, layout, getItemWidth({ id: key, slotKind: base.slotKind }));
+    const slotKind = getObjectKindAt(base.id, point, layout);
+    const item = slotKind === base.slotKind ? base : { ...base, slotKind };
+    const canRotate = ROTATABLE_KEYS.has(key);
+    return { key, item, point, width: getItemWidth({ id: key, slotKind }), isFlipped: canRotate && Boolean(flips[key]), canRotate };
   });
   return [...items, ...objects];
+}
+
+/** Turns a big item (sofa, chair, bed, wardrobe, desk) to face the other wall, or back. Others stay as they are. */
+export function toggleRoomItemFlip(profile: LearnerProfile, key: string, now: Date): LearnerProfile {
+  const room = getRoom(profile);
+  const itemId = isObjectKey(key) ? key : room.placements[key];
+  if (!itemId || !ROTATABLE_KEYS.has(itemId)) return profile;
+  const isFlipped = Boolean(room.flips?.[key]);
+  return {
+    ...profile,
+    room: {
+      ...room,
+      flips: isFlipped ? pickFlips(room.flips, (other) => other !== key) : { ...room.flips, [key]: true },
+      updatedAt: now.toISOString(),
+    },
+  };
 }
 
 function occupantsOf(entries: PlacedRoomEntry[], kind: RoomSlotKind, exceptKey: string): Occupant[] {
@@ -350,10 +435,13 @@ export function placeRoomItemAt(
     Object.entries(room.positions ?? {}).filter(([key]) => key in placements || isObjectKey(key))
   );
   const options = { layout: getRoomLayout(profile), width: getItemWidth(item) };
+  // The turn follows the item to its new key (an old slot key becomes the item id)
+  const wasFlipped = placedKeys.some((key) => room.flips?.[key]);
   return {
     ...profile,
     room: {
       ...room,
+      flips: pickFlips(room.flips, (key) => key in placements || isObjectKey(key), wasFlipped ? itemId : undefined),
       placements: { ...placements, [itemId]: itemId },
       positions: { ...positions, [itemId]: findFreePoint(item.slotKind, point, others, options) },
       updatedAt: now.toISOString(),
@@ -368,25 +456,32 @@ export function moveRoomObject(
   point: ScenePoint,
   now: Date
 ): LearnerProfile {
-  const kind = OBJECT_KINDS[objectId];
-  if (!kind) return profile;
+  const kinds = getObjectMoveKinds(objectId);
+  if (kinds.length === 0) return profile;
   const key = `${OBJECT_KEY_PREFIX}${objectId}`;
   const entries = getPlacedRoomEntries(profile);
   const current = entries.find((entry) => entry.key === key);
   if (!current) return profile;
 
-  const width = getItemWidth({ id: key, slotKind: kind });
-  const target = findFreePoint(kind, point, occupantsOf(entries, kind, key), {
-    layout: getRoomLayout(profile),
-    width,
-  });
+  // An object with several kinds ends up on whichever of its surfaces the drop is nearest to
+  const layout = getRoomLayout(profile);
+  const [target] = kinds
+    .map((kind) =>
+      findFreePoint(kind, point, occupantsOf(entries, kind, key), {
+        layout,
+        width: getItemWidth({ id: key, slotKind: kind }),
+      })
+    )
+    .sort((a, b) => distance(a, point) - distance(b, point));
   const room = getRoom(profile);
+  // What lies on the desk stays on its top, which moves a little less than the desk's feet (depth scale)
+  const topShiftY = getDeskTopPoint(target, layout.geometry).y - getDeskTopPoint(current.point, layout.geometry).y;
   const carried =
     objectId === DESK_OBJECT_ID
       ? Object.fromEntries(
           entries
             .filter((entry) => entry.item.slotKind === 'desk')
-            .map((entry) => [entry.key, { x: entry.point.x + target.x - current.point.x, y: entry.point.y + target.y - current.point.y }])
+            .map((entry) => [entry.key, { x: entry.point.x + target.x - current.point.x, y: entry.point.y + topShiftY }])
         )
       : {};
   return {
