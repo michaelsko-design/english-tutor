@@ -29,14 +29,15 @@ function subscription(id: string, overrides: Record<string, string | number | bo
 
 function setup(docs: PlainDocument[], sendPush = vi.fn().mockResolvedValue(undefined)) {
   const deleteDocument = vi.fn().mockResolvedValue(undefined);
-  const admin = { listDocuments: vi.fn().mockResolvedValue(docs), deleteDocument } as unknown as FirestoreAdmin;
+  const commit = vi.fn().mockResolvedValue(undefined);
+  const admin = { listDocuments: vi.fn().mockResolvedValue(docs), deleteDocument, commit } as unknown as FirestoreAdmin;
   const run = (headers: Record<string, string> = { authorization: 'Bearer cron-secret' }) =>
     handleStreakReminderRequest(new Request('https://x/api/streak-reminder', { headers }), ENV, {
       nowMs: () => NOW_MS,
       createAdmin: () => admin,
       sendPush,
     });
-  return { run, sendPush, deleteDocument };
+  return { run, sendPush, deleteDocument, commit };
 }
 
 describe('streak-reminder cron', () => {
@@ -59,6 +60,15 @@ describe('streak-reminder cron', () => {
     expect(sendPush.mock.calls.map(([target]) => target.endpoint)).not.toContain('https://push.example/practised');
     expect(bodyOf('/due')).toContain('המשיכי');
     expect(bodyOf('/broken')).toContain('5 דקות');
+  });
+
+  it('logs each send for the owner dashboard and survives a logging failure', async () => {
+    const { run, commit } = setup([subscription('due'), subscription('broken', { streakLastDateStr: '2026-10-20' })]);
+    commit.mockRejectedValueOnce(new Error('down'));
+    expect(await (await run()).json()).toEqual({ sent: 2, removed: 0, failed: 0 });
+    expect(commit).toHaveBeenCalledWith([
+      { collection: 'reminderSends', id: '2026-10-27_broken', fields: { uid: 'broken', dateStr: '2026-10-27', kind: 'comeback' } },
+    ]);
   });
 
   it('deletes a subscription the push service says is gone', async () => {

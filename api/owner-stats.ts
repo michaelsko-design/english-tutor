@@ -41,7 +41,23 @@ export async function handleOwnerStatsRequest(
     const learners: LearnerRow[] = await admin.listFieldsOf('learners', LEARNER_FIELDS);
     const entitlements = await admin.listFieldsOf('entitlements', ['status', 'periodEnd']);
     const anonymousUids = await findAnonymousUids(learners.map((row) => row.id));
+    const [links, sends, subscriptions] = await Promise.all([
+      admin.listFieldsOf('parentLinks', ['parentUid', 'childUid']),
+      admin.listFieldsOf('reminderSends', ['uid', 'dateStr', 'kind']),
+      admin.listFieldsOf('pushSubscriptions', ['streakDays']),
+    ]);
     const stats = computeOwnerStats({
+      parentLinks: links.flatMap(({ fields }) =>
+        typeof fields.parentUid === 'string' && typeof fields.childUid === 'string'
+          ? [{ parentUid: fields.parentUid, childUid: fields.childUid }]
+          : []
+      ),
+      reminderSends: sends.flatMap(({ fields }) =>
+        typeof fields.uid === 'string' && typeof fields.dateStr === 'string' && (fields.kind === 'streak' || fields.kind === 'comeback')
+          ? [{ uid: fields.uid, dateStr: fields.dateStr, kind: fields.kind }]
+          : []
+      ),
+      reminderSubscribers: subscriptions.length,
       learners,
       anonymousUids,
       proChildUids: proChildUidsFrom(entitlements, now.getTime()),

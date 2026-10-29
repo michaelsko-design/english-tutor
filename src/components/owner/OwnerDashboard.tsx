@@ -9,6 +9,16 @@ const cardClass = 'rounded-2xl border border-slate-200 bg-white p-4 shadow-sm da
 
 const gradeLabel = (gradeId: string): string => gradeId.replace('grade-', 'Grade ');
 
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+/** "Thu 10-16" from a YYYY-MM-DD day */
+const dayLabel = (dateStr: string): string => {
+  const weekday = WEEKDAYS[new Date(`${dateStr}T12:00:00Z`).getUTCDay()];
+  return `${weekday} ${dateStr.slice(5)}`;
+};
+
+const percent = (share: number | null): string => (share === null ? '–' : `${Math.round(share * 100)}%`);
+
 const Tile: React.FC<{ label: string; value: string; hint?: string }> = ({ label, value, hint }) => (
   <div className={cardClass}>
     <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
@@ -17,9 +27,9 @@ const Tile: React.FC<{ label: string; value: string; hint?: string }> = ({ label
   </div>
 );
 
-const Bar: React.FC<{ value: number; max: number; label: string }> = ({ value, max, label }) => (
+const Bar: React.FC<{ value: number; max: number; label: string; note?: string }> = ({ value, max, label, note }) => (
   <div className="flex items-center gap-2 text-xs">
-    <span className="w-16 shrink-0 font-bold">{label}</span>
+    <span className="w-20 shrink-0 font-bold">{label}</span>
     <div className="h-3 flex-1 rounded-full bg-slate-100 dark:bg-slate-700">
       <div
         className="h-3 rounded-full bg-indigo-500"
@@ -27,11 +37,13 @@ const Bar: React.FC<{ value: number; max: number; label: string }> = ({ value, m
       />
     </div>
     <span className="w-10 shrink-0 text-end tabular-nums">{value}</span>
+    {note && <span className="w-16 shrink-0 text-end text-slate-500 dark:text-slate-400">{note}</span>}
   </div>
 );
 
 const StatsView: React.FC<{ stats: OwnerStats }> = ({ stats }) => {
-  const { totals, active, averages, byGrade, daily } = stats;
+  const { totals, active, averages, byGrade, daily, parents, reminders } = stats;
+  const maxReminderSent = Math.max(1, ...reminders.daily.map((d) => d.sent));
   const maxGradeUsers = Math.max(1, ...byGrade.map((g) => g.users));
   const maxDailyMissions = Math.max(1, ...daily.map((d) => d.missions));
   const minutes = averages.minutesPerActiveDay;
@@ -63,6 +75,53 @@ const StatsView: React.FC<{ stats: OwnerStats }> = ({ stats }) => {
           }
         />
       </div>
+      <div className="grid grid-cols-2 gap-3">
+        <Tile label="Parent accounts" value={String(parents.withChildren)} hint="with at least one linked child" />
+        <Tile
+          label="Kids / parent"
+          value={String(parents.avgKidsPerParent)}
+          hint={`${parents.links} links in total`}
+        />
+      </div>
+      <section className={cardClass}>
+        <h2 className="mb-1 text-sm font-extrabold">Streak reminder (15:00)</h2>
+        <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
+          {reminders.subscribers} learners have it on
+          {totals.registered ? ` (${Math.round((reminders.subscribers / totals.registered) * 100)}% of registered)` : ''}.
+          Last {reminders.windowDays} days: {reminders.sent} sent, {reminders.practised} finished a mission the same
+          day ({percent(reminders.conversionRate)}).
+        </p>
+        <table className="mb-3 w-full text-xs">
+          <thead>
+            <tr className="text-slate-500 dark:text-slate-400">
+              <th className="text-start font-bold">Message</th>
+              <th className="text-end font-bold">Sent</th>
+              <th className="text-end font-bold">Practised same day</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(['streak', 'comeback'] as const).map((kind) => (
+              <tr key={kind}>
+                <td>{kind === 'streak' ? 'Keep your streak' : 'Come back'}</td>
+                <td className="text-end tabular-nums">{reminders.byKind[kind].sent}</td>
+                <td className="text-end tabular-nums">
+                  {reminders.byKind[kind].practised} (
+                  {percent(reminders.byKind[kind].sent ? reminders.byKind[kind].practised / reminders.byKind[kind].sent : null)})
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="space-y-2">
+          {reminders.daily.map((d) => (
+            <Bar key={d.dateStr} label={dayLabel(d.dateStr)} value={d.sent} max={maxReminderSent} />
+          ))}
+        </div>
+        <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+          Bars are reminders sent per day. Only learners who had not practised yet get one, so "practised same day" is
+          the best sign it worked, but some would have practised anyway. Counting started when this logging shipped.
+        </p>
+      </section>
       <section className={cardClass}>
         <h2 className="mb-3 text-sm font-extrabold">Users by grade</h2>
         <div className="space-y-2">
@@ -92,10 +151,20 @@ const StatsView: React.FC<{ stats: OwnerStats }> = ({ stats }) => {
         </table>
       </section>
       <section className={cardClass}>
-        <h2 className="mb-3 text-sm font-extrabold">Missions per day (last {daily.length} days)</h2>
+        <h2 className="mb-1 text-sm font-extrabold">Missions per day (last {daily.length} days)</h2>
+        <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
+          Each row is a day (month-day, Israel time). The number is the missions all users finished that day;
+          the small figure is how many users were active.
+        </p>
         <div className="space-y-2">
           {daily.map((d) => (
-            <Bar key={d.dateStr} label={d.dateStr.slice(5)} value={d.missions} max={maxDailyMissions} />
+            <Bar
+              key={d.dateStr}
+              label={dayLabel(d.dateStr)}
+              value={d.missions}
+              max={maxDailyMissions}
+              note={`${d.activeUsers} users`}
+            />
           ))}
         </div>
         <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">

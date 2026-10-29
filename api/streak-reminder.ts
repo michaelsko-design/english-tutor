@@ -15,11 +15,13 @@ import {
   getReminderKind,
   getIsraelToday,
   isReminderDue,
+  type ReminderKind,
   type ReminderSubscriber,
 } from './_lib/streakReminder.js';
 
 const DEFAULT_FIREBASE_PROJECT_ID = 'english-tutor-il-7';
 const COLLECTION = 'pushSubscriptions';
+const SENDS_COLLECTION = 'reminderSends';
 const GONE_STATUSES = [404, 410];
 const PUSH_TTL_S = 3600;
 
@@ -70,6 +72,15 @@ function statusOf(error: unknown): number | undefined {
     : undefined;
 }
 
+/** Records the push for the owner dashboard's effectiveness numbers; a failure here never stops the run. */
+async function logSend(admin: FirestoreAdmin, uid: string, dateStr: string, kind: ReminderKind): Promise<void> {
+  try {
+    await admin.commit([{ collection: SENDS_COLLECTION, id: `${dateStr}_${uid}`, fields: { uid, dateStr, kind } }]);
+  } catch (error) {
+    console.error(`streak-reminder: could not log a send (${error instanceof AdminError ? error.status : 'unexpected'})`);
+  }
+}
+
 export async function handleStreakReminderRequest(
   request: Request,
   env: Record<string, string | undefined>,
@@ -99,8 +110,10 @@ export async function handleStreakReminderRequest(
 
     for (const subscriber of subscribers) {
       try {
-        await sendPush(subscriber, JSON.stringify(buildReminderMessage(subscriber, getReminderKind(subscriber, today))), vapid);
+        const kind = getReminderKind(subscriber, today);
+        await sendPush(subscriber, JSON.stringify(buildReminderMessage(subscriber, kind)), vapid);
         sent += 1;
+        await logSend(admin, subscriber.id, today, kind);
       } catch (error) {
         const status = statusOf(error);
         if (status !== undefined && GONE_STATUSES.includes(status)) {

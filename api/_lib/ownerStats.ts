@@ -41,6 +41,46 @@ export interface OwnerStats {
   };
   byGrade: GradeStats[];
   daily: DailyStats[];
+  parents: ParentStats;
+  reminders: ReminderStats;
+}
+
+export interface ParentStats {
+  /** Parent accounts that linked at least one child */
+  withChildren: number;
+  links: number;
+  /** Linked children per parent account (0 with no parents) */
+  avgKidsPerParent: number;
+}
+
+export interface ReminderKindStats {
+  sent: number;
+  practised: number;
+}
+
+export interface ReminderStats {
+  /** Learners with reminders switched on */
+  subscribers: number;
+  windowDays: number;
+  sent: number;
+  /** Reminders after which the learner finished a mission the same day */
+  practised: number;
+  /** practised / sent, null until a reminder was sent */
+  conversionRate: number | null;
+  byKind: { streak: ReminderKindStats; comeback: ReminderKindStats };
+  daily: Array<{ dateStr: string } & ReminderKindStats>;
+}
+
+/** One parent↔child link (`parentLinks`) and one logged push (`reminderSends`) */
+export interface ParentLinkRow {
+  parentUid: string;
+  childUid: string;
+}
+
+export interface ReminderSendRow {
+  uid: string;
+  dateStr: string;
+  kind: 'streak' | 'comeback';
 }
 
 interface LogDay {
@@ -56,6 +96,9 @@ export interface OwnerStatsInput {
   /** Today in the learners' calendar (Israel), YYYY-MM-DD */
   todayStr: string;
   now: Date;
+  parentLinks?: readonly ParentLinkRow[];
+  reminderSends?: readonly ReminderSendRow[];
+  reminderSubscribers?: number;
 }
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -84,7 +127,63 @@ function readLog(value: unknown): LogDay[] {
 const round1 = (value: number): number => Math.round(value * 10) / 10;
 const isActiveDay = (day: LogDay): boolean => day.sessions > 0 || day.activeSeconds > 0;
 
-export function computeOwnerStats({ learners, anonymousUids, proChildUids, todayStr, now }: OwnerStatsInput): OwnerStats {
+function computeParentStats(links: readonly ParentLinkRow[]): ParentStats {
+  const kidsByParent = new Map<string, Set<string>>();
+  for (const { parentUid, childUid } of links) {
+    kidsByParent.set(parentUid, (kidsByParent.get(parentUid) ?? new Set<string>()).add(childUid));
+  }
+  const linkCount = [...kidsByParent.values()].reduce((sum, kids) => sum + kids.size, 0);
+  return {
+    withChildren: kidsByParent.size,
+    links: linkCount,
+    avgKidsPerParent: kidsByParent.size ? Math.round((linkCount / kidsByParent.size) * 100) / 100 : 0,
+  };
+}
+
+/** A reminder worked when the learner finished a mission on the day it was sent (it only goes to those who had not practised yet). */
+function computeReminderStats(
+  sends: readonly ReminderSendRow[],
+  practisedDays: ReadonlyMap<string, ReadonlySet<string>>,
+  subscribers: number,
+  dailyStart: string,
+  todayStr: string
+): ReminderStats {
+  const byKind = { streak: { sent: 0, practised: 0 }, comeback: { sent: 0, practised: 0 } };
+  const dayMap = new Map<string, ReminderKindStats>();
+  for (let i = 0; i < OWNER_STATS_DAYS; i += 1) dayMap.set(addDaysToDateStr(dailyStart, i), { sent: 0, practised: 0 });
+  for (const send of sends) {
+    const day = dayMap.get(send.dateStr);
+    if (!day || send.dateStr > todayStr) continue;
+    const didPractise = practisedDays.get(send.uid)?.has(send.dateStr) === true;
+    const kind = send.kind === 'streak' ? byKind.streak : byKind.comeback;
+    for (const bucket of [kind, day]) {
+      bucket.sent += 1;
+      if (didPractise) bucket.practised += 1;
+    }
+  }
+  const sent = byKind.streak.sent + byKind.comeback.sent;
+  const practised = byKind.streak.practised + byKind.comeback.practised;
+  return {
+    subscribers,
+    windowDays: OWNER_STATS_DAYS,
+    sent,
+    practised,
+    conversionRate: sent ? Math.round((practised / sent) * 100) / 100 : null,
+    byKind,
+    daily: [...dayMap.entries()].map(([dateStr, d]) => ({ dateStr, ...d })),
+  };
+}
+
+export function computeOwnerStats({
+  learners,
+  anonymousUids,
+  proChildUids,
+  todayStr,
+  now,
+  parentLinks = [],
+  reminderSends = [],
+  reminderSubscribers = 0,
+}: OwnerStatsInput): OwnerStats {
   const real = learners.filter((row) => !anonymousUids.has(row.id));
   const windowStart = addDaysToDateStr(todayStr, -(AVERAGE_WINDOW_DAYS - 1));
   const dailyStart = addDaysToDateStr(todayStr, -(OWNER_STATS_DAYS - 1));
@@ -101,6 +200,7 @@ export function computeOwnerStats({ learners, anonymousUids, proChildUids, today
   let trackedSeconds = 0;
   let onboarded = 0;
   let pro = 0;
+  const missionDays = new Map<string, Set<string>>();
 
   for (const row of real) {
     const gradeId = typeof row.fields.gradeId === 'string' ? row.fields.gradeId : 'unknown';
@@ -118,6 +218,7 @@ export function computeOwnerStats({ learners, anonymousUids, proChildUids, today
     if (latest >= cutoff(7)) active.last7d += 1;
     if (latest >= cutoff(30)) active.last30d += 1;
 
+    missionDays.set(row.id, new Set(activeDays.filter((day) => day.sessions > 0).map((day) => day.dateStr)));
     let missions7d = 0;
     for (const day of activeDays) {
       if (day.dateStr >= cutoff(7)) missions7d += day.sessions;
@@ -170,6 +271,8 @@ export function computeOwnerStats({ learners, anonymousUids, proChildUids, today
     },
     byGrade,
     daily,
+    parents: computeParentStats(parentLinks),
+    reminders: computeReminderStats(reminderSends, missionDays, reminderSubscribers, dailyStart, todayStr),
   };
 }
 

@@ -11,6 +11,9 @@ function setup() {
   fake.seed('learners', 'kid1', { gradeId: 'grade-4', isOnboarded: true });
   fake.seed('learners', 'guest1', { gradeId: 'grade-1', isOnboarded: false });
   fake.seed('entitlements', 'kid1', { status: 'active', periodEnd: NOW + 1000 });
+  fake.seed('parentLinks', 'mom1_kid1', { parentUid: 'mom1', childUid: 'kid1' });
+  fake.seed('pushSubscriptions', 'kid1', { streakDays: 3 });
+  fake.seed('reminderSends', '2026-10-29_kid1', { uid: 'kid1', dateStr: '2026-10-29', kind: 'streak' });
   const deps = {
     nowMs: () => NOW,
     verifyToken: vi.fn(async () => true),
@@ -51,7 +54,10 @@ describe('handleOwnerStatsRequest', () => {
     expect(response.status).toBe(200);
     expect(body.totals).toMatchObject({ registered: 1, guests: 1, pro: 1 });
     expect(body.byGrade).toEqual([expect.objectContaining({ gradeId: 'grade-4', users: 1, proUsers: 1 })]);
+    expect(body.parents).toEqual({ withChildren: 1, links: 1, avgKidsPerParent: 1 });
+    expect(body.reminders).toMatchObject({ subscribers: 1, sent: 1, practised: 0 });
     expect(JSON.stringify(body)).not.toContain('kid1');
+    expect(JSON.stringify(body)).not.toContain('mom1');
   });
 
   it('hides the failure details', async () => {
