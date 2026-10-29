@@ -2,7 +2,24 @@
 
 > Backlog: "Define the Freemium vs. 'EnglishVibe Pro' tier boundaries … design the kid-safe 'Ask a Parent on WhatsApp' payment link flow … plan integration with an Israeli payment gateway … and server-verified Firestore subscription status. Also create a coupon system."
 
-Status: **server payments layer, Phase 1 and Phase 2 built**: checkout, webhook, plan changes, Grow adapter and rules ("Server (built)"), the learner-side gating with its "ask a parent" sheet, switched off (`PRO_GATING_ENABLED = false`), and the parent portal's checkout and Pro lines on the mock provider (dev server only). The phases in "Implementation phases" are the build order.
+Status (2026-10-29): **server payments layer, Phase 1 and Phase 2 built and committed**: checkout, webhook, plan changes, Grow adapter and rules ("Server (built)"), the learner-side gating with its "ask a parent" sheet, switched off (`PRO_GATING_ENABLED = false`), and the parent portal's checkout and Pro lines on the mock provider (dev server only). **Paused** while the owner waits for the business registration and the Grow account to be approved. The live app is unchanged. The phases in "Implementation phases" are the build order.
+
+## Where we stopped (start here in a new session)
+**Done**
+- Server layer: `api/checkout.ts`, `api/payment-webhook.ts`, `api/subscription.ts`, `api/_lib/proBilling.ts`, `api/_lib/payments/` (Grow + mock), and `firestore.rules` for `entitlements`, `subscriptions`, `checkouts` and `payments` (covered by the rules smoke test).
+- Phase 1: learner gating and the kid-safe "ask a parent" sheet, behind `PRO_GATING_ENABLED` (off). Comp grants: `scripts/grantPro.mjs`.
+- Phase 2: the parent's checkout, return page and per-child Pro lines (cancel, add or remove a child, the yearly renew notice), on the mock gateway, behind `IS_PRO_PLAN_VISIBLE` (dev server only). Local runs: `npm run dev:emu` serves the payment functions against the emulators.
+- Tests: unit and component tests for all of it, and `e2e/pro.spec.ts` (learner asks → parent pays on the mock page → map opens → parent cancels). The whole e2e suite passes on desktop and phone (`npm run test:e2e`).
+
+**Waiting on the owner (Track A)**
+- The business registration (עוסק פטור / מורשה) and the Grow account approval. Then the Grow sandbox ids (`userId`, a recurring and a regular `pageCode`, the API key), and Grow support enabling the recurring and failed-recurring webhooks and automatic invoices.
+- A WhatsApp Business number, and the domain for the contact email.
+
+**Next, in order**
+1. **Phase 3a (can start now, needs no Grow):** the daily reconcile, entitlement cleanup on deletion and in the data export, `MAX_LINKED_CHILDREN` and the pending-checkout cap, the Phase 2 known limits, the exam-plan `madeWithPro` decision, the Pro pack card's copy, a security review of the whole payment flow, and the legal text drafts. Details under "Phase 3a".
+2. **Phase 3b (needs the Grow sandbox):** run the real adapter against the sandbox, fix what it assumed wrong, set the Vercel env.
+3. **Phase 4:** launch.
+4. After launch: coupons, referrals, and the children's friend-invite reward.
 
 ## Goal
 Most of the app stays free. A paid **EnglishVibe Pro** subscription (monthly or yearly) unlocks the full curriculum and the Pro content packs, full exam prep, more word lists and every theme and mascot. The learner never pays and never sees a checkout. They ask a parent, and the paired parent pays from the parent portal. Only the server decides who has Pro.
@@ -231,7 +248,7 @@ sequenceDiagram
 - `parseParentParam` / `isParentRoute` (`data/parentLink.ts`) already accept extra params. New helpers `readProIntent(search)` and `readPaidCheckout(search)` sit next to them.
 
 ## Server (built)
-Built in phases P2–P3 (server only, no UI yet). All three functions are POST only. They log a status or a gateway error id, never tokens, payer details or keys, and take injectable deps for their unit tests.
+Built before Phase 1 (server only); the parent UI on top of it is Phase 2. All three functions are POST only. They log a status or a gateway error id, never tokens, payer details or keys, and take injectable deps for their unit tests.
 - **`api/checkout.ts` and `api/subscription.ts`** are called by the parent. They use `api/_lib/parentRequest.ts`, shared with `api/parent-reset-pin.ts`:
   - the parent's Google ID token;
   - App Check when `APPCHECK_ENFORCE === 'on'`;
@@ -402,14 +419,21 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
   - A renewal checkout that also adds a free child starts everyone at the old plan's end, so the new child gets up to 14 extra days.
   - Two renewal checkouts paid at the same moment both renew from the same end date (one year for two payments). Paid one after the other, the second is recorded in `seatedElsewhere` for a refund. The cap on pending checkouts per parent (Phase 3) covers it.
 
-**Phase 3: real Grow, hardening and legal texts.**
-- Grow sandbox (test card 4580458045804580): a monthly and a yearly payment, the webhook's content type, `paymentNum`, the `directDebitId`, a renewal, a failed charge and a cancel. Fix the adapter where it assumed wrong.
-- Not built yet:
-  - A daily reconcile in the existing cron: expire ended plans, catch missed webhooks.
-  - Entitlement cleanup on account deletion, and the entitlement in the data export.
-  - `MAX_LINKED_CHILDREN`, and a cap on pending checkouts per parent.
+**Phase 3a: hardening and legal texts (not started; needs no Grow account).**
+- A daily reconcile in the existing cron: expire ended plans and catch missed webhooks (tested on the mock provider until Grow is ready).
+- Entitlement cleanup on account deletion, and the entitlement in the data export (`downloadProfileJson`).
+- `MAX_LINKED_CHILDREN`, and a cap on pending checkouts per parent (this also closes the double-renewal limit from Phase 2).
+- The other Phase 2 known limit: a free child added to a renewal checkout gets up to 14 extra days.
+- Left from Phase 1:
+  - Decide whether exam plans that exist at the switch are kept (`madeWithPro`).
+  - The new-pack card's text for a Pro pack, with Hebrew clips for grades 1–2.
+  - Reading the "ask a parent" sheet aloud.
 - A security review of the whole payment flow.
 - The legal texts (see "Privacy and legal"), drafted for the owner's approval.
+
+**Phase 3b: real Grow (not started; needs Track A steps 1–2).**
+- Grow sandbox (test card 4580458045804580): a monthly and a yearly payment, the webhook's content type, `paymentNum`, the `directDebitId`, a renewal, a failed charge and a cancel. Fix the adapter where it assumed wrong.
+- Check that the invoice is issued and emailed for a sandbox charge.
 - Vercel env (Grow ids, `PAYMENT_WEBHOOK_SECRET`, `APP_ORIGIN`, `GROW_WEBHOOK_KEY`) and Grow's origin in the `vercel.json` CSP where the redirect needs it.
 
 **Phase 4: launch.**
