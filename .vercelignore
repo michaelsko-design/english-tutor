@@ -1,0 +1,2 @@
+# Vercel counts every .ts file in api/ as a Serverless Function (Hobby plan: max 12), tests included
+api/*.test.ts
