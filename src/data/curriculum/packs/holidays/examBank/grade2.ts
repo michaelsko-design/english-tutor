@@ -71,7 +71,7 @@ export const HOLIDAYS_GRADE_2_EXAM_BANK: ExamBankPack = {
         questionEn: 'What is this? (a star) Which answer is correct?',
         correct: 'It is a star.',
         wrong: ['It is star.', 'Is it a star.'],
-        explainHe: 'עונים It is a star: לפני דבר אחד צריך a.',
+        explainHe: 'עונים It is a star: לפני דבר אחד צריך להגיד a.',
         hintHe: 'תשובה מתחילה ב-It is. מה חסר לפני הדבר?',
       },
       {

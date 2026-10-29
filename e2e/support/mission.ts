@@ -35,7 +35,7 @@ export async function answerStep(page: Page, mission: Locator): Promise<void> {
   const options = answerOptions(mission);
   const count = await options.count();
   for (let idx = 0; idx < count; idx++) {
-    await options.nth(idx).click();
+    await options.nth(idx).click({ timeout: 10_000 });
     const nextButton = page.getByRole('button', { name: NEXT_STEP });
     const tryAgain = page.getByRole('button', { name: /נס(י|ה) שוב/ });
     await expect(nextButton.or(tryAgain)).toBeVisible();

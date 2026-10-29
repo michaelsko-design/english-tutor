@@ -16,7 +16,7 @@ export const CORE_PLUS_GRADE_3_LESSONS: LessonPack = {
       promptHe: 'איך אומרים "היא טבחית"?',
       correct: 'She is a cook.',
       wrong: 'She a cook.',
-      explainHe: 'באנגלית צריך is בין she לבין המקצוע.',
+      explainHe: 'באנגלית צריך להגיד is בין she לבין המקצוע.',
     },
   },
   'g3-u21-m2': {
@@ -50,7 +50,7 @@ export const CORE_PLUS_GRADE_3_LESSONS: LessonPack = {
       promptHe: 'מה נכון?',
       correct: 'I eat an apple.',
       wrong: 'I am eat an apple.',
-      explainHe: 'כשמספרים מה עושים לא צריך am: I eat.',
+      explainHe: 'כשמספרים מה עושים לא צריך להגיד am: I eat.',
     },
   },
   'g3-u22-m2': {

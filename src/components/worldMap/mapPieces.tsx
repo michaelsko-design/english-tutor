@@ -57,7 +57,7 @@ export const UnitBanner: React.FC<UnitBannerProps> = ({
   >
     <div className={`absolute inset-x-0 top-[24%] bottom-[24%] ${style.bannerRibbonClass}`} aria-hidden="true" />
     <div
-      className={`relative w-[88%] h-[86%] rounded-2xl px-3 flex items-center gap-2.5 ${style.bannerSignClass}`}
+      className={`relative w-[88%] min-h-[86%] py-1 rounded-2xl px-3 flex items-center gap-2.5 ${style.bannerSignClass}`}
     >
       {isNew && (
         <span className="absolute -top-2.5 right-3 px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 text-xs font-extrabold shadow-md ring-2 ring-white/80">
@@ -70,10 +70,10 @@ export const UnitBanner: React.FC<UnitBannerProps> = ({
       >
         {unit.badgeEmoji}
       </span>
-      <span className="flex-1 min-w-0 leading-tight">
-        <span className="block text-xs font-extrabold opacity-75">יחידה {unit.unitNumber}</span>
+      <span className="flex-1 min-w-0 min-h-0 max-h-full overflow-hidden leading-tight">
+        {/* The titles already start with the unit number ("פרק 1:", "Unit 1:"), so no separate label */}
         <span className="block text-sm sm:text-base font-extrabold line-clamp-2">{unit.titleHe}</span>
-        <span className="block text-xs font-bold opacity-80 line-clamp-2" dir="ltr" lang="en">
+        <span className="block text-xs font-bold opacity-80 line-clamp-1" dir="ltr" lang="en" title={unit.titleEn}>
           {unit.titleEn}
         </span>
       </span>

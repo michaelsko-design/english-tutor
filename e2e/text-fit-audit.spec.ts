@@ -15,13 +15,15 @@ const VIEWPORTS = [
   { width: 360, height: 640 },
   { width: 390, height: 844 },
 ];
+const FIRST_AGE = 6;
+const LAST_AGE = 17;
 const REPORT_DIR = 'test-results';
 const MAX_TEXT_CHARS = 60;
 
 interface Finding {
   screen: string;
   viewport: string;
-  kind: 'ellipsis' | 'line-clamp' | 'clipped' | 'mid-word-break';
+  kind: 'ellipsis' | 'line-clamp' | 'clipped' | 'mid-word-break' | 'overflows-box' | 'scroll-overflow';
   selector: string;
   text: string;
 }
@@ -39,10 +41,23 @@ function scanTextFit(): Omit<Finding, 'screen' | 'viewport'>[] {
     const cls = (el.getAttribute('class') ?? '').split(/\s+/).filter(Boolean).slice(0, 4).join('.');
     return `${el.tagName.toLowerCase()}${cls ? `.${cls}` : ''}`;
   };
+  /** The closest ancestor drawn as a box: a background, border, shadow or rounded corners */
+  const nearestVisualBox = (el: Element): HTMLElement | null => {
+    for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+      const ps = styleOf(p);
+      // Text inside a scroller is reachable by scrolling, so it is not "spilling" out of the box around it
+      if (/auto|scroll/.test(`${ps.overflowX} ${ps.overflowY}`)) return null;
+      const hasFill = ps.backgroundColor !== 'rgba(0, 0, 0, 0)' || ps.backgroundImage !== 'none';
+      const hasEdge = parseFloat(ps.borderTopWidth) > 0 || ps.boxShadow !== 'none';
+      if ((hasFill || hasEdge) && p.getBoundingClientRect().height > 0) return p;
+    }
+    return null;
+  };
   const isVisible = (el: Element): boolean => {
     const r = el.getBoundingClientRect();
     const s = styleOf(el);
-    return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none';
+    // 1px boxes are screen-reader-only text
+    return r.width > 1 && r.height > 1 && s.visibility !== 'hidden' && s.display !== 'none';
   };
   // Elements that directly own non-blank text
   const withText = Array.from(document.body.querySelectorAll('*')).filter(
@@ -89,6 +104,19 @@ function scanTextFit(): Omit<Finding, 'screen' | 'viewport'>[] {
       }
       clipper = clipper.parentElement;
     }
+
+    // Spills out of the nearest visible box (card, sign, pill) even though nothing clips it
+    const box = nearestVisualBox(el);
+    if (box) {
+      const br = box.getBoundingClientRect();
+      const spills = rect.bottom > br.bottom + 1 || rect.top < br.top - 1 || rect.left < br.left - 1 || rect.right > br.right + 1;
+      if (spills) found.push({ kind: 'overflows-box', ...base, selector: `${base.selector} in ${describe(box)}` });
+    }
+    // A fixed-size block whose content is taller or wider than it is (silently cut or spilling)
+    const fixedHeight = s.overflowY !== 'visible' || s.maxHeight !== 'none';
+    if (fixedHeight && el.scrollHeight > el.clientHeight + 1 && !(clamp > 0) && el.clientHeight > 0) {
+      found.push({ kind: 'scroll-overflow', ...base });
+    }
   }
   return found;
 }
@@ -118,10 +146,16 @@ function createAuditor(page: Page, reportName: string): (screen: string) => Prom
   const findings: Finding[] = [];
   const seen = new Set<string>();
   return async (screen) => {
+    console.log(`audit: ${reportName} ${screen}`);
     for (const viewport of VIEWPORTS) {
       await page.setViewportSize(viewport);
       const label = `${viewport.width}x${viewport.height}`;
-      for (const f of await page.evaluate(scanTextFit)) {
+      const scanned = await page.evaluate(scanTextFit);
+      if (scanned.length > 0) {
+        // A picture of the screen to judge the findings by
+        await page.screenshot({ path: `${REPORT_DIR}/${reportName}-${screen.replace(/\W+/g, '-')}-${label}.png` }).catch(() => undefined);
+      }
+      for (const f of scanned) {
         const key = `${screen}|${label}|${f.kind}|${f.selector}|${f.text}`;
         if (seen.has(key)) continue;
         seen.add(key);
@@ -132,52 +166,56 @@ function createAuditor(page: Page, reportName: string): (screen: string) => Prom
   };
 }
 
-test('text-fit audit: home and the bottom-bar screens', async ({ page, learner }) => {
-  test.setTimeout(240_000);
-  const audit = createAuditor(page, 'text-fit-audit-screens');
-  await startAsNewLearner(page, learner, { name: 'נועה', age: 9 });
-  await audit('home');
+/** Every grade: age 6 opens grade 1, each year after it the next grade, up to grade 12 at 17 */
+for (let age = FIRST_AGE; age <= LAST_AGE; age++) {
+  const grade = age - FIRST_AGE + 1;
+  test(`text-fit audit: grade ${grade}, home and the bottom-bar screens`, async ({ page, learner }) => {
+    test.setTimeout(240_000);
+    const audit = createAuditor(page, `text-fit-audit-screens-grade${grade}`);
+    await startAsNewLearner(page, learner, { name: 'נועה', age });
+    await audit('home');
 
-  // Each bottom-bar destination (and the screen it opens) is audited, then closed again
-  const barButtons = () => page.getByRole('navigation', { name: 'ניווט ראשי' }).getByRole('button');
-  const names = (await barButtons().allInnerTexts()).map((t) => t.trim()).filter(Boolean);
-  const home = barButtons().first();
-  for (const name of names) {
-    const target = barButtons().filter({ hasText: name }).first();
-    if (!(await target.isVisible())) break; // a screen that cannot be closed ends the walk
-    await target.dispatchEvent('click');
-    await audit(`bar: ${name}`);
-    await returnHome(page, home);
-  }
-});
-
-test('text-fit audit: a mission, intro to victory', async ({ page, learner }) => {
-  test.setTimeout(240_000);
-  const audit = createAuditor(page, 'text-fit-audit-mission');
-  await startAsNewLearner(page, learner, { name: 'נועה', age: 9 });
-  // A mission: intro, lesson cards and every practice step
-  await page.getByRole('button', { name: 'בואי נשחק!' }).click();
-  const mission = missionDialog(page);
-  await audit('mission: intro');
-  await mission.getByRole('button', { name: /יאללה, בואי נתחיל/ }).click();
-  const practice = mission.getByRole('button', { name: /יאללה לתרגול/ });
-  const nextCard = mission.getByRole('button', { name: /^הבא/ });
-  for (let card = 0; card < MAX_ROUNDS && !(await practice.isVisible()); card++) {
-    await audit(`mission: lesson card ${card + 1}`);
-    await nextCard.click();
-  }
-  await practice.click();
-  const collect = page.getByRole('button', { name: /איסוף פרסים/ });
-  for (let round = 1; round <= MAX_ROUNDS && !(await collect.isVisible()); round++) {
-    await audit(`mission: step ${round}`);
-    try {
-      await answerStep(page, mission);
-    } catch {
-      break; // a step type the helper cannot answer ends the walk; what was seen is still reported
+    // Each bottom-bar destination (and the screen it opens) is audited, then closed again
+    const barButtons = () => page.getByRole('navigation', { name: 'ניווט ראשי' }).getByRole('button');
+    const names = (await barButtons().allInnerTexts()).map((t) => t.trim()).filter(Boolean);
+    const home = barButtons().first();
+    for (const name of names) {
+      const target = barButtons().filter({ hasText: name }).first();
+      if (!(await target.isVisible())) break; // a screen that cannot be closed ends the walk
+      await target.dispatchEvent('click');
+      await audit(`bar: ${name}`);
+      await returnHome(page, home);
     }
-    await audit(`mission: step ${round} feedback`);
-    const next = page.getByRole('button', { name: NEXT_STEP });
-    if (!(await next.isVisible())) break;
-    await next.click();
-  }
-});
+  });
+
+  test(`text-fit audit: grade ${grade}, a mission, intro to victory`, async ({ page, learner }) => {
+    test.setTimeout(480_000);
+    const audit = createAuditor(page, `text-fit-audit-mission-grade${grade}`);
+    await startAsNewLearner(page, learner, { name: 'נועה', age });
+    // A mission: intro, lesson cards and every practice step
+    await page.getByRole('button', { name: 'בואי נשחק!' }).click();
+    const mission = missionDialog(page);
+    await audit('mission: intro');
+    await mission.getByRole('button', { name: /יאללה, בואי נתחיל/ }).click();
+    const practice = mission.getByRole('button', { name: /יאללה לתרגול/ });
+    const nextCard = mission.getByRole('button', { name: /^הבא/ });
+    for (let card = 0; card < MAX_ROUNDS && !(await practice.isVisible()); card++) {
+      await audit(`mission: lesson card ${card + 1}`);
+      await nextCard.click();
+    }
+    await practice.click();
+    const collect = page.getByRole('button', { name: /איסוף פרסים/ });
+    for (let round = 1; round <= MAX_ROUNDS && !(await collect.isVisible()); round++) {
+      await audit(`mission: step ${round}`);
+      try {
+        await answerStep(page, mission);
+      } catch {
+        break; // a step type the helper cannot answer ends the walk; what was seen is still reported
+      }
+      await audit(`mission: step ${round} feedback`);
+      const next = page.getByRole('button', { name: NEXT_STEP });
+      if (!(await next.isVisible())) break;
+      await next.click();
+    }
+  });
+}

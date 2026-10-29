@@ -82,7 +82,7 @@ const UNITS: ElementaryUnitSpec[] = [
             questionEn: 'Which sentence is correct?',
             correct: 'Look! Grandpa is putting leaves on the roof.',
             wrong: ['Look! Grandpa putting leaves on the roof.', 'Look! Grandpa are putting leaves on the roof.'],
-            explainHe: 'Present Progressive צריך am / is / are ופועל עם ing. Grandpa הוא he, ולכן is putting.',
+            explainHe: 'Present Progressive צריך להגיד am / is / are ופועל עם ing. Grandpa הוא he, ולכן is putting.',
             hintHe: 'Look! מראה שזה קורה עכשיו. חסר משהו לפני הפועל עם ing? בדקו איזו צורה של be מתאימה ל-Grandpa.',
           },
           story: {

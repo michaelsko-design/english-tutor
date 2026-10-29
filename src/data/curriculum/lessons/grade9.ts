@@ -31,7 +31,7 @@ export const GRADE_9_LESSONS: LessonPack = {
       { en: 'She has played the piano since 2019.', he: 'היא מנגנת בפסנתר מאז 2019.', highlight: 'since 2019' },
       { en: 'I have been sick since Monday.', he: 'אני חולה מיום שני.', highlight: 'since Monday' },
     ],
-    tipHe: 'בעברית אומרים "אנחנו גרים כאן" בהווה. באנגלית צריך have lived.',
+    tipHe: 'בעברית אומרים "אנחנו גרים כאן" בהווה. באנגלית צריך להגיד have lived.',
     quickTry: {
       promptHe: 'since או for?',
       questionEn: 'They have been friends ____ three years.',

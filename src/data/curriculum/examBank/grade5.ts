@@ -86,7 +86,7 @@ export const GRADE_5_EXAM_BANK: ExamBankPack = {
         questionEn: 'Which sentence is correct?',
         correct: 'Our parrots have red feathers.',
         wrong: ['Our parrots has red feathers.', 'Our parrots are have red feathers.'],
-        explainHe: 'Our parrots הם they, לכן have, ולא צריך are לפניו.',
+        explainHe: 'Our parrots הם they, לכן have, ולא צריך להגיד are לפניו.',
         hintHe: 'כמה תוכים יש? איזו צורה מתאימה ל-they, והאם צריך שתי מילים לפני red?',
       },
     ],

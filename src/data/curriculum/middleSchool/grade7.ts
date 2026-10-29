@@ -480,7 +480,7 @@ const units: MiddleSchoolUnitSpec[] = [
             wrong: ['finded', 'was find'],
             explainHe:
               'הפועל find הוא פועל בלתי רגיל (irregular verb), וצורת העבר (V2) שלו היא found ולא finded.',
-            hintHe: 'find הוא פועל לא רגיל: לא מוסיפים לו ed, ובעבר הפשוט לא צריך was לפניו.',
+            hintHe: 'find הוא פועל לא רגיל: לא מוסיפים לו ed, ובעבר הפשוט לא צריך להגיד was לפניו.',
           },
           story: {
             passageEn:
@@ -613,7 +613,7 @@ const units: MiddleSchoolUnitSpec[] = [
             ],
             explainHe:
               'הפעלים run ו-take הם בלתי רגילים, וצורות העבר הנכונות שלהם הן ran ו-took.',
-            hintHe: 'run ו-take הם פעלים לא רגילים: בעבר אין להם ed, ולא צריך were או did לפניהם.',
+            hintHe: 'run ו-take הם פעלים לא רגילים: בעבר אין להם ed, ולא צריך להגיד were או did לפניהם.',
           },
           story: {
             passageEn:

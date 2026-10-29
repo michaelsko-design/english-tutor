@@ -494,7 +494,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               'If temperatures rise, ice sheets melt faster tomorrow.',
             ],
             explainHe: 'בחלק התנאי עם If משתמשים ב-Present Simple (ללא will), ובחלק התוצאה משתמשים ב-will + פועל מקור.',
-            hintHe: 'בחלק של If לא שמים will. ובחלק התוצאה צריך will + פועל בסיסי.',
+            hintHe: 'בחלק של If לא שמים will. ובחלק התוצאה צריך להגיד will + פועל בסיסי.',
           },
           story: {
             passageEn:

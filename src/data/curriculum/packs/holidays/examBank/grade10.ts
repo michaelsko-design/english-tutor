@@ -92,7 +92,7 @@ export const HOLIDAYS_GRADE_10_EXAM_BANK: ExamBankPack = {
           'The new reservoir, that was built last year, is already full.',
           'The new reservoir, which built last year, is already full.',
         ],
-        explainHe: 'אחרי פסיק משתמשים ב-which ולא ב-that, ובסביל בעבר צריך was + V3.',
+        explainHe: 'אחרי פסיק משתמשים ב-which ולא ב-that, ובסביל בעבר צריך להגיד was + V3.',
         hintHe: 'בדקו שני דברים: איזו מילת זיקה באה אחרי פסיק, והאם יש פועל עזר במבנה הסביל.',
       },
     ],

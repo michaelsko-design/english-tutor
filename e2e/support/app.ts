@@ -36,7 +36,9 @@ export async function completeOnboarding(page: Page, choices: OnboardingChoices)
   await expect(nameInput).toBeVisible({ timeout: CLOUD_TIMEOUT_MS });
   await nameInput.fill(choices.name);
   await page.getByLabel('גיל', { exact: true }).selectOption(String(choices.age));
-  await page.getByRole('checkbox', { name: /אני הורה וקראתי/ }).check();
+  // Only a learner under the parent-approval age is asked for a parent's consent
+  const consent = page.getByRole('checkbox', { name: /אני הורה וקראתי/ });
+  if (await consent.isVisible()) await consent.check();
   await page.getByRole('button', { name: /שמירה וכניסה לדשבורד/ }).click();
 }
 

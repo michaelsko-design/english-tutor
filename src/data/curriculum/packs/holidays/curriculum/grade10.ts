@@ -130,7 +130,7 @@ const UNITS: HighSchoolUnitSpec[] = [
               'The Kinneret, that was filled by heavy rain, reached a record level.',
               'The Kinneret, which filled by heavy rain, reached a record level.',
             ],
-            explainHe: 'בפסוקית בין פסיקים לא משתמשים ב-that אלא ב-which. בסביל בעבר צריך was + V3.',
+            explainHe: 'בפסוקית בין פסיקים לא משתמשים ב-that אלא ב-which. בסביל בעבר צריך להגיד was + V3.',
             hintHe: 'יש כאן פסוקית בין פסיקים ומבנה סביל בעבר. בדקו את מילת הזיקה ואת פועל העזר.',
           },
           story: {

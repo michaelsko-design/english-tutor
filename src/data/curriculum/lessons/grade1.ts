@@ -134,7 +134,7 @@ export const GRADE_1_LESSONS: LessonPack = {
       promptHe: 'מה נכון?',
       correct: 'I have a bag.',
       wrong: 'I have bag.',
-      explainHe: 'לפני דבר אחד צריך a: a bag.',
+      explainHe: 'לפני דבר אחד צריך להגיד a: a bag.',
     },
   },
   'g1-u3-m3': {

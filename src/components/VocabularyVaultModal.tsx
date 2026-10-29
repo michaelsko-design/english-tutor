@@ -302,9 +302,9 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-extrabold" dir="ltr" lang="en">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span className="text-lg font-extrabold break-words min-w-0" dir="ltr" lang="en">
                         {item.emoji ? `${item.emoji} ` : ''}
                         {item.wordEn}
                       </span>
@@ -320,7 +320,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                     </p>
                   </div>
 
-                  <span className={`text-xs px-2.5 py-1 rounded-lg font-bold ${theme.badgeClass}`}>
+                  <span className={`shrink-0 text-xs px-2.5 py-1 rounded-lg font-bold ${theme.badgeClass}`}>
                     פרק {item.unitNumber}
                   </span>
                 </div>

@@ -33,7 +33,7 @@ export const LetterCards: React.FC<PhonicsCardsProps & { letters: string[] }> = 
       {letters.map((upper) => {
         const letter = getAlphabetLetter(upper);
         return (
-          <li key={upper} className={`p-3 rounded-3xl ${theme.cardBgClass} flex items-center gap-3`}>
+          <li key={upper} className={`p-3 rounded-3xl ${theme.cardBgClass} flex flex-col min-[360px]:flex-row items-center gap-3`}>
             <button
               type="button"
               onClick={() => onSpeakEnglish(letterToken(upper))}
@@ -45,7 +45,7 @@ export const LetterCards: React.FC<PhonicsCardsProps & { letters: string[] }> = 
               {letter.upper}
               {letter.lower}
             </button>
-            <div className="flex-1 grid grid-cols-3 gap-2">
+            <div className="w-full min-[360px]:w-auto min-[360px]:flex-1 grid grid-cols-3 gap-2">
               {letter.words.map((word) => (
                 <button
                   key={word.en}
