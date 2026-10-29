@@ -7,7 +7,8 @@
 // Explicit .js extensions: the package is ESM ("type": "module"), so Node needs them at runtime.
 import { AzureTtsError, readAzureConfig, synthesize } from './_lib/azureTts.js';
 import { verifyAppCheckToken } from './_lib/appCheckToken.js';
-import { verifyFirebaseIdToken } from './_lib/firebaseToken.js';
+import { readFirebaseClaims, verifyFirebaseIdToken } from './_lib/firebaseToken.js';
+import { createRateLimiter } from './_lib/rateLimit.js';
 import { APP_CHECK_HEADER, TTS_TOKEN_HEADER, buildLiveTtsQuery, isSpeakableBy, isTtsSpeed, isTtsVoice } from '../src/services/tts/ttsText.js';
 
 const AZURE_TIMEOUT_MS = 8_000;
@@ -16,6 +17,31 @@ const DEFAULT_FIREBASE_PROJECT_ID = 'english-tutor-il-7';
 const DEFAULT_FIREBASE_PROJECT_NUMBER = '1003230297590';
 // s-maxage lets the Vercel CDN share the answer; max-age lets the browser keep it.
 const AUDIO_CACHE_CONTROL = 'public, max-age=31536000, s-maxage=31536000, immutable';
+/**
+ * Calls that reach Azure (CDN hits never get here). A learner meets a few dozen new phrases an
+ * hour at most; a guest account is free to create, so the address is limited too, higher because
+ * a classroom shares one.
+ */
+const RATE_WINDOW_MS = 60 * 60 * 1000;
+const MAX_MISSES_PER_UID = 120;
+const MAX_MISSES_PER_IP = 600;
+const defaultUidLimiter = createRateLimiter({ limit: MAX_MISSES_PER_UID, windowMs: RATE_WINDOW_MS });
+const defaultIpLimiter = createRateLimiter({ limit: MAX_MISSES_PER_IP, windowMs: RATE_WINDOW_MS });
+
+export interface TtsRateLimiters {
+  isUidWithinLimit: (uid: string) => boolean;
+  isIpWithinLimit: (ip: string) => boolean;
+}
+
+const DEFAULT_RATE_LIMITERS: TtsRateLimiters = {
+  isUidWithinLimit: defaultUidLimiter,
+  isIpWithinLimit: defaultIpLimiter,
+};
+
+/** Vercel puts the client address first in x-forwarded-for */
+function clientIp(request: Request): string {
+  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '';
+}
 
 function errorResponse(status: number, message: string): Response {
   return new Response(JSON.stringify({ error: message }), {
@@ -35,6 +61,7 @@ export async function handleTtsRequest(
   fetchImpl: typeof fetch = fetch,
   verifyToken: (token: string, projectId: string) => Promise<boolean> = verifyFirebaseIdToken,
   verifyAppCheck: (token: string, projectNumber: string) => Promise<boolean> = verifyAppCheckToken,
+  rateLimiters: TtsRateLimiters = DEFAULT_RATE_LIMITERS,
 ): Promise<Response> {
   const url = new URL(request.url);
   const text = url.searchParams.get('t') ?? '';
@@ -70,6 +97,13 @@ export async function handleTtsRequest(
 
   const config = readAzureConfig(env);
   if (!config) return errorResponse(503, 'Online voice is not configured');
+
+  // Over the cap the app falls back to the device voice, as it does when Azure is over quota
+  const uid = readFirebaseClaims(request.headers.get(TTS_TOKEN_HEADER) ?? '')?.uid;
+  const ip = clientIp(request);
+  const isOverUidLimit = uid !== undefined && !rateLimiters.isUidWithinLimit(uid);
+  const isOverIpLimit = ip !== '' && !rateLimiters.isIpWithinLimit(ip);
+  if (isOverUidLimit || isOverIpLimit) return errorResponse(429, 'Too many online voice requests');
 
   try {
     const audio = await synthesize(text, voice, speed, config, AZURE_TIMEOUT_MS, fetchImpl);

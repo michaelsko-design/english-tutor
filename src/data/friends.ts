@@ -10,7 +10,9 @@ import { toUsernameSlug } from '../utils/username';
 
 export const MAX_FRIENDS = 30;
 export const MAX_OUTGOING_REQUESTS = 10;
-export const FRIEND_CODE_LENGTH = 6;
+export const FRIEND_CODE_LENGTH = 8;
+/** Codes issued before the move to 8 characters stay valid for lookup (and for the owner's re-claim) */
+export const LEGACY_FRIEND_CODE_LENGTH = 6;
 /** No 0/O, 1/I/L, so a code read aloud or copied by hand can't be mistyped */
 export const FRIEND_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 export const MAX_DISPLAY_NAME_LENGTH = 24;
@@ -170,7 +172,8 @@ export function normalizeFriendCode(input: string): string {
 
 export function isFriendCode(input: string): boolean {
   const code = normalizeFriendCode(input);
-  return code.length === FRIEND_CODE_LENGTH && [...code].every((ch) => FRIEND_CODE_ALPHABET.includes(ch));
+  const hasValidLength = code.length === FRIEND_CODE_LENGTH || code.length === LEGACY_FRIEND_CODE_LENGTH;
+  return hasValidLength && [...code].every((ch) => FRIEND_CODE_ALPHABET.includes(ch));
 }
 
 /**

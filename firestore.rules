@@ -104,9 +104,13 @@ service cloud.firestore {
 
     match /friendCodes/{code} {
       allow get: if isRealAccount();
-      // Only the learner's own code (claimed with its owner record in the same write)
+      // Only the learner's own code (claimed with its owner record in the same write). New codes
+      // have 8 characters; a 6-character code is re-created only by the learner who already owns it.
       allow create: if isRealAccount()
-        && code.matches('^[A-HJKMNP-Z2-9]{6}$')
+        && (code.matches('^[A-HJKMNP-Z2-9]{8}$')
+          || (code.matches('^[A-HJKMNP-Z2-9]{6}$')
+            && exists(docPath('friendCodeOwners', request.auth.uid))
+            && get(docPath('friendCodeOwners', request.auth.uid)).data.code == code))
         && isLookupEntry(request.resource.data)
         && getAfter(docPath('friendCodeOwners', request.auth.uid)).data.code == code;
       allow update: if isRealAccount()

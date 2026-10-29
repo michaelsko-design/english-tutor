@@ -102,6 +102,14 @@ describe('friend codes', () => {
     expect(isFriendCode('ABC10X')).toBe(false);
     expect(isFriendCode('ABC2')).toBe(false);
   });
+
+  it('accepts 8-character codes and the 6-character codes issued before them', () => {
+    expect(isFriendCode('k7mp-2qxa')).toBe(true);
+    expect(isFriendCode('K7MP2Q')).toBe(true);
+    expect(isFriendCode('K7MP2QX')).toBe(false);
+    expect(isFriendCode('K7MP2QXAB')).toBe(false);
+    expect(normalizeFriendQuery('k7mp-2qxa').code).toBe('K7MP2QXA');
+  });
 });
 
 describe('normalizeFriendQuery', () => {

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { handleTtsRequest } from './tts';
+import { createRateLimiter } from './_lib/rateLimit';
 import { buildLiveTtsQuery } from '../src/services/tts/ttsText';
 
 // The sign-in check has its own tests below; the others run with it off
@@ -41,6 +42,46 @@ describe('handleTtsRequest sign-in check', () => {
     );
     expect(response.status).toBe(200);
     expect(verify).toHaveBeenCalledWith('good', 'my-project');
+  });
+});
+
+describe('handleTtsRequest rate limit', () => {
+  const audio = () => vi.fn(async () => new Response(new Uint8Array([1]), { status: 200 }));
+  /** A token whose payload names the uid; the signature is not checked here (the verifier is stubbed) */
+  const tokenFor = (uid: string) => `h.${Buffer.from(JSON.stringify({ sub: uid })).toString('base64url')}.s`;
+  const asLearner = (uid: string, ip?: string) =>
+    new Request(canonical('hello').url, {
+      headers: { 'X-Firebase-Token': tokenFor(uid), ...(ip ? { 'x-forwarded-for': ip } : {}) },
+    });
+  const limiters = (uidLimit: number, ipLimit: number) => ({
+    isUidWithinLimit: createRateLimiter({ limit: uidLimit, windowMs: 1000, nowMs: () => 0 }),
+    isIpWithinLimit: createRateLimiter({ limit: ipLimit, windowMs: 1000, nowMs: () => 0 }),
+  });
+  const call = (req: Request, fetchImpl: ReturnType<typeof audio>, rate: ReturnType<typeof limiters>) =>
+    handleTtsRequest(req, AUTH_ENV, fetchImpl as typeof fetch, async () => true, async () => true, rate);
+
+  it('answers 429 without calling Azure once a learner is over the cap', async () => {
+    const fetchImpl = audio();
+    const rate = limiters(2, 100);
+    expect((await call(asLearner('uid-a'), fetchImpl, rate)).status).toBe(200);
+    expect((await call(asLearner('uid-a'), fetchImpl, rate)).status).toBe(200);
+    expect((await call(asLearner('uid-a'), fetchImpl, rate)).status).toBe(429);
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not count one learner against another', async () => {
+    const rate = limiters(1, 100);
+    expect((await call(asLearner('uid-a'), audio(), rate)).status).toBe(200);
+    expect((await call(asLearner('uid-b'), audio(), rate)).status).toBe(200);
+  });
+
+  it('limits an address that rotates through new guest accounts', async () => {
+    const fetchImpl = audio();
+    const rate = limiters(100, 2);
+    expect((await call(asLearner('guest-1', '203.0.113.9, 10.0.0.1'), fetchImpl, rate)).status).toBe(200);
+    expect((await call(asLearner('guest-2', '203.0.113.9'), fetchImpl, rate)).status).toBe(200);
+    expect((await call(asLearner('guest-3', '203.0.113.9'), fetchImpl, rate)).status).toBe(429);
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
 });
 

@@ -97,6 +97,16 @@ await expect('the other learner can delete the friendship (account deletion)', t
 await deleteDoc(doc(b.db, 'publicProfiles', ub.uid)).catch(() => {});
 await expect('the owner can delete their friend-code record', true, () =>
   deleteDoc(doc(a.db, 'friendCodeOwners', ua.uid)));
+const claimFriendCode = (code) => {
+  const batch = writeBatch(a.db);
+  batch.set(doc(a.db, 'friendCodes', code), { uid: ua.uid, displayName: 'Noa', avatarEmoji: '🐱' });
+  batch.set(doc(a.db, 'friendCodeOwners', ua.uid), { code });
+  return batch.commit();
+};
+await expect('claiming a new 6-character friend code is denied', false, () => claimFriendCode('K7MP2Q'));
+await expect('claiming a new 8-character friend code is allowed', true, () => claimFriendCode('K7MP2QXA'));
+await deleteDoc(doc(a.db, 'friendCodeOwners', ua.uid)).catch(() => {});
+await deleteDoc(doc(a.db, 'friendCodes', 'K7MP2QXA')).catch(() => {});
 await expect('someone else cannot delete a learner profile', false, () => deleteDoc(doc(b.db, 'learners', ua.uid)));
 
 const publicProfile = (stars) => ({
