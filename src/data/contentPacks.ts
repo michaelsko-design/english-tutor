@@ -3,6 +3,8 @@ import type { CurriculumUnit } from './curriculum/types';
 import { CONTENT_PACKS, IS_PACK_PREVIEW, RELEASED_CONTENT_PACKS } from './curriculum/packs/registry';
 import type { ContentPack, ContentPackId, ReleasedPack } from './curriculum/packs/types';
 import { daysBetween } from '../utils/dates';
+import { isolateLtr } from '../utils/bidi';
+import { ASK_PARENT_LABEL_HE, PRO_SPOKEN_HE } from './proAsk';
 
 /** How long a released pack's units show "חדש!" on the map and the home card is offered */
 export const NEW_PACK_DAYS = 14;
@@ -67,10 +69,22 @@ export interface NewPackCopy {
   spokenHe: string;
 }
 
-/** The home card's Hebrew; title and body are read aloud in grades 1–2 (in the Hebrew corpus). */
-export function getNewPackCopy(pack: ContentPack, unitCount: number, gender: LearnerGender): NewPackCopy {
+/**
+ * The home card's Hebrew; title and body are read aloud in grades 1–2 (in the Hebrew corpus). A Pro
+ * pack the learner can't play yet asks a parent instead of leading to the map.
+ */
+export function getNewPackCopy(pack: ContentPack, unitCount: number, gender: LearnerGender, isProLocked = false): NewPackCopy {
   const isGirl = gender === 'girl';
   const titleHe = `חדש! ${pack.titleHe}`;
+  if (isProLocked) {
+    const askHe = 'אפשר לבקש מהורה לפתוח אותן.';
+    return {
+      titleHe,
+      bodyHe: `${unitCount} יחידות חדשות מחכות במפה, עם ${isolateLtr('Pro')}. ${askHe}`,
+      buttonHe: ASK_PARENT_LABEL_HE,
+      spokenHe: `${titleHe}. ${unitCount} יחידות חדשות מחכות במפה, עם ${PRO_SPOKEN_HE}. ${askHe}`,
+    };
+  }
   const bodyHe = `${unitCount} יחידות חדשות נוספו למפה שלך.`;
   return {
     titleHe,

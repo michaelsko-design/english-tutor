@@ -6,16 +6,21 @@ import {
   ASK_PARENT_LABEL_HE,
   buildProAskMessageHe,
   buildProAskUrl,
+  getProSheetSpokenHe,
+  getProSheetTitleHe,
   hasAskedToday,
   rememberAsk,
 } from '../../data/proAsk';
 import { createParentInvite, listParentsOfChild } from '../../services/parentService';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 import type { ProAskLearner, ProUpsellFocus } from './proUpsellContext';
+import { HebrewAudioContext } from '../../data/hebrewAudio';
 import { useDialog } from '../../hooks/useDialog';
+import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { toLocalDateStr } from '../../utils/dates';
 import { Companion } from '../companion/Companion';
+import { HebrewSpeakButton } from '../drills/HebrewSpeakButton';
 import { ShareTextActions } from '../ShareTextActions';
 import { Button } from '../ui/Button';
 
@@ -23,6 +28,8 @@ interface ProUpsellSheetProps {
   learner: ProAskLearner;
   focus: ProUpsellFocus;
   theme: ThemeDefinition;
+  /** Grades 1–2 hear the sheet in Hebrew (Feature 47) */
+  readsHebrewAloud?: boolean;
   onClose: () => void;
 }
 
@@ -62,10 +69,11 @@ async function prepareAskMessage(learner: ProAskLearner): Promise<AskState> {
  * The kid-safe Pro sheet (docs/feature-pro-tier.md, "ask a parent"): what Pro opens and one button
  * that sends a parent the link. No prices or plans: only the paired parent ever pays.
  */
-export const ProUpsellSheet: React.FC<ProUpsellSheetProps> = ({ learner, focus, theme, onClose }) => {
+export const ProUpsellSheet: React.FC<ProUpsellSheetProps> = ({ learner, focus, theme, readsHebrewAloud = false, onClose }) => {
   const sheetRef = useRef<HTMLElement>(null);
   const isReducedMotion = usePrefersReducedMotion();
   useDialog(sheetRef, { onClose });
+  useStopSpeechOnLeave();
   const todayStr = toLocalDateStr(new Date());
   const [askState, setAskState] = useState<AskState>({ kind: 'idle' });
   const hasAsked = askState.kind === 'idle' && hasAskedToday(learner.uid, todayStr);
@@ -141,9 +149,14 @@ export const ProUpsellSheet: React.FC<ProUpsellSheetProps> = ({ learner, focus, 
         </button>
         <div className="flex flex-col items-center text-center gap-2 pt-2">
           <Companion theme={theme} pose="cheer" size={88} />
-          <h2 id="pro-upsell-title" className="text-xl font-extrabold">
-            רוצה להמשיך להרפתקה הבאה?
-          </h2>
+          <div className="flex items-center gap-1.5">
+            <h2 id="pro-upsell-title" className="text-xl font-extrabold">
+              {getProSheetTitleHe(learner.gender)}
+            </h2>
+            <HebrewAudioContext.Provider value={readsHebrewAloud}>
+              <HebrewSpeakButton text={getProSheetSpokenHe(learner.gender)} label="הקשבה" />
+            </HebrewAudioContext.Provider>
+          </div>
           <p className={`text-sm font-bold ${theme.mutedTextClass}`}>
             עם <bdi dir="ltr" lang="en">{APP_NAME} Pro</bdi> נפתחים:
           </p>

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildProAskMessageHe, buildProAskUrl, hasAskedToday, rememberAsk } from './proAsk';
+import { buildProAskMessageHe, buildProAskUrl, getProSheetSpokenHe, getProSheetTitleHe, hasAskedToday, rememberAsk } from './proAsk';
+import { isHebrewSpeakable } from '../services/tts/ttsText';
 
 describe('buildProAskUrl', () => {
   it('carries a new pairing code, or only opens the portal for a paired parent', () => {
@@ -35,5 +36,18 @@ describe('one ask a day', () => {
     expect(hasAskedToday('u1', '2026-10-28')).toBe(true);
     expect(hasAskedToday('u1', '2026-10-29')).toBe(false);
     expect(hasAskedToday('u2', '2026-10-28')).toBe(false);
+  });
+});
+
+describe('the Pro sheet read aloud', () => {
+  it('starts with the heading, by gender, and fits one Hebrew clip with no English in it', () => {
+    for (const gender of ['girl', 'boy'] as const) {
+      const spoken = getProSheetSpokenHe(gender);
+      expect(spoken.startsWith(getProSheetTitleHe(gender))).toBe(true);
+      expect(spoken).not.toMatch(/[A-Za-z]/);
+      expect(isHebrewSpeakable(spoken)).toBe(true);
+    }
+    expect(getProSheetTitleHe('girl')).toContain('בואי');
+    expect(getProSheetTitleHe('boy')).toContain('בוא ');
   });
 });

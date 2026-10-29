@@ -13,13 +13,15 @@ interface NewPackCardProps {
   theme: ThemeDefinition;
   /** Grades 1–2 hear the card in Hebrew (Feature 47) */
   readsHebrewAloud: boolean;
+  /** A Pro pack the learner can't play yet: the button asks a parent instead of opening the map */
+  isProLocked?: boolean;
   onOpen: () => void;
   onClose: () => void;
 }
 
 /** A newly released content pack: shown once on the home screen, it takes the learner to its first unit on the map. */
-export const NewPackCard: React.FC<NewPackCardProps> = ({ offer, gender, theme, readsHebrewAloud, onOpen, onClose }) => {
-  const copy = getNewPackCopy(offer.pack, offer.unitCount, gender);
+export const NewPackCard: React.FC<NewPackCardProps> = ({ offer, gender, theme, readsHebrewAloud, isProLocked = false, onOpen, onClose }) => {
+  const copy = getNewPackCopy(offer.pack, offer.unitCount, gender, isProLocked);
   return (
     <section
       aria-label={copy.titleHe}

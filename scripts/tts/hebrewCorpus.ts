@@ -27,6 +27,7 @@ import { BLEND_WORDS } from '../../src/data/blendingWords';
 import { getSpeechErrorTextHe, type SpeechErrorKind } from '../../src/hooks/useSpeechRecognition';
 import { CONTENT_PACKS } from '../../src/data/curriculum/packs/registry';
 import { getNewPackCopy } from '../../src/data/contentPacks';
+import { getProSheetSpokenHe } from '../../src/data/proAsk';
 import { CorpusBuilder } from './corpusBuilder';
 
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
@@ -122,9 +123,15 @@ function addFixedFeedback(corpus: CorpusBuilder): void {
   }
   corpus.add(NON_READER_RESULT_HE);
   // The home card of a newly released content pack (2 units in every grade)
+  // A pack's access is set when it ships, so both the free and the Pro card are voiced
   for (const pack of Object.values(CONTENT_PACKS)) {
-    GENDERS.forEach((gender) => corpus.add(getNewPackCopy(pack, 2, gender).spokenHe));
+    GENDERS.forEach((gender) => {
+      corpus.add(getNewPackCopy(pack, 2, gender).spokenHe);
+      corpus.add(getNewPackCopy(pack, 2, gender, true).spokenHe);
+    });
   }
+  // The Pro "ask a parent" sheet
+  GENDERS.forEach((gender) => corpus.add(getProSheetSpokenHe(gender)));
   BLEND_WORDS.forEach((word) => corpus.add(getWordBuiltHe(word.word)));
 }
 

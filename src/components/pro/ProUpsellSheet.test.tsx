@@ -13,9 +13,9 @@ vi.mock('../../services/parentService', () => parentService);
 
 const LEARNER: ProAskLearner = { uid: 'kid1', name: 'נועה', gender: 'girl', avatarEmoji: '🐱', isGuest: false };
 
-function renderSheet(learner: ProAskLearner = LEARNER) {
+function renderSheet(learner: ProAskLearner = LEARNER, readsHebrewAloud = false) {
   const onClose = vi.fn();
-  render(<ProUpsellSheet learner={learner} focus="themes" theme={TEST_THEME} onClose={onClose} />);
+  render(<ProUpsellSheet learner={learner} focus="themes" theme={TEST_THEME} readsHebrewAloud={readsHebrewAloud} onClose={onClose} />);
   return { onClose };
 }
 
@@ -32,6 +32,18 @@ describe('ProUpsellSheet', () => {
     const perks = screen.getAllByRole('listitem').map((li) => li.textContent);
     expect(perks[0]).toContain('ערכות העיצוב');
     expect(screen.getByRole('dialog').textContent).not.toMatch(/₪|\d+\s*ש"ח/);
+  });
+
+  it('greets the learner by gender, and reads the sheet aloud only for grades 1–2', () => {
+    renderSheet();
+    expect(screen.getByRole('heading', { name: 'בואי נמשיך להרפתקה הבאה!' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'הקשבה' })).toBeNull();
+  });
+
+  it('has a Hebrew 🔊 for grades 1–2', () => {
+    renderSheet({ ...LEARNER, gender: 'boy' }, true);
+    expect(screen.getByRole('heading', { name: 'בוא נמשיך להרפתקה הבאה!' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'הקשבה' })).toBeInTheDocument();
   });
 
   it('sends a paired parent straight to the portal', async () => {

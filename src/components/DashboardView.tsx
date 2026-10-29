@@ -58,7 +58,7 @@ import { StatsSheet } from './home/StatsSheet';
 import { BookOpen, Home, Map as MapIcon, Settings, ShoppingBag } from 'lucide-react';
 import { lazyNamed } from '../utils/lazyNamed';
 import { useProAccess } from '../hooks/useProAccess';
-import { getPlayableUnits, hasFinishedFreeMissions, resolveLearnerTheme } from '../data/proGate';
+import { getPackAccess, getPlayableUnits, hasFinishedFreeMissions, hasFullAccess, resolveLearnerTheme } from '../data/proGate';
 import { ProUpsellContext, type ProUpsellFocus } from './pro/proUpsellContext';
 import { ProUpsellSheet } from './pro/ProUpsellSheet';
 import { FreeMissionsDoneCard } from './pro/FreeMissionsDoneCard';
@@ -185,6 +185,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   const questRings = getQuestRings(getDailyQuests(profile.gender), dailyCounters, claimedQuestIds);
   const mapPeek = getMapPeek(gradeCurriculum.units, profile.missionProgress || {});
   const newPackOffer = getNewPackOffer(gradeCurriculum.units, todayStr, seenPackIds);
+  const isNewPackProLocked = newPackOffer !== null && getPackAccess(newPackOffer.pack.id) === 'pro' && !hasFullAccess(proAccess);
   const greetingHe = getHomeGreetingHe({
     gender: profile.gender,
     name: profile.name,
@@ -437,7 +438,12 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             gender={profile.gender}
             theme={theme}
             readsHebrewAloud={playsHebrewAloud(profile.gradeId)}
+            isProLocked={isNewPackProLocked}
             onOpen={() => {
+              if (isNewPackProLocked) {
+                setUpsellFocus('missions');
+                return;
+              }
               dismissPackOffer(newPackOffer.pack.id);
               setMapFocus({ missionId: newPackOffer.firstMissionId, requestId: Date.now() });
               scrollToSection('mission-map');
@@ -713,6 +719,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
           }}
           focus={upsellFocus}
           theme={theme}
+          readsHebrewAloud={playsHebrewAloud(profile.gradeId)}
           onClose={() => setUpsellFocus(null)}
         />
       )}

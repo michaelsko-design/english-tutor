@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { CurriculumUnit, MissionNode } from './curriculum/types';
 import { CONTENT_PACKS, RELEASED_CONTENT_PACKS } from './curriculum/packs/registry';
+import { ASK_PARENT_LABEL_HE, PRO_SPOKEN_HE } from './proAsk';
+import { isHebrewSpeakable } from '../services/tts/ttsText';
 import { getNewPackCopy, getNewPackOffer, isPackNew, NEW_PACK_DAYS, type PackReleaseState } from './contentPacks';
 
 const RELEASED: PackReleaseState = { released: [{ id: 'holidays', releasedAt: '2026-12-01', access: 'free' }], isPreview: false };
@@ -61,6 +63,16 @@ describe('getNewPackCopy', () => {
     expect(girl.buttonHe).toBe('בואי לראות');
     expect(boy.buttonHe).toBe('בוא לראות');
     expect(girl.spokenHe).toBe(`${girl.titleHe}. ${girl.bodyHe}`);
+  });
+
+  it('asks a parent for a Pro pack the learner cannot play yet, and says "Pro" in Hebrew letters', () => {
+    const copy = getNewPackCopy(CONTENT_PACKS.holidays, 2, 'girl', true);
+    expect(copy.buttonHe).toBe(ASK_PARENT_LABEL_HE);
+    expect(copy.bodyHe).toContain('Pro');
+    expect(copy.bodyHe).toContain('אפשר לבקש מהורה');
+    expect(copy.spokenHe).not.toMatch(/[A-Za-z]/);
+    expect(copy.spokenHe).toContain(PRO_SPOKEN_HE);
+    expect(isHebrewSpeakable(copy.spokenHe)).toBe(true);
   });
 });
 

@@ -2,7 +2,7 @@
 
 > Backlog: "Define the Freemium vs. 'EnglishVibe Pro' tier boundaries … design the kid-safe 'Ask a Parent on WhatsApp' payment link flow … plan integration with an Israeli payment gateway … and server-verified Firestore subscription status. Also create a coupon system."
 
-Status (2026-10-29): **server payments layer, Phase 1, Phase 2 and the server half of Phase 3a built**: checkout, webhook, plan changes, Grow adapter and rules ("Server (built)"), the learner-side gating with its "ask a parent" sheet, switched off (`PRO_GATING_ENABLED = false`), and the parent portal's checkout and Pro lines on the mock provider (dev server only). **Paused** while the owner waits for the business registration and the Grow account to be approved. The live app is unchanged. The phases in "Implementation phases" are the build order.
+Status (2026-10-29): **server payments layer, Phase 1, Phase 2 and Phase 3a built**: checkout, webhook, plan changes, Grow adapter and rules ("Server (built)"), the learner-side gating with its "ask a parent" sheet, switched off (`PRO_GATING_ENABLED = false`), and the parent portal's checkout and Pro lines on the mock provider (dev server only). **Paused** while the owner waits for the business registration and the Grow account to be approved. The live app is unchanged. The phases in "Implementation phases" are the build order.
 
 ## Where we stopped (start here in a new session)
 **Done**
@@ -17,7 +17,7 @@ Status (2026-10-29): **server payments layer, Phase 1, Phase 2 and the server ha
 - A WhatsApp Business number, and the domain for the contact email.
 
 **Next, in order**
-1. **Phase 3a, what is left (needs no Grow):** the exam-plan `madeWithPro` decision (the owner's call), the Pro pack card's copy with Hebrew clips, reading the "ask a parent" sheet aloud, and the legal text drafts. The security review is done (its open items are listed under "Phase 3a"). `CRON_SECRET` must be set in Vercel for the reconcile (the streak reminder already uses it).
+1. **Phase 3a is done.** Left for the owner: listen to the 4 new Hebrew clips, approve the legal drafts (`docs/legal/pro-legal-drafts.md`) and get them a short legal review. The security review's open items are listed under "Phase 3a". `CRON_SECRET` must be set in Vercel for the reconcile (the streak reminder already uses it).
 2. **Phase 3b (needs the Grow sandbox):** run the real adapter against the sandbox, fix what it assumed wrong, set the Vercel env.
 3. **Phase 4:** launch.
 4. After launch: coupons, referrals, and the children's friend-invite reward.
@@ -400,7 +400,7 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
   - Word lists: `canAddList` / `addWordList` take a limit. Exam prep: `canOpenExamDay` in `ExamPrepHub.startDay` and a Pro button on the plan; `ExamPrepPlan.madeWithPro` (merged in `mergeExamPrep`). `ReleasedPack.access`.
   - Theme and mascot gating: the Pro badges ("שלך עם Pro" on a saved one) in `ProfileFields` / `CompanionPicker`, the map preview sheet (`ThemePreviewSheet`, `ThemeMapPreview`), onboarding offering only the free themes, and `resolveLearnerTheme` in `App` and `DashboardView` (+ a component test that the preview never saves).
 - Tests run with the flag on; the app ships with it off.
-- Before switching gating on: exam plans made before then have no `madeWithPro`, so a free learner's existing plan would lock from day 2. Decide whether to mark the plans that exist at the switch as kept.
+- Exam plans made before gating is switched on have no `madeWithPro`. **Decided (2026-10-29): they are not kept.** A free learner's existing plan locks from day 2 (days already done stay open) and opens again once they get Pro. No migration is needed.
 - Not done here: the new-pack card still says "start" for a Pro pack (its text is read aloud to grades 1–2, so new copy needs Hebrew clips), and the sheet's texts are not read aloud yet.
 
 **Phase 2: parents can pay, on the mock provider (built).**
@@ -418,7 +418,7 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
   - A renewal checkout that also adds a free child starts everyone at the old plan's end, so the new child gets up to 14 extra days.
   - Two renewal checkouts paid at the same moment both renew from the same end date (one year for two payments). Paid one after the other, the second is recorded in `seatedElsewhere` for a refund. The cap on pending checkouts per parent (Phase 3) covers it.
 
-**Phase 3a: hardening and legal texts (server half built; needs no Grow account).**
+**Phase 3a: hardening and legal texts (built; needs no Grow account).**
 - **Built:**
   - **Daily reconcile** `api/pro-reconcile.ts` (its own Vercel cron, 03:00 UTC, `CRON_SECRET`; pure rules in `api/_lib/proReconcile.ts`). It looks up which accounts still exist (Auth `accounts:lookup`, 100 at a time; if none is found it changes nothing). A deleted learner's entitlement is deleted and their seat freed: a monthly plan moves to the lower price at the gateway first, or is canceled when no child is left; a yearly or canceled plan only empties the seat. A deleted payer's monthly plan is canceled. A plan or entitlement past `periodEnd` plus the grace days becomes `expired`, except a monthly plan still `active`, which means a renewal webhook went missing: it is counted as `missedRenewals` and logged (Phase 3b asks Grow). Answers `{released, expired, deleted, missedRenewals, failed}`.
   - **`expired` subscriptions:** a late Grow charge on one brings it back, but children who got a seat on a newer plan meanwhile are left out (logged for a refund). `cancel` on an expired plan is a no-op.
@@ -436,11 +436,11 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
     - Renewal and failed-charge webhooks are trusted on `GROW_WEBHOOK_KEY` plus the secret; a renewal amount that differs from the plan is only logged. Check in the sandbox (Phase 3b) whether Grow can confirm a renewal by API.
     - Refunds for `seatedElsewhere` are manual: watch the logs for "refund needed" (rare: it takes two plans for the same child at once).
     - Any linked parent can read a child's entitlement, which names the paying parent's uid (no name or contact). Accepted.
-- Left from Phase 1:
-  - Decide whether exam plans that exist at the switch are kept (`madeWithPro`).
-  - The new-pack card's text for a Pro pack, with Hebrew clips for grades 1–2.
-  - Reading the "ask a parent" sheet aloud.
-- The legal texts (see "Privacy and legal"), drafted for the owner's approval.
+- **Pro audio (built):**
+  - The new-pack card for a Pro pack the learner can't play yet (`getNewPackCopy(..., isProLocked)`, `NewPackCard` `isProLocked`): "N יחידות חדשות מחכות במפה, עם Pro. אפשר לבקש מהורה לפתוח אותן." Its button is "לבקש מהורה" and opens the Pro sheet.
+  - The Pro sheet's heading is gendered ("בואי/בוא נמשיך להרפתקה הבאה!") and has a 🔊 for grades 1–2 (`getProSheetSpokenHe`, `useStopSpeechOnLeave`).
+  - Spoken lines say "Pro" as `PRO_SPOKEN_HE` (פְּרוֹ) and avoid words spelled the same for a girl and a boy, so no existing clip changed. Both card variants of every pack and both sheet lines are in the Hebrew corpus; the 4 clips are rendered and uploaded. Not yet checked by ear.
+- **Legal texts (drafted):** `docs/legal/pro-legal-drafts.md`: the terms of service, the privacy notice's payments section, the checkout's terms line and consent box, the questions for a legal review, and the app changes they need in Phase 4.
 
 **Phase 3b: real Grow (not started; needs Track A steps 1–2).**
 - Grow sandbox (test card 4580458045804580): a monthly and a yearly payment, the webhook's content type, `paymentNum`, the `directDebitId`, a renewal, a failed charge and a cancel. Fix the adapter where it assumed wrong.
@@ -448,7 +448,7 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
 - Vercel env (Grow ids, `PAYMENT_WEBHOOK_SECRET`, `APP_ORIGIN`, `GROW_WEBHOOK_KEY`) and Grow's origin in the `vercel.json` CSP where the redirect needs it.
 
 **Phase 4: launch.**
-- The approved terms and privacy texts in the app.
+- The approved terms and privacy texts in the app: a `TermsDialog`, the privacy payments section, and the checkout's terms line and consent box (saved on the checkout). Details in `docs/legal/pro-legal-drafts.md`, section 5.
 - `comp` grants for the family's children, then `PRO_GATING_ENABLED` and `IS_PRO_PLAN_VISIBLE` on.
 - Live Grow keys: one real low-price charge, check the invoice, refund it by hand.
 - Check on desktop and phone, then push.

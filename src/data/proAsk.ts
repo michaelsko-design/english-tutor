@@ -7,6 +7,9 @@ import { PARENT_PARAM, buildParentUrl } from './parentLink';
  * parent a link to the parent portal. No prices or plans are ever shown to the learner.
  */
 
+/** How the Hebrew voice says "Pro" (niqqud keeps it from reading פרו as "paru") */
+export const PRO_SPOKEN_HE = 'פְּרוֹ';
+
 export const ASK_PARENT_LABEL_HE = 'לבקש מהורה 💬';
 
 /** Tells the parent portal to open on the child's Pro card */
@@ -46,4 +49,14 @@ export function rememberAsk(uid: string, todayStr: string): void {
   } catch {
     // Storage blocked: the learner may ask again today, which is harmless
   }
+}
+
+/** The Pro sheet's heading, by the learner's gender (spelled apart, so its clip says the right form) */
+export function getProSheetTitleHe(gender: LearnerGender): string {
+  return gender === 'girl' ? 'בואי נמשיך להרפתקה הבאה!' : 'בוא נמשיך להרפתקה הבאה!';
+}
+
+/** What the Pro sheet's 🔊 reads to grades 1–2 (one clip per gender, in the Hebrew corpus) */
+export function getProSheetSpokenHe(gender: LearnerGender): string {
+  return `${getProSheetTitleHe(gender)} עם ${PRO_SPOKEN_HE} נפתחים כל היחידות והבוסים, הכנה מלאה למבחן, עוד רשימות מילים, וכל העיצובים והדמויות. אפשר לבקש מהורה לפתוח אותם.`;
 }

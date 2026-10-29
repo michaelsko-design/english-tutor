@@ -7,6 +7,7 @@
 export const CLIP_REVISIONS: Readonly<Record<string, number>> = {
   'he-female/10z9uqmc0i': 2,
   'he-female/14x6k9vrdei': 2,
+  'he-female/1apbzh1lw3o': 2,
   'he-female/lt3qmr46kb': 2,
 };
 

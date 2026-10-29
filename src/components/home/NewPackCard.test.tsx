@@ -13,9 +13,11 @@ const OFFER: NewPackOffer = {
   badgeEmoji: '🕎',
 };
 
-function renderCard(readsHebrewAloud: boolean) {
+function renderCard(readsHebrewAloud: boolean, isProLocked = false) {
   const handlers = { onOpen: vi.fn(), onClose: vi.fn() };
-  render(<NewPackCard offer={OFFER} gender="boy" theme={TEST_THEME} readsHebrewAloud={readsHebrewAloud} {...handlers} />);
+  render(
+    <NewPackCard offer={OFFER} gender="boy" theme={TEST_THEME} readsHebrewAloud={readsHebrewAloud} isProLocked={isProLocked} {...handlers} />
+  );
   return handlers;
 }
 
@@ -43,5 +45,13 @@ describe('NewPackCard', () => {
   it('has a Hebrew 🔊 for grades 1–2', () => {
     renderCard(true);
     expect(screen.getByRole('button', { name: 'הקשבה להודעה' })).toBeInTheDocument();
+  });
+
+  it('asks a parent for a Pro pack the learner cannot play yet', async () => {
+    const user = userEvent.setup();
+    const handlers = renderCard(false, true);
+    expect(screen.getByText(/מחכות במפה/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /לבקש מהורה/ }));
+    expect(handlers.onOpen).toHaveBeenCalledTimes(1);
   });
 });
