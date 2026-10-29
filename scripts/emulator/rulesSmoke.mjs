@@ -181,7 +181,7 @@ await deleteDoc(doc(b.db, 'parents', ub.uid)).catch(() => {});
 
 // Streak reminder subscriptions: owner only, strict fields
 const pushSub = (extra = {}) => ({
-  endpoint: 'https://push.example/abc',
+  endpoint: 'https://fcm.googleapis.com/fcm/send/abc',
   p256dh: 'key',
   auth: 'auth',
   streakDays: 3,
@@ -196,7 +196,11 @@ await expect('the learner can save a reminder subscription', true, () =>
 await expect('a subscription with an extra field is denied', false, () =>
   setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ email: 'x@y.z' })));
 await expect('a subscription with a non-https endpoint is denied', false, () =>
-  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ endpoint: 'http://push.example/abc' })));
+  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ endpoint: 'http://fcm.googleapis.com/fcm/send/abc' })));
+await expect('a subscription to a host that is not a push service is denied', false, () =>
+  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ endpoint: 'https://tarpit.example/hang' })));
+await expect('a subscription to a push-service lookalike host is denied', false, () =>
+  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ endpoint: 'https://fcm.googleapis.com.evil.example/x' })));
 await expect('a subscription with a stray remindHour is denied', false, () =>
   setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ remindHour: 18 })));
 await expect('another user cannot read a subscription', false, () => getDoc(doc(b.db, 'pushSubscriptions', ua.uid)));

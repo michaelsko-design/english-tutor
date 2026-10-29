@@ -7,6 +7,27 @@ import { addDays } from '../../src/utils/dates.js';
 
 export const REMINDER_TIME_ZONE = 'Asia/Jerusalem';
 
+// The browsers' push services. The endpoint comes from the learner's own Firestore document, so the
+// cron only posts to these hosts (firestore.rules has the same list): never to a URL a user typed in.
+const PUSH_SERVICE_HOSTS = [
+  /^fcm\.googleapis\.com$/,
+  /^updates\.push\.services\.mozilla\.com$/,
+  /^web\.push\.apple\.com$/,
+  /^[a-z0-9-]+\.notify\.windows\.com$/,
+];
+
+/** True for an https endpoint on a known browser push service (no port, no user info). */
+export function isPushServiceEndpoint(endpoint: string): boolean {
+  let url: URL;
+  try {
+    url = new URL(endpoint);
+  } catch {
+    return false;
+  }
+  if (url.protocol !== 'https:' || url.port !== '' || url.username !== '' || url.password !== '') return false;
+  return PUSH_SERVICE_HOSTS.some((host) => host.test(url.hostname));
+}
+
 export interface ReminderSubscriber {
   id: string;
   streakDays: number;

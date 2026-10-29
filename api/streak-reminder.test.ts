@@ -15,7 +15,7 @@ function subscription(id: string, overrides: Record<string, string | number | bo
   return {
     id,
     fields: {
-      endpoint: `https://push.example/${id}`,
+      endpoint: `https://fcm.googleapis.com/fcm/send/${id}`,
       p256dh: 'p',
       auth: 'a',
       streakDays: 4,
@@ -57,7 +57,7 @@ describe('streak-reminder cron', () => {
     expect(await response.json()).toEqual({ sent: 2, removed: 0, failed: 0 });
     const bodyOf = (id: string) =>
       JSON.parse(sendPush.mock.calls.find(([target]) => target.endpoint.endsWith(id))![1]).body as string;
-    expect(sendPush.mock.calls.map(([target]) => target.endpoint)).not.toContain('https://push.example/practised');
+    expect(sendPush.mock.calls.map(([target]) => target.endpoint)).not.toContain('https://fcm.googleapis.com/fcm/send/practised');
     expect(bodyOf('/due')).toContain('המשיכי');
     expect(bodyOf('/broken')).toContain('5 דקות');
   });
@@ -83,5 +83,15 @@ describe('streak-reminder cron', () => {
     const { run, deleteDocument } = setup([subscription('flaky')], sendPush);
     expect(await (await run()).json()).toEqual({ sent: 0, removed: 0, failed: 1 });
     expect(deleteDocument).not.toHaveBeenCalled();
+  });
+
+  it('never sends to an endpoint that is not a known push service', async () => {
+    const { run, sendPush } = setup([
+      subscription('ok'),
+      subscription('tarpit', { endpoint: 'https://tarpit.example/hang' }),
+      subscription('lookalike', { endpoint: 'https://fcm.googleapis.com.evil.example/x' }),
+    ]);
+    expect(await (await run()).json()).toEqual({ sent: 1, removed: 0, failed: 0 });
+    expect(sendPush.mock.calls.map(([target]) => target.endpoint)).toEqual(['https://fcm.googleapis.com/fcm/send/ok']);
   });
 });

@@ -14,6 +14,7 @@ import {
   buildReminderMessage,
   getReminderKind,
   getIsraelToday,
+  isPushServiceEndpoint,
   isReminderDue,
   type ReminderKind,
   type ReminderSubscriber,
@@ -24,6 +25,8 @@ const COLLECTION = 'pushSubscriptions';
 const SENDS_COLLECTION = 'reminderSends';
 const GONE_STATUSES = [404, 410];
 const PUSH_TTL_S = 3600;
+// Sends run one after another inside the function's time limit: a push service that never answers must not stall the rest
+const PUSH_TIMEOUT_MS = 5000;
 
 export interface PushTarget {
   endpoint: string;
@@ -48,12 +51,13 @@ async function defaultSendPush(
   payload: string,
   vapid: { subject: string; publicKey: string; privateKey: string }
 ): Promise<void> {
-  await webpush.sendNotification(target, payload, { vapidDetails: vapid, TTL: PUSH_TTL_S });
+  await webpush.sendNotification(target, payload, { vapidDetails: vapid, TTL: PUSH_TTL_S, timeout: PUSH_TIMEOUT_MS });
 }
 
 function toSubscriber(doc: PlainDocument): (ReminderSubscriber & PushTarget) | null {
   const { endpoint, p256dh, auth, streakDays, streakLastDateStr, isShabbatObserver, gender } = doc.fields;
   if (typeof endpoint !== 'string' || typeof p256dh !== 'string' || typeof auth !== 'string') return null;
+  if (!isPushServiceEndpoint(endpoint)) return null;
   if (typeof streakDays !== 'number') return null;
   return {
     id: doc.id,

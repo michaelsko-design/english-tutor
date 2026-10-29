@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { buildReminderMessage, getIsraelToday, getReminderKind, isReminderDue, type ReminderSubscriber } from './streakReminder';
+import {
+  buildReminderMessage,
+  getIsraelToday,
+  getReminderKind,
+  isPushServiceEndpoint,
+  isReminderDue,
+  type ReminderSubscriber,
+} from './streakReminder';
 
 const base: ReminderSubscriber = {
   id: 'u1',
@@ -71,5 +78,28 @@ describe('buildReminderMessage', () => {
     expect(buildReminderMessage({ ...base, gender: 'girl' }, 'comeback').body).toContain('בואי נחזור');
     expect(buildReminderMessage({ ...base, gender: 'boy' }, 'comeback').body).toContain('בוא נחזור');
     expect(buildReminderMessage(base, 'comeback').body).toContain('5 דקות');
+  });
+});
+
+describe('isPushServiceEndpoint', () => {
+  it.each([
+    'https://fcm.googleapis.com/fcm/send/abc:APA91b',
+    'https://updates.push.services.mozilla.com/wpush/v2/gAAAA',
+    'https://web.push.apple.com/QGuQyavXutnMH',
+    'https://wns2-par02p.notify.windows.com/w/?token=BQYAAA',
+  ])('accepts the browser push service %s', (endpoint) => {
+    expect(isPushServiceEndpoint(endpoint)).toBe(true);
+  });
+
+  it.each([
+    'http://fcm.googleapis.com/fcm/send/abc',
+    'https://tarpit.example/hang',
+    'https://fcm.googleapis.com.evil.example/x',
+    'https://evil.example/fcm.googleapis.com/x',
+    'https://user@fcm.googleapis.com/x',
+    'https://fcm.googleapis.com:8443/x',
+    'not a url',
+  ])('refuses %s', (endpoint) => {
+    expect(isPushServiceEndpoint(endpoint)).toBe(false);
   });
 });

@@ -443,7 +443,9 @@ service cloud.firestore {
       return data.keys().hasOnly(['endpoint', 'p256dh', 'auth', 'streakDays', 'streakLastDateStr',
           'isShabbatObserver', 'gender', 'updatedAt'])
         && data.keys().hasAll(['endpoint', 'p256dh', 'auth', 'streakDays', 'isShabbatObserver', 'updatedAt'])
-        && data.endpoint is string && data.endpoint.matches('https://.*') && data.endpoint.size() <= 600
+        && data.endpoint is string && data.endpoint.size() <= 600
+        // Browser push services only (api/_lib/streakReminder.ts has the same list): the cron posts to this URL
+        && data.endpoint.matches('https://(fcm[.]googleapis[.]com|updates[.]push[.]services[.]mozilla[.]com|web[.]push[.]apple[.]com|[a-z0-9-]+[.]notify[.]windows[.]com)/.*')
         && isShortString(data.p256dh, 200)
         && isShortString(data.auth, 100)
         && isCount(data.streakDays)
