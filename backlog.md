@@ -5,12 +5,12 @@
 
 ### UI
 
-- [ ] **UI** - Create a short 20 seconds video animation with natural language hebrew narrations that will be used as an ad for this app, targeted at both children and parents.
 
 ### Technical
 
 - [ ] **Retire the old Firebase API key** - The old browser key (`AIzaSyAXCk…`) is still unrestricted and still works against this project. Find which of the other projects (Maps APIs showed active usage) use it, move them to their own keys, then restrict or delete it.
 - [ ] **Domain and Email update** - After buying a domain - update the contact email in the privacy notice.
+- [ ] **Set up product analytics** - Choose and wire up analytics: Firebase Analytics / Google Analytics 4, Vercel Analytics, or another tool (e.g. a privacy-first one). Weigh children's privacy (Privacy Protection Law Amendment 13, consent), the CSP in `vercel.json` (new third-party origins), cost, and what we need beyond the owner dashboard (funnels, retention, screen/feature usage, crash and error reporting).
 
 ### Content
 
@@ -19,6 +19,7 @@
 
 ### Features
 
+- [ ] **Owner stats dashboard** - A private `?owner` page (lazy-loaded in `AppRoot`) backed by `/api/owner-stats`, open only to the owner's Google account (`OWNER_UID` env var; the same account can still be a parent). Shows total registered users (real accounts vs. guests), how many are on Pro, users by grade, active users (1/7/30 days), and average missions and average active time per day. Active time is a new invisible `activeSeconds` field in `activityLog`, never shown to learners or parents. Aggregates only, no personal data.
 - [ ] **Vibe-o-meter** - A 0-100% gauge derived from `profile.activityLog` (no stored field, no sync change): it fills with recent practice and cools gently when days go quiet (Shabbat and shielded days count as active). It never removes points or levels, and its copy is encouraging, not punishing.
 - [ ] **Pro legal texts: owner review** (before Pro launch) - Read the drafts in `docs/legal/pro-legal-drafts.md` (terms of service, the privacy notice's payments section, the checkout's terms line and consent box) and approve or change them. Fill in the missing details: business name and number (עוסק פטור / מורשה), address, the business WhatsApp number and contact email, the court city, whether prices include VAT, the notice period for price and terms changes, and the cancellation fee (if any). Then get a short legal review of the 8 questions in section 4 of that file (14-day cancellation, monthly and yearly refunds, Privacy Protection Law Amendment 13, children's consent).
 - [ ] **Pro tier and payments plan** - **Done:** the design, the server payments layer, Phase 1 (learner gating, switched off), Phase 2 (the parent's checkout on the mock gateway, dev server only) and Phase 3a (the reconcile cron, seat race guards, checkout caps, a security review, the Pro audio, the legal drafts). **Status and next steps: `docs/feature-pro-tier.md`, "Where we stopped".** Paused until the business registration and the Grow account are approved. **Left:**
@@ -35,6 +36,7 @@
 
 
 ## Completed Features
+- [x] **UI** - Create a short 20 seconds video animation with natural language hebrew narrations that will be used as an ad for this app, targeted at both children and parents.
 - [x] **Grown-up themes and mascot choice** - Three calmer themes for older students sit beside the three playful ones, grouped in the theme picker ("כיפי וצבעוני" / "בוגר ונקי"): **Focus** (light study desk, teal), **Street** (dark city at night, lime) and **Journey** (travel journal, sand/olive/navy), each with its own art (map, home scene, room) and its own new mascot: Sage the owl, Kai the raccoon and Atlas the otter. The mascot is now separate from the theme: any of the six mascots on any theme, chosen in settings → "עיצוב וקול" (`LearnerProfile.companionId`, synced); a learner who never chose one gets each theme's own. `docs/architecture.md` §4.3, §4.17.
 - [x] **Settings screen: tabs and autosave** - The settings screen (`components/settings/SettingsView.tsx`, `docs/architecture.md` §4.x voice line) is split into five tabs (profile, look and Shabbat, read-aloud and reminder, friends and parents, privacy and account) and saves every change as it is made through `App.handleUpdateProfile` (name on blur or after 600 ms; no save button). The grade is a dropdown (`GradeSelect`) grouped by school stage. First run keeps its own form (`OnboardingView`); both build the profile with `utils/buildSavedProfile.ts`.
 - [x] **App icon everywhere** - The new round EnglishVibe icon (yellow "E" with headphones on purple) replaces the old one: favicon (`favicon-32.png`, `icon-192.png`), PWA manifest icons (round "any" 192/512 plus full-bleed maskable 192/512 with the art inside the 80% safe zone), `apple-touch-icon.png` (also the push-notification icon), and `theme-color` / manifest `theme_color` `#5d489c`, plus `og:title`/`og:image` tags. In the app the `AppLogo` component shows it in the onboarding header pill, the tour welcome scene and the mandatory sign-in modal. The old `favicon.svg` is gone and the service worker precache lists `favicon-32.png`.

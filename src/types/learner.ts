@@ -103,6 +103,11 @@ export interface ActivityLogEntry {
   missionStars: Record<string, number>;
   /** Missions that got their first star that day */
   firstCompletedIds: string[];
+  /**
+   * Seconds the app was in active use that day. Owner analytics only: never shown to learners,
+   * left out of the parent report snapshot (`toReportSnapshot`).
+   */
+  activeSeconds?: number;
 }
 
 export interface TodaysMissionSuggestion {

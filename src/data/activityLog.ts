@@ -94,6 +94,7 @@ export function recordActivityLog(
   const log = next.activityLog || [];
   const today = log.find((entry) => entry.dateStr === todayStr) || emptyEntry(todayStr);
   const updatedToday: ActivityLogEntry = {
+    ...today,
     dateStr: todayStr,
     sessions: today.sessions + counters.sessions,
     voiceWords: today.voiceWords + counters.voiceWords,
@@ -107,9 +108,39 @@ export function recordActivityLog(
   return { ...next, activityLog: pruneActivityLog([...others, updatedToday], todayStr) };
 }
 
+/** Longest active time one flush may add, so a throttled or stuck timer cannot inflate the day. */
+export const MAX_ACTIVE_SECONDS_PER_FLUSH = 15 * 60;
+const MAX_ACTIVE_SECONDS_PER_DAY = 20 * 60 * 60;
+
+/** Adds active-use seconds to today's log entry (owner analytics; see `ActivityLogEntry.activeSeconds`). */
+export function addActiveSeconds(profile: LearnerProfile, seconds: number, now: Date): LearnerProfile {
+  const added = Math.min(Math.floor(seconds), MAX_ACTIVE_SECONDS_PER_FLUSH);
+  if (!(added > 0)) return profile;
+  const todayStr = toLocalDateStr(now);
+  const log = profile.activityLog || [];
+  const today = log.find((entry) => entry.dateStr === todayStr) || emptyEntry(todayStr);
+  const updatedToday: ActivityLogEntry = {
+    ...today,
+    activeSeconds: Math.min((today.activeSeconds || 0) + added, MAX_ACTIVE_SECONDS_PER_DAY),
+  };
+  const others = log.filter((entry) => entry.dateStr !== todayStr);
+  return { ...profile, activityLog: pruneActivityLog([...others, updatedToday], todayStr) };
+}
+
+/** The log without owner-only fields, for anything a learner or parent can see. */
+export function stripOwnerFields(log: ActivityLogEntry[]): ActivityLogEntry[] {
+  return log.map((entry) => {
+    const visible = { ...entry };
+    delete visible.activeSeconds;
+    return visible;
+  });
+}
+
 function mergeEntries(a: ActivityLogEntry, b: ActivityLogEntry): ActivityLogEntry {
   const missionIds = Array.from(new Set([...Object.keys(a.missionStars), ...Object.keys(b.missionStars)]));
+  const activeSeconds = Math.max(a.activeSeconds || 0, b.activeSeconds || 0);
   return {
+    ...(activeSeconds > 0 ? { activeSeconds } : {}),
     dateStr: a.dateStr,
     sessions: Math.max(a.sessions, b.sessions),
     voiceWords: Math.max(a.voiceWords, b.voiceWords),

@@ -12,6 +12,10 @@ import { ScreenLoading } from './ScreenLoading';
 // The parent area is a separate, lazy screen: it never starts the learner app or its cloud sync
 const ParentPortal = lazyNamed(() => import('./parent/ParentPortal'), 'ParentPortal');
 
+// The owner's stats page (`?owner`): lazy, separate from the learner app; the server checks the owner
+const OwnerDashboard = lazyNamed(() => import('./owner/OwnerDashboard'), 'OwnerDashboard');
+const isOwnerRoute = (search: string): boolean => new URLSearchParams(search).has('owner');
+
 type Screen = 'checking' | 'app' | 'parent';
 
 /**
@@ -40,6 +44,17 @@ async function resolveScreen(user: User | null): Promise<Screen> {
 }
 
 export const AppRoot: React.FC = () => {
+  if (isOwnerRoute(window.location.search)) {
+    return (
+      <React.Suspense fallback={<ScreenLoading />}>
+        <OwnerDashboard />
+      </React.Suspense>
+    );
+  }
+  return <LearnerOrParentRoot />;
+};
+
+const LearnerOrParentRoot: React.FC = () => {
   const isParentView = isParentRoute(window.location.search);
   const [screen, setScreen] = useState<Screen>(isParentView ? 'parent' : 'checking');
 

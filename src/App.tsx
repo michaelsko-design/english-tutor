@@ -20,7 +20,8 @@ import { DashboardView } from './components/DashboardView';
 import { AuthModal } from './components/AuthModal';
 import { AppLogo } from './components/AppLogo';
 import { applyPlacementToProfile } from './data/placementTest';
-import { recordActivityLog } from './data/activityLog';
+import { addActiveSeconds, recordActivityLog } from './data/activityLog';
+import { useActiveTimeTracker } from './hooks/useActiveTimeTracker';
 import { getFirstLaunchSteps } from './data/homeBase';
 import { resolveLearnerTheme } from './data/proGate';
 import { ProAccessContext, useLearnerProAccess } from './hooks/useProAccess';
@@ -286,6 +287,12 @@ export function App() {
       saveQueueRef.current.schedule(authUser.uid, stamped);
     }
   };
+
+  // Owner analytics: active time is logged into today's activityLog entry, never shown
+  useActiveTimeTracker((seconds) => {
+    if (!authUser || !isFirebaseConfigured || !isCloudLoadedRef.current) return;
+    handleUpdateProfile(addActiveSeconds(profileRef.current, seconds, new Date()));
+  });
 
   const proAccess = useLearnerProAccess(authUser?.uid);
   const activeTheme = resolveLearnerTheme(profile.themeId, profile.companionId, proAccess);

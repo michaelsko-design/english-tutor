@@ -407,6 +407,9 @@ Server payments layer built (Grow; `api/checkout.ts`, `api/payment-webhook.ts`, 
 - **Asking a parent:** the learner's "ask a parent" sheet shows no prices and shares a `/?parent=CODE&pro=1` (or `/?parent&pro=1`) link.
 - **Payments:** Grow (Meshulam) sits behind a `PaymentProvider` interface (`api/_lib/payments/`, with a mock for the emulators): monthly plans are Grow recurring charges, yearly plans one-time payments. Coupons and comp grants are handled server-side through admin scripts.
 
+### 4.29. Owner Stats Dashboard (`components/owner/OwnerDashboard.tsx`, `api/owner-stats.ts`, `api/_lib/ownerStats.ts`)
+A private page at `/?owner`, lazy-loaded from `AppRoot`, English and LTR. The owner signs in with Google; `GET /api/owner-stats` verifies the ID token and requires `claims.uid === OWNER_UID` (Vercel env; the owner can still be a parent, the routes are independent). It reads `learners` with a field mask (`gradeId`, `isOnboarded`, `activityLog`) and `entitlements`, finds guests (Auth accounts with no provider) and returns aggregates only: registered users vs. guests, Pro count (`active`, `past_due`, or `canceled` before `periodEnd`), users by grade, active users in 1/7/30 days, missions and minutes per active day (28-day window), and a 14-day series. Time comes from `activityLog[].activeSeconds`, counted by `hooks/useActiveTimeTracker.ts` (tab visible and an interaction in the last minute, flushed every 5 minutes and on hide) via `addActiveSeconds`. It is invisible to users: no UI shows it and `stripOwnerFields` removes it from the parent report snapshot. Activity history is the 84 days kept in each profile, so the dashboard has no history before that.
+
 ---
 
 ## 5. Directory Structure

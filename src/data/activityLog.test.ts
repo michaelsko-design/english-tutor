@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { ActivityLogEntry, LearnerProfile } from '../types/learner';
 import {
   ACTIVITY_LOG_DAYS,
+  MAX_ACTIVE_SECONDS_PER_FLUSH,
+  addActiveSeconds,
+  stripOwnerFields,
   mergeActivityLog,
   pruneActivityLog,
   recordActivityLog,
@@ -178,5 +181,45 @@ describe('mergeActivityLog', () => {
         firstCompletedIds: ['b', 'a'],
       })
     );
+  });
+});
+
+describe('active time (owner analytics)', () => {
+  const withEntry = (entry: Partial<ActivityLogEntry>): LearnerProfile => ({
+    ...baseProfile,
+    activityLog: [
+      { dateStr: TODAY, sessions: 1, voiceWords: 0, threeStarSessions: 0, xpEarned: 0, starsGained: 0, missionStars: {}, firstCompletedIds: [], ...entry },
+    ],
+  });
+
+  it('adds seconds to today and creates the day when missing', () => {
+    const created = addActiveSeconds(baseProfile, 120, NOW);
+    expect(created.activityLog?.[0]).toMatchObject({ dateStr: TODAY, activeSeconds: 120, sessions: 0 });
+    const added = addActiveSeconds(withEntry({ activeSeconds: 60 }), 30, NOW);
+    expect(added.activityLog?.[0].activeSeconds).toBe(90);
+  });
+
+  it('ignores zero, negative and non-numeric seconds and caps one flush', () => {
+    expect(addActiveSeconds(baseProfile, 0, NOW)).toBe(baseProfile);
+    expect(addActiveSeconds(baseProfile, -5, NOW)).toBe(baseProfile);
+    expect(addActiveSeconds(baseProfile, Number.NaN, NOW)).toBe(baseProfile);
+    expect(addActiveSeconds(baseProfile, 999_999, NOW).activityLog?.[0].activeSeconds).toBe(MAX_ACTIVE_SECONDS_PER_FLUSH);
+  });
+
+  it('keeps the seconds when a mission is recorded the same day', () => {
+    const prev = withEntry({ activeSeconds: 200 });
+    const next = { ...prev, stats: { ...prev.stats, xp: prev.stats.xp + 10 } };
+    expect(recordActivityLog(prev, next, NOW).activityLog?.[0].activeSeconds).toBe(200);
+  });
+
+  it('merges devices by the higher value', () => {
+    const merged = mergeActivityLog(withEntry({ activeSeconds: 100 }).activityLog, withEntry({ activeSeconds: 300 }).activityLog, TODAY);
+    expect(merged?.[0].activeSeconds).toBe(300);
+  });
+
+  it('strips the field for anything a parent can see', () => {
+    const log = withEntry({ activeSeconds: 100 }).activityLog!;
+    expect(stripOwnerFields(log)[0]).not.toHaveProperty('activeSeconds');
+    expect(log[0].activeSeconds).toBe(100);
   });
 });

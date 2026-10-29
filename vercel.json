@@ -26,6 +26,9 @@
     },
     "api/pro-reconcile.ts": {
       "maxDuration": 60
+    },
+    "api/owner-stats.ts": {
+      "maxDuration": 60
     }
   },
   "crons": [

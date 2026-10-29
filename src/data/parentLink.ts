@@ -1,5 +1,6 @@
 import { DEFAULT_PROFILE } from './defaultProfile';
 import { addDays, daysBetween, parseDateStr } from '../utils/dates';
+import { stripOwnerFields } from './activityLog';
 import { ActivityLogEntry, GradeId, LearnerGender, LearnerProfile, LearnerStats, ProficiencyTier } from '../types/learner';
 
 /**
@@ -144,7 +145,7 @@ export function buildReportSnapshot(profile: LearnerProfile, now: Date): ReportS
       ...(totalActiveDays !== undefined ? { totalActiveDays } : {}),
     },
     missionProgress: profile.missionProgress,
-    activityLog: profile.activityLog ?? [],
+    activityLog: stripOwnerFields(profile.activityLog ?? []),
     updatedAt: now.toISOString(),
   };
 }

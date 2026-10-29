@@ -135,6 +135,20 @@ export function createAuthAdmin(account: ServiceAccount, projectId: string, { fe
       return existing;
     },
 
+    /** Which of these existing accounts are anonymous guests (no sign-in provider), looked up 100 at a time. */
+    async findAnonymousUids(uids: readonly string[]): Promise<Set<string>> {
+      const anonymous = new Set<string>();
+      for (let start = 0; start < uids.length; start += LOOKUP_BATCH) {
+        const response = await call('accounts:lookup', { localId: uids.slice(start, start + LOOKUP_BATCH) });
+        if (!response.ok) throw new AdminError('Auth lookup failed', response.status);
+        const body = (await response.json()) as { users?: { localId: string; providerUserInfo?: unknown[] }[] };
+        for (const user of body.users ?? []) {
+          if (!user.providerUserInfo?.length) anonymous.add(user.localId);
+        }
+      }
+      return anonymous;
+    },
+
     async setPassword(uid: string, password: string): Promise<void> {
       const response = await call('accounts:update', { localId: uid, password });
       if (!response.ok) throw new AdminError('Auth update failed', response.status);

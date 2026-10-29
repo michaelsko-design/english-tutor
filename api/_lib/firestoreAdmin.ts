@@ -13,7 +13,21 @@ type FirestoreValue = {
   doubleValue?: number;
   nullValue?: null;
   arrayValue?: { values?: FirestoreValue[] };
+  mapValue?: { fields?: Record<string, FirestoreValue> };
 };
+
+/** Any Firestore value as plain JSON, including maps and lists of maps. */
+export function decodeValue(value: FirestoreValue): unknown {
+  if (value.stringValue !== undefined) return value.stringValue;
+  if (value.integerValue !== undefined) return Number(value.integerValue);
+  if (value.doubleValue !== undefined) return value.doubleValue;
+  if (value.booleanValue !== undefined) return value.booleanValue;
+  if (value.arrayValue !== undefined) return (value.arrayValue.values ?? []).map(decodeValue);
+  if (value.mapValue !== undefined) {
+    return Object.fromEntries(Object.entries(value.mapValue.fields ?? {}).map(([key, inner]) => [key, decodeValue(inner)]));
+  }
+  return null;
+}
 
 interface RestDocument {
   name: string;
@@ -115,6 +129,28 @@ export function createFirestoreAdmin(account: ServiceAccount, projectId: string,
         if (!response.ok) throw new AdminError('Firestore list failed', response.status);
         const body = (await response.json()) as { documents?: RestDocument[]; nextPageToken?: string };
         documents.push(...(body.documents ?? []).map(toPlainDocument));
+        pageToken = body.nextPageToken ?? '';
+      } while (pageToken);
+      return documents;
+    },
+
+    /**
+     * Only the listed top-level fields of every document, with maps and lists decoded (the plain
+     * reader drops them). For read-only aggregates, so the whole profile never leaves Firestore.
+     */
+    async listFieldsOf(collection: string, fieldPaths: readonly string[]): Promise<Array<{ id: string; fields: Record<string, unknown> }>> {
+      const documents: Array<{ id: string; fields: Record<string, unknown> }> = [];
+      const mask = fieldPaths.map((path) => `mask.fieldPaths=${encodeURIComponent(path)}`).join('&');
+      let pageToken = '';
+      do {
+        const query = `pageSize=${PAGE_SIZE}&${mask}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
+        const response = await request(`${base}/${collection}?${query}`, 'GET');
+        if (!response.ok) throw new AdminError('Firestore list failed', response.status);
+        const body = (await response.json()) as { documents?: RestDocument[]; nextPageToken?: string };
+        for (const doc of body.documents ?? []) {
+          const fields = Object.fromEntries(Object.entries(doc.fields ?? {}).map(([key, value]) => [key, decodeValue(value)]));
+          documents.push({ id: doc.name.slice(doc.name.lastIndexOf('/') + 1), fields });
+        }
         pageToken = body.nextPageToken ?? '';
       } while (pageToken);
       return documents;
