@@ -22,6 +22,7 @@ import {
   SoundTiles,
   SpellingMagnetDrill,
   QuestionBubble,
+  getCardReadAloudText,
   getQuestionCardContent,
   SentenceBuilderDrill,
   VoiceSpeakDrill,
@@ -592,7 +593,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                   ) : questionCard ? (
                     <QuestionBubble
                       content={questionCard}
-                      readAloudText={currentStep.cardDisplay !== undefined ? currentStep.questionEn : undefined}
+                      readAloudText={getCardReadAloudText(currentStep)}
                       speakerAvatar={currentStep.speakerAvatar}
                       speakerName={currentStep.speakerName}
                       theme={theme}

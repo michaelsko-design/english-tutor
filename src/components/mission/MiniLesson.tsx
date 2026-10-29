@@ -91,9 +91,18 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
 
   // Early readers hear the first example when the examples open
   useEffect(() => {
+    let isCancelled = false;
     if (readsAloud && card === 'examples') onSpeakEnglish(lesson.examples[0].en, LESSON_SPEAK_RATE);
-    if (readsHebrewAloud && card === 'idea') void speakHebrew(lesson.ideaHe);
+    if (readsHebrewAloud && card === 'idea') {
+      // The heading first, then the explanation, without a tap in between
+      void speakHebrew(lesson.titleHe).then(() => {
+        if (!isCancelled) void speakHebrew(lesson.ideaHe);
+      });
+    }
     if (readsHebrewAloud && card === 'try' && lesson.quickTry) void speakHebrew(lesson.quickTry.promptHe);
+    return () => {
+      isCancelled = true;
+    };
     // Only when the card opens
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card, readsAloud, readsHebrewAloud]);

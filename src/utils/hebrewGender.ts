@@ -130,6 +130,7 @@ export function inflectHebrew(text: string, gender: LearnerGender): string {
     ['תצליחי', 'תצליח'],
     ['קוראת', 'קורא'],
     ['שמעי', 'שמע'],
+    ['געי', 'גע'],
     ['הסתכלי', 'הסתכל'],
     ['מצאי', 'מצא'],
     ['החליקי', 'החלק'],

@@ -22,7 +22,7 @@ import {
   getWordBuildWrongHe,
   getWordBuiltHe,
 } from '../../src/data/missionFeedbackHe';
-import { getHebrewCopy } from '../../src/utils/hebrewGender';
+import { getHebrewCopy, inflectHebrew } from '../../src/utils/hebrewGender';
 import { BLEND_WORDS } from '../../src/data/blendingWords';
 import { getSpeechErrorTextHe, type SpeechErrorKind } from '../../src/hooks/useSpeechRecognition';
 import { CONTENT_PACKS } from '../../src/data/curriculum/packs/registry';
@@ -55,6 +55,11 @@ function addMissions(corpus: CorpusBuilder): void {
   for (const gradeId of HEBREW_AUDIO_GRADES) {
     for (const unit of CURRICULUM_BY_GRADE[gradeId].units) {
       for (const mission of unit.missions) {
+        // The mission intro reads its title and story as it opens
+        for (const gender of GENDERS) {
+          addHebrew(corpus, inflectHebrew(mission.titleHe, gender));
+          addHebrew(corpus, inflectHebrew(mission.storyHookHe, gender));
+        }
         for (const tier of TIERS) {
           for (const gender of GENDERS) {
             getExercisesForMission(mission, tier, gender).forEach((step) =>
@@ -71,7 +76,9 @@ function addLessons(corpus: CorpusBuilder): void {
   for (const gradeId of HEBREW_AUDIO_GRADES) {
     const pack = ALL_LESSON_PACKS[gradeIdToNumber(gradeId)] ?? {};
     // The Boss recap is built at run time; its fixed intro is read aloud, the rest comes from the lessons
-    addHebrew(corpus, buildBossRecap(Object.values(pack).slice(0, 1))?.ideaHe);
+    const bossRecap = buildBossRecap(Object.values(pack).slice(0, 1));
+    addHebrew(corpus, bossRecap?.titleHe);
+    addHebrew(corpus, bossRecap?.ideaHe);
     for (const lesson of Object.values(pack)) {
       [lesson.titleHe, lesson.ideaHe, lesson.tipHe, lesson.quickTry?.promptHe, lesson.quickTry?.explainHe].forEach(
         (text) => addHebrew(corpus, text),

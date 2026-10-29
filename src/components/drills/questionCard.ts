@@ -44,6 +44,17 @@ export function getQuestionCardContent(step: QuestionCardStep): QuestionCardCont
   return { text, lang: 'en', size: SINGLE_WORD_PATTERN.test(text) ? 'word' : 'sentence' };
 }
 
+/**
+ * What the card's 🔊 reads. Undefined: the card text itself. An empty `questionEn` on a shown sentence
+ * is a reading check that plays nothing by itself, but the learner can still ask to hear it (grade 1's
+ * "my first sentence").
+ */
+export function getCardReadAloudText(step: QuestionCardStep): string | undefined {
+  if (step.cardDisplay === undefined) return undefined;
+  const isReadingCheck = !step.questionEn && /\s/.test(step.cardDisplay.trim());
+  return isReadingCheck ? step.cardDisplay : step.questionEn;
+}
+
 /** Splits a question into text parts and blanks, so a blank can be drawn as an empty slot. */
 export function splitBlanks(text: string): { text: string; isBlank: boolean }[] {
   return text

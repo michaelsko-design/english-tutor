@@ -1,4 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useReadsHebrewAloud } from '../../data/hebrewAudio';
+import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
+import { speakHebrew } from '../../services/tts';
+import { HebrewSpeakButton } from '../drills/HebrewSpeakButton';
 import { X, Clock, BookOpen } from 'lucide-react';
 import { MissionNode } from '../../data/curriculum';
 import { LearnerGender, ProficiencyTier } from '../../types/learner';
@@ -50,6 +54,23 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
   onClose,
 }) => {
   const isGirl = gender === 'girl';
+  const titleHe = inflectHebrew(mission.titleHe, gender);
+  const storyHookHe = inflectHebrew(mission.storyHookHe, gender);
+  const readsHebrewAloud = useReadsHebrewAloud();
+
+  // Grades 1–2 hear the title, then the story, as the mission opens (the tap on the map unlocked audio)
+  useEffect(() => {
+    if (!readsHebrewAloud) return undefined;
+    let isCancelled = false;
+    void speakHebrew(titleHe).then(() => {
+      if (!isCancelled) void speakHebrew(storyHookHe);
+    });
+    return () => {
+      isCancelled = true;
+    };
+  }, [readsHebrewAloud, titleHe, storyHookHe]);
+  useStopSpeechOnLeave();
+
   const minutes = mission.estimatedMinutes + (lessonOffer === 'auto' ? LESSON_MINUTES : 0);
   return (
     <div className="relative px-4 sm:px-8 pt-4 pb-5 short:pb-4 space-y-4 short:space-y-3">
@@ -73,12 +94,16 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
           <span className="me-1.5" aria-hidden="true">
             {mission.icon}
           </span>
-          {inflectHebrew(mission.titleHe, gender)}
+          {titleHe}
+          <HebrewSpeakButton text={titleHe} label="הקשבה לכותרת המשימה" className="ms-2 align-middle" />
         </h2>
         <p className={`text-sm font-bold ${theme.mutedTextClass}`} dir="ltr" lang="en">
           {mission.titleEn}
         </p>
-        <p className="text-sm font-bold max-w-md">{inflectHebrew(mission.storyHookHe, gender)}</p>
+        <div className="flex items-center justify-center gap-2 max-w-md">
+          <p className="text-sm font-bold">{storyHookHe}</p>
+          <HebrewSpeakButton text={storyHookHe} label="הקשבה לסיפור" />
+        </div>
         <p className={`text-xs font-bold flex items-center gap-1.5 ${theme.mutedTextClass}`}>
           <Clock className="w-3.5 h-3.5" />
           <span>
