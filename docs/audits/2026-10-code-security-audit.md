@@ -41,7 +41,7 @@ Baseline before changes: lint 0 errors (3 `exhaustive-deps` warnings in `Mission
 
 ## MEDIUM (backlog)
 
-**M1. Friend requests can go to any uid.**
+**M1. Friend requests can go to any uid.** *(Fixed in the rules and smoke test; pending rules deploy. Display-name charset limit still open.)*
 - Where: `firestore.rules`, `isNewFriendRequest`.
 - Defect: `uids[1]` is never checked to belong to a learner with the Friends Hub on. A stranger who learns a child's uid can send a request even after the child turned the hub off. The child then sees the sender's display name, which is free text (24 characters).
 - Mitigations already in place: username search is opt-in, friend codes are about 1e9, and there is a 10-a-day cap.

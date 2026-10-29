@@ -13,7 +13,7 @@
 
 ### Technical
 
-- [ ] **Friend requests only to learners with the hub on** (audit M1) - `firestore.rules` `isNewFriendRequest`: require `exists(publicProfiles/{uids[1]})` and `addresseeName` equal to that profile's name, so a stranger who learned a uid can't reach a child who turned the Friends Hub off. Consider limiting display names to letters, digits and spaces. Add the smoke-test deny cases. `docs/audits/2026-10-code-security-audit.md`.
+- [x] **Friend requests only to learners with the hub on** (audit M1) - `isNewFriendRequest` now requires the invited learner's `publicProfiles` doc and `addresseeName` equal to its name; smoke deny cases added. Rules still need `firebase deploy --only firestore:rules`. Open: limit display names to letters, digits and spaces. `docs/audits/2026-10-code-security-audit.md`.
 - [ ] **CSP for the auth-handler proxy** (audit M2) - `/__/auth/(.*)` in `vercel.json` serves Firebase's pages on our origin with no CSP. Add a minimal one (`frame-ancestors 'self'` plus the handler's script sources) and an explicit `Strict-Transport-Security`, then test Google sign-in on desktop and phone.
 - [ ] **Confirm App Check and TTS abuse limits** (audit M3, M4) - Check in the consoles that App Check is enforced on Firestore and that `APPCHECK_ENFORCE=on` is set in Vercel Production. Add a per-uid cap on `/api/tts` cache misses (or a Vercel WAF rate rule), and move to 8-character friend codes.
 - [ ] **Validate the saved profile on load** (audit M5) - `src/App.tsx:57` spreads `JSON.parse` of local storage straight into state; add a shape check that falls back to `DEFAULT_PROFILE`, so a corrupt or old profile can't trap the learner on the error screen.

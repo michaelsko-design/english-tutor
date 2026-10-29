@@ -206,6 +206,10 @@ service cloud.firestore {
         && data.status == 'pending'
         && data.requesterName == me.displayName
         && data.requesterAvatar == me.avatarEmoji
+        // The invited learner must have the Friends Hub on (a public profile exists), and the
+        // name shown to them is the one on that profile, not free text from the sender
+        && exists(docPath('publicProfiles', data.uids[1]))
+        && data.addresseeName == get(docPath('publicProfiles', data.uids[1])).data.displayName
         && isShortString(data.addresseeName, 24)
         && isAvatar(data.addresseeAvatar)
         && isIsoTime(data.createdAt);

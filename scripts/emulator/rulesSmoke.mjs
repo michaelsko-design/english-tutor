@@ -58,18 +58,34 @@ const counterRef = doc(a.db, 'friendRequestCounts', ua.uid);
 await expect('friend request without raising the daily counter is denied', false, () =>
   setDoc(doc(a.db, 'friendships', pairId), request));
 
+// A request needs the invited learner's Friends Hub on (a public profile) and their profile name
+await deleteDoc(doc(b.db, 'publicProfiles', ub.uid)).catch(() => {});
+const stranger = 'someRandomUid123';
 const counter = await getDoc(counterRef);
 const current = counter.exists() ? counter.data() : null;
 const nextCount = current && current.dateStr === today ? current.count + 1 : 1;
+// Raises the counter correctly, so a denial can only come from the friendship rules
+const withCounter = (id, data) => {
+  const batch = writeBatch(a.db);
+  batch.set(doc(a.db, 'friendships', id), data);
+  batch.set(counterRef, { dateStr: today, count: nextCount });
+  return batch.commit();
+};
+await expect('friend request to a learner with the hub off is denied', false, () => withCounter(pairId, request));
+await expect('friend request to a uid with no learner is denied', false, () =>
+  withCounter([ua.uid, stranger].sort().join('_'), { ...request, uids: [ua.uid, stranger] }));
+await setDoc(doc(b.db, 'publicProfiles', ub.uid), {
+  displayName: 'Ido', avatarEmoji: '🐶', level: 1, streakDays: 0, stars: 0, missionsCompleted: 0,
+  updatedAt: new Date().toISOString(),
+});
+await expect('friend request with a name that is not the profile name is denied', false, () =>
+  withCounter(pairId, { ...request, addresseeName: 'Mallory' }));
+
 if (nextCount > 10) {
   results.push(['SKIP', 'daily limit already reached in the emulator today', '']);
 } else {
-  await expect('friend request with the counter raised by one is allowed', true, async () => {
-    const batch = writeBatch(a.db);
-    batch.set(doc(a.db, 'friendships', pairId), request);
-    batch.set(counterRef, { dateStr: today, count: nextCount });
-    await batch.commit();
-  });
+  await expect('friend request with the counter raised by one is allowed', true, () =>
+    withCounter(pairId, request));
   await expect('the counter cannot be reset to 1', false, () =>
     setDoc(counterRef, { dateStr: today, count: 1 }));
   await expect('the counter cannot jump past 10', false, () => setDoc(counterRef, { dateStr: today, count: 11 }));
@@ -78,6 +94,7 @@ if (nextCount > 10) {
 
 await expect('the other learner can delete the friendship (account deletion)', true, () =>
   deleteDoc(doc(b.db, 'friendships', pairId)));
+await deleteDoc(doc(b.db, 'publicProfiles', ub.uid)).catch(() => {});
 await expect('the owner can delete their friend-code record', true, () =>
   deleteDoc(doc(a.db, 'friendCodeOwners', ua.uid)));
 await expect('someone else cannot delete a learner profile', false, () => deleteDoc(doc(b.db, 'learners', ua.uid)));

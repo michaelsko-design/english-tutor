@@ -45,9 +45,12 @@ export type ServiceResult<T> = { ok: true; value: T } | { ok: false; errorHe: st
 const NOT_CONFIGURED_HE = 'החיבור לענן לא זמין כרגע.';
 
 class DailyRequestLimitError extends Error {}
+/** The rules refused a new request: the other learner has the Friends Hub off or changed their name. */
+class RequestRefusedError extends Error {}
 
 function describeError(error: unknown): string {
   if (error instanceof DailyRequestLimitError) return 'שלחת היום הרבה בקשות חברות. אפשר לשלוח עוד מחר 🙂';
+  if (error instanceof RequestRefusedError) return 'אי אפשר לשלוח בקשה לחבר הזה כרגע. כדאי לבדוק את הקוד ולנסות שוב.';
   const code = (error as FirestoreError | undefined)?.code;
   if (code === 'permission-denied') return 'אין הרשאה לפעולה הזו.';
   if (code === 'unavailable') return 'אין חיבור לאינטרנט. כדאי לנסות שוב בעוד רגע.';
@@ -226,7 +229,12 @@ export function sendFriendRequest(
       createdAt: new Date().toISOString(),
     });
     batch.set(counterRef, { dateStr: todayStr, count });
-    await batch.commit();
+    try {
+      await batch.commit();
+    } catch (error) {
+      if ((error as FirestoreError | undefined)?.code === 'permission-denied') throw new RequestRefusedError();
+      throw error;
+    }
   });
 }
 
