@@ -103,6 +103,8 @@ async function deleteLearnerData(user: User, friendCode: string | undefined): Pr
     deleteDoc(doc(db, 'friendCodeOwners', uid)),
     deleteDoc(doc(db, 'publicProfiles', uid)),
     deleteDoc(doc(db, 'learners', uid)),
+    // Otherwise the daily cron keeps pushing reminders to a deleted learner. Guests can't have one (firestore.rules).
+    ...(user.isAnonymous ? [] : [deleteDoc(doc(db, 'pushSubscriptions', uid))]),
   ]);
 }
 
