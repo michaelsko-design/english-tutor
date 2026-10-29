@@ -32,3 +32,9 @@ test-results/
 
 # Read-aloud clips are served from the R2 bucket (npm run tts:upload); only manifest.json is committed
 public/tts/**/*.mp3
+
+# Local emulator / Firebase data exports (can hold user data) and coverage output
+firebase-export-*/
+emulator-export-*/
+coverage/
+.art-gemini-icon-batches.json

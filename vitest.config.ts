@@ -12,6 +12,31 @@ const exclude = [...configDefaults.exclude, '.claude/**', 'node_modules/**', 'di
 export default defineConfig({
   ...shared,
   test: {
+    // npm run test:coverage. Curriculum content, fixtures and type-only files are left out so the number reflects logic.
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}', 'api/**/*.ts'],
+      exclude: [
+        '**/*.test.{ts,tsx}',
+        '**/*.d.ts',
+        'src/data/curriculum/**',
+        'src/data/testing/**',
+        'src/test/**',
+        'api/_lib/testing/**',
+        'src/main.tsx',
+      ],
+      reporter: ['text-summary', 'json-summary', 'html'],
+      // Floors just under today's numbers (docs/audits/2026-10-code-security-audit.md): raise them as tests are added
+      thresholds: {
+        lines: 60,
+        statements: 59,
+        functions: 58,
+        branches: 54,
+        'api/**': { lines: 90 },
+        'src/data/**': { lines: 95 },
+        'src/utils/**': { lines: 85 },
+      },
+    },
     projects: [
       {
         ...shared,
