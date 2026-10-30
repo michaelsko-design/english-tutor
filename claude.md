@@ -34,6 +34,8 @@ Emulator testing: never sign in or create accounts against the live Firebase pro
 - All read-aloud goes through `getTtsService().speak(...)`; 🔊 buttons use `useSpeechToggle`; screens that read aloud use `useStopSpeechOnLeave`.
 
 **Profile sync**:
+**Sentence-builder glossary**: every word of a new or changed sentence-builder sentence needs a Hebrew translation for the hint's translate icons: add it to `src/data/wordGlossesExtra.ts` (or the mission vocabulary); `npm test` (`wordGlosses.test.ts`) fails on a missing one. Only people's names are exempt.
+
 - Every local change goes through `App.handleUpdateProfile` (activity log + diamond ledger recorded there).
 - **A new `LearnerProfile` field must be added to `mergeLearnerProfiles`** (`services/cloudSync.ts`) or a sync drops it. Dates are local calendar days (`utils/dates.ts`), never UTC.
 - Never save before the cloud profile loaded (`isCloudLoadedRef`). Diamonds merge via `diamondLedger`; streaks via `mergeStreakStats`.
