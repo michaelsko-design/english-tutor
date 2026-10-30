@@ -506,24 +506,24 @@ describe('mission objects and the desk', () => {
   });
 
   describe('turning big items to the other wall', () => {
-    const neon = { ...baseProfile, themeId: 'neon-pop' } as LearnerProfile;
-    const { cornerX } = getRoomGeometry('neon-pop');
-    const sofaOnRightWall = placeRoomItemAt(neon, 'room-sofa', { x: 75, y: 88 }, NOW);
+    const focus = { ...baseProfile, themeId: 'focus-desk' } as LearnerProfile;
+    const { cornerX } = getRoomGeometry('focus-desk');
+    const sofaOnRightWall = placeRoomItemAt(focus, 'room-sofa', { x: 75, y: 88 }, NOW);
 
     it('marks only furniture with a front and a side as turnable', () => {
       ['room-sofa', 'object:bed', 'object:wardrobe', 'object:desk'].forEach((key) =>
-        expect(findEntry(key === 'room-sofa' ? sofaOnRightWall : neon, key)?.canRotate, key).toBe(true)
+        expect(findEntry(key === 'room-sofa' ? sofaOnRightWall : focus, key)?.canRotate, key).toBe(true)
       );
-      expect(findEntry(neon, 'object:phone')?.canRotate).toBe(false);
-      expect(findEntry(placeRoomItemAt(neon, 'room-books', { x: 70, y: 40 }, NOW), 'room-books')?.canRotate).toBe(false);
+      expect(findEntry(focus, 'object:phone')?.canRotate).toBe(false);
+      expect(findEntry(placeRoomItemAt(focus, 'room-books', { x: 70, y: 40 }, NOW), 'room-books')?.canRotate).toBe(false);
     });
 
     it('knows which wall a big item stands against from where it stands', () => {
       expect(findEntry(sofaOnRightWall, 'room-sofa')?.isOnLeftWall).toBe(false);
       // by default the bed and the wardrobe stand along the left wall, the desk along the right one
-      expect(findEntry(neon, 'object:bed')?.isOnLeftWall).toBe(true);
-      expect(findEntry(neon, 'object:wardrobe')?.isOnLeftWall).toBe(true);
-      expect(findEntry(neon, 'object:desk')?.isOnLeftWall).toBe(false);
+      expect(findEntry(focus, 'object:bed')?.isOnLeftWall).toBe(true);
+      expect(findEntry(focus, 'object:wardrobe')?.isOnLeftWall).toBe(true);
+      expect(findEntry(focus, 'object:desk')?.isOnLeftWall).toBe(false);
     });
 
     it('turns an item where it stands: only the picture changes wall, and turning twice turns it back', () => {
@@ -540,16 +540,16 @@ describe('mission objects and the desk', () => {
       const movedSofa = placeRoomItemAt(sofaOnRightWall, 'room-sofa', { x: 20, y: 92 }, NOW);
       expect(findEntry(movedSofa, 'room-sofa')!.point.x).toBeLessThan(cornerX);
       expect(findEntry(movedSofa, 'room-sofa')!.isOnLeftWall).toBe(false);
-      const movedDesk = moveRoomObject(neon, 'desk', { x: 20, y: 95 }, NOW);
+      const movedDesk = moveRoomObject(focus, 'desk', { x: 20, y: 95 }, NOW);
       expect(findEntry(movedDesk, 'object:desk')!.isOnLeftWall).toBe(false);
-      const turnedThenMoved = moveRoomObject(turnRoomItem(neon, 'object:desk', NOW), 'desk', { x: 85, y: 95 }, NOW);
+      const turnedThenMoved = moveRoomObject(turnRoomItem(focus, 'object:desk', NOW), 'desk', { x: 85, y: 95 }, NOW);
       expect(findEntry(turnedThenMoved, 'object:desk')!.isOnLeftWall).toBe(true);
     });
 
     it('keeps a turned item on the floor, below the baseboard', () => {
-      const geometry = getRoomGeometry('neon-pop');
+      const geometry = getRoomGeometry('focus-desk');
       ['room-sofa', 'object:bed', 'object:wardrobe', 'object:desk'].forEach((key) => {
-        const profile = turnRoomItem(key === 'room-sofa' ? sofaOnRightWall : neon, key, NOW);
+        const profile = turnRoomItem(key === 'room-sofa' ? sofaOnRightWall : focus, key, NOW);
         const entry = findEntry(profile, key)!;
         expect(entry.point.y, key).toBeGreaterThanOrEqual(floorEdgeY(geometry, entry.point.x));
         expect(entry.item.slotKind, key).toBe('floor');
@@ -557,7 +557,7 @@ describe('mission objects and the desk', () => {
     });
 
     it('turns the desk with what lies on it', () => {
-      const turned = turnRoomItem(neon, 'object:desk', NOW);
+      const turned = turnRoomItem(focus, 'object:desk', NOW);
       const desk = findEntry(turned, 'object:desk')!;
       expect(desk.isOnLeftWall).toBe(true);
       const phone = findEntry(turned, 'object:phone')!;
@@ -566,8 +566,8 @@ describe('mission objects and the desk', () => {
     });
 
     it('leaves items that cannot turn, and unknown keys, unchanged', () => {
-      expect(turnRoomItem(neon, 'object:phone', NOW)).toBe(neon);
-      expect(turnRoomItem(neon, 'nope', NOW)).toBe(neon);
+      expect(turnRoomItem(focus, 'object:phone', NOW)).toBe(focus);
+      expect(turnRoomItem(focus, 'nope', NOW)).toBe(focus);
     });
   });
 

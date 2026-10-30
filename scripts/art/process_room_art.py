@@ -79,6 +79,8 @@ FRONT_PICKS = {
     'starlight-rpg/room-chair': 2,
     'cozy-studio/room-sofa': 3,
     'cozy-studio/room-chair': 3,
+    'neon-pop/room-sofa': 2,
+    'neon-pop/room-chair': 1,
 }
 SHADOW_SQUASH = 0.22  # the shadow's height as a share of the object's (light from high up on the left)
 SHADOW_LEAN = 0.55  # pixels to the right per pixel of the object's height
