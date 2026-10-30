@@ -139,6 +139,8 @@ export interface ScenePalette {
   windowView: string;
   boardClass: string;
   highlightClass: string;
+  /** The same colours for a drawn (SVG) zone outline, like the floor's */
+  outlineClass: string;
 }
 
 export const SCENE_PALETTES: Record<ThemeId, ScenePalette> = {
@@ -151,6 +153,7 @@ export const SCENE_PALETTES: Record<ThemeId, ScenePalette> = {
     windowView: '☁️',
     boardClass: 'bg-amber-300/80 border-amber-700/40',
     highlightClass: 'border-fuchsia-500 bg-fuchsia-400/25',
+    outlineClass: 'stroke-fuchsia-500 fill-fuchsia-400/25',
   },
   'neon-pop': {
     wallClass: 'bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900',
@@ -161,6 +164,7 @@ export const SCENE_PALETTES: Record<ThemeId, ScenePalette> = {
     windowView: '🌃',
     boardClass: 'bg-fuchsia-900/60 border-fuchsia-400/60',
     highlightClass: 'border-cyan-300 bg-cyan-400/25',
+    outlineClass: 'stroke-cyan-300 fill-cyan-400/25',
   },
   'starlight-rpg': {
     wallClass: 'bg-gradient-to-b from-indigo-950 via-violet-900 to-indigo-900',
@@ -171,6 +175,7 @@ export const SCENE_PALETTES: Record<ThemeId, ScenePalette> = {
     windowView: '🌙',
     boardClass: 'bg-violet-800/70 border-amber-300/50',
     highlightClass: 'border-amber-300 bg-amber-300/25',
+    outlineClass: 'stroke-amber-300 fill-amber-300/25',
   },
   'focus-desk': {
     wallClass: 'bg-gradient-to-b from-stone-100 to-[#f6f4ef]',
@@ -181,6 +186,7 @@ export const SCENE_PALETTES: Record<ThemeId, ScenePalette> = {
     windowView: '🏙️',
     boardClass: 'bg-white/90 border-slate-400/50',
     highlightClass: 'border-teal-600 bg-teal-400/20',
+    outlineClass: 'stroke-teal-600 fill-teal-400/20',
   },
   'urban-night': {
     wallClass: 'bg-gradient-to-b from-zinc-800 via-zinc-900 to-zinc-800',
@@ -191,6 +197,7 @@ export const SCENE_PALETTES: Record<ThemeId, ScenePalette> = {
     windowView: '🌆',
     boardClass: 'bg-zinc-700/70 border-lime-400/50',
     highlightClass: 'border-lime-300 bg-lime-400/20',
+    outlineClass: 'stroke-lime-300 fill-lime-400/20',
   },
   'travel-journal': {
     wallClass: 'bg-gradient-to-b from-[#f3ead8] to-[#e8dcc2]',
@@ -201,5 +208,6 @@ export const SCENE_PALETTES: Record<ThemeId, ScenePalette> = {
     windowView: '⛰️',
     boardClass: 'bg-[#fffaf0]/90 border-[#5b6b3a]/50',
     highlightClass: 'border-[#1e3a5f] bg-[#1e3a5f]/15',
+    outlineClass: 'stroke-[#1e3a5f] fill-[#1e3a5f]/15',
   },
 };

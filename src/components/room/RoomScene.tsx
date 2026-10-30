@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { RoomSlotKind } from '../../data/room';
 import { getArtId, getDeskShape, getRoomSprite } from '../../data/roomArt';
-import { getRoomGeometry } from '../../data/roomGeometry';
+import { FLOOR_EDGE_CLEARANCE, getRoomGeometry } from '../../data/roomGeometry';
 import {
   DESK_OBJECT_ID,
   OBJECT_KEY_PREFIX,
   PlacedRoomEntry,
+  RoomSurface,
   getDepthScale,
   getEntryMoveKinds,
   getSurfaces,
@@ -92,6 +93,19 @@ function spriteStyle(
   };
 }
 const ZONE_TOP_PAD_CQW = 8;
+/** The floor outline follows the baseboard in steps this wide (scene %), and reaches the picture's edges. */
+const OUTLINE_STEP = 2;
+
+/**
+ * The outline of a corner room's floor, as scene points: along the baseboard (where an item's feet can
+ * stand, less the clearance) and down to the bottom of the picture. Null for any other surface.
+ */
+function getFloorOutline(surface: RoomSurface): ScenePoint[] | null {
+  const { minYAt } = surface;
+  if (!minYAt) return null;
+  const xs = Array.from({ length: Math.ceil(100 / OUTLINE_STEP) + 1 }, (_, i) => Math.min(100, i * OUTLINE_STEP));
+  return [...xs.map((x) => ({ x, y: minYAt(x) - FLOOR_EDGE_CLEARANCE })), { x: 100, y: 100 }, { x: 0, y: 100 }];
+}
 
 function at(point: ScenePoint): React.CSSProperties {
   return { left: `${point.x}%`, top: `${point.y}%` };
@@ -217,6 +231,42 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
 
       {/* Drop zones: where the picked or dragged item can go */}
       {zoneSurfaces.map((surface) => {
+        const outline = getFloorOutline(surface);
+        if (outline) {
+          const points = outline.map((point) => `${point.x},${point.y}`).join(' ');
+          const zoneClass = 'absolute inset-0 z-[25] motion-safe:animate-pulse';
+          const zoneStyle: React.CSSProperties = {
+            clipPath: `polygon(${outline.map((point) => `${point.x}% ${point.y}%`).join(', ')})`,
+          };
+          const drawing = (
+            <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <polygon
+                points={points}
+                className={palette.outlineClass}
+                strokeWidth={6}
+                strokeDasharray="10 7"
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+          );
+          return placingKind && isInteractive ? (
+            <button
+              key={surface.id}
+              type="button"
+              data-zone={surface.id}
+              className={`${zoneClass} focus-visible:outline focus-visible:outline-2`}
+              style={zoneStyle}
+              aria-label={`להניח כאן: ${SURFACE_LABELS_HE[surface.id] ?? ''}`}
+              onClick={(event) => handleZoneClick(event, surface.id)}
+            >
+              {drawing}
+            </button>
+          ) : (
+            <span key={surface.id} data-zone={surface.id} className={`${zoneClass} pointer-events-none`} style={zoneStyle} aria-hidden="true">
+              {drawing}
+            </span>
+          );
+        }
         const isStanding = STANDING_KINDS.includes(surface.kind);
         const height = surface.yMax - surface.yMin;
         const style: React.CSSProperties = {
@@ -230,13 +280,14 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
           <button
             key={surface.id}
             type="button"
+            data-zone={surface.id}
             className={`${className} focus-visible:outline focus-visible:outline-2`}
             style={style}
             aria-label={`להניח כאן: ${SURFACE_LABELS_HE[surface.id] ?? ''}`}
             onClick={(event) => handleZoneClick(event, surface.id)}
           />
         ) : (
-          <span key={surface.id} className={`${className} pointer-events-none`} style={style} aria-hidden="true" />
+          <span key={surface.id} data-zone={surface.id} className={`${className} pointer-events-none`} style={style} aria-hidden="true" />
         );
       })}
 

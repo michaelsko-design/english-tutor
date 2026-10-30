@@ -132,6 +132,18 @@ describe('themed room geometry', () => {
         });
       });
 
+      it('keeps all the legs of a big piece on the floor, wherever it is dragged: its back leg is higher up than its feet', () => {
+        const width = getItemWidth({ id: 'object:bed', slotKind: 'floor' });
+        [10, 25, 40, geometry.cornerX + 10, 85].forEach((x) => {
+          const { point } = snapToSurface('floor', { x, y: 0 }, { layout, width, isFurniture: true });
+          const side = point.x < geometry.cornerX ? -1 : 1;
+          // the back leg by the wall: near one end of the piece, about 0.37 of its width up from its feet
+          const backLegX = point.x + side * 0.45 * width;
+          expect(point.y - 0.37 * width, `x ${x}`).toBeGreaterThanOrEqual(floorEdgeY(geometry, backLegX));
+          expect(point.y).toBeLessThanOrEqual(geometry.floorMaxY);
+        });
+      });
+
       it('puts every default mission object on the floor, the phone on the desk top', () => {
         const entries = getPlacedRoomEntries(themed(themeId));
         ['bed', 'wardrobe', 'desk', 'games-book'].forEach((id) => {

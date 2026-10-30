@@ -97,13 +97,20 @@ export interface DeskShape {
   heightOverWidth: number;
   /** How far up the picture, from the feet, the middle of the desk top is, as a share of the picture's height */
   topAboveFeet: number;
+  /** How far left and right of the middle something can lie on the top, as a share of the desk's width */
+  topHalfWidthShare: number;
 }
 
-/** The first desk picture (and its default): 264 x 153, the top line 30% from the top. */
-export const LEGACY_DESK_SHAPE: DeskShape = { heightOverWidth: 153 / 264, topAboveFeet: 0.7 };
+/** The first desk picture (and its default): 264 x 153, the top line 30% from the top, seen from the front. */
+export const LEGACY_DESK_SHAPE: DeskShape = { heightOverWidth: 153 / 264, topAboveFeet: 0.7, topHalfWidthShare: 9 / 28 };
 
-/** The middle of a desk top is this share of the body's height below the body's top edge. */
-const DESK_TOP_FROM_BODY_TOP = 0.22;
+/**
+ * The desk top is drawn as a slanted diamond: its middle (halfway between its left and right corners)
+ * is this share of the body's height below the body's top edge.
+ */
+const DESK_TOP_FROM_BODY_TOP = 0.29;
+/** A level line through the diamond's middle stays on the top for a third of the width each way; small things stand back from its ends. */
+const DESK_TOP_HALF_WIDTH_SHARE = 0.2;
 
 export function getDeskShape(themeId: ThemeId | undefined): DeskShape {
   const desk = themeId ? ROOM_ART[themeId]?.['object-desk'] : undefined;
@@ -113,5 +120,6 @@ export function getDeskShape(themeId: ThemeId | undefined): DeskShape {
   return {
     heightOverWidth: 1 / (bodyWidth * desk.aspect),
     topAboveFeet: desk.bottom - (desk.top + DESK_TOP_FROM_BODY_TOP * bodyHeight),
+    topHalfWidthShare: DESK_TOP_HALF_WIDTH_SHARE,
   };
 }

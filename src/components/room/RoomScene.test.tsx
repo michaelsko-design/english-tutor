@@ -50,11 +50,22 @@ describe('RoomScene turned items', () => {
 describe('RoomScene moving the games book', () => {
   it('shows both the floor and the desk top as places for the book', () => {
     const { container } = renderScene(makeProfile(), 'object:games-book');
-    expect(container.querySelectorAll('.border-dashed')).toHaveLength(2);
+    expect(container.querySelectorAll('[data-zone]')).toHaveLength(2);
   });
 
   it('shows only the floor as a place for the bed', () => {
     const { container } = renderScene(makeProfile(), 'object:bed');
-    expect(container.querySelectorAll('.border-dashed')).toHaveLength(1);
+    expect(container.querySelectorAll('[data-zone]')).toHaveLength(1);
+  });
+
+  it('outlines a corner room floor along its baseboard, down to the bottom of the picture', () => {
+    const { container } = renderScene(makeProfile(), 'object:bed');
+    const outline = container.querySelector('[data-zone="floor"] polygon')?.getAttribute('points') ?? '';
+    const points = outline.split(' ').map((pair) => pair.split(',').map(Number));
+    expect(points.length).toBeGreaterThan(10);
+    expect(points[points.length - 1]).toEqual([0, 100]);
+    // the baseboard is highest at the corner, so the outline is not a level line
+    const ys = points.slice(0, -2).map(([, y]) => y);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(5);
   });
 });

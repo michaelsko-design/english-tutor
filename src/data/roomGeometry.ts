@@ -65,6 +65,32 @@ export function floorEdgeY(geometry: RoomGeometry, x: number): number {
 /** Extra distance (scene %) between the baseboard and the feet of an item standing right at it. */
 export const FLOOR_EDGE_CLEARANCE = 1.5;
 
+/**
+ * The legs of a big piece (bed, desk, wardrobe, sofa, chair) drawn for the left wall, relative to its
+ * feet (the front leg, the bottom middle of the picture), in shares of its width: the back leg by the
+ * wall, the far back leg and the far front leg. Measured off the pictures; the right-wall pictures
+ * are the mirror image.
+ */
+const FURNITURE_LEGS = [
+  { dx: -0.45, dy: -0.37 },
+  { dx: -0.16, dy: -0.6 },
+  { dx: 0.37, dy: -0.22 },
+];
+
+/**
+ * The smallest feet y at `x`: just below the baseboard, or, for a big piece `width` wide, low enough
+ * that all its legs stand on the floor (its back leg is higher up the picture than its feet).
+ */
+export function getFloorMinY(geometry: RoomGeometry, x: number, width = 0): number {
+  const atFeet = floorEdgeY(geometry, x) + FLOOR_EDGE_CLEARANCE;
+  if (width <= 0) return atFeet;
+  const side = x < geometry.cornerX ? 1 : -1;
+  return FURNITURE_LEGS.reduce(
+    (minY, leg) => Math.max(minY, floorEdgeY(geometry, x + side * leg.dx * width) + FLOOR_EDGE_CLEARANCE - leg.dy * width),
+    atFeet
+  );
+}
+
 /** The surfaces of a room (the desk top depends on the desk, see getSurfaces). */
 export function getFixedSurfaces(geometry: RoomGeometry): RoomSurface[] {
   const { wallLeft, wallRight, board } = geometry;
@@ -87,7 +113,7 @@ export function getFixedSurfaces(geometry: RoomGeometry): RoomSurface[] {
       xMax: geometry.floorXMax,
       yMin: geometry.floorMinY,
       yMax: geometry.floorMaxY,
-      ...(geometry.isLegacy ? {} : { minYAt: (x: number) => floorEdgeY(geometry, x) + FLOOR_EDGE_CLEARANCE }),
+      ...(geometry.isLegacy ? {} : { minYAt: (x: number, width?: number) => getFloorMinY(geometry, x, width) }),
     },
   ];
 }
@@ -131,7 +157,8 @@ interface CornerRoom {
   sill: { xMin: number; xMax: number; y: number };
 }
 
-const FLOOR_MAX_Y = 94;
+/** The floor runs to the bottom of the picture: feet can stand almost there. */
+const FLOOR_MAX_Y = 98;
 /** A hanging item is about this wide: its centre stays this far from the window's edge. */
 const WALL_ITEM_CLEARANCE = 5;
 const WALL_LEFT_X_MIN = 3;
@@ -143,7 +170,7 @@ function getWallLeft(window: Box): Box | null {
   const xMax = window.xMin - WALL_ITEM_CLEARANCE;
   return xMax - WALL_LEFT_X_MIN >= WALL_LEFT_MIN_SPAN ? { xMin: WALL_LEFT_X_MIN, xMax, yMin: 10, yMax: 30 } : null;
 }
-const FLOOR_MARGIN_X = 6;
+const FLOOR_MARGIN_X = 2;
 const BED_X = 21;
 const WARDROBE_FROM_CORNER = 11;
 

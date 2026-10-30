@@ -98,4 +98,12 @@ describe('getDeskShape', () => {
       expect(shape.heightOverWidth, theme).toBeGreaterThan(0.3);
     });
   });
+
+  it('keeps things on the slanted desk top away from its corners, where a level line runs off it', () => {
+    THEMES.forEach((theme) => {
+      const shape = getDeskShape(theme as Parameters<typeof getDeskShape>[0]);
+      expect(shape.topHalfWidthShare, theme).toBeLessThan(0.25);
+      expect(shape.topHalfWidthShare, theme).toBeGreaterThan(0.1);
+    });
+  });
 });
