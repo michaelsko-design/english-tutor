@@ -74,7 +74,12 @@ FLAT_SLOPE_OVERRIDES = {'starlight-rpg/room-sofa': -0.3}
 # Rooms with the furniture drawn in: the sofa and armchair face the viewer (renderRoomArt.mjs front,
 # art-src/room-art/<theme>/<id>-front-<take>.png), never turn, and are level (slope 0). The picked take
 # serves both views; it gets the same made shadow as the flat furniture.
-FRONT_PICKS = {'starlight-rpg/room-sofa': 5, 'starlight-rpg/room-chair': 2}
+FRONT_PICKS = {
+    'starlight-rpg/room-sofa': 5,
+    'starlight-rpg/room-chair': 2,
+    'cozy-studio/room-sofa': 3,
+    'cozy-studio/room-chair': 3,
+}
 SHADOW_SQUASH = 0.22  # the shadow's height as a share of the object's (light from high up on the left)
 SHADOW_LEAN = 0.55  # pixels to the right per pixel of the object's height
 SHADOW_BLUR = 5

@@ -365,7 +365,59 @@ function bakedRoom({ cornerX, window, edge: [yLeft, yCorner, yRight], wallLeft, 
 }
 
 const ROOM_GEOMETRY: Record<ThemeId, RoomGeometry> = {
-  'cozy-studio': cornerRoom({ cornerX: 57.5, window: { xMin: 12, xMax: 50, yMin: 10, yMax: 63 }, edge: [71, 67, 80], sill: { xMin: 22, xMax: 46, y: 62.5 } }),
+  'cozy-studio': bakedRoom({
+    cornerX: 51,
+    window: { xMin: 23, xMax: 46, yMin: 11, yMax: 52 },
+    edge: [81, 63, 78.5],
+    wallLeft: { xMin: 8, xMax: 17, yMin: 10.5, yMax: 14.5 },
+    wallRight: { xMin: 87, xMax: 93, yMin: 17, yMax: 25 },
+    board: { xMin: 86, xMax: 92, yMin: 10, yMax: 12 },
+    shelves: [
+      { id: 'shelf-high', xMin: 59.5, xMax: 79.5, y: 25.2, tilt: 0.035 },
+      { id: 'shelf-low', xMin: 73.5, xMax: 95, y: 36.6, tilt: 0.045 },
+      { id: 'window-sill', xMin: 30.5, xMax: 40, y: 48.3 },
+    ],
+    baked: {
+      roomPicture: '/art/cozy-studio/room-baked.webp',
+      pieces: [
+        {
+          id: 'wardrobe',
+          tapArea: [{ x: 0, y: 22 }, { x: 26, y: 22 }, { x: 26, y: 77 }, { x: 10, y: 85 }, { x: 4, y: 85 }, { x: 0, y: 84 }],
+          standAt: { x: 29, y: 89 },
+          bubbleAt: { x: 13, y: 20 },
+        },
+        {
+          id: 'bed',
+          tapArea: [{ x: 25.5, y: 60 }, { x: 36, y: 57 }, { x: 42, y: 53.5 }, { x: 51, y: 53 }, { x: 51, y: 45 }, { x: 57, y: 38 }, { x: 64, y: 38 }, { x: 69.5, y: 45 }, { x: 69.5, y: 58 }, { x: 65, y: 69 }, { x: 40, y: 82.5 }, { x: 37, y: 82 }, { x: 25.5, y: 74 }],
+          standAt: { x: 48, y: 87 },
+          bubbleAt: { x: 52, y: 37 },
+        },
+        {
+          id: 'desk',
+          tapArea: [{ x: 65, y: 55 }, { x: 75, y: 52.3 }, { x: 99.5, y: 57.3 }, { x: 99.5, y: 61 }, { x: 98, y: 80 }, { x: 91, y: 84.5 }, { x: 88, y: 84.5 }, { x: 66, y: 76 }, { x: 65, y: 57 }],
+          standAt: { x: 70, y: 89 },
+          bubbleAt: { x: 82, y: 51 },
+        },
+      ],
+      freeFloorEdge: [
+        { x: 0, y: 83 },
+        { x: 5, y: 85 },
+        { x: 10, y: 84.5 },
+        { x: 25.5, y: 77.5 },
+        { x: 25.5, y: 74 },
+        { x: 39, y: 82.5 },
+        { x: 65, y: 69.5 },
+        { x: 67, y: 76.5 },
+        { x: 90, y: 84.5 },
+        { x: 92, y: 81 },
+        { x: 97, y: 79.5 },
+        { x: 100, y: 79 },
+      ],
+      deskTop: [{ x: 65.3, y: 55.5 }, { x: 75, y: 52.8 }, { x: 98.8, y: 57.5 }, { x: 90.1, y: 60.3 }],
+    },
+    gamesBook: { x: 55, y: 90 },
+    avatarHome: { x: 50, y: 92 },
+  }),
   'neon-pop': cornerRoom({ cornerX: 57.5, window: { xMin: 12, xMax: 45, yMin: 10, yMax: 66 }, edge: [88, 64, 82], sill: { xMin: 14, xMax: 38, y: 61 } }),
   'starlight-rpg': bakedRoom({
     cornerX: 55,

@@ -8,9 +8,12 @@ import { RoomScene } from './RoomScene';
 
 const NOW = new Date('2026-10-29T10:00:00.000Z');
 
+/** A room whose furniture is movable (not drawn into the room picture). */
+const neonProfile = () => makeProfile({ themeId: 'neon-pop' });
+
 const profileWithSofa = () =>
   placeRoomItemAt(
-    makeProfile({ unlockedRewardIds: ['room-sofa'], room: { ...getRoom(makeProfile()), placements: {} } }),
+    makeProfile({ themeId: 'neon-pop', unlockedRewardIds: ['room-sofa'], room: { ...getRoom(makeProfile()), placements: {} } }),
     'room-sofa',
     { x: 75, y: 88 },
     NOW
@@ -19,7 +22,7 @@ const profileWithSofa = () =>
 function renderScene(profile: ReturnType<typeof makeProfile>, moveRequestKey: string | null = null) {
   return render(
     <RoomScene
-      themeId="cozy-studio"
+      themeId="neon-pop"
       avatarEmoji="🐶"
       entries={getPlacedRoomEntries(profile)}
       avatarPos={AVATAR_HOME}
@@ -39,27 +42,27 @@ describe('RoomScene turned items', () => {
   it('shows the right-wall sofa picture, and the left-wall picture once the sofa is turned to the other wall', () => {
     const profile = profileWithSofa();
     const { unmount } = renderScene(profile);
-    expect(pictureOf('sofa · ספה')).toBe('/art/room/cozy-studio/room-sofa.webp');
+    expect(pictureOf('sofa · ספה')).toBe('/art/room/neon-pop/room-sofa.webp');
     unmount();
 
     renderScene(turnRoomItem(profile, 'room-sofa', NOW));
-    expect(pictureOf('sofa · ספה')).toBe('/art/room/cozy-studio/room-sofa-b.webp');
+    expect(pictureOf('sofa · ספה')).toBe('/art/room/neon-pop/room-sofa-b.webp');
   });
 });
 
 describe('RoomScene moving the games book', () => {
   it('shows both the floor and the desk top as places for the book', () => {
-    const { container } = renderScene(makeProfile(), 'object:games-book');
+    const { container } = renderScene(neonProfile(), 'object:games-book');
     expect(container.querySelectorAll('[data-zone]')).toHaveLength(2);
   });
 
   it('shows only the floor as a place for the bed', () => {
-    const { container } = renderScene(makeProfile(), 'object:bed');
+    const { container } = renderScene(neonProfile(), 'object:bed');
     expect(container.querySelectorAll('[data-zone]')).toHaveLength(1);
   });
 
   it('outlines a corner room floor along its baseboard, down to the bottom of the picture', () => {
-    const { container } = renderScene(makeProfile(), 'object:bed');
+    const { container } = renderScene(neonProfile(), 'object:bed');
     const outline = container.querySelector('[data-zone="floor"] polygon')?.getAttribute('points') ?? '';
     const points = outline.split(' ').map((pair) => pair.split(',').map(Number));
     expect(points.length).toBeGreaterThan(10);

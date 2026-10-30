@@ -8,15 +8,20 @@
  *        node scripts/art/renderBakedRoom.mjs options <theme> --yes   (ONE paid request: 2 × 2 sheet of four takes)
  *        node scripts/art/renderBakedRoom.mjs draw <theme> [--ref <png> --change <text> ...] --yes
  *          (ONE paid request: the room alone, or a small fix of a picked take)
- * Output: art-src/room-baked/<theme>-options.png, art-src/room-baked/<theme>.png
+ *        node scripts/art/renderBakedRoom.mjs batch <theme> [--takes <n>] [--ref <png> --change <text> ...] --yes
+ *          (a batch of <n> takes of the room, default 2, half price), then batch-status and batch-collect
+ * Output: art-src/room-baked/<theme>-options.png, art-src/room-baked/<theme>.png, art-src/room-baked/<theme>-take-<n>.png
  */
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { batchItems, fetchBatch, imageFrom, readApiKey, stateStore, submitBatch } from './geminiBatch.mjs';
 import { HOUSE_STYLE, THEME_LOOKS } from './roomArtSpec.mjs';
 
 const MODEL = 'gemini-3.1-flash-image';
 const API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 const OUT_DIR = join(process.cwd(), 'art-src', 'room-baked');
+const DEFAULT_TAKES = 2;
+const batchState = stateStore(join(OUT_DIR, 'batches.json'));
 
 /** The room itself, as the empty rooms were described (renderRoomPilot.mjs). */
 const ROOM_IDEAS = {
@@ -96,33 +101,72 @@ export function buildPrompt(theme, isOptionsSheet = false, changes = []) {
   ].join('\n');
 }
 
-function readApiKey() {
-  const envFile = join(process.cwd(), '.env.local');
-  if (!existsSync(envFile)) throw new Error('Missing .env.local file');
-  const match = readFileSync(envFile, 'utf8').match(/GEMINI_API_KEY=(.+)/);
-  if (!match) throw new Error('GEMINI_API_KEY not found in .env.local');
-  return match[1].trim();
-}
-
-async function draw(theme, isOptionsSheet, referenceFile, changes) {
+function roomRequest(theme, isOptionsSheet, referenceFile, changes) {
   const referencePart = referenceFile
     ? [{ inlineData: { mimeType: 'image/png', data: readFileSync(referenceFile).toString('base64') } }]
     : [];
+  return {
+    contents: [{ role: 'user', parts: [...referencePart, { text: buildPrompt(theme, isOptionsSheet, changes) }] }],
+    generationConfig: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio: '4:3', imageSize: '2K' } },
+  };
+}
+
+function savePicture(fileName, buf) {
+  mkdirSync(OUT_DIR, { recursive: true });
+  const outFile = join(OUT_DIR, fileName);
+  writeFileSync(outFile, buf);
+  console.log(`Saved ${outFile}`);
+}
+
+async function draw(theme, isOptionsSheet, referenceFile, changes) {
   const res = await fetch(`${API_BASE}/models/${MODEL}:generateContent`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': readApiKey() },
-    body: JSON.stringify({
-      contents: [{ role: 'user', parts: [...referencePart, { text: buildPrompt(theme, isOptionsSheet, changes) }] }],
-      generationConfig: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio: '4:3', imageSize: '2K' } },
-    }),
+    body: JSON.stringify(roomRequest(theme, isOptionsSheet, referenceFile, changes)),
   });
   if (!res.ok) throw new Error(`Request failed (${res.status}): ${await res.text()}`);
-  const part = (await res.json())?.candidates?.[0]?.content?.parts?.find((p) => p.inlineData?.data);
-  if (!part) throw new Error('No image in the response');
-  mkdirSync(OUT_DIR, { recursive: true });
-  const outFile = join(OUT_DIR, `${theme}${isOptionsSheet ? '-options' : ''}.png`);
-  writeFileSync(outFile, Buffer.from(part.inlineData.data, 'base64'));
-  console.log(`Saved ${outFile}`);
+  const buf = imageFrom(await res.json());
+  if (!buf) throw new Error('No image in the response');
+  savePicture(`${theme}${isOptionsSheet ? '-options' : ''}.png`, buf);
+}
+
+/** Several takes of the room in one batch (half price, ready within the day). */
+async function submitTakes(theme, takes, referenceFile, changes) {
+  const requests = Array.from({ length: takes }, (_, index) => ({
+    request: roomRequest(theme, false, referenceFile, changes),
+    metadata: { key: `${theme}-take-${index + 1}` },
+  }));
+  const batch = await submitBatch(readApiKey(), MODEL, `room-baked-${theme}-${Date.now()}`, requests);
+  console.log(`Batch submitted: ${batch.name}`);
+  batchState.write([...batchState.read(), { name: batch.name, theme, takes, submittedAt: new Date().toISOString() }]);
+}
+
+async function batchStatus() {
+  const batches = batchState.read();
+  if (batches.length === 0) console.log('No active batches.');
+  for (const batch of batches) {
+    const { state } = await fetchBatch(readApiKey(), batch.name);
+    console.log(`${batch.name} (${batch.takes} takes of ${batch.theme}, submitted ${batch.submittedAt}): ${state}`);
+  }
+}
+
+async function batchCollect() {
+  const apiKey = readApiKey();
+  const remaining = [];
+  for (const batch of batchState.read()) {
+    const { data, state } = await fetchBatch(apiKey, batch.name);
+    if (state !== 'BATCH_STATE_SUCCEEDED') {
+      console.log(`${batch.name}: ${state}, kept in the queue.`);
+      remaining.push(batch);
+      continue;
+    }
+    for (const item of await batchItems(apiKey, data)) {
+      const buf = imageFrom(item.response);
+      if (buf) savePicture(`${item.metadata?.key}.png`, buf);
+      else console.error(`${item.metadata?.key ?? '?'} has no image:`, item.error || 'empty response');
+    }
+  }
+  batchState.write(remaining);
 }
 
 const [command, theme, ...flags] = process.argv.slice(2);
@@ -133,11 +177,22 @@ const changes = flags.flatMap((flag, index) => (flag === '--change' ? [flags[ind
 if (referenceFile && changes.length === 0) throw new Error('With --ref, say what to change: --change "<text>" (repeatable)');
 if ((command === 'prompt' || command === 'prompt-options') && theme) {
   console.log(buildPrompt(theme, command === 'prompt-options', changes));
+} else if (command === 'batch-status') {
+  await batchStatus();
+} else if (command === 'batch-collect') {
+  await batchCollect();
+} else if (command === 'batch' && theme) {
+  const takesIndex = flags.indexOf('--takes');
+  const takes = takesIndex >= 0 ? Number(flags[takesIndex + 1]) : DEFAULT_TAKES;
+  if (!Number.isInteger(takes) || takes < 1) throw new Error('--takes must be a whole number of 1 or more');
+  console.log(`Batch: ${takes} take(s) of room "${theme}" with its furniture${referenceFile ? ', with a reference picture' : ''}, model ${MODEL}, 2K, 4:3, half price`);
+  if (!flags.includes('--yes')) throw new Error('Add --yes to submit the paid batch');
+  await submitTakes(theme, takes, referenceFile, changes);
 } else if ((command === 'draw' || isOptionsSheet) && theme) {
   const what = isOptionsSheet ? '2 × 2 sheet of four takes of' : 'room';
   console.log(`1 instant request: ${what} "${theme}" with its furniture${referenceFile ? ', with a reference picture' : ''}, model ${MODEL}, 2K, 4:3`);
   if (!flags.includes('--yes')) throw new Error('Add --yes to send the paid request');
   await draw(theme, isOptionsSheet, referenceFile, changes);
 } else {
-  console.log('Usage: renderBakedRoom.mjs prompt|prompt-options <theme> | draw|options <theme> [--ref <png> --change <text> ...] --yes');
+  console.log('Usage: renderBakedRoom.mjs prompt|prompt-options <theme> | draw|options <theme> [--ref <png> --change <text> ...] --yes | batch <theme> [--takes <n>] [...] --yes | batch-status | batch-collect');
 }
