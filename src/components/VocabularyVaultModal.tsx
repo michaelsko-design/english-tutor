@@ -24,6 +24,9 @@ import { VibeAmount } from './ui/VibeAmount';
 /** The reward inside a Hebrew sentence, isolated so "+10 XP" doesn't flip */
 const VAULT_REWARD_LABEL = `${formatVibeGain(10)} · ${isolateLtr('+2 💎')}`;
 
+/** How long the practice result stays up before it clears itself */
+const FEEDBACK_DISMISS_MS = 6000;
+
 interface VocabularyVaultModalProps {
   units: CurriculumUnit[];
   gender: LearnerGender;
@@ -54,6 +57,12 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
   const [practicingWord, setPracticingWord] = useState<string | null>(null);
   const [masteredWordsSession, setMasteredWordsSession] = useState<Record<string, boolean>>({});
   const [feedbackMsg, setFeedbackMsg] = useState<{ isCorrect: boolean; text: string } | null>(null);
+
+  useEffect(() => {
+    if (!feedbackMsg) return;
+    const timer = setTimeout(() => setFeedbackMsg(null), FEEDBACK_DISMISS_MS);
+    return () => clearTimeout(timer);
+  }, [feedbackMsg]);
 
   const allVocabWithUnit: Array<VocabularyItem & { unitNumber: number; unitTitleHe: string }> =
     units.flatMap((u) =>
@@ -269,6 +278,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
 
           {feedbackMsg && (
             <div
+              role="status"
               className={`p-3 rounded-2xl border text-xs font-extrabold flex items-center gap-2 ${
                 feedbackMsg.isCorrect
                   ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'

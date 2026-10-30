@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { CURRICULUM_BY_GRADE } from '../test/curriculum';
@@ -49,6 +49,39 @@ describe('VocabularyVaultModal', () => {
 
     expect(screen.getByText(target.translationHe)).toBeInTheDocument();
     expect(screen.queryByText(other.translationHe)).not.toBeInTheDocument();
+  });
+
+  it('clears the practice result by itself after a few seconds', async () => {
+    class FakeRecognition {
+      onresult: ((event: unknown) => void) | null = null;
+      start() {
+        this.onresult?.({ results: [[{ transcript: target.wordEn }]] });
+      }
+      abort() {}
+    }
+    vi.stubGlobal('webkitSpeechRecognition', FakeRecognition);
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderVault();
+      await user.type(screen.getByRole('textbox', { name: 'חיפוש מילה' }), target.wordEn);
+
+      // The search also matches other cards' sentences: practice the target's own card
+      let card = screen.getByText(target.wordEn, { exact: true }).parentElement;
+      while (card && !within(card).queryByRole('button', { name: /תרגלי הגייה/ })) {
+        card = card.parentElement;
+      }
+      await user.click(within(card!).getByRole('button', { name: /תרגלי הגייה/ }));
+      expect(screen.getByRole('status')).toHaveTextContent('בצורה מושלמת');
+
+      act(() => {
+        vi.advanceTimersByTime(6100);
+      });
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+      vi.unstubAllGlobals();
+    }
   });
 
   it('closes on Escape', async () => {
