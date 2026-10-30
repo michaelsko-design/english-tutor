@@ -230,7 +230,7 @@ export function flatFurnitureJobs() {
  * its floor. Several takes of each on one sheet, with the room picture as the reference; the picked
  * take becomes room-sofa / room-chair (process_room_art.py adds the shadow).
  */
-export const FRONT_FURNITURE_THEMES = ['starlight-rpg', 'cozy-studio', 'neon-pop', 'focus-desk'];
+export const FRONT_FURNITURE_THEMES = ['starlight-rpg', 'cozy-studio', 'neon-pop', 'focus-desk', 'urban-night'];
 const FRONT_TAKES = { 'room-sofa': 5, 'room-chair': 4 };
 const TAKE_WORDS = ['first', 'second', 'third', 'fourth', 'fifth'];
 
