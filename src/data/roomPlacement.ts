@@ -132,6 +132,8 @@ const DESK_CATCH_BELOW_TOP = 0.5;
 /** A drawn-in desk: let go this far (scene %) above or below its top and an item still lands on it. */
 const BAKED_DESK_CATCH_ABOVE = 4;
 const BAKED_DESK_CATCH_BELOW = 5;
+/** A sticker standing on a drawn-in shelf: its centre this far (scene % of height) above the plank. */
+const STICKER_ABOVE_SHELF = 3.5;
 export const DEFAULT_DESK_POINT: ScenePoint = LEGACY_GEOMETRY.defaults.desk;
 
 const FLOOR_SCALE_FAR = 0.85;
@@ -232,7 +234,22 @@ export function getSurfaces(kind: RoomSlotKind, layout: RoomLayoutContext = DEFA
       },
     ];
   }
+  if (kind === 'board' && layout.geometry.baked) return getBakedStickerSurfaces(layout.geometry);
   return fixedSurfacesOf(layout.geometry).filter((surface) => surface.kind === kind);
+}
+
+/** A room with its furniture drawn in has no sticker board: stickers go on the free walls and stand on the shelves (same ids, so the same Hebrew names). */
+function getBakedStickerSurfaces(geometry: RoomGeometry): RoomSurface[] {
+  const walls = fixedSurfacesOf(geometry)
+    .filter((surface) => surface.kind === 'wall')
+    .map((surface) => ({ ...surface, kind: 'board' as const }));
+  const shelves = geometry.shelves
+    .filter((shelf) => shelf.id !== 'window-sill')
+    .map((shelf) => {
+      const y = shelf.y - STICKER_ABOVE_SHELF;
+      return { id: shelf.id, kind: 'board' as const, xMin: shelf.xMin, xMax: shelf.xMax, yMin: y, yMax: y, tilt: shelf.tilt ?? 0 };
+    });
+  return [...walls, ...shelves];
 }
 
 /** Default point of each old fixed slot, so placements made before free placement keep their spot. */

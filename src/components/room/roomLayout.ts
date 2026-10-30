@@ -52,10 +52,11 @@ export const FURNITURE_PIECES: FurniturePiece[] = [
 /** The furniture a theme's room shows: its own pictures on the shelf lines, the sill and the board of its geometry. */
 export function getFurniturePieces(geometry: RoomGeometry, themeId?: ThemeId): FurniturePiece[] {
   if (geometry.isLegacy) return FURNITURE_PIECES;
+  // The room picture draws the shelves, and stickers go on its walls and shelves instead of a board
+  if (geometry.baked) return [];
   const options = { ...WALL_FURNITURE_OPTIONS, wallSlope: getWallSlope(geometry, false) };
-  // The room pictures already draw the window ledge items stand on (and drawn-in shelves), so no shelf is drawn over them
-  const drawnShelves = geometry.baked ? [] : geometry.shelves.filter((shelf) => shelf.id !== 'window-sill');
-  const shelves = drawnShelves.map((shelf) => {
+  // The room pictures already draw the window ledge items stand on, so no sill is drawn over it
+  const shelves = geometry.shelves.filter((shelf) => shelf.id !== 'window-sill').map((shelf) => {
     const art = ART_IDS[shelf.id];
     const sprite = getRoomSprite(themeId, art, options);
     const span = (shelf.xMax - shelf.xMin) * SPRITE_WIDTH_OF_SHELF;

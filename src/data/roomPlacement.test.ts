@@ -198,6 +198,16 @@ describe('a room with its furniture drawn in', () => {
   const inPicture = (point: { x: number; y: number }) => point.x >= 0 && point.x <= 100 && point.y >= 0 && point.y <= 100;
   const findEntry = (p: LearnerProfile, key: string) => getPlacedRoomEntries(p).find((e) => e.key === key);
 
+  it('has no sticker board: stickers go on the free walls and stand on the drawn shelves', () => {
+    const ids = getSurfaces('board', layout).map((surface) => surface.id).sort();
+    expect(ids).toEqual(['shelf-high', 'shelf-low', 'wall-left', 'wall-right']);
+    const shelf = geometry.shelves.find((line) => line.id === 'shelf-low')!;
+    const onShelf = snapToSurface('board', { x: shelf.xMin + 3, y: shelf.y - 1 }, { layout }).point;
+    const plankY = shelf.y + (onShelf.x - (shelf.xMin + shelf.xMax) / 2) * shelf.tilt!;
+    expect(onShelf.y).toBeLessThan(plankY);
+    expect(onShelf.y).toBeGreaterThan(plankY - 6);
+  });
+
   it('has the bed, the wardrobe and the desk in its picture, each with a tap area, a spot to stand on and a place for its name', () => {
     expect(getFixedFurniture(geometry).map((piece) => piece.id).sort()).toEqual(['bed', 'desk', 'wardrobe']);
     getFixedFurniture(geometry).forEach((piece) => {

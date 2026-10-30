@@ -71,6 +71,10 @@ FLAT_FURNITURE_IDS = {'object-bed', 'object-wardrobe', 'object-desk', 'room-sofa
 FLAT_RIGHT_WALL_DRAWINGS = {'urban-night/room-sofa', 'urban-night/room-chair', 'travel-journal/room-chair'}
 # Wall-edge slopes (as seen against the left wall) read by eye where carved frames fool the measurement
 FLAT_SLOPE_OVERRIDES = {'starlight-rpg/room-sofa': -0.3}
+# Rooms with the furniture drawn in: the sofa and armchair face the viewer (renderRoomArt.mjs front,
+# art-src/room-art/<theme>/<id>-front-<take>.png), never turn, and are level (slope 0). The picked take
+# serves both views; it gets the same made shadow as the flat furniture.
+FRONT_PICKS = {'starlight-rpg/room-sofa': 5, 'starlight-rpg/room-chair': 2}
 SHADOW_SQUASH = 0.22  # the shadow's height as a share of the object's (light from high up on the left)
 SHADOW_LEAN = 0.55  # pixels to the right per pixel of the object's height
 SHADOW_BLUR = 5
@@ -369,7 +373,13 @@ def main() -> None:
         flat_source = SOURCE / theme / f'{item_id}-flat.png'
         is_flat_furniture = item_id in FLAT_FURNITURE_IDS and flat_source.exists()
         is_left_wall_view = picture_id.endswith('-b')
-        if is_flat_furniture:
+        front_take = FRONT_PICKS.get(f'{theme}/{item_id}')
+        if front_take:
+            flat_source = SOURCE / theme / f'{item_id}-front-{front_take}.png'
+            is_flat_furniture = True
+        if front_take:
+            source, mirror, has_shadow = flat_source, False, False
+        elif is_flat_furniture:
             # Most came back with the back to the left wall; mirror those that face the other way
             drawn_left = f'{theme}/{item_id}' not in FLAT_RIGHT_WALL_DRAWINGS
             source, mirror, has_shadow = flat_source, drawn_left != is_left_wall_view, False
@@ -381,6 +391,8 @@ def main() -> None:
         picture, (left, right, top, bottom), slope = process(source, has_shadow, mirror, is_flat_furniture, is_left_wall_view)
         if is_flat_furniture and f'{theme}/{item_id}' in FLAT_SLOPE_OVERRIDES:
             slope = FLAT_SLOPE_OVERRIDES[f'{theme}/{item_id}'] * (1 if is_left_wall_view else -1)
+        if front_take:
+            slope = 0.0
         target = OUT / theme / f'{picture_id}.webp'
         target.parent.mkdir(parents=True, exist_ok=True)
         picture.save(target, 'WEBP', quality=WEBP_QUALITY, method=6)

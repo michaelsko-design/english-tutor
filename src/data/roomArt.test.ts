@@ -3,9 +3,15 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { LEGACY_DESK_SHAPE, getArtId, getDeskShape, getRoomSprite } from './roomArt';
 import { ROOM_ART } from './roomArtManifest';
+import { getRoomGeometry } from './roomGeometry';
+import type { ThemeId } from '../types/learner';
 
 const THEMES = Object.keys(ROOM_ART);
 const PICTURES_PER_THEME = 38;
+
+function isDrawnIn(theme: string): boolean {
+  return getRoomGeometry(theme as ThemeId).baked !== undefined;
+}
 
 describe('the themed room pictures', () => {
   it('has the same 38 pictures for each of the six themes', () => {
@@ -16,11 +22,17 @@ describe('the themed room pictures', () => {
   });
 
   it('draws every big piece the right way for each wall: its edges along the wall fall to the right against the right wall, rise against the left one', () => {
-    THEMES.forEach((theme) =>
+    THEMES.filter((theme) => !isDrawnIn(theme)).forEach((theme) =>
       ['object-bed', 'object-wardrobe', 'object-desk', 'room-sofa', 'room-chair'].forEach((id) => {
         expect(ROOM_ART[theme][id].slope, `${theme}/${id}`).toBeGreaterThan(0.1);
         expect(ROOM_ART[theme][`${id}-b`].slope, `${theme}/${id}-b`).toBeLessThan(-0.1);
       })
+    );
+  });
+
+  it('draws the sofa and armchair of a room with its furniture drawn in facing the viewer, level', () => {
+    THEMES.filter(isDrawnIn).forEach((theme) =>
+      ['room-sofa', 'room-chair'].forEach((id) => expect(ROOM_ART[theme][id].slope, `${theme}/${id}`).toBe(0))
     );
   });
 
