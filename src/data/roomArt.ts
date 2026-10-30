@@ -99,10 +99,24 @@ export interface DeskShape {
   topAboveFeet: number;
   /** How far left and right of the middle something can lie on the top, as a share of the desk's width */
   topHalfWidthShare: number;
+  /**
+   * The corners of the drawn desk top, as shares of the body's width (from its left) and height (from
+   * its top), for the desk against the left wall; against the right wall it is the mirror image. None
+   * for the first desk picture, which is seen from the front.
+   */
+  topCorners?: { x: number; y: number }[];
 }
 
 /** The first desk picture (and its default): 264 x 153, the top line 30% from the top, seen from the front. */
 export const LEGACY_DESK_SHAPE: DeskShape = { heightOverWidth: 153 / 264, topAboveFeet: 0.7, topHalfWidthShare: 9 / 28 };
+
+/** The desk top's corners (left, back, right, front), read off the desk pictures; all themes draw it alike. */
+const DESK_TOP_CORNERS = [
+  { x: 0.01, y: 0.22 },
+  { x: 0.32, y: 0.01 },
+  { x: 0.92, y: 0.37 },
+  { x: 0.59, y: 0.58 },
+];
 
 /**
  * The desk top is drawn as a slanted diamond: its middle (halfway between its left and right corners)
@@ -121,5 +135,6 @@ export function getDeskShape(themeId: ThemeId | undefined): DeskShape {
     heightOverWidth: 1 / (bodyWidth * desk.aspect),
     topAboveFeet: desk.bottom - (desk.top + DESK_TOP_FROM_BODY_TOP * bodyHeight),
     topHalfWidthShare: DESK_TOP_HALF_WIDTH_SHARE,
+    topCorners: DESK_TOP_CORNERS,
   };
 }

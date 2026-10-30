@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageOps
 from scipy import ndimage
 
 from process_room_furniture import clear_background
@@ -62,6 +62,22 @@ SLOPE_MIN_COLUMNS = 8
 # Pictures whose top edge is not the way the piece runs (a level crest on top of a slanted shelf):
 # their slope, read off the plank by eye, as the measured one would read it
 SLOPE_OVERRIDES = {'starlight-rpg/furniture-shelf-high': -0.25}
+# Big furniture drawn the wrong way: the view against the right wall (<id>) faces down-left, the one
+# against the left wall (<id>-b) down-right. Some came back swapped, some with both views the same.
+# Picture key -> (the drawn picture to use, mirrored or not). A mirrored one's baked shadow falls left.
+VIEW_SOURCES = {
+    **{f'{theme}/{item}{view}': (f'{item}{other}', False)
+       for theme, item in [
+           ('neon-pop', 'object-bed'), ('urban-night', 'object-bed'),
+           ('starlight-rpg', 'object-wardrobe'), ('focus-desk', 'object-wardrobe'), ('travel-journal', 'object-wardrobe'),
+           ('starlight-rpg', 'room-sofa'), ('focus-desk', 'room-sofa'), ('travel-journal', 'room-sofa'),
+           ('focus-desk', 'room-chair'),
+       ]
+       for view, other in [('', '-b'), ('-b', '')]},
+    'starlight-rpg/object-bed-b': ('object-bed', True),
+    'cozy-studio/room-sofa-b': ('room-sofa', True),
+    'urban-night/room-chair': ('room-chair-b', True),
+}
 OPEN_SPACE_MIN_AREA = 100
 SOLID_BODY_SIZE = 9  # furniture pieces are thick: anything thinner than this many pixels is a stray line
 SOLID_BODY_REGROW = 8  # pixels kept around the thick body, which is its outline and soft edge
@@ -184,9 +200,14 @@ def top_edge_slope(alpha: np.ndarray, body: np.ndarray) -> float:
     return float(np.polyfit(xs, tops, 1)[0])
 
 
-def process(path: Path, has_shadow: bool) -> tuple[Image.Image, tuple[float, float, float, float], float]:
+def load_source(path: Path, mirror: bool) -> Image.Image:
+    picture = Image.open(path).convert('RGB')
+    return ImageOps.mirror(picture) if mirror else picture
+
+
+def process(path: Path, has_shadow: bool, mirror: bool = False) -> tuple[Image.Image, tuple[float, float, float, float], float]:
     """The transparent picture, the body's (left, right, top, bottom) as shares of it, and its top edge's slope."""
-    rgb = remove_axis_lines(remove_stray_lines(np.asarray(Image.open(path).convert('RGB'))))
+    rgb = remove_axis_lines(remove_stray_lines(np.asarray(load_source(path, mirror))))
     if has_shadow:
         rgb, alpha, body = alpha_with_shadow(rgb, PALE_SHADOW_MAX_LUMINANCE if path.stem.removesuffix('-b') in PALE_SHADOW_IDS else SHADOW_MAX_LUMINANCE)
         drawn = int((alpha > ALPHA_VISIBLE).sum())
@@ -283,11 +304,12 @@ def main() -> None:
     missing: list[str] = []
     for key, has_shadow in jobs.items():
         theme, picture_id = key.split('/')
-        source = SOURCE / theme / f'{picture_id}.png'
+        source_id, mirror = VIEW_SOURCES.get(key, (picture_id, False))
+        source = SOURCE / theme / f'{source_id}.png'
         if not source.exists():
             missing.append(key)
             continue
-        picture, (left, right, top, bottom), slope = process(source, has_shadow)
+        picture, (left, right, top, bottom), slope = process(source, has_shadow, mirror)
         target = OUT / theme / f'{picture_id}.webp'
         target.parent.mkdir(parents=True, exist_ok=True)
         picture.save(target, 'WEBP', quality=WEBP_QUALITY, method=6)

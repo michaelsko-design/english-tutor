@@ -52,6 +52,8 @@ export interface RoomSurface {
   minYAt?: (x: number, footprint?: FurnitureFootprint) => number;
   /** Desk top only: the drawn desk; whatever is let go over it lands on the top, not on the floor behind */
   catchArea?: Box;
+  /** Desk top only: the corners of the drawn top, to outline it as a drop zone */
+  outline?: ScenePoint[];
 }
 
 /** What the room looks like: where its desk is (its top is a surface for small items) and its theme's geometry. */
@@ -60,6 +62,8 @@ export interface RoomLayoutContext {
   geometry: RoomGeometry;
   /** What the theme's desk picture looks like, which puts the desk top at the right height */
   deskShape: DeskShape;
+  /** The desk has its back to the left wall (its picture for that wall shows) */
+  isDeskOnLeftWall?: boolean;
 }
 
 export const SCENE_ASPECT = 4 / 3;
@@ -153,7 +157,22 @@ export function getSurfaces(kind: RoomSlotKind, layout: RoomLayoutContext = DEFA
       yMin: layout.deskPoint.y - deskHeight,
       yMax: top.y + (layout.deskPoint.y - top.y) * DESK_CATCH_BELOW_TOP,
     };
-    return [{ id: 'desk-top', kind, xMin: top.x - halfWidth, xMax: top.x + halfWidth, yMin: top.y, yMax: top.y, catchArea }];
+    const outline = layout.deskShape.topCorners?.map((corner) => ({
+      x: top.x - deskWidth / 2 + (layout.isDeskOnLeftWall ? corner.x : 1 - corner.x) * deskWidth,
+      y: layout.deskPoint.y - deskHeight + corner.y * deskHeight,
+    }));
+    return [
+      {
+        id: 'desk-top',
+        kind,
+        xMin: top.x - halfWidth,
+        xMax: top.x + halfWidth,
+        yMin: top.y,
+        yMax: top.y,
+        catchArea,
+        ...(outline ? { outline } : {}),
+      },
+    ];
   }
   return fixedSurfacesOf(layout.geometry).filter((surface) => surface.kind === kind);
 }
@@ -429,7 +448,7 @@ export function getRoomLayout(profile: LearnerProfile): RoomLayoutContext {
   const roomOnly: RoomLayoutContext = { deskPoint: geometry.defaults.desk, geometry, deskShape };
   const wall = getFacing(room, deskKey, saved, geometry);
   const deskOptions = getPlacementOptions(deskKey, getItemWidth({ id: deskKey, slotKind: 'floor' }), roomOnly, wall);
-  return { ...roomOnly, deskPoint: settle('floor', saved, deskOptions) };
+  return { ...roomOnly, deskPoint: settle('floor', saved, deskOptions), isDeskOnLeftWall: wall === 'left' };
 }
 
 /** Every thing in the room that can be moved: placed items, the mission objects and the desk. */

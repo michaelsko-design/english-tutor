@@ -467,6 +467,22 @@ describe('mission objects and the desk', () => {
     expect(book.point.y).toBeCloseTo(top.y);
   });
 
+  it('outlines the drop zone on the desk as the drawn desk top, turned the way the desk is turned', () => {
+    const profile = { ...baseProfile, themeId: 'starlight-rpg' } as LearnerProfile;
+    const outlineOf = (p: LearnerProfile) => getSurfaces('desk', getRoomLayout(p))[0].outline!;
+    const facingRight = outlineOf(profile);
+    const turned = turnRoomItem(profile, 'object:desk', NOW);
+    const facingLeft = outlineOf(turned);
+    const deskX = getRoomLayout(turned).deskPoint.x;
+    expect(facingRight).toHaveLength(4);
+    // the back corner of the top is right of the middle for the desk against the right wall, left of it when turned
+    expect(facingRight[1].x).toBeGreaterThan(getRoomLayout(profile).deskPoint.x);
+    expect(facingLeft[1].x).toBeLessThan(deskX);
+    const top = getDeskTopPoint(getRoomLayout(turned).deskPoint, getRoomGeometry('starlight-rpg'), getRoomLayout(turned).deskShape);
+    expect(Math.min(...facingLeft.map((c) => c.y))).toBeLessThan(top.y);
+    expect(Math.max(...facingLeft.map((c) => c.y))).toBeGreaterThan(top.y);
+  });
+
   it('snaps to the nearest surface across several kinds', () => {
     const top = getDeskTopPoint(DEFAULT_DESK_POINT);
     expect(snapToSurface(['floor', 'desk'], { x: top.x, y: top.y - 1 }).surface.kind).toBe('desk');

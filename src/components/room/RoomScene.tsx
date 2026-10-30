@@ -93,6 +93,8 @@ function spriteStyle(
   };
 }
 const ZONE_TOP_PAD_CQW = 8;
+/** Drop zones on the floor lie under everything that stands there. */
+const ZONE_Z_INDEX = 25;
 /** The floor outline follows the baseboard in steps this wide (scene %), and reaches the picture's edges. */
 const OUTLINE_STEP = 2;
 
@@ -137,14 +139,10 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
   const geometry = getRoomGeometry(themeId);
   const furniture = getFurniturePieces(geometry, themeId);
   const deskShape = getDeskShape(themeId);
-  const layout = useMemo(
-    () => ({
-      deskPoint: entries.find((entry) => entry.key === `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`)?.point ?? geometry.defaults.desk,
-      geometry,
-      deskShape,
-    }),
-    [entries, geometry, deskShape]
-  );
+  const layout = useMemo(() => {
+    const desk = entries.find((entry) => entry.key === `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`);
+    return { deskPoint: desk?.point ?? geometry.defaults.desk, geometry, deskShape, isDeskOnLeftWall: desk?.isOnLeftWall };
+  }, [entries, geometry, deskShape]);
   const { drag, handlers, startKeyboardMove, getAnnouncement } = useRoomItemDrag({
     sceneRef,
     layout,
@@ -231,12 +229,14 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
 
       {/* Drop zones: where the picked or dragged item can go */}
       {zoneSurfaces.map((surface) => {
-        const outline = getFloorOutline(surface);
+        const outline = surface.outline ?? getFloorOutline(surface);
         if (outline) {
           const points = outline.map((point) => `${point.x},${point.y}`).join(' ');
-          const zoneClass = 'absolute inset-0 z-[25] motion-safe:animate-pulse';
+          const zoneClass = 'absolute inset-0 motion-safe:animate-pulse';
           const zoneStyle: React.CSSProperties = {
             clipPath: `polygon(${outline.map((point) => `${point.x}% ${point.y}%`).join(', ')})`,
+            // the desk top is drawn on the desk, with what lies on it on top (same z, later in the scene)
+            zIndex: surface.kind === 'desk' ? Math.round(layout.deskPoint.y) + 1 : ZONE_Z_INDEX,
           };
           const drawing = (
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">

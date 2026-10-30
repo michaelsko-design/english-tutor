@@ -178,6 +178,9 @@ function getWallLeft(window: Box): Box | null {
   return xMax - WALL_LEFT_X_MIN >= WALL_LEFT_MIN_SPAN ? { xMin: WALL_LEFT_X_MIN, xMax, yMin: 10, yMax: 30 } : null;
 }
 const FLOOR_MARGIN_X = 2;
+/** How far (scene %) above the baseboard at the corner the shelf planks hang */
+const SHELF_HIGH_ABOVE_CORNER = 38;
+const SHELF_LOW_ABOVE_CORNER = 22;
 const BED_X = 21;
 const WARDROBE_FROM_CORNER = 11;
 
@@ -205,11 +208,12 @@ function cornerRoom({ cornerX, window, edge: [yLeft, yCorner, yRight], sill }: C
     floorXMax: 100 - FLOOR_MARGIN_X,
     window,
     wallLeft: getWallLeft(window),
-    wallRight: { ...shelfX, yMin: 8, yMax: 20 },
+    // Above the shelves, which hang high on the wall (well over the furniture standing below them)
+    wallRight: { ...shelfX, yMin: 6, yMax: 16 },
     board: { xMin: cornerX + 26, xMax: 95, yMin: 16, yMax: 30 },
     shelves: [
-      { id: 'shelf-high', ...shelfX, y: yCorner - 28 },
-      { id: 'shelf-low', ...shelfX, y: yCorner - 13 },
+      { id: 'shelf-high', ...shelfX, y: yCorner - SHELF_HIGH_ABOVE_CORNER },
+      { id: 'shelf-low', ...shelfX, y: yCorner - SHELF_LOW_ABOVE_CORNER },
       { id: 'window-sill', ...sill },
     ],
     // The right wall is only about 40% wide: the desk takes it, the bed and the wardrobe stand along the left wall

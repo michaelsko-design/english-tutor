@@ -15,6 +15,15 @@ describe('the themed room pictures', () => {
     THEMES.forEach((theme) => expect(Object.keys(ROOM_ART[theme]).sort(), theme).toEqual(first));
   });
 
+  it('draws the bed and the desk the right way for each wall: against the right wall, the left one, never both alike', () => {
+    THEMES.forEach((theme) =>
+      ['object-bed', 'object-desk'].forEach((id) => {
+        expect(ROOM_ART[theme][id].slope, `${theme}/${id}`).toBeLessThan(-0.1);
+        expect(ROOM_ART[theme][`${id}-b`].slope, `${theme}/${id}-b`).toBeGreaterThan(0.1);
+      })
+    );
+  });
+
   it('has a file for every picture, with sane body bounds', () => {
     THEMES.forEach((theme) =>
       Object.entries(ROOM_ART[theme]).forEach(([id, sprite]) => {
