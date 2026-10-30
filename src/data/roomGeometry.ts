@@ -62,6 +62,21 @@ export function floorEdgeY(geometry: RoomGeometry, x: number): number {
   return points[points.length - 1].y;
 }
 
+/** The scene is 4:3: a run of 1% across is this many times as long as a rise of 1% up. */
+const SCENE_WIDTH_OVER_HEIGHT = 4 / 3;
+
+/**
+ * How a wall runs in the scene, as pixels down per pixel to the right: the slope of its baseboard.
+ * Things that hang flat on it (shelves, the board, frames) are drawn along this line.
+ */
+export function getWallSlope(geometry: RoomGeometry, isOnLeftWall: boolean): number {
+  const points = geometry.floorEdge;
+  const corner = { x: geometry.cornerX, y: floorEdgeY(geometry, geometry.cornerX) };
+  const end = isOnLeftWall ? points[0] : points[points.length - 1];
+  if (end.x === corner.x) return 0;
+  return (end.y - corner.y) / (end.x - corner.x) / SCENE_WIDTH_OVER_HEIGHT;
+}
+
 /** Extra distance (scene %) between the baseboard and the feet of an item standing right at it. */
 export const FLOOR_EDGE_CLEARANCE = 1.5;
 
@@ -112,6 +127,8 @@ export function getFixedSurfaces(geometry: RoomGeometry): RoomSurface[] {
       xMax: shelf.xMax,
       yMin: shelf.y,
       yMax: shelf.y,
+      // The shelves on the right wall run along it; the sill is part of the room picture, level
+      ...(geometry.isLegacy || shelf.id === 'window-sill' ? {} : { tilt: getWallSlope(geometry, false) * SCENE_WIDTH_OVER_HEIGHT }),
     })),
     {
       id: 'floor',
@@ -179,8 +196,8 @@ function getWallLeft(window: Box): Box | null {
 }
 const FLOOR_MARGIN_X = 2;
 /** How far (scene %) above the baseboard at the corner the shelf planks hang */
-const SHELF_HIGH_ABOVE_CORNER = 38;
-const SHELF_LOW_ABOVE_CORNER = 22;
+const SHELF_HIGH_ABOVE_CORNER = 44;
+const SHELF_LOW_ABOVE_CORNER = 29;
 const BED_X = 21;
 const WARDROBE_FROM_CORNER = 11;
 
@@ -208,8 +225,8 @@ function cornerRoom({ cornerX, window, edge: [yLeft, yCorner, yRight], sill }: C
     floorXMax: 100 - FLOOR_MARGIN_X,
     window,
     wallLeft: getWallLeft(window),
-    // Above the shelves, which hang high on the wall (well over the furniture standing below them)
-    wallRight: { ...shelfX, yMin: 6, yMax: 16 },
+    // The shelves take the wall high up by the corner: things hang beside them, under the board
+    wallRight: { xMin: cornerX + 26, xMax: 95, yMin: 40, yMax: 46 },
     board: { xMin: cornerX + 26, xMax: 95, yMin: 16, yMax: 30 },
     shelves: [
       { id: 'shelf-high', ...shelfX, y: yCorner - SHELF_HIGH_ABOVE_CORNER },

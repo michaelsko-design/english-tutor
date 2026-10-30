@@ -28,6 +28,11 @@ export interface RoomSprite {
   bounds: BodyBounds;
   /** The picture is shown flipped left to right */
   isMirrored: boolean;
+  /**
+   * Vertical shear to show it with (pixels down per pixel to the right): a flat wall picture is drawn
+   * at a steeper angle than the room's walls, and is sheared so its edges run along the wall. 0 for the rest.
+   */
+  shear: number;
 }
 
 export interface RoomSpriteOptions {
@@ -40,6 +45,8 @@ export interface RoomSpriteOptions {
   /** The picture hangs flat on a wall (a frame, a shelf, the board): its top edge must run along the wall it
    *  hangs on, which is lower to the right on the right wall and lower to the left on the left wall */
   isFlatOnWall?: boolean;
+  /** How the wall it hangs on runs, in the scene (pixels down per pixel to the right; see getWallSlope) */
+  wallSlope?: number;
 }
 
 /** Pictures drawn as a flat slab, whose slope the room mirrors to fit the wall (see isFlatOnWall). */
@@ -70,7 +77,7 @@ function boundsOf(sprite: RoomArtSprite): BodyBounds {
 export function getRoomSprite(
   themeId: ThemeId | undefined,
   artId: string,
-  { isOnLeftWall = false, canMirror = false, isFlatOnWall = false }: RoomSpriteOptions = {}
+  { isOnLeftWall = false, canMirror = false, isFlatOnWall = false, wallSlope }: RoomSpriteOptions = {}
 ): RoomSprite | null {
   const pictures = themeId ? ROOM_ART[themeId] : undefined;
   const base = pictures?.[artId];
@@ -83,11 +90,13 @@ export function getRoomSprite(
     ? !slopeFitsWall(base.slope, isOnLeftWall)
     : isOnLeftWall && !otherView && canMirror;
   const bounds = boundsOf(chosen);
+  const shownSlope = isMirrored ? -base.slope : base.slope;
   return {
     url: `${ART_ROOT}/${themeId}/${chosenId}.webp`,
     aspect: chosen.aspect,
     bounds: isMirrored ? mirrorBounds(bounds) : bounds,
     isMirrored,
+    shear: followsSlope && wallSlope !== undefined ? wallSlope - shownSlope : 0,
   };
 }
 

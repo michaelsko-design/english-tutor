@@ -8,6 +8,7 @@ import {
   getFixedSurfaces,
   getRoomGeometry,
 } from './roomGeometry';
+import { clampToConvexPolygon, shrinkPolygon } from './scenePolygon';
 import {
   ROOM_OBJECTS,
   RoomItem,
@@ -50,10 +51,17 @@ export interface RoomSurface {
    * for a big piece, low enough for its back legs to stand on the floor too
    */
   minYAt?: (x: number, footprint?: FurnitureFootprint) => number;
+  /**
+   * A line (a shelf plank) that runs along a sloping wall: scene % down per % to the right. `yMin`
+   * (= `yMax`) is its height in the middle.
+   */
+  tilt?: number;
   /** Desk top only: the drawn desk; whatever is let go over it lands on the top, not on the floor behind */
   catchArea?: Box;
   /** Desk top only: the corners of the drawn top, to outline it as a drop zone */
   outline?: ScenePoint[];
+  /** Desk top only: where on the top an item's feet can stand (the box above is its bounds) */
+  area?: ScenePoint[];
 }
 
 /** What the room looks like: where its desk is (its top is a surface for small items) and its theme's geometry. */
@@ -110,6 +118,8 @@ export function getItemWidth(item: Pick<RoomItem, 'id' | 'slotKind'>): number {
   return ITEM_WIDTHS[item.id] ?? KIND_WIDTHS[item.slotKind];
 }
 
+/** Small things on the desk stand within this share of its drawn top, so they do not hang over its edges. */
+const DESK_AREA_SHARE = 0.7;
 /** Let go this far down from the desk top towards its feet (share of the way) and an item still lands on the top. */
 const DESK_CATCH_BELOW_TOP = 0.5;
 export const DEFAULT_DESK_POINT: ScenePoint = LEGACY_GEOMETRY.defaults.desk;
@@ -161,16 +171,24 @@ export function getSurfaces(kind: RoomSlotKind, layout: RoomLayoutContext = DEFA
       x: top.x - deskWidth / 2 + (layout.isDeskOnLeftWall ? corner.x : 1 - corner.x) * deskWidth,
       y: layout.deskPoint.y - deskHeight + corner.y * deskHeight,
     }));
+    if (!outline) {
+      return [{ id: 'desk-top', kind, xMin: top.x - halfWidth, xMax: top.x + halfWidth, yMin: top.y, yMax: top.y, catchArea }];
+    }
+    // Small things stand anywhere on the drawn top, a little in from its edges
+    const area = shrinkPolygon(outline, DESK_AREA_SHARE);
+    const xs = area.map((corner) => corner.x);
+    const ys = area.map((corner) => corner.y);
     return [
       {
         id: 'desk-top',
         kind,
-        xMin: top.x - halfWidth,
-        xMax: top.x + halfWidth,
-        yMin: top.y,
-        yMax: top.y,
+        xMin: Math.min(...xs),
+        xMax: Math.max(...xs),
+        yMin: Math.min(...ys),
+        yMax: Math.max(...ys),
         catchArea,
-        ...(outline ? { outline } : {}),
+        outline,
+        area,
       },
     ];
   }
@@ -232,12 +250,7 @@ export function getEntryMoveKinds(key: string, item: Pick<RoomItem, 'slotKind'>)
 const ON_SURFACE_TOLERANCE = 0.75;
 
 function isOnSurface(surface: RoomSurface, point: ScenePoint): boolean {
-  return (
-    point.x >= surface.xMin - ON_SURFACE_TOLERANCE &&
-    point.x <= surface.xMax + ON_SURFACE_TOLERANCE &&
-    point.y >= surface.yMin - ON_SURFACE_TOLERANCE &&
-    point.y <= surface.yMax + ON_SURFACE_TOLERANCE
-  );
+  return distance(point, clampToSurface(surface, point, {})) <= ON_SURFACE_TOLERANCE;
 }
 
 /** The kind of surface an object stands on at `point`: an object that has extra kinds follows its position. */
@@ -282,10 +295,14 @@ export interface PlacementOptions {
 }
 
 function clampToSurface(surface: RoomSurface, point: ScenePoint, options: PlacementOptions): ScenePoint {
+  if (surface.area) return clampToConvexPolygon(surface.area, point);
   const width = options.width ?? 0;
-  const inset = surface.kind === 'floor' ? Math.min(width / 2 + FLOOR_EDGE_MARGIN, (surface.xMax - surface.xMin) / 2) : 0;
+  // Things stand fully on the floor and on a corner room's shelf plank, not half off its end
+  const edge = surface.kind === 'floor' ? width / 2 + FLOOR_EDGE_MARGIN : surface.tilt !== undefined ? width / 2 : 0;
+  const inset = Math.min(edge, (surface.xMax - surface.xMin) / 2);
   const x = Math.min(surface.xMax - inset, Math.max(surface.xMin + inset, point.x));
   const footprint = options.furnitureWall ? { width, isOnLeftWall: options.furnitureWall === 'left' } : undefined;
+  if (surface.tilt) return { x, y: surface.yMin + (x - (surface.xMin + surface.xMax) / 2) * surface.tilt };
   const yMin = Math.max(surface.yMin, surface.minYAt?.(x, footprint) ?? surface.yMin);
   return { x, y: Math.min(surface.yMax, Math.max(yMin, point.y)) };
 }

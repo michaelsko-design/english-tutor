@@ -22,6 +22,7 @@ import {
 import { ROOM_NAMING_XP, ROOM_SLOTS, RoomSlotKind, getUnplacedRoomItems, removeRoomItem } from './room';
 import { LearnerProfile, ThemeId } from '../types/learner';
 import { floorEdgeY, getRoomGeometry } from './roomGeometry';
+import { isInConvexPolygon } from './scenePolygon';
 
 const NOW = new Date('2026-10-17T10:00:00.000Z');
 
@@ -141,6 +142,18 @@ describe('themed room geometry', () => {
           expect(point.y - 0.37 * width, `x ${x}`).toBeGreaterThanOrEqual(floorEdgeY(geometry, backLegX));
           expect(point.y).toBeLessThanOrEqual(geometry.floorMaxY);
         });
+      });
+
+      it('runs the shelves along the right wall, and keeps what stands on them on the plank', () => {
+        const shelf = getSurfaces('shelf', layout).find((surface) => surface.id === 'shelf-high')!;
+        const left = snapToSurface('shelf', { x: shelf.xMin, y: shelf.yMin }, { layout, width: 6 }).point;
+        const right = snapToSurface('shelf', { x: shelf.xMax, y: shelf.yMin }, { layout, width: 6 }).point;
+        // lower to the right, like the baseboard, and not half off the plank's ends
+        expect(right.y).toBeGreaterThan(left.y);
+        expect(left.x).toBeCloseTo(shelf.xMin + 3);
+        expect(right.x).toBeCloseTo(shelf.xMax - 3);
+        // high on the wall: well above the furniture standing against it
+        expect(shelf.yMin).toBeLessThan(geometry.defaults.desk.y - 40);
       });
 
       it('puts every default mission object on the floor, the phone on the desk top', () => {
@@ -464,7 +477,20 @@ describe('mission objects and the desk', () => {
     const overBackCorner = { x: layout.deskPoint.x - 9, y: top.y - 6 };
     const book = findEntry(moveRoomObject(profile, 'games-book', overBackCorner, NOW), 'object:games-book')!;
     expect(book.item.slotKind).toBe('desk');
-    expect(book.point.y).toBeCloseTo(top.y);
+    const [deskTop] = getSurfaces('desk', layout);
+    expect(isInConvexPolygon(deskTop.area!, book.point)).toBe(true);
+    expect(Math.abs(book.point.y - top.y)).toBeLessThan(8);
+  });
+
+  it('lets small things stand anywhere on the drawn desk top, but not off its edges', () => {
+    const profile = { ...baseProfile, themeId: 'travel-journal' } as LearnerProfile;
+    const layout = getRoomLayout(profile);
+    const [deskTop] = getSurfaces('desk', layout);
+    const inside = { x: (deskTop.xMin + deskTop.xMax) / 2, y: (deskTop.yMin + deskTop.yMax) / 2 };
+    expect(snapToSurface('desk', inside, { layout }).point).toEqual(inside);
+    const offTheEdge = snapToSurface('desk', { x: deskTop.xMax + 10, y: deskTop.yMin - 10 }, { layout }).point;
+    expect(isInConvexPolygon(deskTop.area!, offTheEdge)).toBe(true);
+    expect(isInConvexPolygon(deskTop.outline!, offTheEdge)).toBe(true);
   });
 
   it('outlines the drop zone on the desk as the drawn desk top, turned the way the desk is turned', () => {

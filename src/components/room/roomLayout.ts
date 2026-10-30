@@ -1,6 +1,6 @@
 import { RoomSlotKind } from '../../data/room';
 import { RoomSprite, getRoomSprite } from '../../data/roomArt';
-import { LEGACY_GEOMETRY, RoomGeometry, ShelfLine, floorEdgeY } from '../../data/roomGeometry';
+import { LEGACY_GEOMETRY, RoomGeometry, ShelfLine, floorEdgeY, getWallSlope } from '../../data/roomGeometry';
 import { ThemeId } from '../../types/learner';
 
 import type { ScenePoint } from '../../data/roomPlacement';
@@ -35,6 +35,8 @@ export interface FurniturePiece {
   anchorX?: number;
   /** The picture is drawn flipped left to right, so its edges run along the wall it hangs on */
   isMirrored?: boolean;
+  /** Vertical shear (pixels down per pixel to the right) that lays the picture along its wall */
+  shear?: number;
 }
 
 /** The furniture hangs on the right wall: a slab drawn for the other wall is flipped. */
@@ -50,17 +52,19 @@ export const FURNITURE_PIECES: FurniturePiece[] = [
 /** The furniture a theme's room shows: its own pictures on the shelf lines, the sill and the board of its geometry. */
 export function getFurniturePieces(geometry: RoomGeometry, themeId?: ThemeId): FurniturePiece[] {
   if (geometry.isLegacy) return FURNITURE_PIECES;
+  const options = { ...WALL_FURNITURE_OPTIONS, wallSlope: getWallSlope(geometry, false) };
   // The room pictures already draw the window ledge items stand on, so no extra sill is drawn over them
   const shelves = geometry.shelves.filter((shelf) => shelf.id !== 'window-sill').map((shelf) => {
     const art = ART_IDS[shelf.id];
-    const sprite = getRoomSprite(themeId, art, WALL_FURNITURE_OPTIONS);
+    const sprite = getRoomSprite(themeId, art, options);
     const span = (shelf.xMax - shelf.xMin) * SPRITE_WIDTH_OF_SHELF;
     const piece = { id: shelf.id, x: (shelf.xMin + shelf.xMax) / 2, y: shelf.y };
-    if (sprite) return { ...piece, ...fitSprite(sprite, span, SURFACE_FROM_BODY_TOP) };
+    const surfaceFromTop = (themeId && CRESTED_SHELF_THEMES.has(themeId) ? CRESTED_SURFACE_FROM_BODY_TOP : SURFACE_FROM_BODY_TOP);
+    if (sprite) return { ...piece, ...fitSprite(sprite, span, surfaceFromTop) };
     return { ...piece, src: LEGACY_SHELF_SRC[shelf.id], width: span * LEGACY_SPRITE_EXTRA, anchorY: LEGACY_SHELF_ANCHOR[shelf.id] };
   });
   const { board } = geometry;
-  const boardSprite = getRoomSprite(themeId, ART_IDS.board, WALL_FURNITURE_OPTIONS);
+  const boardSprite = getRoomSprite(themeId, ART_IDS.board, options);
   const boardSpan = (board.xMax - board.xMin) * SPRITE_WIDTH_OF_BOARD;
   const boardPiece = { id: 'board', x: (board.xMin + board.xMax) / 2, y: (board.yMin + board.yMax) / 2 };
   return [
@@ -88,6 +92,9 @@ const LEGACY_SHELF_ANCHOR: Record<ShelfLine['id'], number> = { 'shelf-high': 0.2
 const LEGACY_SPRITE_EXTRA = 1.13;
 /** The line items stand on is this share of the body's height below its top edge (the middle of a plank's top face). */
 const SURFACE_FROM_BODY_TOP = 0.22;
+/** Themes whose shelves have a crest standing up behind the plank: the plank's top face is halfway down. */
+const CRESTED_SHELF_THEMES = new Set<ThemeId>(['starlight-rpg']);
+const CRESTED_SURFACE_FROM_BODY_TOP = 0.5;
 
 /** The picture's width so that its body is `bodyWidth` wide, and where the anchor point sits in it. */
 function fitSprite(sprite: RoomSprite, bodyWidth: number, anchorFromBodyTop: number) {
@@ -95,6 +102,7 @@ function fitSprite(sprite: RoomSprite, bodyWidth: number, anchorFromBodyTop: num
   return {
     src: sprite.url,
     isMirrored: sprite.isMirrored,
+    shear: sprite.shear,
     width: bodyWidth / (bounds.right - bounds.left),
     anchorX: (bounds.left + bounds.right) / 2,
     anchorY: bounds.top + anchorFromBodyTop * (bounds.bottom - bounds.top),

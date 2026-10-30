@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { RoomSlotKind } from '../../data/room';
 import { getArtId, getDeskShape, getRoomSprite } from '../../data/roomArt';
-import { FLOOR_EDGE_CLEARANCE, getRoomGeometry } from '../../data/roomGeometry';
+import { FLOOR_EDGE_CLEARANCE, getRoomGeometry, getWallSlope } from '../../data/roomGeometry';
 import {
   DESK_OBJECT_ID,
   OBJECT_KEY_PREFIX,
@@ -93,6 +93,13 @@ function spriteStyle(
   };
 }
 const ZONE_TOP_PAD_CQW = 8;
+/** A CSS vertical shear for a slope (pixels down per pixel to the right), or nothing for none. */
+function shearTransform(shear = 0): string {
+  return shear ? ` skewY(${Math.atan(shear)}rad)` : '';
+}
+
+/** An item being moved is drawn over everything in the room (items are stacked by their feet y, up to 100). */
+const MOVING_Z_INDEX = 200;
 /** Drop zones on the floor lie under everything that stands there. */
 const ZONE_Z_INDEX = 25;
 /** The floor outline follows the baseboard in steps this wide (scene %), and reaches the picture's edges. */
@@ -219,7 +226,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
           style={{
             ...at(piece),
             width: `${piece.width}cqw`,
-            transform: `translate(-${(piece.anchorX ?? 0.5) * 100}%, -${piece.anchorY * 100}%)${piece.isMirrored ? ' scaleX(-1)' : ''}`,            filter: 'drop-shadow(0 0.6cqw 0.5cqw rgba(59, 42, 90, 0.25))',
+            transform: `translate(-${(piece.anchorX ?? 0.5) * 100}%, -${piece.anchorY * 100}%)${shearTransform(piece.shear)}${piece.isMirrored ? ' scaleX(-1)' : ''}`,            filter: 'drop-shadow(0 0.6cqw 0.5cqw rgba(59, 42, 90, 0.25))',
           }}
           onError={(event) => {
             event.currentTarget.style.display = 'none';
@@ -307,6 +314,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
               isOnLeftWall: entry.canRotate ? entry.isOnLeftWall : LEFT_WALL_KINDS.includes(kind) && point.x < geometry.cornerX,
               canMirror: LEFT_WALL_KINDS.includes(kind),
               isFlatOnWall: kind === 'wall',
+              wallSlope: getWallSlope(geometry, point.x < geometry.cornerX),
             });
         const baseBounds = getBounds(entry.item, isDesk);
         // Without a themed picture the emoji icon mirrors on the left wall, feet and shadow with it
@@ -316,7 +324,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
         // The picture's box is bigger than the drawn object: the feet are the object's visible bottom
         const padBottom = (1 - bounds.bottom) * size;
         const footprint = (bounds.right - bounds.left) * size;
-        const zIndex = isMoving ? 30 : kind === 'desk' ? Math.round(layout.deskPoint.y) + 1 : Math.round(point.y);
+        const zIndex = isMoving ? MOVING_Z_INDEX : kind === 'desk' ? Math.round(layout.deskPoint.y) + 1 : Math.round(point.y);
         const style: React.CSSProperties = sprite
           ? spriteStyle(point, sprite.bounds, sprite.aspect, size, isStanding, zIndex)
           : {
@@ -332,7 +340,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
             alt=""
             draggable={false}
             className={`block w-full h-auto motion-safe:transition-transform motion-safe:duration-300 ${isMoving ? 'drop-shadow-lg' : ''}`}
-            style={sprite.isMirrored ? { transform: 'scaleX(-1)' } : undefined}
+            style={sprite.isMirrored || sprite.shear ? { transform: `${shearTransform(sprite.shear)}${sprite.isMirrored ? ' scaleX(-1)' : ''}` } : undefined}
           />
         ) : (
           <>
@@ -413,7 +421,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
       {/* Speech bubble */}
       {bubble && (
         <div
-          className="absolute z-40 -translate-x-1/2 -translate-y-full px-[2cqw] py-[1cqw] rounded-[2cqw] bg-white text-slate-800 shadow-lg text-center whitespace-nowrap pointer-events-none"
+          className="absolute z-[210] -translate-x-1/2 -translate-y-full px-[2cqw] py-[1cqw] rounded-[2cqw] bg-white text-slate-800 shadow-lg text-center whitespace-nowrap pointer-events-none"
           style={{ left: `${Math.min(80, Math.max(20, bubble.at.x))}%`, top: `${Math.max(14, bubble.at.y - 8)}%` }}
           role="status"
         >

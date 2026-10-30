@@ -10,6 +10,7 @@ import {
   removeRoomItem,
 } from '../../data/room';
 import {
+  PlacedRoomEntry,
   getObjectIdFromKey,
   getPlacedRoomEntries,
   isObjectKey,
@@ -33,7 +34,7 @@ import { StickersLockedSheet } from './StickersLockedSheet';
 import { PhonePanel } from './PhonePanel';
 import { WardrobePanel } from './WardrobePanel';
 import { getRoomGeometry } from '../../data/roomGeometry';
-import { ScenePoint, getStandingPoint } from './roomLayout';
+import { STANDING_KINDS, ScenePoint, getStandingPoint } from './roomLayout';
 import { formatVibeGain } from '../../utils/bidi';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { Button } from '../ui/Button';
@@ -61,6 +62,15 @@ const OBJECT_PANELS: Partial<Record<RoomObjectId, RoomPanel>> = {
   bed: 'journal',
   'games-book': 'games',
 };
+
+/** How far above its anchor (in widths) the name bubble of a standing item goes: over its top, not over it. */
+const BUBBLE_ABOVE_STANDING = 1.1;
+const BUBBLE_ABOVE_HANGING = 0.5;
+
+function getBubblePoint(entry: PlacedRoomEntry): ScenePoint {
+  const lift = STANDING_KINDS.includes(entry.item.slotKind) ? BUBBLE_ABOVE_STANDING : BUBBLE_ABOVE_HANGING;
+  return { x: entry.point.x, y: entry.point.y - entry.width * lift };
+}
 
 /** Feature 12: the room itself. The avatar walks to what you tap; items are placed by naming them. */
 export const RoomScreen: React.FC<RoomScreenProps> = ({
@@ -141,14 +151,14 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     const entry = entries.find((candidate) => candidate.key === key);
     if (!entry) return;
     if (isObjectKey(key)) {
-      handleTapObject(getObjectIdFromKey(key), entry.point);
+      handleTapObject(getObjectIdFromKey(key), entry.point, getBubblePoint(entry));
       return;
     }
     setSelectedItemId(null);
     setStatusText(null);
     walkTo(entry.point, () => {
       onSpeakEnglish(entry.item.nameEn, 0.9);
-      setBubble({ at: entry.point, textEn: entry.item.nameEn, textHe: entry.item.nameHe });
+      setBubble({ at: getBubblePoint(entry), textEn: entry.item.nameEn, textHe: entry.item.nameHe });
       setFocusedKey(key);
     });
   };
@@ -182,12 +192,12 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     return entries.find((entry) => entry.key === key)?.canRotate ? key : null;
   };
 
-  const handleTapObject = (objectId: string, point: ScenePoint) => {
+  const handleTapObject = (objectId: string, point: ScenePoint, bubbleAt: ScenePoint = point) => {
     const object = ROOM_OBJECTS.find((o) => o.id === objectId);
     if (!object) {
       setSelectedItemId(null);
       setFocusedKey(getObjectFocusKey(objectId));
-      walkTo(point, () => setBubble({ at: point, textEn: 'desk', textHe: 'שולחן' }));
+      walkTo(point, () => setBubble({ at: bubbleAt, textEn: 'desk', textHe: 'שולחן' }));
       return;
     }
     setSelectedItemId(null);
@@ -197,7 +207,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     walkTo(point, () => {
       const panel = OBJECT_PANELS[object.id];
       if (panel) {
-        setBubble({ at: point, textEn: object.nameEn, textHe: object.nameHe });
+        setBubble({ at: bubbleAt, textEn: object.nameEn, textHe: object.nameHe });
         setActivePanel(panel);
         return;
       }

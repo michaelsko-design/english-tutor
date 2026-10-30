@@ -83,6 +83,16 @@ describe('getRoomSprite', () => {
     );
   });
 
+  it('shears a flat wall picture so its top edge runs exactly along the wall, and leaves other pictures alone', () => {
+    const wallSlope = 0.17;
+    THEMES.forEach((theme) => {
+      const shelf = getRoomSprite(theme as never, 'furniture-shelf-high', { isFlatOnWall: true, canMirror: true, wallSlope })!;
+      const shownSlope = (shelf.isMirrored ? -1 : 1) * ROOM_ART[theme]['furniture-shelf-high'].slope;
+      expect(shownSlope + shelf.shear, theme).toBeCloseTo(wallSlope);
+    });
+    expect(getRoomSprite('cozy-studio', 'room-sofa', { wallSlope })!.shear).toBe(0);
+  });
+
   it('does not mirror what may not be mirrored: a baked shadow would fall the wrong way', () => {
     expect(getRoomSprite('cozy-studio', 'room-teddy', { isOnLeftWall: true })?.isMirrored).toBe(false);
     expect(getRoomSprite('cozy-studio', 'room-teddy', { isOnLeftWall: true, canMirror: true })?.isMirrored).toBe(true);
