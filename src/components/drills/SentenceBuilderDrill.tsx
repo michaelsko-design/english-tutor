@@ -1,7 +1,7 @@
 import React from 'react';
 import { DndContext } from '@dnd-kit/core';
 import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
-import { RotateCcw } from 'lucide-react';
+import { Languages, RotateCcw } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { MagnetChange, toggleMagnet, toMagnetId } from '../../utils/magnetOrder';
 import { playSfx } from '../../utils/sfx';
@@ -26,6 +26,13 @@ interface SentenceBuilderDrillProps {
   onReset: () => void;
   onCheck: () => void;
   theme: ThemeDefinition;
+  /** Hint help: while the hint is open, translate icons sit next to the words that can be translated */
+  wordHelp?: {
+    isActive: boolean;
+    canReveal: (word: string) => boolean;
+    revealedGlossFor: (word: string) => string | undefined;
+    onReveal: (word: string) => void;
+  };
 }
 
 const CHIP_CLASS = 'min-h-11 px-4 py-2 rounded-xl text-base font-extrabold';
@@ -39,6 +46,7 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
   onReset,
   onCheck,
   theme,
+  wordHelp,
 }) => {
   const drag = useMagnetDrag({
     order: selectedIndices,
@@ -99,29 +107,45 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
           dir="ltr"
           lang="en"
         >
-          {scrambledWords.map((word, idx) =>
-            placed.includes(idx) ? (
-              <button
-                key={`bank-${idx}-${word}`}
-                type="button"
-                disabled
-                className={`${CHIP_CLASS} transition-all opacity-30 scale-95 cursor-not-allowed bg-slate-400/20`}
-              >
-                {word}
-              </button>
-            ) : (
-              <DraggableMagnet
-                key={`bank-${idx}-${word}`}
-                idx={idx}
-                isDragDisabled={isCompleted}
-                disabled={isCompleted}
-                onClick={() => handleTap(idx)}
-                className={`${CHIP_CLASS} transition-all ${theme.secondaryBtnClass}`}
-              >
-                {word}
-              </DraggableMagnet>
-            )
-          )}
+          {scrambledWords.map((word, idx) => (
+            <div key={`bank-${idx}-${word}`} className="relative flex flex-col items-center">
+              {placed.includes(idx) ? (
+                <button
+                  type="button"
+                  disabled
+                  className={`${CHIP_CLASS} transition-all opacity-30 scale-95 cursor-not-allowed bg-slate-400/20`}
+                >
+                  {word}
+                </button>
+              ) : (
+                <DraggableMagnet
+                  idx={idx}
+                  isDragDisabled={isCompleted}
+                  disabled={isCompleted}
+                  onClick={() => handleTap(idx)}
+                  className={`${CHIP_CLASS} transition-all ${theme.secondaryBtnClass}`}
+                >
+                  {word}
+                </DraggableMagnet>
+              )}
+              {wordHelp && !isCompleted && wordHelp.isActive && wordHelp.canReveal(word) && (
+                <button
+                  type="button"
+                  data-hint-target
+                  onClick={() => wordHelp.onReveal(word)}
+                  aria-label={`תרגום המילה ${word}`}
+                  className="absolute -top-2 -end-2 z-10 w-8 h-8 rounded-full flex items-center justify-center bg-amber-400 text-slate-900 shadow-md ring-2 ring-white/70"
+                >
+                  <Languages className="w-4 h-4" aria-hidden="true" />
+                </button>
+              )}
+              {wordHelp?.revealedGlossFor(word) && (
+                <span dir="rtl" lang="he" className="mt-0.5 text-xs font-bold text-amber-500">
+                  {wordHelp.revealedGlossFor(word)}
+                </span>
+              )}
+            </div>
+          ))}
         </MagnetDropZone>
 
         <MagnetDragOverlay>

@@ -32,6 +32,7 @@ import { Companion, preloadCompanion } from './companion/Companion';
 import { MissionIntro, INTRO_COMPANION_SIZE, LessonOffer } from './mission/MissionIntro';
 import { MiniLesson, LESSON_COMPANION_SIZE } from './mission/MiniLesson';
 import { useMiniLesson } from '../hooks/useMiniLesson';
+import { useWordReveal } from '../hooks/useWordReveal';
 import { shouldAutoShowLesson } from '../data/miniLessons';
 import { TrailProgress } from './mission/TrailProgress';
 import { StoryPassage } from './mission/StoryPassage';
@@ -182,6 +183,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   );
 
   const currentStep: MissionExerciseStep = steps[currentStepIdx] || steps[0];
+  const wordReveal = useWordReveal(currentStep.id, currentStep.hintWords, currentStep.scrambledWords?.length ?? 0);
+  const hasWordHelp = (currentStep.hintWords?.length ?? 0) > 0;
   const tierMeta = TIER_CONFIG[tier];
   const baseXpTotal = Math.round(mission.baseXp * tierMeta.xpMultiplier);
 
@@ -535,9 +538,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                   onToggle={setShowHint}
                   theme={theme}
                   readsAloud={readsHebrewAloud}
-                  hintWords={currentStep.hintWords}
-                  sentenceWordCount={currentStep.scrambledWords?.length}
-                  stepId={currentStep.id}
+                  translationsLeft={hasWordHelp ? wordReveal.left : undefined}
                 />
               </div>
 
@@ -679,6 +680,16 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     onReset={() => session.setWordIndices([])}
                     onCheck={handleCheckSentence}
                     theme={theme}
+                    wordHelp={
+                      hasWordHelp
+                        ? {
+                            isActive: showHint,
+                            canReveal: wordReveal.canReveal,
+                            revealedGlossFor: wordReveal.revealedGlossFor,
+                            onReveal: wordReveal.reveal,
+                          }
+                        : undefined
+                    }
                   />
                 )}
 

@@ -116,6 +116,11 @@ export interface WordGloss {
   translationHe: string;
 }
 
+/** Identity of a word for translation reveals: bank tiles of the same word share one reveal. */
+export function getWordGlossKey(word: string): string {
+  return stripEdgePunctuation(word).toLowerCase();
+}
+
 /**
  * The sentence's words that have a Hebrew translation, one entry per distinct word, in
  * sentence order. `preferred` (the mission's own vocabulary) wins over `lookup`.

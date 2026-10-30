@@ -4,6 +4,7 @@ import {
   getPronunciationTipHe,
   getSentenceOrderHintHe,
   getSpellingHintHe,
+  getWordGlossKey,
   getWordGlosses,
   getWordRevealLimit,
   getWordShapeHintHe,
@@ -73,6 +74,13 @@ describe('getWordRevealLimit', () => {
   it('allows one word on short sentences and two on longer ones', () => {
     expect(getWordRevealLimit(4)).toBe(1);
     expect(getWordRevealLimit(5)).toBe(2);
+  });
+});
+
+describe('getWordGlossKey', () => {
+  it('ignores case and edge punctuation so duplicate tiles share one reveal', () => {
+    expect(getWordGlossKey('Year,')).toBe('year');
+    expect(getWordGlossKey('year')).toBe('year');
   });
 });
 

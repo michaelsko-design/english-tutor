@@ -1,6 +1,5 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
-import { getWordRevealLimit, WordGloss } from '../../utils/hints';
-import { Lightbulb } from 'lucide-react';
+import React, { useEffect, useId, useRef } from 'react';
+import { Languages, Lightbulb } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { useAutoSpeakHebrew } from '../../hooks/useAutoSpeakHebrew';
@@ -13,51 +12,20 @@ interface HintPopoverProps {
   theme: ThemeDefinition;
   /** Grades 1–2 hear the hint as it opens (Feature 47) */
   readsAloud?: boolean;
-  /** Sentence-builder: words the learner may tap to reveal a Hebrew translation (a couple at most) */
-  hintWords?: WordGloss[];
-  /** Words in the whole sentence: longer sentences allow a second reveal */
-  sentenceWordCount?: number;
-  /** Resets the revealed words when the step changes */
-  stepId?: string;
+  /** Sentence-builder: translations the learner may still reveal from the word bank (icons next to the words) */
+  translationsLeft?: number;
 }
 
-interface RevealableWordsProps {
-  words: WordGloss[];
-  limit: number;
-}
-
-const RevealableWords: React.FC<RevealableWordsProps> = ({ words, limit }) => {
-  const [revealed, setRevealed] = useState<string[]>([]);
-  const left = limit - revealed.length;
-  return (
-    <div className="mt-3 pt-3 border-t border-amber-400/30 space-y-2">
-      <p className="text-xs font-bold">
-        {left > 0
-          ? `לא בטוחים במילה? לחצו עליה כדי לראות מה היא אומרת (אפשר לגלות עוד ${left === 1 ? 'מילה אחת' : `${left} מילים`}).`
-          : 'כל המילים שאפשר כבר נחשפו.'}
-      </p>
-      <ul className="flex flex-wrap gap-2">
-        {words.map(({ wordEn, translationHe }) => {
-          const isRevealed = revealed.includes(wordEn);
-          return (
-            <li key={wordEn}>
-              <button
-                type="button"
-                disabled={!isRevealed && left <= 0}
-                aria-pressed={isRevealed}
-                onClick={() => setRevealed((prev) => (prev.includes(wordEn) ? prev : [...prev, wordEn]))}
-                className="min-h-11 px-3 rounded-xl border border-amber-400/60 text-xs font-extrabold disabled:opacity-40"
-              >
-                <bdi dir="ltr" lang="en">{wordEn}</bdi>
-                {isRevealed && <span> = {translationHe}</span>}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-};
+const TranslateInstruction: React.FC<{ left: number }> = ({ left }) => (
+  <p className="mt-3 pt-3 border-t border-amber-400/30 text-xs font-bold flex items-start gap-2">
+    <Languages className="w-4 h-4 shrink-0 text-amber-500" aria-hidden="true" />
+    <span>
+      {left > 0
+        ? `אפשר לתרגם ${left === 1 ? 'מילה אחת' : `${left} מילים`}. לחצו על סמל התרגום שליד המילה שבבנק המילים.`
+        : 'כל המילים שאפשר כבר תורגמו.'}
+    </span>
+  </p>
+);
 
 /**
  * The 💡 hint button for a runner's header. The hint opens in a popover only when tapped, and
@@ -69,9 +37,7 @@ export const HintPopover: React.FC<HintPopoverProps> = ({
   onToggle,
   theme,
   readsAloud = false,
-  hintWords,
-  sentenceWordCount = 0,
-  stepId,
+  translationsLeft,
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -84,7 +50,10 @@ export const HintPopover: React.FC<HintPopoverProps> = ({
     if (!isOpen) return;
     panelRef.current?.focus();
     const handlePointerDown = (event: PointerEvent) => {
-      if (!wrapperRef.current?.contains(event.target as Node)) onToggle(false);
+      const target = event.target as Element;
+      // The translate icons in the word bank belong to the hint: tapping one keeps it open
+      if (wrapperRef.current?.contains(target) || target.closest?.('[data-hint-target]')) return;
+      onToggle(false);
     };
     document.addEventListener('pointerdown', handlePointerDown);
     return () => document.removeEventListener('pointerdown', handlePointerDown);
@@ -125,9 +94,7 @@ export const HintPopover: React.FC<HintPopoverProps> = ({
             <span className="flex-1">{hintHe}</span>
             <HebrewSpeakButton text={hintHe} label="הקשבה לרמז" />
           </div>
-          {hintWords && hintWords.length > 0 && (
-            <RevealableWords key={stepId} words={hintWords} limit={getWordRevealLimit(sentenceWordCount)} />
-          )}
+          {translationsLeft !== undefined && <TranslateInstruction left={translationsLeft} />}
         </div>
       )}
     </div>
