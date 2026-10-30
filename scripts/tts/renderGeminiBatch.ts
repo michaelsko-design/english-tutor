@@ -3,6 +3,9 @@
  * 100 a day; a batch has its own limits, costs half and finishes within 24 hours, usually minutes):
  *   npm run tts:render:he -- submit    sends every Hebrew corpus phrase that has no clip yet
  *   npm run tts:render:he -- status    shows how the submitted batches are doing
+ *   npm run tts:render:he -- regenerate   sends the clips marked "regenerate" in the review (npm run tts:review:he)
+ *                                      as new takes; collect saves them to .tts-candidates, the originals stay
+ *   npm run tts:render:he -- lab        renders a few flagged lines in several ways (geminiLab.ts) to compare by ear
  *   npm run tts:render:he -- collect   writes the finished clips and rewrites public/tts/manifest.json
  *   npm run tts:render:he -- redo "<text>"   deletes the clips whose line contains <text> (one that came
  *                                      out wrong; Gemini differs a little each take), then submit again
@@ -17,22 +20,47 @@ import { collectCorpus, type CorpusPhrase } from './corpus';
 import { bumpClipRevisions } from './clipRevisions';
 import { getVoiceDir, listRenderedKeys, writeManifest } from './clipManifest';
 import { toGeminiText } from './geminiSpelling';
+import { CANDIDATE_DIR, getReviewDirs } from './hebrewReviewPaths';
+import { keysToRegenerate, listReviewItems, loadState } from './hebrewReviewState';
 import {
   buildGeminiRequest,
   GEMINI_API_BASE,
   GEMINI_TTS_MODEL,
+  joinPcm,
+  encodeMp3,
   responseToMp3,
+  responseToPcm,
   type GeminiResponse,
+  type Pcm,
 } from './geminiTts';
+import {
+  LAB_GAP_MS,
+  LAB_TAKE_PREFIX,
+  LAB_VARIANTS,
+  labRequestKey,
+  labSegments,
+  MODEL_LAB_MODELS,
+  MODEL_LAB_VARIANTS,
+  parseLabRequestKey,
+  pickLabKeys,
+  type LabVariant,
+  type ModelVariant,
+} from './geminiLab';
 
 const STATE_FILE = join(process.cwd(), '.tts-gemini-batches.json');
 /** Requests per batch: a batch's answer holds all its audio inline, so it stays tens of MB. */
 const BATCH_SIZE = 300;
+const LAB_PER_CLASS = 4;
 const DONE_STATES = new Set(['BATCH_STATE_SUCCEEDED', 'BATCH_STATE_FAILED', 'BATCH_STATE_CANCELLED', 'BATCH_STATE_EXPIRED']);
+
+/** 'lab': pieces of lines in several ways (geminiLab.ts), stitched into candidate takes. */
+type BatchTarget = 'clip' | 'candidate' | 'lab';
 
 interface SubmittedBatch {
   name: string;
   count: number;
+  /** 'candidate': a new take of a reviewed clip, saved beside the original instead of over it. */
+  target?: BatchTarget;
 }
 
 interface BatchItem {
@@ -73,20 +101,70 @@ function missingPhrases(): CorpusPhrase[] {
 }
 
 async function submit(apiKey: string): Promise<void> {
-  if (readState().length > 0) throw new Error('Batches are still waiting: run collect first (or delete .tts-gemini-batches.json).');
-  const todo = missingPhrases();
-  console.log(`${todo.length} Hebrew phrases without a clip.`);
-  const submitted: SubmittedBatch[] = [];
-  for (let start = 0; start < todo.length; start += BATCH_SIZE) {
-    const chunk = todo.slice(start, start + BATCH_SIZE);
-    const requests = chunk.map((phrase) => ({ request: buildGeminiRequest(toGeminiText(phrase.text)), metadata: { key: phrase.key } }));
-    const batch = await gemini<{ name: string }>(apiKey, `models/${GEMINI_TTS_MODEL}:batchGenerateContent`, {
-      method: 'POST',
-      body: JSON.stringify({ batch: { display_name: `hebrew-clips-${start / BATCH_SIZE + 1}`, input_config: { requests: { requests } } } }),
-    });
-    submitted.push({ name: batch.name, count: chunk.length });
-    writeState(submitted);
-    console.log(`Submitted ${batch.name} (${chunk.length} phrases).`);
+  console.log(`${missingPhrases().length} Hebrew phrases without a clip.`);
+  return submitPhrases(apiKey, missingPhrases(), 'clip');
+}
+
+/** The lines marked for regenerate in the review: rendered as new takes, the originals stay. */
+async function regenerate(apiKey: string): Promise<void> {
+  const dirs = getReviewDirs();
+  const phrases = collectCorpus(HEBREW_VOICE);
+  const keys = new Set(keysToRegenerate(listReviewItems(phrases, loadState(dirs.statePath), dirs)));
+  console.log(`${keys.size} clips marked for regenerate.`);
+  return submitPhrases(apiKey, phrases.filter((phrase) => keys.has(phrase.key)), 'candidate');
+}
+
+/** A few flagged lines in every lab way: what to listen to before choosing how to fix the rest. */
+async function lab(apiKey: string, isDryRun: boolean, isModelLab = false): Promise<void> {
+  const variants: readonly LabVariant[] = isModelLab ? MODEL_LAB_VARIANTS : LAB_VARIANTS;
+  const dirs = getReviewDirs();
+  const phrases = collectCorpus(HEBREW_VOICE);
+  const textByKey = new Map(phrases.map((phrase) => [phrase.key, phrase.text]));
+  const flagged = listReviewItems(phrases, loadState(dirs.statePath), dirs).filter(
+    (item) => (item.phase === 'regenerate' || item.phase === 'compare') && (item.reasons.length > 0 || item.note),
+  );
+  const picked = pickLabKeys(flagged, LAB_PER_CLASS);
+  const requests = picked.flatMap((item) =>
+    variants.flatMap((variant) => {
+      const segments = labSegments(variant, textByKey.get(item.key) ?? item.text);
+      const model = variant in MODEL_LAB_MODELS ? MODEL_LAB_MODELS[variant as ModelVariant] : undefined;
+      return segments.map((text, index) => ({ key: labRequestKey(item.key, variant, index, segments.length), text, model }));
+    }),
+  );
+  console.log(`Lab: ${picked.length} lines in ${variants.length} ways, ${requests.length} clips to render.`);
+  if (isDryRun) {
+    for (const request of requests) console.log(`${request.key}  ${request.text}`);
+    return;
+  }
+  return submitRequests(apiKey, requests, 'lab');
+}
+
+async function submitPhrases(apiKey: string, todo: CorpusPhrase[], target: 'clip' | 'candidate'): Promise<void> {
+  return submitRequests(apiKey, todo.map((phrase) => ({ key: phrase.key, text: toGeminiText(phrase.text) })), target);
+}
+
+/** `model` overrides the render's model for that request (the model lab); one batch goes to one model. */
+async function submitRequests(apiKey: string, todo: { key: string; text: string; model?: string }[], target: BatchTarget): Promise<void> {
+  // New clips and new takes are different phrases, so both kinds may wait at once; the same kind may not
+  const waiting = readState();
+  if (waiting.some((batch) => (batch.target ?? 'clip') === target)) {
+    throw new Error('Batches are still waiting: run collect first (or delete .tts-gemini-batches.json).');
+  }
+  const submitted: SubmittedBatch[] = [...waiting];
+  const models = [...new Set(todo.map((phrase) => phrase.model ?? GEMINI_TTS_MODEL))];
+  for (const model of models) {
+    const forModel = todo.filter((phrase) => (phrase.model ?? GEMINI_TTS_MODEL) === model);
+    for (let start = 0; start < forModel.length; start += BATCH_SIZE) {
+      const chunk = forModel.slice(start, start + BATCH_SIZE);
+      const requests = chunk.map((phrase) => ({ request: buildGeminiRequest(phrase.text), metadata: { key: phrase.key } }));
+      const batch = await gemini<{ name: string }>(apiKey, `models/${model}:batchGenerateContent`, {
+        method: 'POST',
+        body: JSON.stringify({ batch: { display_name: `hebrew-clips-${start / BATCH_SIZE + 1}`, input_config: { requests: { requests } } } }),
+      });
+      submitted.push({ name: batch.name, count: chunk.length, target });
+      writeState(submitted);
+      console.log(`Submitted ${batch.name} (${chunk.length} phrases, ${model}).`);
+    }
   }
 }
 
@@ -108,11 +186,42 @@ async function batchItems(apiKey: string, status: BatchStatus): Promise<BatchIte
     });
 }
 
+/** Stitches the pieces of each lab line into its candidate take; a line with a piece missing is skipped. */
+async function collectLab(items: BatchItem[]): Promise<{ written: number; failed: number }> {
+  const lines = new Map<string, { count: number; parts: Map<number, Pcm> }>();
+  let failed = 0;
+  for (const item of items) {
+    const parsed = parseLabRequestKey(item.metadata?.key ?? '');
+    const pcm = item.response ? responseToPcm(item.response) : null;
+    if (!parsed || !pcm) {
+      failed += 1;
+      console.error(`No audio for ${item.metadata?.key ?? '?'}: ${item.error?.message ?? 'empty answer'}`);
+      continue;
+    }
+    const id = `${parsed.key}.${LAB_TAKE_PREFIX}${parsed.variant}`;
+    const line = lines.get(id) ?? { count: parsed.count, parts: new Map<number, Pcm>() };
+    line.parts.set(parsed.index, pcm);
+    lines.set(id, line);
+  }
+  let written = 0;
+  for (const [id, line] of lines) {
+    if (line.parts.size !== line.count) {
+      console.error(`${id}: ${line.parts.size} of ${line.count} pieces, skipped.`);
+      continue;
+    }
+    const ordered = [...line.parts.entries()].sort(([a], [b]) => a - b).map(([, pcm]) => pcm);
+    writeFileSync(join(CANDIDATE_DIR, `${id}.mp3`), encodeMp3(joinPcm(ordered, LAB_GAP_MS)));
+    written += 1;
+  }
+  return { written, failed };
+}
+
 async function collect(apiKey: string, isDryRun: boolean): Promise<void> {
   const waiting: SubmittedBatch[] = [];
   let written = 0;
   let failed = 0;
   mkdirSync(getVoiceDir(HEBREW_VOICE), { recursive: true });
+  mkdirSync(CANDIDATE_DIR, { recursive: true });
   for (const batch of readState()) {
     const status = await gemini<BatchStatus>(apiKey, batch.name);
     const state = status.metadata?.state ?? 'unknown';
@@ -125,6 +234,13 @@ async function collect(apiKey: string, isDryRun: boolean): Promise<void> {
       console.error(`${batch.name}: ${state} ${status.error?.message ?? ''}; its phrases go in the next submit.`);
       continue;
     }
+    if (batch.target === 'lab') {
+      const result = await collectLab(await batchItems(apiKey, status));
+      written += result.written;
+      failed += result.failed;
+      console.log(`${batch.name}: collected.`);
+      continue;
+    }
     for (const item of await batchItems(apiKey, status)) {
       const key = item.metadata?.key;
       const mp3 = item.response ? responseToMp3(item.response) : null;
@@ -133,7 +249,7 @@ async function collect(apiKey: string, isDryRun: boolean): Promise<void> {
         console.error(`No audio for ${key ?? '?'}: ${item.error?.message ?? 'empty answer'}`);
         continue;
       }
-      writeFileSync(join(getVoiceDir(HEBREW_VOICE), `${key}.mp3`), mp3);
+      writeFileSync(join(batch.target === 'candidate' ? CANDIDATE_DIR : getVoiceDir(HEBREW_VOICE), `${key}.mp3`), mp3);
       written += 1;
     }
     console.log(`${batch.name}: collected.`);
@@ -168,9 +284,11 @@ async function main(): Promise<void> {
   if (command === 'redo') return redo(argument);
   const apiKey = readApiKey();
   if (command === 'submit') return submit(apiKey);
+  if (command === 'regenerate') return regenerate(apiKey);
+  if (command === 'lab') return lab(apiKey, process.argv.includes('dry'), process.argv.includes('models'));
   if (command === 'status') return collect(apiKey, true);
   if (command === 'collect') return collect(apiKey, false);
-  throw new Error('Use: npm run tts:render:he -- submit | status | collect | redo "<text>"');
+  throw new Error('Use: npm run tts:render:he -- submit | regenerate | lab | status | collect | redo "<text>"');
 }
 
 main().catch((error: unknown) => {

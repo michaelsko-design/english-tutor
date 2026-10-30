@@ -53,6 +53,21 @@ export const GEMINI_SPELLINGS: Readonly<Record<string, string>> = {
   וקרא: 'וּקְרָא',
   // "be-BOS" (in the boss), stress on the last syllable; unvoweled it was read "Babos"
   בבוס: 'בְּבּוֹס',
+  // Heard wrong in the 2026-10 review, and right once voweled (the listening lab, scripts/tts/geminiLab.ts)
+  קראי: 'קִרְאִי',
+  קראו: 'קִרְאוּ',
+  וקראי: 'וְקִרְאִי',
+  אמרו: 'אִמְרוּ',
+  חשבו: 'חִשְׁבוּ',
+  מטרייה: 'מִטְרִיָּה',
+  דובי: 'דּוּבִי',
+  לאוגר: 'לָאוֹגֶר',
+  מצדף: 'מִצֶּדֶף',
+  מעולה: 'מְעֻלָּה',
+  מיטה: 'מִטָּה',
+  לימון: 'לִימוֹן',
+  תרנגולת: 'תַּרְנְגֹלֶת',
+  זו: 'זוֹ',
 };
 
 /**

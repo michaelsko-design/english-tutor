@@ -5,20 +5,20 @@ import { encodeMp3, readPcm } from './geminiTts';
 
 describe('toGeminiText', () => {
   it("gives each clip the listener's form of a word that reads by gender", () => {
-    expect(toGeminiText('[to:girl] מעולה! בנית את המילה cat')).toBe('מעולה! בָּנִית את המילה cat');
-    expect(toGeminiText('[to:boy] מעולה! בנית את המילה cat')).toBe('מעולה! בָּנִיתָ את המילה cat');
+    expect(toGeminiText('[to:girl] מעולה! בנית את המילה cat')).toBe('מְעֻלָּה! בָּנִית את המילה cat');
+    expect(toGeminiText('[to:boy] מעולה! בנית את המילה cat')).toBe('מְעֻלָּה! בָּנִיתָ את המילה cat');
   });
 
   it('says "אני רואה" in the learner\'s form only in a line said to them', () => {
-    expect(toGeminiText('[to:boy] קראת משפט שלם: "אני רואה תרנגולת."')).toBe('קָרָאתָ משפט שלם: "אני רוֹאֶה תרנגולת."');
-    expect(toGeminiText('[to:girl] קראת משפט שלם: "אני רואה תרנגולת."')).toBe('קָרָאתְ משפט שלם: "אני רוֹאָה תרנגולת."');
+    expect(toGeminiText('[to:boy] קראת משפט שלם: "אני רואה תרנגולת."')).toBe('קָרָאתָ משפט שלם: "אני רוֹאֶה תַּרְנְגֹלֶת."');
+    expect(toGeminiText('[to:girl] קראת משפט שלם: "אני רואה תרנגולת."')).toBe('קָרָאתְ משפט שלם: "אני רוֹאָה תַּרְנְגֹלֶת."');
     expect(toGeminiText('כמה ברווזים נועה רואה?')).toBe('כמה ברווזים נועה רואה?');
   });
 
   it('spells out words Gemini misreads, for every listener, and leaves the rest as written', () => {
     expect(toGeminiText('הקשיבי ובחרי את האות:')).toBe('הקשיבי וּבִחְרִי את האות:');
     expect(toGeminiText('הבנית שלו')).toBe('הבנית שלו');
-    expect(toGeminiText('זו האות Z. Z כמו zebra')).toBe('זו האות Zed. Zed כמו zebra');
+    expect(toGeminiText('זו האות Z. Z כמו zebra')).toBe('זוֹ האות Zed. Zed כמו zebra');
     expect(toGeminiText('האותיות X, Y, Z')).toBe('האותיות X, Y, Zed');
   });
 

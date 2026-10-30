@@ -14,7 +14,6 @@
 
 ### Technical
 
-- [ ] **Create a systemic method for me to review the hebrew voice recordings one by one** - allow me to hear and mark good or regenerate.
 - [ ] **Validate the saved profile on load** (audit M5) - `src/App.tsx:57` spreads `JSON.parse` of local storage straight into state; add a shape check that falls back to `DEFAULT_PROFILE`, so a corrupt or old profile can't trap the learner on the error screen.
 - [ ] **Audit low-severity fixes** (audit LOW list) - Log duplicate payments, and refuse short renewals in `payment-webhook.ts`. Require `GROW_ENV` and `VAPID_SUBJECT` in Production. Refetch JWKS on an unknown `kid`. Log invite-cleanup errors in `parentService.ts`. Use the later `updatedAt` in `mergeLearnerProfiles`. Type the Web Speech API. Re-check the `@grpc/grpc-js` advisory on the next `firebase` release. Full list in the audit report.
 - [ ] **Raise test coverage** (audit) - Baseline 61% lines (`npm run test:coverage`; floors in `vitest.config.ts`). Priority order:

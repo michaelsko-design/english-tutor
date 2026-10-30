@@ -13,6 +13,21 @@ export function bumpClipRevisions(voice: string, keys: readonly string[]): void 
     const id = `${voice}/${key}`;
     next[id] = (next[id] ?? FIRST_RE_RENDER_REVISION - 1) + 1;
   }
+  writeRevisions(next);
+}
+
+/** Takes a bump back (an undone replacement): the first re-render's revision goes away again. */
+export function unbumpClipRevisions(voice: string, keys: readonly string[]): void {
+  const next: Record<string, number> = { ...CLIP_REVISIONS };
+  for (const key of keys) {
+    const id = `${voice}/${key}`;
+    if ((next[id] ?? 0) <= FIRST_RE_RENDER_REVISION) delete next[id];
+    else next[id] = (next[id] as number) - 1;
+  }
+  writeRevisions(next);
+}
+
+function writeRevisions(next: Readonly<Record<string, number>>): void {
   const body = Object.keys(next)
     .sort()
     .map((id) => `  '${id}': ${next[id]},\n`)

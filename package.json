@@ -20,6 +20,7 @@
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "tts:render:he": "vite-node scripts/tts/renderGeminiBatch.ts --",
+    "tts:review:he": "vite-node scripts/tts/reviewHebrewClips.ts --",
     "tts:upload": "vite-node scripts/tts/uploadClips.ts --"
   },
   "dependencies": {

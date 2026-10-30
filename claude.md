@@ -31,11 +31,12 @@ Emulator testing: never sign in or create accounts against the live Firebase pro
 - After editing curriculum, mini-lessons, exam banks, vocabulary, room/wardrobe names, voice messages, dream words: `npm run tts:check` → `npm run tts:render` (needs `AZURE_SPEECH_KEY`/`AZURE_SPEECH_REGION` in `.env.local`) → `tts:check` again → `npm run tts:upload` (clips live in the Cloudflare R2 bucket, not in git or the Vercel deployment; needs `R2_*` in `.env.local`) → commit the new `public/tts/manifest.json`, after the upload, so the app never lists a clip that isn't online. The app reads clips from `VITE_TTS_CLIP_BASE_URL` (set in Vercel Production + Preview and `.env.local`).
 - Changing voice/SSML (`api/_lib/azureTts.ts`) means bumping `TTS_AUDIO_VERSION` in `src/services/tts/ttsText.ts` and re-rendering everything. Changing only the Hebrew clips' sound (`scripts/tts/geminiTts.ts`, or the niqqud in `scripts/tts/geminiSpelling.ts`, checked by ear) bumps `HEBREW_AUDIO_VERSION` instead and re-renders with `tts:render:he`. `api/_lib/hebrewPronunciation.ts` (IPA) only shapes the online Azure fallback.
 - A clip re-rendered after it shipped (`npm run tts:render:he -- redo "<text>"`) keeps its file name, so `redo` bumps its revision in `src/services/tts/clipRevisions.ts` (adds `?r=N` to its URL); commit that file, and run `npm run tts:upload -- --force` to replace the clip in R2, or devices keep the old take for a year.
+- Hebrew clips are reviewed by ear with `npm run tts:review:he` (mark good/regenerate, then `tts:render:he -- regenerate` + `collect`, compare, upload with `--force`); commit `scripts/tts/hebrewReview.json`.
 - All read-aloud goes through `getTtsService().speak(...)`; 🔊 buttons use `useSpeechToggle`; screens that read aloud use `useStopSpeechOnLeave`.
 
-**Profile sync**:
 **Sentence-builder glossary**: every word of a new or changed sentence-builder sentence needs a Hebrew translation for the hint's translate icons: add it to `src/data/wordGlossesExtra.ts` (or the mission vocabulary); `npm test` (`wordGlosses.test.ts`) fails on a missing one. Only people's names are exempt.
 
+**Profile sync**:
 - Every local change goes through `App.handleUpdateProfile` (activity log + diamond ledger recorded there).
 - **A new `LearnerProfile` field must be added to `mergeLearnerProfiles`** (`services/cloudSync.ts`) or a sync drops it. Dates are local calendar days (`utils/dates.ts`), never UTC.
 - Never save before the cloud profile loaded (`isCloudLoadedRef`). Diamonds merge via `diamondLedger`; streaks via `mergeStreakStats`.

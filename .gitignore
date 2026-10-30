@@ -23,6 +23,7 @@ art-src/
 # TypeScript incremental build state
 *.tsbuildinfo
 .tts-gemini-batches.json
+.tts-candidates/
 .art-gemini-theme-batches.json
 .art-gemini-mission-batches.json
 .art-gemini-room-batches.json
@@ -39,3 +40,4 @@ firebase-export-*/
 emulator-export-*/
 coverage/
 .art-gemini-icon-batches.json
+scripts/tts/hebrewReview.json.bak

@@ -6,8 +6,11 @@
  */
 import { Mp3Encoder } from '@breezystack/lamejs';
 
-/** Chosen by ear in AI Studio (2026-10): voice Kira, given only the text to read. */
-export const GEMINI_TTS_MODEL = 'gemini-3.8-flash-lite-tts';
+/**
+ * Chosen by ear (2026-10): voice Kira, given only the text to read. The full model, not lite: it kept
+ * far fewer English accents in the model lab, for 1.5x the audio price (~5 NIS for the whole corpus).
+ */
+export const GEMINI_TTS_MODEL = 'gemini-3.8-flash-tts';
 export const GEMINI_TTS_VOICE = 'Kira';
 export const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
@@ -27,7 +30,7 @@ export class GeminiTtsError extends Error {
   }
 }
 
-interface Pcm {
+export interface Pcm {
   samples: Int16Array;
   sampleRate: number;
 }
@@ -90,12 +93,32 @@ export interface GeminiResponse {
   error?: { message?: string };
 }
 
-/** The MP3 of a Gemini answer, or null when it holds no audio. */
-export function responseToMp3(body: GeminiResponse): Buffer | null {
+/** The samples of a Gemini answer, or null when it holds no audio. */
+export function responseToPcm(body: GeminiResponse): Pcm | null {
   const audio = body.candidates?.[0]?.content?.parts?.find((part) => part.inlineData?.data)?.inlineData;
   if (!audio?.data) return null;
   const rate = Number(/rate=(\d+)/.exec(audio.mimeType ?? '')?.[1] ?? DEFAULT_SAMPLE_RATE);
-  return encodeMp3(readPcm(Buffer.from(audio.data, 'base64'), rate));
+  return readPcm(Buffer.from(audio.data, 'base64'), rate);
+}
+
+/** The MP3 of a Gemini answer, or null when it holds no audio. */
+export function responseToMp3(body: GeminiResponse): Buffer | null {
+  const pcm = responseToPcm(body);
+  return pcm ? encodeMp3(pcm) : null;
+}
+
+/** Pieces of one line one after the other, `gapMs` of silence between them (they share a sample rate). */
+export function joinPcm(parts: readonly Pcm[], gapMs: number): Pcm {
+  const sampleRate = parts[0]?.sampleRate ?? DEFAULT_SAMPLE_RATE;
+  const gap = Math.round((sampleRate * gapMs) / 1000);
+  const total = parts.reduce((sum, part) => sum + part.samples.length, 0) + gap * Math.max(parts.length - 1, 0);
+  const samples = new Int16Array(total);
+  let offset = 0;
+  for (const part of parts) {
+    samples.set(part.samples, offset);
+    offset += part.samples.length + gap;
+  }
+  return { samples, sampleRate };
 }
 
 /** Reads `text` with Gemini and returns MP3 bytes (one request; a full render goes through the batch API). */

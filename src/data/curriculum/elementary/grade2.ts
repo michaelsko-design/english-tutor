@@ -38,8 +38,8 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             questionEn: 'Which word rhymes with big?',
             correct: 'pig',
             wrong: ['bus', 'cup'],
-            explainHe: 'מילים מחרזות מסתיימות באותו צליל: big ו-pig מסתיימות ב-ig. המילים bus ו-cup מסתיימות בצלילים אחרים.',
-            hintHe: 'מילים מחרזות נגמרות באותו צליל. כדאי לומר big ואז כל מילה, ולהקשיב לסוף.',
+            explainHe: 'מילים מתחרזות מסתיימות באותו צליל: big ו-pig מסתיימות ב-ig. המילים bus ו-cup מסתיימות בצלילים אחרים.',
+            hintHe: 'מילים מתחרזות נגמרות באותו צליל. כדאי לומר big ואז כל מילה, ולהקשיב לסוף.',
           },
           story: {
             passageEn: 'I have a big ball. The ball is red. It is in my bag.',
@@ -95,7 +95,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
         isBoss: true,
         titleEn: 'Boss: Bat, Hat and Cat',
         titleHe: 'אתגר הבוס: bat, hat ו-cat',
-        storyHookHe: 'בחנות הצעצועים מתחבאים שלושה חברים מחרזים! הראו שאתם קוראים מילים עם הצליל at.',
+        storyHookHe: 'בחנות הצעצועים מתחבאים שלושה חברים מתחרזים! הראו שאתם קוראים מילים עם הצליל at.',
         grammarTopic: 'Rhyming Family -at & Review',
         skills: ['Rhyming Words', 'CVC Review', 'Reading'],
         sentenceEn: 'The cat has a big red hat.',
@@ -116,7 +116,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             questionEn: 'Which word rhymes with bat?',
             correct: 'mat',
             wrong: ['pen', 'dog'],
-            explainHe: 'המילים bat ו-mat מסתיימות שתיהן ב-at ולכן הן מחרזות. המילים pen ו-dog מסתיימות בצלילים אחרים.',
+            explainHe: 'המילים bat ו-mat מסתיימות שתיהן ב-at ולכן הן מתחרזות. המילים pen ו-dog מסתיימות בצלילים אחרים.',
             hintHe: 'כדאי להקשיב לסוף של bat: איזו מילה נגמרת באותו צליל?',
           },
           story: {
@@ -290,7 +290,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             questionEn: 'Which word rhymes with pig?',
             correct: 'big',
             wrong: ['hen', 'cow'],
-            explainHe: 'המילים pig ו-big מסתיימות שתיהן ב-ig ולכן הן מחרזות. המילים hen ו-cow מסתיימות בצלילים אחרים.',
+            explainHe: 'המילים pig ו-big מסתיימות שתיהן ב-ig ולכן הן מתחרזות. המילים hen ו-cow מסתיימות בצלילים אחרים.',
             hintHe: 'כדאי להקשיב לסוף של pig: איזו מילה נגמרת באותו צליל?',
           },
           story: {
@@ -367,7 +367,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             questionEn: 'Which word rhymes with frog?',
             correct: 'log',
             wrong: ['dig', 'duck'],
-            explainHe: 'המילים frog ו-log מסתיימות שתיהן ב-og ולכן הן מחרזות. המילים dig ו-duck מסתיימות בצלילים אחרים.',
+            explainHe: 'המילים frog ו-log מסתיימות שתיהן ב-og ולכן הן מתחרזות. המילים dig ו-duck מסתיימות בצלילים אחרים.',
             hintHe: 'כדאי להקשיב לסוף של frog: איזו מילה נגמרת באותו צליל?',
           },
           story: {
@@ -415,7 +415,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             questionEn: 'Which word rhymes with bed?',
             correct: 'red',
             wrong: ['bus', 'dog'],
-            explainHe: 'המילים bed ו-red מסתיימות שתיהן ב-ed ולכן הן מחרזות. המילים bus ו-dog מסתיימות בצלילים אחרים.',
+            explainHe: 'המילים bed ו-red מסתיימות שתיהן ב-ed ולכן הן מתחרזות. המילים bus ו-dog מסתיימות בצלילים אחרים.',
             hintHe: 'כדאי לומר bed ואז כל מילה, ולהקשיב לצליל בסוף.',
           },
           story: {

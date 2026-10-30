@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hebrew clip review</title>
+<style>
+  :root { color-scheme: light dark; --bg:#f6f7fb; --card:#fff; --ink:#1b1d2a; --muted:#6a6f85; --line:#dcdfec; --good:#1f9d55; --bad:#d9482b; --info:#3b6fe0; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14151c; --card:#1e2029; --ink:#eceef7; --muted:#9ba0b8; --line:#33364a; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.4 system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  main { max-width:760px; margin:0 auto; padding:16px; }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .progress { height:8px; background:var(--line); border-radius:4px; overflow:hidden; margin:8px 0 4px; }
+  .progress > div { height:100%; background:var(--good); width:0; }
+  .muted { color:var(--muted); font-size:14px; }
+  nav { display:flex; flex-wrap:wrap; gap:6px; margin:14px 0; }
+  nav button { border:1px solid var(--line); background:var(--card); color:var(--ink); padding:6px 12px; border-radius:16px; cursor:pointer; font:inherit; font-size:14px; }
+  nav button[aria-pressed="true"] { background:var(--info); border-color:var(--info); color:#fff; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; }
+  .text { font-size:30px; line-height:1.5; margin:8px 0 14px; }
+  .tag { display:inline-block; font-size:12px; border:1px solid var(--line); border-radius:8px; padding:1px 8px; margin-inline-end:6px; color:var(--muted); }
+  .gender-girl { color:#c2307a; border-color:#c2307a; } .gender-boy { color:var(--info); border-color:var(--info); }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+  .chips button { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:14px; padding:6px 12px; font:inherit; font-size:14px; cursor:pointer; }
+  .chips button[aria-pressed="true"] { background:var(--bad); border-color:var(--bad); color:#fff; }
+  .why { background:rgba(217,72,43,.1); border-radius:8px; padding:6px 10px; margin-bottom:10px; font-size:14px; }
+  .note { width:100%; padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--ink); font:inherit; }
+  .takes { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; margin-bottom:14px; }
+  .take { border:1px solid var(--line); border-radius:10px; padding:10px; }
+  .take audio { width:100%; }
+  .row { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+  .row button { flex:1; min-width:130px; padding:12px; border-radius:10px; border:0; font:inherit; font-weight:600; color:#fff; cursor:pointer; }
+  .row button.ghost { background:transparent; border:1px solid var(--line); color:var(--ink); font-weight:400; flex:0 0 auto; min-width:0; }
+  .good { background:var(--good); } .bad { background:var(--bad); } .info { background:var(--info); }
+  kbd { font:12px monospace; border:1px solid currentColor; border-radius:4px; padding:0 4px; opacity:.8; }
+  .empty { text-align:center; padding:40px 10px; }
+  .notice { background:#fff3cd; color:#5a4500; border-radius:10px; padding:10px 14px; margin-bottom:12px; font-size:14px; }
+  input[type=search] { width:100%; padding:8px 12px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--ink); font:inherit; margin-bottom:12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Hebrew clip review</h1>
+  <div class="progress"><div id="bar"></div></div>
+  <div class="muted" id="summary"></div>
+  <div id="notice"></div>
+  <nav id="tabs"></nav>
+  <input type="search" id="search" placeholder="Search the Hebrew text…" dir="auto">
+  <div id="view"></div>
+</main>
+<script>
+const TABS = [
+  ['pending', 'To review'],
+  ['compare', 'Compare'],
+  ['regenerate', 'Marked for regenerate'],
+  ['good', 'Good'],
+  ['all', 'All'],
+];
+const TAB_KEY = 'hebrewReviewTab';
+let items = [];
+let reasonList = [];
+let maxNote = 300;
+let draft = null;
+let tab = localStorage.getItem(TAB_KEY) || 'pending';
+let index = 0;
+let lastMarkedKey = null;
+let replacedCount = 0;
+let undoable = [];
+
+const $ = (id) => document.getElementById(id);
+const el = (tag, props = {}, ...children) => {
+  const node = Object.assign(document.createElement(tag), props);
+  node.append(...children);
+  return node;
+};
+
+async function api(path, body) {
+  const res = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : undefined);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || res.statusText);
+  return data;
+}
+
+const visible = () => {
+  const query = $('search').value.trim();
+  return items.filter((item) => item.phase !== 'missing'
+    && (tab === 'all' || item.phase === tab)
+    && (!query || item.text.includes(query) || item.spoken.includes(query)));
+};
+
+async function reload(keepKey) {
+  const data = await api('/api/clips');
+  items = data.items;
+  reasonList = data.reasons;
+  maxNote = data.maxNote;
+  undoable = data.undoable;
+  draft = null;
+  const list = visible();
+  const at = keepKey ? list.findIndex((item) => item.key === keepKey) : -1;
+  index = at >= 0 ? at : Math.min(index, Math.max(list.length - 1, 0));
+  render();
+}
+
+function renderChrome() {
+  const count = (phase) => items.filter((item) => item.phase === phase).length;
+  const total = items.filter((item) => item.phase !== 'missing').length;
+  const reviewed = total - count('pending');
+  $('bar').style.width = `${total ? (reviewed / total) * 100 : 0}%`;
+  $('summary').textContent = `${reviewed.toLocaleString()} / ${total.toLocaleString()} reviewed · ${count('regenerate')} waiting to be regenerated · ${count('compare')} to compare` +
+    (count('missing') ? ` · ${count('missing')} without a clip (render them first)` : '');
+  $('tabs').replaceChildren(...TABS.map(([id, label]) => {
+    const n = id === 'all' ? total : count(id);
+    return el('button', { textContent: `${label} (${n})`, onclick: () => { tab = id; index = 0; localStorage.setItem(TAB_KEY, id); render(); } , ariaPressed: String(tab === id) });
+  }));
+  const last = undoable[0] && items.find((item) => item.key === undoable[0].key);
+  $('notice').replaceChildren(
+    ...(replacedCount ? [el('div', { className: 'notice', textContent: `${replacedCount} clip(s) replaced this sitting: run  npm run tts:upload -- --force  and commit src/services/tts/clipRevisions.ts and scripts/tts/hebrewReview.json. (If you uploaded a clip you then undo, upload again.)` })] : []),
+    ...(last ? [el('div', { className: 'notice' },
+      `Last compare decision: ${last.spoken.slice(0, 50)}  `,
+      button('Undo it', 'Z', 'ghost', undoDecision))] : []));
+}
+
+function audioEl(key, take) {
+  const audio = el('audio', { controls: true, preload: 'auto', src: `/clip/${key}.mp3?take=${take}&t=${Date.now()}` });
+  audio.dataset.take = take;
+  return audio;
+}
+
+const TAKE_LABELS = {
+  new: 'Regenerated take',
+  'lab-niqqud': 'Lab: one clip, niqqud',
+  'lab-sentences': 'Lab: a clip per sentence',
+  'lab-sentences-niqqud': 'Lab: per sentence + niqqud',
+  'lab-runs-niqqud': 'Lab: per sentence and language + niqqud',
+  'lab-flash': 'Model: 3.8 flash (full), plain',
+  'lab-flash-niqqud': 'Model: 3.8 flash (full) + niqqud',
+  'lab-pro25': 'Model: 2.5 pro, plain',
+  'lab-pro25-niqqud': 'Model: 2.5 pro + niqqud',
+};
+let pickedTake = null;
+
+function takeBox(item, take, number) {
+  const audio = audioEl(item.key, take);
+  audio.addEventListener('play', () => { pickedTake = take; });
+  return el('div', { className: 'take' },
+    el('div', { className: 'muted', textContent: number + ' · ' + (TAKE_LABELS[take] || take) }),
+    audio,
+    el('div', { className: 'row' }, button('Use this one', '', 'good', () => decide('new', take))));
+}
+
+const play = (take = 'current') => {
+  const audio = document.querySelector(`audio[data-take="${take}"]`);
+  if (!audio) return;
+  if (take !== 'current') pickedTake = take;
+  document.querySelectorAll('audio').forEach((other) => other.pause());
+  audio.currentTime = 0;
+  audio.play().catch(() => {});
+};
+
+function textBlock(item) {
+  const gender = (/^\[to:(girl|boy)\]/.exec(item.text) || [])[1];
+  const tags = [el('span', { className: 'tag', textContent: item.speed })];
+  if (gender) tags.unshift(el('span', { className: `tag gender-${gender}`, textContent: gender === 'girl' ? 'female form (to a girl)' : 'male form (to a boy)' }));
+  // item.spoken is the text with the niqqud Gemini was given, so the gendered words show their form
+  return el('div', {}, el('div', {}, ...tags), el('div', { className: 'text', dir: 'rtl', lang: 'he', textContent: item.spoken }));
+}
+
+const REASON_LABELS = {
+  'wrong-gender': 'Wrong gender form', 'english-accent': 'English accent', mispronounced: 'Mispronounced word',
+  'letter-name': 'Wrong letter name', 'cut-off': 'Cut off', 'too-fast': 'Too fast', 'too-slow': 'Too slow', noise: 'Noise / glitch',
+  'bad-wording': 'Bad wording (text must change)',
+};
+
+function whyLine(item) {
+  if (item.reasons.length === 0 && !item.note) return [];
+  const labels = item.reasons.map((reason) => REASON_LABELS[reason] || reason).join(' · ');
+  return [el('div', { className: 'why', textContent: 'Marked: ' + [labels, item.note].filter(Boolean).join(' — ') })];
+}
+
+function draftPanel() {
+  const chips = el('div', { className: 'chips' }, ...reasonList.map((reason, i) => el('button', {
+    textContent: (i + 1) + ' ' + (REASON_LABELS[reason] || reason),
+    ariaPressed: String(draft.reasons.includes(reason)),
+    onclick: () => toggleReason(reason),
+  })));
+  const note = el('input', { className: 'note', type: 'text', maxLength: maxNote, placeholder: 'What is wrong? (optional)', dir: 'auto', value: draft.note, id: 'draftNote' });
+  note.addEventListener('input', () => { draft.note = note.value; });
+  note.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') { event.preventDefault(); confirmDraft(); }
+    if (event.key === 'Escape') { event.preventDefault(); cancelDraft(); }
+  });
+  return el('div', {}, el('div', { className: 'muted', textContent: 'What is wrong with this clip? Keys 1-' + reasonList.length + ' pick, N writes a note, Enter marks it, Esc cancels.' }), chips, note,
+    el('div', { className: 'row' }, button('Mark for regenerate', 'Enter', 'bad', confirmDraft), button('Cancel', 'Esc', 'ghost', cancelDraft)));
+}
+
+function button(label, hotkey, cls, onclick) {
+  return el('button', { className: cls, onclick }, label, ...(hotkey ? [' ', el('kbd', { textContent: hotkey })] : []));
+}
+
+function render() {
+  renderChrome();
+  const list = visible();
+  const view = $('view');
+  if (list.length === 0) {
+    view.replaceChildren(el('div', { className: 'card empty', textContent: tab === 'pending' ? 'Nothing left to review. 🎉' : 'Nothing here.' }));
+    return;
+  }
+  index = Math.min(Math.max(index, 0), list.length - 1);
+  const item = list[index];
+  const position = el('div', { className: 'muted', textContent: `${index + 1} of ${list.length} in this list` });
+  const card = el('div', { className: 'card' }, position, textBlock(item));
+  if (item.phase === 'compare') {
+    card.append(
+      ...whyLine(item),
+      el('div', { className: 'takes' },
+        el('div', { className: 'take' }, el('div', { className: 'muted', textContent: '1 · Current' }), audioEl(item.key, 'current')),
+        ...item.takes.map((take, i) => takeBox(item, take, i + 2))),
+      el('div', { className: 'row' },
+        button('Use the last played new take', 'N', 'good', () => decide('new')),
+        button('Keep old', 'O', 'info', () => decide('old')),
+        button('Regenerate again', 'R', 'bad', () => decide('again'))));
+  } else {
+    card.append(audioEl(item.key, 'current'));
+    const row = el('div', { className: 'row' });
+    if (item.phase === 'pending') {
+      row.append(button('Good', 'G', 'good', () => mark('good')), button('Regenerate', 'R', 'bad', openDraft));
+    } else {
+      card.append(el('div', { className: 'muted', textContent: item.phase === 'good' ? 'Marked good.' : 'Marked for regenerate.' }), ...whyLine(item));
+      row.append(button('Mark good', 'G', 'good', () => mark('good')), button('Regenerate', 'R', 'bad', openDraft));
+    }
+    row.append(button('Replay', 'Space', 'ghost', () => play()), button('Undo last mark', 'U', 'ghost', undo));
+    card.append(draft ? draftPanel() : row);
+  }
+  card.append(el('div', { className: 'row' }, button('Previous', '←', 'ghost', () => move(-1)), button('Next', '→', 'ghost', () => move(1))));
+  view.replaceChildren(card);
+  if (document.activeElement && document.activeElement.tagName !== 'INPUT') play(item.phase === 'compare' ? 'current' : 'current');
+}
+
+function current() { return visible()[index]; }
+function move(step) { index += step; draft = null; render(); }
+
+function openDraft() {
+  const item = current();
+  if (!item) return;
+  draft = { reasons: [...item.reasons], note: item.note };
+  render();
+}
+function cancelDraft() { draft = null; render(); }
+function toggleReason(reason) {
+  draft.reasons = draft.reasons.includes(reason) ? draft.reasons.filter((r) => r !== reason) : [...draft.reasons, reason];
+  render();
+}
+const confirmDraft = () => mark('regenerate', draft);
+
+async function mark(status, detail) {
+  const item = current();
+  if (!item) return;
+  lastMarkedKey = item.key;
+  await api('/api/mark', { key: item.key, status, reasons: detail ? detail.reasons : [], note: detail ? detail.note : '' });
+  await reload(tab === 'pending' ? null : item.key);
+}
+
+async function undo() {
+  if (!lastMarkedKey) return;
+  const key = lastMarkedKey;
+  lastMarkedKey = null;
+  await api('/api/mark', { key, status: null });
+  tab = 'pending';
+  await reload(key);
+}
+
+/** Takes back the last compare decision: the old clip and the waiting takes return and the line is in Compare again. */
+async function undoDecision() {
+  if (!undoable[0]) return;
+  const key = undoable[0].key;
+  const result = await api('/api/undo', { key });
+  if (result.wasReplaced) replacedCount = Math.max(replacedCount - 1, 0);
+  tab = 'compare';
+  await reload(key);
+}
+
+async function decide(decision, take) {
+  const item = current();
+  if (!item || item.phase !== 'compare') return;
+  const chosen = take || (item.takes.includes(pickedTake) ? pickedTake : item.takes[0]);
+  const result = await api('/api/decide', { key: item.key, decision, take: chosen });
+  pickedTake = null;
+  if (result.isReplaced) replacedCount += 1;
+  await reload();
+}
+
+document.addEventListener('keydown', (event) => {
+  if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.ctrlKey || event.metaKey || event.altKey) return;
+  const key = event.key.toLowerCase();
+  if (key === 'z') { event.preventDefault(); undoDecision(); return; }
+  const item = current();
+  if (!item) return;
+  if (draft) {
+    const reason = reasonList[Number(key) - 1];
+    if (reason) { event.preventDefault(); toggleReason(reason); }
+    if (key === 'n') { event.preventDefault(); $('draftNote').focus(); }
+    if (key === 'enter') { event.preventDefault(); confirmDraft(); }
+    if (key === 'escape') cancelDraft();
+    return;
+  }
+  const isCompare = item.phase === 'compare';
+  const handlers = {
+    ' ': () => play(), '1': () => play('current'), '2': () => play(item.takes[0]), '3': () => play(item.takes[1]), '4': () => play(item.takes[2]), '5': () => play(item.takes[3]), '6': () => play(item.takes[4]), u: undo,
+    arrowright: () => move(1), arrowleft: () => move(-1),
+    g: () => !isCompare && mark('good'), enter: () => !isCompare && mark('good'),
+    r: () => (isCompare ? decide('again') : openDraft()),
+    n: () => isCompare && decide('new'), o: () => isCompare && decide('old'),
+  };
+  if (handlers[key]) { event.preventDefault(); handlers[key](); }
+});
+$('search').addEventListener('input', () => { index = 0; render(); });
+reload().catch((error) => { $('view').textContent = error.message; });
+</script>
+</body>
+</html>
