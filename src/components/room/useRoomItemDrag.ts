@@ -6,8 +6,6 @@ import {
   ScenePoint,
   cycleSurface,
   getEntryMoveKinds,
-  getPlacementOptions,
-  isObjectKey,
   snapToSurface,
   stepPoint,
 } from '../../data/roomPlacement';
@@ -31,7 +29,7 @@ interface Press {
 
 interface UseRoomItemDragOptions {
   sceneRef: RefObject<HTMLElement | null>;
-  /** Where the desk is: its top is the surface of the small items */
+  /** The room the items are moved in */
   layout: RoomLayoutContext;
   onMove: (key: string, point: ScenePoint) => void;
   onTap: (key: string) => void;
@@ -54,8 +52,7 @@ export function useRoomItemDrag({ sceneRef, layout, onMove, onTap }: UseRoomItem
   const press = useRef<Press | null>(null);
   const suppressClickUntil = useRef(0);
 
-  const optionsFor = (entry: PlacedRoomEntry): PlacementOptions =>
-    getPlacementOptions(isObjectKey(entry.key) ? entry.key : entry.item.id, entry.width, layout, entry.isOnLeftWall ? 'left' : 'right');
+  const optionsFor = (entry: PlacedRoomEntry): PlacementOptions => ({ layout, width: entry.width });
 
   const toScene = (clientX: number, clientY: number): ScenePoint | null => {
     const rect = sceneRef.current?.getBoundingClientRect();

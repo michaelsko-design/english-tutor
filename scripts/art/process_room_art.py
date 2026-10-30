@@ -17,14 +17,12 @@ Usage: python scripts/art/process_room_art.py [--contact DIR]   (DIR: contact sh
 import json
 import subprocess
 import sys
+from collections import deque
 from pathlib import Path
 
-import cv2
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageOps
+from PIL import Image, ImageDraw, ImageFilter
 from scipy import ndimage
-
-from process_room_furniture import clear_background
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / 'art-src' / 'room-art'
@@ -38,7 +36,7 @@ OUTLINE_GAP_CLOSE = 2  # pixels: closes tiny gaps in an outline before looking f
 SHADOW_MIN_LUMINANCE = 45  # darker than this is the outline of the object, never shadow
 SHADOW_MAX_LUMINANCE = 170  # a pale grey-violet body or outline must not count as shadow; only the soft edge may be this light
 PALE_SHADOW_MAX_LUMINANCE = 215  # big furniture has a thick, closed outline, so its (paler) shadow may be lighter than other pictures'
-PALE_SHADOW_IDS = {'object-bed', 'object-wardrobe', 'object-desk', 'room-sofa', 'room-chair', 'room-plant', 'room-ball', 'room-drum'}  # ... and the second view (-b) of each
+PALE_SHADOW_IDS = {'room-plant', 'room-ball', 'room-drum'}
 SHADOW_FRINGE = 6 # pixels: the light soft edge of the shadow, taken only next to the shadow itself
 SPECK_SHARE = 0.002  # a piece of ink smaller than this share of the picture, far from the object, is a stray mark
 SPECK_DISTANCE = 0.08  # ... when it is farther than this share of the short side from the object's box
@@ -56,24 +54,11 @@ SHADOW_COLOR = (28, 14, 52)
 SHADOW_ALPHA_MAX = 0.62
 SHADOW_GAIN = 2.2  # darker grey, more opaque shadow
 ALPHA_VISIBLE = 8
-OPEN_SPACE_IDS = {'object-desk', 'object-desk-b'}  # furniture with open space between its legs: enclosed white there is clear
 OPEN_SPACE_WHITE = 225  # the gap between legs is off-white (pale shadow edge), not always pure white
 SLOPE_MARGIN = 0.1  # the top edge's slope is read between these shares of the body's width
 SLOPE_MIN_COLUMNS = 8
-# Pictures whose top edge is not the way the piece runs (a level crest on top of a slanted shelf):
-# their slope, read off the plank by eye, as the measured one would read it
-# The big furniture redrawn at the rooms' camera (renderRoomArt.mjs flat): art-src/room-art/<theme>/<id>-flat.png
-# is drawn with its back to the LEFT wall (the -b view); the right-wall view is its mirror image. It has
-# no baked shadow: one is made here, falling to the right in both views. Its slope is the slope of its
-# edges along the wall (measured from its outline), which the room shears to the wall it stands at.
-FLAT_FURNITURE_IDS = {'object-bed', 'object-wardrobe', 'object-desk', 'room-sofa', 'room-chair'}
-# Flat drawings that came back with the back to the RIGHT wall (read by eye)
-FLAT_RIGHT_WALL_DRAWINGS = {'urban-night/room-sofa', 'urban-night/room-chair', 'travel-journal/room-chair'}
-# Wall-edge slopes (as seen against the left wall) read by eye where carved frames fool the measurement
-FLAT_SLOPE_OVERRIDES = {'starlight-rpg/room-sofa': -0.3}
-# Rooms with the furniture drawn in: the sofa and armchair face the viewer (renderRoomArt.mjs front,
-# art-src/room-art/<theme>/<id>-front-<take>.png), never turn, and are level (slope 0). The picked take
-# serves both views; it gets the same made shadow as the flat furniture.
+# The sofa and armchair face the viewer (renderRoomArt.mjs front, art-src/room-art/<theme>/<id>-front-<take>.png),
+# never turn, and are level (slope 0). They are drawn with no shadow: one is made here (with_cast_shadow).
 FRONT_PICKS = {
     'starlight-rpg/room-sofa': 5,
     'starlight-rpg/room-chair': 2,
@@ -93,15 +78,26 @@ SHADOW_LEAN = 0.55  # pixels to the right per pixel of the object's height
 SHADOW_BLUR = 5
 SHADOW_OPACITY = 0.32
 SHADOW_RGB = (59, 42, 90)
-# Straight outline edges that lie along the wall: not near level, not near upright
-WALL_EDGE_MIN_SLOPE = 0.08
-WALL_EDGE_MAX_SLOPE = 1.2
-WALL_EDGE_MIN_LENGTH = 0.12  # share of the picture's width
-
-SLOPE_OVERRIDES = {'starlight-rpg/furniture-shelf-high': -0.25}
 OPEN_SPACE_MIN_AREA = 100
-SOLID_BODY_SIZE = 9  # furniture pieces are thick: anything thinner than this many pixels is a stray line
-SOLID_BODY_REGROW = 8  # pixels kept around the thick body, which is its outline and soft edge
+
+
+def clear_background(rgb: np.ndarray) -> np.ndarray:
+    """Alpha channel: 0 for near-white pixels reachable from the picture's edge, 255 elsewhere."""
+    height, width, _ = rgb.shape
+    is_white = (rgb >= WHITE_LEVEL).all(axis=2)
+    seen = np.zeros((height, width), dtype=bool)
+    queue = deque()
+    for x in range(width):
+        queue.extend([(0, x), (height - 1, x)])
+    for y in range(height):
+        queue.extend([(y, 0), (y, width - 1)])
+    while queue:
+        y, x = queue.popleft()
+        if not (0 <= y < height and 0 <= x < width) or seen[y, x] or not is_white[y, x]:
+            continue
+        seen[y, x] = True
+        queue.extend([(y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)])
+    return np.where(seen, 0, 255).astype(np.uint8)
 
 
 def luminance(rgb: np.ndarray) -> np.ndarray:
@@ -199,13 +195,6 @@ def clear_open_space(rgb: np.ndarray, alpha: np.ndarray) -> np.ndarray:
     return np.where(big, 0, alpha).astype(np.uint8)
 
 
-def keep_solid_body(alpha: np.ndarray) -> np.ndarray:
-    """Alpha with everything away from the thick body erased: lines drawn onto a shelf or board."""
-    solid = ndimage.binary_opening(alpha > ALPHA_VISIBLE, structure=np.ones((SOLID_BODY_SIZE, SOLID_BODY_SIZE), dtype=bool))
-    keep = ndimage.binary_dilation(solid, iterations=SOLID_BODY_REGROW)
-    return np.where(keep, alpha, 0).astype(np.uint8)
-
-
 def top_edge_slope(alpha: np.ndarray, body: np.ndarray) -> float:
     """How the body's top edge runs: pixels down per pixel to the right (positive: lower on the right).
     The room scene mirrors flat wall pictures whose slope disagrees with the wall they hang on."""
@@ -219,30 +208,6 @@ def top_edge_slope(alpha: np.ndarray, body: np.ndarray) -> float:
     if xs.size < SLOPE_MIN_COLUMNS:
         return 0.0
     return float(np.polyfit(xs, tops, 1)[0])
-
-
-def wall_edge_slope(rgb: np.ndarray, alpha: np.ndarray, is_left_wall_view: bool) -> float:
-    """The slope of the edges that run along the wall (pixels down per pixel to the right): with the
-    back to the left wall they rise to the right (negative), to the right wall they fall (positive).
-    The length-weighted median of the outline's straight segments that run that way."""
-    outline = ((rgb.mean(axis=2) < 90) & (alpha > ALPHA_VISIBLE)).astype(np.uint8) * 255
-    width = alpha.shape[1]
-    lines = cv2.HoughLinesP(outline, 1, np.pi / 360, threshold=40, minLineLength=int(WALL_EDGE_MIN_LENGTH * width), maxLineGap=6)
-    if lines is None:
-        return 0.0
-    slopes, weights = [], []
-    for x1, y1, x2, y2 in lines.reshape(-1, 4):
-        if x1 == x2:
-            continue
-        slope = (y2 - y1) / (x2 - x1)
-        if WALL_EDGE_MIN_SLOPE < (-slope if is_left_wall_view else slope) < WALL_EDGE_MAX_SLOPE:
-            slopes.append(slope)
-            weights.append(np.hypot(x2 - x1, y2 - y1))
-    if not slopes:
-        return 0.0
-    order = np.argsort(slopes)
-    cumulative = np.cumsum(np.array(weights)[order])
-    return float(np.array(slopes)[order][np.searchsorted(cumulative, cumulative[-1] / 2)])
 
 
 def with_cast_shadow(rgba: np.ndarray, body: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -273,32 +238,23 @@ def with_cast_shadow(rgba: np.ndarray, body: np.ndarray) -> tuple[np.ndarray, np
     return canvas, wide_body
 
 
-def load_source(path: Path, mirror: bool) -> Image.Image:
-    picture = Image.open(path).convert('RGB')
-    return ImageOps.mirror(picture) if mirror else picture
-
-
-def process(path: Path, has_shadow: bool, mirror: bool = False, is_flat_furniture: bool = False, is_left_wall_view: bool = False) -> tuple[Image.Image, tuple[float, float, float, float], float]:
-    """The transparent picture, the body's (left, right, top, bottom) as shares of it, and its slope: its
-    top edge's, or for flat furniture its wall edges' (see wall_edge_slope)."""
-    rgb = remove_axis_lines(remove_stray_lines(np.asarray(load_source(path, mirror))))
+def process(path: Path, has_shadow: bool, is_front_furniture: bool = False) -> tuple[Image.Image, tuple[float, float, float, float], float]:
+    """The transparent picture, the body's (left, right, top, bottom) as shares of it, and its top edge's
+    slope (0 for the front-facing sofa and armchair)."""
+    rgb = remove_axis_lines(remove_stray_lines(np.asarray(Image.open(path).convert('RGB'))))
     if has_shadow:
-        rgb, alpha, body = alpha_with_shadow(rgb, PALE_SHADOW_MAX_LUMINANCE if path.stem.removesuffix('-b') in PALE_SHADOW_IDS else SHADOW_MAX_LUMINANCE)
+        rgb, alpha, body = alpha_with_shadow(rgb, PALE_SHADOW_MAX_LUMINANCE if path.stem in PALE_SHADOW_IDS else SHADOW_MAX_LUMINANCE)
         drawn = int((alpha > ALPHA_VISIBLE).sum())
         if drawn and 1 - body[alpha > ALPHA_VISIBLE].sum() / drawn > MAX_SHADOW_SHARE:
             print(f'warning {path.parent.name}/{path.stem}: mostly shadow, the outline may have leaked')
     else:
         alpha = clear_background(rgb)
         body = alpha > 0
-    if path.stem.startswith('furniture-'):
-        alpha = keep_solid_body(alpha)
-        body = body & (alpha > 0)
-    if path.stem in OPEN_SPACE_IDS or is_flat_furniture:
+    if is_front_furniture:
         alpha = clear_open_space(rgb, alpha)
         body = body & (alpha > 0)
     rgba = np.dstack([rgb, alpha])
-    if is_flat_furniture:
-        wall_slope = wall_edge_slope(rgb, alpha, is_left_wall_view)
+    if is_front_furniture:
         rgba, body = with_cast_shadow(rgba, body & (alpha > ALPHA_VISIBLE))
         alpha = rgba[:, :, 3]
     visible = np.argwhere(alpha > ALPHA_VISIBLE)
@@ -314,7 +270,7 @@ def process(path: Path, has_shadow: bool, mirror: bool = False, is_flat_furnitur
         (body_top - top) / height,
         (body_bottom - top) / height,
     )
-    slope = wall_slope if is_flat_furniture else top_edge_slope(alpha, body)
+    slope = 0.0 if is_front_furniture else top_edge_slope(alpha, body)
     picture = Image.fromarray(rgba[top:bottom, left:right], 'RGBA')
     if picture.width > MAX_WIDTH:
         picture = picture.resize((MAX_WIDTH, round(picture.height * MAX_WIDTH / picture.width)), Image.LANCZOS)
@@ -382,30 +338,15 @@ def main() -> None:
     missing: list[str] = []
     for key, has_shadow in jobs.items():
         theme, picture_id = key.split('/')
-        item_id = picture_id.removesuffix('-b')
-        flat_source = SOURCE / theme / f'{item_id}-flat.png'
-        is_flat_furniture = item_id in FLAT_FURNITURE_IDS and flat_source.exists()
-        is_left_wall_view = picture_id.endswith('-b')
-        front_take = FRONT_PICKS.get(f'{theme}/{item_id}')
+        front_take = FRONT_PICKS.get(key)
         if front_take:
-            flat_source = SOURCE / theme / f'{item_id}-front-{front_take}.png'
-            is_flat_furniture = True
-        if front_take:
-            source, mirror, has_shadow = flat_source, False, False
-        elif is_flat_furniture:
-            # Most came back with the back to the left wall; mirror those that face the other way
-            drawn_left = f'{theme}/{item_id}' not in FLAT_RIGHT_WALL_DRAWINGS
-            source, mirror, has_shadow = flat_source, drawn_left != is_left_wall_view, False
+            source, has_shadow = SOURCE / theme / f'{picture_id}-front-{front_take}.png', False
         else:
-            source, mirror = SOURCE / theme / f'{picture_id}.png', False
+            source = SOURCE / theme / f'{picture_id}.png'
         if not source.exists():
             missing.append(key)
             continue
-        picture, (left, right, top, bottom), slope = process(source, has_shadow, mirror, is_flat_furniture, is_left_wall_view)
-        if is_flat_furniture and f'{theme}/{item_id}' in FLAT_SLOPE_OVERRIDES:
-            slope = FLAT_SLOPE_OVERRIDES[f'{theme}/{item_id}'] * (1 if is_left_wall_view else -1)
-        if front_take:
-            slope = 0.0
+        picture, (left, right, top, bottom), slope = process(source, has_shadow, bool(front_take))
         target = OUT / theme / f'{picture_id}.webp'
         target.parent.mkdir(parents=True, exist_ok=True)
         picture.save(target, 'WEBP', quality=WEBP_QUALITY, method=6)
@@ -415,7 +356,7 @@ def main() -> None:
             'right': round(right, 4),
             'top': round(top, 4),
             'bottom': round(bottom, 4),
-            'slope': round(SLOPE_OVERRIDES.get(f'{theme}/{picture_id}', slope), 3),
+            'slope': round(slope, 3),
         }
         if contact_dir:
             contact_pictures.setdefault(theme, {})[picture_id] = picture

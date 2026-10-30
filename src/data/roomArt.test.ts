@@ -1,44 +1,33 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { LEGACY_DESK_SHAPE, getArtId, getDeskShape, getRoomSprite } from './roomArt';
+import { getArtId, getRoomSprite } from './roomArt';
 import { ROOM_ART } from './roomArtManifest';
-import { getRoomGeometry } from './roomGeometry';
-import type { ThemeId } from '../types/learner';
 
 const THEMES = Object.keys(ROOM_ART);
-const PICTURES_PER_THEME = 38;
-
-function isDrawnIn(theme: string): boolean {
-  return getRoomGeometry(theme as ThemeId).baked !== undefined;
-}
+const PICTURES_PER_THEME = 26;
 
 describe('the themed room pictures', () => {
-  it('has the same 38 pictures for each of the six themes', () => {
+  it('has the same 26 pictures for each of the six themes', () => {
     expect(THEMES).toHaveLength(6);
     const first = Object.keys(ROOM_ART[THEMES[0]]).sort();
     expect(first).toHaveLength(PICTURES_PER_THEME);
     THEMES.forEach((theme) => expect(Object.keys(ROOM_ART[theme]).sort(), theme).toEqual(first));
   });
 
-  it('draws every big piece the right way for each wall: its edges along the wall fall to the right against the right wall, rise against the left one', () => {
-    THEMES.filter((theme) => !isDrawnIn(theme)).forEach((theme) =>
-      ['object-bed', 'object-wardrobe', 'object-desk', 'room-sofa', 'room-chair'].forEach((id) => {
-        expect(ROOM_ART[theme][id].slope, `${theme}/${id}`).toBeGreaterThan(0.1);
-        expect(ROOM_ART[theme][`${id}-b`].slope, `${theme}/${id}-b`).toBeLessThan(-0.1);
-      })
-    );
+  it('draws the sofa and armchair facing the viewer, level, and has no pictures of the bed, wardrobe, desk or shelves (they are in the room picture)', () => {
+    THEMES.forEach((theme) => {
+      ['room-sofa', 'room-chair'].forEach((id) => expect(ROOM_ART[theme][id].slope, `${theme}/${id}`).toBe(0));
+      Object.keys(ROOM_ART[theme]).forEach((id) => {
+        expect(id, theme).not.toMatch(/^(object-(bed|wardrobe|desk)|furniture-)/);
+        expect(id, theme).not.toMatch(/-b$/);
+      });
+    });
   });
 
-  it('draws the sofa and armchair of a room with its furniture drawn in facing the viewer, level', () => {
-    THEMES.filter(isDrawnIn).forEach((theme) =>
-      ['room-sofa', 'room-chair'].forEach((id) => expect(ROOM_ART[theme][id].slope, `${theme}/${id}`).toBe(0))
-    );
-  });
-
-  it('shows a big piece as drawn, without slanting it: a slant lines up one edge but bends the other', () => {
-    expect(getRoomSprite('travel-journal', 'object-desk', { wallSlope: 0.2 })!.shear).toBe(0);
-    expect(getRoomSprite('travel-journal', 'object-desk', { isOnLeftWall: true, wallSlope: -0.2 })!.shear).toBe(0);
+  it('shows the sofa as drawn, without slanting it, against either wall', () => {
+    expect(getRoomSprite('travel-journal', 'room-sofa', { wallSlope: 0.2 })!.shear).toBe(0);
+    expect(getRoomSprite('travel-journal', 'room-sofa', { isOnLeftWall: true, wallSlope: -0.2 })!.isMirrored).toBe(false);
   });
 
   it('has a file for every picture, with sane body bounds', () => {
@@ -70,13 +59,6 @@ describe('getRoomSprite', () => {
     expect(getRoomSprite('neon-pop', 'room-not-drawn')).toBeNull();
   });
 
-  it('shows the left-wall view of a big item on the left wall, not a mirror of the right-wall one', () => {
-    const left = getRoomSprite('cozy-studio', 'room-sofa', { isOnLeftWall: true });
-    expect(left?.url).toBe('/art/room/cozy-studio/room-sofa-b.webp');
-    expect(left?.isMirrored).toBe(false);
-    expect(getRoomSprite('cozy-studio', 'room-sofa')?.url).toBe('/art/room/cozy-studio/room-sofa.webp');
-  });
-
   it('mirrors a wall picture on the left wall, with its body bounds mirrored too', () => {
     const right = getRoomSprite('cozy-studio', 'room-clock')!;
     const left = getRoomSprite('cozy-studio', 'room-clock', { isOnLeftWall: true, canMirror: true })!;
@@ -89,7 +71,7 @@ describe('getRoomSprite', () => {
   it('turns a flat wall picture so its top edge runs lower to the right on the right wall and lower to the left on the left wall', () => {
     const flat = { isFlatOnWall: true, canMirror: true };
     THEMES.forEach((theme) =>
-      ['furniture-shelf-high', 'furniture-shelf-low', 'furniture-board', 'room-picture'].forEach((id) => {
+      ['room-picture'].forEach((id) => {
         const { slope } = ROOM_ART[theme][id];
         const onRight = getRoomSprite(theme as never, id, flat)!;
         const onLeft = getRoomSprite(theme as never, id, { ...flat, isOnLeftWall: true })!;
@@ -103,9 +85,9 @@ describe('getRoomSprite', () => {
   it('shears a flat wall picture so its top edge runs exactly along the wall, and leaves other pictures alone', () => {
     const wallSlope = 0.17;
     THEMES.forEach((theme) => {
-      const shelf = getRoomSprite(theme as never, 'furniture-shelf-high', { isFlatOnWall: true, canMirror: true, wallSlope })!;
-      const shownSlope = (shelf.isMirrored ? -1 : 1) * ROOM_ART[theme]['furniture-shelf-high'].slope;
-      expect(shownSlope + shelf.shear, theme).toBeCloseTo(wallSlope);
+      const picture = getRoomSprite(theme as never, 'room-picture', { isFlatOnWall: true, canMirror: true, wallSlope })!;
+      const shownSlope = (picture.isMirrored ? -1 : 1) * ROOM_ART[theme]['room-picture'].slope;
+      expect(shownSlope + picture.shear, theme).toBeCloseTo(wallSlope);
     });
     expect(getRoomSprite('cozy-studio', 'room-teddy', { wallSlope })!.shear).toBe(0);
   });
@@ -116,30 +98,7 @@ describe('getRoomSprite', () => {
   });
 
   it('names mission objects by their key', () => {
-    expect(getArtId('object:bed', 'bed')).toBe('object-bed');
+    expect(getArtId('object:phone', 'phone')).toBe('object-phone');
     expect(getArtId('room-sofa', 'room-sofa')).toBe('room-sofa');
-  });
-});
-
-describe('getDeskShape', () => {
-  it('is the first desk picture without art', () => {
-    expect(getDeskShape(undefined)).toBe(LEGACY_DESK_SHAPE);
-  });
-
-  it('puts the desk top between the feet and the top of the picture, for every theme', () => {
-    THEMES.forEach((theme) => {
-      const shape = getDeskShape(theme as Parameters<typeof getDeskShape>[0]);
-      expect(shape.topAboveFeet, theme).toBeGreaterThan(0.4);
-      expect(shape.topAboveFeet, theme).toBeLessThan(1);
-      expect(shape.heightOverWidth, theme).toBeGreaterThan(0.3);
-    });
-  });
-
-  it('keeps things on the slanted desk top away from its corners, where a level line runs off it', () => {
-    THEMES.forEach((theme) => {
-      const shape = getDeskShape(theme as Parameters<typeof getDeskShape>[0]);
-      expect(shape.topHalfWidthShare, theme).toBeLessThan(0.25);
-      expect(shape.topHalfWidthShare, theme).toBeGreaterThan(0.1);
-    });
   });
 });

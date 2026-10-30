@@ -3,10 +3,11 @@ import { ThemeId } from '../types/learner';
 import type { RoomSurface, ScenePoint } from './roomPlacement';
 
 /**
- * Where things can go in each theme's room picture (public/art/<theme>/room-corner.webp): the
- * corner where the two walls meet, the baseboard line that separates wall from floor, and the
- * zones for hanging items, shelves, the sticker board and the window sill. All numbers are scene
- * percentages, read off the pictures. Pure data; placement lives in roomPlacement.ts.
+ * Where things can go in each theme's room picture (public/art/<theme>/room-baked.webp, with the bed,
+ * wardrobe, desk and shelves drawn in): the corner where the two walls meet, the baseboard line that
+ * separates wall from floor, the drawn furniture and the zones for hanging items, shelves and the
+ * window sill. All numbers are scene percentages, read off the pictures. Pure data; placement lives
+ * in roomPlacement.ts.
  */
 
 export interface Box {
@@ -22,7 +23,7 @@ export interface ShelfLine {
   xMax: number;
   /** Height of the line in the middle */
   y: number;
-  /** A shelf drawn into the room picture: how it runs, % down per % to the right (else it follows the right wall) */
+  /** How the drawn shelf runs, % down per % to the right (none: level) */
   tilt?: number;
 }
 
@@ -54,8 +55,6 @@ export interface BakedFurniture {
 }
 
 export interface RoomGeometry {
-  /** The original room every theme shared before the corner rooms; kept as the fallback */
-  isLegacy?: boolean;
   /** Where the two walls meet (x, %) */
   cornerX: number;
   /** The baseboard line, left to right (x from 0 to 100): floor items stand below it */
@@ -71,13 +70,12 @@ export interface RoomGeometry {
   /** Where wall items hang on the left wall, beside the window; none when the window leaves no room */
   wallLeft: Box | null;
   wallRight: Box;
-  board: Box;
   shelves: ShelfLine[];
-  /** Where the movable objects stand until they are moved */
-  defaults: { desk: ScenePoint; bed: ScenePoint; wardrobe: ScenePoint; gamesBook: ScenePoint };
+  /** Where the games book lies until it is moved */
+  gamesBookHome: ScenePoint;
   avatarHome: ScenePoint;
-  /** The bed, wardrobe, desk and shelves are part of the room picture (none: they are movable pictures) */
-  baked?: BakedFurniture;
+  /** The bed, wardrobe, desk and shelves drawn into the room picture */
+  baked: BakedFurniture;
 }
 
 /** Interpolated baseboard y at `x`. */
@@ -116,61 +114,6 @@ export function getWallSlope(geometry: RoomGeometry, isOnLeftWall: boolean): num
 /** Extra distance (scene %) between the baseboard and the feet of an item standing right at it. */
 export const FLOOR_EDGE_CLEARANCE = 1.5;
 
-/**
- * The legs of a big piece (bed, desk, wardrobe, sofa, chair) drawn for the left wall, relative to its
- * feet (the front leg, the bottom middle of the picture), in shares of its width: the back leg by the
- * wall, the far back leg and the far front leg. Measured off the pictures; the right-wall pictures
- * are the mirror image.
- */
-export interface FurnitureLeg {
-  dx: number;
-  dy: number;
-}
-
-/** A desk, wardrobe, sofa or chair: its long side runs along the wall. */
-export const FURNITURE_LEGS: FurnitureLeg[] = [
-  { dx: -0.45, dy: -0.16 },
-  { dx: 0.18, dy: -0.43 },
-  { dx: 0.42, dy: -0.29 },
-];
-
-/** The bed: its headboard is against the wall, so it reaches out from it. */
-export const BED_LEGS: FurnitureLeg[] = [
-  { dx: -0.44, dy: -0.34 },
-  { dx: -0.06, dy: -0.52 },
-  { dx: 0.45, dy: -0.22 },
-];
-
-/**
- * A big piece standing on the floor: how wide it is, whether its back is to the left wall, its legs,
- * and the shear it is drawn with to lie along its wall (pixels down per pixel to the right).
- */
-export interface FurnitureFootprint {
-  width: number;
-  isOnLeftWall: boolean;
-  legs?: FurnitureLeg[];
-  shear?: number;
-}
-
-/**
- * The smallest feet y at `x`: just below the baseboard, or, for a big piece, low enough that all its
- * legs stand on the floor (its back leg is higher up the picture than its feet).
- */
-export function getFloorMinY(geometry: RoomGeometry, x: number, footprint?: FurnitureFootprint): number {
-  // In a room with its furniture drawn in, the floor starts in front of the furniture, all along the item's width
-  if (geometry.baked) return getFreeFloorMinY(geometry.baked.freeFloorEdge, x, footprint?.width ?? 0);
-  const atFeet = floorEdgeY(geometry, x) + FLOOR_EDGE_CLEARANCE;
-  if (!footprint || footprint.width <= 0) return atFeet;
-  const { width, shear = 0, legs = FURNITURE_LEGS } = footprint;
-  const side = footprint.isOnLeftWall ? 1 : -1;
-  return legs.reduce((minY, leg) => {
-    const dx = side * leg.dx * width;
-    // the shear lifts or lowers a leg by how far it is from the feet
-    const legAboveFeet = -leg.dy * width - shear * dx * SCENE_WIDTH_OVER_HEIGHT;
-    return Math.max(minY, floorEdgeY(geometry, x + dx) + FLOOR_EDGE_CLEARANCE + legAboveFeet);
-  }, atFeet);
-}
-
 /** An item's drawn body is a little narrower than its width: this share of it must stand clear of the furniture. */
 const FREE_FLOOR_BODY_SHARE = 0.8;
 const FREE_FLOOR_SAMPLES = 8;
@@ -185,13 +128,17 @@ function getFreeFloorMinY(freeFloorEdge: ScenePoint[], x: number, width: number)
   return Math.max(...samples.map((sampleX) => lineYAt(freeFloorEdge, sampleX))) + FLOOR_EDGE_CLEARANCE;
 }
 
-/** The surfaces of a room (the desk top depends on the desk, see getSurfaces). */
+/** The smallest feet y at `x` for an item `width` wide: in front of the furniture drawn into the room. */
+export function getFloorMinY(geometry: RoomGeometry, x: number, width = 0): number {
+  return getFreeFloorMinY(geometry.baked.freeFloorEdge, x, width);
+}
+
+/** The fixed surfaces of a room: the free walls, the drawn shelves and sill, and the floor (the desk top and stickers, see getSurfaces). */
 export function getFixedSurfaces(geometry: RoomGeometry): RoomSurface[] {
-  const { wallLeft, wallRight, board } = geometry;
+  const { wallLeft, wallRight } = geometry;
   return [
     ...(wallLeft ? [{ id: 'wall-left', kind: 'wall' as const, ...wallLeft }] : []),
     { id: 'wall-right', kind: 'wall', ...wallRight },
-    { id: 'board', kind: 'board', ...board },
     ...geometry.shelves.map((shelf) => ({
       id: shelf.id,
       kind: 'shelf' as const,
@@ -199,12 +146,7 @@ export function getFixedSurfaces(geometry: RoomGeometry): RoomSurface[] {
       xMax: shelf.xMax,
       yMin: shelf.y,
       yMax: shelf.y,
-      // The shelves on the right wall run along it (drawn-in shelves as drawn); the sill is part of the room picture, level
-      ...(shelf.tilt !== undefined
-        ? { tilt: shelf.tilt }
-        : geometry.isLegacy || shelf.id === 'window-sill'
-          ? {}
-          : { tilt: getWallSlope(geometry, false) * SCENE_WIDTH_OVER_HEIGHT }),
+      ...(shelf.tilt !== undefined ? { tilt: shelf.tilt } : {}),
     })),
     {
       id: 'floor',
@@ -213,39 +155,10 @@ export function getFixedSurfaces(geometry: RoomGeometry): RoomSurface[] {
       xMax: geometry.floorXMax,
       yMin: geometry.floorMinY,
       yMax: geometry.floorMaxY,
-      ...(geometry.isLegacy ? {} : { minYAt: (x: number, footprint?: FurnitureFootprint) => getFloorMinY(geometry, x, footprint) }),
+      minYAt: (x: number, width?: number) => getFloorMinY(geometry, x, width),
     },
   ];
 }
-
-/** The one room all themes shared before the corner rooms (and the fallback for an unknown theme). */
-export const LEGACY_GEOMETRY: RoomGeometry = {
-  isLegacy: true,
-  cornerX: 50,
-  floorEdge: [
-    { x: 0, y: 62 },
-    { x: 100, y: 62 },
-  ],
-  floorMinY: 74,
-  floorMaxY: 92,
-  floorXMin: 8,
-  floorXMax: 92,
-  wallLeft: { xMin: 7, xMax: 30, yMin: 8, yMax: 17 },
-  wallRight: { xMin: 70, xMax: 93, yMin: 8, yMax: 17 },
-  board: { xMin: 72, xMax: 88, yMin: 25, yMax: 34 },
-  shelves: [
-    { id: 'shelf-high', xMin: 8, xMax: 26, y: 30 },
-    { id: 'shelf-low', xMin: 8, xMax: 26, y: 43 },
-    { id: 'window-sill', xMin: 37, xMax: 53, y: 52 },
-  ],
-  defaults: {
-    desk: { x: 66, y: 80 },
-    bed: { x: 17, y: 82 },
-    wardrobe: { x: 85, y: 80 },
-    gamesBook: { x: 40, y: 91 },
-  },
-  avatarHome: { x: 50, y: 68 },
-};
 
 /** The floor runs to the bottom of the picture: feet can stand almost there. */
 const FLOOR_MAX_Y = 98;
@@ -258,7 +171,6 @@ interface BakedRoom {
   edge: [number, number, number];
   wallLeft: Box | null;
   wallRight: Box;
-  board: Box;
   shelves: ShelfLine[];
   baked: BakedFurniture;
   gamesBook: ScenePoint;
@@ -270,8 +182,7 @@ interface BakedRoom {
  * every theme: the bed in the back corner along the window wall, the wardrobe at the far left, the
  * desk at the far right under the shelves. Every number is read off the picture.
  */
-function bakedRoom({ cornerX, window, edge: [yLeft, yCorner, yRight], wallLeft, wallRight, board, shelves, baked, gamesBook, avatarHome }: BakedRoom): RoomGeometry {
-  const pieceAt = (id: FixedFurnitureId) => baked.pieces.find((piece) => piece.id === id)?.standAt ?? avatarHome;
+function bakedRoom({ cornerX, window, edge: [yLeft, yCorner, yRight], wallLeft, wallRight, shelves, baked, gamesBook, avatarHome }: BakedRoom): RoomGeometry {
   return {
     cornerX,
     floorEdge: [
@@ -286,10 +197,8 @@ function bakedRoom({ cornerX, window, edge: [yLeft, yCorner, yRight], wallLeft, 
     window,
     wallLeft,
     wallRight,
-    board,
     shelves,
-    // The fixed pieces are not placed, but the old defaults stay filled for code that reads them
-    defaults: { desk: pieceAt('desk'), bed: pieceAt('bed'), wardrobe: pieceAt('wardrobe'), gamesBook },
+    gamesBookHome: gamesBook,
     avatarHome,
     baked,
   };
@@ -302,7 +211,6 @@ const ROOM_GEOMETRY: Record<ThemeId, RoomGeometry> = {
     edge: [81, 63, 78.5],
     wallLeft: { xMin: 8, xMax: 17, yMin: 10.5, yMax: 14.5 },
     wallRight: { xMin: 87, xMax: 93, yMin: 17, yMax: 25 },
-    board: { xMin: 86, xMax: 92, yMin: 10, yMax: 12 },
     shelves: [
       { id: 'shelf-high', xMin: 59.5, xMax: 79.5, y: 25.2, tilt: 0.035 },
       { id: 'shelf-low', xMin: 73.5, xMax: 95, y: 36.6, tilt: 0.045 },
@@ -355,7 +263,6 @@ const ROOM_GEOMETRY: Record<ThemeId, RoomGeometry> = {
     edge: [74, 47, 71.5],
     wallLeft: { xMin: 6, xMax: 21, yMin: 19, yMax: 25 },
     wallRight: { xMin: 87, xMax: 95, yMin: 21, yMax: 30 },
-    board: { xMin: 69, xMax: 79, yMin: 15, yMax: 16.5 },
     shelves: [
       { id: 'shelf-high', xMin: 65, xMax: 82.5, y: 24.1, tilt: 0.32 },
       { id: 'shelf-low', xMin: 77.5, xMax: 95.5, y: 38.1, tilt: 0.28 },
@@ -410,7 +317,6 @@ const ROOM_GEOMETRY: Record<ThemeId, RoomGeometry> = {
     edge: [72, 66, 80.5],
     wallLeft: { xMin: 11, xMax: 18, yMin: 17, yMax: 25 },
     wallRight: { xMin: 58, xMax: 66, yMin: 33, yMax: 37 },
-    board: { xMin: 75, xMax: 83, yMin: 13.5, yMax: 15.5 },
     shelves: [
       { id: 'shelf-high', xMin: 71, xMax: 87, y: 29.8, tilt: 0.067 },
       { id: 'shelf-low', xMin: 78, xMax: 94, y: 42, tilt: 0.072 },
@@ -464,7 +370,6 @@ const ROOM_GEOMETRY: Record<ThemeId, RoomGeometry> = {
     edge: [76.6, 62.5, 79.7],
     wallLeft: { xMin: 7, xMax: 24, yMin: 13, yMax: 21 },
     wallRight: { xMin: 87, xMax: 95, yMin: 17, yMax: 27 },
-    board: { xMin: 66, xMax: 78, yMin: 14, yMax: 15.5 },
     shelves: [
       { id: 'shelf-high', xMin: 63, xMax: 81, y: 25, tilt: 0.02 },
       { id: 'shelf-low', xMin: 76.5, xMax: 96, y: 37.4, tilt: 0.08 },
@@ -521,7 +426,6 @@ const ROOM_GEOMETRY: Record<ThemeId, RoomGeometry> = {
     edge: [76.6, 56.5, 76.2],
     wallLeft: { xMin: 4, xMax: 18, yMin: 13, yMax: 22 },
     wallRight: { xMin: 87, xMax: 95, yMin: 19, yMax: 30 },
-    board: { xMin: 68, xMax: 79, yMin: 14, yMax: 16 },
     shelves: [
       { id: 'shelf-high', xMin: 68, xMax: 84, y: 25.8, tilt: 0.23 },
       { id: 'shelf-low', xMin: 77.5, xMax: 94, y: 37.8, tilt: 0.26 },
@@ -576,7 +480,6 @@ const ROOM_GEOMETRY: Record<ThemeId, RoomGeometry> = {
     edge: [68.8, 51.8, 72],
     wallLeft: null,
     wallRight: { xMin: 53, xMax: 65, yMin: 23, yMax: 33 },
-    board: { xMin: 69, xMax: 78, yMin: 14, yMax: 20 },
     shelves: [
       { id: 'shelf-high', xMin: 67.5, xMax: 85, y: 27.2, tilt: 0.03 },
       { id: 'shelf-low', xMin: 76, xMax: 95.5, y: 37.8, tilt: 0.06 },
@@ -629,7 +532,10 @@ const ROOM_GEOMETRY: Record<ThemeId, RoomGeometry> = {
   }),
 };
 
-/** The room of a theme; the original room for a missing or unknown theme. */
+/** A missing or unknown theme gets the default theme's room. */
+const FALLBACK_THEME: ThemeId = 'cozy-studio';
+
+/** The room of a theme. */
 export function getRoomGeometry(themeId: ThemeId | undefined): RoomGeometry {
-  return (themeId && ROOM_GEOMETRY[themeId]) || LEGACY_GEOMETRY;
+  return (themeId && ROOM_GEOMETRY[themeId]) || ROOM_GEOMETRY[FALLBACK_THEME];
 }

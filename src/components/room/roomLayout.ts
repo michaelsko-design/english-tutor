@@ -1,6 +1,5 @@
 import { RoomSlotKind } from '../../data/room';
-import { RoomSprite, getRoomSprite } from '../../data/roomArt';
-import { LEGACY_GEOMETRY, RoomGeometry, ShelfLine, floorEdgeY, getWallSlope, lineYAt } from '../../data/roomGeometry';
+import { RoomGeometry, floorEdgeY, getRoomGeometry, lineYAt } from '../../data/roomGeometry';
 import { ThemeId } from '../../types/learner';
 
 import type { ScenePoint } from '../../data/roomPlacement';
@@ -19,123 +18,22 @@ export const SURFACE_LABELS_HE: Record<string, string> = {
   floor: 'הרצפה',
 };
 
-/**
- * A drawn piece of furniture (public/art/room). `x`, `y` are the scene point where items stand on
- * it (the middle of its top edge); `anchorY` is how far down the picture that line is (0-1).
- */
-export interface FurniturePiece {
-  id: string;
-  src: string;
-  x: number;
-  y: number;
-  /** Width in container-width units */
-  width: number;
-  anchorY: number;
-  /** How far along the picture's width the point is (0-1); the middle unless the body is drawn off-centre */
-  anchorX?: number;
-  /** The picture is drawn flipped left to right, so its edges run along the wall it hangs on */
-  isMirrored?: boolean;
-  /** Vertical shear (pixels down per pixel to the right) that lays the picture along its wall */
-  shear?: number;
-}
-
-/** The furniture hangs on the right wall: a slab drawn for the other wall is flipped. */
-const WALL_FURNITURE_OPTIONS = { isOnLeftWall: false, canMirror: true, isFlatOnWall: true };
-
-export const FURNITURE_PIECES: FurniturePiece[] = [
-  { id: 'shelf-high', src: '/art/room/shelf-short.webp', x: 17, y: 30, width: 24, anchorY: 0.25 },
-  { id: 'shelf-low', src: '/art/room/shelf-long.webp', x: 17, y: 43, width: 24, anchorY: 0.25 },
-  { id: 'window-sill', src: '/art/room/sill.webp', x: 45, y: 52, width: 22, anchorY: 0.2 },
-  { id: 'board', src: '/art/room/board.webp', x: 80, y: 30, width: 22, anchorY: 0.5 },
-];
-
-/** The furniture a theme's room shows: its own pictures on the shelf lines, the sill and the board of its geometry. */
-export function getFurniturePieces(geometry: RoomGeometry, themeId?: ThemeId): FurniturePiece[] {
-  if (geometry.isLegacy) return FURNITURE_PIECES;
-  // The room picture draws the shelves, and stickers go on its walls and shelves instead of a board
-  if (geometry.baked) return [];
-  const options = { ...WALL_FURNITURE_OPTIONS, wallSlope: getWallSlope(geometry, false) };
-  // The room pictures already draw the window ledge items stand on, so no sill is drawn over it
-  const shelves = geometry.shelves.filter((shelf) => shelf.id !== 'window-sill').map((shelf) => {
-    const art = ART_IDS[shelf.id];
-    const sprite = getRoomSprite(themeId, art, options);
-    const span = (shelf.xMax - shelf.xMin) * SPRITE_WIDTH_OF_SHELF;
-    const piece = { id: shelf.id, x: (shelf.xMin + shelf.xMax) / 2, y: shelf.y };
-    const surfaceFromTop = (themeId && CRESTED_SHELF_THEMES.has(themeId) ? CRESTED_SURFACE_FROM_BODY_TOP : SURFACE_FROM_BODY_TOP);
-    if (sprite) return { ...piece, ...fitSprite(sprite, span, surfaceFromTop) };
-    return { ...piece, src: LEGACY_SHELF_SRC[shelf.id], width: span * LEGACY_SPRITE_EXTRA, anchorY: LEGACY_SHELF_ANCHOR[shelf.id] };
-  });
-  const { board } = geometry;
-  const boardSprite = getRoomSprite(themeId, ART_IDS.board, options);
-  const boardSpan = (board.xMax - board.xMin) * SPRITE_WIDTH_OF_BOARD;
-  const boardPiece = { id: 'board', x: (board.xMin + board.xMax) / 2, y: (board.yMin + board.yMax) / 2 };
-  return [
-    ...shelves,
-    boardSprite
-      ? { ...boardPiece, ...fitSprite(boardSprite, boardSpan, 0.5) }
-      : { ...boardPiece, src: '/art/room/board.webp', width: boardSpan, anchorY: 0.5 },
-  ];
-}
-
-/** The picture ids of the furniture, in public/art/room/<theme>/. */
-const ART_IDS = {
-  'shelf-high': 'furniture-shelf-high',
-  'shelf-low': 'furniture-shelf-low',
-  'window-sill': 'furniture-sill',
-  board: 'furniture-board',
-} as const;
-const LEGACY_SHELF_SRC: Record<ShelfLine['id'], string> = {
-  'shelf-high': '/art/room/shelf-short.webp',
-  'shelf-low': '/art/room/shelf-long.webp',
-  'window-sill': '/art/room/sill.webp',
-};
-const LEGACY_SHELF_ANCHOR: Record<ShelfLine['id'], number> = { 'shelf-high': 0.25, 'shelf-low': 0.25, 'window-sill': 0.2 };
-/** The old pictures were drawn wider than the stretch they cover (a fallback only). */
-const LEGACY_SPRITE_EXTRA = 1.13;
-/** The line items stand on is this share of the body's height below its top edge (the middle of a plank's top face). */
-const SURFACE_FROM_BODY_TOP = 0.22;
-/** Themes whose shelves have a crest standing up behind the plank: the plank's top face is halfway down. */
-const CRESTED_SHELF_THEMES = new Set<ThemeId>(['starlight-rpg']);
-const CRESTED_SURFACE_FROM_BODY_TOP = 0.5;
-
-/** The picture's width so that its body is `bodyWidth` wide, and where the anchor point sits in it. */
-function fitSprite(sprite: RoomSprite, bodyWidth: number, anchorFromBodyTop: number) {
-  const { bounds } = sprite;
-  return {
-    src: sprite.url,
-    isMirrored: sprite.isMirrored,
-    shear: sprite.shear,
-    width: bodyWidth / (bounds.right - bounds.left),
-    anchorX: (bounds.left + bounds.right) / 2,
-    anchorY: bounds.top + anchorFromBodyTop * (bounds.bottom - bounds.top),
-  };
-}
-
-/** A sprite is drawn a bit wider than the stretch of surface items can stand on. */
-const SPRITE_WIDTH_OF_SHELF = 1.15;
-const SPRITE_WIDTH_OF_BOARD = 1.15;
-
 /** Kinds whose items stand on their surface (anchored at their feet); the others hang. */
 export const STANDING_KINDS: RoomSlotKind[] = ['shelf', 'desk', 'floor'];
 
-export const AVATAR_HOME: ScenePoint = LEGACY_GEOMETRY.avatarHome;
+export const AVATAR_HOME: ScenePoint = getRoomGeometry(undefined).avatarHome;
 
 const AVATAR_BESIDE_ITEM = 9;
 const AVATAR_BELOW_WALL_ITEM = 10;
 const AVATAR_FROM_BASEBOARD = 4;
 
 /** The avatar stands on the floor next to whatever it walks to. */
-export function getStandingPoint(target: ScenePoint, geometry: RoomGeometry = LEGACY_GEOMETRY): ScenePoint {
-  if (geometry.isLegacy) {
-    const isOnFloor = target.y >= 62;
-    const x = isOnFloor ? target.x + (target.x > 50 ? -9 : 9) : target.x;
-    return { x: Math.min(92, Math.max(8, x)), y: Math.min(80, Math.max(66, target.y)) };
-  }
+export function getStandingPoint(target: ScenePoint, geometry: RoomGeometry): ScenePoint {
   const isOnFloor = target.y >= floorEdgeY(geometry, target.x);
   const beside = target.x + (target.x > geometry.cornerX ? -AVATAR_BESIDE_ITEM : AVATAR_BESIDE_ITEM);
   const x = Math.min(92, Math.max(8, isOnFloor ? beside : target.x));
-  // With the furniture drawn in, the avatar stands in front of it, never inside the bed or the desk
-  const baseboard = geometry.baked ? lineYAt(geometry.baked.freeFloorEdge, x) : floorEdgeY(geometry, x);
+  // The avatar stands in front of the drawn furniture, never inside the bed or the desk
+  const baseboard = lineYAt(geometry.baked.freeFloorEdge, x);
   const wanted = isOnFloor ? target.y : baseboard + AVATAR_BELOW_WALL_ITEM;
   return { x, y: Math.min(geometry.floorMaxY - 2, Math.max(baseboard + AVATAR_FROM_BASEBOARD, wanted)) };
 }

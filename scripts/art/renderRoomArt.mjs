@@ -8,12 +8,9 @@
  *
  * Usage: node scripts/art/renderRoomArt.mjs list [theme]
  *        node scripts/art/renderRoomArt.mjs prompts [theme|key ...]       (no API call, no cost)
- *        node scripts/art/renderRoomArt.mjs calibration [--yes]           (a batch of two sheets, cozy-studio only)
  *        node scripts/art/renderRoomArt.mjs submit [theme|key ...] [--yes] (one batch; named keys are redrawn)
  *        node scripts/art/renderRoomArt.mjs status
  *        node scripts/art/renderRoomArt.mjs collect
- *        node scripts/art/renderRoomArt.mjs flat [theme|key ...|pilot] [--yes] (big furniture at the rooms' camera,
- *                                                                          each theme's room picture sent as a reference)
  *        node scripts/art/renderRoomArt.mjs front [theme|key ...] [--yes] (takes of the front-facing sofa and armchair for
  *                                                                          a room with its furniture drawn in)
  *        node scripts/art/renderRoomArt.mjs jobs                          (JSON for process_room_art.py)
@@ -23,17 +20,7 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { packSheets, sheetImageSize, sheetLayout, sheetPrompt } from './missionArtSheets.mjs';
 import { batchItems, fetchBatch, imageFrom, readApiKey, stateStore, submitBatch } from './geminiBatch.mjs';
-import {
-  CALIBRATION_KEYS,
-  CUTOUT_RULES,
-  FLAT_PILOT_KEYS,
-  ROOM_ART_DIR,
-  ROOM_ART_SPEC,
-  THEME_IDS,
-  allJobs,
-  flatFurnitureJobs,
-  frontFurnitureJobs,
-} from './roomArtSpec.mjs';
+import { CUTOUT_RULES, ROOM_ART_DIR, ROOM_ART_SPEC, THEME_IDS, allJobs, frontFurnitureJobs } from './roomArtSpec.mjs';
 
 const MODEL = 'gemini-3.1-flash-image';
 const SHEETS_DIR = join(ROOM_ART_DIR, 'sheets');
@@ -45,10 +32,9 @@ const NO_TEXT =
   'No text, no words, no numbers, no logos, no watermark, no signature anywhere in the image. Clocks have no numbers, and screens, pages and stickers show only plain shapes and blank lines.';
 
 const jobs = allJobs();
-const flatJobs = flatFurnitureJobs();
 const frontJobs = frontFurnitureJobs();
 /** Every picture a stored sheet can name, for collecting a batch. */
-const knownJobs = [...jobs, ...flatJobs, ...frontJobs];
+const knownJobs = [...jobs, ...frontJobs];
 
 function jobsOfTheme(theme) {
   return jobs.filter((job) => job.key.startsWith(`${theme}/`));
@@ -126,9 +112,9 @@ function list(theme) {
 }
 
 function prompts(names) {
-  const set = { flat: flatJobs, front: frontJobs }[names[0]];
+  const set = { front: frontJobs }[names[0]];
   const rest = set ? names.slice(1) : names;
-  const sheets = packSheets(selectJobs(rest[0] === 'pilot' ? FLAT_PILOT_KEYS : rest, set ?? jobs));
+  const sheets = packSheets(selectJobs(rest, set ?? jobs));
   console.log(describeSheets(sheets));
   for (const [index, sheet] of sheets.entries()) {
     console.log(`\n--- sheet ${index + 1} (${sheet.columns} x ${sheet.columns}, ${sheetImageSize()}) ---`);
@@ -200,9 +186,7 @@ async function main() {
   if (command === 'prompts') return prompts(args);
   const apiKey = readApiKey();
   // The calibration is a small batch of named pictures (two sheets), kept if they are good
-  if (command === 'calibration') return submit(apiKey, [...CALIBRATION_KEYS, ...args]);
   if (command === 'submit') return submit(apiKey, args);
-  if (command === 'flat') return submit(apiKey, args[0] === 'pilot' ? [...FLAT_PILOT_KEYS, ...args.slice(1)] : args, flatJobs);
   if (command === 'front') return submit(apiKey, args, frontJobs);
   if (command === 'status') return status(apiKey);
   if (command === 'collect') return collect(apiKey);

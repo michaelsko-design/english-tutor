@@ -1,11 +1,12 @@
 /**
- * What the themed My English Room art draws: 38 pictures per theme (furniture, items, stickers) in
- * the 2.5D corner-room style approved in the pilot (scripts/art/renderRoomPilot.mjs). Data and
- * prompt wording only; renderRoomArt.mjs packs the pictures into sheets and sends them.
+ * What the themed My English Room art draws: 26 pictures per theme (sofa, armchair, items, stickers)
+ * in the 2.5D corner-room style approved in the pilot (scripts/art/renderRoomPilot.mjs). Data and
+ * prompt wording only; renderRoomArt.mjs packs the pictures into sheets and sends them. The bed,
+ * wardrobe, desk and shelves are drawn into each theme's room picture (renderBakedRoom.mjs).
  *
  * The room is a corner seen from inside: the left wall has the window, the right wall is plain and
- * carries the shelves and the board. Light comes from the left-wall window, so cast shadows fall to
- * the right and a little toward the viewer.
+ * carries the shelves. Light comes from the left-wall window, so cast shadows fall to the right and
+ * a little toward the viewer.
  */
 import { join } from 'node:path';
 
@@ -45,9 +46,7 @@ const LOW_CAMERA =
 const ONLY_THE_OBJECT =
   'Draw ONLY the object itself on the white background: no wall, no wall panel, no room, no box, no corner lines and no surface behind or around it, and no thin lines anywhere on the sheet (earlier sheets drew corner walls, little rooms and stray lines around objects); the perspective shows only in the object’s own shape';
 const VIEW_A = `drawn in a low three-quarter 2.5D view: ${LOW_CAMERA}; the object is turned diagonally so its long front side and its short left side are both visible; its long bottom edge slants gently down toward the right and its short bottom edge slants gently down toward the left; it stands on its feet or legs on one flat ground plane. ${ONLY_THE_OBJECT}`;
-const VIEW_B = `drawn in a low three-quarter 2.5D view, the MIRROR direction of the other view: ${LOW_CAMERA}; the object is turned diagonally the other way, so its long front side and its short RIGHT side are both visible; its long bottom edge slants gently down toward the LEFT and its short bottom edge slants gently down toward the right; it stands on its feet or legs on one flat ground plane. ${ONLY_THE_OBJECT}`;
 const RIGHT_WALL_FLAT = `drawn flat, tilted in gentle perspective as if seen from the left: its left end is a little shorter and higher on the page than its right end, so its top and bottom edges slant gently down toward the right. ${ONLY_THE_OBJECT}`;
-const LEFT_WALL_FLAT = `drawn flat, tilted in gentle perspective as if seen from the right: its right end is a little shorter and higher on the page than its left end, so its top and bottom edges slant gently down toward the left. ${ONLY_THE_OBJECT}`;
 const ROUND_VIEW = `drawn in a low 2.5D view (${LOW_CAMERA}), resting on one flat ground plane`;
 
 const FLOOR_SHADOW =
@@ -58,26 +57,17 @@ const NO_SHADOW = 'with NO shadow';
 
 /**
  * The pictures. `group` orders the packing; `view` is one of the views above; `shadow` is none, floor
- * or desk; `hasMirrorView` makes a second picture, `<id>-b`, drawn the other way round (the scene
- * shows it when the item is turned to face the other wall).
- * `subject` is the base description; `overrides` replaces it for a theme (the pilot's approved texts).
+ * or desk. `subject` is the base description; `overrides` replaces it for a theme (the pilot's
+ * approved texts). The sofa and armchair are drawn facing the viewer (see frontFurnitureJobs).
  */
 const ITEMS = [
-  { id: 'furniture-shelf-high', group: 'furniture', view: RIGHT_WALL_FLAT, shadow: 'none', subject: 'a short wooden wall shelf plank with two small brackets underneath, empty' },
-  { id: 'furniture-shelf-low', group: 'furniture', view: RIGHT_WALL_FLAT, shadow: 'none', subject: 'a long wooden wall shelf plank with two small brackets underneath, empty' },
-  { id: 'furniture-sill', group: 'furniture', view: LEFT_WALL_FLAT, shadow: 'none', subject: 'a narrow window sill ledge with a thick front edge, empty' },
-  { id: 'furniture-board', group: 'furniture', view: RIGHT_WALL_FLAT, shadow: 'none', subject: 'a rectangular sticker board (pin board) in a sturdy frame, empty' },
-
-  { id: 'room-sofa', group: 'big', view: VIEW_A, shadow: 'floor', mirrorView: true, subject: 'a two-seat sofa with two back cushions and four feet',
+  { id: 'room-sofa', group: 'big', view: VIEW_A, shadow: 'floor', subject: 'a two-seat sofa with two back cushions and four feet',
     overrides: {
       'cozy-studio': 'a plump two-seat sofa in rose-pink with cream cushions and short honey-wood legs',
       'neon-pop': 'a low modern two-seat sofa in dark indigo with glowing cyan neon strip along the bottom edge and magenta cushions',
       'starlight-rpg': 'a royal two-seat sofa in deep violet velvet with gold trim, tufted back, carved gold feet and a star-patterned cushion',
     } },
-  { id: 'room-chair', group: 'big', view: VIEW_A, shadow: 'floor', mirrorView: true, subject: 'a small cushioned armchair for a child, with four legs' },
-  { id: 'object-bed', group: 'big', view: VIEW_A, shadow: 'floor', mirrorView: true, subject: 'a single bed with a headboard, a pillow and a folded blanket, long side toward the viewer' },
-  { id: 'object-wardrobe', group: 'big', view: VIEW_A, shadow: 'floor', mirrorView: true, subject: 'a tall two-door wardrobe with two simple handles, closed' },
-  { id: 'object-desk', group: 'big', view: VIEW_A, shadow: 'floor', mirrorView: true, subject: 'a study desk with a thick flat top, one drawer and four legs, the top completely empty' },
+  { id: 'room-chair', group: 'big', view: VIEW_A, shadow: 'floor', subject: 'a small cushioned armchair for a child, with four legs' },
 
   { id: 'room-plant', group: 'round', view: ROUND_VIEW, shadow: 'floor', subject: 'a leafy potted plant in a round pot' },
   { id: 'room-ball', group: 'round', view: ROUND_VIEW, shadow: 'floor', subject: 'a classic football (soccer ball)' },
@@ -119,30 +109,25 @@ const ITEMS = [
   { id: 'sticker-london-compass', group: 'board', view: RIGHT_WALL_FLAT, shadow: 'none', subject: 'a round navigation compass sticker with a needle' },
 ];
 
-const GROUP_ORDER = ['furniture', 'big', 'round', 'wall', 'desk', 'shelf', 'board'];
+const GROUP_ORDER = ['big', 'round', 'wall', 'desk', 'shelf', 'board'];
 
 const SHADOW_TEXT = { none: NO_SHADOW, floor: FLOOR_SHADOW, desk: DESK_SHADOW };
 
-/** Pictures of one item for a theme: the item itself and, when it has one, its mirror view. */
-function picturesOf(theme, item) {
+/** The picture of one item for a theme. */
+function pictureOf(theme, item) {
   const base = item.overrides?.[theme] ?? item.subject;
-  const make = (id, view, note) => ({
-    id,
-    theme,
-    group: item.group,
+  return {
+    id: item.id,
     hasShadow: item.shadow !== 'none',
-    subject: `(${theme} theme, ${THEME_LOOKS[theme]}) ${base}, ${view}${note}; ${SHADOW_TEXT[item.shadow]}`,
-  });
-  return item.mirrorView
-    ? [make(item.id, item.view, ''), make(`${item.id}-b`, VIEW_B, ', the SAME object and the same size as its right-wall view but turned the other way round')]
-    : [make(item.id, item.view, '')];
+    subject: `(${theme} theme, ${THEME_LOOKS[theme]}) ${base}, ${item.view}; ${SHADOW_TEXT[item.shadow]}`,
+  };
 }
 
 /** Every picture of every theme as a job for the sheet packer: { key, kind, subject, path, hasShadow }. */
 export function allJobs() {
   const ordered = [...ITEMS].sort((a, b) => GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group));
   return THEME_IDS.flatMap((theme) =>
-    ordered.flatMap((item) => picturesOf(theme, item)).map((picture) => ({
+    ordered.map((item) => pictureOf(theme, item)).map((picture) => ({
       key: `${theme}/${picture.id}`,
       kind: 'single',
       subject: picture.subject,
@@ -152,77 +137,7 @@ export function allJobs() {
   );
 }
 
-/**
- * The second calibration round (two sheets, cozy-studio only; a batch of two costs the same as one
- * instant sheet). Round one drew 18 pictures; seven were good (books, teddy, plant, lamp, games book,
- * sill, board). This round draws the 11 that came back wrong (wall panel behind the wall items,
- * numbers lettered on the picture, shadows on the left, a shelf slanting the wrong way) plus seven
- * kinds not seen yet. Good pictures stay and count toward the full set.
- */
-export const CALIBRATION_KEYS = [
-  'cozy-studio/room-picture',
-  'cozy-studio/room-clock',
-  'cozy-studio/room-star',
-  'cozy-studio/object-bed',
-  'cozy-studio/object-bed-b',
-  'cozy-studio/object-wardrobe',
-  'cozy-studio/object-wardrobe-b',
-  'cozy-studio/object-desk',
-  'cozy-studio/object-desk-b',
-  'cozy-studio/room-sofa-b',
-  'cozy-studio/furniture-shelf-high',
-  'cozy-studio/room-mirror',
-  'cozy-studio/room-kite',
-  'cozy-studio/room-ball',
-  'cozy-studio/room-drum',
-  'cozy-studio/room-chair',
-  'cozy-studio/room-chair-b',
-  'cozy-studio/room-computer',
-];
-
 export const ROOM_ART_SPEC = { style: HOUSE_STYLE, landmarkIdea: '' };
-
-/**
- * The big furniture drawn again at the rooms' own camera (the first set was drawn steeper, about
- * like isometric game art, so it never lined up with the walls). One view each, against the right
- * wall, with no shadow: the left-wall view is its mirror image, and the shadow is made in processing,
- * so both always fall to the right. The sheet carries the theme's room picture as a reference.
- * Saved beside the first set as <id>-flat.png; process_room_art.py turns them into the room pictures.
- */
-const FLAT_FURNITURE_IDS = ['object-bed', 'object-wardrobe', 'object-desk', 'room-sofa', 'room-chair'];
-
-const FLAT_VIEW = [
-  'drawn for the room shown in the reference picture of its theme, with exactly the same camera as that room: a low camera looking almost straight ahead, NOT from above, so the floor lines are much flatter than in usual isometric game art',
-  'the object stands with its back flat against the RIGHT wall of that room and faces the left side of the room, so its front and its left side are visible',
-  'its edges along the right wall (back and front) slant gently down toward the right, at the same slant as the line where the right wall meets the floor in the reference picture; its side edges (going from the wall out into the room) slant gently down toward the left, at the same slant as the line where the left wall meets the floor',
-  'its upright edges stay exactly vertical; it stands on its feet or legs on the floor; it is drawn at a size to fit that room',
-  ONLY_THE_OBJECT,
-].join('; ');
-
-/** A piece whose usual wording would turn it the wrong way for the flat view. */
-const FLAT_SUBJECTS = {
-  'object-bed': 'a single bed with a headboard, a pillow and a folded blanket; its headboard is against the wall, so the bed reaches out from the wall into the room',
-};
-
-const FLAT_NOTE = 'drawn alone, with NO shadow at all (not on the floor and not on the object)';
-
-/** The redrawn big furniture: { key, kind, subject, path, theme } for every theme. */
-export function flatFurnitureJobs() {
-  return THEME_IDS.flatMap((theme) =>
-    FLAT_FURNITURE_IDS.map((id) => {
-      const item = ITEMS.find((candidate) => candidate.id === id);
-      const base = FLAT_SUBJECTS[id] ?? item.overrides?.[theme] ?? item.subject;
-      return {
-        key: `${theme}/${id}-flat`,
-        kind: 'single',
-        theme,
-        hasShadow: false,
-        subject: `(${theme} theme, ${THEME_LOOKS[theme]}) ${base}, ${FLAT_VIEW}; ${FLAT_NOTE}`,
-        path: join(ROOM_ART_DIR, theme, `${id}-flat.png`),
-      };
-    })
-  );
-}
 
 /**
  * The sofa and armchair for a room with its furniture drawn in (scripts/art/renderBakedRoom.mjs): they
@@ -232,6 +147,7 @@ export function flatFurnitureJobs() {
  */
 export const FRONT_FURNITURE_THEMES = ['starlight-rpg', 'cozy-studio', 'neon-pop', 'focus-desk', 'urban-night', 'travel-journal'];
 const FRONT_TAKES = { 'room-sofa': 5, 'room-chair': 4 };
+const FRONT_NOTE = 'drawn alone, with NO shadow at all (not on the floor and not on the object)';
 const TAKE_WORDS = ['first', 'second', 'third', 'fourth', 'fifth'];
 
 const FRONT_VIEW = [
@@ -254,22 +170,9 @@ export function frontFurnitureJobs() {
         hasShadow: false,
         referencePicture: 'room-baked.webp',
         // a word, not a digit: the model letters digits it is given onto the picture
-        subject: `(${theme} theme, ${THEME_LOOKS[theme]}) ${base}, ${FRONT_VIEW}; ${FLAT_NOTE}; the ${TAKE_WORDS[index]} take of it, with its own design, different from the other takes`,
+        subject: `(${theme} theme, ${THEME_LOOKS[theme]}) ${base}, ${FRONT_VIEW}; ${FRONT_NOTE}; the ${TAKE_WORDS[index]} take of it, with its own design, different from the other takes`,
         path: join(ROOM_ART_DIR, theme, `${id}-front-${index + 1}.png`),
       }));
     })
   );
 }
-
-/** The first sheet: the two rooms whose walls differ most (a nearly level left wall, steep walls), every piece once. */
-export const FLAT_PILOT_KEYS = [
-  'cozy-studio/object-bed-flat',
-  'cozy-studio/object-wardrobe-flat',
-  'cozy-studio/object-desk-flat',
-  'cozy-studio/room-sofa-flat',
-  'cozy-studio/room-chair-flat',
-  'travel-journal/object-bed-flat',
-  'travel-journal/object-wardrobe-flat',
-  'travel-journal/object-desk-flat',
-  'travel-journal/room-sofa-flat',
-];

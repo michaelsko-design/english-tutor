@@ -16,7 +16,6 @@ import {
   isObjectKey,
   moveRoomEntry,
   placeNamedRoomItemAt,
-  turnRoomItem,
 } from '../../data/roomPlacement';
 import { getAlbumStickers } from '../../data/stickers';
 import { useStickerImages } from '../../hooks/useStickerImages';
@@ -180,28 +179,16 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     setMoveRequestKey(key);
   };
 
-  /** The turn button: the big item turns its back to the other wall where it stands, and shows that wall's picture. */
-  const handleRotate = (key: string) => {
-    onUpdateProfile(turnRoomItem(profile, key, new Date()));
-    setBubble(null);
-  };
-
-  /** Big mission objects (bed, wardrobe, desk) keep the rotate button next to them after a tap. */
-  const getObjectFocusKey = (objectId: string): string | null => {
-    const key = `object:${objectId}`;
-    return entries.find((entry) => entry.key === key)?.canRotate ? key : null;
-  };
-
   const handleTapObject = (objectId: string, point: ScenePoint, bubbleAt: ScenePoint = point, isStandingSpot = false) => {
     const object = ROOM_OBJECTS.find((o) => o.id === objectId);
     if (!object) {
       setSelectedItemId(null);
-      setFocusedKey(getObjectFocusKey(objectId));
+      setFocusedKey(null);
       walkTo(point, () => setBubble({ at: bubbleAt, textEn: 'desk', textHe: 'שולחן' }), isStandingSpot);
       return;
     }
     setSelectedItemId(null);
-    setFocusedKey(getObjectFocusKey(objectId));
+    setFocusedKey(null);
     setStatusText(null);
     setActivePanel(null);
     walkTo(point, () => {
@@ -309,17 +296,6 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
             <Button theme={theme} variant="secondary" size="sm" onClick={() => handleStartMove(focusedKey)}>
               🔀 הזזה ({focusedItem.nameEn})
             </Button>
-            {focusedEntry?.canRotate && (
-              <Button
-                theme={theme}
-                variant="secondary"
-                size="sm"
-                onClick={() => handleRotate(focusedKey)}
-                aria-label="סיבוב הפריט"
-              >
-                <EmojiIcon emoji="🔄" size="1.25rem" />
-              </Button>
-            )}
             {!isObjectKey(focusedKey) && (
               <Button theme={theme} variant="secondary" size="sm" onClick={() => handleRemove(focusedKey)}>
                 📦 החזרה לארגז

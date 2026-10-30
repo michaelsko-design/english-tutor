@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { RoomSlotKind } from '../../data/room';
-import { RoomSprite, getArtId, getDeskShape, getRoomSprite } from '../../data/roomArt';
+import { RoomSprite, getArtId, getRoomSprite } from '../../data/roomArt';
 import {
   FLOOR_EDGE_CLEARANCE,
   FixedFurniture,
@@ -9,8 +9,6 @@ import {
   getWallSlope,
 } from '../../data/roomGeometry';
 import {
-  DESK_OBJECT_ID,
-  OBJECT_KEY_PREFIX,
   PlacedRoomEntry,
   RoomSurface,
   getDepthScale,
@@ -20,7 +18,6 @@ import {
 } from '../../data/roomPlacement';
 import { WardrobeItem } from '../../data/wardrobe';
 import { ThemeId } from '../../types/learner';
-import { resolveTheme } from '../../themes/themeRegistry';
 import { useArtStatus } from '../../hooks/useArtStatus';
 import { DressedAvatar } from './DressedAvatar';
 import { ItemIcon } from './ItemIcon';
@@ -28,7 +25,6 @@ import { IconBounds, ROOM_ICON_BOUNDS } from '../../data/roomIconBounds';
 import { useRoomItemDrag } from './useRoomItemDrag';
 import {
   SCENE_PALETTES,
-  getFurniturePieces,
   STANDING_KINDS,
   SURFACE_LABELS_HE,
   ScenePoint,
@@ -72,14 +68,12 @@ const FIXED_FURNITURE_NAMES: Record<FixedFurnitureId, { en: string; he: string }
 /** The tap areas of drawn-in furniture lie over the room picture and under everything placed in the room. */
 const FIXED_TAP_Z_INDEX = 5;
 
-/** A picture drawn to its box edges (the desk), and the padding most icons are drawn with. */
-const FULL_BOUNDS: IconBounds = { left: 0.04, right: 0.96, top: 0, bottom: 1 };
+/** The padding most icons are drawn with. */
 const DEFAULT_BOUNDS: IconBounds = { left: 0.074, right: 0.926, top: 0.074, bottom: 0.926 };
 const SHADOW_WIDTH_OF_FOOTPRINT = 0.7;
 const SHADOW_HEIGHT_OF_WIDTH = 0.13;
 
-function getBounds(item: { emoji: string; imageUrl?: string }, isDesk: boolean): IconBounds {
-  if (isDesk) return FULL_BOUNDS;
+function getBounds(item: { emoji: string }): IconBounds {
   return ROOM_ICON_BOUNDS[item.emoji.replace('️', '')] ?? DEFAULT_BOUNDS;
 }
 
@@ -116,7 +110,7 @@ function shearTransform(shear = 0): string {
   return shear ? ` skewY(${Math.atan(shear)}rad)` : '';
 }
 
-/** A picture's shear and mirror, sheared about its anchor (the feet of what stands), so its feet stay put. */
+/** A wall picture's shear and mirror, about its anchor, so it stays where it hangs. */
 function spriteTransform(sprite: RoomSprite, isStanding: boolean): React.CSSProperties {
   const { bounds } = sprite;
   const anchorY = isStanding ? bounds.bottom : (bounds.top + bounds.bottom) / 2;
@@ -134,8 +128,8 @@ const ZONE_Z_INDEX = 25;
 const OUTLINE_STEP = 2;
 
 /**
- * The outline of a corner room's floor, as scene points: along the baseboard (where an item's feet can
- * stand, less the clearance) and down to the bottom of the picture. Null for any other surface.
+ * The outline of the floor, as scene points: along the front of the drawn furniture (where an item's
+ * feet can stand, less the clearance) and down to the bottom of the picture. Null for any other surface.
  */
 function getFloorOutline(surface: RoomSurface): ScenePoint[] | null {
   const { minYAt } = surface;
@@ -168,17 +162,12 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
   const palette = SCENE_PALETTES[themeId] || SCENE_PALETTES['cozy-studio'];
   const isInteractive = Boolean(onTapEntry);
   const geometry = getRoomGeometry(themeId);
-  const roomBgSrc = geometry.baked?.roomPicture ?? resolveTheme(themeId).art.roomCorner;
+  const roomBgSrc = geometry.baked.roomPicture;
   const hasRoomArt = useArtStatus(roomBgSrc) === 'loaded';
   const sceneRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  const furniture = getFurniturePieces(geometry, themeId);
-  const deskShape = getDeskShape(themeId);
-  const layout = useMemo(() => {
-    const desk = entries.find((entry) => entry.key === `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`);
-    return { deskPoint: desk?.point ?? geometry.defaults.desk, geometry, deskShape, isDeskOnLeftWall: desk?.isOnLeftWall, themeId };
-  }, [entries, geometry, deskShape, themeId]);
+  const layout = useMemo(() => ({ geometry }), [geometry]);
   const { drag, handlers, startKeyboardMove, getAnnouncement } = useRoomItemDrag({
     sceneRef,
     layout,
@@ -196,9 +185,6 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
     onMoveRequestHandled?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [moveRequestKey]);
-
-  // What lies on a movable desk stands on it, just above its feet; on a drawn-in desk it is stacked like the rest
-  const deskItemZIndex = (point: ScenePoint) => (geometry.baked ? Math.round(point.y) : Math.round(layout.deskPoint.y) + 1);
 
   const dragged = drag ? entries.find((entry) => entry.key === drag.key) : undefined;
   const zoneKinds = placingKind ? [placingKind] : dragged ? getEntryMoveKinds(dragged.key, dragged.item) : [];
@@ -246,26 +232,6 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
         </>
       )}
 
-      {/* Shelves, sill, desk and sticker board */}
-      {furniture.map((piece) => (
-        <img
-          key={piece.id}
-          src={piece.src}
-          alt=""
-          aria-hidden="true"
-          draggable={false}
-          className="absolute h-auto pointer-events-none"
-          style={{
-            ...at(piece),
-            width: `${piece.width}cqw`,
-            transform: `translate(-${(piece.anchorX ?? 0.5) * 100}%, -${piece.anchorY * 100}%)${shearTransform(piece.shear)}${piece.isMirrored ? ' scaleX(-1)' : ''}`,            filter: 'drop-shadow(0 0.6cqw 0.5cqw rgba(59, 42, 90, 0.25))',
-          }}
-          onError={(event) => {
-            event.currentTarget.style.display = 'none';
-          }}
-        />
-      ))}
-
       {/* Furniture drawn into the room picture: tap areas over it */}
       {isInteractive &&
         getFixedFurniture(geometry).map((piece) => {
@@ -302,8 +268,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
           const zoneClass = 'absolute inset-0 motion-safe:animate-pulse';
           const zoneStyle: React.CSSProperties = {
             clipPath: `polygon(${outline.map((point) => `${point.x}% ${point.y}%`).join(', ')})`,
-            // the desk top is drawn on the desk, with what lies on it on top (same z, later in the scene)
-            zIndex: surface.kind === 'desk' && !geometry.baked ? Math.round(layout.deskPoint.y) + 1 : ZONE_Z_INDEX,
+            zIndex: ZONE_Z_INDEX,
           };
           const drawing = (
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -365,38 +330,32 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
         const point = isMoving ? drag.point : entry.point;
         const isStanding = STANDING_KINDS.includes(kind);
         const size = entry.width * getDepthScale(kind, point.y, geometry);
-        const isDesk = entry.key === `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`;
-        // A drawn sticker shows its own picture; the desk has an image URL too but is a themed picture
-        const sprite = entry.item.imageUrl && !isDesk
+        const isLeftOfCorner = point.x < geometry.cornerX;
+        // A drawn sticker shows its own picture
+        const sprite = entry.item.imageUrl
           ? null
           : getRoomSprite(themeId, getArtId(entry.key, entry.item.id), {
-              // a big piece keeps its facing until it is turned; a wall picture follows the wall while dragged
-              isOnLeftWall: entry.canRotate ? entry.isOnLeftWall : LEFT_WALL_KINDS.includes(kind) && point.x < geometry.cornerX,
+              // a wall picture follows the wall it hangs on, also while dragged
+              isOnLeftWall: LEFT_WALL_KINDS.includes(kind) && isLeftOfCorner,
               canMirror: LEFT_WALL_KINDS.includes(kind),
               isFlatOnWall: kind === 'wall',
-              wallSlope: getWallSlope(geometry, entry.canRotate ? entry.isOnLeftWall : point.x < geometry.cornerX),
+              wallSlope: getWallSlope(geometry, isLeftOfCorner),
             });
-        const baseBounds = getBounds(entry.item, isDesk);
-        // Without a themed picture the emoji icon mirrors on the left wall, feet and shadow with it
-        const bounds = entry.isOnLeftWall
-          ? { ...baseBounds, left: 1 - baseBounds.right, right: 1 - baseBounds.left }
-          : baseBounds;
+        const bounds = getBounds(entry.item);
         // The picture's box is bigger than the drawn object: the feet are the object's visible bottom
         const padBottom = (1 - bounds.bottom) * size;
         const footprint = (bounds.right - bounds.left) * size;
-        const zIndex = isMoving ? MOVING_Z_INDEX : kind === 'desk' ? deskItemZIndex(point) : Math.round(point.y);
+        const zIndex = isMoving ? MOVING_Z_INDEX : Math.round(point.y);
         const style: React.CSSProperties = sprite
           ? spriteStyle(point, sprite.bounds, sprite.aspect, size, isStanding, zIndex)
           : {
               ...at(point),
               width: `${size * 1.25}cqw`,
               zIndex,
-              ...(isDesk ? { width: `${size}cqw` } : {}),
               transform: isStanding ? `translate(-50%, calc(-100% + ${padBottom}cqw))` : 'translate(-50%, -50%)',
             };
         const body = sprite ? (
           <img
-            // a new picture (a turned piece) swaps at once instead of sliding from the old picture's shear
             key={sprite.url}
             src={sprite.url}
             alt=""
@@ -421,17 +380,10 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
             )}
             <span
               className={`relative flex justify-center leading-none ${isMoving ? 'scale-110 drop-shadow-lg' : 'drop-shadow-sm'}`}
-              style={{ fontSize: `${size}cqw`, ...(isDesk ? {} : { height: `${size}cqw` }) }}
+              style={{ fontSize: `${size}cqw`, height: `${size}cqw` }}
             >
-              <span
-                className={`${isDesk ? 'block w-full' : 'inline-flex'} motion-safe:transition-transform motion-safe:duration-300`}
-                style={entry.isOnLeftWall ? { transform: 'scaleX(-1)' } : undefined}
-              >
-                {isDesk ? (
-                  <img src={entry.item.imageUrl} alt="" draggable={false} className="block w-full h-auto" />
-                ) : (
-                  <ItemIcon item={entry.item} size={`${size}cqw`} />
-                )}
+              <span className="inline-flex">
+                <ItemIcon item={entry.item} size={`${size}cqw`} />
               </span>
             </span>
           </>

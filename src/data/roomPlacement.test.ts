@@ -1,29 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DEFAULT_DESK_POINT,
   LEGACY_SLOT_POINTS,
-  ROOM_SURFACES,
   cycleSurface,
   findFreePoint,
   getDepthScale,
-  getDeskTopPoint,
   getFixedFurniture,
   getItemWidth,
   getRoomLayout,
   moveRoomEntry,
   moveRoomObject,
   getPlacedRoomEntries,
-  getPlacementOptions,
   getSurfaces,
   placeNamedRoomItemAt,
   placeRoomItemAt,
   snapToSurface,
   stepPoint,
-  turnRoomItem,
 } from './roomPlacement';
 import { ROOM_NAMING_XP, ROOM_SLOTS, RoomSlotKind, getUnplacedRoomItems, removeRoomItem } from './room';
 import { LearnerProfile, ThemeId } from '../types/learner';
-import { BED_LEGS, floorEdgeY, getRoomGeometry, lineYAt } from './roomGeometry';
+import { floorEdgeY, getRoomGeometry, lineYAt } from './roomGeometry';
 import { isInConvexPolygon } from './scenePolygon';
 
 const NOW = new Date('2026-10-17T10:00:00.000Z');
@@ -39,25 +34,29 @@ const baseProfile = {
 
 const KINDS: RoomSlotKind[] = ['wall', 'board', 'shelf', 'desk', 'floor'];
 
+/** A profile without a theme gets the default theme's room (Cozy Studio). */
+const layout = getRoomLayout(baseProfile);
+const geometry = layout.geometry;
+const options = { layout };
+const shelfLine = (id: string) => geometry.shelves.find((shelf) => shelf.id === id)!;
+const onShelf = (id: string, x: number) => {
+  const shelf = shelfLine(id);
+  return { x, y: shelf.y + (x - (shelf.xMin + shelf.xMax) / 2) * (shelf.tilt ?? 0) };
+};
+const deskMiddle = () => {
+  const [deskTop] = getSurfaces('desk', layout);
+  return { x: (deskTop.xMin + deskTop.xMax) / 2, y: (deskTop.yMin + deskTop.yMax) / 2 };
+};
+
 describe('surfaces', () => {
   it('gives every item kind at least one surface', () => {
-    KINDS.forEach((kind) => expect(getSurfaces(kind).length).toBeGreaterThan(0));
+    KINDS.forEach((kind) => expect(getSurfaces(kind, layout).length).toBeGreaterThan(0));
   });
 
-  it('keeps every old slot default on a surface of its kind', () => {
+  it('puts every old slot default on a surface of its kind', () => {
     ROOM_SLOTS.forEach((slot) => {
-      const point = LEGACY_SLOT_POINTS[slot.id];
-      expect(snapToSurface(slot.kind, point).point).toEqual(point);
-    });
-  });
-
-  it('keeps surfaces inside the scene', () => {
-    ROOM_SURFACES.forEach((s) => {
-      expect(s.xMin).toBeGreaterThanOrEqual(0);
-      expect(s.xMax).toBeLessThanOrEqual(100);
-      expect(s.yMax).toBeLessThanOrEqual(100);
-      expect(s.xMin).toBeLessThanOrEqual(s.xMax);
-      expect(s.yMin).toBeLessThanOrEqual(s.yMax);
+      const { surface } = snapToSurface(slot.kind, LEGACY_SLOT_POINTS[slot.id], options);
+      expect(surface.kind, slot.id).toBe(slot.kind);
     });
   });
 });
@@ -66,9 +65,11 @@ describe('themed room geometry', () => {
   const THEMES: ThemeId[] = ['cozy-studio', 'neon-pop', 'starlight-rpg', 'focus-desk', 'urban-night', 'travel-journal'];
   const themed = (themeId: ThemeId) => ({ ...baseProfile, themeId }) as LearnerProfile;
 
-  it('falls back to the original room for a profile without a themed room', () => {
-    expect(getRoomGeometry(undefined).isLegacy).toBe(true);
-    expect(getRoomLayout(baseProfile).geometry.isLegacy).toBe(true);
+  it("gives a profile without a known theme the default theme's room", () => {
+    expect(getRoomGeometry(undefined)).toBe(getRoomGeometry('cozy-studio'));
+    expect(getRoomLayout({ ...baseProfile, themeId: 'retired-theme' } as unknown as LearnerProfile).geometry).toBe(
+      getRoomGeometry('cozy-studio')
+    );
   });
 
   THEMES.forEach((themeId) => {
@@ -77,27 +78,10 @@ describe('themed room geometry', () => {
       const layout = getRoomLayout(themed(themeId));
 
       it('has a baseboard line across the whole room, with the corner inside it', () => {
-        expect(geometry.isLegacy).toBeFalsy();
         expect(geometry.floorEdge[0].x).toBe(0);
         expect(geometry.floorEdge[geometry.floorEdge.length - 1].x).toBe(100);
         expect(geometry.cornerX).toBeGreaterThan(30);
         expect(geometry.cornerX).toBeLessThan(70);
-      });
-
-      // A room with its furniture drawn in has no movable bed, wardrobe or desk (see 'a room with its furniture drawn in')
-      const itWithMovableFurniture = geometry.baked ? () => undefined : it;
-
-      itWithMovableFurniture('stands the bed, the wardrobe and the desk side by side, never on one another', () => {
-        const entries = getPlacedRoomEntries(themed(themeId));
-        const spans = ['object:bed', 'object:wardrobe', 'object:desk'].map((key) => {
-          const entry = entries.find((candidate) => candidate.key === key)!;
-          const half = (entry.width * getDepthScale('floor', entry.point.y, geometry)) / 2;
-          return { key, from: entry.point.x - half, to: entry.point.x + half, y: entry.point.y };
-        });
-        spans.forEach((span) => expect(span.y, span.key).toBeGreaterThanOrEqual(floorEdgeY(geometry, span.from + 1)));
-        spans.forEach((a, index) =>
-          spans.slice(index + 1).forEach((b) => expect(a.to <= b.from || b.to <= a.from, `${a.key} / ${b.key}`).toBe(true))
-        );
       });
 
       it('keeps every surface inside the scene', () => {
@@ -112,12 +96,11 @@ describe('themed room geometry', () => {
         );
       });
 
-      it('never lets a wall item hang over the window, the shelves and the board stay clear of it too', () => {
+      it('never lets a wall item hang over the window, and the shelves stay clear of it too', () => {
         const window = geometry.window!;
         const overlapsWindow = (b: { xMin: number; xMax: number; yMin: number; yMax: number }) =>
           b.xMax > window.xMin && b.xMin < window.xMax && b.yMax > window.yMin && b.yMin < window.yMax;
         getSurfaces('wall', layout).forEach((surface) => expect(overlapsWindow(surface), surface.id).toBe(false));
-        expect(overlapsWindow(geometry.board), 'board').toBe(false);
         geometry.shelves
           .filter((shelf) => shelf.id !== 'window-sill')
           .forEach((shelf) => expect(overlapsWindow({ ...shelf, yMin: shelf.y, yMax: shelf.y }), shelf.id).toBe(false));
@@ -137,24 +120,6 @@ describe('themed room geometry', () => {
         });
       });
 
-      itWithMovableFurniture('keeps all the legs of a big piece on the floor, wherever it is dragged: its back legs are higher up than its feet', () => {
-        const width = getItemWidth({ id: 'object:bed', slotKind: 'floor' });
-        (['left', 'right'] as const).forEach((wall) =>
-          [10, 25, 40, geometry.cornerX + 10, 85].forEach((x) => {
-            const options = getPlacementOptions('object:bed', width, layout, wall);
-            const { point } = snapToSurface('floor', { x, y: 0 }, options);
-            const side = wall === 'left' ? 1 : -1;
-            BED_LEGS.forEach((leg) => {
-              const dx = side * leg.dx * width;
-              // the picture is sheared about its feet to lie along its wall, which lifts one end
-              const legY = point.y + leg.dy * width + options.furnitureShear! * dx * (4 / 3);
-              expect(legY, `${wall} wall, x ${x}`).toBeGreaterThanOrEqual(floorEdgeY(geometry, point.x + dx) - 0.01);
-            });
-            expect(point.y).toBeLessThanOrEqual(geometry.floorMaxY);
-          })
-        );
-      });
-
       it('runs the shelves along the right wall, and keeps what stands on them on the plank', () => {
         const shelf = getSurfaces('shelf', layout).find((surface) => surface.id === 'shelf-high')!;
         const left = snapToSurface('shelf', { x: shelf.xMin, y: shelf.yMin }, { layout, width: 6 }).point;
@@ -163,20 +128,8 @@ describe('themed room geometry', () => {
         expect(right.y).toBeGreaterThan(left.y);
         expect(left.x).toBeCloseTo(shelf.xMin + 3);
         expect(right.x).toBeCloseTo(shelf.xMax - 3);
-        // high on the wall: well above the furniture standing against it
-        expect(shelf.yMin).toBeLessThan(geometry.defaults.desk.y - 40);
-      });
-
-      itWithMovableFurniture('puts every default mission object on the floor, the phone on the desk top', () => {
-        const entries = getPlacedRoomEntries(themed(themeId));
-        ['bed', 'wardrobe', 'desk', 'games-book'].forEach((id) => {
-          const entry = entries.find((e) => e.key === `object:${id}`)!;
-          expect(entry.item.slotKind, id).toBe('floor');
-          expect(entry.point.y, id).toBeGreaterThanOrEqual(floorEdgeY(geometry, entry.point.x));
-        });
-        const phone = entries.find((e) => e.key === 'object:phone')!;
-        expect(phone.item.slotKind).toBe('desk');
-        expect(phone.point.y).toBeCloseTo(getDeskTopPoint(layout.deskPoint, geometry, layout.deskShape).y);
+        // high on the wall: above the drawn desk top
+        expect(shelf.yMin).toBeLessThan(Math.min(...geometry.baked.deskTop.map((corner) => corner.y)));
       });
 
       it('makes floor items smaller far back and bigger near the front', () => {
@@ -194,7 +147,7 @@ describe('a room with its furniture drawn in', () => {
   const profile = { ...baseProfile, themeId: 'starlight-rpg' } as LearnerProfile;
   const geometry = getRoomGeometry('starlight-rpg');
   const layout = getRoomLayout(profile);
-  const baked = geometry.baked!;
+  const baked = geometry.baked;
   const inPicture = (point: { x: number; y: number }) => point.x >= 0 && point.x <= 100 && point.y >= 0 && point.y <= 100;
   const findEntry = (p: LearnerProfile, key: string) => getPlacedRoomEntries(p).find((e) => e.key === key);
 
@@ -217,16 +170,26 @@ describe('a room with its furniture drawn in', () => {
       expect(piece.standAt.y, piece.id).toBeGreaterThan(lineYAt(baked.freeFloorEdge, piece.standAt.x));
       expect(piece.bubbleAt.y, piece.id).toBeLessThan(piece.standAt.y);
     });
-    expect(getFixedFurniture(getRoomGeometry(undefined))).toEqual([]);
   });
 
-  it('has no movable bed, wardrobe or desk, and no big piece can be turned', () => {
-    const withSofa = placeRoomItemAt(profile, 'room-sofa', { x: 50, y: 90 }, NOW);
-    const entries = getPlacedRoomEntries(withSofa);
+  it('has no movable bed, wardrobe or desk', () => {
+    const entries = getPlacedRoomEntries(profile);
     ['object:bed', 'object:wardrobe', 'object:desk'].forEach((key) => expect(entries.find((e) => e.key === key), key).toBeUndefined());
-    expect(entries.every((entry) => !entry.canRotate)).toBe(true);
-    expect(turnRoomItem(withSofa, 'room-sofa', NOW)).toBe(withSofa);
     expect(moveRoomObject(profile, 'bed', { x: 50, y: 90 }, NOW)).toBe(profile);
+    expect(moveRoomObject(profile, 'desk', { x: 50, y: 90 }, NOW)).toBe(profile);
+  });
+
+  it('ignores where the bed, wardrobe and desk were moved to and turned before they were drawn in', () => {
+    const saved = {
+      ...profile,
+      room: {
+        ...profile.room!,
+        positions: { 'object:bed': { x: 30, y: 90 }, 'object:desk': { x: 40, y: 85 } },
+        facings: { 'object:bed': 'left' as const },
+      },
+    };
+    const entries = getPlacedRoomEntries(saved);
+    expect(entries.map((entry) => entry.key).sort()).toEqual(['object:games-book', 'object:phone']);
   });
 
   it('keeps floor items in front of the furniture, wherever they are dropped', () => {
@@ -283,57 +246,65 @@ function isConvex(corners: { x: number; y: number }[]): boolean {
 
 describe('snapToSurface', () => {
   it('puts a point dropped above a shelf onto the shelf line', () => {
-    const snapped = snapToSurface('shelf', { x: 15, y: 25 });
-    expect(snapped.point).toEqual({ x: 15, y: 30 });
+    const x = 70;
+    const snapped = snapToSurface('shelf', { x, y: shelfLine('shelf-high').y - 3 }, options);
     expect(snapped.surface.id).toBe('shelf-high');
+    expect(snapped.point.x).toBe(x);
+    expect(snapped.point.y).toBeCloseTo(onShelf('shelf-high', x).y);
   });
 
   it('picks the nearest shelf and clamps along it', () => {
-    const snapped = snapToSurface('shelf', { x: 99, y: 50 });
+    const sill = shelfLine('window-sill');
+    const snapped = snapToSurface('shelf', { x: sill.xMin - 6, y: sill.y }, options);
     expect(snapped.surface.id).toBe('window-sill');
-    expect(snapped.point.x).toBe(53);
+    expect(snapped.point.x).toBe(sill.xMin);
   });
 });
 
 describe('getDepthScale', () => {
   it('is larger near the viewer and 1 off the floor', () => {
-    expect(getDepthScale('floor', 92)).toBeGreaterThan(getDepthScale('floor', 74));
-    expect(getDepthScale('shelf', 43)).toBe(1);
+    expect(getDepthScale('floor', 92, geometry)).toBeGreaterThan(getDepthScale('floor', 80, geometry));
+    expect(getDepthScale('shelf', 43, geometry)).toBe(1);
   });
 });
 
 describe('findFreePoint', () => {
   it('moves a drop that lands on another item to the nearest free spot', () => {
-    const point = findFreePoint('shelf', { x: 17, y: 43 }, [{ point: { x: 17, y: 43 }, width: 6 }]);
-    expect(Math.abs(point.x - 17)).toBeGreaterThanOrEqual(6);
-    expect(point.y).toBe(43);
+    const spot = onShelf('shelf-low', 84);
+    const point = findFreePoint('shelf', spot, [{ point: spot, width: 6 }], options);
+    expect(Math.abs(point.x - spot.x)).toBeGreaterThanOrEqual(5);
+    expect(snapToSurface('shelf', point, options).surface.id).toBe('shelf-low');
   });
 
   it('keeps the drop when nothing is in the way', () => {
-    expect(findFreePoint('floor', { x: 50, y: 80 }, [{ point: { x: 80, y: 90 }, width: 9 }])).toEqual({ x: 50, y: 80 });
+    expect(findFreePoint('floor', { x: 50, y: 92 }, [{ point: { x: 80, y: 94 }, width: 9 }], options)).toEqual({ x: 50, y: 92 });
   });
 });
 
 describe('keyboard moves', () => {
   it('steps within the surface and stops at its edge', () => {
-    expect(stepPoint('shelf', { x: 25, y: 43 }, 2, 0)).toEqual({ x: 26, y: 43 });
+    const shelf = shelfLine('shelf-high');
+    expect(stepPoint('shelf', onShelf('shelf-high', 70), 2, 0, options).x).toBe(72);
+    expect(stepPoint('shelf', onShelf('shelf-high', shelf.xMax - 1), 2, 0, options).x).toBe(shelf.xMax);
   });
 
   it('cycles through the surfaces of a kind and wraps', () => {
-    const next = cycleSurface('shelf', { x: 17, y: 30 }, 1);
-    expect(snapToSurface('shelf', next).surface.id).toBe('shelf-low');
-    const wrapped = cycleSurface('shelf', { x: 45, y: 52 }, 1);
-    expect(snapToSurface('shelf', wrapped).surface.id).toBe('shelf-high');
-    const back = cycleSurface('shelf', { x: 17, y: 30 }, -1);
-    expect(snapToSurface('shelf', back).surface.id).toBe('window-sill');
+    const high = onShelf('shelf-high', 70);
+    const next = cycleSurface('shelf', high, 1, options);
+    expect(snapToSurface('shelf', next, options).surface.id).toBe('shelf-low');
+    const wrapped = cycleSurface('shelf', onShelf('window-sill', 35), 1, options);
+    expect(snapToSurface('shelf', wrapped, options).surface.id).toBe('shelf-high');
+    const back = cycleSurface('shelf', high, -1, options);
+    expect(snapToSurface('shelf', back, options).surface.id).toBe('window-sill');
   });
 });
 
 describe('placeRoomItemAt', () => {
   it('places an owned item at a snapped point and saves the position', () => {
-    const placed = placeRoomItemAt(baseProfile, 'room-books', { x: 20, y: 20 }, NOW);
+    const placed = placeRoomItemAt(baseProfile, 'room-books', { x: 70, y: 10 }, NOW);
     expect(placed.room?.placements).toEqual({ 'room-books': 'room-books' });
-    expect(placed.room?.positions?.['room-books']).toEqual({ x: 20, y: 30 });
+    expect(placed.room?.positions?.['room-books']?.x).toBe(70);
+    expect(placed.room?.positions?.['room-books']?.y).toBeCloseTo(onShelf('shelf-high', 70).y);
     expect(placed.room?.updatedAt).toBe(NOW.toISOString());
     expect(baseProfile.room?.placements).toEqual({});
   });
@@ -344,21 +315,22 @@ describe('placeRoomItemAt', () => {
   });
 
   it('moves a placed item instead of duplicating it', () => {
-    const first = placeRoomItemAt(baseProfile, 'room-books', { x: 10, y: 30 }, NOW);
-    const moved = placeRoomItemAt(first, 'room-books', { x: 24, y: 43 }, NOW);
+    const first = placeRoomItemAt(baseProfile, 'room-books', onShelf('shelf-high', 70), NOW);
+    const target = onShelf('shelf-low', 84);
+    const moved = placeRoomItemAt(first, 'room-books', target, NOW);
     expect(Object.values(moved.room?.placements ?? {})).toEqual(['room-books']);
-    expect(moved.room?.positions).toEqual({ 'room-books': { x: 24, y: 43 } });
+    expect(moved.room?.positions).toEqual({ 'room-books': target });
   });
 
   it('keeps two items on a shelf apart', () => {
-    const first = placeRoomItemAt(baseProfile, 'room-books', { x: 17, y: 30 }, NOW);
-    const second = placeRoomItemAt(first, 'room-teddy', { x: 17, y: 30 }, NOW);
+    const first = placeRoomItemAt(baseProfile, 'room-books', onShelf('shelf-high', 70), NOW);
+    const second = placeRoomItemAt(first, 'room-teddy', onShelf('shelf-high', 70), NOW);
     const [a, b] = getPlacedRoomEntries(second).map((entry) => entry.point);
     expect(Math.abs(a.x - b.x)).toBeGreaterThanOrEqual(6);
   });
 
   it('puts the item back in the inventory when removed', () => {
-    const placed = placeRoomItemAt(baseProfile, 'room-books', { x: 17, y: 30 }, NOW);
+    const placed = placeRoomItemAt(baseProfile, 'room-books', onShelf('shelf-high', 70), NOW);
     const removed = removeRoomItem(placed, 'room-books', NOW);
     expect(removed.room?.positions).toEqual({});
     expect(getUnplacedRoomItems(removed).map((i) => i.id)).toContain('room-books');
@@ -371,21 +343,22 @@ describe('migration of slot placements', () => {
     room: { placements: { shelf: 'room-books', 'floor-left': 'room-sofa' }, namedItemIds: [], updatedAt: '' },
   } as LearnerProfile;
 
-  it('shows old placements at their slot default without writing anything', () => {
+  it('shows old placements from their slot default, on a surface of their kind, without writing anything', () => {
     const entries = getPlacedRoomEntries(legacy).filter((e) => !e.key.startsWith('object:'));
-    expect(entries.map((e) => [e.item.id, e.point])).toEqual([
-      ['room-books', LEGACY_SLOT_POINTS.shelf],
-      ['room-sofa', LEGACY_SLOT_POINTS['floor-left']],
-    ]);
+    expect(entries.map((e) => e.item.id)).toEqual(['room-books', 'room-sofa']);
+    expect(entries[0].point).toEqual(snapToSurface('shelf', LEGACY_SLOT_POINTS.shelf, { layout, width: entries[0].width }).point);
+    expect(entries[1].point).toEqual(snapToSurface('floor', LEGACY_SLOT_POINTS['floor-left'], { layout, width: entries[1].width }).point);
     expect(legacy.room?.positions).toBeUndefined();
   });
 
   it('moves an old placement to a new key and position when dragged', () => {
-    const moved = placeRoomItemAt(legacy, 'room-books', { x: 20, y: 30 }, NOW);
+    const target = onShelf('shelf-high', 70);
+    const sofaBefore = getPlacedRoomEntries(legacy).find((e) => e.item.id === 'room-sofa')?.point;
+    const moved = placeRoomItemAt(legacy, 'room-books', target, NOW);
     expect(moved.room?.placements).toEqual({ 'floor-left': 'room-sofa', 'room-books': 'room-books' });
     const entries = getPlacedRoomEntries(moved);
-    expect(entries.find((e) => e.item.id === 'room-books')?.point).toEqual({ x: 20, y: 30 });
-    expect(entries.find((e) => e.item.id === 'room-sofa')?.point).toEqual(LEGACY_SLOT_POINTS['floor-left']);
+    expect(entries.find((e) => e.item.id === 'room-books')?.point).toEqual(target);
+    expect(entries.find((e) => e.item.id === 'room-sofa')?.point).toEqual(sofaBefore);
   });
 
   it('skips a placement with an unknown key and no position', () => {
@@ -396,10 +369,10 @@ describe('migration of slot placements', () => {
 
 describe('placeNamedRoomItemAt', () => {
   it('rewards naming once and places the item', () => {
-    const first = placeNamedRoomItemAt(baseProfile, 'room-books', { x: 17, y: 30 }, NOW);
+    const first = placeNamedRoomItemAt(baseProfile, 'room-books', onShelf('shelf-high', 70), NOW);
     expect(first.xpEarned).toBe(ROOM_NAMING_XP);
     expect(first.profile.room?.placements['room-books']).toBe('room-books');
-    const again = placeNamedRoomItemAt(first.profile, 'room-books', { x: 20, y: 43 }, NOW);
+    const again = placeNamedRoomItemAt(first.profile, 'room-books', onShelf('shelf-low', 84), NOW);
     expect(again.xpEarned).toBe(0);
   });
 
@@ -411,97 +384,42 @@ describe('placeNamedRoomItemAt', () => {
   });
 });
 
-describe('mission objects and the desk', () => {
+describe('mission objects', () => {
   const findEntry = (profile: LearnerProfile, key: string) => getPlacedRoomEntries(profile).find((e) => e.key === key);
 
-  it('lists every mission object and the desk as movable entries on the floor or desk', () => {
-    const entries = getPlacedRoomEntries(baseProfile);
-    ['bed', 'wardrobe', 'games-book', 'phone', 'desk'].forEach((id) => expect(findEntry(baseProfile, `object:${id}`)).toBeDefined());
-    ['bed', 'wardrobe', 'desk'].forEach((id) => {
-      const entry = entries.find((e) => e.key === `object:${id}`);
-      expect(entry?.item.slotKind).toBe('floor');
-      expect(entry!.point.y).toBeGreaterThanOrEqual(74);
-    });
-    expect(findEntry(baseProfile, 'object:phone')?.item.slotKind).toBe('desk');
+  it('lists the games book on the floor and the phone on the desk top', () => {
+    expect(findEntry(baseProfile, 'object:games-book')?.item.slotKind).toBe('floor');
+    const phone = findEntry(baseProfile, 'object:phone')!;
+    expect(phone.item.slotKind).toBe('desk');
+    expect(isInConvexPolygon(geometry.baked.deskTop, phone.point)).toBe(true);
   });
 
-  it('keeps the phone on the desk top by default', () => {
-    expect(findEntry(baseProfile, 'object:phone')!.point.y).toBe(getDeskTopPoint(DEFAULT_DESK_POINT).y);
-  });
-
-  it('moves the bed and saves its position', () => {
-    const moved = moveRoomObject(baseProfile, 'bed', { x: 35, y: 80 }, NOW);
-    expect(findEntry(moved, 'object:bed')?.point).toEqual({ x: 35, y: 80 });
+  it('moves the games book and saves its position', () => {
+    const moved = moveRoomObject(baseProfile, 'games-book', { x: 50, y: 92 }, NOW);
+    expect(findEntry(moved, 'object:games-book')?.point).toEqual({ x: 50, y: 92 });
     expect(moved.room?.updatedAt).toBe(NOW.toISOString());
   });
 
-  it('keeps big furniture inside the room and apart from other furniture', () => {
-    const edge = moveRoomObject(baseProfile, 'bed', { x: 0, y: 90 }, NOW);
-    expect(findEntry(edge, 'object:bed')!.point.x).toBeGreaterThanOrEqual(getItemWidth({ id: 'object:bed', slotKind: 'floor' }) / 2);
-    const wardrobe = findEntry(baseProfile, 'object:wardrobe')!.point;
-    const onWardrobe = moveRoomObject(baseProfile, 'bed', wardrobe, NOW);
-    const bed = findEntry(onWardrobe, 'object:bed')!.point;
-    expect(Math.abs(bed.x - wardrobe.x) + Math.abs(bed.y - wardrobe.y)).toBeGreaterThan(8);
-  });
-
-  it('carries the phone and desk items when the desk moves', () => {
-    const withLamp = placeRoomItemAt(
-      { ...baseProfile, unlockedRewardIds: [...baseProfile.unlockedRewardIds, 'room-lamp'] } as LearnerProfile,
-      'room-lamp',
-      { x: 62, y: 60 },
-      NOW
-    );
-    const lampBefore = findEntry(withLamp, 'room-lamp')!.point;
-    const phoneBefore = findEntry(withLamp, 'object:phone')!.point;
-    const moved = moveRoomObject(withLamp, 'desk', { x: 40, y: 85 }, NOW);
-    const desk = findEntry(moved, 'object:desk')!.point;
-    const dx = desk.x - DEFAULT_DESK_POINT.x;
-    // The desk top moves a little less than the desk's feet (the desk is drawn bigger further down)
-    const dy = getDeskTopPoint(desk).y - getDeskTopPoint(DEFAULT_DESK_POINT).y;
-    expect(findEntry(moved, 'room-lamp')!.point.x).toBeCloseTo(lampBefore.x + dx);
-    expect(findEntry(moved, 'room-lamp')!.point.y).toBeCloseTo(lampBefore.y + dy);
-    expect(findEntry(moved, 'object:phone')!.point.y).toBeCloseTo(phoneBefore.y + dy);
-    expect(getRoomLayout(moved).deskPoint).toEqual(desk);
-  });
-
   it('moves objects and items through moveRoomEntry and ignores unknown keys', () => {
-    expect(findEntry(moveRoomEntry(baseProfile, 'object:wardrobe', { x: 70, y: 90 }, NOW), 'object:wardrobe')?.point.y).toBe(90);
+    expect(findEntry(moveRoomEntry(baseProfile, 'object:games-book', { x: 50, y: 94 }, NOW), 'object:games-book')?.point.y).toBe(94);
     expect(moveRoomEntry(baseProfile, 'nope', { x: 10, y: 10 }, NOW)).toBe(baseProfile);
     expect(moveRoomEntry(baseProfile, 'object:nope', { x: 10, y: 10 }, NOW)).toBe(baseProfile);
   });
 
   describe('the games book', () => {
-    const deskTop = getDeskTopPoint(DEFAULT_DESK_POINT);
+    const deskTop = deskMiddle();
     const onDesk = moveRoomObject(baseProfile, 'games-book', deskTop, NOW);
-
-    it('stands on the floor by default', () => {
-      expect(findEntry(baseProfile, 'object:games-book')?.item.slotKind).toBe('floor');
-    });
 
     it('can be put on the desk top, where it counts as a desk item', () => {
       const entry = findEntry(onDesk, 'object:games-book')!;
       expect(entry.item.slotKind).toBe('desk');
-      expect(entry.point.y).toBeCloseTo(deskTop.y);
-      expect(Math.abs(entry.point.x - deskTop.x)).toBeLessThanOrEqual(9);
+      expect(isInConvexPolygon(geometry.baked.deskTop, entry.point)).toBe(true);
     });
 
     it('goes back to the floor when it is dropped there', () => {
-      const entry = findEntry(moveRoomObject(onDesk, 'games-book', { x: 30, y: 90 }, NOW), 'object:games-book')!;
+      const entry = findEntry(moveRoomObject(onDesk, 'games-book', { x: 50, y: 92 }, NOW), 'object:games-book')!;
       expect(entry.item.slotKind).toBe('floor');
-      expect(entry.point.y).toBe(90);
-    });
-
-    it('moves with the desk and stays on it', () => {
-      const moved = moveRoomObject(onDesk, 'desk', { x: 40, y: 85 }, NOW);
-      const desk = findEntry(moved, 'object:desk')!.point;
-      const book = findEntry(moved, 'object:games-book')!;
-      expect(book.item.slotKind).toBe('desk');
-      expect(book.point.y).toBeCloseTo(getDeskTopPoint(desk).y);
-    });
-
-    it('does not let other objects onto the desk', () => {
-      const entry = findEntry(moveRoomObject(baseProfile, 'bed', deskTop, NOW), 'object:bed')!;
-      expect(entry.item.slotKind).toBe('floor');
+      expect(entry.point.y).toBe(92);
     });
   });
 
@@ -517,32 +435,24 @@ describe('mission objects and the desk', () => {
   });
 
   it('snaps to the nearest surface across several kinds', () => {
-    const top = getDeskTopPoint(DEFAULT_DESK_POINT);
-    expect(snapToSurface(['floor', 'desk'], { x: top.x, y: top.y - 1 }).surface.kind).toBe('desk');
-    expect(snapToSurface(['floor', 'desk'], { x: 30, y: 90 }).surface.kind).toBe('floor');
+    const top = deskMiddle();
+    expect(snapToSurface(['floor', 'desk'], { x: top.x, y: top.y - 1 }, options).surface.kind).toBe('desk');
+    expect(snapToSurface(['floor', 'desk'], { x: 50, y: 92 }, options).surface.kind).toBe('floor');
   });
 
   it('keeps object positions when an item is placed or removed', () => {
-    const moved = moveRoomObject(baseProfile, 'bed', { x: 35, y: 80 }, NOW);
-    const placed = placeRoomItemAt(moved, 'room-books', { x: 17, y: 30 }, NOW);
-    expect(findEntry(placed, 'object:bed')?.point).toEqual({ x: 35, y: 80 });
-    expect(findEntry(removeRoomItem(placed, 'room-books', NOW), 'object:bed')?.point).toEqual({ x: 35, y: 80 });
+    const moved = moveRoomObject(baseProfile, 'games-book', { x: 50, y: 92 }, NOW);
+    const placed = placeRoomItemAt(moved, 'room-books', onShelf('shelf-high', 70), NOW);
+    expect(findEntry(placed, 'object:games-book')?.point).toEqual({ x: 50, y: 92 });
+    expect(findEntry(removeRoomItem(placed, 'room-books', NOW), 'object:games-book')?.point).toEqual({ x: 50, y: 92 });
   });
 });
 
 describe('item sizes', () => {
   it('gives furniture a believable relative scale', () => {
     const width = (id: string, kind: RoomSlotKind = 'floor') => getItemWidth({ id, slotKind: kind });
-    expect(width('object:bed')).toBeGreaterThan(width('room-sofa'));
-    expect(width('room-sofa')).toBeGreaterThan(width('object:wardrobe'));
-    expect(width('object:desk')).toBeGreaterThan(width('room-sofa'));
-    expect(width('object:wardrobe')).toBeGreaterThan(width('room-plant'));
+    expect(width('room-sofa')).toBeGreaterThan(width('room-plant'));
     expect(width('room-plant')).toBeGreaterThan(width('room-ball'));
     expect(width('room-lamp', 'desk')).toBeGreaterThan(width('object:phone', 'desk'));
-  });
-
-  it('puts the desk legs on the floor with the top above it', () => {
-    expect(getDeskTopPoint(DEFAULT_DESK_POINT).y).toBeLessThan(DEFAULT_DESK_POINT.y);
-    expect(DEFAULT_DESK_POINT.y).toBeGreaterThanOrEqual(74);
   });
 });
