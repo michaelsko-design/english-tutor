@@ -37,6 +37,21 @@ export interface RoomSpriteOptions {
   /** A picture with no second view may be mirrored for the left wall (wall pictures, things on the sill);
    *  a floor item with a baked shadow may not, because its shadow would fall the wrong way */
   canMirror?: boolean;
+  /** The picture hangs flat on a wall (a frame, a shelf, the board): its top edge must run along the wall it
+   *  hangs on, which is lower to the right on the right wall and lower to the left on the left wall */
+  isFlatOnWall?: boolean;
+}
+
+/** Pictures drawn as a flat slab, whose slope the room mirrors to fit the wall (see isFlatOnWall). */
+const SLOPED_WALL_IDS = new Set(['furniture-shelf-high', 'furniture-shelf-low', 'furniture-board', 'room-picture']);
+/** A top edge flatter than this (pixels down per pixel across) fits either wall. */
+const FLAT_SLOPE = 0.04;
+
+/** Whether a flat wall picture's slope disagrees with the wall (it was drawn for the other one). */
+function slopeFitsWall(slope: number, isOnLeftWall: boolean): boolean {
+  if (Math.abs(slope) < FLAT_SLOPE) return true;
+  // right wall: lower to the right (positive); left wall: lower to the left (negative)
+  return isOnLeftWall ? slope < 0 : slope > 0;
 }
 
 /** The picture id of a placed entry: items keep their id, mission objects `object:bed` become `object-bed`. */
@@ -55,7 +70,7 @@ function boundsOf(sprite: RoomArtSprite): BodyBounds {
 export function getRoomSprite(
   themeId: ThemeId | undefined,
   artId: string,
-  { isOnLeftWall = false, canMirror = false }: RoomSpriteOptions = {}
+  { isOnLeftWall = false, canMirror = false, isFlatOnWall = false }: RoomSpriteOptions = {}
 ): RoomSprite | null {
   const pictures = themeId ? ROOM_ART[themeId] : undefined;
   const base = pictures?.[artId];
@@ -63,7 +78,10 @@ export function getRoomSprite(
   const otherView = isOnLeftWall ? pictures[`${artId}${OTHER_VIEW_SUFFIX}`] : undefined;
   const chosen = otherView ?? base;
   const chosenId = otherView ? `${artId}${OTHER_VIEW_SUFFIX}` : artId;
-  const isMirrored = isOnLeftWall && !otherView && canMirror;
+  const followsSlope = isFlatOnWall && SLOPED_WALL_IDS.has(artId);
+  const isMirrored = followsSlope
+    ? !slopeFitsWall(base.slope, isOnLeftWall)
+    : isOnLeftWall && !otherView && canMirror;
   const bounds = boundsOf(chosen);
   return {
     url: `${ART_ROOT}/${themeId}/${chosenId}.webp`,

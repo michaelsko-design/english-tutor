@@ -168,7 +168,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
   return (
     <div
       ref={sceneRef}
-      className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden select-none shadow-inner border border-current/10"
+      className="relative isolate w-full aspect-[4/3] rounded-3xl overflow-hidden select-none shadow-inner border border-current/10"
       style={{ containerType: 'inline-size' }}
       dir="ltr" lang="en"
     >
@@ -207,8 +207,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
           style={{
             ...at(piece),
             width: `${piece.width}cqw`,
-            transform: `translate(-${(piece.anchorX ?? 0.5) * 100}%, -${piece.anchorY * 100}%)`,
-            filter: 'drop-shadow(0 0.6cqw 0.5cqw rgba(59, 42, 90, 0.25))',
+            transform: `translate(-${(piece.anchorX ?? 0.5) * 100}%, -${piece.anchorY * 100}%)${piece.isMirrored ? ' scaleX(-1)' : ''}`,            filter: 'drop-shadow(0 0.6cqw 0.5cqw rgba(59, 42, 90, 0.25))',
           }}
           onError={(event) => {
             event.currentTarget.style.display = 'none';
@@ -256,6 +255,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
               // follows the item while it is dragged across the corner
               isOnLeftWall: (LEFT_WALL_KINDS.includes(kind) || entry.canRotate) && point.x < geometry.cornerX,
               canMirror: LEFT_WALL_KINDS.includes(kind),
+              isFlatOnWall: kind === 'wall',
             });
         const baseBounds = getBounds(entry.item, isDesk);
         // Without a themed picture the emoji icon mirrors on the left wall, feet and shadow with it

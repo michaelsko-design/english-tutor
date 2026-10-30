@@ -144,6 +144,8 @@ function getWallLeft(window: Box): Box | null {
   return xMax - WALL_LEFT_X_MIN >= WALL_LEFT_MIN_SPAN ? { xMin: WALL_LEFT_X_MIN, xMax, yMin: 10, yMax: 30 } : null;
 }
 const FLOOR_MARGIN_X = 6;
+const BED_X = 21;
+const WARDROBE_FROM_CORNER = 11;
 
 /**
  * A corner room: shelves, the board and a hanging zone on the plain right wall, a hanging zone on
@@ -159,7 +161,7 @@ function cornerRoom({ cornerX, window, edge: [yLeft, yCorner, yRight], sill }: C
   const edgeAt = (x: number) => floorEdgeY(partial, x);
   const stand = (x: number, depth: number): ScenePoint => ({ x, y: Math.min(FLOOR_MAX_Y - 2, edgeAt(x) + depth) });
   const shelfX = { xMin: cornerX + 4, xMax: cornerX + 22 };
-  const deskX = cornerX + 16;
+  const deskX = cornerX + 19;
   return {
     cornerX,
     floorEdge,
@@ -176,23 +178,24 @@ function cornerRoom({ cornerX, window, edge: [yLeft, yCorner, yRight], sill }: C
       { id: 'shelf-low', ...shelfX, y: yCorner - 13 },
       { id: 'window-sill', ...sill },
     ],
+    // The right wall is only about 40% wide: the desk takes it, the bed and the wardrobe stand along the left wall
     defaults: {
-      desk: stand(deskX, 16),
-      bed: stand(18, 16),
-      wardrobe: stand(86, 14),
-      gamesBook: stand(cornerX - 12, 20),
+      desk: stand(deskX, 14),
+      bed: stand(BED_X, 12),
+      wardrobe: stand(cornerX - WARDROBE_FROM_CORNER, 12),
+      gamesBook: stand(cornerX + 8, 24),
     },
-    avatarHome: stand(cornerX - 4, 18),
+    avatarHome: stand(cornerX - 6, 26),
   };
 }
 
 const ROOM_GEOMETRY: Record<ThemeId, RoomGeometry> = {
-  'cozy-studio': cornerRoom({ cornerX: 57.5, window: { xMin: 12, xMax: 50, yMin: 10, yMax: 63 }, edge: [72, 68, 73], sill: { xMin: 22, xMax: 46, y: 62.5 } }),
+  'cozy-studio': cornerRoom({ cornerX: 57.5, window: { xMin: 12, xMax: 50, yMin: 10, yMax: 63 }, edge: [71, 67, 80], sill: { xMin: 22, xMax: 46, y: 62.5 } }),
   'neon-pop': cornerRoom({ cornerX: 57.5, window: { xMin: 12, xMax: 45, yMin: 10, yMax: 66 }, edge: [88, 64, 82], sill: { xMin: 14, xMax: 38, y: 61 } }),
-  'starlight-rpg': cornerRoom({ cornerX: 60, window: { xMin: 14, xMax: 46, yMin: 8, yMax: 72 }, edge: [64, 68, 69], sill: { xMin: 22, xMax: 43, y: 58 } }),
-  'focus-desk': cornerRoom({ cornerX: 57, window: { xMin: 10, xMax: 52, yMin: 6, yMax: 71 }, edge: [92, 64.5, 71], sill: { xMin: 16, xMax: 44, y: 66 } }),
-  'urban-night': cornerRoom({ cornerX: 57.5, window: { xMin: 10, xMax: 49, yMin: 4, yMax: 66 }, edge: [86.5, 63.5, 69], sill: { xMin: 14, xMax: 44, y: 63 } }),
-  'travel-journal': cornerRoom({ cornerX: 55.5, window: { xMin: 8, xMax: 50, yMin: 2, yMax: 66 }, edge: [66, 63.5, 71], sill: { xMin: 25, xMax: 47, y: 56 } }),
+  'starlight-rpg': cornerRoom({ cornerX: 60, window: { xMin: 14, xMax: 46, yMin: 8, yMax: 72 }, edge: [88, 69, 78], sill: { xMin: 22, xMax: 43, y: 58 } }),
+  'focus-desk': cornerRoom({ cornerX: 57, window: { xMin: 10, xMax: 52, yMin: 6, yMax: 71 }, edge: [90, 64.5, 75], sill: { xMin: 16, xMax: 44, y: 66 } }),
+  'urban-night': cornerRoom({ cornerX: 57.5, window: { xMin: 10, xMax: 49, yMin: 4, yMax: 66 }, edge: [89, 63.5, 75], sill: { xMin: 14, xMax: 44, y: 63 } }),
+  'travel-journal': cornerRoom({ cornerX: 55.5, window: { xMin: 8, xMax: 50, yMin: 2, yMax: 66 }, edge: [89, 63.5, 84], sill: { xMin: 25, xMax: 47, y: 56 } }),
 };
 
 /** The room of a theme; the original room for a missing or unknown theme. */

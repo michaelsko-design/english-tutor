@@ -33,7 +33,12 @@ export interface FurniturePiece {
   anchorY: number;
   /** How far along the picture's width the point is (0-1); the middle unless the body is drawn off-centre */
   anchorX?: number;
+  /** The picture is drawn flipped left to right, so its edges run along the wall it hangs on */
+  isMirrored?: boolean;
 }
+
+/** The furniture hangs on the right wall: a slab drawn for the other wall is flipped. */
+const WALL_FURNITURE_OPTIONS = { isOnLeftWall: false, canMirror: true, isFlatOnWall: true };
 
 export const FURNITURE_PIECES: FurniturePiece[] = [
   { id: 'shelf-high', src: '/art/room/shelf-short.webp', x: 17, y: 30, width: 24, anchorY: 0.25 },
@@ -48,14 +53,14 @@ export function getFurniturePieces(geometry: RoomGeometry, themeId?: ThemeId): F
   // The room pictures already draw the window ledge items stand on, so no extra sill is drawn over them
   const shelves = geometry.shelves.filter((shelf) => shelf.id !== 'window-sill').map((shelf) => {
     const art = ART_IDS[shelf.id];
-    const sprite = getRoomSprite(themeId, art);
+    const sprite = getRoomSprite(themeId, art, WALL_FURNITURE_OPTIONS);
     const span = (shelf.xMax - shelf.xMin) * SPRITE_WIDTH_OF_SHELF;
     const piece = { id: shelf.id, x: (shelf.xMin + shelf.xMax) / 2, y: shelf.y };
     if (sprite) return { ...piece, ...fitSprite(sprite, span, SURFACE_FROM_BODY_TOP) };
     return { ...piece, src: LEGACY_SHELF_SRC[shelf.id], width: span * LEGACY_SPRITE_EXTRA, anchorY: LEGACY_SHELF_ANCHOR[shelf.id] };
   });
   const { board } = geometry;
-  const boardSprite = getRoomSprite(themeId, ART_IDS.board);
+  const boardSprite = getRoomSprite(themeId, ART_IDS.board, WALL_FURNITURE_OPTIONS);
   const boardSpan = (board.xMax - board.xMin) * SPRITE_WIDTH_OF_BOARD;
   const boardPiece = { id: 'board', x: (board.xMin + board.xMax) / 2, y: (board.yMin + board.yMax) / 2 };
   return [
@@ -89,6 +94,7 @@ function fitSprite(sprite: RoomSprite, bodyWidth: number, anchorFromBodyTop: num
   const { bounds } = sprite;
   return {
     src: sprite.url,
+    isMirrored: sprite.isMirrored,
     width: bodyWidth / (bounds.right - bounds.left),
     anchorX: (bounds.left + bounds.right) / 2,
     anchorY: bounds.top + anchorFromBodyTop * (bounds.bottom - bounds.top),

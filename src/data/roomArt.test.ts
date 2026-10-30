@@ -60,6 +60,20 @@ describe('getRoomSprite', () => {
     expect(left.bounds.bottom).toBe(right.bounds.bottom);
   });
 
+  it('turns a flat wall picture so its top edge runs lower to the right on the right wall and lower to the left on the left wall', () => {
+    const flat = { isFlatOnWall: true, canMirror: true };
+    THEMES.forEach((theme) =>
+      ['furniture-shelf-high', 'furniture-shelf-low', 'furniture-board', 'room-picture'].forEach((id) => {
+        const { slope } = ROOM_ART[theme][id];
+        const onRight = getRoomSprite(theme as never, id, flat)!;
+        const onLeft = getRoomSprite(theme as never, id, { ...flat, isOnLeftWall: true })!;
+        if (Math.abs(slope) < 0.04) return;
+        expect(onRight.isMirrored, `${theme}/${id} right wall`).toBe(slope < 0);
+        expect(onLeft.isMirrored, `${theme}/${id} left wall`).toBe(slope > 0);
+      })
+    );
+  });
+
   it('does not mirror what may not be mirrored: a baked shadow would fall the wrong way', () => {
     expect(getRoomSprite('cozy-studio', 'room-teddy', { isOnLeftWall: true })?.isMirrored).toBe(false);
     expect(getRoomSprite('cozy-studio', 'room-teddy', { isOnLeftWall: true, canMirror: true })?.isMirrored).toBe(true);

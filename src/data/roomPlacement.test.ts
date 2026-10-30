@@ -82,6 +82,19 @@ describe('themed room geometry', () => {
         expect(geometry.cornerX).toBeLessThan(70);
       });
 
+      it('stands the bed, the wardrobe and the desk side by side, never on one another', () => {
+        const entries = getPlacedRoomEntries(themed(themeId));
+        const spans = ['object:bed', 'object:wardrobe', 'object:desk'].map((key) => {
+          const entry = entries.find((candidate) => candidate.key === key)!;
+          const half = (entry.width * getDepthScale('floor', entry.point.y, geometry)) / 2;
+          return { key, from: entry.point.x - half, to: entry.point.x + half, y: entry.point.y };
+        });
+        spans.forEach((span) => expect(span.y, span.key).toBeGreaterThanOrEqual(floorEdgeY(geometry, span.from + 1)));
+        spans.forEach((a, index) =>
+          spans.slice(index + 1).forEach((b) => expect(a.to <= b.from || b.to <= a.from, `${a.key} / ${b.key}`).toBe(true))
+        );
+      });
+
       it('keeps every surface inside the scene', () => {
         KINDS.forEach((kind) =>
           getSurfaces(kind, layout).forEach((s) => {
@@ -381,8 +394,10 @@ describe('mission objects and the desk', () => {
 
     it('knows which wall a big item stands against from where it stands', () => {
       expect(findEntry(sofaOnRightWall, 'room-sofa')?.isOnLeftWall).toBe(false);
-      expect(findEntry(cozy, 'object:bed')?.isOnLeftWall).toBe(true); // the bed stands at the left by default
-      expect(findEntry(cozy, 'object:wardrobe')?.isOnLeftWall).toBe(false);
+      // by default the bed and the wardrobe stand along the left wall, the desk along the right one
+      expect(findEntry(cozy, 'object:bed')?.isOnLeftWall).toBe(true);
+      expect(findEntry(cozy, 'object:wardrobe')?.isOnLeftWall).toBe(true);
+      expect(findEntry(cozy, 'object:desk')?.isOnLeftWall).toBe(false);
     });
 
     it('moves a turned item to the other wall, so it never floats away from the wall it was against', () => {

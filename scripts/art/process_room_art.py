@@ -36,7 +36,9 @@ WHITE_LEVEL = 236
 OUTLINE_GAP_CLOSE = 2  # pixels: closes tiny gaps in an outline before looking for what is outside it
 SHADOW_MIN_LUMINANCE = 45  # darker than this is the outline of the object, never shadow
 SHADOW_MAX_LUMINANCE = 170  # a pale grey-violet body or outline must not count as shadow; only the soft edge may be this light
-SHADOW_FRINGE = 6  # pixels: the light soft edge of the shadow, taken only next to the shadow itself
+PALE_SHADOW_MAX_LUMINANCE = 215  # big furniture has a thick, closed outline, so its (paler) shadow may be lighter than other pictures'
+PALE_SHADOW_IDS = {'object-bed', 'object-wardrobe', 'object-desk', 'room-sofa', 'room-chair', 'room-plant', 'room-ball', 'room-drum'}  # ... and the second view (-b) of each
+SHADOW_FRINGE = 6 # pixels: the light soft edge of the shadow, taken only next to the shadow itself
 SPECK_SHARE = 0.002  # a piece of ink smaller than this share of the picture, far from the object, is a stray mark
 SPECK_DISTANCE = 0.08  # ... when it is farther than this share of the short side from the object's box
 SHADOW_MAX_SATURATION = 0.38  # a cast shadow is a grey with a violet tint; the object's colours are more saturated
@@ -54,7 +56,9 @@ SHADOW_ALPHA_MAX = 0.62
 SHADOW_GAIN = 2.2  # darker grey, more opaque shadow
 ALPHA_VISIBLE = 8
 OPEN_SPACE_IDS = {'object-desk', 'object-desk-b'}  # furniture with open space between its legs: enclosed white there is clear
-OPEN_SPACE_WHITE = 247
+OPEN_SPACE_WHITE = 225  # the gap between legs is off-white (pale shadow edge), not always pure white
+SLOPE_MARGIN = 0.1  # the top edge's slope is read between these shares of the body's width
+SLOPE_MIN_COLUMNS = 8
 OPEN_SPACE_MIN_AREA = 100
 SOLID_BODY_SIZE = 9  # furniture pieces are thick: anything thinner than this many pixels is a stray line
 SOLID_BODY_REGROW = 8  # pixels kept around the thick body, which is its outline and soft edge
@@ -116,7 +120,7 @@ def remove_axis_lines(rgb: np.ndarray) -> np.ndarray:
     return cleaned
 
 
-def alpha_with_shadow(rgb: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def alpha_with_shadow(rgb: np.ndarray, max_luminance: int = SHADOW_MAX_LUMINANCE) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """(rgb, alpha, body): shadow and white are what can be reached from the edge without crossing the
     object's own colours; the outline closes the object. Outside it, white is clear and the rest is shadow."""
     lum = luminance(rgb)
@@ -124,7 +128,7 @@ def alpha_with_shadow(rgb: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarr
     saturation = spread / np.maximum(rgb.max(axis=2), 1)
     is_white = (rgb >= WHITE_LEVEL).all(axis=2)
     greyish = (saturation < SHADOW_MAX_SATURATION) & (rgb[..., 2] >= rgb[..., 0] - SHADOW_BLUE_SLACK)
-    is_shadow = greyish & (lum > SHADOW_MIN_LUMINANCE) & (lum <= SHADOW_MAX_LUMINANCE)
+    is_shadow = greyish & (lum > SHADOW_MIN_LUMINANCE) & (lum <= max_luminance)
     passable = is_white | is_shadow
     walls = ndimage.binary_dilation(~passable, iterations=OUTLINE_GAP_CLOSE)
     regions, _ = ndimage.label(~walls)
@@ -136,7 +140,7 @@ def alpha_with_shadow(rgb: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarr
     # take back the soft pixels next to the outline that the gap closing walled in
     outside = ndimage.binary_dilation(reached, iterations=OUTLINE_GAP_CLOSE) & passable
     fringe = ndimage.binary_dilation(outside & is_shadow, iterations=SHADOW_FRINGE) & greyish & ~is_white
-    outside |= fringe & (lum > SHADOW_MAX_LUMINANCE)
+    outside |= fringe & (lum > max_luminance)
     shadow_alpha = np.clip((255.0 - rgb.max(axis=2)) / 255.0 * SHADOW_GAIN, 0.0, SHADOW_ALPHA_MAX) * 255.0
     alpha = np.where(outside, np.where(is_white, 0.0, shadow_alpha), 255.0)
     out = rgb.copy()
@@ -162,11 +166,26 @@ def keep_solid_body(alpha: np.ndarray) -> np.ndarray:
     return np.where(keep, alpha, 0).astype(np.uint8)
 
 
-def process(path: Path, has_shadow: bool) -> tuple[Image.Image, tuple[float, float, float, float]]:
-    """The transparent picture, and the body's (left, right, top, bottom) as shares of it."""
+def top_edge_slope(alpha: np.ndarray, body: np.ndarray) -> float:
+    """How the body's top edge runs: pixels down per pixel to the right (positive: lower on the right).
+    The room scene mirrors flat wall pictures whose slope disagrees with the wall they hang on."""
+    columns = np.flatnonzero((body & (alpha > ALPHA_VISIBLE)).any(axis=0))
+    if columns.size < SLOPE_MIN_COLUMNS:
+        return 0.0
+    first, last = columns.min(), columns.max()
+    span = last - first
+    xs = np.arange(int(first + SLOPE_MARGIN * span), int(last - SLOPE_MARGIN * span) + 1)
+    tops = np.array([np.argmax(body[:, x] & (alpha[:, x] > ALPHA_VISIBLE)) for x in xs])
+    if xs.size < SLOPE_MIN_COLUMNS:
+        return 0.0
+    return float(np.polyfit(xs, tops, 1)[0])
+
+
+def process(path: Path, has_shadow: bool) -> tuple[Image.Image, tuple[float, float, float, float], float]:
+    """The transparent picture, the body's (left, right, top, bottom) as shares of it, and its top edge's slope."""
     rgb = remove_axis_lines(remove_stray_lines(np.asarray(Image.open(path).convert('RGB'))))
     if has_shadow:
-        rgb, alpha, body = alpha_with_shadow(rgb)
+        rgb, alpha, body = alpha_with_shadow(rgb, PALE_SHADOW_MAX_LUMINANCE if path.stem.removesuffix('-b') in PALE_SHADOW_IDS else SHADOW_MAX_LUMINANCE)
         drawn = int((alpha > ALPHA_VISIBLE).sum())
         if drawn and 1 - body[alpha > ALPHA_VISIBLE].sum() / drawn > MAX_SHADOW_SHARE:
             print(f'warning {path.parent.name}/{path.stem}: mostly shadow, the outline may have leaked')
@@ -193,10 +212,11 @@ def process(path: Path, has_shadow: bool) -> tuple[Image.Image, tuple[float, flo
         (body_top - top) / height,
         (body_bottom - top) / height,
     )
+    slope = top_edge_slope(alpha, body)
     picture = Image.fromarray(rgba[top:bottom, left:right], 'RGBA')
     if picture.width > MAX_WIDTH:
         picture = picture.resize((MAX_WIDTH, round(picture.height * MAX_WIDTH / picture.width)), Image.LANCZOS)
-    return picture, bounds
+    return picture, bounds, slope
 
 
 def load_jobs() -> dict[str, bool]:
@@ -220,6 +240,8 @@ def write_manifest(sprites: dict[str, dict[str, dict[str, float]]]) -> None:
         '  right: number;',
         '  top: number;',
         '  bottom: number;',
+        '  /** Top edge of the body: pixels down per pixel to the right (in the picture as drawn) */',
+        '  slope: number;',
         '}',
         '',
         'export const ROOM_ART: Record<string, Record<string, RoomArtSprite>> = {',
@@ -262,7 +284,7 @@ def main() -> None:
         if not source.exists():
             missing.append(key)
             continue
-        picture, (left, right, top, bottom) = process(source, has_shadow)
+        picture, (left, right, top, bottom), slope = process(source, has_shadow)
         target = OUT / theme / f'{picture_id}.webp'
         target.parent.mkdir(parents=True, exist_ok=True)
         picture.save(target, 'WEBP', quality=WEBP_QUALITY, method=6)
@@ -272,6 +294,7 @@ def main() -> None:
             'right': round(right, 4),
             'top': round(top, 4),
             'bottom': round(bottom, 4),
+            'slope': round(slope, 3),
         }
         if contact_dir:
             contact_pictures.setdefault(theme, {})[picture_id] = picture
