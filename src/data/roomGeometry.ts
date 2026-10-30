@@ -247,78 +247,9 @@ export const LEGACY_GEOMETRY: RoomGeometry = {
   avatarHome: { x: 50, y: 68 },
 };
 
-interface CornerRoom {
-  cornerX: number;
-  /** The window with its curtains, as drawn in the room picture */
-  window: Box;
-  /** Baseboard y at the left edge, at the corner and at the right edge */
-  edge: [number, number, number];
-  /** The window sill line under the window */
-  sill: { xMin: number; xMax: number; y: number };
-}
-
 /** The floor runs to the bottom of the picture: feet can stand almost there. */
 const FLOOR_MAX_Y = 98;
-/** A hanging item is about this wide: its centre stays this far from the window's edge. */
-const WALL_ITEM_CLEARANCE = 5;
-const WALL_LEFT_X_MIN = 3;
-/** Narrower than this and the strip beside the window is no place to hang anything. */
-const WALL_LEFT_MIN_SPAN = 3;
-
-/** The strip of the left wall beside the window where wall items can hang, or null when there is none. */
-function getWallLeft(window: Box): Box | null {
-  const xMax = window.xMin - WALL_ITEM_CLEARANCE;
-  return xMax - WALL_LEFT_X_MIN >= WALL_LEFT_MIN_SPAN ? { xMin: WALL_LEFT_X_MIN, xMax, yMin: 10, yMax: 30 } : null;
-}
 const FLOOR_MARGIN_X = 2;
-/** How far (scene %) above the baseboard at the corner the shelf planks hang */
-const SHELF_HIGH_ABOVE_CORNER = 44;
-const SHELF_LOW_ABOVE_CORNER = 29;
-const BED_X = 21;
-const WARDROBE_FROM_CORNER = 11;
-
-/**
- * A corner room: shelves, the board and a hanging zone on the plain right wall, a hanging zone on
- * the left wall, the sill under the window, big furniture standing along the walls.
- */
-function cornerRoom({ cornerX, window, edge: [yLeft, yCorner, yRight], sill }: CornerRoom): RoomGeometry {
-  const floorEdge = [
-    { x: 0, y: yLeft },
-    { x: cornerX, y: yCorner },
-    { x: 100, y: yRight },
-  ];
-  const partial = { floorEdge } as RoomGeometry;
-  const edgeAt = (x: number) => floorEdgeY(partial, x);
-  const stand = (x: number, depth: number): ScenePoint => ({ x, y: Math.min(FLOOR_MAX_Y - 2, edgeAt(x) + depth) });
-  const shelfX = { xMin: cornerX + 4, xMax: cornerX + 22 };
-  const deskX = cornerX + 19;
-  return {
-    cornerX,
-    floorEdge,
-    floorMinY: Math.min(yLeft, yCorner, yRight) + FLOOR_EDGE_CLEARANCE,
-    floorMaxY: FLOOR_MAX_Y,
-    floorXMin: FLOOR_MARGIN_X,
-    floorXMax: 100 - FLOOR_MARGIN_X,
-    window,
-    wallLeft: getWallLeft(window),
-    // The shelves take the wall high up by the corner: things hang beside them, under the board
-    wallRight: { xMin: cornerX + 26, xMax: 95, yMin: 40, yMax: 46 },
-    board: { xMin: cornerX + 26, xMax: 95, yMin: 16, yMax: 30 },
-    shelves: [
-      { id: 'shelf-high', ...shelfX, y: yCorner - SHELF_HIGH_ABOVE_CORNER },
-      { id: 'shelf-low', ...shelfX, y: yCorner - SHELF_LOW_ABOVE_CORNER },
-      { id: 'window-sill', ...sill },
-    ],
-    // The right wall is only about 40% wide: the desk takes it, the bed and the wardrobe stand along the left wall
-    defaults: {
-      desk: stand(deskX, 14),
-      bed: stand(BED_X, 12),
-      wardrobe: stand(cornerX - WARDROBE_FROM_CORNER, 12),
-      gamesBook: stand(cornerX + 8, 24),
-    },
-    avatarHome: stand(cornerX - 6, 26),
-  };
-}
 
 interface BakedRoom {
   cornerX: number;
@@ -639,7 +570,63 @@ const ROOM_GEOMETRY: Record<ThemeId, RoomGeometry> = {
     gamesBook: { x: 55, y: 90 },
     avatarHome: { x: 50, y: 92 },
   }),
-  'travel-journal': cornerRoom({ cornerX: 55.5, window: { xMin: 8, xMax: 50, yMin: 2, yMax: 66 }, edge: [89, 63.5, 84], sill: { xMin: 25, xMax: 47, y: 56 } }),
+  'travel-journal': bakedRoom({
+    cornerX: 49.8,
+    window: { xMin: 22.5, xMax: 45.5, yMin: 14.5, yMax: 49 },
+    edge: [68.8, 51.8, 72],
+    wallLeft: null,
+    wallRight: { xMin: 53, xMax: 65, yMin: 23, yMax: 33 },
+    board: { xMin: 69, xMax: 78, yMin: 14, yMax: 20 },
+    shelves: [
+      { id: 'shelf-high', xMin: 67.5, xMax: 85, y: 27.2, tilt: 0.03 },
+      { id: 'shelf-low', xMin: 76, xMax: 95.5, y: 37.8, tilt: 0.06 },
+      { id: 'window-sill', xMin: 29, xMax: 40, y: 41.9, tilt: -0.05 },
+    ],
+    baked: {
+      roomPicture: '/art/travel-journal/room-baked.webp',
+      pieces: [
+        {
+          id: 'wardrobe',
+          tapArea: [{ x: 1.5, y: 28 }, { x: 7, y: 26.6 }, { x: 22.8, y: 26.8 }, { x: 22.8, y: 72.3 }, { x: 8.2, y: 78.3 }, { x: 6, y: 78.3 }, { x: 1.5, y: 73 }],
+          standAt: { x: 16, y: 84 },
+          bubbleAt: { x: 12, y: 24 },
+        },
+        {
+          id: 'bed',
+          tapArea: [{ x: 23, y: 52 }, { x: 26, y: 49.5 }, { x: 42, y: 47 }, { x: 48.8, y: 44 }, { x: 49.2, y: 38.8 }, { x: 50.5, y: 38.5 }, { x: 55, y: 39.5 }, { x: 62, y: 40.5 }, { x: 62, y: 59.5 }, { x: 35.3, y: 71.8 }, { x: 32.6, y: 71.8 }, { x: 32.6, y: 68.5 }, { x: 23, y: 64.5 }],
+          standAt: { x: 42, y: 79 },
+          bubbleAt: { x: 55, y: 35 },
+        },
+        {
+          id: 'desk',
+          tapArea: [{ x: 69.8, y: 51.7 }, { x: 77.9, y: 48.2 }, { x: 98, y: 52.8 }, { x: 98, y: 55 }, { x: 96.8, y: 72.5 }, { x: 91, y: 77.5 }, { x: 89, y: 77.5 }, { x: 72.5, y: 69.5 }, { x: 70.8, y: 69.5 }, { x: 69.8, y: 53.5 }],
+          standAt: { x: 80, y: 85 },
+          bubbleAt: { x: 88, y: 46 },
+        },
+      ],
+      freeFloorEdge: [
+        { x: 0, y: 72.5 },
+        { x: 1.5, y: 72.5 },
+        { x: 6, y: 78.5 },
+        { x: 8.2, y: 78.5 },
+        { x: 22.8, y: 72.5 },
+        { x: 23.4, y: 64.5 },
+        { x: 32.6, y: 72 },
+        { x: 35.3, y: 72 },
+        { x: 60.5, y: 59.3 },
+        { x: 61, y: 56.4 },
+        { x: 70.3, y: 60.3 },
+        { x: 70.8, y: 69.6 },
+        { x: 89, y: 77.6 },
+        { x: 91, y: 77.6 },
+        { x: 96.8, y: 72.6 },
+        { x: 100, y: 72.4 },
+      ],
+      deskTop: [{ x: 70.5, y: 51.8 }, { x: 77.9, y: 48.8 }, { x: 97, y: 53 }, { x: 90.7, y: 56.8 }],
+    },
+    gamesBook: { x: 55, y: 90 },
+    avatarHome: { x: 50, y: 92 },
+  }),
 };
 
 /** The room of a theme; the original room for a missing or unknown theme. */

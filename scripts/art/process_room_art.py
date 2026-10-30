@@ -85,6 +85,8 @@ FRONT_PICKS = {
     'focus-desk/room-chair': 2,
     'urban-night/room-sofa': 3,
     'urban-night/room-chair': 4,
+    'travel-journal/room-sofa': 4,
+    'travel-journal/room-chair': 3,
 }
 SHADOW_SQUASH = 0.22  # the shadow's height as a share of the object's (light from high up on the left)
 SHADOW_LEAN = 0.55  # pixels to the right per pixel of the object's height
