@@ -24,12 +24,9 @@ describe('the themed room pictures', () => {
     );
   });
 
-  it('shears a big piece so its edges run exactly along the wall it stands against', () => {
-    const wallSlope = 0.2;
-    const desk = getRoomSprite('travel-journal', 'object-desk', { wallSlope })!;
-    expect(ROOM_ART['travel-journal']['object-desk'].slope + desk.shear).toBeCloseTo(wallSlope);
-    const deskOnLeft = getRoomSprite('travel-journal', 'object-desk', { isOnLeftWall: true, wallSlope: -wallSlope })!;
-    expect(ROOM_ART['travel-journal']['object-desk-b'].slope + deskOnLeft.shear).toBeCloseTo(-wallSlope);
+  it('shows a big piece as drawn, without slanting it: a slant lines up one edge but bends the other', () => {
+    expect(getRoomSprite('travel-journal', 'object-desk', { wallSlope: 0.2 })!.shear).toBe(0);
+    expect(getRoomSprite('travel-journal', 'object-desk', { isOnLeftWall: true, wallSlope: -0.2 })!.shear).toBe(0);
   });
 
   it('has a file for every picture, with sane body bounds', () => {

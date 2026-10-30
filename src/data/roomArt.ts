@@ -49,12 +49,6 @@ export interface RoomSpriteOptions {
   wallSlope?: number;
 }
 
-/**
- * Big furniture, drawn at about the rooms' camera: its slope is that of its edges along the wall it
- * stands against, and the room shears it so they run exactly along that wall in each theme.
- */
-const WALL_FURNITURE_IDS = new Set(['object-bed', 'object-wardrobe', 'object-desk', 'room-sofa', 'room-chair']);
-
 /** Pictures drawn as a flat slab, whose slope the room mirrors to fit the wall (see isFlatOnWall). */
 const SLOPED_WALL_IDS = new Set(['furniture-shelf-high', 'furniture-shelf-low', 'furniture-board', 'room-picture']);
 /** A top edge flatter than this (pixels down per pixel across) fits either wall. */
@@ -102,7 +96,7 @@ export function getRoomSprite(
     aspect: chosen.aspect,
     bounds: isMirrored ? mirrorBounds(bounds) : bounds,
     isMirrored,
-    shear: wallSlope === undefined ? 0 : followsSlope ? wallSlope - shownSlope : WALL_FURNITURE_IDS.has(artId) ? wallSlope - chosen.slope : 0,
+    shear: wallSlope !== undefined && followsSlope ? wallSlope - shownSlope : 0,
   };
 }
 

@@ -346,6 +346,8 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
             };
         const body = sprite ? (
           <img
+            // a new picture (a turned piece) swaps at once instead of sliding from the old picture's shear
+            key={sprite.url}
             src={sprite.url}
             alt=""
             draggable={false}
