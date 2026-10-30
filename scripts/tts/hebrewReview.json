@@ -1,0 +1,194 @@
+{
+  "100h17cty3p": {
+    "status": "good",
+    "fp": "25488-2e6bf936d59df8e8",
+    "at": "2026-10-30"
+  },
+  "101badxj61x": {
+    "status": "good",
+    "fp": "47376-883fbc21750bf44d",
+    "at": "2026-10-30"
+  },
+  "101i4bu687g": {
+    "status": "regenerate",
+    "reasons": [
+      "english-accent"
+    ],
+    "fp": "29808-9d8c5b97789a1c40",
+    "at": "2026-10-30"
+  },
+  "102vn790s2p": {
+    "status": "good",
+    "fp": "38304-606032ae17589e57",
+    "at": "2026-10-30"
+  },
+  "105825si7ih": {
+    "status": "good",
+    "fp": "21024-df52c3bc2aa2598d",
+    "at": "2026-10-30"
+  },
+  "1065x5trbuk": {
+    "status": "good",
+    "fp": "48528-3d7871edfb3fa61c",
+    "at": "2026-10-30"
+  },
+  "107b6zobzv6": {
+    "status": "good",
+    "fp": "23328-d29b82bbba6dd6fd",
+    "at": "2026-10-30"
+  },
+  "10838kmodsn": {
+    "status": "good",
+    "fp": "13104-a72f5bfb9978b6a7",
+    "at": "2026-10-30"
+  },
+  "108moxptnvd": {
+    "status": "good",
+    "fp": "30096-cc0b3e342476b25b",
+    "at": "2026-10-30"
+  },
+  "109wfv2t794": {
+    "status": "good",
+    "fp": "11808-f493c97d9056e99b",
+    "at": "2026-10-30"
+  },
+  "10c8h8tg8oz": {
+    "status": "good",
+    "fp": "25488-780df5d833650c6d",
+    "at": "2026-10-30"
+  },
+  "10ftl9c9yy2": {
+    "status": "regenerate",
+    "reasons": [
+      "english-accent"
+    ],
+    "fp": "32256-604da207613dd71c",
+    "at": "2026-10-30"
+  },
+  "10fyeeo3lry": {
+    "status": "good",
+    "fp": "32976-9b7e7e9eb4711d2a",
+    "at": "2026-10-30"
+  },
+  "10g2crl074w": {
+    "status": "good",
+    "fp": "30096-16cca8204632751d",
+    "at": "2026-10-30"
+  },
+  "10g8i0zoxtk": {
+    "status": "good",
+    "fp": "29664-902fa9827b139ef1",
+    "at": "2026-10-30"
+  },
+  "10hxoqf3ecy": {
+    "status": "good",
+    "fp": "21888-6726ca4215ee403a",
+    "at": "2026-10-30"
+  },
+  "10i2zo9h9eq": {
+    "status": "regenerate",
+    "reasons": [
+      "mispronounced"
+    ],
+    "note": "המילה צֶדֶף צריכה להישמע כמו tzedef",
+    "fp": "44064-a061e0d7921b99b3",
+    "at": "2026-10-30"
+  },
+  "10ipotqtcpw": {
+    "status": "good",
+    "fp": "45936-9e04a9d113ad869c",
+    "at": "2026-10-30"
+  },
+  "10jwtwa4vjx": {
+    "status": "good",
+    "fp": "21888-2924d1f1f705a621",
+    "at": "2026-10-30"
+  },
+  "10l5i9t65vo": {
+    "status": "good",
+    "fp": "25344-8a4f9027ccbf065d",
+    "at": "2026-10-30"
+  },
+  "10m2kwlhjzr": {
+    "status": "good",
+    "fp": "37296-c8947369be149405",
+    "at": "2026-10-30"
+  },
+  "10tp969nokm": {
+    "status": "regenerate",
+    "reasons": [
+      "english-accent"
+    ],
+    "note": "the first \"umbrella\" is heard with a hebrew accent and the word בלי in the end has an english accent",
+    "fp": "51264-0dd6a6ce65988a11",
+    "at": "2026-10-30"
+  },
+  "10ubtmqvp73": {
+    "status": "good",
+    "fp": "6624-7119e861a4acfc04",
+    "at": "2026-10-30"
+  },
+  "10w6mytu6t0": {
+    "status": "good",
+    "fp": "13104-b62548765e7efcb6",
+    "at": "2026-10-30"
+  },
+  "10x37147jlw": {
+    "status": "regenerate",
+    "reasons": [
+      "english-accent"
+    ],
+    "note": "the word מעולה has a heavy english accent",
+    "fp": "27648-1accc2f76c32ab3b",
+    "at": "2026-10-30"
+  },
+  "10x9qcnolwh": {
+    "status": "regenerate",
+    "reasons": [
+      "english-accent"
+    ],
+    "fp": "9648-87d1182d4971f512",
+    "at": "2026-10-30"
+  },
+  "10xl72h05rv": {
+    "status": "good",
+    "fp": "26928-55ed54ce0482382a",
+    "at": "2026-10-30"
+  },
+  "10z9uqmc0i": {
+    "status": "good",
+    "fp": "39168-e01112637b13811e",
+    "at": "2026-10-30"
+  },
+  "10zdlr0x7h1": {
+    "status": "regenerate",
+    "reasons": [
+      "english-accent"
+    ],
+    "fp": "8064-2313e86c32387631",
+    "at": "2026-10-30"
+  },
+  "1108imxe8wz": {
+    "status": "good",
+    "fp": "39744-bdf725ffc4b33905",
+    "at": "2026-10-30"
+  },
+  "11455jodtci": {
+    "status": "good",
+    "fp": "44928-62421c739b3fddb2",
+    "at": "2026-10-30"
+  },
+  "114vr1cdlig": {
+    "status": "regenerate",
+    "reasons": [
+      "english-accent"
+    ],
+    "fp": "30096-c28b49317927b124",
+    "at": "2026-10-30"
+  },
+  "115ylf1jpuo": {
+    "status": "good",
+    "fp": "35424-dfa5d100e5e422a8",
+    "at": "2026-10-30"
+  }
+}
