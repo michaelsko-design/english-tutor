@@ -196,12 +196,12 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
   // Read-aloud: a rendered clip, the online voice or the device voice (services/tts)
   const speakEnglish = (text: string, rate = DEFAULT_SPEECH_RATE) => {
-    void getTtsService().speak(text, { rate, voice: profile.voicePreference ?? DEFAULT_VOICE_PREFERENCE });
+    void getTtsService().speak(text, { rate, voice: DEFAULT_VOICE_PREFERENCE });
   };
 
   // Grades 1–2: Hebrew and English one after another, e.g. the instruction then the question (Feature 47)
   const speakParts = (parts: SpokenPart[]) => {
-    const voice = profile.voicePreference ?? DEFAULT_VOICE_PREFERENCE;
+    const voice = DEFAULT_VOICE_PREFERENCE;
     void getTtsService().speakSequence(
       parts.map((part) => ({ text: toSpeakableText(part.text), options: { lang: part.lang, rate: part.rate, voice } })),
     );

@@ -1,6 +1,6 @@
 import React, { useId } from 'react';
 import { Palette, ShieldCheck, Users } from 'lucide-react';
-import type { CompanionId, LearnerGender, ThemeId } from '../../types/learner';
+import type { LearnerGender, ThemeId } from '../../types/learner';
 import {
   getPickableThemeIds,
   resolveTheme,
@@ -8,7 +8,6 @@ import {
   type ThemeAudience,
   type ThemeDefinition,
 } from '../../themes/themeRegistry';
-import { Companion } from '../companion/Companion';
 
 interface ThemedProps {
   theme: ThemeDefinition;
@@ -117,8 +116,6 @@ export const GenderAgeFields: React.FC<GenderAgeFieldsProps> = ({
 interface ThemePickerProps {
   /** The theme shown as chosen (a Pro theme being previewed, or the saved one) */
   themeId: ThemeId;
-  /** The learner's chosen mascot, shown on every theme; unset shows each theme's own mascot */
-  companionId?: CompanionId;
   onChange: (themeId: ThemeId) => void;
   /** Themes that need Pro get a crown badge (docs/feature-pro-tier.md) */
   isProOnly?: (themeId: ThemeId) => boolean;
@@ -145,7 +142,6 @@ const AUDIENCE_GROUPS: ReadonlyArray<{ audience: ThemeAudience; labelHe: string 
 
 export const ThemePicker: React.FC<ThemePickerProps> = ({
   themeId,
-  companionId,
   onChange,
   isProOnly = () => false,
   isProOnlyHidden = false,
@@ -169,7 +165,7 @@ export const ThemePicker: React.FC<ThemePickerProps> = ({
           {isGrouped && <span className="block text-xs font-bold opacity-75">{group.labelHe}</span>}
           <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
             {group.ids.map((tKey) => {
-              const tItem = resolveTheme(tKey, companionId);
+              const tItem = resolveTheme(tKey);
               const isSelected = tKey === themeId;
               return (
                 <button
@@ -178,13 +174,23 @@ export const ThemePicker: React.FC<ThemePickerProps> = ({
                   onClick={() => onChange(tKey)}
                   aria-pressed={isSelected}
                   aria-label={isProOnly(tKey) ? `${tItem.name}, זמין ב-Pro` : tItem.name}
-                  className={`relative px-1 py-2.5 sm:p-2.5 rounded-xl text-center transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 border border-current/20 ${
+                  className={`relative h-20 sm:h-24 overflow-hidden rounded-xl border border-current/20 transition-all ${
                     tItem.pageBgClass
-                  } ${isSelected ? 'ring-2 ring-offset-2 ring-fuchsia-500' : 'opacity-75 hover:opacity-100'}`}
+                  } ${isSelected ? 'ring-2 ring-offset-2 ring-fuchsia-500' : 'saturate-75 hover:saturate-100'}`}
                 >
+                  <img
+                    src={tItem.art.homeScene}
+                    alt=""
+                    loading="lazy"
+                    draggable={false}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
                   {isProOnly(tKey) && <ProChoiceBadge isSaved={tKey === savedThemeId} />}
-                  <Companion theme={tItem} pose="idle" size={40} hasShadow={false} />
-                  <span className="font-extrabold text-xs leading-tight break-words max-w-full" dir="ltr" lang="en">
+                  <span
+                    className="absolute inset-x-0 bottom-0 px-1 py-1 bg-black/55 text-white font-extrabold text-xs leading-tight text-center truncate"
+                    dir="ltr"
+                    lang="en"
+                  >
                     {tItem.name}
                   </span>
                 </button>

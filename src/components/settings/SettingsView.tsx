@@ -7,7 +7,7 @@ import { useProAccess } from '../../hooks/useProAccess';
 import { ProUpsellSheet } from '../pro/ProUpsellSheet';
 import { ThemePreviewSheet } from './ThemePreviewSheet';
 import { getHebrewCopy } from '../../utils/hebrewGender';
-import { DEFAULT_VOICE_PREFERENCE, type VoicePreference } from '../../utils/ttsVoice';
+import { DEFAULT_VOICE_PREFERENCE } from '../../utils/ttsVoice';
 import {
   PARENT_APPROVAL_AGE,
   isFriendsHubEnabled,
@@ -32,14 +32,9 @@ type SettingsTabId = 'profile' | 'look' | 'friends' | 'account';
 
 const SETTINGS_TABS: SettingsTabItem<SettingsTabId>[] = [
   { id: 'profile', labelHe: 'פרופיל', icon: '👤' },
-  { id: 'look', labelHe: 'עיצוב וקול', icon: '🎨' },
+  { id: 'look', labelHe: 'עיצוב', icon: '🎨' },
   { id: 'friends', labelHe: 'חברים', icon: '👫' },
   { id: 'account', labelHe: 'חשבון', icon: '🔒' },
-];
-
-const VOICE_OPTIONS: { id: VoicePreference; labelHe: string }[] = [
-  { id: 'female', labelHe: '👩 קול נשי' },
-  { id: 'male', labelHe: '👨 קול גברי' },
 ];
 
 const NAME_SAVE_DELAY_MS = 600;
@@ -65,7 +60,8 @@ function toDraft(profile: LearnerProfile): ProfileDraft {
     isShabbatObserver: profile.isShabbatObserver !== undefined ? profile.isShabbatObserver : true,
     isFriendsHubOn: isFriendsHubEnabled(profile),
     isUsernameSearchOn: isUsernameSearchable(profile),
-    voicePreference: profile.voicePreference ?? DEFAULT_VOICE_PREFERENCE,
+    // Only the female voice is offered; a saved 'male' is retired on the next save.
+    voicePreference: DEFAULT_VOICE_PREFERENCE,
     hasParentConsent: Boolean(profile.parentalConsentAt),
   };
 }
@@ -277,7 +273,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <div {...panelProps('look')}>
           <ThemePicker
             themeId={activeTheme.id}
-            companionId={allowedLook.companionId}
             onChange={handleThemeChange}
             isProOnly={(id) => !canUseTheme(id, proAccess)}
             savedThemeId={draft.themeId}
@@ -293,24 +288,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <Volume2 className="w-4 h-4 text-pink-500" />
               <span>קול ההקראה:</span>
             </span>
-            <div className="grid grid-cols-2 gap-2">
-              {VOICE_OPTIONS.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => commit({ voicePreference: option.id })}
-                  aria-pressed={draft.voicePreference === option.id}
-                  className={`min-h-11 p-3 rounded-2xl border font-extrabold text-xs sm:text-sm transition-all ${
-                    draft.voicePreference === option.id
-                      ? 'border-pink-500/60 bg-pink-500/10'
-                      : 'border-current/10 bg-black/5 dark:bg-white/5 opacity-80'
-                  }`}
-                >
-                  {option.labelHe}
-                </button>
-              ))}
-            </div>
-            <VoiceLabCard voicePreference={draft.voicePreference} theme={activeTheme} />
+            <VoiceLabCard voicePreference={DEFAULT_VOICE_PREFERENCE} theme={activeTheme} />
           </div>
         </div>
 

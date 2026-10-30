@@ -93,7 +93,7 @@ const PlacementTestDialog: React.FC<PlacementTestDialogProps> = ({
   const isGirl = profile.gender === 'girl';
   useStopSpeechOnLeave();
   const speakEnglish = (text: string, rate = DEFAULT_SPEECH_RATE) => {
-    void getTtsService().speak(text, { rate, voice: profile.voicePreference ?? DEFAULT_VOICE_PREFERENCE });
+    void getTtsService().speak(text, { rate, voice: DEFAULT_VOICE_PREFERENCE });
   };
   const schoolGrade = gradeIdToNumber(getSchoolGradeId(profile));
   const isFirstTest = !profile.placementResult;
