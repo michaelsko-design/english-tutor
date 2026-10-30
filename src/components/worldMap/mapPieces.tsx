@@ -23,9 +23,9 @@ export function getPinStyle(point: MapPoint, mapHeight: number): React.CSSProper
 
 /** Three stars, earned ones in colour. */
 export const StarRow: React.FC<{ stars: number; sizeClass?: string }> = ({ stars, sizeClass = 'w-4 h-4' }) => (
-  <span className="flex items-center gap-px" dir="ltr" lang="en">
+  <span className="flex items-center gap-px shrink-0" dir="ltr" lang="en">
     {[1, 2, 3].map((n) => (
-      <HudIcon key={n} name="star" className={sizeClass} isGreyed={stars < n} />
+      <HudIcon key={n} name="star" className={`${sizeClass} shrink-0`} isGreyed={stars < n} />
     ))}
   </span>
 );

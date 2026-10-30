@@ -96,7 +96,7 @@ export const MissionCoinStop: React.FC<StopProps> = ({ stop, mapHeight, theme, g
         {status === 'locked' && <LockBadge className="-bottom-1 -right-1" />}
         {status === 'pro' && <ProBadge className="-bottom-1 -right-1" />}
       </button>
-      <div className="absolute top-full mt-1.5 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none">
+      <div className="absolute top-full mt-1.5 left-1/2 -translate-x-1/2 w-max flex flex-col items-center pointer-events-none">
         {status === 'done' ? (
           <span className={`px-1.5 py-0.5 rounded-full ${style.stopLabelClass}`}>
             <StarRow stars={stars} />
@@ -196,7 +196,7 @@ export const BossCastleStop: React.FC<StopProps> = ({ stop, mapHeight, theme, ge
           </span>
         )}
       </button>
-      <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none">
+      <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 w-max whitespace-nowrap pointer-events-none">
         {status === 'done' ? (
           <span className={`flex px-1.5 py-0.5 rounded-full ${style.stopLabelClass}`}>
             <StarRow stars={stars} />

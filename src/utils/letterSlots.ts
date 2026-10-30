@@ -51,6 +51,14 @@ export const dropLetter = (slots: LetterSlots, count: number, idx: number, pos: 
 export const isEverySlotFilled = (slots: LetterSlots, count: number): boolean =>
   toSlots(slots, count).every((placed) => placed !== null);
 
+/** Splits tiles into evenly sized rows of at most `maxPerRow`, so no single tile is left alone on a line. */
+export const splitIntoBalancedRows = <T>(items: readonly T[], maxPerRow: number): T[][] => {
+  if (items.length === 0) return [];
+  const rowCount = Math.ceil(items.length / maxPerRow);
+  const perRow = Math.ceil(items.length / rowCount);
+  return Array.from({ length: rowCount }, (_, row) => items.slice(row * perRow, (row + 1) * perRow));
+};
+
 /** The placed letters in slot order. */
 export const spellSlots = (slots: LetterSlots, letterTiles: readonly string[]): string =>
   slots.map((placed) => (placed === null ? '' : letterTiles[placed] ?? '')).join('');

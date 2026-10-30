@@ -2,7 +2,7 @@ import React from 'react';
 import { DndContext } from '@dnd-kit/core';
 import { RotateCcw } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
-import { isEverySlotFilled, placeLetter, takeBackLetter, toSlots } from '../../utils/letterSlots';
+import { isEverySlotFilled, placeLetter, splitIntoBalancedRows, takeBackLetter, toSlots } from '../../utils/letterSlots';
 import { playSfx } from '../../utils/sfx';
 import { useSpeechToggle } from '../../hooks/useSpeech';
 import { getLetterNameSpeech } from '../../data/alphabet';
@@ -37,6 +37,8 @@ interface SpellingMagnetDrillProps {
 }
 
 const SPELLED_CHAR = /[A-Za-z0-9]/;
+/** Six w-11 tiles with their gaps fit a 360px phone; more are split into even rows */
+const MAX_TILES_PER_ROW = 6;
 const SLOT_CLASS = 'w-9 h-11 rounded-xl flex transition-shadow';
 const OPEN_SLOT_CLASS = 'border-2 border-dashed border-purple-400/50 bg-black/5 dark:bg-white/5';
 const SLOT_OVER_CLASS = 'ring-2 ring-purple-400/80';
@@ -65,6 +67,10 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
   };
   const slotCount = letterTiles.length;
   const filledSlots = toSlots(slots, slotCount);
+  const tileRows = splitIntoBalancedRows(
+    letterTiles.map((letter, idx) => ({ letter, idx })),
+    MAX_TILES_PER_ROW
+  );
   const drag = useLetterSlotDrag({
     slots: filledSlots,
     slotCount,
@@ -160,36 +166,40 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
         <MagnetDropZone
           id={MAGNET_BANK_ID}
           aria-label="האותיות"
-          className="flex flex-wrap items-center justify-center gap-2 rounded-2xl transition-shadow"
+          className="flex flex-col items-center gap-2 rounded-2xl transition-shadow"
           overClassName={ZONE_OVER_CLASS}
           dir="ltr"
           lang="en"
         >
-          {letterTiles.map((letter, idx) =>
-            filledSlots.includes(idx) ? (
-              <button
-                key={`tile-${idx}-${letter}`}
-                type="button"
-                disabled
-                aria-label={`letter ${letter}`}
-                className="w-11 h-11 rounded-xl text-lg font-extrabold transition-all opacity-30 scale-95 cursor-not-allowed bg-slate-400/20"
-              >
-                {letter}
-              </button>
-            ) : (
-              <DraggableMagnet
-                key={`tile-${idx}-${letter}`}
-                idx={idx}
-                isDragDisabled={isCompleted}
-                disabled={isCompleted}
-                onClick={() => handleTapBank(idx)}
-                aria-label={`letter ${letter}`}
-                className={`w-11 h-11 rounded-xl text-lg font-extrabold transition-all ${theme.secondaryBtnClass}`}
-              >
-                {letter}
-              </DraggableMagnet>
-            )
-          )}
+          {tileRows.map((row, rowIdx) => (
+            <div key={`row-${rowIdx}`} className="flex items-center justify-center gap-2">
+              {row.map(({ letter, idx }) =>
+                filledSlots.includes(idx) ? (
+                  <button
+                    key={`tile-${idx}-${letter}`}
+                    type="button"
+                    disabled
+                    aria-label={`letter ${letter}`}
+                    className="w-11 h-11 rounded-xl text-lg font-extrabold transition-all opacity-30 scale-95 cursor-not-allowed bg-slate-400/20"
+                  >
+                    {letter}
+                  </button>
+                ) : (
+                  <DraggableMagnet
+                    key={`tile-${idx}-${letter}`}
+                    idx={idx}
+                    isDragDisabled={isCompleted}
+                    disabled={isCompleted}
+                    onClick={() => handleTapBank(idx)}
+                    aria-label={`letter ${letter}`}
+                    className={`w-11 h-11 rounded-xl text-lg font-extrabold transition-all ${theme.secondaryBtnClass}`}
+                  >
+                    {letter}
+                  </DraggableMagnet>
+                )
+              )}
+            </div>
+          ))}
         </MagnetDropZone>
 
         <MagnetDragOverlay>

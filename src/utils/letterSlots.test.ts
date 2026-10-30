@@ -5,10 +5,31 @@ import {
   isEverySlotFilled,
   placeLetter,
   spellSlots,
+  splitIntoBalancedRows,
   takeBackLetter,
   toSlotId,
   toSlots,
 } from './letterSlots';
+
+describe('splitIntoBalancedRows', () => {
+  it('keeps a short list on one row', () => {
+    expect(splitIntoBalancedRows(['a'], 6)).toEqual([['a']]);
+    expect(splitIntoBalancedRows([1, 2, 3, 4, 5, 6], 6)).toEqual([[1, 2, 3, 4, 5, 6]]);
+  });
+
+  it('splits 7 into 4 + 3 rather than 6 + 1', () => {
+    expect(splitIntoBalancedRows([1, 2, 3, 4, 5, 6, 7], 6)).toEqual([[1, 2, 3, 4], [5, 6, 7]]);
+  });
+
+  it('spreads a long list over as few even rows as needed', () => {
+    const rows = splitIntoBalancedRows(Array.from({ length: 13 }, (_, i) => i), 6);
+    expect(rows.map((row) => row.length)).toEqual([5, 5, 3]);
+  });
+
+  it('returns no rows for an empty list', () => {
+    expect(splitIntoBalancedRows([], 6)).toEqual([]);
+  });
+});
 
 describe('toSlots', () => {
   it('pads an empty or short list with empty slots', () => {
