@@ -25,6 +25,7 @@ art-src/
 .tts-gemini-batches.json
 .art-gemini-theme-batches.json
 .art-gemini-mission-batches.json
+.art-gemini-room-batches.json
 
 # Playwright (npm run test:e2e)
 playwright-report/

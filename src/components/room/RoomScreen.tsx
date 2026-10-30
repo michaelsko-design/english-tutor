@@ -15,7 +15,7 @@ import {
   isObjectKey,
   moveRoomEntry,
   placeNamedRoomItemAt,
-  toggleRoomItemFlip,
+  turnRoomItem,
 } from '../../data/roomPlacement';
 import { getAlbumStickers } from '../../data/stickers';
 import { useStickerImages } from '../../hooks/useStickerImages';
@@ -170,9 +170,9 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     setMoveRequestKey(key);
   };
 
-  /** The turn button: the big item faces the other wall (its picture mirrors). */
+  /** The turn button: the big item moves to the other wall and shows that wall's picture. */
   const handleRotate = (key: string) => {
-    onUpdateProfile(toggleRoomItemFlip(profile, key, new Date()));
+    onUpdateProfile(turnRoomItem(profile, key, new Date()));
     setBubble(null);
   };
 

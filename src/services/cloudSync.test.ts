@@ -611,17 +611,6 @@ describe('mergeLearnerProfiles room positions', () => {
     expect(mergeLearnerProfiles({ ...baseProfile, room: newer }, { room: older }).room?.positions).toEqual(newer.positions);
   });
 
-  it('keeps the turned items of the newer layout, not a mix of both', () => {
-    const turned = { ...room({ 'room-sofa': { x: 20, y: 80 } }, '2026-10-02T00:00:00.000Z'), flips: { 'room-sofa': true as const } };
-    const plain = room({ 'room-sofa': { x: 70, y: 85 } }, '2026-10-01T00:00:00.000Z');
-    // The newer layout has the sofa turned: it wins in either order
-    expect(mergeLearnerProfiles({ ...baseProfile, room: plain }, { room: turned }).room?.flips).toEqual({ 'room-sofa': true });
-    expect(mergeLearnerProfiles({ ...baseProfile, room: turned }, { room: plain }).room?.flips).toEqual({ 'room-sofa': true });
-    // The newer layout has it turned back: the older turn does not come back
-    const turnedBack = { ...plain, updatedAt: '2026-10-03T00:00:00.000Z' };
-    expect(mergeLearnerProfiles({ ...baseProfile, room: turned }, { room: turnedBack }).room?.flips).toBeUndefined();
-  });
-
   it('keeps old slot placements without positions as they are', () => {
     const legacy = { placements: { 'floor-left': 'room-plant' }, namedItemIds: [], updatedAt: '2026-10-01T10:00:00.000Z' };
     const merged = mergeLearnerProfiles({ ...baseProfile, room: legacy }, { room: legacy }).room;

@@ -620,12 +620,11 @@ export async function saveProfileToFirestore(
   const batch = writeBatch(db);
   batch.set(docRef, sanitized, { merge: true });
   // A merge keeps keys the profile no longer has, so an item taken out of the room (or moved to a
-  // new placement key) would come back from the cloud. These three maps are written as a whole.
+  // new placement key) would come back from the cloud. These two maps are written as a whole.
   if (sanitized.room) {
     batch.update(docRef, {
       'room.placements': sanitized.room.placements ?? {},
       'room.positions': sanitized.room.positions ?? deleteField(),
-      'room.flips': sanitized.room.flips ?? deleteField(),
     });
   }
   await batch.commit();

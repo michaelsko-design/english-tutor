@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { getRoom } from '../../data/room';
-import { getPlacedRoomEntries, placeRoomItemAt, toggleRoomItemFlip } from '../../data/roomPlacement';
+import { getPlacedRoomEntries, placeRoomItemAt, turnRoomItem } from '../../data/roomPlacement';
 import { makeProfile } from '../../test/fixtures';
 import { AVATAR_HOME } from './roomLayout';
 import { RoomScene } from './RoomScene';
@@ -12,7 +12,7 @@ const profileWithSofa = () =>
   placeRoomItemAt(
     makeProfile({ unlockedRewardIds: ['room-sofa'], room: { ...getRoom(makeProfile()), placements: {} } }),
     'room-sofa',
-    { x: 40, y: 85 },
+    { x: 75, y: 88 },
     NOW
   );
 
@@ -30,21 +30,20 @@ function renderScene(profile: ReturnType<typeof makeProfile>, moveRequestKey: st
   );
 }
 
-/** The element that mirrors the item's picture: the first child of the item button's picture box. */
-function mirrorOf(name: string): HTMLElement | null {
-  const button = screen.getByRole('button', { name });
-  return button.querySelector<HTMLElement>('[style*="scaleX"]');
+/** The picture an item's button shows. */
+function pictureOf(name: string): string | null {
+  return screen.getByRole('button', { name }).querySelector('img')?.getAttribute('src') ?? null;
 }
 
 describe('RoomScene turned items', () => {
-  it('draws a turned sofa mirrored and an untouched one as it is', () => {
+  it('shows the right-wall sofa picture, and the left-wall picture once the sofa is turned to the other wall', () => {
     const profile = profileWithSofa();
     const { unmount } = renderScene(profile);
-    expect(mirrorOf('sofa · ספה')).toBeNull();
+    expect(pictureOf('sofa · ספה')).toBe('/art/room/cozy-studio/room-sofa.webp');
     unmount();
 
-    renderScene(toggleRoomItemFlip(profile, 'room-sofa', NOW));
-    expect(mirrorOf('sofa · ספה')).not.toBeNull();
+    renderScene(turnRoomItem(profile, 'room-sofa', NOW));
+    expect(pictureOf('sofa · ספה')).toBe('/art/room/cozy-studio/room-sofa-b.webp');
   });
 });
 

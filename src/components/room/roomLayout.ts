@@ -1,4 +1,5 @@
 import { RoomSlotKind } from '../../data/room';
+import { RoomSprite, getRoomSprite } from '../../data/roomArt';
 import { LEGACY_GEOMETRY, RoomGeometry, ShelfLine, floorEdgeY } from '../../data/roomGeometry';
 import { ThemeId } from '../../types/learner';
 
@@ -30,6 +31,8 @@ export interface FurniturePiece {
   /** Width in container-width units */
   width: number;
   anchorY: number;
+  /** How far along the picture's width the point is (0-1); the middle unless the body is drawn off-centre */
+  anchorX?: number;
 }
 
 export const FURNITURE_PIECES: FurniturePiece[] = [
@@ -39,38 +42,62 @@ export const FURNITURE_PIECES: FurniturePiece[] = [
   { id: 'board', src: '/art/room/board.webp', x: 80, y: 30, width: 22, anchorY: 0.5 },
 ];
 
-/** The furniture sprites a theme's room shows: placed on the shelf lines, the sill and the board of its geometry. */
-export function getFurniturePieces(geometry: RoomGeometry): FurniturePiece[] {
+/** The furniture a theme's room shows: its own pictures on the shelf lines, the sill and the board of its geometry. */
+export function getFurniturePieces(geometry: RoomGeometry, themeId?: ThemeId): FurniturePiece[] {
   if (geometry.isLegacy) return FURNITURE_PIECES;
-  const shelfSprites: Record<ShelfLine['id'], Pick<FurniturePiece, 'src' | 'anchorY'>> = {
-    'shelf-high': { src: '/art/room/shelf-short.webp', anchorY: 0.25 },
-    'shelf-low': { src: '/art/room/shelf-long.webp', anchorY: 0.25 },
-    'window-sill': { src: '/art/room/sill.webp', anchorY: 0.2 },
-  };
-  const shelves = geometry.shelves.map((shelf) => ({
-    id: shelf.id,
-    ...shelfSprites[shelf.id],
-    x: (shelf.xMin + shelf.xMax) / 2,
-    y: shelf.y,
-    width: (shelf.xMax - shelf.xMin) * SPRITE_WIDTH_OF_SHELF,
-  }));
+  // The room pictures already draw the window ledge items stand on, so no extra sill is drawn over them
+  const shelves = geometry.shelves.filter((shelf) => shelf.id !== 'window-sill').map((shelf) => {
+    const art = ART_IDS[shelf.id];
+    const sprite = getRoomSprite(themeId, art);
+    const span = (shelf.xMax - shelf.xMin) * SPRITE_WIDTH_OF_SHELF;
+    const piece = { id: shelf.id, x: (shelf.xMin + shelf.xMax) / 2, y: shelf.y };
+    if (sprite) return { ...piece, ...fitSprite(sprite, span, SURFACE_FROM_BODY_TOP) };
+    return { ...piece, src: LEGACY_SHELF_SRC[shelf.id], width: span * LEGACY_SPRITE_EXTRA, anchorY: LEGACY_SHELF_ANCHOR[shelf.id] };
+  });
   const { board } = geometry;
+  const boardSprite = getRoomSprite(themeId, ART_IDS.board);
+  const boardSpan = (board.xMax - board.xMin) * SPRITE_WIDTH_OF_BOARD;
+  const boardPiece = { id: 'board', x: (board.xMin + board.xMax) / 2, y: (board.yMin + board.yMax) / 2 };
   return [
     ...shelves,
-    {
-      id: 'board',
-      src: '/art/room/board.webp',
-      x: (board.xMin + board.xMax) / 2,
-      y: (board.yMin + board.yMax) / 2,
-      width: (board.xMax - board.xMin) * SPRITE_WIDTH_OF_BOARD,
-      anchorY: 0.5,
-    },
+    boardSprite
+      ? { ...boardPiece, ...fitSprite(boardSprite, boardSpan, 0.5) }
+      : { ...boardPiece, src: '/art/room/board.webp', width: boardSpan, anchorY: 0.5 },
   ];
 }
 
+/** The picture ids of the furniture, in public/art/room/<theme>/. */
+const ART_IDS = {
+  'shelf-high': 'furniture-shelf-high',
+  'shelf-low': 'furniture-shelf-low',
+  'window-sill': 'furniture-sill',
+  board: 'furniture-board',
+} as const;
+const LEGACY_SHELF_SRC: Record<ShelfLine['id'], string> = {
+  'shelf-high': '/art/room/shelf-short.webp',
+  'shelf-low': '/art/room/shelf-long.webp',
+  'window-sill': '/art/room/sill.webp',
+};
+const LEGACY_SHELF_ANCHOR: Record<ShelfLine['id'], number> = { 'shelf-high': 0.25, 'shelf-low': 0.25, 'window-sill': 0.2 };
+/** The old pictures were drawn wider than the stretch they cover (a fallback only). */
+const LEGACY_SPRITE_EXTRA = 1.13;
+/** The line items stand on is this share of the body's height below its top edge (the middle of a plank's top face). */
+const SURFACE_FROM_BODY_TOP = 0.22;
+
+/** The picture's width so that its body is `bodyWidth` wide, and where the anchor point sits in it. */
+function fitSprite(sprite: RoomSprite, bodyWidth: number, anchorFromBodyTop: number) {
+  const { bounds } = sprite;
+  return {
+    src: sprite.url,
+    width: bodyWidth / (bounds.right - bounds.left),
+    anchorX: (bounds.left + bounds.right) / 2,
+    anchorY: bounds.top + anchorFromBodyTop * (bounds.bottom - bounds.top),
+  };
+}
+
 /** A sprite is drawn a bit wider than the stretch of surface items can stand on. */
-const SPRITE_WIDTH_OF_SHELF = 1.3;
-const SPRITE_WIDTH_OF_BOARD = 1.4;
+const SPRITE_WIDTH_OF_SHELF = 1.15;
+const SPRITE_WIDTH_OF_BOARD = 1.15;
 
 /** Kinds whose items stand on their surface (anchored at their feet); the others hang. */
 export const STANDING_KINDS: RoomSlotKind[] = ['shelf', 'desk', 'floor'];

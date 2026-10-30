@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { RoomSlotKind } from '../../data/room';
+import { getArtId, getDeskShape, getRoomSprite } from '../../data/roomArt';
 import { getRoomGeometry } from '../../data/roomGeometry';
 import {
   DESK_OBJECT_ID,
@@ -64,6 +65,32 @@ function getBounds(item: { emoji: string; imageUrl?: string }, isDesk: boolean):
 }
 
 const CENTERED = 'absolute -translate-x-1/2 -translate-y-1/2';
+/** Items of these kinds hang or stand on a wall: on the left wall their picture (drawn for the right wall) is mirrored. */
+const LEFT_WALL_KINDS: RoomSlotKind[] = ['wall', 'shelf', 'board'];
+
+/**
+ * A themed picture placed so that the body of the object (not the whole picture, which also holds
+ * its baked shadow) is `bodyWidth` wide and its feet (standing) or its middle (hanging) are at `point`.
+ */
+function spriteStyle(
+  point: ScenePoint,
+  bounds: { left: number; right: number; top: number; bottom: number },
+  aspect: number,
+  bodyWidth: number,
+  isStanding: boolean,
+  zIndex: number
+): React.CSSProperties {
+  const pictureWidth = bodyWidth / (bounds.right - bounds.left);
+  const anchorX = (bounds.left + bounds.right) / 2;
+  const anchorY = isStanding ? bounds.bottom : (bounds.top + bounds.bottom) / 2;
+  return {
+    ...at(point),
+    width: `${pictureWidth}cqw`,
+    zIndex,
+    height: `${pictureWidth / aspect}cqw`,
+    transform: `translate(-${anchorX * 100}%, -${anchorY * 100}%)`,
+  };
+}
 const ZONE_TOP_PAD_CQW = 8;
 
 function at(point: ScenePoint): React.CSSProperties {
@@ -94,13 +121,15 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const geometry = getRoomGeometry(themeId);
-  const furniture = getFurniturePieces(geometry);
+  const furniture = getFurniturePieces(geometry, themeId);
+  const deskShape = getDeskShape(themeId);
   const layout = useMemo(
     () => ({
       deskPoint: entries.find((entry) => entry.key === `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`)?.point ?? geometry.defaults.desk,
       geometry,
+      deskShape,
     }),
-    [entries, geometry]
+    [entries, geometry, deskShape]
   );
   const { drag, handlers, startKeyboardMove, getAnnouncement } = useRoomItemDrag({
     sceneRef,
@@ -178,7 +207,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
           style={{
             ...at(piece),
             width: `${piece.width}cqw`,
-            transform: `translate(-50%, -${piece.anchorY * 100}%)`,
+            transform: `translate(-${(piece.anchorX ?? 0.5) * 100}%, -${piece.anchorY * 100}%)`,
             filter: 'drop-shadow(0 0.6cqw 0.5cqw rgba(59, 42, 90, 0.25))',
           }}
           onError={(event) => {
@@ -220,22 +249,41 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
         const isStanding = STANDING_KINDS.includes(kind);
         const size = entry.width * getDepthScale(kind, point.y, geometry);
         const isDesk = entry.key === `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`;
+        // A drawn sticker shows its own picture; the desk has an image URL too but is a themed picture
+        const sprite = entry.item.imageUrl && !isDesk
+          ? null
+          : getRoomSprite(themeId, getArtId(entry.key, entry.item.id), {
+              // follows the item while it is dragged across the corner
+              isOnLeftWall: (LEFT_WALL_KINDS.includes(kind) || entry.canRotate) && point.x < geometry.cornerX,
+              canMirror: LEFT_WALL_KINDS.includes(kind),
+            });
         const baseBounds = getBounds(entry.item, isDesk);
-        // A turned item is mirrored, so its feet and shadow mirror with it
-        const bounds = entry.isFlipped
+        // Without a themed picture the emoji icon mirrors on the left wall, feet and shadow with it
+        const bounds = entry.isOnLeftWall
           ? { ...baseBounds, left: 1 - baseBounds.right, right: 1 - baseBounds.left }
           : baseBounds;
         // The picture's box is bigger than the drawn object: the feet are the object's visible bottom
         const padBottom = (1 - bounds.bottom) * size;
         const footprint = (bounds.right - bounds.left) * size;
-        const style: React.CSSProperties = {
-          ...at(point),
-          width: `${size * 1.25}cqw`,
-          zIndex: isMoving ? 30 : kind === 'desk' ? Math.round(layout.deskPoint.y) + 1 : Math.round(point.y),
-          ...(isDesk ? { width: `${size}cqw` } : {}),
-          transform: isStanding ? `translate(-50%, calc(-100% + ${padBottom}cqw))` : 'translate(-50%, -50%)',
-        };
-        const body = (
+        const zIndex = isMoving ? 30 : kind === 'desk' ? Math.round(layout.deskPoint.y) + 1 : Math.round(point.y);
+        const style: React.CSSProperties = sprite
+          ? spriteStyle(point, sprite.bounds, sprite.aspect, size, isStanding, zIndex)
+          : {
+              ...at(point),
+              width: `${size * 1.25}cqw`,
+              zIndex,
+              ...(isDesk ? { width: `${size}cqw` } : {}),
+              transform: isStanding ? `translate(-50%, calc(-100% + ${padBottom}cqw))` : 'translate(-50%, -50%)',
+            };
+        const body = sprite ? (
+          <img
+            src={sprite.url}
+            alt=""
+            draggable={false}
+            className={`block w-full h-auto motion-safe:transition-transform motion-safe:duration-300 ${isMoving ? 'drop-shadow-lg' : ''}`}
+            style={sprite.isMirrored ? { transform: 'scaleX(-1)' } : undefined}
+          />
+        ) : (
           <>
             {isStanding && (
               <span
@@ -256,7 +304,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
             >
               <span
                 className={`${isDesk ? 'block w-full' : 'inline-flex'} motion-safe:transition-transform motion-safe:duration-300`}
-                style={entry.isFlipped ? { transform: 'scaleX(-1)' } : undefined}
+                style={entry.isOnLeftWall ? { transform: 'scaleX(-1)' } : undefined}
               >
                 {isDesk ? (
                   <img src={entry.item.imageUrl} alt="" draggable={false} className="block w-full h-auto" />

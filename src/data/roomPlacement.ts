@@ -1,5 +1,6 @@
 import { LearnerProfile } from '../types/learner';
-import { LEGACY_GEOMETRY, RoomGeometry, getFixedSurfaces, getRoomGeometry } from './roomGeometry';
+import { DeskShape, LEGACY_DESK_SHAPE, getDeskShape } from './roomArt';
+import { LEGACY_GEOMETRY, RoomGeometry, floorEdgeY, getFixedSurfaces, getRoomGeometry } from './roomGeometry';
 import {
   ROOM_OBJECTS,
   RoomItem,
@@ -8,7 +9,6 @@ import {
   getOwnedRoomItems,
   getRoom,
   getRoomItemFor,
-  pickFlips,
 } from './room';
 
 /**
@@ -46,6 +46,8 @@ export interface RoomSurface {
 export interface RoomLayoutContext {
   deskPoint: ScenePoint;
   geometry: RoomGeometry;
+  /** What the theme's desk picture looks like, which puts the desk top at the right height */
+  deskShape: DeskShape;
 }
 
 export const SCENE_ASPECT = 4 / 3;
@@ -92,9 +94,6 @@ export function getItemWidth(item: Pick<RoomItem, 'id' | 'slotKind'>): number {
   return ITEM_WIDTHS[item.id] ?? KIND_WIDTHS[item.slotKind];
 }
 
-/** The desk picture: its width, its height/width ratio and how far down the picture the top line is. */
-const DESK_ASPECT = 153 / 264;
-const DESK_TOP_ANCHOR = 0.3;
 const DESK_TOP_HALF_WIDTH = 9;
 export const DEFAULT_DESK_POINT: ScenePoint = LEGACY_GEOMETRY.defaults.desk;
 
@@ -109,17 +108,25 @@ export function getDepthScale(kind: RoomSlotKind, y: number, geometry: RoomGeome
 }
 
 /** Scene point of the middle of the desk top, for a desk standing with its feet at `desk`. */
-export function getDeskTopPoint(desk: ScenePoint, geometry: RoomGeometry = LEGACY_GEOMETRY): ScenePoint {
+export function getDeskTopPoint(
+  desk: ScenePoint,
+  geometry: RoomGeometry = LEGACY_GEOMETRY,
+  shape: DeskShape = LEGACY_DESK_SHAPE
+): ScenePoint {
   const width = getItemWidth({ id: 'object:desk', slotKind: 'floor' }) * getDepthScale('floor', desk.y, geometry);
-  const heightPercent = width * DESK_ASPECT * CQW_TO_HEIGHT_PERCENT;
-  return { x: desk.x, y: desk.y - heightPercent * (1 - DESK_TOP_ANCHOR) };
+  const heightPercent = width * shape.heightOverWidth * CQW_TO_HEIGHT_PERCENT;
+  return { x: desk.x, y: desk.y - heightPercent * shape.topAboveFeet };
 }
 
-export const DEFAULT_LAYOUT: RoomLayoutContext = { deskPoint: DEFAULT_DESK_POINT, geometry: LEGACY_GEOMETRY };
+export const DEFAULT_LAYOUT: RoomLayoutContext = {
+  deskPoint: DEFAULT_DESK_POINT,
+  geometry: LEGACY_GEOMETRY,
+  deskShape: LEGACY_DESK_SHAPE,
+};
 
 export function getSurfaces(kind: RoomSlotKind, layout: RoomLayoutContext = DEFAULT_LAYOUT): RoomSurface[] {
   if (kind === 'desk') {
-    const top = getDeskTopPoint(layout.deskPoint, layout.geometry);
+    const top = getDeskTopPoint(layout.deskPoint, layout.geometry, layout.deskShape);
     return [{ id: 'desk-top', kind, xMin: top.x - DESK_TOP_HALF_WIDTH, xMax: top.x + DESK_TOP_HALF_WIDTH, yMin: top.y, yMax: top.y }];
   }
   return fixedSurfacesOf(layout.geometry).filter((surface) => surface.kind === kind);
@@ -143,7 +150,7 @@ export const LEGACY_SLOT_POINTS: Record<string, ScenePoint> = {
 /** Where the mission objects and the desk stand until they are moved (the phone lies on the desk). */
 function getDefaultObjectPoint(objectId: string, layout: RoomLayoutContext): ScenePoint {
   const { defaults } = layout.geometry;
-  const top = getDeskTopPoint(layout.deskPoint, layout.geometry);
+  const top = getDeskTopPoint(layout.deskPoint, layout.geometry, layout.deskShape);
   const points: Record<string, ScenePoint> = {
     bed: defaults.bed,
     wardrobe: defaults.wardrobe,
@@ -328,9 +335,9 @@ export interface PlacedRoomEntry {
   point: ScenePoint;
   /** Width in container-width units, before the depth scale */
   width: number;
-  /** Turned to face the other wall (its picture is mirrored) */
-  isFlipped: boolean;
-  /** Has a front and a side, so facing either wall looks different */
+  /** Stands against the left wall (left of the corner): a big item then shows its left-wall picture */
+  isOnLeftWall: boolean;
+  /** Has a front and a side, and stands against a wall: it can be turned to the other wall */
   canRotate: boolean;
 }
 
@@ -357,7 +364,8 @@ function settle(kinds: KindSpec, point: ScenePoint, layout: RoomLayoutContext, w
 export function getRoomLayout(profile: LearnerProfile): RoomLayoutContext {
   const geometry = getRoomGeometry(profile.themeId);
   const saved = getRoom(profile).positions?.[`${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`];
-  const roomOnly: RoomLayoutContext = { deskPoint: geometry.defaults.desk, geometry };
+  const deskShape = getDeskShape(profile.themeId);
+  const roomOnly: RoomLayoutContext = { deskPoint: geometry.defaults.desk, geometry, deskShape };
   const deskWidth = getItemWidth({ id: `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`, slotKind: 'floor' });
   return { ...roomOnly, deskPoint: saved ? settle('floor', saved, roomOnly, deskWidth) : geometry.defaults.desk };
 }
@@ -366,7 +374,7 @@ export function getRoomLayout(profile: LearnerProfile): RoomLayoutContext {
 export function getPlacedRoomEntries(profile: LearnerProfile): PlacedRoomEntry[] {
   const room = getRoom(profile);
   const layout = getRoomLayout(profile);
-  const flips = room.flips ?? {};
+  const { cornerX } = layout.geometry;
   const items = Object.entries(room.placements).flatMap(([key, itemId]) => {
     const item = getRoomItemFor(profile, itemId);
     const saved = room.positions?.[key] ?? LEGACY_SLOT_POINTS[key];
@@ -374,7 +382,7 @@ export function getPlacedRoomEntries(profile: LearnerProfile): PlacedRoomEntry[]
     const width = getItemWidth(item);
     const canRotate = ROTATABLE_KEYS.has(itemId);
     const point = settle(item.slotKind, saved, layout, width);
-    return [{ key, item, point, width, isFlipped: canRotate && Boolean(flips[key]), canRotate }];
+    return [{ key, item, point, width, isOnLeftWall: canRotate && point.x < cornerX, canRotate }];
   });
   const objects = OBJECT_ITEMS.map((base) => {
     const key = `${OBJECT_KEY_PREFIX}${base.id}`;
@@ -383,25 +391,33 @@ export function getPlacedRoomEntries(profile: LearnerProfile): PlacedRoomEntry[]
     const slotKind = getObjectKindAt(base.id, point, layout);
     const item = slotKind === base.slotKind ? base : { ...base, slotKind };
     const canRotate = ROTATABLE_KEYS.has(key);
-    return { key, item, point, width: getItemWidth({ id: key, slotKind }), isFlipped: canRotate && Boolean(flips[key]), canRotate };
+    return { key, item, point, width: getItemWidth({ id: key, slotKind }), isOnLeftWall: canRotate && point.x < cornerX, canRotate };
   });
   return [...items, ...objects];
 }
 
-/** Turns a big item (sofa, chair, bed, wardrobe, desk) to face the other wall, or back. Others stay as they are. */
-export function toggleRoomItemFlip(profile: LearnerProfile, key: string, now: Date): LearnerProfile {
-  const room = getRoom(profile);
-  const itemId = isObjectKey(key) ? key : room.placements[key];
-  if (!itemId || !ROTATABLE_KEYS.has(itemId)) return profile;
-  const isFlipped = Boolean(room.flips?.[key]);
-  return {
-    ...profile,
-    room: {
-      ...room,
-      flips: isFlipped ? pickFlips(room.flips, (other) => other !== key) : { ...room.flips, [key]: true },
-      updatedAt: now.toISOString(),
-    },
-  };
+/**
+ * Where an item against one wall stands against the other: the same distance along the wall, the same
+ * distance from the baseboard. The walls meet at the corner, so the point is mirrored across it.
+ */
+export function getOtherWallPoint(point: ScenePoint, geometry: RoomGeometry): ScenePoint {
+  if (geometry.isLegacy) return { x: 100 - point.x, y: point.y };
+  const { cornerX } = geometry;
+  const isOnRightWall = point.x >= cornerX;
+  const along = isOnRightWall ? (point.x - cornerX) / (100 - cornerX) : (cornerX - point.x) / cornerX;
+  const x = isOnRightWall ? cornerX - along * cornerX : cornerX + along * (100 - cornerX);
+  return { x, y: floorEdgeY(geometry, x) + (point.y - floorEdgeY(geometry, point.x)) };
+}
+
+/**
+ * Turns a big item (sofa, chair, bed, wardrobe, desk) to the other wall: it moves to the matching spot
+ * against that wall and shows the picture for that wall. An item that is not turned to a wall would
+ * float away from it, so the picture always follows the wall it stands against (see isOnLeftWall).
+ */
+export function turnRoomItem(profile: LearnerProfile, key: string, now: Date): LearnerProfile {
+  const entry = getPlacedRoomEntries(profile).find((candidate) => candidate.key === key);
+  if (!entry?.canRotate) return profile;
+  return moveRoomEntry(profile, key, getOtherWallPoint(entry.point, getRoomLayout(profile).geometry), now);
 }
 
 function occupantsOf(entries: PlacedRoomEntry[], kind: RoomSlotKind, exceptKey: string): Occupant[] {
@@ -435,13 +451,10 @@ export function placeRoomItemAt(
     Object.entries(room.positions ?? {}).filter(([key]) => key in placements || isObjectKey(key))
   );
   const options = { layout: getRoomLayout(profile), width: getItemWidth(item) };
-  // The turn follows the item to its new key (an old slot key becomes the item id)
-  const wasFlipped = placedKeys.some((key) => room.flips?.[key]);
   return {
     ...profile,
     room: {
       ...room,
-      flips: pickFlips(room.flips, (key) => key in placements || isObjectKey(key), wasFlipped ? itemId : undefined),
       placements: { ...placements, [itemId]: itemId },
       positions: { ...positions, [itemId]: findFreePoint(item.slotKind, point, others, options) },
       updatedAt: now.toISOString(),
@@ -475,7 +488,8 @@ export function moveRoomObject(
     .sort((a, b) => distance(a, point) - distance(b, point));
   const room = getRoom(profile);
   // What lies on the desk stays on its top, which moves a little less than the desk's feet (depth scale)
-  const topShiftY = getDeskTopPoint(target, layout.geometry).y - getDeskTopPoint(current.point, layout.geometry).y;
+  const topShiftY = getDeskTopPoint(target, layout.geometry, layout.deskShape).y -
+    getDeskTopPoint(current.point, layout.geometry, layout.deskShape).y;
   const carried =
     objectId === DESK_OBJECT_ID
       ? Object.fromEntries(

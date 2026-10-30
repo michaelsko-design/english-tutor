@@ -11,13 +11,14 @@ import {
   getRoomLayout,
   moveRoomEntry,
   moveRoomObject,
+  getOtherWallPoint,
   getPlacedRoomEntries,
   getSurfaces,
   placeNamedRoomItemAt,
   placeRoomItemAt,
   snapToSurface,
   stepPoint,
-  toggleRoomItemFlip,
+  turnRoomItem,
 } from './roomPlacement';
 import { ROOM_NAMING_XP, ROOM_SLOTS, RoomSlotKind, getUnplacedRoomItems, removeRoomItem } from './room';
 import { LearnerProfile, ThemeId } from '../types/learner';
@@ -93,6 +94,21 @@ describe('themed room geometry', () => {
         );
       });
 
+      it('never lets a wall item hang over the window, the shelves and the board stay clear of it too', () => {
+        const window = geometry.window!;
+        const overlapsWindow = (b: { xMin: number; xMax: number; yMin: number; yMax: number }) =>
+          b.xMax > window.xMin && b.xMin < window.xMax && b.yMax > window.yMin && b.yMin < window.yMax;
+        getSurfaces('wall', layout).forEach((surface) => expect(overlapsWindow(surface), surface.id).toBe(false));
+        expect(overlapsWindow(geometry.board), 'board').toBe(false);
+        geometry.shelves
+          .filter((shelf) => shelf.id !== 'window-sill')
+          .forEach((shelf) => expect(overlapsWindow({ ...shelf, yMin: shelf.y, yMax: shelf.y }), shelf.id).toBe(false));
+        // an item dropped in the middle of the window is put beside it, not on it
+        const middle = { x: (window.xMin + window.xMax) / 2, y: (window.yMin + window.yMax) / 2 };
+        const { point } = snapToSurface('wall', middle, { layout, width: 8 });
+        expect(point.x > window.xMin && point.x < window.xMax && point.y > window.yMin && point.y < window.yMax).toBe(false);
+      });
+
       it('never lets floor items stand above the baseboard, wherever they are dropped', () => {
         [0, 12, 30, 50, 70, 88, 100].forEach((x) => {
           [0, 50, 100].forEach((y) => {
@@ -112,7 +128,7 @@ describe('themed room geometry', () => {
         });
         const phone = entries.find((e) => e.key === 'object:phone')!;
         expect(phone.item.slotKind).toBe('desk');
-        expect(phone.point.y).toBeCloseTo(getDeskTopPoint(layout.deskPoint, geometry).y);
+        expect(phone.point.y).toBeCloseTo(getDeskTopPoint(layout.deskPoint, geometry, layout.deskShape).y);
       });
 
       it('makes floor items smaller far back and bigger near the front', () => {
@@ -350,39 +366,72 @@ describe('mission objects and the desk', () => {
     });
   });
 
-  describe('rotating big items', () => {
-    const withSofa = placeRoomItemAt(baseProfile, 'room-sofa', { x: 40, y: 84 }, NOW);
+  describe('turning big items to the other wall', () => {
+    const cozy = { ...baseProfile, themeId: 'cozy-studio' } as LearnerProfile;
+    const { cornerX } = getRoomGeometry('cozy-studio');
+    const sofaOnRightWall = placeRoomItemAt(cozy, 'room-sofa', { x: 75, y: 88 }, NOW);
 
-    it('marks only furniture with a front and a side as rotatable', () => {
+    it('marks only furniture with a front and a side as turnable', () => {
       ['room-sofa', 'object:bed', 'object:wardrobe', 'object:desk'].forEach((key) =>
-        expect(findEntry(key === 'room-sofa' ? withSofa : baseProfile, key)?.canRotate, key).toBe(true)
+        expect(findEntry(key === 'room-sofa' ? sofaOnRightWall : cozy, key)?.canRotate, key).toBe(true)
       );
-      expect(findEntry(baseProfile, 'object:phone')?.canRotate).toBe(false);
-      expect(findEntry(placeRoomItemAt(baseProfile, 'room-books', { x: 17, y: 30 }, NOW), 'room-books')?.canRotate).toBe(false);
+      expect(findEntry(cozy, 'object:phone')?.canRotate).toBe(false);
+      expect(findEntry(placeRoomItemAt(cozy, 'room-books', { x: 70, y: 40 }, NOW), 'room-books')?.canRotate).toBe(false);
     });
 
-    it('turns a rotatable item and turns it back', () => {
-      const turned = toggleRoomItemFlip(withSofa, 'room-sofa', NOW);
-      expect(findEntry(turned, 'room-sofa')?.isFlipped).toBe(true);
-      expect(turned.room?.updatedAt).toBe(NOW.toISOString());
-      expect(findEntry(toggleRoomItemFlip(turned, 'room-sofa', NOW), 'room-sofa')?.isFlipped).toBe(false);
+    it('knows which wall a big item stands against from where it stands', () => {
+      expect(findEntry(sofaOnRightWall, 'room-sofa')?.isOnLeftWall).toBe(false);
+      expect(findEntry(cozy, 'object:bed')?.isOnLeftWall).toBe(true); // the bed stands at the left by default
+      expect(findEntry(cozy, 'object:wardrobe')?.isOnLeftWall).toBe(false);
     });
 
-    it('turns mission objects and the desk too', () => {
-      expect(findEntry(toggleRoomItemFlip(baseProfile, 'object:bed', NOW), 'object:bed')?.isFlipped).toBe(true);
-      expect(findEntry(toggleRoomItemFlip(baseProfile, 'object:desk', NOW), 'object:desk')?.isFlipped).toBe(true);
+    it('moves a turned item to the other wall, so it never floats away from the wall it was against', () => {
+      const turned = findEntry(turnRoomItem(sofaOnRightWall, 'room-sofa', NOW), 'room-sofa')!;
+      expect(turned.isOnLeftWall).toBe(true);
+      expect(turned.point.x).toBeLessThan(cornerX);
+      const back = findEntry(turnRoomItem(turnRoomItem(sofaOnRightWall, 'room-sofa', NOW), 'room-sofa', NOW), 'room-sofa')!;
+      expect(back.isOnLeftWall).toBe(false);
+      expect(back.point.x).toBeGreaterThan(cornerX);
     });
 
-    it('leaves items that cannot rotate, and unknown keys, unchanged', () => {
-      expect(toggleRoomItemFlip(baseProfile, 'object:phone', NOW)).toBe(baseProfile);
-      expect(toggleRoomItemFlip(baseProfile, 'nope', NOW)).toBe(baseProfile);
+    it('keeps a turned item on the floor, below the baseboard', () => {
+      const geometry = getRoomGeometry('cozy-studio');
+      ['room-sofa', 'object:bed', 'object:wardrobe', 'object:desk'].forEach((key) => {
+        const profile = turnRoomItem(key === 'room-sofa' ? sofaOnRightWall : cozy, key, NOW);
+        const entry = findEntry(profile, key)!;
+        expect(entry.point.y, key).toBeGreaterThanOrEqual(floorEdgeY(geometry, entry.point.x));
+        expect(entry.item.slotKind, key).toBe('floor');
+      });
     });
 
-    it('keeps the turn when the item moves and forgets it when the item goes back to the box', () => {
-      const turned = toggleRoomItemFlip(withSofa, 'room-sofa', NOW);
-      expect(findEntry(moveRoomEntry(turned, 'room-sofa', { x: 70, y: 88 }, NOW), 'room-sofa')?.isFlipped).toBe(true);
-      const removed = removeRoomItem(turned, 'room-sofa', NOW);
-      expect(removed.room?.flips ?? {}).not.toHaveProperty('room-sofa');
+    it('turns the desk with what lies on it', () => {
+      const turned = turnRoomItem(cozy, 'object:desk', NOW);
+      const desk = findEntry(turned, 'object:desk')!;
+      expect(desk.isOnLeftWall).toBe(true);
+      const phone = findEntry(turned, 'object:phone')!;
+      expect(phone.item.slotKind).toBe('desk');
+      expect(Math.abs(phone.point.x - desk.point.x)).toBeLessThan(9);
+    });
+
+    it('turns the same way in the original room, across its middle', () => {
+      const profile = placeRoomItemAt(baseProfile, 'room-sofa', { x: 30, y: 85 }, NOW);
+      expect(findEntry(turnRoomItem(profile, 'room-sofa', NOW), 'room-sofa')!.point.x).toBeGreaterThan(50);
+    });
+
+    it('leaves items that cannot turn, and unknown keys, unchanged', () => {
+      expect(turnRoomItem(cozy, 'object:phone', NOW)).toBe(cozy);
+      expect(turnRoomItem(cozy, 'nope', NOW)).toBe(cozy);
+    });
+
+    it('maps a point to the matching point on the other wall, and back', () => {
+      const geometry = getRoomGeometry('neon-pop');
+      const point = { x: 80, y: 90 };
+      const other = getOtherWallPoint(point, geometry);
+      expect(other.x).toBeLessThan(geometry.cornerX);
+      expect(other.y - floorEdgeY(geometry, other.x)).toBeCloseTo(point.y - floorEdgeY(geometry, point.x));
+      const back = getOtherWallPoint(other, geometry);
+      expect(back.x).toBeCloseTo(point.x);
+      expect(back.y).toBeCloseTo(point.y);
     });
   });
 

@@ -36,7 +36,10 @@ export interface RoomGeometry {
   floorMaxY: number;
   floorXMin: number;
   floorXMax: number;
-  wallLeft: Box;
+  /** The window with its curtains: nothing hangs over it (the left wall is mostly window) */
+  window?: Box;
+  /** Where wall items hang on the left wall, beside the window; none when the window leaves no room */
+  wallLeft: Box | null;
   wallRight: Box;
   board: Box;
   shelves: ShelfLine[];
@@ -66,7 +69,7 @@ export const FLOOR_EDGE_CLEARANCE = 1.5;
 export function getFixedSurfaces(geometry: RoomGeometry): RoomSurface[] {
   const { wallLeft, wallRight, board } = geometry;
   return [
-    { id: 'wall-left', kind: 'wall', ...wallLeft },
+    ...(wallLeft ? [{ id: 'wall-left', kind: 'wall' as const, ...wallLeft }] : []),
     { id: 'wall-right', kind: 'wall', ...wallRight },
     { id: 'board', kind: 'board', ...board },
     ...geometry.shelves.map((shelf) => ({
@@ -120,6 +123,8 @@ export const LEGACY_GEOMETRY: RoomGeometry = {
 
 interface CornerRoom {
   cornerX: number;
+  /** The window with its curtains, as drawn in the room picture */
+  window: Box;
   /** Baseboard y at the left edge, at the corner and at the right edge */
   edge: [number, number, number];
   /** The window sill line under the window */
@@ -127,13 +132,24 @@ interface CornerRoom {
 }
 
 const FLOOR_MAX_Y = 94;
+/** A hanging item is about this wide: its centre stays this far from the window's edge. */
+const WALL_ITEM_CLEARANCE = 5;
+const WALL_LEFT_X_MIN = 3;
+/** Narrower than this and the strip beside the window is no place to hang anything. */
+const WALL_LEFT_MIN_SPAN = 3;
+
+/** The strip of the left wall beside the window where wall items can hang, or null when there is none. */
+function getWallLeft(window: Box): Box | null {
+  const xMax = window.xMin - WALL_ITEM_CLEARANCE;
+  return xMax - WALL_LEFT_X_MIN >= WALL_LEFT_MIN_SPAN ? { xMin: WALL_LEFT_X_MIN, xMax, yMin: 10, yMax: 30 } : null;
+}
 const FLOOR_MARGIN_X = 6;
 
 /**
  * A corner room: shelves, the board and a hanging zone on the plain right wall, a hanging zone on
  * the left wall, the sill under the window, big furniture standing along the walls.
  */
-function cornerRoom({ cornerX, edge: [yLeft, yCorner, yRight], sill }: CornerRoom): RoomGeometry {
+function cornerRoom({ cornerX, window, edge: [yLeft, yCorner, yRight], sill }: CornerRoom): RoomGeometry {
   const floorEdge = [
     { x: 0, y: yLeft },
     { x: cornerX, y: yCorner },
@@ -151,7 +167,8 @@ function cornerRoom({ cornerX, edge: [yLeft, yCorner, yRight], sill }: CornerRoo
     floorMaxY: FLOOR_MAX_Y,
     floorXMin: FLOOR_MARGIN_X,
     floorXMax: 100 - FLOOR_MARGIN_X,
-    wallLeft: { xMin: 3, xMax: cornerX - 6, yMin: 10, yMax: 30 },
+    window,
+    wallLeft: getWallLeft(window),
     wallRight: { ...shelfX, yMin: 8, yMax: 20 },
     board: { xMin: cornerX + 26, xMax: 95, yMin: 16, yMax: 30 },
     shelves: [
@@ -170,12 +187,12 @@ function cornerRoom({ cornerX, edge: [yLeft, yCorner, yRight], sill }: CornerRoo
 }
 
 const ROOM_GEOMETRY: Record<ThemeId, RoomGeometry> = {
-  'cozy-studio': cornerRoom({ cornerX: 57.5, edge: [72, 68, 73], sill: { xMin: 22, xMax: 46, y: 62.5 } }),
-  'neon-pop': cornerRoom({ cornerX: 57.5, edge: [88, 64, 82], sill: { xMin: 14, xMax: 38, y: 61 } }),
-  'starlight-rpg': cornerRoom({ cornerX: 60, edge: [64, 68, 69], sill: { xMin: 22, xMax: 43, y: 58 } }),
-  'focus-desk': cornerRoom({ cornerX: 57, edge: [92, 64.5, 71], sill: { xMin: 16, xMax: 44, y: 66 } }),
-  'urban-night': cornerRoom({ cornerX: 57.5, edge: [86.5, 63.5, 69], sill: { xMin: 14, xMax: 44, y: 63 } }),
-  'travel-journal': cornerRoom({ cornerX: 55.5, edge: [66, 63.5, 71], sill: { xMin: 25, xMax: 47, y: 56 } }),
+  'cozy-studio': cornerRoom({ cornerX: 57.5, window: { xMin: 12, xMax: 50, yMin: 10, yMax: 63 }, edge: [72, 68, 73], sill: { xMin: 22, xMax: 46, y: 62.5 } }),
+  'neon-pop': cornerRoom({ cornerX: 57.5, window: { xMin: 12, xMax: 45, yMin: 10, yMax: 66 }, edge: [88, 64, 82], sill: { xMin: 14, xMax: 38, y: 61 } }),
+  'starlight-rpg': cornerRoom({ cornerX: 60, window: { xMin: 14, xMax: 46, yMin: 8, yMax: 72 }, edge: [64, 68, 69], sill: { xMin: 22, xMax: 43, y: 58 } }),
+  'focus-desk': cornerRoom({ cornerX: 57, window: { xMin: 10, xMax: 52, yMin: 6, yMax: 71 }, edge: [92, 64.5, 71], sill: { xMin: 16, xMax: 44, y: 66 } }),
+  'urban-night': cornerRoom({ cornerX: 57.5, window: { xMin: 10, xMax: 49, yMin: 4, yMax: 66 }, edge: [86.5, 63.5, 69], sill: { xMin: 14, xMax: 44, y: 63 } }),
+  'travel-journal': cornerRoom({ cornerX: 55.5, window: { xMin: 8, xMax: 50, yMin: 2, yMax: 66 }, edge: [66, 63.5, 71], sill: { xMin: 25, xMax: 47, y: 56 } }),
 };
 
 /** The room of a theme; the original room for a missing or unknown theme. */
