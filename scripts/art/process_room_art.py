@@ -81,6 +81,8 @@ FRONT_PICKS = {
     'cozy-studio/room-chair': 3,
     'neon-pop/room-sofa': 2,
     'neon-pop/room-chair': 1,
+    'focus-desk/room-sofa': 3,
+    'focus-desk/room-chair': 2,
 }
 SHADOW_SQUASH = 0.22  # the shadow's height as a share of the object's (light from high up on the left)
 SHADOW_LEAN = 0.55  # pixels to the right per pixel of the object's height
