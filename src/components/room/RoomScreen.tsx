@@ -33,7 +33,7 @@ import { StickerStudioPanel } from './stickers/StickerStudioPanel';
 import { StickersLockedSheet } from './StickersLockedSheet';
 import { PhonePanel } from './PhonePanel';
 import { WardrobePanel } from './WardrobePanel';
-import { getRoomGeometry } from '../../data/roomGeometry';
+import { FixedFurniture, getRoomGeometry } from '../../data/roomGeometry';
 import { STANDING_KINDS, ScenePoint, getStandingPoint } from './roomLayout';
 import { formatVibeGain } from '../../utils/bidi';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
@@ -110,9 +110,9 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     if (activePanel) panelRef.current?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
   }, [activePanel]);
 
-  /** Moves the avatar next to `target`, then runs `onArrive` once it gets there. */
-  const walkTo = (target: ScenePoint, onArrive: () => void) => {
-    const standAt = getStandingPoint(target, geometry);
+  /** Moves the avatar next to `target` (or onto it, when it is a spot to stand on), then runs `onArrive` once it gets there. */
+  const walkTo = (target: ScenePoint, onArrive: () => void, isStandingSpot = false) => {
+    const standAt = isStandingSpot ? target : getStandingPoint(target, geometry);
     window.clearTimeout(walkTimer.current);
     setBubble(null);
     setIsFacingLeft(standAt.x < avatarPos.x);
@@ -192,12 +192,12 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     return entries.find((entry) => entry.key === key)?.canRotate ? key : null;
   };
 
-  const handleTapObject = (objectId: string, point: ScenePoint, bubbleAt: ScenePoint = point) => {
+  const handleTapObject = (objectId: string, point: ScenePoint, bubbleAt: ScenePoint = point, isStandingSpot = false) => {
     const object = ROOM_OBJECTS.find((o) => o.id === objectId);
     if (!object) {
       setSelectedItemId(null);
       setFocusedKey(getObjectFocusKey(objectId));
-      walkTo(point, () => setBubble({ at: bubbleAt, textEn: 'desk', textHe: 'שולחן' }));
+      walkTo(point, () => setBubble({ at: bubbleAt, textEn: 'desk', textHe: 'שולחן' }), isStandingSpot);
       return;
     }
     setSelectedItemId(null);
@@ -212,9 +212,12 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
         return;
       }
       onSpeakEnglish(object.nameEn, 0.9);
-      setBubble({ at: point, textEn: object.nameEn, textHe: `בקרוב: ${object.activityHe}` });
-    });
+      setBubble({ at: bubbleAt, textEn: object.nameEn, textHe: `בקרוב: ${object.activityHe}` });
+    }, isStandingSpot);
   };
+
+  /** Furniture drawn into the room picture: the avatar walks to its spot in front of it. */
+  const handleTapFixed = (piece: FixedFurniture) => handleTapObject(piece.id, piece.standAt, piece.bubbleAt, true);
 
   const handleNamed = () => {
     if (!naming) return;
@@ -292,6 +295,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
           onTapEntry={naming ? () => undefined : handleTapEntry}
           onMoveEntry={handleMoveEntry}
           onMoveRequestHandled={() => setMoveRequestKey(null)}
+          onTapFixed={naming ? () => undefined : handleTapFixed}
         />
 
         {statusText && (

@@ -14,6 +14,8 @@
  *        node scripts/art/renderRoomArt.mjs collect
  *        node scripts/art/renderRoomArt.mjs flat [theme|key ...|pilot] [--yes] (big furniture at the rooms' camera,
  *                                                                          each theme's room picture sent as a reference)
+ *        node scripts/art/renderRoomArt.mjs front [theme|key ...] [--yes] (takes of the front-facing sofa and armchair for
+ *                                                                          a room with its furniture drawn in)
  *        node scripts/art/renderRoomArt.mjs jobs                          (JSON for process_room_art.py)
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -30,6 +32,7 @@ import {
   THEME_IDS,
   allJobs,
   flatFurnitureJobs,
+  frontFurnitureJobs,
 } from './roomArtSpec.mjs';
 
 const MODEL = 'gemini-3.1-flash-image';
@@ -43,8 +46,9 @@ const NO_TEXT =
 
 const jobs = allJobs();
 const flatJobs = flatFurnitureJobs();
+const frontJobs = frontFurnitureJobs();
 /** Every picture a stored sheet can name, for collecting a batch. */
-const knownJobs = [...jobs, ...flatJobs];
+const knownJobs = [...jobs, ...flatJobs, ...frontJobs];
 
 function jobsOfTheme(theme) {
   return jobs.filter((job) => job.key.startsWith(`${theme}/`));
@@ -65,12 +69,15 @@ function selectJobs(names, from = jobs) {
   });
 }
 
-/** The themes' room pictures sent along with a sheet of flat furniture, so it is drawn with the rooms' camera. */
+/**
+ * The themes' room pictures sent along with a sheet of furniture, so it is drawn with the rooms' camera:
+ * the empty corner room, or the room with its furniture drawn in for the front-facing pieces.
+ */
 function referenceParts(sheet) {
-  const themes = [...new Set(sheet.cells.map((cell) => cell.job.theme).filter(Boolean))];
-  return themes.flatMap((theme, index) => [
-    { text: `Reference picture ${index === 0 ? 'one' : 'two'}: the empty ${theme} room, seen with the camera its furniture must be drawn with. Do not draw this room; it only shows the camera.` },
-    { inlineData: { mimeType: 'image/webp', data: readFileSync(join(process.cwd(), 'public', 'art', theme, 'room-corner.webp')).toString('base64') } },
+  const rooms = [...new Map(sheet.cells.filter((cell) => cell.job.theme).map(({ job }) => [job.theme, job.referencePicture ?? 'room-corner.webp'])).entries()];
+  return rooms.flatMap(([theme, picture], index) => [
+    { text: `Reference picture ${index === 0 ? 'one' : 'two'}: the ${theme} room, seen with the camera its furniture must be drawn with. Do not draw this room; it only shows the camera and the style.` },
+    { inlineData: { mimeType: 'image/webp', data: readFileSync(join(process.cwd(), 'public', 'art', theme, picture)).toString('base64') } },
   ]);
 }
 
@@ -119,9 +126,9 @@ function list(theme) {
 }
 
 function prompts(names) {
-  const isFlat = names[0] === 'flat';
-  const rest = isFlat ? names.slice(1) : names;
-  const sheets = packSheets(selectJobs(rest[0] === 'pilot' ? FLAT_PILOT_KEYS : rest, isFlat ? flatJobs : jobs));
+  const set = { flat: flatJobs, front: frontJobs }[names[0]];
+  const rest = set ? names.slice(1) : names;
+  const sheets = packSheets(selectJobs(rest[0] === 'pilot' ? FLAT_PILOT_KEYS : rest, set ?? jobs));
   console.log(describeSheets(sheets));
   for (const [index, sheet] of sheets.entries()) {
     console.log(`\n--- sheet ${index + 1} (${sheet.columns} x ${sheet.columns}, ${sheetImageSize()}) ---`);
@@ -196,6 +203,7 @@ async function main() {
   if (command === 'calibration') return submit(apiKey, [...CALIBRATION_KEYS, ...args]);
   if (command === 'submit') return submit(apiKey, args);
   if (command === 'flat') return submit(apiKey, args[0] === 'pilot' ? [...FLAT_PILOT_KEYS, ...args.slice(1)] : args, flatJobs);
+  if (command === 'front') return submit(apiKey, args, frontJobs);
   if (command === 'status') return status(apiKey);
   if (command === 'collect') return collect(apiKey);
   console.log(USAGE);

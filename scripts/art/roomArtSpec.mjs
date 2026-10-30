@@ -224,6 +224,43 @@ export function flatFurnitureJobs() {
   );
 }
 
+/**
+ * The sofa and armchair for a room with its furniture drawn in (scripts/art/renderBakedRoom.mjs): they
+ * face the viewer straight on, at the room's own camera, so they never need turning and fit anywhere on
+ * its floor. Several takes of each on one sheet, with the room picture as the reference; the picked
+ * take becomes room-sofa / room-chair (process_room_art.py adds the shadow).
+ */
+export const FRONT_FURNITURE_THEMES = ['starlight-rpg'];
+const FRONT_TAKES = { 'room-sofa': 5, 'room-chair': 4 };
+const TAKE_WORDS = ['first', 'second', 'third', 'fourth', 'fifth'];
+
+const FRONT_VIEW = [
+  'drawn for the room in the reference picture, with exactly its camera: a low camera looking almost straight ahead, NOT from above',
+  'the object stands on the floor facing the viewer straight on: its front is parallel to the picture and its back is toward the back wall of that room, so we see its front and a little of its top, and its sides only a little, in gentle perspective',
+  'its bottom edge is level; its upright edges stay exactly vertical; it stands on its feet on the floor; it is drawn at a size to fit that room and matches the style of the bed, wardrobe and desk in it',
+  ONLY_THE_OBJECT,
+].join('; ');
+
+/** The front-facing sofa and armchair takes: { key, kind, subject, path, theme, referencePicture }. */
+export function frontFurnitureJobs() {
+  return FRONT_FURNITURE_THEMES.flatMap((theme) =>
+    Object.entries(FRONT_TAKES).flatMap(([id, takes]) => {
+      const item = ITEMS.find((candidate) => candidate.id === id);
+      const base = item.overrides?.[theme] ?? item.subject;
+      return Array.from({ length: takes }, (_, index) => ({
+        key: `${theme}/${id}-front-${index + 1}`,
+        kind: 'single',
+        theme,
+        hasShadow: false,
+        referencePicture: 'room-baked.webp',
+        // a word, not a digit: the model letters digits it is given onto the picture
+        subject: `(${theme} theme, ${THEME_LOOKS[theme]}) ${base}, ${FRONT_VIEW}; ${FLAT_NOTE}; the ${TAKE_WORDS[index]} take of it, with its own design, different from the other takes`,
+        path: join(ROOM_ART_DIR, theme, `${id}-front-${index + 1}.png`),
+      }));
+    })
+  );
+}
+
 /** The first sheet: the two rooms whose walls differ most (a nearly level left wall, steep walls), every piece once. */
 export const FLAT_PILOT_KEYS = [
   'cozy-studio/object-bed-flat',

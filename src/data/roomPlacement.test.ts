@@ -7,6 +7,7 @@ import {
   findFreePoint,
   getDepthScale,
   getDeskTopPoint,
+  getFixedFurniture,
   getItemWidth,
   getRoomLayout,
   moveRoomEntry,
@@ -22,7 +23,7 @@ import {
 } from './roomPlacement';
 import { ROOM_NAMING_XP, ROOM_SLOTS, RoomSlotKind, getUnplacedRoomItems, removeRoomItem } from './room';
 import { LearnerProfile, ThemeId } from '../types/learner';
-import { BED_LEGS, floorEdgeY, getRoomGeometry } from './roomGeometry';
+import { BED_LEGS, floorEdgeY, getRoomGeometry, lineYAt } from './roomGeometry';
 import { isInConvexPolygon } from './scenePolygon';
 
 const NOW = new Date('2026-10-17T10:00:00.000Z');
@@ -83,7 +84,10 @@ describe('themed room geometry', () => {
         expect(geometry.cornerX).toBeLessThan(70);
       });
 
-      it('stands the bed, the wardrobe and the desk side by side, never on one another', () => {
+      // A room with its furniture drawn in has no movable bed, wardrobe or desk (see 'a room with its furniture drawn in')
+      const itWithMovableFurniture = geometry.baked ? () => undefined : it;
+
+      itWithMovableFurniture('stands the bed, the wardrobe and the desk side by side, never on one another', () => {
         const entries = getPlacedRoomEntries(themed(themeId));
         const spans = ['object:bed', 'object:wardrobe', 'object:desk'].map((key) => {
           const entry = entries.find((candidate) => candidate.key === key)!;
@@ -133,7 +137,7 @@ describe('themed room geometry', () => {
         });
       });
 
-      it('keeps all the legs of a big piece on the floor, wherever it is dragged: its back legs are higher up than its feet', () => {
+      itWithMovableFurniture('keeps all the legs of a big piece on the floor, wherever it is dragged: its back legs are higher up than its feet', () => {
         const width = getItemWidth({ id: 'object:bed', slotKind: 'floor' });
         (['left', 'right'] as const).forEach((wall) =>
           [10, 25, 40, geometry.cornerX + 10, 85].forEach((x) => {
@@ -163,7 +167,7 @@ describe('themed room geometry', () => {
         expect(shelf.yMin).toBeLessThan(geometry.defaults.desk.y - 40);
       });
 
-      it('puts every default mission object on the floor, the phone on the desk top', () => {
+      itWithMovableFurniture('puts every default mission object on the floor, the phone on the desk top', () => {
         const entries = getPlacedRoomEntries(themed(themeId));
         ['bed', 'wardrobe', 'desk', 'games-book'].forEach((id) => {
           const entry = entries.find((e) => e.key === `object:${id}`)!;
@@ -185,6 +189,87 @@ describe('themed room geometry', () => {
     });
   });
 });
+
+describe('a room with its furniture drawn in', () => {
+  const profile = { ...baseProfile, themeId: 'starlight-rpg' } as LearnerProfile;
+  const geometry = getRoomGeometry('starlight-rpg');
+  const layout = getRoomLayout(profile);
+  const baked = geometry.baked!;
+  const inPicture = (point: { x: number; y: number }) => point.x >= 0 && point.x <= 100 && point.y >= 0 && point.y <= 100;
+  const findEntry = (p: LearnerProfile, key: string) => getPlacedRoomEntries(p).find((e) => e.key === key);
+
+  it('has the bed, the wardrobe and the desk in its picture, each with a tap area, a spot to stand on and a place for its name', () => {
+    expect(getFixedFurniture(geometry).map((piece) => piece.id).sort()).toEqual(['bed', 'desk', 'wardrobe']);
+    getFixedFurniture(geometry).forEach((piece) => {
+      expect(piece.tapArea.length, piece.id).toBeGreaterThanOrEqual(3);
+      piece.tapArea.forEach((point) => expect(inPicture(point), piece.id).toBe(true));
+      // the avatar stands on the free floor, in front of the furniture
+      expect(piece.standAt.y, piece.id).toBeGreaterThan(lineYAt(baked.freeFloorEdge, piece.standAt.x));
+      expect(piece.bubbleAt.y, piece.id).toBeLessThan(piece.standAt.y);
+    });
+    expect(getFixedFurniture(getRoomGeometry('travel-journal'))).toEqual([]);
+  });
+
+  it('has no movable bed, wardrobe or desk, and no big piece can be turned', () => {
+    const withSofa = placeRoomItemAt(profile, 'room-sofa', { x: 50, y: 90 }, NOW);
+    const entries = getPlacedRoomEntries(withSofa);
+    ['object:bed', 'object:wardrobe', 'object:desk'].forEach((key) => expect(entries.find((e) => e.key === key), key).toBeUndefined());
+    expect(entries.every((entry) => !entry.canRotate)).toBe(true);
+    expect(turnRoomItem(withSofa, 'room-sofa', NOW)).toBe(withSofa);
+    expect(moveRoomObject(profile, 'bed', { x: 50, y: 90 }, NOW)).toBe(profile);
+  });
+
+  it('keeps floor items in front of the furniture, wherever they are dropped', () => {
+    [0, 15, 30, 47, 66, 80, 95, 100].forEach((x) =>
+      [0, 60, 100].forEach((y) => {
+        const { point } = snapToSurface('floor', { x, y }, { layout, width: 8 });
+        expect(point.y, `${x},${y}`).toBeGreaterThan(lineYAt(baked.freeFloorEdge, point.x));
+      })
+    );
+  });
+
+  it('keeps a wide item clear of the furniture all along its width, so the sofa never stands in the gap between the bed and the desk', () => {
+    const width = getItemWidth({ id: 'room-sofa', slotKind: 'floor' });
+    const { point } = snapToSurface('floor', { x: 67, y: 72 }, { layout, width });
+    [-0.4, 0, 0.4].forEach((share) => {
+      const x = point.x + share * width;
+      expect(point.y, `x ${x}`).toBeGreaterThan(lineYAt(baked.freeFloorEdge, x));
+    });
+  });
+
+  it('lets small things stand on the drawn desk top, and a book let go over the desk lands on it', () => {
+    expect(isConvex(baked.deskTop)).toBe(true);
+    const [deskTop] = getSurfaces('desk', layout);
+    expect(deskTop.outline).toEqual(baked.deskTop);
+    const phone = findEntry(profile, 'object:phone')!;
+    expect(phone.item.slotKind).toBe('desk');
+    expect(isInConvexPolygon(baked.deskTop, phone.point)).toBe(true);
+    const overDesk = { x: (deskTop.xMin + deskTop.xMax) / 2, y: deskTop.yMin - 2 };
+    const book = findEntry(moveRoomObject(profile, 'games-book', overDesk, NOW), 'object:games-book')!;
+    expect(book.item.slotKind).toBe('desk');
+    expect(isInConvexPolygon(baked.deskTop, book.point)).toBe(true);
+  });
+
+  it('keeps shelf items on the drawn shelves, along each shelf as it is drawn', () => {
+    const shelves = getSurfaces('shelf', layout);
+    geometry.shelves.forEach((line) => {
+      const surface = shelves.find((candidate) => candidate.id === line.id)!;
+      expect(surface.tilt ?? 0, line.id).toBe(line.tilt ?? 0);
+      const { point } = snapToSurface('shelf', { x: line.xMax, y: line.y - 5 }, { layout, width: 6 });
+      expect(point.x).toBeLessThanOrEqual(line.xMax);
+    });
+  });
+});
+
+/** Whether the corners, listed in order, turn the same way all round. */
+function isConvex(corners: { x: number; y: number }[]): boolean {
+  const turns = corners.map((a, i) => {
+    const b = corners[(i + 1) % corners.length];
+    const c = corners[(i + 2) % corners.length];
+    return Math.sign((b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x));
+  });
+  return turns.every((turn) => turn === turns[0]);
+}
 
 describe('snapToSurface', () => {
   it('puts a point dropped above a shelf onto the shelf line', () => {
@@ -477,7 +562,7 @@ describe('mission objects and the desk', () => {
   });
 
   it('puts the book on the desk top when it is let go anywhere over the desk, even nearer the floor behind it', () => {
-    const profile = { ...baseProfile, themeId: 'starlight-rpg' } as LearnerProfile;
+    const profile = { ...baseProfile, themeId: 'travel-journal' } as LearnerProfile;
     const layout = getRoomLayout(profile);
     const top = getDeskTopPoint(layout.deskPoint, layout.geometry, layout.deskShape);
     // over the back corner of the desk top, close to the baseboard behind the desk
@@ -501,7 +586,7 @@ describe('mission objects and the desk', () => {
   });
 
   it('outlines the drop zone on the desk as the drawn desk top, turned the way the desk is turned', () => {
-    const profile = { ...baseProfile, themeId: 'starlight-rpg' } as LearnerProfile;
+    const profile = { ...baseProfile, themeId: 'travel-journal' } as LearnerProfile;
     const outlineOf = (p: LearnerProfile) => getSurfaces('desk', getRoomLayout(p))[0].outline!;
     const facingRight = outlineOf(profile);
     const turned = turnRoomItem(profile, 'object:desk', NOW);
@@ -511,7 +596,7 @@ describe('mission objects and the desk', () => {
     // the back corner of the top is toward the corner: left of the middle against the right wall, right of it when turned
     expect(facingRight[1].x).toBeLessThan(getRoomLayout(profile).deskPoint.x);
     expect(facingLeft[1].x).toBeGreaterThan(deskX);
-    const top = getDeskTopPoint(getRoomLayout(turned).deskPoint, getRoomGeometry('starlight-rpg'), getRoomLayout(turned).deskShape);
+    const top = getDeskTopPoint(getRoomLayout(turned).deskPoint, getRoomGeometry('travel-journal'), getRoomLayout(turned).deskShape);
     expect(Math.min(...facingLeft.map((c) => c.y))).toBeLessThan(top.y);
     expect(Math.max(...facingLeft.map((c) => c.y))).toBeGreaterThan(top.y);
   });

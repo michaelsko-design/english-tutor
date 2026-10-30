@@ -1,6 +1,6 @@
 import { RoomSlotKind } from '../../data/room';
 import { RoomSprite, getRoomSprite } from '../../data/roomArt';
-import { LEGACY_GEOMETRY, RoomGeometry, ShelfLine, floorEdgeY, getWallSlope } from '../../data/roomGeometry';
+import { LEGACY_GEOMETRY, RoomGeometry, ShelfLine, floorEdgeY, getWallSlope, lineYAt } from '../../data/roomGeometry';
 import { ThemeId } from '../../types/learner';
 
 import type { ScenePoint } from '../../data/roomPlacement';
@@ -53,8 +53,9 @@ export const FURNITURE_PIECES: FurniturePiece[] = [
 export function getFurniturePieces(geometry: RoomGeometry, themeId?: ThemeId): FurniturePiece[] {
   if (geometry.isLegacy) return FURNITURE_PIECES;
   const options = { ...WALL_FURNITURE_OPTIONS, wallSlope: getWallSlope(geometry, false) };
-  // The room pictures already draw the window ledge items stand on, so no extra sill is drawn over them
-  const shelves = geometry.shelves.filter((shelf) => shelf.id !== 'window-sill').map((shelf) => {
+  // The room pictures already draw the window ledge items stand on (and drawn-in shelves), so no shelf is drawn over them
+  const drawnShelves = geometry.baked ? [] : geometry.shelves.filter((shelf) => shelf.id !== 'window-sill');
+  const shelves = drawnShelves.map((shelf) => {
     const art = ART_IDS[shelf.id];
     const sprite = getRoomSprite(themeId, art, options);
     const span = (shelf.xMax - shelf.xMin) * SPRITE_WIDTH_OF_SHELF;
@@ -132,7 +133,8 @@ export function getStandingPoint(target: ScenePoint, geometry: RoomGeometry = LE
   const isOnFloor = target.y >= floorEdgeY(geometry, target.x);
   const beside = target.x + (target.x > geometry.cornerX ? -AVATAR_BESIDE_ITEM : AVATAR_BESIDE_ITEM);
   const x = Math.min(92, Math.max(8, isOnFloor ? beside : target.x));
-  const baseboard = floorEdgeY(geometry, x);
+  // With the furniture drawn in, the avatar stands in front of it, never inside the bed or the desk
+  const baseboard = geometry.baked ? lineYAt(geometry.baked.freeFloorEdge, x) : floorEdgeY(geometry, x);
   const wanted = isOnFloor ? target.y : baseboard + AVATAR_BELOW_WALL_ITEM;
   return { x, y: Math.min(geometry.floorMaxY - 2, Math.max(baseboard + AVATAR_FROM_BASEBOARD, wanted)) };
 }

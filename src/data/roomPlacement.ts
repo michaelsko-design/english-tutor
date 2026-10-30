@@ -3,6 +3,7 @@ import { DeskShape, LEGACY_DESK_SHAPE, getArtId, getDeskShape, getRoomSprite } f
 import {
   BED_LEGS,
   Box,
+  FixedFurniture,
   FURNITURE_LEGS,
   FurnitureFootprint,
   FurnitureLeg,
@@ -128,6 +129,9 @@ export function getItemWidth(item: Pick<RoomItem, 'id' | 'slotKind'>): number {
 const DESK_AREA_SHARE = 0.7;
 /** Let go this far down from the desk top towards its feet (share of the way) and an item still lands on the top. */
 const DESK_CATCH_BELOW_TOP = 0.5;
+/** A drawn-in desk: let go this far (scene %) above or below its top and an item still lands on it. */
+const BAKED_DESK_CATCH_ABOVE = 4;
+const BAKED_DESK_CATCH_BELOW = 5;
 export const DEFAULT_DESK_POINT: ScenePoint = LEGACY_GEOMETRY.defaults.desk;
 
 const FLOOR_SCALE_FAR = 0.85;
@@ -161,7 +165,34 @@ export const DEFAULT_LAYOUT: RoomLayoutContext = {
   deskShape: LEGACY_DESK_SHAPE,
 };
 
+/** The desk drawn into the room picture: small things stand anywhere on its drawn top. */
+function getBakedDeskTop(deskTop: ScenePoint[]): RoomSurface {
+  const area = shrinkPolygon(deskTop, DESK_AREA_SHARE);
+  const xs = area.map((corner) => corner.x);
+  const ys = area.map((corner) => corner.y);
+  const topYs = deskTop.map((corner) => corner.y);
+  const topXs = deskTop.map((corner) => corner.x);
+  const catchArea = {
+    xMin: Math.min(...topXs),
+    xMax: Math.max(...topXs),
+    yMin: Math.min(...topYs) - BAKED_DESK_CATCH_ABOVE,
+    yMax: Math.max(...topYs) + BAKED_DESK_CATCH_BELOW,
+  };
+  return {
+    id: 'desk-top',
+    kind: 'desk',
+    xMin: Math.min(...xs),
+    xMax: Math.max(...xs),
+    yMin: Math.min(...ys),
+    yMax: Math.max(...ys),
+    catchArea,
+    outline: deskTop,
+    area,
+  };
+}
+
 export function getSurfaces(kind: RoomSlotKind, layout: RoomLayoutContext = DEFAULT_LAYOUT): RoomSurface[] {
+  if (kind === 'desk' && layout.geometry.baked) return [getBakedDeskTop(layout.geometry.baked.deskTop)];
   if (kind === 'desk') {
     const top = getDeskTopPoint(layout.deskPoint, layout.geometry, layout.deskShape);
     const deskWidth = getDeskWidth(layout.deskPoint, layout.geometry);
@@ -221,8 +252,8 @@ export const LEGACY_SLOT_POINTS: Record<string, ScenePoint> = {
 
 /** Where the mission objects and the desk stand until they are moved (the phone lies on the desk). */
 function getDefaultObjectPoint(objectId: string, layout: RoomLayoutContext): ScenePoint {
-  const { defaults } = layout.geometry;
-  const top = getDeskTopPoint(layout.deskPoint, layout.geometry, layout.deskShape);
+  const { defaults, baked } = layout.geometry;
+  const top = baked ? getPolygonMiddle(baked.deskTop) : getDeskTopPoint(layout.deskPoint, layout.geometry, layout.deskShape);
   const points: Record<string, ScenePoint> = {
     bed: defaults.bed,
     wardrobe: defaults.wardrobe,
@@ -314,9 +345,10 @@ function clampToSurface(surface: RoomSurface, point: ScenePoint, options: Placem
   const edge = surface.kind === 'floor' ? width / 2 + FLOOR_EDGE_MARGIN : surface.tilt !== undefined ? width / 2 : 0;
   const inset = Math.min(edge, (surface.xMax - surface.xMin) / 2);
   const x = Math.min(surface.xMax - inset, Math.max(surface.xMin + inset, point.x));
+  // Any item has a width (a room with drawn-in furniture keeps all of it clear); only big pieces have legs
   const footprint = options.furnitureWall
     ? { width, isOnLeftWall: options.furnitureWall === 'left', legs: options.furnitureLegs, shear: options.furnitureShear }
-    : undefined;
+    : { width, isOnLeftWall: false, legs: [] };
   if (surface.tilt) return { x, y: surface.yMin + (x - (surface.xMin + surface.xMax) / 2) * surface.tilt };
   const yMin = Math.max(surface.yMin, surface.minYAt?.(x, footprint) ?? surface.yMin);
   return { x, y: Math.min(surface.yMax, Math.max(yMin, point.y)) };
@@ -433,6 +465,26 @@ export interface PlacedRoomEntry {
 /** Furniture that can be turned to face the other wall: room items by id, mission objects as `object:<id>`. */
 const ROTATABLE_KEYS = new Set(['room-sofa', 'room-chair', 'object:bed', 'object:wardrobe', 'object:desk']);
 
+/** Mission objects (and the desk) that a room with its furniture drawn in has in its picture. */
+const DRAWN_IN_OBJECT_IDS = new Set<string>(['bed', 'wardrobe', DESK_OBJECT_ID]);
+
+/** Whether the piece can be turned in this room: never in a room with its furniture drawn in (its pieces face the front). */
+function canTurn(key: string, geometry: RoomGeometry): boolean {
+  return ROTATABLE_KEYS.has(key) && !geometry.baked;
+}
+
+/** The bed, wardrobe and desk drawn into the room picture (none when they are movable pictures). */
+export function getFixedFurniture(geometry: RoomGeometry): FixedFurniture[] {
+  return geometry.baked?.pieces ?? [];
+}
+
+function getPolygonMiddle(corners: ScenePoint[]): ScenePoint {
+  return {
+    x: corners.reduce((sum, corner) => sum + corner.x, 0) / corners.length,
+    y: corners.reduce((sum, corner) => sum + corner.y, 0) / corners.length,
+  };
+}
+
 export function isObjectKey(key: string): boolean {
   return key.startsWith(OBJECT_KEY_PREFIX);
 }
@@ -459,7 +511,7 @@ export function getPlacementOptions(
   layout: RoomLayoutContext,
   wall: RoomWall
 ): PlacementOptions & { layout: RoomLayoutContext } {
-  if (!ROTATABLE_KEYS.has(key)) return { layout, width };
+  if (!canTurn(key, layout.geometry)) return { layout, width };
   return {
     layout,
     width,
@@ -511,12 +563,13 @@ export function getPlacedRoomEntries(profile: LearnerProfile): PlacedRoomEntry[]
     const saved = room.positions?.[key] ?? LEGACY_SLOT_POINTS[key];
     if (!item || !saved) return [];
     const width = getItemWidth(item);
-    const canRotate = ROTATABLE_KEYS.has(itemId);
+    const canRotate = canTurn(itemId, geometry);
     const wall = getFacing(room, itemId, saved, geometry);
     const point = settle(item.slotKind, saved, getPlacementOptions(itemId, width, layout, wall));
     return [{ key, item, point, width, isOnLeftWall: canRotate && wall === 'left', canRotate }];
   });
-  const objects = OBJECT_ITEMS.map((base) => {
+  const movableObjects = geometry.baked ? OBJECT_ITEMS.filter((base) => !DRAWN_IN_OBJECT_IDS.has(base.id)) : OBJECT_ITEMS;
+  const objects = movableObjects.map((base) => {
     const key = `${OBJECT_KEY_PREFIX}${base.id}`;
     const saved = base.id === DESK_OBJECT_ID ? layout.deskPoint : room.positions?.[key] ?? getDefaultObjectPoint(base.id, layout);
     const wall = getFacing(room, key, saved, geometry);
@@ -527,7 +580,7 @@ export function getPlacedRoomEntries(profile: LearnerProfile): PlacedRoomEntry[]
     );
     const slotKind = getObjectKindAt(base.id, point, layout);
     const item = slotKind === base.slotKind ? base : { ...base, slotKind };
-    const canRotate = ROTATABLE_KEYS.has(key);
+    const canRotate = canTurn(key, geometry);
     return { key, item, point, width: getItemWidth({ id: key, slotKind }), isOnLeftWall: canRotate && wall === 'left', canRotate };
   });
   return [...items, ...objects];

@@ -69,3 +69,33 @@ describe('RoomScene moving the games book', () => {
     expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(5);
   });
 });
+
+describe('RoomScene with the furniture drawn into the room picture', () => {
+  const starlight = () => makeProfile({ themeId: 'starlight-rpg', room: { ...getRoom(makeProfile()), placements: {} } });
+
+  it('shows tap areas for the drawn bed, wardrobe and desk, and no pictures or move buttons for them', () => {
+    const tapped: string[] = [];
+    render(
+      <RoomScene
+        themeId="starlight-rpg"
+        avatarEmoji="🐶"
+        entries={getPlacedRoomEntries(starlight())}
+        avatarPos={AVATAR_HOME}
+        onTapEntry={() => undefined}
+        onTapFixed={(piece) => tapped.push(piece.id)}
+      />
+    );
+    screen.getByRole('button', { name: 'bed · מיטה' }).click();
+    screen.getByRole('button', { name: 'wardrobe · ארון' }).click();
+    screen.getByRole('button', { name: 'desk · שולחן' }).click();
+    expect(tapped).toEqual(['bed', 'wardrobe', 'desk']);
+    expect(document.querySelectorAll('img[src*="object-bed"], img[src*="object-desk"], img[src*="furniture-shelf"]')).toHaveLength(0);
+  });
+
+  it('draws no tap areas in the preview picture (no handlers)', () => {
+    const { container } = render(
+      <RoomScene themeId="starlight-rpg" avatarEmoji="🐶" entries={getPlacedRoomEntries(starlight())} avatarPos={AVATAR_HOME} />
+    );
+    expect(container.querySelectorAll('[data-fixed]')).toHaveLength(0);
+  });
+});

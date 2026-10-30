@@ -1,7 +1,13 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { RoomSlotKind } from '../../data/room';
 import { RoomSprite, getArtId, getDeskShape, getRoomSprite } from '../../data/roomArt';
-import { FLOOR_EDGE_CLEARANCE, getRoomGeometry, getWallSlope } from '../../data/roomGeometry';
+import {
+  FLOOR_EDGE_CLEARANCE,
+  FixedFurniture,
+  FixedFurnitureId,
+  getRoomGeometry,
+  getWallSlope,
+} from '../../data/roomGeometry';
 import {
   DESK_OBJECT_ID,
   OBJECT_KEY_PREFIX,
@@ -9,6 +15,7 @@ import {
   RoomSurface,
   getDepthScale,
   getEntryMoveKinds,
+  getFixedFurniture,
   getSurfaces,
 } from '../../data/roomPlacement';
 import { WardrobeItem } from '../../data/wardrobe';
@@ -52,7 +59,18 @@ interface RoomSceneProps {
   onTapEntry?: (key: string) => void;
   onMoveEntry?: (key: string, point: ScenePoint) => void;
   onMoveRequestHandled?: () => void;
+  /** A tap on furniture drawn into the room picture (bed, wardrobe, desk) */
+  onTapFixed?: (piece: FixedFurniture) => void;
 }
+
+/** Names of the furniture drawn into the room picture, for its tap buttons. */
+const FIXED_FURNITURE_NAMES: Record<FixedFurnitureId, { en: string; he: string }> = {
+  bed: { en: 'bed', he: 'מיטה' },
+  wardrobe: { en: 'wardrobe', he: 'ארון' },
+  desk: { en: 'desk', he: 'שולחן' },
+};
+/** The tap areas of drawn-in furniture lie over the room picture and under everything placed in the room. */
+const FIXED_TAP_Z_INDEX = 5;
 
 /** A picture drawn to its box edges (the desk), and the padding most icons are drawn with. */
 const FULL_BOUNDS: IconBounds = { left: 0.04, right: 0.96, top: 0, bottom: 1 };
@@ -145,15 +163,16 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
   onTapEntry,
   onMoveEntry,
   onMoveRequestHandled,
+  onTapFixed,
 }) => {
   const palette = SCENE_PALETTES[themeId] || SCENE_PALETTES['cozy-studio'];
   const isInteractive = Boolean(onTapEntry);
-  const roomBgSrc = resolveTheme(themeId).art.roomCorner;
+  const geometry = getRoomGeometry(themeId);
+  const roomBgSrc = geometry.baked?.roomPicture ?? resolveTheme(themeId).art.roomCorner;
   const hasRoomArt = useArtStatus(roomBgSrc) === 'loaded';
   const sceneRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  const geometry = getRoomGeometry(themeId);
   const furniture = getFurniturePieces(geometry, themeId);
   const deskShape = getDeskShape(themeId);
   const layout = useMemo(() => {
@@ -177,6 +196,9 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
     onMoveRequestHandled?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [moveRequestKey]);
+
+  // What lies on a movable desk stands on it, just above its feet; on a drawn-in desk it is stacked like the rest
+  const deskItemZIndex = (point: ScenePoint) => (geometry.baked ? Math.round(point.y) : Math.round(layout.deskPoint.y) + 1);
 
   const dragged = drag ? entries.find((entry) => entry.key === drag.key) : undefined;
   const zoneKinds = placingKind ? [placingKind] : dragged ? getEntryMoveKinds(dragged.key, dragged.item) : [];
@@ -244,6 +266,34 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
         />
       ))}
 
+      {/* Furniture drawn into the room picture: tap areas over it */}
+      {isInteractive &&
+        getFixedFurniture(geometry).map((piece) => {
+          const name = FIXED_FURNITURE_NAMES[piece.id];
+          const points = piece.tapArea.map((point) => `${point.x},${point.y}`).join(' ');
+          return (
+            <button
+              key={piece.id}
+              type="button"
+              data-fixed={piece.id}
+              className="group absolute inset-0 pointer-events-none focus:outline-none"
+              style={{ zIndex: FIXED_TAP_Z_INDEX }}
+              aria-label={`${name.en} · ${name.he}`}
+              onClick={() => onTapFixed?.(piece)}
+            >
+              <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <polygon
+                  points={points}
+                  className="pointer-events-auto cursor-pointer fill-transparent stroke-transparent group-focus-visible:stroke-white"
+                  strokeWidth={4}
+                  strokeDasharray="10 7"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
+            </button>
+          );
+        })}
+
       {/* Drop zones: where the picked or dragged item can go */}
       {zoneSurfaces.map((surface) => {
         const outline = surface.outline ?? getFloorOutline(surface);
@@ -253,7 +303,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
           const zoneStyle: React.CSSProperties = {
             clipPath: `polygon(${outline.map((point) => `${point.x}% ${point.y}%`).join(', ')})`,
             // the desk top is drawn on the desk, with what lies on it on top (same z, later in the scene)
-            zIndex: surface.kind === 'desk' ? Math.round(layout.deskPoint.y) + 1 : ZONE_Z_INDEX,
+            zIndex: surface.kind === 'desk' && !geometry.baked ? Math.round(layout.deskPoint.y) + 1 : ZONE_Z_INDEX,
           };
           const drawing = (
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -334,7 +384,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
         // The picture's box is bigger than the drawn object: the feet are the object's visible bottom
         const padBottom = (1 - bounds.bottom) * size;
         const footprint = (bounds.right - bounds.left) * size;
-        const zIndex = isMoving ? MOVING_Z_INDEX : kind === 'desk' ? Math.round(layout.deskPoint.y) + 1 : Math.round(point.y);
+        const zIndex = isMoving ? MOVING_Z_INDEX : kind === 'desk' ? deskItemZIndex(point) : Math.round(point.y);
         const style: React.CSSProperties = sprite
           ? spriteStyle(point, sprite.bounds, sprite.aspect, size, isStanding, zIndex)
           : {
