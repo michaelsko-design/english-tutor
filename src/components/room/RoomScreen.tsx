@@ -170,7 +170,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
     setMoveRequestKey(key);
   };
 
-  /** The turn button: the big item moves to the other wall and shows that wall's picture. */
+  /** The turn button: the big item turns its back to the other wall where it stands, and shows that wall's picture. */
   const handleRotate = (key: string) => {
     onUpdateProfile(turnRoomItem(profile, key, new Date()));
     setBubble(null);

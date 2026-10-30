@@ -52,7 +52,11 @@ export function useRoomItemDrag({ sceneRef, layout, onMove, onTap }: UseRoomItem
   const press = useRef<Press | null>(null);
   const suppressClickUntil = useRef(0);
 
-  const optionsFor = (entry: PlacedRoomEntry): PlacementOptions => ({ layout, width: entry.width, isFurniture: entry.canRotate });
+  const optionsFor = (entry: PlacedRoomEntry): PlacementOptions => ({
+    layout,
+    width: entry.width,
+    ...(entry.canRotate ? { furnitureWall: entry.isOnLeftWall ? 'left' : 'right' } : {}),
+  });
 
   const toScene = (clientX: number, clientY: number): ScenePoint | null => {
     const rect = sceneRef.current?.getBoundingClientRect();

@@ -94,7 +94,7 @@ export const ROOM_ART: Record<string, Record<string, RoomArtSprite>> = {
     'sticker-london-compass': { aspect: 0.8124, left: 0.0, right: 1.0, top: 0.0, bottom: 1.0, slope: -0.112 },
   },
   'starlight-rpg': {
-    'furniture-shelf-high': { aspect: 1.2216, left: 0.0, right: 1.0, top: 0.0, bottom: 1.0, slope: -0.026 },
+    'furniture-shelf-high': { aspect: 1.2216, left: 0.0, right: 1.0, top: 0.0, bottom: 1.0, slope: -0.25 },
     'furniture-shelf-low': { aspect: 1.4504, left: 0.0, right: 1.0, top: 0.0, bottom: 1.0, slope: -0.248 },
     'furniture-sill': { aspect: 1.6057, left: 0.0, right: 1.0, top: 0.0, bottom: 1.0, slope: -0.427 },
     'furniture-board': { aspect: 0.9078, left: 0.0, right: 1.0, top: 0.0, bottom: 1.0, slope: -0.485 },

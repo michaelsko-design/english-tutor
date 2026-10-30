@@ -258,12 +258,19 @@ export interface DrawnSticker {
   archivedAt?: string;
 }
 
+export type RoomWall = 'left' | 'right';
+
 /** The learner's room layout (Feature 12). Owned room items live in `unlockedRewardIds`. */
 export interface LearnerRoom {
   /** Maps slotId -> placed room item id */
   placements: Record<string, string>;
   /** Placement key -> point in the scene (% of its width and height); a placement without one sits at its old slot's default point */
   positions?: Record<string, { x: number; y: number }>;
+  /**
+   * Item id (or `object:<id>`) -> the wall a big piece has its back to. It changes only when the learner
+   * turns the piece; a piece without one has its back to the wall it stands nearest to.
+   */
+  facings?: Record<string, RoomWall>;
   /** Maps wardrobe layer -> worn wardrobe item id; saved with the layout */
   outfit?: Record<string, string>;
   dressUpDay?: DressUpDay;

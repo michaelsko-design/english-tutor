@@ -303,8 +303,8 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
         const sprite = entry.item.imageUrl && !isDesk
           ? null
           : getRoomSprite(themeId, getArtId(entry.key, entry.item.id), {
-              // follows the item while it is dragged across the corner
-              isOnLeftWall: (LEFT_WALL_KINDS.includes(kind) || entry.canRotate) && point.x < geometry.cornerX,
+              // a big piece keeps its facing until it is turned; a wall picture follows the wall while dragged
+              isOnLeftWall: entry.canRotate ? entry.isOnLeftWall : LEFT_WALL_KINDS.includes(kind) && point.x < geometry.cornerX,
               canMirror: LEFT_WALL_KINDS.includes(kind),
               isFlatOnWall: kind === 'wall',
             });

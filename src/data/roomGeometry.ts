@@ -77,14 +77,21 @@ const FURNITURE_LEGS = [
   { dx: 0.37, dy: -0.22 },
 ];
 
+/** A big piece standing on the floor: how wide it is, and whether its back is to the left wall. */
+export interface FurnitureFootprint {
+  width: number;
+  isOnLeftWall: boolean;
+}
+
 /**
- * The smallest feet y at `x`: just below the baseboard, or, for a big piece `width` wide, low enough
- * that all its legs stand on the floor (its back leg is higher up the picture than its feet).
+ * The smallest feet y at `x`: just below the baseboard, or, for a big piece, low enough that all its
+ * legs stand on the floor (its back leg is higher up the picture than its feet).
  */
-export function getFloorMinY(geometry: RoomGeometry, x: number, width = 0): number {
+export function getFloorMinY(geometry: RoomGeometry, x: number, footprint?: FurnitureFootprint): number {
   const atFeet = floorEdgeY(geometry, x) + FLOOR_EDGE_CLEARANCE;
-  if (width <= 0) return atFeet;
-  const side = x < geometry.cornerX ? 1 : -1;
+  if (!footprint || footprint.width <= 0) return atFeet;
+  const { width } = footprint;
+  const side = footprint.isOnLeftWall ? 1 : -1;
   return FURNITURE_LEGS.reduce(
     (minY, leg) => Math.max(minY, floorEdgeY(geometry, x + side * leg.dx * width) + FLOOR_EDGE_CLEARANCE - leg.dy * width),
     atFeet
@@ -113,7 +120,7 @@ export function getFixedSurfaces(geometry: RoomGeometry): RoomSurface[] {
       xMax: geometry.floorXMax,
       yMin: geometry.floorMinY,
       yMax: geometry.floorMaxY,
-      ...(geometry.isLegacy ? {} : { minYAt: (x: number, width?: number) => getFloorMinY(geometry, x, width) }),
+      ...(geometry.isLegacy ? {} : { minYAt: (x: number, footprint?: FurnitureFootprint) => getFloorMinY(geometry, x, footprint) }),
     },
   ];
 }

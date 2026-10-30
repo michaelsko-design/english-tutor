@@ -59,6 +59,9 @@ OPEN_SPACE_IDS = {'object-desk', 'object-desk-b'}  # furniture with open space b
 OPEN_SPACE_WHITE = 225  # the gap between legs is off-white (pale shadow edge), not always pure white
 SLOPE_MARGIN = 0.1  # the top edge's slope is read between these shares of the body's width
 SLOPE_MIN_COLUMNS = 8
+# Pictures whose top edge is not the way the piece runs (a level crest on top of a slanted shelf):
+# their slope, read off the plank by eye, as the measured one would read it
+SLOPE_OVERRIDES = {'starlight-rpg/furniture-shelf-high': -0.25}
 OPEN_SPACE_MIN_AREA = 100
 SOLID_BODY_SIZE = 9  # furniture pieces are thick: anything thinner than this many pixels is a stray line
 SOLID_BODY_REGROW = 8  # pixels kept around the thick body, which is its outline and soft edge
@@ -294,7 +297,7 @@ def main() -> None:
             'right': round(right, 4),
             'top': round(top, 4),
             'bottom': round(bottom, 4),
-            'slope': round(slope, 3),
+            'slope': round(SLOPE_OVERRIDES.get(f'{theme}/{picture_id}', slope), 3),
         }
         if contact_dir:
             contact_pictures.setdefault(theme, {})[picture_id] = picture

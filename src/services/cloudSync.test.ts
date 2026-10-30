@@ -611,6 +611,13 @@ describe('mergeLearnerProfiles room positions', () => {
     expect(mergeLearnerProfiles({ ...baseProfile, room: newer }, { room: older }).room?.positions).toEqual(newer.positions);
   });
 
+  it('keeps the newer layout together with the way its furniture is turned', () => {
+    const older = { ...room({}, '2026-10-01T10:00:00.000Z'), facings: { 'object:desk': 'right' as const } };
+    const newer = { ...room({}, '2026-10-02T10:00:00.000Z'), facings: { 'object:desk': 'left' as const } };
+    expect(mergeLearnerProfiles({ ...baseProfile, room: older }, { room: newer }).room?.facings).toEqual(newer.facings);
+    expect(mergeLearnerProfiles({ ...baseProfile, room: newer }, { room: older }).room?.facings).toEqual(newer.facings);
+  });
+
   it('keeps old slot placements without positions as they are', () => {
     const legacy = { placements: { 'floor-left': 'room-plant' }, namedItemIds: [], updatedAt: '2026-10-01T10:00:00.000Z' };
     const merged = mergeLearnerProfiles({ ...baseProfile, room: legacy }, { room: legacy }).room;

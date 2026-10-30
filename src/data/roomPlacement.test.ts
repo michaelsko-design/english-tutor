@@ -11,7 +11,6 @@ import {
   getRoomLayout,
   moveRoomEntry,
   moveRoomObject,
-  getOtherWallPoint,
   getPlacedRoomEntries,
   getSurfaces,
   placeNamedRoomItemAt,
@@ -135,7 +134,7 @@ describe('themed room geometry', () => {
       it('keeps all the legs of a big piece on the floor, wherever it is dragged: its back leg is higher up than its feet', () => {
         const width = getItemWidth({ id: 'object:bed', slotKind: 'floor' });
         [10, 25, 40, geometry.cornerX + 10, 85].forEach((x) => {
-          const { point } = snapToSurface('floor', { x, y: 0 }, { layout, width, isFurniture: true });
+          const { point } = snapToSurface('floor', { x, y: 0 }, { layout, width, furnitureWall: x < geometry.cornerX ? 'left' : 'right' });
           const side = point.x < geometry.cornerX ? -1 : 1;
           // the back leg by the wall: near one end of the piece, about 0.37 of its width up from its feet
           const backLegX = point.x + side * 0.45 * width;
@@ -412,13 +411,24 @@ describe('mission objects and the desk', () => {
       expect(findEntry(cozy, 'object:desk')?.isOnLeftWall).toBe(false);
     });
 
-    it('moves a turned item to the other wall, so it never floats away from the wall it was against', () => {
+    it('turns an item where it stands: only the picture changes wall, and turning twice turns it back', () => {
+      const before = findEntry(sofaOnRightWall, 'room-sofa')!;
       const turned = findEntry(turnRoomItem(sofaOnRightWall, 'room-sofa', NOW), 'room-sofa')!;
       expect(turned.isOnLeftWall).toBe(true);
-      expect(turned.point.x).toBeLessThan(cornerX);
+      expect(turned.point.x).toBeCloseTo(before.point.x);
+      expect(turned.point.x).toBeGreaterThan(cornerX);
       const back = findEntry(turnRoomItem(turnRoomItem(sofaOnRightWall, 'room-sofa', NOW), 'room-sofa', NOW), 'room-sofa')!;
       expect(back.isOnLeftWall).toBe(false);
-      expect(back.point.x).toBeGreaterThan(cornerX);
+    });
+
+    it('never turns an item that is moved, even across the corner: only the learner turns it', () => {
+      const movedSofa = placeRoomItemAt(sofaOnRightWall, 'room-sofa', { x: 20, y: 92 }, NOW);
+      expect(findEntry(movedSofa, 'room-sofa')!.point.x).toBeLessThan(cornerX);
+      expect(findEntry(movedSofa, 'room-sofa')!.isOnLeftWall).toBe(false);
+      const movedDesk = moveRoomObject(cozy, 'desk', { x: 20, y: 95 }, NOW);
+      expect(findEntry(movedDesk, 'object:desk')!.isOnLeftWall).toBe(false);
+      const turnedThenMoved = moveRoomObject(turnRoomItem(cozy, 'object:desk', NOW), 'desk', { x: 85, y: 95 }, NOW);
+      expect(findEntry(turnedThenMoved, 'object:desk')!.isOnLeftWall).toBe(true);
     });
 
     it('keeps a turned item on the floor, below the baseboard', () => {
@@ -440,26 +450,21 @@ describe('mission objects and the desk', () => {
       expect(Math.abs(phone.point.x - desk.point.x)).toBeLessThan(9);
     });
 
-    it('turns the same way in the original room, across its middle', () => {
-      const profile = placeRoomItemAt(baseProfile, 'room-sofa', { x: 30, y: 85 }, NOW);
-      expect(findEntry(turnRoomItem(profile, 'room-sofa', NOW), 'room-sofa')!.point.x).toBeGreaterThan(50);
-    });
-
     it('leaves items that cannot turn, and unknown keys, unchanged', () => {
       expect(turnRoomItem(cozy, 'object:phone', NOW)).toBe(cozy);
       expect(turnRoomItem(cozy, 'nope', NOW)).toBe(cozy);
     });
+  });
 
-    it('maps a point to the matching point on the other wall, and back', () => {
-      const geometry = getRoomGeometry('neon-pop');
-      const point = { x: 80, y: 90 };
-      const other = getOtherWallPoint(point, geometry);
-      expect(other.x).toBeLessThan(geometry.cornerX);
-      expect(other.y - floorEdgeY(geometry, other.x)).toBeCloseTo(point.y - floorEdgeY(geometry, point.x));
-      const back = getOtherWallPoint(other, geometry);
-      expect(back.x).toBeCloseTo(point.x);
-      expect(back.y).toBeCloseTo(point.y);
-    });
+  it('puts the book on the desk top when it is let go anywhere over the desk, even nearer the floor behind it', () => {
+    const profile = { ...baseProfile, themeId: 'starlight-rpg' } as LearnerProfile;
+    const layout = getRoomLayout(profile);
+    const top = getDeskTopPoint(layout.deskPoint, layout.geometry, layout.deskShape);
+    // over the back corner of the desk top, close to the baseboard behind the desk
+    const overBackCorner = { x: layout.deskPoint.x - 9, y: top.y - 6 };
+    const book = findEntry(moveRoomObject(profile, 'games-book', overBackCorner, NOW), 'object:games-book')!;
+    expect(book.item.slotKind).toBe('desk');
+    expect(book.point.y).toBeCloseTo(top.y);
   });
 
   it('snaps to the nearest surface across several kinds', () => {
