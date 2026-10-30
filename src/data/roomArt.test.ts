@@ -15,13 +15,21 @@ describe('the themed room pictures', () => {
     THEMES.forEach((theme) => expect(Object.keys(ROOM_ART[theme]).sort(), theme).toEqual(first));
   });
 
-  it('draws the bed and the desk the right way for each wall: against the right wall, the left one, never both alike', () => {
+  it('draws every big piece the right way for each wall: its edges along the wall fall to the right against the right wall, rise against the left one', () => {
     THEMES.forEach((theme) =>
-      ['object-bed', 'object-desk'].forEach((id) => {
-        expect(ROOM_ART[theme][id].slope, `${theme}/${id}`).toBeLessThan(-0.1);
-        expect(ROOM_ART[theme][`${id}-b`].slope, `${theme}/${id}-b`).toBeGreaterThan(0.1);
+      ['object-bed', 'object-wardrobe', 'object-desk', 'room-sofa', 'room-chair'].forEach((id) => {
+        expect(ROOM_ART[theme][id].slope, `${theme}/${id}`).toBeGreaterThan(0.1);
+        expect(ROOM_ART[theme][`${id}-b`].slope, `${theme}/${id}-b`).toBeLessThan(-0.1);
       })
     );
+  });
+
+  it('shears a big piece so its edges run exactly along the wall it stands against', () => {
+    const wallSlope = 0.2;
+    const desk = getRoomSprite('travel-journal', 'object-desk', { wallSlope })!;
+    expect(ROOM_ART['travel-journal']['object-desk'].slope + desk.shear).toBeCloseTo(wallSlope);
+    const deskOnLeft = getRoomSprite('travel-journal', 'object-desk', { isOnLeftWall: true, wallSlope: -wallSlope })!;
+    expect(ROOM_ART['travel-journal']['object-desk-b'].slope + deskOnLeft.shear).toBeCloseTo(-wallSlope);
   });
 
   it('has a file for every picture, with sane body bounds', () => {
@@ -90,7 +98,7 @@ describe('getRoomSprite', () => {
       const shownSlope = (shelf.isMirrored ? -1 : 1) * ROOM_ART[theme]['furniture-shelf-high'].slope;
       expect(shownSlope + shelf.shear, theme).toBeCloseTo(wallSlope);
     });
-    expect(getRoomSprite('cozy-studio', 'room-sofa', { wallSlope })!.shear).toBe(0);
+    expect(getRoomSprite('cozy-studio', 'room-teddy', { wallSlope })!.shear).toBe(0);
   });
 
   it('does not mirror what may not be mirrored: a baked shadow would fall the wrong way', () => {

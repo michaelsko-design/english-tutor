@@ -12,14 +12,25 @@
  *        node scripts/art/renderRoomArt.mjs submit [theme|key ...] [--yes] (one batch; named keys are redrawn)
  *        node scripts/art/renderRoomArt.mjs status
  *        node scripts/art/renderRoomArt.mjs collect
+ *        node scripts/art/renderRoomArt.mjs flat [theme|key ...|pilot] [--yes] (big furniture at the rooms' camera,
+ *                                                                          each theme's room picture sent as a reference)
  *        node scripts/art/renderRoomArt.mjs jobs                          (JSON for process_room_art.py)
  */
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { packSheets, sheetImageSize, sheetLayout, sheetPrompt } from './missionArtSheets.mjs';
 import { batchItems, fetchBatch, imageFrom, readApiKey, stateStore, submitBatch } from './geminiBatch.mjs';
-import { CALIBRATION_KEYS, CUTOUT_RULES, ROOM_ART_DIR, ROOM_ART_SPEC, THEME_IDS, allJobs } from './roomArtSpec.mjs';
+import {
+  CALIBRATION_KEYS,
+  CUTOUT_RULES,
+  FLAT_PILOT_KEYS,
+  ROOM_ART_DIR,
+  ROOM_ART_SPEC,
+  THEME_IDS,
+  allJobs,
+  flatFurnitureJobs,
+} from './roomArtSpec.mjs';
 
 const MODEL = 'gemini-3.1-flash-image';
 const SHEETS_DIR = join(ROOM_ART_DIR, 'sheets');
@@ -31,6 +42,9 @@ const NO_TEXT =
   'No text, no words, no numbers, no logos, no watermark, no signature anywhere in the image. Clocks have no numbers, and screens, pages and stickers show only plain shapes and blank lines.';
 
 const jobs = allJobs();
+const flatJobs = flatFurnitureJobs();
+/** Every picture a stored sheet can name, for collecting a batch. */
+const knownJobs = [...jobs, ...flatJobs];
 
 function jobsOfTheme(theme) {
   return jobs.filter((job) => job.key.startsWith(`${theme}/`));
@@ -41,20 +55,29 @@ function missing(list = jobs) {
 }
 
 /** Named themes mean their missing pictures; named keys mean those pictures (drawn again when they exist). No names: everything missing. */
-function selectJobs(names) {
-  if (names.length === 0) return missing();
+function selectJobs(names, from = jobs) {
+  if (names.length === 0) return missing(from);
   return names.flatMap((name) => {
-    if (THEME_IDS.includes(name)) return missing(jobsOfTheme(name));
-    const job = jobs.find((candidate) => candidate.key === name);
+    if (THEME_IDS.includes(name)) return missing(from.filter((job) => job.key.startsWith(`${name}/`)));
+    const job = from.find((candidate) => candidate.key === name);
     if (!job) throw new Error(`Unknown name "${name}". Themes: ${THEME_IDS.join(', ')}; keys look like cozy-studio/room-sofa (see "list").`);
     return [job];
   });
 }
 
+/** The themes' room pictures sent along with a sheet of flat furniture, so it is drawn with the rooms' camera. */
+function referenceParts(sheet) {
+  const themes = [...new Set(sheet.cells.map((cell) => cell.job.theme).filter(Boolean))];
+  return themes.flatMap((theme, index) => [
+    { text: `Reference picture ${index === 0 ? 'one' : 'two'}: the empty ${theme} room, seen with the camera its furniture must be drawn with. Do not draw this room; it only shows the camera.` },
+    { inlineData: { mimeType: 'image/webp', data: readFileSync(join(process.cwd(), 'public', 'art', theme, 'room-corner.webp')).toString('base64') } },
+  ]);
+}
+
 function sheetRequest(sheet) {
   const prompt = sheetPrompt(ROOM_ART_SPEC, sheet, { noText: NO_TEXT, cutoutRules: CUTOUT_RULES });
   return {
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    contents: [{ role: 'user', parts: [{ text: prompt }, ...referenceParts(sheet)] }],
     generationConfig: { responseModalities: ['IMAGE'], imageConfig: { aspectRatio: '1:1', imageSize: sheetImageSize() } },
   };
 }
@@ -71,7 +94,7 @@ function storedSheet(id, sheet) {
 
 function restoredSheet(stored) {
   const cells = stored.cells.map(({ key, ...place }) => {
-    const job = jobs.find((candidate) => candidate.key === key);
+    const job = knownJobs.find((candidate) => candidate.key === key);
     if (!job) throw new Error(`Sheet ${stored.id} names an unknown picture "${key}"`);
     return { job, ...place };
   });
@@ -96,7 +119,9 @@ function list(theme) {
 }
 
 function prompts(names) {
-  const sheets = packSheets(names.length > 0 ? selectJobs(names) : missing());
+  const isFlat = names[0] === 'flat';
+  const rest = isFlat ? names.slice(1) : names;
+  const sheets = packSheets(selectJobs(rest[0] === 'pilot' ? FLAT_PILOT_KEYS : rest, isFlat ? flatJobs : jobs));
   console.log(describeSheets(sheets));
   for (const [index, sheet] of sheets.entries()) {
     console.log(`\n--- sheet ${index + 1} (${sheet.columns} x ${sheet.columns}, ${sheetImageSize()}) ---`);
@@ -104,10 +129,10 @@ function prompts(names) {
   }
 }
 
-async function submit(apiKey, args) {
+async function submit(apiKey, args, from = jobs) {
   if (state.read().length > 0) console.log('Warning: a batch is already in progress.');
   const names = args.filter((arg) => arg !== YES_FLAG);
-  const selected = selectJobs(names);
+  const selected = selectJobs(names, from);
   const sheets = packSheets(selected);
   const redrawn = selected.filter((job) => existsSync(job.path)).length;
   if (selected.length === 0) return console.log('Nothing to draw.');
@@ -170,6 +195,7 @@ async function main() {
   // The calibration is a small batch of named pictures (two sheets), kept if they are good
   if (command === 'calibration') return submit(apiKey, [...CALIBRATION_KEYS, ...args]);
   if (command === 'submit') return submit(apiKey, args);
+  if (command === 'flat') return submit(apiKey, args[0] === 'pilot' ? [...FLAT_PILOT_KEYS, ...args.slice(1)] : args, flatJobs);
   if (command === 'status') return status(apiKey);
   if (command === 'collect') return collect(apiKey);
   console.log(USAGE);

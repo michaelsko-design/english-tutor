@@ -19,8 +19,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+import cv2
 import numpy as np
-from PIL import Image, ImageDraw, ImageOps
+from PIL import Image, ImageDraw, ImageFilter, ImageOps
 from scipy import ndimage
 
 from process_room_furniture import clear_background
@@ -61,23 +62,26 @@ SLOPE_MARGIN = 0.1  # the top edge's slope is read between these shares of the b
 SLOPE_MIN_COLUMNS = 8
 # Pictures whose top edge is not the way the piece runs (a level crest on top of a slanted shelf):
 # their slope, read off the plank by eye, as the measured one would read it
+# The big furniture redrawn at the rooms' camera (renderRoomArt.mjs flat): art-src/room-art/<theme>/<id>-flat.png
+# is drawn with its back to the LEFT wall (the -b view); the right-wall view is its mirror image. It has
+# no baked shadow: one is made here, falling to the right in both views. Its slope is the slope of its
+# edges along the wall (measured from its outline), which the room shears to the wall it stands at.
+FLAT_FURNITURE_IDS = {'object-bed', 'object-wardrobe', 'object-desk', 'room-sofa', 'room-chair'}
+# Flat drawings that came back with the back to the RIGHT wall (read by eye)
+FLAT_RIGHT_WALL_DRAWINGS = {'urban-night/room-sofa', 'urban-night/room-chair', 'travel-journal/room-chair'}
+# Wall-edge slopes (as seen against the left wall) read by eye where carved frames fool the measurement
+FLAT_SLOPE_OVERRIDES = {'starlight-rpg/room-sofa': -0.3}
+SHADOW_SQUASH = 0.22  # the shadow's height as a share of the object's (light from high up on the left)
+SHADOW_LEAN = 0.55  # pixels to the right per pixel of the object's height
+SHADOW_BLUR = 5
+SHADOW_OPACITY = 0.32
+SHADOW_RGB = (59, 42, 90)
+# Straight outline edges that lie along the wall: not near level, not near upright
+WALL_EDGE_MIN_SLOPE = 0.08
+WALL_EDGE_MAX_SLOPE = 1.2
+WALL_EDGE_MIN_LENGTH = 0.12  # share of the picture's width
+
 SLOPE_OVERRIDES = {'starlight-rpg/furniture-shelf-high': -0.25}
-# Big furniture drawn the wrong way: the view against the right wall (<id>) faces down-left, the one
-# against the left wall (<id>-b) down-right. Some came back swapped, some with both views the same.
-# Picture key -> (the drawn picture to use, mirrored or not). A mirrored one's baked shadow falls left.
-VIEW_SOURCES = {
-    **{f'{theme}/{item}{view}': (f'{item}{other}', False)
-       for theme, item in [
-           ('neon-pop', 'object-bed'), ('urban-night', 'object-bed'),
-           ('starlight-rpg', 'object-wardrobe'), ('focus-desk', 'object-wardrobe'), ('travel-journal', 'object-wardrobe'),
-           ('starlight-rpg', 'room-sofa'), ('focus-desk', 'room-sofa'), ('travel-journal', 'room-sofa'),
-           ('focus-desk', 'room-chair'),
-       ]
-       for view, other in [('', '-b'), ('-b', '')]},
-    'starlight-rpg/object-bed-b': ('object-bed', True),
-    'cozy-studio/room-sofa-b': ('room-sofa', True),
-    'urban-night/room-chair': ('room-chair-b', True),
-}
 OPEN_SPACE_MIN_AREA = 100
 SOLID_BODY_SIZE = 9  # furniture pieces are thick: anything thinner than this many pixels is a stray line
 SOLID_BODY_REGROW = 8  # pixels kept around the thick body, which is its outline and soft edge
@@ -200,13 +204,66 @@ def top_edge_slope(alpha: np.ndarray, body: np.ndarray) -> float:
     return float(np.polyfit(xs, tops, 1)[0])
 
 
+def wall_edge_slope(rgb: np.ndarray, alpha: np.ndarray, is_left_wall_view: bool) -> float:
+    """The slope of the edges that run along the wall (pixels down per pixel to the right): with the
+    back to the left wall they rise to the right (negative), to the right wall they fall (positive).
+    The length-weighted median of the outline's straight segments that run that way."""
+    outline = ((rgb.mean(axis=2) < 90) & (alpha > ALPHA_VISIBLE)).astype(np.uint8) * 255
+    width = alpha.shape[1]
+    lines = cv2.HoughLinesP(outline, 1, np.pi / 360, threshold=40, minLineLength=int(WALL_EDGE_MIN_LENGTH * width), maxLineGap=6)
+    if lines is None:
+        return 0.0
+    slopes, weights = [], []
+    for x1, y1, x2, y2 in lines.reshape(-1, 4):
+        if x1 == x2:
+            continue
+        slope = (y2 - y1) / (x2 - x1)
+        if WALL_EDGE_MIN_SLOPE < (-slope if is_left_wall_view else slope) < WALL_EDGE_MAX_SLOPE:
+            slopes.append(slope)
+            weights.append(np.hypot(x2 - x1, y2 - y1))
+    if not slopes:
+        return 0.0
+    order = np.argsort(slopes)
+    cumulative = np.cumsum(np.array(weights)[order])
+    return float(np.array(slopes)[order][np.searchsorted(cumulative, cumulative[-1] / 2)])
+
+
+def with_cast_shadow(rgba: np.ndarray, body: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """The picture with a soft shadow on the floor to the right of the object, and the body mask on
+    the wider canvas. The shadow is the object's silhouette laid down on the floor: squashed onto
+    its bottom line and leaning to the right."""
+    height, width = body.shape
+    rows = np.flatnonzero(body.any(axis=1))
+    top, base = rows.min(), rows.max() + 1
+    pad = int(SHADOW_LEAN * (base - top)) + 2 * SHADOW_BLUR
+    lean = SHADOW_LEAN / SHADOW_SQUASH
+    mask = Image.fromarray((body * 255).astype(np.uint8))
+    # output (x, y) -> input (x + lean * (y - base), base + (y - base) / squash)
+    shadow = mask.transform(
+        (width + pad, height),
+        Image.AFFINE,
+        (1, lean, -lean * base, 0, 1 / SHADOW_SQUASH, base * (1 - 1 / SHADOW_SQUASH)),
+        resample=Image.BILINEAR,
+    ).filter(ImageFilter.GaussianBlur(SHADOW_BLUR))
+    shadow_alpha = (np.asarray(shadow, dtype=np.float32) * SHADOW_OPACITY).astype(np.uint8)
+    canvas = np.zeros((height, width + pad, 4), dtype=np.uint8)
+    canvas[:, :, :3] = SHADOW_RGB
+    canvas[:, :, 3] = shadow_alpha
+    drawn = rgba[:, :, 3] > 0
+    canvas[:, :width][drawn] = rgba[drawn]
+    wide_body = np.zeros((height, width + pad), dtype=bool)
+    wide_body[:, :width] = body
+    return canvas, wide_body
+
+
 def load_source(path: Path, mirror: bool) -> Image.Image:
     picture = Image.open(path).convert('RGB')
     return ImageOps.mirror(picture) if mirror else picture
 
 
-def process(path: Path, has_shadow: bool, mirror: bool = False) -> tuple[Image.Image, tuple[float, float, float, float], float]:
-    """The transparent picture, the body's (left, right, top, bottom) as shares of it, and its top edge's slope."""
+def process(path: Path, has_shadow: bool, mirror: bool = False, is_flat_furniture: bool = False, is_left_wall_view: bool = False) -> tuple[Image.Image, tuple[float, float, float, float], float]:
+    """The transparent picture, the body's (left, right, top, bottom) as shares of it, and its slope: its
+    top edge's, or for flat furniture its wall edges' (see wall_edge_slope)."""
     rgb = remove_axis_lines(remove_stray_lines(np.asarray(load_source(path, mirror))))
     if has_shadow:
         rgb, alpha, body = alpha_with_shadow(rgb, PALE_SHADOW_MAX_LUMINANCE if path.stem.removesuffix('-b') in PALE_SHADOW_IDS else SHADOW_MAX_LUMINANCE)
@@ -219,10 +276,14 @@ def process(path: Path, has_shadow: bool, mirror: bool = False) -> tuple[Image.I
     if path.stem.startswith('furniture-'):
         alpha = keep_solid_body(alpha)
         body = body & (alpha > 0)
-    if path.stem in OPEN_SPACE_IDS:
+    if path.stem in OPEN_SPACE_IDS or is_flat_furniture:
         alpha = clear_open_space(rgb, alpha)
         body = body & (alpha > 0)
     rgba = np.dstack([rgb, alpha])
+    if is_flat_furniture:
+        wall_slope = wall_edge_slope(rgb, alpha, is_left_wall_view)
+        rgba, body = with_cast_shadow(rgba, body & (alpha > ALPHA_VISIBLE))
+        alpha = rgba[:, :, 3]
     visible = np.argwhere(alpha > ALPHA_VISIBLE)
     top, left = visible.min(axis=0)
     bottom, right = visible.max(axis=0) + 1
@@ -236,7 +297,7 @@ def process(path: Path, has_shadow: bool, mirror: bool = False) -> tuple[Image.I
         (body_top - top) / height,
         (body_bottom - top) / height,
     )
-    slope = top_edge_slope(alpha, body)
+    slope = wall_slope if is_flat_furniture else top_edge_slope(alpha, body)
     picture = Image.fromarray(rgba[top:bottom, left:right], 'RGBA')
     if picture.width > MAX_WIDTH:
         picture = picture.resize((MAX_WIDTH, round(picture.height * MAX_WIDTH / picture.width)), Image.LANCZOS)
@@ -304,12 +365,22 @@ def main() -> None:
     missing: list[str] = []
     for key, has_shadow in jobs.items():
         theme, picture_id = key.split('/')
-        source_id, mirror = VIEW_SOURCES.get(key, (picture_id, False))
-        source = SOURCE / theme / f'{source_id}.png'
+        item_id = picture_id.removesuffix('-b')
+        flat_source = SOURCE / theme / f'{item_id}-flat.png'
+        is_flat_furniture = item_id in FLAT_FURNITURE_IDS and flat_source.exists()
+        is_left_wall_view = picture_id.endswith('-b')
+        if is_flat_furniture:
+            # Most came back with the back to the left wall; mirror those that face the other way
+            drawn_left = f'{theme}/{item_id}' not in FLAT_RIGHT_WALL_DRAWINGS
+            source, mirror, has_shadow = flat_source, drawn_left != is_left_wall_view, False
+        else:
+            source, mirror = SOURCE / theme / f'{picture_id}.png', False
         if not source.exists():
             missing.append(key)
             continue
-        picture, (left, right, top, bottom), slope = process(source, has_shadow, mirror)
+        picture, (left, right, top, bottom), slope = process(source, has_shadow, mirror, is_flat_furniture, is_left_wall_view)
+        if is_flat_furniture and f'{theme}/{item_id}' in FLAT_SLOPE_OVERRIDES:
+            slope = FLAT_SLOPE_OVERRIDES[f'{theme}/{item_id}'] * (1 if is_left_wall_view else -1)
         target = OUT / theme / f'{picture_id}.webp'
         target.parent.mkdir(parents=True, exist_ok=True)
         picture.save(target, 'WEBP', quality=WEBP_QUALITY, method=6)

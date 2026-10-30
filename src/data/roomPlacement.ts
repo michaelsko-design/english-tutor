@@ -1,8 +1,12 @@
-import { LearnerProfile, LearnerRoom, RoomWall } from '../types/learner';
-import { DeskShape, LEGACY_DESK_SHAPE, getDeskShape } from './roomArt';
+import { LearnerProfile, LearnerRoom, RoomWall, ThemeId } from '../types/learner';
+import { DeskShape, LEGACY_DESK_SHAPE, getArtId, getDeskShape, getRoomSprite } from './roomArt';
 import {
+  BED_LEGS,
   Box,
+  FURNITURE_LEGS,
   FurnitureFootprint,
+  FurnitureLeg,
+  getWallSlope,
   LEGACY_GEOMETRY,
   RoomGeometry,
   getFixedSurfaces,
@@ -72,6 +76,8 @@ export interface RoomLayoutContext {
   deskShape: DeskShape;
   /** The desk has its back to the left wall (its picture for that wall shows) */
   isDeskOnLeftWall?: boolean;
+  /** The theme, whose furniture pictures are sheared to lie along the walls (none: the original room) */
+  themeId?: ThemeId;
 }
 
 export const SCENE_ASPECT = 4 / 3;
@@ -167,10 +173,13 @@ export function getSurfaces(kind: RoomSlotKind, layout: RoomLayoutContext = DEFA
       yMin: layout.deskPoint.y - deskHeight,
       yMax: top.y + (layout.deskPoint.y - top.y) * DESK_CATCH_BELOW_TOP,
     };
-    const outline = layout.deskShape.topCorners?.map((corner) => ({
-      x: top.x - deskWidth / 2 + (layout.isDeskOnLeftWall ? corner.x : 1 - corner.x) * deskWidth,
-      y: layout.deskPoint.y - deskHeight + corner.y * deskHeight,
-    }));
+    const deskShear = getFurnitureShear(`${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`, layout, layout.isDeskOnLeftWall ? 'left' : 'right');
+    const outline = layout.deskShape.topCorners?.map((corner) => {
+      const x = top.x - deskWidth / 2 + (layout.isDeskOnLeftWall ? corner.x : 1 - corner.x) * deskWidth;
+      // the desk picture is sheared about its feet, so its top is too
+      const sheared = deskShear * (x - top.x) * CQW_TO_HEIGHT_PERCENT;
+      return { x, y: layout.deskPoint.y - deskHeight + corner.y * deskHeight + sheared };
+    });
     if (!outline) {
       return [{ id: 'desk-top', kind, xMin: top.x - halfWidth, xMax: top.x + halfWidth, yMin: top.y, yMax: top.y, catchArea }];
     }
@@ -292,6 +301,10 @@ export interface PlacementOptions {
    * All its legs stay on the floor.
    */
   furnitureWall?: RoomWall;
+  /** Its legs (the bed reaches out from the wall, the rest stand along it) */
+  furnitureLegs?: FurnitureLeg[];
+  /** The shear its picture is drawn with, which lifts the legs at one end */
+  furnitureShear?: number;
 }
 
 function clampToSurface(surface: RoomSurface, point: ScenePoint, options: PlacementOptions): ScenePoint {
@@ -301,7 +314,9 @@ function clampToSurface(surface: RoomSurface, point: ScenePoint, options: Placem
   const edge = surface.kind === 'floor' ? width / 2 + FLOOR_EDGE_MARGIN : surface.tilt !== undefined ? width / 2 : 0;
   const inset = Math.min(edge, (surface.xMax - surface.xMin) / 2);
   const x = Math.min(surface.xMax - inset, Math.max(surface.xMin + inset, point.x));
-  const footprint = options.furnitureWall ? { width, isOnLeftWall: options.furnitureWall === 'left' } : undefined;
+  const footprint = options.furnitureWall
+    ? { width, isOnLeftWall: options.furnitureWall === 'left', legs: options.furnitureLegs, shear: options.furnitureShear }
+    : undefined;
   if (surface.tilt) return { x, y: surface.yMin + (x - (surface.xMin + surface.xMax) / 2) * surface.tilt };
   const yMin = Math.max(surface.yMin, surface.minYAt?.(x, footprint) ?? surface.yMin);
   return { x, y: Math.min(surface.yMax, Math.max(yMin, point.y)) };
@@ -444,7 +459,25 @@ export function getPlacementOptions(
   layout: RoomLayoutContext,
   wall: RoomWall
 ): PlacementOptions & { layout: RoomLayoutContext } {
-  return { layout, width, ...(ROTATABLE_KEYS.has(key) ? { furnitureWall: wall } : {}) };
+  if (!ROTATABLE_KEYS.has(key)) return { layout, width };
+  return {
+    layout,
+    width,
+    furnitureWall: wall,
+    furnitureLegs: key === `${OBJECT_KEY_PREFIX}bed` ? BED_LEGS : FURNITURE_LEGS,
+    furnitureShear: getFurnitureShear(key, layout, wall),
+  };
+}
+
+/** The shear a big piece's picture is shown with in the theme's room, against `wall` (0 without themed art). */
+export function getFurnitureShear(key: string, layout: RoomLayoutContext, wall: RoomWall): number {
+  if (layout.geometry.isLegacy) return 0;
+  const isOnLeftWall = wall === 'left';
+  const sprite = getRoomSprite(layout.themeId, getArtId(key, key), {
+    isOnLeftWall,
+    wallSlope: getWallSlope(layout.geometry, isOnLeftWall),
+  });
+  return sprite?.shear ?? 0;
 }
 
 /**
@@ -462,7 +495,7 @@ export function getRoomLayout(profile: LearnerProfile): RoomLayoutContext {
   const room = getRoom(profile);
   const saved = room.positions?.[deskKey] ?? geometry.defaults.desk;
   const deskShape = getDeskShape(profile.themeId);
-  const roomOnly: RoomLayoutContext = { deskPoint: geometry.defaults.desk, geometry, deskShape };
+  const roomOnly: RoomLayoutContext = { deskPoint: geometry.defaults.desk, geometry, deskShape, themeId: profile.themeId };
   const wall = getFacing(room, deskKey, saved, geometry);
   const deskOptions = getPlacementOptions(deskKey, getItemWidth({ id: deskKey, slotKind: 'floor' }), roomOnly, wall);
   return { ...roomOnly, deskPoint: settle('floor', saved, deskOptions), isDeskOnLeftWall: wall === 'left' };

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { RoomSlotKind } from '../../data/room';
-import { getArtId, getDeskShape, getRoomSprite } from '../../data/roomArt';
+import { RoomSprite, getArtId, getDeskShape, getRoomSprite } from '../../data/roomArt';
 import { FLOOR_EDGE_CLEARANCE, getRoomGeometry, getWallSlope } from '../../data/roomGeometry';
 import {
   DESK_OBJECT_ID,
@@ -98,6 +98,16 @@ function shearTransform(shear = 0): string {
   return shear ? ` skewY(${Math.atan(shear)}rad)` : '';
 }
 
+/** A picture's shear and mirror, sheared about its anchor (the feet of what stands), so its feet stay put. */
+function spriteTransform(sprite: RoomSprite, isStanding: boolean): React.CSSProperties {
+  const { bounds } = sprite;
+  const anchorY = isStanding ? bounds.bottom : (bounds.top + bounds.bottom) / 2;
+  return {
+    transform: `${shearTransform(sprite.shear)}${sprite.isMirrored ? ' scaleX(-1)' : ''}`.trim(),
+    transformOrigin: `${((bounds.left + bounds.right) / 2) * 100}% ${anchorY * 100}%`,
+  };
+}
+
 /** An item being moved is drawn over everything in the room (items are stacked by their feet y, up to 100). */
 const MOVING_Z_INDEX = 200;
 /** Drop zones on the floor lie under everything that stands there. */
@@ -148,8 +158,8 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
   const deskShape = getDeskShape(themeId);
   const layout = useMemo(() => {
     const desk = entries.find((entry) => entry.key === `${OBJECT_KEY_PREFIX}${DESK_OBJECT_ID}`);
-    return { deskPoint: desk?.point ?? geometry.defaults.desk, geometry, deskShape, isDeskOnLeftWall: desk?.isOnLeftWall };
-  }, [entries, geometry, deskShape]);
+    return { deskPoint: desk?.point ?? geometry.defaults.desk, geometry, deskShape, isDeskOnLeftWall: desk?.isOnLeftWall, themeId };
+  }, [entries, geometry, deskShape, themeId]);
   const { drag, handlers, startKeyboardMove, getAnnouncement } = useRoomItemDrag({
     sceneRef,
     layout,
@@ -314,7 +324,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
               isOnLeftWall: entry.canRotate ? entry.isOnLeftWall : LEFT_WALL_KINDS.includes(kind) && point.x < geometry.cornerX,
               canMirror: LEFT_WALL_KINDS.includes(kind),
               isFlatOnWall: kind === 'wall',
-              wallSlope: getWallSlope(geometry, point.x < geometry.cornerX),
+              wallSlope: getWallSlope(geometry, entry.canRotate ? entry.isOnLeftWall : point.x < geometry.cornerX),
             });
         const baseBounds = getBounds(entry.item, isDesk);
         // Without a themed picture the emoji icon mirrors on the left wall, feet and shadow with it
@@ -340,7 +350,7 @@ export const RoomScene: React.FC<RoomSceneProps> = ({
             alt=""
             draggable={false}
             className={`block w-full h-auto motion-safe:transition-transform motion-safe:duration-300 ${isMoving ? 'drop-shadow-lg' : ''}`}
-            style={sprite.isMirrored || sprite.shear ? { transform: `${shearTransform(sprite.shear)}${sprite.isMirrored ? ' scaleX(-1)' : ''}` } : undefined}
+            style={sprite.isMirrored || sprite.shear ? spriteTransform(sprite, isStanding) : undefined}
           />
         ) : (
           <>

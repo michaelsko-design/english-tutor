@@ -181,3 +181,58 @@ export const CALIBRATION_KEYS = [
 ];
 
 export const ROOM_ART_SPEC = { style: HOUSE_STYLE, landmarkIdea: '' };
+
+/**
+ * The big furniture drawn again at the rooms' own camera (the first set was drawn steeper, about
+ * like isometric game art, so it never lined up with the walls). One view each, against the right
+ * wall, with no shadow: the left-wall view is its mirror image, and the shadow is made in processing,
+ * so both always fall to the right. The sheet carries the theme's room picture as a reference.
+ * Saved beside the first set as <id>-flat.png; process_room_art.py turns them into the room pictures.
+ */
+const FLAT_FURNITURE_IDS = ['object-bed', 'object-wardrobe', 'object-desk', 'room-sofa', 'room-chair'];
+
+const FLAT_VIEW = [
+  'drawn for the room shown in the reference picture of its theme, with exactly the same camera as that room: a low camera looking almost straight ahead, NOT from above, so the floor lines are much flatter than in usual isometric game art',
+  'the object stands with its back flat against the RIGHT wall of that room and faces the left side of the room, so its front and its left side are visible',
+  'its edges along the right wall (back and front) slant gently down toward the right, at the same slant as the line where the right wall meets the floor in the reference picture; its side edges (going from the wall out into the room) slant gently down toward the left, at the same slant as the line where the left wall meets the floor',
+  'its upright edges stay exactly vertical; it stands on its feet or legs on the floor; it is drawn at a size to fit that room',
+  ONLY_THE_OBJECT,
+].join('; ');
+
+/** A piece whose usual wording would turn it the wrong way for the flat view. */
+const FLAT_SUBJECTS = {
+  'object-bed': 'a single bed with a headboard, a pillow and a folded blanket; its headboard is against the wall, so the bed reaches out from the wall into the room',
+};
+
+const FLAT_NOTE = 'drawn alone, with NO shadow at all (not on the floor and not on the object)';
+
+/** The redrawn big furniture: { key, kind, subject, path, theme } for every theme. */
+export function flatFurnitureJobs() {
+  return THEME_IDS.flatMap((theme) =>
+    FLAT_FURNITURE_IDS.map((id) => {
+      const item = ITEMS.find((candidate) => candidate.id === id);
+      const base = FLAT_SUBJECTS[id] ?? item.overrides?.[theme] ?? item.subject;
+      return {
+        key: `${theme}/${id}-flat`,
+        kind: 'single',
+        theme,
+        hasShadow: false,
+        subject: `(${theme} theme, ${THEME_LOOKS[theme]}) ${base}, ${FLAT_VIEW}; ${FLAT_NOTE}`,
+        path: join(ROOM_ART_DIR, theme, `${id}-flat.png`),
+      };
+    })
+  );
+}
+
+/** The first sheet: the two rooms whose walls differ most (a nearly level left wall, steep walls), every piece once. */
+export const FLAT_PILOT_KEYS = [
+  'cozy-studio/object-bed-flat',
+  'cozy-studio/object-wardrobe-flat',
+  'cozy-studio/object-desk-flat',
+  'cozy-studio/room-sofa-flat',
+  'cozy-studio/room-chair-flat',
+  'travel-journal/object-bed-flat',
+  'travel-journal/object-wardrobe-flat',
+  'travel-journal/object-desk-flat',
+  'travel-journal/room-sofa-flat',
+];

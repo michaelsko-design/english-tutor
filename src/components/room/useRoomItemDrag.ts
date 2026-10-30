@@ -6,6 +6,8 @@ import {
   ScenePoint,
   cycleSurface,
   getEntryMoveKinds,
+  getPlacementOptions,
+  isObjectKey,
   snapToSurface,
   stepPoint,
 } from '../../data/roomPlacement';
@@ -52,11 +54,8 @@ export function useRoomItemDrag({ sceneRef, layout, onMove, onTap }: UseRoomItem
   const press = useRef<Press | null>(null);
   const suppressClickUntil = useRef(0);
 
-  const optionsFor = (entry: PlacedRoomEntry): PlacementOptions => ({
-    layout,
-    width: entry.width,
-    ...(entry.canRotate ? { furnitureWall: entry.isOnLeftWall ? 'left' : 'right' } : {}),
-  });
+  const optionsFor = (entry: PlacedRoomEntry): PlacementOptions =>
+    getPlacementOptions(isObjectKey(entry.key) ? entry.key : entry.item.id, entry.width, layout, entry.isOnLeftWall ? 'left' : 'right');
 
   const toScene = (clientX: number, clientY: number): ScenePoint | null => {
     const rect = sceneRef.current?.getBoundingClientRect();

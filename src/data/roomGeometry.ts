@@ -86,16 +86,34 @@ export const FLOOR_EDGE_CLEARANCE = 1.5;
  * wall, the far back leg and the far front leg. Measured off the pictures; the right-wall pictures
  * are the mirror image.
  */
-const FURNITURE_LEGS = [
-  { dx: -0.45, dy: -0.37 },
-  { dx: -0.16, dy: -0.6 },
-  { dx: 0.37, dy: -0.22 },
+export interface FurnitureLeg {
+  dx: number;
+  dy: number;
+}
+
+/** A desk, wardrobe, sofa or chair: its long side runs along the wall. */
+export const FURNITURE_LEGS: FurnitureLeg[] = [
+  { dx: -0.45, dy: -0.16 },
+  { dx: 0.18, dy: -0.43 },
+  { dx: 0.42, dy: -0.29 },
 ];
 
-/** A big piece standing on the floor: how wide it is, and whether its back is to the left wall. */
+/** The bed: its headboard is against the wall, so it reaches out from it. */
+export const BED_LEGS: FurnitureLeg[] = [
+  { dx: -0.44, dy: -0.34 },
+  { dx: -0.06, dy: -0.52 },
+  { dx: 0.45, dy: -0.22 },
+];
+
+/**
+ * A big piece standing on the floor: how wide it is, whether its back is to the left wall, its legs,
+ * and the shear it is drawn with to lie along its wall (pixels down per pixel to the right).
+ */
 export interface FurnitureFootprint {
   width: number;
   isOnLeftWall: boolean;
+  legs?: FurnitureLeg[];
+  shear?: number;
 }
 
 /**
@@ -105,12 +123,14 @@ export interface FurnitureFootprint {
 export function getFloorMinY(geometry: RoomGeometry, x: number, footprint?: FurnitureFootprint): number {
   const atFeet = floorEdgeY(geometry, x) + FLOOR_EDGE_CLEARANCE;
   if (!footprint || footprint.width <= 0) return atFeet;
-  const { width } = footprint;
+  const { width, shear = 0, legs = FURNITURE_LEGS } = footprint;
   const side = footprint.isOnLeftWall ? 1 : -1;
-  return FURNITURE_LEGS.reduce(
-    (minY, leg) => Math.max(minY, floorEdgeY(geometry, x + side * leg.dx * width) + FLOOR_EDGE_CLEARANCE - leg.dy * width),
-    atFeet
-  );
+  return legs.reduce((minY, leg) => {
+    const dx = side * leg.dx * width;
+    // the shear lifts or lowers a leg by how far it is from the feet
+    const legAboveFeet = -leg.dy * width - shear * dx * SCENE_WIDTH_OVER_HEIGHT;
+    return Math.max(minY, floorEdgeY(geometry, x + dx) + FLOOR_EDGE_CLEARANCE + legAboveFeet);
+  }, atFeet);
 }
 
 /** The surfaces of a room (the desk top depends on the desk, see getSurfaces). */

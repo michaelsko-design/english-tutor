@@ -12,6 +12,7 @@ import {
   moveRoomEntry,
   moveRoomObject,
   getPlacedRoomEntries,
+  getPlacementOptions,
   getSurfaces,
   placeNamedRoomItemAt,
   placeRoomItemAt,
@@ -21,7 +22,7 @@ import {
 } from './roomPlacement';
 import { ROOM_NAMING_XP, ROOM_SLOTS, RoomSlotKind, getUnplacedRoomItems, removeRoomItem } from './room';
 import { LearnerProfile, ThemeId } from '../types/learner';
-import { floorEdgeY, getRoomGeometry } from './roomGeometry';
+import { BED_LEGS, floorEdgeY, getRoomGeometry } from './roomGeometry';
 import { isInConvexPolygon } from './scenePolygon';
 
 const NOW = new Date('2026-10-17T10:00:00.000Z');
@@ -132,16 +133,22 @@ describe('themed room geometry', () => {
         });
       });
 
-      it('keeps all the legs of a big piece on the floor, wherever it is dragged: its back leg is higher up than its feet', () => {
+      it('keeps all the legs of a big piece on the floor, wherever it is dragged: its back legs are higher up than its feet', () => {
         const width = getItemWidth({ id: 'object:bed', slotKind: 'floor' });
-        [10, 25, 40, geometry.cornerX + 10, 85].forEach((x) => {
-          const { point } = snapToSurface('floor', { x, y: 0 }, { layout, width, furnitureWall: x < geometry.cornerX ? 'left' : 'right' });
-          const side = point.x < geometry.cornerX ? -1 : 1;
-          // the back leg by the wall: near one end of the piece, about 0.37 of its width up from its feet
-          const backLegX = point.x + side * 0.45 * width;
-          expect(point.y - 0.37 * width, `x ${x}`).toBeGreaterThanOrEqual(floorEdgeY(geometry, backLegX));
-          expect(point.y).toBeLessThanOrEqual(geometry.floorMaxY);
-        });
+        (['left', 'right'] as const).forEach((wall) =>
+          [10, 25, 40, geometry.cornerX + 10, 85].forEach((x) => {
+            const options = getPlacementOptions('object:bed', width, layout, wall);
+            const { point } = snapToSurface('floor', { x, y: 0 }, options);
+            const side = wall === 'left' ? 1 : -1;
+            BED_LEGS.forEach((leg) => {
+              const dx = side * leg.dx * width;
+              // the picture is sheared about its feet to lie along its wall, which lifts one end
+              const legY = point.y + leg.dy * width + options.furnitureShear! * dx * (4 / 3);
+              expect(legY, `${wall} wall, x ${x}`).toBeGreaterThanOrEqual(floorEdgeY(geometry, point.x + dx) - 0.01);
+            });
+            expect(point.y).toBeLessThanOrEqual(geometry.floorMaxY);
+          })
+        );
       });
 
       it('runs the shelves along the right wall, and keeps what stands on them on the plank', () => {
@@ -501,9 +508,9 @@ describe('mission objects and the desk', () => {
     const facingLeft = outlineOf(turned);
     const deskX = getRoomLayout(turned).deskPoint.x;
     expect(facingRight).toHaveLength(4);
-    // the back corner of the top is right of the middle for the desk against the right wall, left of it when turned
-    expect(facingRight[1].x).toBeGreaterThan(getRoomLayout(profile).deskPoint.x);
-    expect(facingLeft[1].x).toBeLessThan(deskX);
+    // the back corner of the top is toward the corner: left of the middle against the right wall, right of it when turned
+    expect(facingRight[1].x).toBeLessThan(getRoomLayout(profile).deskPoint.x);
+    expect(facingLeft[1].x).toBeGreaterThan(deskX);
     const top = getDeskTopPoint(getRoomLayout(turned).deskPoint, getRoomGeometry('starlight-rpg'), getRoomLayout(turned).deskShape);
     expect(Math.min(...facingLeft.map((c) => c.y))).toBeLessThan(top.y);
     expect(Math.max(...facingLeft.map((c) => c.y))).toBeGreaterThan(top.y);

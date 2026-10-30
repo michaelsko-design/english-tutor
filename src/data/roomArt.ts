@@ -49,6 +49,12 @@ export interface RoomSpriteOptions {
   wallSlope?: number;
 }
 
+/**
+ * Big furniture, drawn at about the rooms' camera: its slope is that of its edges along the wall it
+ * stands against, and the room shears it so they run exactly along that wall in each theme.
+ */
+const WALL_FURNITURE_IDS = new Set(['object-bed', 'object-wardrobe', 'object-desk', 'room-sofa', 'room-chair']);
+
 /** Pictures drawn as a flat slab, whose slope the room mirrors to fit the wall (see isFlatOnWall). */
 const SLOPED_WALL_IDS = new Set(['furniture-shelf-high', 'furniture-shelf-low', 'furniture-board', 'room-picture']);
 /** A top edge flatter than this (pixels down per pixel across) fits either wall. */
@@ -96,7 +102,7 @@ export function getRoomSprite(
     aspect: chosen.aspect,
     bounds: isMirrored ? mirrorBounds(bounds) : bounds,
     isMirrored,
-    shear: followsSlope && wallSlope !== undefined ? wallSlope - shownSlope : 0,
+    shear: wallSlope === undefined ? 0 : followsSlope ? wallSlope - shownSlope : WALL_FURNITURE_IDS.has(artId) ? wallSlope - chosen.slope : 0,
   };
 }
 
@@ -121,17 +127,17 @@ export const LEGACY_DESK_SHAPE: DeskShape = { heightOverWidth: 153 / 264, topAbo
 
 /** The desk top's corners (left, back, right, front), read off the desk pictures; all themes draw it alike. */
 const DESK_TOP_CORNERS = [
-  { x: 0.01, y: 0.22 },
-  { x: 0.32, y: 0.01 },
-  { x: 0.92, y: 0.37 },
-  { x: 0.59, y: 0.58 },
+  { x: 0, y: 0.27 },
+  { x: 0.69, y: 0 },
+  { x: 1, y: 0.19 },
+  { x: 0.31, y: 0.43 },
 ];
 
 /**
  * The desk top is drawn as a slanted diamond: its middle (halfway between its left and right corners)
  * is this share of the body's height below the body's top edge.
  */
-const DESK_TOP_FROM_BODY_TOP = 0.29;
+const DESK_TOP_FROM_BODY_TOP = 0.22;
 /** A level line through the diamond's middle stays on the top for a third of the width each way; small things stand back from its ends. */
 const DESK_TOP_HALF_WIDTH_SHARE = 0.2;
 
