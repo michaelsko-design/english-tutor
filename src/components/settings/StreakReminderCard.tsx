@@ -11,10 +11,13 @@ import {
 } from '../../services/push/pushSubscription';
 import { CALENDAR_REMINDER_HOUR, buildGoogleCalendarUrl, downloadReminderIcs } from '../../utils/reminderIcs';
 import { getReminderFacts } from '../../hooks/useReminderSync';
+import { REMINDER_REWARD_DIAMONDS } from '../../data/reminderReward';
 
 interface StreakReminderCardProps {
   profile: LearnerProfile;
   theme: ThemeDefinition;
+  /** Called after reminders were turned on, so the one-time gift can be paid */
+  onEnabled: () => void;
 }
 
 const buttonClass = 'w-full min-h-11 p-2.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5';
@@ -24,7 +27,7 @@ const buttonClass = 'w-full min-h-11 p-2.5 rounded-2xl text-xs sm:text-sm font-e
  * (never on Friday/Shabbat for Shabbat observers), and a calendar
  * reminder that needs no permission. On iPhone/iPad the app must be added to the Home Screen first.
  */
-export const StreakReminderCard: React.FC<StreakReminderCardProps> = ({ profile }) => {
+export const StreakReminderCard: React.FC<StreakReminderCardProps> = ({ profile, onEnabled }) => {
   const user = auth?.currentUser ?? null;
   const uid = user && !user.isAnonymous ? user.uid : null;
   const support = getReminderSupport();
@@ -45,8 +48,12 @@ export const StreakReminderCard: React.FC<StreakReminderCardProps> = ({ profile 
     setIsBusy(true);
     setErrorHe(null);
     const result = isOn ? await disableReminder(uid) : await enableReminder(uid, facts);
-    if (result.ok) setIsOn(!isOn);
-    else setErrorHe(result.errorHe);
+    if (result.ok) {
+      setIsOn(!isOn);
+      if (!isOn) onEnabled();
+    } else {
+      setErrorHe(result.errorHe);
+    }
     setIsBusy(false);
   };
 
@@ -67,6 +74,9 @@ export const StreakReminderCard: React.FC<StreakReminderCardProps> = ({ profile 
             <Bell size={16} aria-hidden="true" />
             {isOn ? 'כיבוי תזכורות' : 'הפעלת תזכורות'}
           </button>
+          {!isOn && !profile.hasEarnedReminderReward && (
+            <p className="text-xs sm:text-sm font-bold">מתנה: {REMINDER_REWARD_DIAMONDS} יהלומים 💎 על הפעלת התזכורת.</p>
+          )}
         </>
       )}
 
