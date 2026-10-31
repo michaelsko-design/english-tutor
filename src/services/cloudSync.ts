@@ -246,6 +246,7 @@ export function mergeLearnerProfiles(
     hasSeenWelcomeGiftModal: Boolean(
       local.hasSeenWelcomeGiftModal || cloud.hasSeenWelcomeGiftModal
     ),
+    ...(local.hasEarnedReminderReward || cloud.hasEarnedReminderReward ? { hasEarnedReminderReward: true } : {}),
     createdAt: cloud.createdAt || local.createdAt || new Date().toISOString(),
     updatedAt: cloud.updatedAt || local.updatedAt || new Date().toISOString(),
   };

@@ -360,6 +360,8 @@ export interface LearnerProfile {
   parentalConsentAt?: string;
   /** Whether the new user has seen and acknowledged the complimentary welcome diamonds modal */
   hasSeenWelcomeGiftModal?: boolean;
+  /** Whether the one-time diamonds for turning on the daily reminder were paid (data/reminderReward.ts) */
+  hasEarnedReminderReward?: boolean;
   /** Latest diagnostic placement test result, if the learner has taken it */
   placementResult?: PlacementResult;
   /** Active exam preparation plan, if the learner created one */

@@ -52,6 +52,7 @@ import { MapPeek } from './home/MapPeek';
 import { NewPackCard } from './home/NewPackCard';
 import { ParentNoticeCard } from './home/ParentNoticeCard';
 import { ParentNudgeCard } from './home/ParentNudgeCard';
+import { ReminderNudgeCard } from './home/ReminderNudgeCard';
 import { readSeenPacks, rememberSeenPack } from './home/seenPacks';
 import { getNewPackOffer } from '../data/contentPacks';
 import { StatsSheet } from './home/StatsSheet';
@@ -457,6 +458,9 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
         {/* AN OPTIONAL, CLOSABLE INVITE FOR A PARENT */}
         <ParentNudgeCard profile={profile} theme={theme} />
+
+        {/* AN OPTIONAL, CLOSABLE OFFER OF THE DAILY REMINDER */}
+        <ReminderNudgeCard profile={profile} theme={theme} onUpdateProfile={onUpdateProfile} />
 
         {/* FEATURE 27: MAP PEEK, THEN THE FULL MAP */}
         {mapPeek && (
