@@ -54,9 +54,13 @@ describe('getRoomSprite', () => {
     expect(sprite?.isMirrored).toBe(false);
   });
 
-  it('returns null for a missing theme or item, so the emoji icon shows', () => {
-    expect(getRoomSprite(undefined, 'room-sofa')).toBeNull();
+  it('returns null for an item without a picture, so the emoji icon shows', () => {
     expect(getRoomSprite('neon-pop', 'room-not-drawn')).toBeNull();
+  });
+
+  it("shows Cozy Studio's pictures for a missing or unknown theme, like its room", () => {
+    expect(getRoomSprite(undefined, 'room-sofa')?.url).toBe('/art/room/cozy-studio/room-sofa.webp');
+    expect(getRoomSprite('old-theme' as never, 'room-sofa')?.url).toBe('/art/room/cozy-studio/room-sofa.webp');
   });
 
   it('mirrors a wall picture on the left wall, with its body bounds mirrored too', () => {

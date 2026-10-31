@@ -533,7 +533,7 @@ const ROOM_GEOMETRY: Record<ThemeId, RoomGeometry> = {
 };
 
 /** A missing or unknown theme gets the default theme's room. */
-const FALLBACK_THEME: ThemeId = 'cozy-studio';
+export const FALLBACK_THEME: ThemeId = 'cozy-studio';
 
 /** The room of a theme. */
 export function getRoomGeometry(themeId: ThemeId | undefined): RoomGeometry {

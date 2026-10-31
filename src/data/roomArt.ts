@@ -1,10 +1,11 @@
 import { ThemeId } from '../types/learner';
 import { ROOM_ART, RoomArtSprite } from './roomArtManifest';
+import { FALLBACK_THEME } from './roomGeometry';
 
 /**
  * The themed room pictures (public/art/room/<theme>/<id>.webp, listed in roomArtManifest.ts): which
- * picture an item shows in a theme's room, mirrored or not, and where its body sits inside the picture. A theme or item without a picture returns null, and the scene falls back
- * to the item's emoji icon.
+ * picture an item shows in a theme's room, mirrored or not, and where its body sits inside the picture. A missing or unknown theme
+ * shows Cozy Studio's pictures; an item without a picture returns null, and the scene falls back to the item's emoji icon.
  */
 
 const ART_ROOT = '/art/room';
@@ -76,15 +77,16 @@ export function getRoomSprite(
   artId: string,
   { isOnLeftWall = false, canMirror = false, isFlatOnWall = false, wallSlope }: RoomSpriteOptions = {}
 ): RoomSprite | null {
-  const pictures = themeId ? ROOM_ART[themeId] : undefined;
-  const base = pictures?.[artId];
-  if (!themeId || !pictures || !base) return null;
+  // a missing or unknown theme shows Cozy Studio's room (getRoomGeometry), so it shows its pictures too
+  const theme = themeId && ROOM_ART[themeId] ? themeId : FALLBACK_THEME;
+  const base = ROOM_ART[theme]?.[artId];
+  if (!base) return null;
   const followsSlope = isFlatOnWall && SLOPED_WALL_IDS.has(artId);
   const isMirrored = followsSlope ? !slopeFitsWall(base.slope, isOnLeftWall) : isOnLeftWall && canMirror;
   const bounds = boundsOf(base);
   const shownSlope = isMirrored ? -base.slope : base.slope;
   return {
-    url: `${ART_ROOT}/${themeId}/${artId}.webp`,
+    url: `${ART_ROOT}/${theme}/${artId}.webp`,
     aspect: base.aspect,
     bounds: isMirrored ? mirrorBounds(bounds) : bounds,
     isMirrored,
