@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { HebrewAudioContext } from '../../data/hebrewAudio';
 import { TEST_THEME } from '../../test/fixtures';
 import { SentenceBuilderDrill } from './SentenceBuilderDrill';
 
@@ -58,5 +59,49 @@ describe('SentenceBuilderDrill hint translations', () => {
   it('keeps a revealed translation under the word', () => {
     renderDrill({ isActive: false, revealedGlossFor: (word) => GLOSSES[word] });
     expect(screen.getByText('שנה')).toBeInTheDocument();
+  });
+});
+
+describe('SentenceBuilderDrill read-aloud (grades 1–2)', () => {
+  function renderAloud(isReadingAloud: boolean, onSpeakEnglish = vi.fn(), onChangeOrder = vi.fn()) {
+    render(
+      <HebrewAudioContext.Provider value={isReadingAloud}>
+        <SentenceBuilderDrill
+          scrambledWords={['This', 'year', 'new']}
+          selectedIndices={[]}
+          isCompleted={false}
+          onChangeOrder={onChangeOrder}
+          onReset={vi.fn()}
+          onCheck={vi.fn()}
+          theme={TEST_THEME}
+          onSpeakEnglish={onSpeakEnglish}
+          wordHelp={{
+            isActive: false,
+            canReveal: () => false,
+            revealedGlossFor: (word) => GLOSSES[word],
+            onReveal: vi.fn(),
+          }}
+        />
+      </HebrewAudioContext.Provider>
+    );
+    return { onSpeakEnglish, onChangeOrder };
+  }
+
+  it('reads a bank word aloud without placing it in the sentence', async () => {
+    const user = userEvent.setup();
+    const { onSpeakEnglish, onChangeOrder } = renderAloud(true);
+    await user.click(screen.getByRole('button', { name: /הקשבה לתשובה: year/ }));
+    expect(onSpeakEnglish).toHaveBeenCalledWith('year', expect.anything());
+    expect(onChangeOrder).not.toHaveBeenCalled();
+  });
+
+  it('offers a listen button for a revealed translation', () => {
+    renderAloud(true);
+    expect(screen.getAllByRole('button', { name: 'הקשבה לתרגום' })).toHaveLength(2);
+  });
+
+  it('shows no listen buttons for the older grades', () => {
+    renderAloud(false);
+    expect(screen.queryByRole('button', { name: /הקשבה/ })).not.toBeInTheDocument();
   });
 });

@@ -33,6 +33,8 @@ import { MissionIntro, INTRO_COMPANION_SIZE, LessonOffer } from './mission/Missi
 import { MiniLesson, LESSON_COMPANION_SIZE } from './mission/MiniLesson';
 import { useMiniLesson } from '../hooks/useMiniLesson';
 import { useWordReveal } from '../hooks/useWordReveal';
+import { getWordGlossKey } from '../utils/hints';
+import { speakHebrew } from '../services/tts';
 import { shouldAutoShowLesson } from '../data/miniLessons';
 import { TrailProgress } from './mission/TrailProgress';
 import { StoryPassage } from './mission/StoryPassage';
@@ -185,6 +187,14 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   const currentStep: MissionExerciseStep = steps[currentStepIdx] || steps[0];
   const wordReveal = useWordReveal(currentStep.id, currentStep.hintWords, currentStep.scrambledWords?.length ?? 0);
   const hasWordHelp = (currentStep.hintWords?.length ?? 0) > 0;
+  // Grades 1–2 can't read the revealed Hebrew well either: it is read aloud as it appears
+  const handleRevealWord = (word: string) => {
+    if (!wordReveal.canReveal(word)) return;
+    wordReveal.reveal(word);
+    const key = getWordGlossKey(word);
+    const gloss = currentStep.hintWords?.find((entry) => getWordGlossKey(entry.wordEn) === key)?.translationHe;
+    if (readsHebrewAloud && gloss) void speakHebrew(gloss);
+  };
   const tierMeta = TIER_CONFIG[tier];
   const baseXpTotal = Math.round(mission.baseXp * tierMeta.xpMultiplier);
 
@@ -680,13 +690,14 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     onReset={() => session.setWordIndices([])}
                     onCheck={handleCheckSentence}
                     theme={theme}
+                    onSpeakEnglish={readsHebrewAloud ? (text, rate) => onSpeakEnglish(text, rate) : undefined}
                     wordHelp={
                       hasWordHelp
                         ? {
                             isActive: showHint,
                             canReveal: wordReveal.canReveal,
                             revealedGlossFor: wordReveal.revealedGlossFor,
-                            onReveal: wordReveal.reveal,
+                            onReveal: handleRevealWord,
                           }
                         : undefined
                     }

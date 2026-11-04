@@ -16,7 +16,11 @@ import {
 } from './magnetDrag';
 import { Button } from '../ui/Button';
 import { StickyActionBar } from './StickyActionBar';
+import { OptionSpeakButton } from './OptionSpeakButton';
+import { HebrewSpeakButton } from './HebrewSpeakButton';
+import { useReadsHebrewAloud } from '../../data/hebrewAudio';
 
+const SPEAK_WORD_CLASS = 'min-h-11';
 interface SentenceBuilderDrillProps {
   scrambledWords: string[];
   selectedIndices: number[];
@@ -26,6 +30,8 @@ interface SentenceBuilderDrillProps {
   onReset: () => void;
   onCheck: () => void;
   theme: ThemeDefinition;
+  /** Grades 1–2 (Hebrew audio): a 🔊 beside each bank word reads it aloud */
+  onSpeakEnglish?: (text: string, rate?: number) => void;
   /** Hint help: while the hint is open, translate icons sit next to the words that can be translated */
   wordHelp?: {
     isActive: boolean;
@@ -46,8 +52,10 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
   onReset,
   onCheck,
   theme,
+  onSpeakEnglish,
   wordHelp,
 }) => {
+  const readsAloud = useReadsHebrewAloud();
   const drag = useMagnetDrag({
     order: selectedIndices,
     isDisabled: isCompleted,
@@ -107,27 +115,34 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
           dir="ltr"
           lang="en"
         >
-          {scrambledWords.map((word, idx) => (
+          {scrambledWords.map((word, idx) => {
+            const gloss = wordHelp?.revealedGlossFor(word);
+            return (
             <div key={`bank-${idx}-${word}`} className="relative flex flex-col items-center">
-              {placed.includes(idx) ? (
-                <button
-                  type="button"
-                  disabled
-                  className={`${CHIP_CLASS} transition-all opacity-30 scale-95 cursor-not-allowed bg-slate-400/20`}
-                >
-                  {word}
-                </button>
-              ) : (
-                <DraggableMagnet
-                  idx={idx}
-                  isDragDisabled={isCompleted}
-                  disabled={isCompleted}
-                  onClick={() => handleTap(idx)}
-                  className={`${CHIP_CLASS} transition-all ${theme.secondaryBtnClass}`}
-                >
-                  {word}
-                </DraggableMagnet>
-              )}
+              <div className="flex items-center gap-1">
+                {placed.includes(idx) ? (
+                  <button
+                    type="button"
+                    disabled
+                    className={`${CHIP_CLASS} transition-all opacity-30 scale-95 cursor-not-allowed bg-slate-400/20`}
+                  >
+                    {word}
+                  </button>
+                ) : (
+                  <DraggableMagnet
+                    idx={idx}
+                    isDragDisabled={isCompleted}
+                    disabled={isCompleted}
+                    onClick={() => handleTap(idx)}
+                    className={`${CHIP_CLASS} transition-all ${theme.secondaryBtnClass}`}
+                  >
+                    {word}
+                  </DraggableMagnet>
+                )}
+                {readsAloud && onSpeakEnglish && (
+                  <OptionSpeakButton text={word} onSpeakEnglish={onSpeakEnglish} className={`${SPEAK_WORD_CLASS} ${theme.secondaryBtnClass}`} />
+                )}
+              </div>
               {wordHelp && !isCompleted && wordHelp.isActive && wordHelp.canReveal(word) && (
                 <button
                   type="button"
@@ -139,13 +154,17 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
                   <Languages className="w-4 h-4" aria-hidden="true" />
                 </button>
               )}
-              {wordHelp?.revealedGlossFor(word) && (
-                <span dir="rtl" lang="he" className="mt-0.5 text-xs font-bold text-amber-500">
-                  {wordHelp.revealedGlossFor(word)}
-                </span>
+              {gloss && (
+                <div className="mt-0.5 flex items-center gap-1">
+                  <span dir="rtl" lang="he" className="text-xs font-bold text-amber-500">
+                    {gloss}
+                  </span>
+                  <HebrewSpeakButton text={gloss} label="הקשבה לתרגום" />
+                </div>
               )}
             </div>
-          ))}
+            );
+          })}
         </MagnetDropZone>
 
         <MagnetDragOverlay>

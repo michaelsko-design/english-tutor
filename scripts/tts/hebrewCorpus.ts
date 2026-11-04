@@ -47,6 +47,8 @@ export function getStepHebrew(step: MissionExerciseStep): string[] {
     step.cardTextHe,
     step.targetSentenceHe,
     step.speakTargetHe,
+    // The sentence-builder hint's word translations are read aloud as the learner reveals them
+    ...(step.hintWords ?? []).map((gloss) => gloss.translationHe),
     ...(step.options ?? []).flatMap((option) => [option.textEn, option.explanationHe]),
   ].filter((text): text is string => Boolean(text) && HEBREW_LETTER.test(text as string));
 }
