@@ -66,7 +66,7 @@ export const GEMINI_SPELLINGS: Readonly<Record<string, string>> = {
   חשבו: 'חִשְׁבוּ',
   מטרייה: 'מִטְרִיָּה',
   דובי: 'דּוּבִי',
-  לאוגר: 'לָאוֹגֶר',
+  לאוגר: 'לָאוֹגֵר',
   מצדף: 'מִצֶּדֶף',
   מיטה: 'מִטָּה',
   לימון: 'לִימוֹן',
@@ -111,13 +111,52 @@ export const GEMINI_LETTER_NAMES: Readonly<Record<string, string>> = {
 
 const LONE_LETTER = /(?<![A-Za-z])([A-Z])(?![A-Za-z])/g;
 
+/** The letters' English names. A Latin letter alone in a Hebrew sentence is sometimes not read at all ("M: אותה אות"). */
+const ENGLISH_LETTER_NAMES: Readonly<Record<string, string>> = {
+  A: 'Ay', B: 'Bee', C: 'Cee', D: 'Dee', E: 'E', F: 'Eff', G: 'Gee', H: 'Aitch', I: 'Eye', J: 'Jay', K: 'Kay', L: 'El', M: 'Em',
+  N: 'En', O: 'Oh', P: 'Pee', Q: 'Cue', R: 'Ar', S: 'Ess', T: 'Tee', U: 'You', V: 'Vee', W: 'Double-u', X: 'Ex', Y: 'Why', Z: 'Zed',
+};
+
+/**
+ * "B b: אותה אות, גדולה וקטנה" (a capital and its small form on the screen) was read as the letter
+ * twice, "bee bee" (2026-11, by ear). Said once, by its name: the Hebrew that follows names both forms.
+ */
+const LETTER_PAIR = /(?<![A-Za-z])([A-Z]) \1(?![A-Za-z])/gi;
+
+function sayLetterPairOnce(text: string): string {
+  return text.replace(LETTER_PAIR, (_pair, letter: string) => ENGLISH_LETTER_NAMES[letter.toUpperCase()] ?? letter);
+}
+
+/**
+ * "6 six מסתיים באות X": the numeral and its word were read as "six six" (2026-11, by ear). The word
+ * alone is heard; the screen keeps the numeral.
+ */
+const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+const NUMERAL_BEFORE_WORD = /(?<![\w.])(\d{1,2}) ([A-Za-z]+)(?![A-Za-z])/g;
+
+function dropNumeralBeforeItsWord(text: string): string {
+  return text.replace(NUMERAL_BEFORE_WORD, (match, numeral: string, word: string) =>
+    NUMBER_WORDS[Number(numeral)] === word.toLowerCase() ? word : match,
+  );
+}
+
+/** A line about letters ("…שייכת לאות…") has its lone Latin letters, capital or small, read by name; elsewhere "I" and "a" are words. */
+const LETTER_LINE = /אות(?![א-ת])/;
+const ANY_LONE_LETTER = /(?<![A-Za-z'’/])([A-Za-z])(?![A-Za-z'’/])/g;
+
+function sayLoneLettersByName(text: string): string {
+  if (!LETTER_LINE.test(text)) return text;
+  return text.replace(ANY_LONE_LETTER, (letter) => ENGLISH_LETTER_NAMES[letter.toUpperCase()] ?? letter);
+}
+
 /** A Hebrew clip's text (maybe tagged `[to:girl] …`) as Gemini reads it. */
 export function toGeminiText(clipText: string): string {
   const { gender, text } = parseListenerGender(clipText);
   const forms = gender === 'girl' ? GEMINI_GIRL_FORMS : gender === 'boy' ? GEMINI_BOY_FORMS : null;
-  const whole = applyFullNiqqud(text);
-  if (whole !== text) return withFinalStop(whole);
-  const forListener = forms ? replaceWords(text, forms) : text;
+  const paired = sayLoneLettersByName(sayLetterPairOnce(dropNumeralBeforeItsWord(text)));
+  const whole = applyFullNiqqud(paired);
+  if (whole !== paired) return withFinalStop(whole);
+  const forListener = forms ? replaceWords(paired, forms) : paired;
   return withFinalStop(replaceWords(forListener, GEMINI_SPELLINGS).replace(LONE_LETTER, (letter) => GEMINI_LETTER_NAMES[letter] ?? letter));
 }
 

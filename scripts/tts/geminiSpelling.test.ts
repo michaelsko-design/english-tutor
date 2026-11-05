@@ -11,6 +11,22 @@ describe('toGeminiText', () => {
     expect(toGeminiText('לא בדיוק —')).toBe('לא בדיוק —');
   });
 
+  it('says a capital and its small letter once, not "bee bee"', () => {
+    expect(toGeminiText('B b: אותה אות, גדולה וקטנה.')).toBe('Bee: אותה אות, גדולה וקטנה.');
+    expect(toGeminiText('M m: אותה אות, גדולה וקטנה.')).toBe('Em: אותה אות, גדולה וקטנה.');
+    expect(toGeminiText('The cat is big')).toBe('The cat is big.');
+  });
+
+  it('says a number word once when the numeral comes before it', () => {
+    expect(toGeminiText('6 six מסתיים באות X. נסו שוב!')).toBe('six מסתיים באות Ex. נסו שוב!');
+    expect(toGeminiText('יש 3 cats כאן')).toBe('יש 3 cats כאן.');
+  });
+
+  it('reads the lone letters of a line about letters by name, but not "I" or "a" in other lines', () => {
+    expect(toGeminiText('לא הפעם: c היא האות הקטנה של C, לא של A. נסו שוב!')).toBe('לא הפעם: Cee היא האות הקטנה של Cee, לא של Ay. נסו שוב!');
+    expect(toGeminiText('לפני דבר אחד אומרים a: a book')).toBe('לפני דבר אחד אומרים a: a book.');
+    expect(toGeminiText("fox מתחילה באות F, כמו it's")).toBe("fox מתחילה באות Eff, כמו it's.");
+  });
 
   it("gives each clip the listener's form of a word that reads by gender", () => {
     expect(toGeminiText('[to:girl] מעולה! בנית את המילה cat')).toBe('מְעֻלָּה! בָּנִיתְּ את המילה cat.');

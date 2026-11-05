@@ -78,7 +78,8 @@ function buildCaseStep(letter: AlphabetLetter, ctx: LetterStepContext, toLower: 
       textEn: pick(other),
       speakEn: getLetterNameSpeech(other.upper),
       isCorrect: false,
-      explanationHe: `לא הפעם: ${en(pick(other))} שייכת לאות ${en(`${other.upper}${other.lower}`)}. נסו שוב!`,
+      // The question was "which small (big) letter matches the one on the card?": say whose partner the pick is
+      explanationHe: `לא הפעם: ${en(pick(other))} היא האות ${toLower ? 'הקטנה' : 'הגדולה'} של ${en(toLower ? other.upper : other.lower)}, לא של ${en(shown)}. נסו שוב!`,
     })),
   ];
   return {

@@ -55,6 +55,8 @@ const CLOUD_SPEAKABLE = /^[\p{Script=Latin}0-9 .,!?'’"“”\-–—:;()&%$/+]
 
 const HEBREW_LETTER = /[\u05d0-\u05ea]/;
 /** What the Hebrew voice calls the \ud83d\udd0a in an instruction ("\u05dc\u05d7\u05e6\u05d9 \u05e2\u05dc \ud83d\udd0a"), instead of guessing a word for it */
+/** The ➡️ button of the sound tiles, said in Hebrew text ("לחצי על ➡️ …" was read "לחצי על …"). */
+const ARROW_BUTTON_HE = 'כפתור החץ';
 const SPEAKER_BUTTON_HE = '\u05db\u05e4\u05ea\u05d5\u05e8 \u05d4\u05e8\u05de\u05e7\u05d5\u05dc';
 /** Hebrew text: Hebrew letters and points, Latin runs (an English word in an instruction), digits and punctuation. */
 const HEBREW_SPEAKABLE = /^[\u0590-\u05ff\p{Script=Latin}0-9 .,!?'’"“”״׳\-–—:;()&%/+…]+$/u;
@@ -158,6 +160,7 @@ export function toSpeakableText(text: string): string {
     .replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, '')
     .replace(/_{3,}/g, 'blank')
     .replace(/🔊/gu, HEBREW_LETTER.test(text) ? SPEAKER_BUTTON_HE : '')
+    .replace(/➡️?/g, HEBREW_LETTER.test(text) ? ARROW_BUTTON_HE : '')
     .replace(/\p{Extended_Pictographic}|\p{Regional_Indicator}|️|‍|⃣/gu, '')
     .trim();
 }

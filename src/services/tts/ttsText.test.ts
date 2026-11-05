@@ -195,3 +195,10 @@ describe('splitHebrewOpener', () => {
     expect(splitHebrewOpener('כל הכבוד!')).toBeNull();
   });
 });
+
+describe('toSpeakableText arrow button', () => {
+  it('says the ➡️ button in Hebrew text and drops it from English text', () => {
+    expect(toSpeakableText('לחצי על ➡️ כדי לשמוע')).toBe('לחצי על כפתור החץ כדי לשמוע');
+    expect(toSpeakableText('Press ➡️ now')).toBe('Press  now');
+  });
+});

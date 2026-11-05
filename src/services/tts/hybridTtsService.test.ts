@@ -141,8 +141,9 @@ describe('hybrid read-aloud service', () => {
     const sentence = getClipKey('The king has a gold crown.', 'normal');
     const { service, fetchMock } = setup({ hebrewClipKeys: [opener], clipKeys: [sentence], listenerGender: 'girl' });
     await service.speak('מעולה! "The king has a gold crown."', { lang: 'he' });
-    const urls = fetchMock.mock.calls.map(([url]) => String(url)).filter((url) => /\/tts\//.test(url) && url.endsWith('.mp3'));
-    expect(urls).toEqual([`/tts/v4/he-female/${opener}.mp3`, expect.stringContaining(`/female/${sentence}.mp3`)]);
+    // A clip replaced after it shipped carries a revision (`?r=N`), so the opener's URL may end that way
+    const urls = fetchMock.mock.calls.map(([url]) => String(url)).filter((url) => /\/tts\/.*\.mp3(\?r=\d+)?$/.test(url));
+    expect(urls).toEqual([expect.stringMatching(new RegExp(`^/tts/v4/he-female/${opener}\\.mp3(\\?r=\\d+)?$`)), expect.stringContaining(`/female/${sentence}.mp3`)]);
   });
 
   it('reads the whole line when one of the two clips is missing', async () => {
