@@ -64,6 +64,8 @@ interface Playable {
   engine: TtsEngine;
   playbackRate: number;
   revoke?: () => void;
+  /** The audio bytes, kept so the spoken part can be measured (the CSP doesn't allow fetching blob: URLs). */
+  blob?: Blob;
   /** The spoken part, when only that is to play (words read in a row). */
   bounds?: SpeechBounds;
 }
@@ -122,8 +124,9 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
   const toPlayable = async (url: string, engine: TtsEngine, playbackRate: number, signal: AbortSignal): Promise<Playable | null> => {
     const response = await deps.fetch(url, { signal });
     if (!isAudioResponse(response)) return null;
-    const objectUrl = URL.createObjectURL(await response.blob());
-    return { src: objectUrl, engine, playbackRate, revoke: () => URL.revokeObjectURL(objectUrl) };
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    return { src: objectUrl, engine, playbackRate, blob, revoke: () => URL.revokeObjectURL(objectUrl) };
   };
 
   const trimLiveCache = async (cache: Cache) => {
@@ -200,8 +203,9 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
           .catch(() => undefined);
       }
     }
-    const objectUrl = URL.createObjectURL(await response.blob());
-    return { src: objectUrl, engine: 'live', playbackRate, revoke: () => URL.revokeObjectURL(objectUrl) };
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    return { src: objectUrl, engine: 'live', playbackRate, blob, revoke: () => URL.revokeObjectURL(objectUrl) };
   };
 
   const play = (audio: HTMLAudioElement, playable: Playable, onStart?: (engine: TtsEngine) => void): Promise<boolean> =>
@@ -270,8 +274,8 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
     shouldTrim = false,
   ): Promise<Playable | null> => {
     const playable = (await findClip(voiced, clipVoice, rate, signal)) ?? (await fetchLive(toPlainSpeech(voiced), clipVoice, rate, signal));
-    if (!playable || !shouldTrim) return playable;
-    const bounds = await measureSpeechBounds(playable.src, deps.fetch);
+    if (!playable?.blob || !shouldTrim) return playable;
+    const bounds = await measureSpeechBounds(playable.blob);
     return bounds ? { ...playable, bounds } : playable;
   };
 

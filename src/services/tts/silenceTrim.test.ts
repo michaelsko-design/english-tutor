@@ -37,8 +37,6 @@ describe('findSpeechBounds', () => {
 
 describe('measureSpeechBounds', () => {
   it('gives null where audio decoding is not available', async () => {
-    const fetchImpl = (async () => new Response(new Uint8Array([1]))) as typeof fetch;
-
-    expect(await measureSpeechBounds('blob:x', fetchImpl)).toBeNull();
+    expect(await measureSpeechBounds(new Blob([new Uint8Array([1])]))).toBeNull();
   });
 });

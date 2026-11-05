@@ -31,11 +31,11 @@ export function findSpeechBounds(samples: Float32Array, sampleRate: number): Spe
   };
 }
 
-/** Decodes the audio at `url` and finds its spoken part; null where decoding isn't available or fails. */
-export async function measureSpeechBounds(url: string, fetchImpl: typeof fetch): Promise<SpeechBounds | null> {
+/** Decodes the audio and finds its spoken part; null where decoding isn't available or fails. */
+export async function measureSpeechBounds(audio: Blob): Promise<SpeechBounds | null> {
   if (typeof OfflineAudioContext === 'undefined') return null;
   try {
-    const data = await (await fetchImpl(url)).arrayBuffer();
+    const data = await audio.arrayBuffer();
     // Offline: needs no user gesture. Length and rate only size the (unused) render buffer.
     const decoded = await new OfflineAudioContext(1, 1, 44_100).decodeAudioData(data);
     return findSpeechBounds(decoded.getChannelData(0), decoded.sampleRate);
