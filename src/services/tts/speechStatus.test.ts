@@ -145,6 +145,107 @@ describe('isSameSpeech', () => {
   });
 });
 
+describe('enqueue', () => {
+  const spoken = (service: TextToSpeechService) => vi.mocked(service.speak).mock.calls.map(([text]) => text);
+  const settle = async () => {
+    for (let i = 0; i < 5; i += 1) await Promise.resolve();
+  };
+
+  it('reads quickly queued words one after another', async () => {
+    const { service, finishAll } = fakeService();
+    const status = createSpeechStatus(service);
+
+    status.enqueue('He');
+    status.enqueue('has');
+    status.enqueue('worked');
+    expect(spoken(service)).toEqual(['He']);
+    expect(status.getCurrent()?.text).toBe('He');
+
+    await finishAll();
+    await settle();
+    expect(spoken(service)).toEqual(['He', 'has']);
+    await finishAll();
+    await settle();
+    expect(spoken(service)).toEqual(['He', 'has', 'worked']);
+    await finishAll();
+    await settle();
+    expect(status.getCurrent()).toBeNull();
+  });
+
+  it('starts a new queue after the previous one finished', async () => {
+    const { service, finishAll } = fakeService();
+    const status = createSpeechStatus(service);
+    status.enqueue('one');
+    await finishAll();
+    await settle();
+
+    status.enqueue('two');
+
+    expect(spoken(service)).toEqual(['one', 'two']);
+  });
+
+  it('drops the waiting words when another reading starts', async () => {
+    const { service, finishAll } = fakeService();
+    const status = createSpeechStatus(service);
+    status.enqueue('one');
+    status.enqueue('two');
+
+    void status.speak('feedback');
+    await finishAll();
+    await settle();
+
+    expect(spoken(service)).toEqual(['one', 'feedback']);
+  });
+
+  it('drops the waiting words when stopped, and queues again afterwards', async () => {
+    const { service, finishAll } = fakeService();
+    const status = createSpeechStatus(service);
+    status.enqueue('one');
+    status.enqueue('two');
+
+    status.stop();
+    await settle();
+    expect(spoken(service)).toEqual(['one']);
+
+    status.enqueue('three');
+    status.enqueue('four');
+    await finishAll();
+    await settle();
+    expect(spoken(service)).toEqual(['one', 'three', 'four']);
+  });
+
+  it('keeps going when a word fails to play', async () => {
+    const service: TextToSpeechService = {
+      speak: vi.fn().mockRejectedValueOnce(new Error('boom')).mockResolvedValue(undefined),
+      stop: vi.fn(),
+      isReady: () => true,
+    };
+    const status = createSpeechStatus(service);
+
+    status.enqueue('bad');
+    status.enqueue('good');
+    await settle();
+
+    expect(spoken(service)).toEqual(['bad', 'good']);
+  });
+
+  it('keeps only the newest waiting words past the cap', async () => {
+    const { service, finishAll } = fakeService();
+    const status = createSpeechStatus(service);
+    for (let i = 0; i < 20; i += 1) status.enqueue(`w${i}`);
+
+    for (let i = 0; i < 20; i += 1) {
+      await finishAll();
+      await settle();
+    }
+
+    const words = spoken(service);
+    expect(words[0]).toBe('w0');
+    expect(words).toHaveLength(13);
+    expect(words[words.length - 1]).toBe('w19');
+  });
+});
+
 describe('speakSequence', () => {
   it('reads the parts one after another', async () => {
     const { service, finishAll } = fakeService();

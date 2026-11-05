@@ -86,6 +86,8 @@ interface MissionRunnerProps {
   learnerName: string;
   theme: ThemeDefinition;
   onSpeakEnglish: (text: string, rate?: number) => void;
+  /** Reads after the word still playing (sentence-builder taps); falls back to onSpeakEnglish */
+  onQueueEnglish?: (text: string, rate?: number) => void;
   onCompleteMission: (result: {
     missionId: string;
     /** The tier played, for the mission's tier ladder */
@@ -132,6 +134,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   learnerName,
   theme,
   onSpeakEnglish,
+  onQueueEnglish = onSpeakEnglish,
   onCompleteMission,
   onClose,
   roomRewardPreview,
@@ -330,7 +333,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     if (stepCompleted || !currentStep.scrambledWords) return;
     session.setWordIndices(nextIndices);
     const tapped = currentStep.scrambledWords[change.idx];
-    if (change.kind === 'add' && tapped !== COMMA_CHIP) onSpeakEnglish(tapped, 0.95);
+    if (change.kind === 'add' && tapped !== COMMA_CHIP) onQueueEnglish(tapped, 0.95);
   };
 
   const handleCheckWord = () => {

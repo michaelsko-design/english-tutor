@@ -201,6 +201,11 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     void getTtsService().speak(text, { rate, voice: DEFAULT_VOICE_PREFERENCE });
   };
 
+  // Word chips tapped quickly are read one after another instead of cutting each other off
+  const queueEnglish = (text: string, rate = DEFAULT_SPEECH_RATE) => {
+    getTtsService().enqueue(text, { rate, voice: DEFAULT_VOICE_PREFERENCE });
+  };
+
   // Grades 1–2: Hebrew and English one after another, e.g. the instruction then the question (Feature 47)
   const speakParts = (parts: SpokenPart[]) => {
     const voice = DEFAULT_VOICE_PREFERENCE;
@@ -625,6 +630,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             learnerName={profile.name}
             theme={theme}
             onSpeakEnglish={speakEnglish}
+            onQueueEnglish={queueEnglish}
             ladder={getMissionLadder(profile, activePracticeMission.id)}
             onCompleteMission={handleCompleteMission}
             onClose={() => setActivePracticeMission(null)}
