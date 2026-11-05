@@ -380,7 +380,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
               clozeWrong: [
                 ['bicycle', 'pencil'],
                 ['wash', 'cook'],
-                ['paint', 'swim'],
+                ['paint', 'sleep'],
               ],
             },
             master: {
@@ -686,7 +686,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
             },
             challenger: {
               clozeWrong: [
-                ['elephant', 'pencil'],
+                ['poem', 'pencil'],
                 ['tomorrow', 'never'],
                 ['ceiling', 'pocket'],
               ],

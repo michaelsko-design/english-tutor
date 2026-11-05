@@ -75,7 +75,7 @@ const UNITS: ElementaryUnitSpec[] = [
                 ['milk', 'soup'],
                 ['door', 'chair'],
                 ['two', 'many'],
-                ['shoes', 'socks'],
+                ['shoe', 'sock'],
               ],
             },
             master: {
@@ -260,8 +260,8 @@ const UNITS: ElementaryUnitSpec[] = [
             challenger: {
               clozeWrong: [
                 ['milk', 'rain'],
-                ['donuts', 'cakes'],
-                ['donuts', 'candles'],
+                ['chair', 'door'],
+                ['song', 'game'],
                 ['rain', 'milk'],
               ],
             },
@@ -358,10 +358,10 @@ const UNITS: ElementaryUnitSpec[] = [
             },
             challenger: {
               clozeWrong: [
-                ['pencil', 'shoe'],
-                ['masks', 'crowns'],
                 ['rain', 'milk'],
-                ['plants', 'masks'],
+                ['rain', 'milk'],
+                ['rain', 'milk'],
+                ['door', 'sock'],
               ],
             },
             master: {
@@ -452,7 +452,7 @@ const UNITS: ElementaryUnitSpec[] = [
               clozeWrong: [
                 ['door', 'soup'],
                 ['milk', 'rain'],
-                ['soups', 'flags'],
+                ['ice', 'snow'],
                 ['rain', 'sky'],
               ],
             },
@@ -544,8 +544,8 @@ const UNITS: ElementaryUnitSpec[] = [
             challenger: {
               clozeWrong: [
                 ['rain', 'sand'],
-                ['beaches', 'pools'],
-                ['shells', 'pools'],
+                ['ice', 'snow'],
+                ['rain', 'song'],
                 ['cheese', 'bread'],
               ],
             },

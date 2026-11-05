@@ -82,7 +82,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
             challenger: {
               clozeWrong: [
                 ['invention', 'accident'],
-                ['generous', 'jealous'],
+                ['annual', 'rural'],
                 ['rehearsal', 'prediction'],
                 ['edit', 'translate'],
               ],
@@ -524,9 +524,9 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
             challenger: {
               clozeWrong: [
                 ['tropical', 'poetic'],
-                ['weakness', 'accessory'],
+                ['cousin', 'accessory'],
                 ['entertainment', 'popularity'],
-                ['agriculture', 'architecture'],
+                ['dentistry', 'carpentry'],
               ],
             },
             master: {
@@ -637,7 +637,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               clozeWrong: [
                 ['trophy', 'schedule'],
                 ['punish', 'translate'],
-                ['celebration', 'invention'],
+                ['celebration', 'passport'],
                 ['stadium', 'injury'],
               ],
             },
@@ -752,7 +752,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
             },
             challenger: {
               clozeWrong: [
-                ['advertising', 'tourism'],
+                ['gardening', 'tourism'],
                 ['telescope', 'planet'],
                 ['flexible', 'comfortable'],
                 ['headline', 'deadline'],
@@ -864,7 +864,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
                 ['tradition', 'decoration'],
                 ['repair', 'inherit'],
                 ['laboratory', 'factory'],
-                ['tropical', 'seasonal'],
+                ['hungry', 'sleepy'],
               ],
             },
             master: {
@@ -1088,7 +1088,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
             },
             challenger: {
               clozeWrong: [
-                ['discrimination', 'stereotype'],
+                ['furniture', 'weather'],
                 ['edible', 'oval'],
                 ['salary', 'deadline'],
                 ['complaint', 'scandal'],

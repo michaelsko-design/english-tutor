@@ -70,7 +70,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             challenger: {
               clozeWrong: [
                 ['door', 'hat'],
-                ['sweet', 'open'],
+                ['empty', 'open'],
                 ['rain', 'sun'],
               ],
             },
@@ -160,7 +160,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
               clozeWrong: [
                 ['cow', 'sun'],
                 ['bus', 'spoon'],
-                ['rock', 'glass'],
+                ['bus', 'glass'],
                 ['many', 'two'],
               ],
             },
@@ -347,7 +347,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             },
             challenger: {
               clozeWrong: [
-                ['Socks', 'Doors'],
+                ['sock', 'door'],
                 ['table', 'window'],
                 ['rain', 'sky'],
               ],
@@ -529,7 +529,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             challenger: {
               clozeWrong: [
                 ['chair', 'shoe'],
-                ['shoes', 'socks'],
+                ['bus', 'door'],
                 ['bread', 'rice'],
               ],
             },
@@ -991,7 +991,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             },
             challenger: {
               clozeWrong: [
-                ['bus', 'pencil'],
+                ['moon', 'rain'],
                 ['milk', 'soup'],
                 ['rain', 'milk'],
               ],
@@ -1084,7 +1084,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
               clozeWrong: [
                 ['sky', 'milk'],
                 ['sock', 'pen'],
-                ['shoes', 'socks'],
+                ['pencil', 'rain'],
               ],
             },
             master: {

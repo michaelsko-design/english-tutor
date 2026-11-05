@@ -81,7 +81,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
               clozeWrong: [
                 ['subject', 'song'],
                 ['invention', 'neighbor'],
-                ['carefully', 'kindly'],
+                ['hungrily', 'kindly'],
                 ['ticket', 'suitcase'],
               ],
             },

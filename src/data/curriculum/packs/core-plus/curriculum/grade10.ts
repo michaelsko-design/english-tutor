@@ -258,7 +258,7 @@ const UNITS: HighSchoolUnitSpec[] = [
               },
             },
             challenger: {
-              clozeWrong: [['holiday', 'salary'], ['careless', 'forgetful'], ['inherit', 'borrow'], ['arrest', 'bury']],
+              clozeWrong: [['holiday', 'salary'], ['delicious', 'triangular'], ['inherit', 'borrow'], ['arrest', 'bury']],
             },
             master: {
               sentenceEn: 'The director told us to submit the report and asked if we needed help.',
@@ -546,7 +546,7 @@ const UNITS: HighSchoolUnitSpec[] = [
               },
             },
             challenger: {
-              clozeWrong: [['opposition', 'allergy'], ['invitation', 'accident'], ['forbid', 'scold'], ['weather', 'laughter']],
+              clozeWrong: [['furniture', 'allergy'], ['invitation', 'accident'], ['forbid', 'dissolve'], ['weather', 'laughter']],
             },
             master: {
               sentenceEn: 'We have been testing the robot for weeks and it has passed every check.',

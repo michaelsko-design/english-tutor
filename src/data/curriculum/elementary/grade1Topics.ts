@@ -497,7 +497,7 @@ export const GRADE_1_TOPIC_UNITS: ElementaryUnitSpec[] = [
               },
             },
             challenger: {
-              clozeWrong: [['Yes', 'Please'], ['pen', 'door'], ['snow', 'ice'], ['fish', 'bed']],
+              clozeWrong: [['table', 'banana'], ['pen', 'door'], ['snow', 'ice'], ['fish', 'bed']],
             },
             master: {
               sentenceEn: 'I say goodbye to my friend.',

@@ -437,7 +437,7 @@ export const grade5Curriculum = buildElementaryGrade('grade-5', [
             challenger: {
               clozeWrong: [
                 ['river', 'morning'],
-                ['hour', 'half'],
+                ['shoes', 'half'],
                 ['half to', 'half before'],
               ],
             },

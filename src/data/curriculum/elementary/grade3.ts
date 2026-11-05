@@ -523,7 +523,7 @@ export const grade3Curriculum = buildElementaryGrade('grade-3', [
             challenger: {
               clozeWrong: [
                 ['square', 'loud'],
-                ['square', 'loud'],
+                ['square', 'round'],
                 ['square', 'round'],
                 ['banana', 'chair'],
               ],

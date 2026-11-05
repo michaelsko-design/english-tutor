@@ -239,8 +239,8 @@ const UNITS: HighSchoolUnitSpec[] = [
             },
             challenger: {
               clozeWrong: [
-                ['thrifty', 'frugal'],
-                ['careless', 'foolish'],
+                ['triangular', 'delicious'],
+                ['triangular', 'musical'],
                 ['boast', 'threaten'],
                 ['vocabulary', 'mortgage'],
               ],
@@ -656,7 +656,7 @@ const UNITS: HighSchoolUnitSpec[] = [
               clozeWrong: [
                 ['expand', 'multiply'],
                 ['vague', 'confusing'],
-                ['essential', 'vital'],
+                ['triangular', 'wooden'],
                 ['length', 'format'],
               ],
             },

@@ -358,7 +358,7 @@ const UNITS: ElementaryUnitSpec[] = [
             challenger: {
               clozeWrong: [
                 ['sand', 'stones'],
-                ['shoes', 'books'],
+                ['weekends', 'books'],
                 ['fork', 'knife'],
                 ['snow', 'ice'],
               ],
@@ -543,7 +543,7 @@ const UNITS: ElementaryUnitSpec[] = [
                 ['mountain', 'river'],
                 ['ice', 'snow'],
                 ['pillow', 'sandal'],
-                ['chair', 'sofa'],
+                ['homework', 'spelling'],
               ],
             },
             master: {

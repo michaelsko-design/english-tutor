@@ -71,7 +71,7 @@ const UNITS: ElementaryUnitSpec[] = [
               },
             },
             challenger: {
-              clozeWrong: [['book', 'bag'], ['table', 'door'], ['chair', 'book'], ['rocket', 'jet']],
+              clozeWrong: [['book', 'bag'], ['table', 'door'], ['chair', 'book'], ['door', 'book']],
             },
             master: {
               sentenceEn: 'I see a slow green turtle.',
@@ -417,7 +417,7 @@ const UNITS: ElementaryUnitSpec[] = [
               },
             },
             challenger: {
-              clozeWrong: [['hungry', 'sleepy'], ['run', 'eat'], ['hungry', 'sleepy'], ['up', 'on']],
+              clozeWrong: [['hungry', 'sleepy'], ['run', 'eat'], ['hungry', 'sleepy'], ['sunny', 'windy']],
             },
             master: {
               sentenceEn: 'My dad is tall and I am small.',

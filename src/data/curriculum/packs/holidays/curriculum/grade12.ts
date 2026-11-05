@@ -101,7 +101,7 @@ const UNITS: HighSchoolUnitSpec[] = [
             challenger: {
               clozeWrong: [
                 ['revenue', 'pollution'],
-                ['complaint', 'prediction'],
+                ['complaint', 'umbrella'],
                 ['bureaucracy', 'arrogance'],
                 ['foundation', 'corridor'],
               ],
@@ -237,7 +237,7 @@ const UNITS: HighSchoolUnitSpec[] = [
             challenger: {
               clozeWrong: [
                 ['extinguish', 'polish'],
-                ['surrender', 'vanity'],
+                ['furniture', 'luggage'],
                 ['inflation', 'vocabulary'],
                 ['fertile', 'crowded'],
               ],
@@ -371,7 +371,7 @@ const UNITS: HighSchoolUnitSpec[] = [
             challenger: {
               clozeWrong: [
                 ['solitary', 'digital'],
-                ['impossible', 'generous'],
+                ['spacious', 'generous'],
                 ['imitate', 'weigh'],
                 ['rivalry', 'hostility'],
               ],
@@ -519,7 +519,7 @@ const UNITS: HighSchoolUnitSpec[] = [
                 ['deforestation', 'urbanization'],
                 ['mortgage', 'vacancy'],
                 ['ancient', 'obsolete'],
-                ['pollution', 'anxiety'],
+                ['luggage', 'gravel'],
               ],
             },
             master: {
@@ -655,7 +655,7 @@ const UNITS: HighSchoolUnitSpec[] = [
                 ['coronation', 'inauguration'],
                 ['senator', 'astronaut'],
                 ['industrial', 'maritime'],
-                ['curriculum', 'mortgage'],
+                ['vaccine', 'mortgage'],
               ],
             },
             master: {

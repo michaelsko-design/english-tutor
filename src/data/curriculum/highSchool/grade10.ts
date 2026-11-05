@@ -201,7 +201,7 @@ const units: HighSchoolUnitSpec[] = [
               },
             },
             challenger: {
-              clozeWrong: [['elastic', 'edible'], ['consume', 'pollute'], ['silent', 'empty']],
+              clozeWrong: [['elastic', 'edible'], ['bake', 'pollute'], ['silent', 'empty']],
             },
             master: {
               sentenceEn:
@@ -665,7 +665,7 @@ const units: HighSchoolUnitSpec[] = [
               },
             },
             challenger: {
-              clozeWrong: [['wishful', 'casual'], ['emotional', 'exaggerated'], ['translate', 'memorize']],
+              clozeWrong: [['wishful', 'casual'], ['icy', 'exaggerated'], ['translate', 'memorize']],
             },
             master: {
               sentenceEn:
@@ -897,7 +897,7 @@ const units: HighSchoolUnitSpec[] = [
               },
             },
             challenger: {
-              clozeWrong: [['resource', 'ingredient'], ['musical', 'tropical'], ['launch', 'repair']],
+              clozeWrong: [['backpack', 'sandwich'], ['musical', 'tropical'], ['launch', 'repair']],
             },
             master: {
               sentenceEn:
@@ -1250,7 +1250,7 @@ const units: HighSchoolUnitSpec[] = [
               },
             },
             challenger: {
-              clozeWrong: [['pollution', 'unemployment'], ['passport', 'scholarship'], ['keyboard', 'password']],
+              clozeWrong: [['pollution', 'vegetable'], ['passport', 'scholarship'], ['keyboard', 'password']],
             },
             master: {
               sentenceEn:

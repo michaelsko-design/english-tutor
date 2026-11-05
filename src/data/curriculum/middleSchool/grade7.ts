@@ -98,7 +98,7 @@ const units: MiddleSchoolUnitSpec[] = [
               clozeWrong: [
                 ['suddenly', 'nearly'],
                 ['noisy', 'muddy'],
-                ['interrupt', 'imagine'],
+                ['arrive', 'complain'],
                 ['uniform', 'homework'],
               ],
             },
@@ -620,7 +620,7 @@ const units: MiddleSchoolUnitSpec[] = [
               clozeWrong: [
                 ['imagine', 'celebrate'],
                 ['enjoy', 'decide'],
-                ['speak', 'listen'],
+                ['swallow', 'swim'],
               ],
             },
             master: {
@@ -1127,7 +1127,7 @@ const units: MiddleSchoolUnitSpec[] = [
             },
             challenger: {
               clozeWrong: [
-                ['angry', 'electric'],
+                ['angry', 'annoyed'],
                 ['cough', 'smile'],
                 ['famous', 'tired'],
               ],

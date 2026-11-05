@@ -214,7 +214,7 @@ const units: HighSchoolUnitSpec[] = [
             challenger: {
               clozeWrong: [
                 ['prosperity', 'leisure'],
-                ['avoidable', 'hostile'],
+                ['delicious', 'hostile'],
                 ['landscape', 'ingredient'],
               ],
             },
@@ -343,7 +343,7 @@ const units: HighSchoolUnitSpec[] = [
               clozeWrong: [
                 ['hesitate', 'confess'],
                 ['mandatory', 'vigorous'],
-                ['recite', 'forbid'],
+                ['unwrap', 'forbid'],
               ],
             },
             master: {
@@ -1492,7 +1492,7 @@ const units: HighSchoolUnitSpec[] = [
               clozeWrong: [
                 ['fragile', 'reluctant'],
                 ['fiscal', 'nautical'],
-                ['rigidity', 'confusion'],
+                ['weakness', 'confusion'],
               ],
             },
             master: {

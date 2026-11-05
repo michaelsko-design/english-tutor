@@ -392,10 +392,10 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             },
             challenger: {
               clozeWrong: [
-                ['deny', 'risk'],
+                ['hope', 'expect'],
                 ['color', 'season'],
                 ['miss', 'finish'],
-                ['finish', 'deny'],
+                ['finish', 'hope'],
               ],
             },
             master: {

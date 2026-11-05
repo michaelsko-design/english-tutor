@@ -71,7 +71,7 @@ const UNITS: ElementaryUnitSpec[] = [
               },
             },
             challenger: {
-              clozeWrong: [['rock', 'shoe'], ['loud', 'sleepy'], ['sad', 'run'], ['happy', 'run']],
+              clozeWrong: [['rock', 'shoe'], ['loud', 'sleepy'], ['sad', 'run'], ['rain', 'music']],
             },
             master: {
               sentenceEn: 'I make a card for my friend.',
@@ -240,7 +240,7 @@ const UNITS: ElementaryUnitSpec[] = [
               },
             },
             challenger: {
-              clozeWrong: [['stone', 'rock'], ['milk', 'soup'], ['chair', 'door'], ['fast', 'tall']],
+              clozeWrong: [['soup', 'rock'], ['milk', 'soup'], ['chair', 'door'], ['fast', 'tall']],
             },
             master: {
               sentenceEn: 'I light two candles on the menorah.',
@@ -333,7 +333,7 @@ const UNITS: ElementaryUnitSpec[] = [
               },
             },
             challenger: {
-              clozeWrong: [['book', 'pen'], ['sky', 'book'], ['sad', 'run'], ['rain', 'sleep']],
+              clozeWrong: [['book', 'pen'], ['sky', 'book'], ['sad', 'run'], ['rain', 'cloud']],
             },
             master: {
               sentenceEn: 'My friend has a funny yellow mask.',

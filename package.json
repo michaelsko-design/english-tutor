@@ -22,6 +22,9 @@
     "tts:render:he": "vite-node scripts/tts/renderGeminiBatch.ts --",
     "tts:review:he": "vite-node scripts/tts/reviewHebrewClips.ts --",
     "review:cloze": "vite-node scripts/review/clozeSheet.ts",
+    "review:cloze-audit": "vite-node scripts/review/clozeAudit.ts",
+    "review:cloze-report": "vite-node scripts/review/clozeAuditReport.ts",
+    "review:cloze-apply": "vite-node scripts/review/clozeAuditApply.ts --",
     "review:he-tiers":"vite-node scripts/review/hebrewTierReview.ts --",
     "tts:upload": "vite-node scripts/tts/uploadClips.ts --"
   },

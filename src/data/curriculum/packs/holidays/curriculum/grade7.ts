@@ -292,7 +292,7 @@ const UNITS: MiddleSchoolUnitSpec[] = [
                 ['window', 'bicycle'],
                 ['sunshine', 'rainbow'],
                 ['shrink', 'melt'],
-                ['freezing', 'muddy'],
+                ['hungry', 'talkative'],
               ],
             },
             master: {

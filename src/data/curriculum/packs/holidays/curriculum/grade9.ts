@@ -284,7 +284,7 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             },
             challenger: {
               clozeWrong: [
-                ['mistake', 'disaster'],
+                ['sandwich', 'furniture'],
                 ['faint', 'vanish'],
                 ['puddle', 'pebble'],
                 ['drought', 'heatwave'],

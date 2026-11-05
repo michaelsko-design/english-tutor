@@ -104,9 +104,9 @@ const UNITS: HighSchoolUnitSpec[] = [
             },
             challenger: {
               clozeWrong: [
-                ['date', 'peach'],
+                ['chair', 'sofa'],
                 ['election', 'surrender'],
-                ['permanent', 'perpetual'],
+                ['hungry', 'angry'],
                 ['construction', 'inflation'],
               ],
             },
@@ -237,7 +237,7 @@ const UNITS: HighSchoolUnitSpec[] = [
             },
             challenger: {
               clozeWrong: [
-                ['disaster', 'sermon'],
+                ['shelf', 'sermon'],
                 ['banquet', 'carnival'],
                 ['heatwave', 'drought'],
                 ['darken', 'extinguish'],
@@ -374,7 +374,7 @@ const UNITS: HighSchoolUnitSpec[] = [
             challenger: {
               clozeWrong: [
                 ['orchard', 'desert'],
-                ['hostile', 'mechanical'],
+                ['metallic', 'mechanical'],
                 ['anger', 'disgust'],
                 ['absence', 'alternative'],
               ],
@@ -786,7 +786,7 @@ const UNITS: HighSchoolUnitSpec[] = [
               clozeWrong: [
                 ['currency', 'pension'],
                 ['demolish', 'outnumber'],
-                ['leavened', 'fermented'],
+                ['musical', 'talkative'],
                 ['pleasant', 'chilly'],
               ],
             },

@@ -1005,7 +1005,7 @@ const units: HighSchoolUnitSpec[] = [
             },
             challenger: {
               clozeWrong: [
-                ['ornamental', 'alphabetical'],
+                ['underwater', 'alphabetical'],
                 ['monetary', 'linguistic'],
                 ['resignation', 'recreation'],
               ],

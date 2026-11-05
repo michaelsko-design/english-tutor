@@ -170,7 +170,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
                 ['fix', 'close'],
                 ['sleep', 'swim'],
                 ['catch', 'fix'],
-                ['sleep', 'stand'],
+                ['sleep', 'swim'],
               ],
             },
             master: {
@@ -372,7 +372,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             challenger: {
               clozeWrong: [
                 ['spoon', 'window'],
-                ['bathroom', 'garage'],
+                ['bathroom', 'moon'],
                 ['hungry', 'rainy'],
               ],
             },
@@ -463,7 +463,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
                 ['window', 'door'],
                 ['soup', 'moon'],
                 ['rain', 'pencil'],
-                ['sun', 'page'],
+                ['milk', 'page'],
               ],
             },
             master: {
@@ -739,7 +739,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
               clozeWrong: [
                 ['sleep', 'wait'],
                 ['eat', 'kick'],
-                ['buy', 'fix'],
+                ['grow', 'fix'],
                 ['jump', 'sleep'],
               ],
             },
@@ -829,7 +829,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             challenger: {
               clozeWrong: [
                 ['rain', 'noise'],
-                ['pencil', 'window'],
+                ['moon', 'banana'],
                 ['kitchen', 'pillow'],
               ],
             },
@@ -927,7 +927,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
               clozeWrong: [
                 ['sock', 'spoon'],
                 ['cloud', 'grass'],
-                ['shoes', 'pencils'],
+                ['cloud', 'door'],
                 ['sock', 'pencil'],
               ],
             },
@@ -1107,7 +1107,7 @@ export const grade4Curriculum = buildElementaryGrade('grade-4', [
             },
             challenger: {
               clozeWrong: [
-                ['chairs', 'shoes'],
+                ['clouds', 'windows'],
                 ['stones', 'paper'],
                 ['rain', 'sky'],
                 ['square', 'wooden'],

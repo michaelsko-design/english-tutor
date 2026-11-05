@@ -75,7 +75,7 @@ const UNITS: ElementaryUnitSpec[] = [
               clozeWrong: [
                 ['rice', 'pizza'],
                 ['window', 'shoe'],
-                ['loud', 'square'],
+                ['loud', 'sleepy'],
                 ['pizza', 'shoe'],
               ],
             },

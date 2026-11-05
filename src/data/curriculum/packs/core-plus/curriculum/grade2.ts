@@ -75,7 +75,7 @@ const UNITS: ElementaryUnitSpec[] = [
                 ['bed', 'hat'],
                 ['sky', 'rain'],
                 ['soup', 'door'],
-                ['vans', 'cars'],
+                ['milk', 'soup'],
               ],
             },
             master: {
@@ -359,7 +359,7 @@ const UNITS: ElementaryUnitSpec[] = [
             challenger: {
               clozeWrong: [
                 ['door', 'book'],
-                ['trees', 'birds'],
+                ['soup', 'milk'],
                 ['rain', 'milk'],
                 ['rock', 'door'],
               ],
@@ -453,9 +453,9 @@ const UNITS: ElementaryUnitSpec[] = [
             challenger: {
               clozeWrong: [
                 ['rain', 'sky'],
-                ['ants', 'flowers'],
+                ['song', 'sky'],
                 ['rain', 'milk'],
-                ['happy', 'tall'],
+                ['song', 'color'],
               ],
             },
             master: {
@@ -551,8 +551,8 @@ const UNITS: ElementaryUnitSpec[] = [
               clozeWrong: [
                 ['pencil', 'chair'],
                 ['book', 'bus'],
-                ['caps', 'shoes'],
-                ['suns', 'moons'],
+                ['rain', 'snow'],
+                ['snow', 'ice'],
               ],
             },
             master: {

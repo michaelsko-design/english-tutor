@@ -287,7 +287,7 @@ const UNITS: MiddleSchoolUnitSpec[] = [
                 ['recipe', 'menu'],
                 ['sofa', 'curtain'],
                 ['dive', 'cook'],
-                ['salty', 'noisy'],
+                ['salty', 'wooden'],
               ],
             },
             master: {
