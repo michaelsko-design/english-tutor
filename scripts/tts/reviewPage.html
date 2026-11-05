@@ -46,6 +46,7 @@
   <div class="muted" id="summary"></div>
   <div id="notice"></div>
   <nav id="tabs"></nav>
+  <label class="muted">Part of the app: <select id="scope"></select></label>
   <input type="search" id="search" placeholder="Search the Hebrew text…" dir="auto">
   <div id="view"></div>
 </main>
@@ -58,6 +59,16 @@ const TABS = [
   ['all', 'All'],
 ];
 const TAB_KEY = 'hebrewReviewTab';
+const SCOPE_KEY = 'hebrewReviewScope';
+// Which clips the list shows: what the first learners meet first; the Pro tail and the packs come later
+const SCOPES = [
+  ['first', 'Core units + general lines (start here)', ['general', 'core', 'other']],
+  ['pro-tail', 'Pro: last 2 core units of each grade', ['pro-tail']],
+  ['packs', 'Content packs (not released yet)', ['packs']],
+  ['everything', 'Everything', null],
+];
+let scope = localStorage.getItem(SCOPE_KEY) || 'first';
+const inScope = (item) => { const groups = (SCOPES.find(([id]) => id === scope) || SCOPES[0])[2]; return !groups || groups.includes(item.group); };
 let items = [];
 let reasonList = [];
 let maxNote = 300;
@@ -84,7 +95,7 @@ async function api(path, body) {
 
 const visible = () => {
   const query = $('search').value.trim();
-  return items.filter((item) => item.phase !== 'missing'
+  return items.filter((item) => item.phase !== 'missing' && inScope(item)
     && (tab === 'all' || item.phase === tab)
     && (!query || item.text.includes(query) || item.spoken.includes(query)));
 };
@@ -103,8 +114,13 @@ async function reload(keepKey) {
 }
 
 function renderChrome() {
-  const count = (phase) => items.filter((item) => item.phase === phase).length;
-  const total = items.filter((item) => item.phase !== 'missing').length;
+  const scoped = items.filter(inScope);
+  const count = (phase) => scoped.filter((item) => item.phase === phase).length;
+  const total = scoped.filter((item) => item.phase !== 'missing').length;
+  $('scope').replaceChildren(...SCOPES.map(([id, label, groups]) => {
+    const n = items.filter((item) => item.phase === 'pending' && (!groups || groups.includes(item.group))).length;
+    return el('option', { value: id, textContent: `${label} (${n} to review)`, selected: id === scope });
+  }));
   const reviewed = total - count('pending');
   $('bar').style.width = `${total ? (reviewed / total) * 100 : 0}%`;
   $('summary').textContent = `${reviewed.toLocaleString()} / ${total.toLocaleString()} reviewed · ${count('regenerate')} waiting to be regenerated · ${count('compare')} to compare` +
@@ -161,6 +177,7 @@ const play = (take = 'current') => {
 function textBlock(item) {
   const gender = (/^\[to:(girl|boy)\]/.exec(item.text) || [])[1];
   const tags = [el('span', { className: 'tag', textContent: item.speed })];
+  if (item.where) tags.push(el('span', { className: 'tag', textContent: item.where }));
   if (gender) tags.unshift(el('span', { className: `tag gender-${gender}`, textContent: gender === 'girl' ? 'female form (to a girl)' : 'male form (to a boy)' }));
   // item.spoken is the text with the niqqud Gemini was given, so the gendered words show their form
   return el('div', {}, el('div', {}, ...tags), el('div', { className: 'text', dir: 'rtl', lang: 'he', textContent: item.spoken }));
@@ -315,6 +332,12 @@ document.addEventListener('keydown', (event) => {
   if (handlers[key]) { event.preventDefault(); handlers[key](); }
 });
 $('search').addEventListener('input', () => { index = 0; render(); });
+$('scope').addEventListener('change', () => {
+  scope = $('scope').value;
+  try { localStorage.setItem(SCOPE_KEY, scope); } catch { /* the choice just isn't remembered */ }
+  index = 0;
+  render();
+});
 reload().catch((error) => { $('view').textContent = error.message; });
 </script>
 </body>

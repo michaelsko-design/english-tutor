@@ -54,9 +54,19 @@ export function getStepHebrew(step: MissionExerciseStep): string[] {
   ].filter((text): text is string => Boolean(text) && HEBREW_LETTER.test(text as string));
 }
 
-function addMissions(corpus: CorpusBuilder): void {
+/** One unit of a grade, to build the corpus of that unit alone (the review page's order); null: everything. */
+export interface UnitScope {
+  gradeId: (typeof HEBREW_AUDIO_GRADES)[number];
+  unitNumber: number;
+}
+
+const isInScope = (scope: UnitScope | null, gradeId: string, unitNumber: number): boolean =>
+  !scope || (scope.gradeId === gradeId && scope.unitNumber === unitNumber);
+
+function addMissions(corpus: CorpusBuilder, scope: UnitScope | null = null): void {
   for (const gradeId of HEBREW_AUDIO_GRADES) {
     for (const unit of CURRICULUM_BY_GRADE[gradeId].units) {
+      if (!isInScope(scope, gradeId, unit.unitNumber)) continue;
       for (const mission of unit.missions) {
         // The mission intro reads its title and story as it opens
         for (const gender of GENDERS) {
@@ -78,14 +88,20 @@ function addMissions(corpus: CorpusBuilder): void {
   }
 }
 
-function addLessons(corpus: CorpusBuilder): void {
+/** The unit a lesson belongs to, from its mission id (g1-u3-m2 → 3). */
+const unitOfLessonId = (lessonId: string): number => Number(/-u(\d+)-/.exec(lessonId)?.[1] ?? 0);
+
+function addLessons(corpus: CorpusBuilder, scope: UnitScope | null = null): void {
   for (const gradeId of HEBREW_AUDIO_GRADES) {
     const pack = ALL_LESSON_PACKS[gradeIdToNumber(gradeId)] ?? {};
     // The Boss recap is built at run time; its fixed intro is read aloud, the rest comes from the lessons
-    const bossRecap = buildBossRecap(Object.values(pack).slice(0, 1));
-    addHebrew(corpus, bossRecap?.titleHe);
-    addHebrew(corpus, bossRecap?.ideaHe);
-    for (const lesson of Object.values(pack)) {
+    if (!scope) {
+      const bossRecap = buildBossRecap(Object.values(pack).slice(0, 1));
+      addHebrew(corpus, bossRecap?.titleHe);
+      addHebrew(corpus, bossRecap?.ideaHe);
+    }
+    for (const [lessonId, lesson] of Object.entries(pack)) {
+      if (!isInScope(scope, gradeId, unitOfLessonId(lessonId))) continue;
       [lesson.titleHe, lesson.ideaHe, lesson.tipHe, lesson.quickTry?.promptHe, lesson.quickTry?.explainHe].forEach(
         (text) => addHebrew(corpus, text),
       );
@@ -95,10 +111,11 @@ function addLessons(corpus: CorpusBuilder): void {
   }
 }
 
-function addExamBanks(corpus: CorpusBuilder): void {
+function addExamBanks(corpus: CorpusBuilder, scope: UnitScope | null = null): void {
   for (const gradeId of HEBREW_AUDIO_GRADES) {
     const bank = ALL_EXAM_BANKS[gradeIdToNumber(gradeId)] ?? {};
     for (const [unitNumber, unitBank] of Object.entries(bank)) {
+      if (!isInScope(scope, gradeId, Number(unitNumber))) continue;
       for (const tier of TIERS) {
         for (const gender of GENDERS) {
           for (const skill of EXAM_SKILLS) {
@@ -163,5 +180,26 @@ export function buildHebrewCorpus(): CorpusBuilder {
   addMissions(corpus);
   addLessons(corpus);
   addExamBanks(corpus);
+  return corpus;
+}
+
+/** The lines of one unit alone: its missions, lessons and exam bank. */
+export function buildUnitHebrewCorpus(scope: UnitScope): CorpusBuilder {
+  const corpus = new CorpusBuilder(isHebrewSpeakable, true);
+  addMissions(corpus, scope);
+  addLessons(corpus, scope);
+  addExamBanks(corpus, scope);
+  return corpus;
+}
+
+/** The lines every learner meets whatever the unit: feedback, read-gate, pack and Pro cards. */
+export function buildGeneralHebrewCorpus(): CorpusBuilder {
+  const corpus = new CorpusBuilder(isHebrewSpeakable, true);
+  addFixedFeedback(corpus);
+  for (const gradeId of HEBREW_AUDIO_GRADES) {
+    const bossRecap = buildBossRecap(Object.values(ALL_LESSON_PACKS[gradeIdToNumber(gradeId)] ?? {}).slice(0, 1));
+    addHebrew(corpus, bossRecap?.titleHe);
+    addHebrew(corpus, bossRecap?.ideaHe);
+  }
   return corpus;
 }

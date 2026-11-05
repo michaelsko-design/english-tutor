@@ -19,6 +19,7 @@ import { bumpClipRevisions, unbumpClipRevisions } from './clipRevisions';
 import { collectCorpus } from './corpus';
 import { toGeminiText } from './geminiSpelling';
 import { getReviewDirs } from './hebrewReviewPaths';
+import { buildReviewPlaces, REVIEW_GROUPS } from './hebrewReviewOrder';
 import {
   candidatePath,
   clipPath,
@@ -47,6 +48,8 @@ const PAGE_PATH = join(process.cwd(), 'scripts', 'tts', 'reviewPage.html');
 
 const dirs = getReviewDirs();
 const phrases = collectCorpus(HEBREW_VOICE);
+const places = buildReviewPlaces();
+const LAST_RANK = Number.MAX_SAFE_INTEGER;
 const knownKeys = new Set(phrases.map((phrase) => phrase.key));
 /** The text exactly as Gemini was given it: niqqud on the words that read by the listener's gender. */
 const spokenByKey = new Map(phrases.map((phrase) => [phrase.key, toGeminiText(phrase.text)]));
@@ -93,8 +96,11 @@ function sendClip(res: ServerResponse, url: URL): void {
 
 async function handleApi(req: IncomingMessage, res: ServerResponse, url: URL): Promise<void> {
   if (url.pathname === '/api/clips') {
-    const items = listReviewItems(phrases, loadState(dirs.statePath), dirs).map((item) => ({ ...item, spoken: spokenByKey.get(item.key) ?? item.text }));
-    return sendJson(res, 200, { items, reasons: REVIEW_REASONS, maxNote: MAX_NOTE_LENGTH, undoable: listUndoable(dirs) });
+    // The walk order: general lines, core units, the Pro tail, then the packs; unplaced lines last
+    const items = listReviewItems(phrases, loadState(dirs.statePath), dirs)
+      .map((item) => ({ ...item, spoken: spokenByKey.get(item.key) ?? item.text, group: places.get(item.key)?.group ?? 'other', where: places.get(item.key)?.label ?? '', rank: places.get(item.key)?.rank ?? LAST_RANK }))
+      .sort((a, b) => a.rank - b.rank);
+    return sendJson(res, 200, { items, groups: REVIEW_GROUPS, reasons: REVIEW_REASONS, maxNote: MAX_NOTE_LENGTH, undoable: listUndoable(dirs) });
   }
   const body = await readBody(req);
   const key = String(body.key ?? '');
