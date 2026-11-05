@@ -10,6 +10,8 @@ export interface SpeakOptions {
   voice?: VoicePreference;
   /** 'he' reads with the Hebrew voice whatever `voice` is; English by default. */
   lang?: TtsLang;
+  /** Plays only the spoken part of a clip, without its silent lead-in and tail (words read in a row). */
+  shouldTrimSilence?: boolean;
   /** Called once when sound starts, with the engine that is playing it. */
   onPlaybackStart?: (engine: TtsEngine) => void;
 }
@@ -19,4 +21,9 @@ export interface TextToSpeechService {
   speak(text: string, options?: SpeakOptions): Promise<void>;
   stop(): void;
   isReady(): boolean;
+  /**
+   * Starts loading the clip for text that will be spoken soon (queued words), so speak() starts
+   * with no wait. Safe to skip or call for text that is never spoken.
+   */
+  prefetch?(text: string, options?: SpeakOptions): void;
 }

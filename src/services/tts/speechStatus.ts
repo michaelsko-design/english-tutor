@@ -103,6 +103,8 @@ export function createSpeechStatus(service: TextToSpeechService): SpeechStatusSe
     enqueue(text, options) {
       queue.push({ text, options });
       while (queue.length > MAX_QUEUED_READINGS) queue.shift();
+      // Load the clip now, while the word before it plays, so the words run together
+      service.prefetch?.(text, options);
       // Idle, or a plain reading is playing (the new word takes over, as before): start a drain.
       if (!isDraining) void drain();
     },

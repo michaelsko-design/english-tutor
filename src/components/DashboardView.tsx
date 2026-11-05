@@ -203,7 +203,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
   // Word chips tapped quickly are read one after another instead of cutting each other off
   const queueEnglish = (text: string, rate = DEFAULT_SPEECH_RATE) => {
-    getTtsService().enqueue(text, { rate, voice: DEFAULT_VOICE_PREFERENCE });
+    getTtsService().enqueue(text, { rate, voice: DEFAULT_VOICE_PREFERENCE, shouldTrimSilence: true });
   };
 
   // Grades 1–2: Hebrew and English one after another, e.g. the instruction then the question (Feature 47)

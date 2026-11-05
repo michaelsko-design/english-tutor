@@ -174,6 +174,29 @@ describe('hybrid read-aloud service', () => {
     expect(device.speak).not.toHaveBeenCalled();
   });
 
+  it('loads a prefetched word ahead and plays it without fetching it again', async () => {
+    const { service, fetchMock } = setup({ clipKeys: [getClipKey('school', 'normal')] });
+    const clipFetches = () => fetchMock.mock.calls.filter(([url]) => String(url).startsWith('/tts/v')).length;
+
+    service.prefetch?.('School.', { voice: 'female', rate: 0.95 });
+    await vi.waitFor(() => expect(clipFetches()).toBe(1));
+
+    expect(await engineOf(service, 'School.')).toBe('clip');
+    expect(clipFetches()).toBe(1);
+  });
+
+  it('fetches a word again when its prefetch was dropped by stop()', async () => {
+    const { service, fetchMock } = setup({ clipKeys: [getClipKey('school', 'normal')] });
+    const clipFetches = () => fetchMock.mock.calls.filter(([url]) => String(url).startsWith('/tts/v')).length;
+
+    service.prefetch?.('School.', { voice: 'female', rate: 0.95 });
+    await vi.waitFor(() => expect(clipFetches()).toBe(1));
+    service.stop();
+
+    expect(await engineOf(service, 'School.')).toBe('clip');
+    expect(clipFetches()).toBe(2);
+  });
+
   it('plays a slow clip at full rate and a normal clip slower for a slow sentence', async () => {
     const sentence = 'I like my school.';
     const { service, audio } = setup({ clipKeys: [getClipKey('cat', 'slow'), getClipKey(sentence, 'normal')] });

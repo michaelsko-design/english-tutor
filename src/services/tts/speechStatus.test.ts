@@ -172,6 +172,18 @@ describe('enqueue', () => {
     expect(status.getCurrent()).toBeNull();
   });
 
+  it('asks the service to load each queued word ahead', () => {
+    const { service } = fakeService();
+    const prefetch = vi.fn();
+    const status = createSpeechStatus({ ...service, prefetch });
+
+    status.enqueue('He', { rate: 0.95 });
+    status.enqueue('has', { rate: 0.95 });
+
+    expect(prefetch).toHaveBeenCalledTimes(2);
+    expect(prefetch).toHaveBeenLastCalledWith('has', { rate: 0.95 });
+  });
+
   it('starts a new queue after the previous one finished', async () => {
     const { service, finishAll } = fakeService();
     const status = createSpeechStatus(service);

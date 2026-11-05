@@ -27,6 +27,7 @@ import {
   normalizeTtsText,
   toSpeakableText,
 } from './ttsText';
+import { measureSpeechBounds, type SpeechBounds } from './silenceTrim';
 import type { SpeakOptions, TextToSpeechService, TtsEngine } from './types';
 
 export const LIVE_CACHE_NAME = 'englishvibe-tts-live-v1';
@@ -37,6 +38,8 @@ const LIVE_CACHE_MAX_ENTRIES = 300;
 const LIVE_PAUSE_MS = 10 * 60_000;
 const DEFAULT_RATE = 0.95;
 const MIN_PLAYBACK_RATE = 0.5;
+/** Words loaded ahead for the queue; older ones are dropped (and fetched again if still needed). */
+const MAX_PREFETCHED = 8;
 
 export interface HybridTtsDeps {
   device: TextToSpeechService;
@@ -61,6 +64,8 @@ interface Playable {
   engine: TtsEngine;
   playbackRate: number;
   revoke?: () => void;
+  /** The spoken part, when only that is to play (words read in a row). */
+  bounds?: SpeechBounds;
 }
 
 /** A dev server answers a missing file with its HTML page, so only real audio counts. */
@@ -204,9 +209,12 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
       revokeCurrent = playable.revoke;
       let hasStarted = false;
       let isDone = false;
+      let endTimer: ReturnType<typeof setTimeout> | undefined;
       const finish = (didPlay: boolean) => {
         if (isDone) return;
         isDone = true;
+        clearTimeout(endTimer);
+        audio.removeEventListener('loadedmetadata', onMetadata);
         audio.removeEventListener('ended', onEnded);
         audio.removeEventListener('error', onError);
         audio.removeEventListener('playing', onPlaying);
@@ -222,6 +230,17 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
         if (hasStarted) return;
         hasStarted = true;
         onStart?.(playable.engine);
+        // Only the spoken part plays: the clip's silent tail is cut so the next word follows at once
+        if (playable.bounds) {
+          const remainingS = Math.max(0, playable.bounds.endS - audio.currentTime);
+          endTimer = setTimeout(() => {
+            finish(true);
+            audio.pause();
+          }, (remainingS / Math.max(audio.playbackRate, MIN_PLAYBACK_RATE)) * 1000);
+        }
+      };
+      const onMetadata = () => {
+        if (playable.bounds) audio.currentTime = playable.bounds.startS;
       };
       // A call, Siri or a lost Bluetooth speaker pauses the audio without "ended". A pause from
       // before this clip started belongs to the previous one, so it is ignored.
@@ -233,6 +252,7 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
       audio.addEventListener('error', onError);
       audio.addEventListener('playing', onPlaying);
       audio.addEventListener('pause', onPause);
+      audio.addEventListener('loadedmetadata', onMetadata);
       audio.src = playable.src;
       // Loading a new src resets playbackRate to defaultPlaybackRate, so both are set after it.
       const playbackRate = Math.max(MIN_PLAYBACK_RATE, Math.min(1, playable.playbackRate));
@@ -240,6 +260,57 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
       audio.playbackRate = playbackRate;
       audio.play().catch(() => finish(false));
     });
+
+  /** The clip or live audio for one line, from the manifest first, else the online voice. */
+  const resolvePlayable = async (
+    voiced: string,
+    clipVoice: ClipVoice,
+    rate: number,
+    signal: AbortSignal,
+    shouldTrim = false,
+  ): Promise<Playable | null> => {
+    const playable = (await findClip(voiced, clipVoice, rate, signal)) ?? (await fetchLive(toPlainSpeech(voiced), clipVoice, rate, signal));
+    if (!playable || !shouldTrim) return playable;
+    const bounds = await measureSpeechBounds(playable.src, deps.fetch);
+    return bounds ? { ...playable, bounds } : playable;
+  };
+
+  /** Audio loading ahead for queued words, by what speak() would play; used (and removed) by that speak(). */
+  const prefetched = new Map<string, Promise<Playable | null>>();
+
+  const discard = (pending: Promise<Playable | null>) => {
+    void pending.then((playable) => playable?.revoke?.()).catch(() => undefined);
+  };
+
+  const clearPrefetched = () => {
+    prefetched.forEach(discard);
+    prefetched.clear();
+  };
+
+  const prefetchKey = (voiced: string, clipVoice: ClipVoice, rate: number, shouldTrim: boolean) =>
+    `${clipVoice}|${rate}|${shouldTrim ? 'trim' : 'whole'}|${voiced}`;
+
+  const prefetch = (rawText: string, options: SpeakOptions = {}): void => {
+    if (options.lang === 'he' || !deps.getAudio()) return;
+    const voiced = normalizeTtsText(toSpeakableText(rawText));
+    if (!voiced) return;
+    const clipVoice: ClipVoice = options.voice ?? DEFAULT_VOICE_PREFERENCE;
+    const rate = options.rate ?? DEFAULT_RATE;
+    const shouldTrim = options.shouldTrimSilence === true;
+    const key = prefetchKey(voiced, clipVoice, rate, shouldTrim);
+    if (prefetched.has(key)) return;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), LIVE_TIMEOUT_MS);
+    const pending = resolvePlayable(voiced, clipVoice, rate, controller.signal, shouldTrim)
+      .catch(() => null)
+      .finally(() => clearTimeout(timer));
+    prefetched.set(key, pending);
+    while (prefetched.size > MAX_PREFETCHED) {
+      const [oldestKey, oldest] = prefetched.entries().next().value as [string, Promise<Playable | null>];
+      prefetched.delete(oldestKey);
+      discard(oldest);
+    }
+  };
 
   const speak = async (rawText: string, options: SpeakOptions = {}): Promise<void> => {
     stopPlayback();
@@ -253,6 +324,10 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
     const clipVoice: ClipVoice = lang === 'he' ? HEBREW_VOICE : voice;
     // "בנית" is banit for a girl and banita for a boy, "משחק/ת" is one of them: a clip per gender
     const voiced = lang === 'he' ? voiceForListener(text, deps.getListenerGender?.() ?? null) : text;
+    const shouldTrim = options.shouldTrimSilence === true;
+    const aheadKey = prefetchKey(voiced, clipVoice, rate, shouldTrim);
+    const ahead = lang === 'he' ? undefined : prefetched.get(aheadKey);
+    if (ahead) prefetched.delete(aheadKey);
     const controller = new AbortController();
     abortController = controller;
     const isCurrent = () => id === requestId;
@@ -266,8 +341,8 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
       try {
         opener = lang === 'he' ? await findOpenerClips(text, voice, rate, controller.signal) : null;
         if (!opener) {
-          playable = (await findClip(voiced, clipVoice, rate, controller.signal)) ??
-            (await fetchLive(toPlainSpeech(voiced), clipVoice, rate, controller.signal));
+          // A word loaded ahead (queued taps) is already here, or still loading with its own timeout
+          playable = ahead ? await ahead : await resolvePlayable(voiced, clipVoice, rate, controller.signal, shouldTrim);
         }
       } catch {
         // A timeout, an abort or a network error falls through to the device voice.
@@ -307,9 +382,12 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
 
   return {
     speak,
+    prefetch,
     stop: () => {
       requestId += 1;
       stopPlayback();
+      // A learner's stop drops the words queued behind it; a speak() only replaces what plays.
+      clearPrefetched();
     },
     isReady: () => deps.getAudio() !== null || deps.device.isReady(),
     preload: () => {
