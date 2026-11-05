@@ -477,11 +477,13 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   return (
     <ModalPortal>
     <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`משימה: ${mission.titleHe}`} className="contents">
-      <div className={`fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-start sm:items-center justify-center ${overlayPaddingClass} sm:p-4 md:p-6 overflow-y-auto`}>
+      {/* Centered with auto margins, not items-center: a card taller than the screen (the feedback
+          spacer below) then starts at the top and scrolls, instead of losing its top (and ✕) above it */}
+      <div className={`fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-start justify-center ${overlayPaddingClass} sm:p-4 md:p-6 overflow-y-auto`}>
         <div
           ref={cardRef}
           tabIndex={-1}
-          className={`outline-none w-full max-w-3xl ${isPassageStepShown ? 'wide:max-w-6xl' : ''} overflow-clip shadow-2xl border-current/15 ${cardShapeClass} ${theme.pageBgClass}`}
+          className={`outline-none w-full sm:my-auto max-w-3xl ${isPassageStepShown ? 'wide:max-w-6xl' : ''} overflow-clip shadow-2xl border-current/15 ${cardShapeClass} ${theme.pageBgClass}`}
         >
           {shownPhase === 'intro' ? (
             <MissionIntro

@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect, test } from './support/test';
 import { startAsNewLearner } from './support/app';
+import { answerStep, missionDialog, NEXT_STEP } from './support/mission';
 
 /**
  * The wide landscape layout (`wide:` = 1024px+ and landscape): the home panel beside the map,
@@ -73,6 +74,23 @@ test.describe('wide layout', () => {
     } else {
       expect(isStackedBelow(sceneBox, inventoryBox)).toBe(true);
     }
+  });
+
+  test('mission: the exit button can be reached while the answer bar is open', async ({ page, learner }) => {
+    await startAsNewLearner(page, learner, { name: 'נועה', age: 6 });
+    await page.getByRole('button', { name: 'בואי נשחק!' }).click();
+    const mission = missionDialog(page);
+    await mission.getByRole('button', { name: /יאללה, בואי נתחיל/ }).click();
+    await mission.getByRole('button', { name: /דילוג/ }).click();
+    await answerStep(page, mission);
+    await expect(page.getByRole('button', { name: NEXT_STEP })).toBeVisible();
+
+    // The answer bar's spacer makes the card taller than the screen; its top must still scroll into view
+    const exit = mission.getByRole('button', { name: 'יציאה מהמשימה' });
+    await exit.scrollIntoViewIfNeeded();
+    expect((await boxOf(exit)).y).toBeGreaterThanOrEqual(0);
+    await exit.click();
+    await expect(mission).toBeHidden();
   });
 
   test('mission sheet: a centered card on wide screens, a bottom sheet on phones', async ({ page, learner }, testInfo) => {
