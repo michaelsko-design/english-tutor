@@ -175,6 +175,18 @@ describe('createParentInvite', () => {
     }
   });
 
+  it('logs, and still succeeds, when the previous code cannot be deleted', async () => {
+    const warned = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    await createParentInvite('child-1', 'נועה', '🐱', NOW);
+    firestore.deleteDoc.mockRejectedValueOnce({ code: 'unavailable' });
+
+    const second = await createParentInvite('child-1', 'נועה', '🐱', NOW);
+
+    expect(second.ok).toBe(true);
+    expect(warned).toHaveBeenCalledWith(expect.stringContaining('invite'), expect.anything());
+    warned.mockRestore();
+  });
+
   it('shortens a long name to what the rules accept', async () => {
     await createParentInvite('child-1', 'א'.repeat(60), '🐱', NOW);
 
@@ -342,6 +354,17 @@ describe('withdrawParentInvite', () => {
     firestore.deleteDoc.mockRejectedValueOnce({ code: 'unavailable' });
     await expect(withdrawParentInvite('child-1')).resolves.toBeUndefined();
   });
+
+  it('logs a failed delete of the code, which still expires on its own', async () => {
+    const warned = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    localStorage.setItem(ACTIVE_CODE_KEY, CODE);
+    firestore.deleteDoc.mockRejectedValueOnce({ code: 'unavailable' });
+
+    await withdrawParentInvite('child-1');
+
+    expect(warned).toHaveBeenCalledWith(expect.stringContaining('invite'), expect.anything());
+    warned.mockRestore();
+  });
 });
 
 describe('listing links', () => {
@@ -451,6 +474,19 @@ describe('data deletion', () => {
       'parentLinks/p1_child-1', 'parentLinks/p2_child-1', `parentInvites/${CODE}`, 'reportSnapshots/child-1',
     ]));
     expect(localStorage.getItem(ACTIVE_CODE_KEY)).toBeNull();
+  });
+
+  it('logs a failed delete of the invite code and carries on deleting', async () => {
+    const warned = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    localStorage.setItem(ACTIVE_CODE_KEY, CODE);
+    firestore.getDocs.mockResolvedValueOnce(linkDocs());
+    firestore.deleteDoc.mockRejectedValueOnce({ code: 'unavailable' });
+
+    await deleteLearnerParentData('child-1');
+
+    expect(warned).toHaveBeenCalledWith(expect.stringContaining('invite'), expect.anything());
+    expect(firestore.deleteDoc).toHaveBeenCalledWith({ path: 'reportSnapshots/child-1' });
+    warned.mockRestore();
   });
 
   it('still removes the snapshot when the learner has no links or code', async () => {

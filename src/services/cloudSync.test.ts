@@ -90,6 +90,21 @@ describe('mergeLearnerProfiles placementResult', () => {
   });
 });
 
+describe('mergeLearnerProfiles updatedAt', () => {
+  const early = '2026-10-05T00:00:00.000Z';
+  const late = '2026-10-15T00:00:00.000Z';
+
+  it('takes the later of the two times, whichever side has it', () => {
+    expect(mergeLearnerProfiles({ ...baseProfile, updatedAt: late }, { ...baseProfile, updatedAt: early }).updatedAt).toBe(late);
+    expect(mergeLearnerProfiles({ ...baseProfile, updatedAt: early }, { ...baseProfile, updatedAt: late }).updatedAt).toBe(late);
+  });
+
+  it('keeps the one time that exists when the other side has none', () => {
+    expect(mergeLearnerProfiles({ ...baseProfile, updatedAt: '' }, { ...baseProfile, updatedAt: early }).updatedAt).toBe(early);
+    expect(mergeLearnerProfiles({ ...baseProfile, updatedAt: early }, { ...baseProfile, updatedAt: '' }).updatedAt).toBe(early);
+  });
+});
+
 describe('mergeLearnerProfiles voicePreference', () => {
   it('keeps a voice chosen on only one side', () => {
     const merged = mergeLearnerProfiles(baseProfile, { ...baseProfile, voicePreference: 'male' });

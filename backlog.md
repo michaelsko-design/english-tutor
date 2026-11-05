@@ -14,7 +14,7 @@
 
 ### Technical
 
-- [ ] **Audit low-severity fixes** (audit LOW list) - Log duplicate payments, and refuse short renewals in `payment-webhook.ts`. Require `GROW_ENV` and `VAPID_SUBJECT` in Production. Refetch JWKS on an unknown `kid`. Log invite-cleanup errors in `parentService.ts`. Use the later `updatedAt` in `mergeLearnerProfiles`. Type the Web Speech API. Re-check the `@grpc/grpc-js` advisory on the next `firebase` release. Full list in the audit report.
+- [ ] **Audit low-severity fixes** (audit LOW list) - The code fixes are done and committed locally (duplicate-payment log, short renewals refused, `GROW_ENV` / `VAPID_SUBJECT` required, JWKS refetch on an unknown `kid`, invite-cleanup logging, later `updatedAt`, Web Speech types). Before pushing: set `GROW_ENV` and `VAPID_SUBJECT` in Vercel Production, or payments and reminders stop. Still open: the `@grpc/grpc-js` advisory (`firebase` 13.2.0, checked 2026-11-05, still pins `~1.9.0`; re-check on the next release).
 - [ ] **Retire the old Firebase API key** - The old browser key (`AIzaSyAXCk…`) is still unrestricted and still works against this project. Find which of the other projects (Maps APIs showed active usage) use it, move them to their own keys, then restrict or delete it.
 - [ ] **Set up product analytics** - Choose and wire up analytics: Firebase Analytics / Google Analytics 4, Vercel Analytics, or another tool (e.g. a privacy-first one). Weigh children's privacy (Privacy Protection Law Amendment 13, consent), the CSP in `vercel.json` (new third-party origins), cost, and what we need beyond the owner dashboard (funnels, retention, screen/feature usage, crash and error reporting).
 

@@ -144,7 +144,11 @@ async function handleProcessNotification(fields: Record<string, string>, admin: 
   if (!checkout || !checkout.processId) return ignored('unknown checkout');
   // A page opened on one gateway is only ever confirmed by that gateway
   if (checkout.provider !== provider.id) return ignored('other gateway');
-  if (checkout.status === 'paid') return ignored('already paid');
+  if (checkout.status === 'paid') {
+    // A repeat of the same notification is normal; a second charge for a paid checkout needs a look
+    console.error('payment-webhook: duplicate payment on an already paid checkout');
+    return ignored('already paid');
+  }
 
   const payment = await provider.confirmPayment(checkout.period, { processId: checkout.processId, processToken: checkout.processToken });
   if (!payment) return ignored('not paid');
@@ -264,6 +268,11 @@ async function handleAccountEvent(event: GrowAccountEvent, admin: FirestoreAdmin
   const paymentId = `grow_${event.paymentId}`;
   if (await admin.getDocument('payments', paymentId)) return ignored('already recorded');
   if (nowMs < sub.periodEnd - RENEWAL_WINDOW_DAYS * DAY_MS) return ignored('renewal not due');
+  if (event.amountAgorot < sub.amountAgorot) {
+    // A 503 makes Grow retry: a seat upgrade can land here just before the gateway's own price update
+    console.error('payment-webhook: renewal amount is below the plan, not extending');
+    return errorResponse(503, 'Renewal amount is below the plan');
+  }
   if (event.amountAgorot !== sub.amountAgorot) console.error('payment-webhook: renewal amount differs from the plan');
   // A late charge on a plan the reconcile expired brings it back, but not over a seat on a newer plan
   const childUids = sub.status === 'expired' ? await childrenStillFree(admin, sub, nowMs) : sub.childUids;

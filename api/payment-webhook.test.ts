@@ -78,9 +78,12 @@ describe('handlePaymentWebhook: payment page notifications', () => {
 
   it('records a repeated notification once', async () => {
     const { fake, gateway, deps } = setup();
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
     await handlePaymentWebhook(processCallback(GROW_CALLBACK), ENV, deps);
-    const again = await handlePaymentWebhook(processCallback(GROW_CALLBACK), ENV, deps);
+    const again =await handlePaymentWebhook(processCallback(GROW_CALLBACK), ENV, deps);
     expect(await again.json()).toMatchObject({ ignored: 'already paid' });
+    expect(logged).toHaveBeenCalledWith(expect.stringContaining('duplicate payment'));
+    logged.mockRestore();
     expect(fake.commits).toHaveLength(1);
     expect(gateway.acknowledge).toHaveBeenCalledTimes(1);
   });
@@ -142,6 +145,20 @@ describe('handlePaymentWebhook: Grow account webhooks', () => {
     expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ periodEnd: Date.UTC(2026, 11, 28, 12), status: 'active' });
     expect(fake.get('entitlements', 'kid2')).toMatchObject({ periodEnd: Date.UTC(2026, 11, 28, 12) });
     expect(fake.get('payments', 'grow_R1')).toMatchObject({ kind: 'renewal', amountAgorot: 6400 });
+  });
+
+  it('refuses a renewal charged for less than the plan, and logs it', async () => {
+    const { fake, deps } = await activated();
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const short = { webhookKey: 'GROWKEY', transactionCode: 'R2', paymentSum: 10, directDebitId: 'DD7', paymentType: 'הוראת קבע' };
+
+    const response = await handlePaymentWebhook(accountWebhook(short), ENV, deps);
+
+    expect(response.status).toBe(503);
+    expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ periodEnd: Date.UTC(2026, 10, 28, 12) });
+    expect(fake.get('payments', 'grow_R2')).toBeUndefined();
+    expect(logged).toHaveBeenCalledWith(expect.stringContaining('renewal amount is below the plan'));
+    logged.mockRestore();
   });
 
   it('marks the plan past due when a charge fails, keeping its period', async () => {

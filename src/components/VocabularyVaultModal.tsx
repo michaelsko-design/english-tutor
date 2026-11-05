@@ -6,6 +6,7 @@ import { CurriculumUnit, VocabularyItem } from '../data/curriculum';
 import { LearnerGender } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
 import { evaluateSpokenSentence } from '../utils/speechSimilarity';
+import { getSpeechRecognitionApi, type SpeechRecognitionLike } from '../utils/speechRecognitionApi';
 import {
   X,
   BookOpen,
@@ -94,20 +95,14 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
   const currentSpeech = useCurrentSpeech();
 
   // Closing the Vault mid-word stops listening, so no result arrives after it closed
-  const recognitionRef = useRef<{ abort: () => void } | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   useEffect(() => () => recognitionRef.current?.abort(), []);
 
   const handlePracticeWord = (vocab: VocabularyItem) => {
     setPracticingWord(vocab.wordEn);
     setFeedbackMsg(null);
 
-    const SpeechRecognitionApi =
-      (window as unknown as {
-        SpeechRecognition?: unknown;
-        webkitSpeechRecognition?: unknown;
-      }).SpeechRecognition ||
-      (window as unknown as { webkitSpeechRecognition?: unknown })
-        .webkitSpeechRecognition;
+    const SpeechRecognitionApi = getSpeechRecognitionApi();
 
     const completeWordMastery = (transcript: string) => {
       setPracticingWord(null);
@@ -133,14 +128,12 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const recognition = new (SpeechRecognitionApi as any)();
+    const recognition = new SpeechRecognitionApi();
     recognition.lang = 'en-US';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event) => {
       const transcript: string = event.results?.[0]?.[0]?.transcript || '';
       const evalResult = evaluateSpokenSentence(vocab.wordEn, transcript);
       if (evalResult.passed) {
@@ -156,8 +149,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
       }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event) => {
       setPracticingWord(null);
       const errCode = event?.error || '';
       if (errCode === 'not-allowed' || errCode === 'service-not-allowed') {

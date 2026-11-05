@@ -80,4 +80,45 @@ describe('createFirebaseTokenVerifier', () => {
     expect(await verify('not-a-token', PROJECT_ID)).toBe(false);
     expect(await verify('', PROJECT_ID)).toBe(false);
   });
+
+  describe('after Google rotates its keys', () => {
+    const MIN_REFETCH_S = 60;
+
+    function rotating() {
+      let served: { keys: JsonWebKey[] } = { keys: [] };
+      let clockS = NOW_S;
+      const fetchJwks = vi.fn(async () => new Response(JSON.stringify(served), { headers: { 'Cache-Control': 'max-age=3600' } }));
+      const verify = createFirebaseTokenVerifier({ fetchImpl: fetchJwks as typeof fetch, nowMs: () => clockS * 1000 });
+      return {
+        verify,
+        fetchJwks,
+        publish: () => { served = jwks; },
+        advance: (seconds: number) => { clockS += seconds; },
+      };
+    }
+
+    // The payload's own iat/exp are fixed, so keep the clock inside the token's validity
+    const token = async () => signToken({ ...validPayload(), exp: NOW_S + 3000 });
+
+    it('fetches again for a key id it has not seen, then accepts the token', async () => {
+      const { verify, fetchJwks, publish, advance } = rotating();
+      expect(await verify(await token(), PROJECT_ID)).toBe(false); // cache holds only old keys
+      publish();
+      advance(MIN_REFETCH_S + 1);
+      expect(await verify(await token(), PROJECT_ID)).toBe(true);
+      expect(fetchJwks).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not refetch more than once a minute for unknown key ids', async () => {
+      const { verify, fetchJwks, advance } = rotating();
+      const stranger = await signToken(validPayload(), { kid: 'unknown' });
+      await verify(stranger, PROJECT_ID);
+      await verify(stranger, PROJECT_ID);
+      await verify(stranger, PROJECT_ID);
+      expect(fetchJwks).toHaveBeenCalledTimes(1);
+      advance(MIN_REFETCH_S + 1);
+      await verify(stranger, PROJECT_ID);
+      expect(fetchJwks).toHaveBeenCalledTimes(2);
+    });
+  });
 });

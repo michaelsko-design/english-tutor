@@ -49,6 +49,16 @@ describe('readGrowConfig', () => {
       readGrowConfig({ GROW_USER_ID: 'u', GROW_RECURRING_PAGE_CODE: 'r', GROW_REGULAR_PAGE_CODE: 'g', GROW_ENV: 'production' })?.baseUrl
     ).toBe(GROW_BASE_URLS.production);
   });
+
+  it('refuses to guess the environment in Production', () => {
+    const base = { GROW_USER_ID: 'u', GROW_RECURRING_PAGE_CODE: 'r', GROW_REGULAR_PAGE_CODE: 'g', VERCEL_ENV: 'production' };
+    expect(readGrowConfig(base)).toBeNull();
+    expect(readGrowConfig({ ...base, GROW_ENV: 'prod' })).toBeNull();
+    expect(readGrowConfig({ ...base, GROW_ENV: 'production' })?.baseUrl).toBe(GROW_BASE_URLS.production);
+    expect(readGrowConfig({ ...base, GROW_ENV: 'sandbox' })?.baseUrl).toBe(GROW_BASE_URLS.sandbox);
+    // Previews and local runs keep defaulting to the sandbox
+    expect(readGrowConfig({ ...base, VERCEL_ENV: 'preview' })?.baseUrl).toBe(GROW_BASE_URLS.sandbox);
+  });
 });
 
 describe('createGrowProvider', () => {

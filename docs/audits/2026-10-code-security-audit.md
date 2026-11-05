@@ -78,7 +78,7 @@ Baseline before changes: lint 0 errors (3 `exhaustive-deps` warnings in `Mission
 
 ## LOW
 
-These are tracked as one backlog item.
+These are tracked as one backlog item. Fixed on 2026-11-05 (with tests): the duplicate-payment log and short-renewal refusal in `payment-webhook.ts`, `GROW_ENV` required in Production, the JWKS refetch on an unknown `kid` (at most once a minute), `VAPID_SUBJECT` required, invite-cleanup errors logged, the later `updatedAt` in `mergeLearnerProfiles`, and Web Speech types (`src/utils/speechRecognitionApi.ts`). Still open: the revocation check, the parent-link re-check, `?key=`, contest scores and the guest field allowlist (accepted or tracked), and the `@grpc/grpc-js` advisory (`firebase` 13.2.0 still pins `~1.9.0`).
 
 - `api/payment-webhook.ts:147`: a duplicate payment on an already-paid checkout is dropped with no log, so a double charge goes unnoticed.
 - `api/payment-webhook.ts:267`: a renewal with a lower amount still extends the plan; it is only logged. It needs the Grow key, so outsiders can't trigger it.

@@ -1,4 +1,4 @@
-import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where, writeBatch } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where, writeBatch, type Firestore } from 'firebase/firestore';
 import { auth, db, getAppCheckToken } from './firebase';
 import { MIN_PIN_LENGTH } from '../utils/username';
 import { APP_CHECK_HEADER, TTS_TOKEN_HEADER } from './tts/ttsText';
@@ -92,7 +92,7 @@ export async function createParentInvite(
         throw error;
       }
       saveActiveCode(uid, code);
-      if (previous && previous !== code) await deleteDoc(doc(db, 'parentInvites', previous)).catch(() => {});
+      if (previous && previous !== code) await deleteInvite(db, previous);
       return { ok: true, value: { code, invite } };
     }
     return { ok: false, errorHe: GENERIC_ERROR_HE };
@@ -101,10 +101,19 @@ export async function createParentInvite(
   }
 }
 
+/** Best-effort delete of an invite code: a failure is logged, since the code expires by itself anyway. */
+async function deleteInvite(firestore: Firestore, code: string): Promise<void> {
+  try {
+    await deleteDoc(doc(firestore, 'parentInvites', code));
+  } catch (error) {
+    console.warn('parentService: could not delete a parent invite', error);
+  }
+}
+
 export async function withdrawParentInvite(uid: string): Promise<void> {
   const code = readActiveCode(uid);
   saveActiveCode(uid, null);
-  if (db && code) await deleteDoc(doc(db, 'parentInvites', code)).catch(() => {});
+  if (db && code) await deleteInvite(db, code);
 }
 
 async function listLinks(field: 'childUid' | 'parentUid', uid: string): Promise<ParentLink[]> {
@@ -204,7 +213,7 @@ export async function deleteLearnerParentData(uid: string): Promise<void> {
   const links = await listLinks('childUid', uid);
   await Promise.all(links.map((link) => deleteDoc(doc(db!, 'parentLinks', parentLinkId(link.parentUid, uid)))));
   const code = readActiveCode(uid);
-  if (code) await deleteDoc(doc(db, 'parentInvites', code)).catch(() => {});
+  if (code) await deleteInvite(db, code);
   saveActiveCode(uid, null);
   await deleteDoc(doc(db, 'reportSnapshots', uid));
 }

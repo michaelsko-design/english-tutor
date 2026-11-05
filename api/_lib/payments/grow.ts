@@ -53,6 +53,8 @@ export function readGrowConfig(env: Record<string, string | undefined>): GrowCon
   const recurringPageCode = env.GROW_RECURRING_PAGE_CODE ?? '';
   const regularPageCode = env.GROW_REGULAR_PAGE_CODE ?? '';
   if (!userId || !recurringPageCode || !regularPageCode) return null;
+  // In Production the environment must be named: a missing GROW_ENV must not quietly mean the sandbox
+  if (env.VERCEL_ENV === 'production' && env.GROW_ENV !== 'production' && env.GROW_ENV !== 'sandbox') return null;
   const baseUrl = env.GROW_ENV === 'production' ? GROW_BASE_URLS.production : GROW_BASE_URLS.sandbox;
   return { baseUrl, userId, apiKey: env.GROW_API_KEY ?? '', recurringPageCode, regularPageCode };
 }

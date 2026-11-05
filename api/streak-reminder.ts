@@ -98,8 +98,9 @@ export async function handleStreakReminderRequest(
   const account = parseServiceAccount(env.FIREBASE_SERVICE_ACCOUNT_JSON);
   const publicKey = env.VITE_VAPID_PUBLIC_KEY;
   const privateKey = env.VAPID_PRIVATE_KEY;
-  if (!account || !publicKey || !privateKey) return jsonResponse(503, { error: 'Reminders are not configured' });
-  const vapid = { subject: env.VAPID_SUBJECT || 'mailto:admin@example.com', publicKey, privateKey };
+  const subject = env.VAPID_SUBJECT;
+  if (!account || !publicKey || !privateKey || !subject) return jsonResponse(503, { error: 'Reminders are not configured' });
+  const vapid = { subject, publicKey, privateKey };
 
   const admin = createAdmin(account, env.FIREBASE_PROJECT_ID || DEFAULT_FIREBASE_PROJECT_ID);
   const today = getIsraelToday(nowMs());

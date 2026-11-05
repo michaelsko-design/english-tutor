@@ -7,6 +7,7 @@ const ENV = {
   FIREBASE_SERVICE_ACCOUNT_JSON: JSON.stringify({ client_email: 'a@b.c', private_key: 'k' }),
   VITE_VAPID_PUBLIC_KEY: 'pub',
   VAPID_PRIVATE_KEY: 'priv',
+  VAPID_SUBJECT: 'mailto:owner@englishvibe.test',
 };
 // Tuesday 2026-10-27, 14:00 Israel time (UTC+2 after the clocks went back)
 const NOW_MS = Date.UTC(2026, 9, 27, 12, 0);
@@ -31,8 +32,8 @@ function setup(docs: PlainDocument[], sendPush = vi.fn().mockResolvedValue(undef
   const deleteDocument = vi.fn().mockResolvedValue(undefined);
   const commit = vi.fn().mockResolvedValue(undefined);
   const admin = { listDocuments: vi.fn().mockResolvedValue(docs), deleteDocument, commit } as unknown as FirestoreAdmin;
-  const run = (headers: Record<string, string> = { authorization: 'Bearer cron-secret' }) =>
-    handleStreakReminderRequest(new Request('https://x/api/streak-reminder', { headers }), ENV, {
+  const run = (headers: Record<string, string> = { authorization: 'Bearer cron-secret' }, env: Record<string, string | undefined> = ENV) =>
+    handleStreakReminderRequest(new Request('https://x/api/streak-reminder', { headers }), env, {
       nowMs: () => NOW_MS,
       createAdmin: () => admin,
       sendPush,
@@ -44,6 +45,13 @@ describe('streak-reminder cron', () => {
   it('rejects a request without the cron secret', async () => {
     const { run, sendPush } = setup([subscription('u1')]);
     expect((await run({})).status).toBe(401);
+    expect(sendPush).not.toHaveBeenCalled();
+  });
+
+  it('sends nothing without a VAPID subject instead of using a placeholder contact', async () => {
+    const { run, sendPush } = setup([subscription('u1')]);
+    const response = await run({ authorization: 'Bearer cron-secret' }, { ...ENV, VAPID_SUBJECT: undefined });
+    expect(response.status).toBe(503);
     expect(sendPush).not.toHaveBeenCalled();
   });
 

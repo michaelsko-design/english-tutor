@@ -6,6 +6,8 @@
 
 const AUTH_JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 const DEFAULT_KEYS_MAX_AGE_S = 3600;
+/** Least time between key refetches forced by an unknown key id, so forged ids can't hammer Google */
+const MIN_REFETCH_INTERVAL_MS = 60_000;
 /** Clock difference allowed between the learner's token and this server */
 const CLOCK_SKEW_S = 300;
 
@@ -55,9 +57,20 @@ export function createRs256Verifier({
 }: Rs256VerifierConfig): (token: string) => Promise<boolean> {
   let keys: Map<string, CryptoKey> | null = null;
   let keysExpireAtMs = 0;
+  let lastFetchAtMs = 0;
 
-  const loadKeys = async (): Promise<Map<string, CryptoKey>> => {
-    if (keys && nowMs() < keysExpireAtMs) return keys;
+  let pendingFetch: Promise<Map<string, CryptoKey>> | null = null;
+
+  /** One fetch at a time: callers that arrive while it runs share its result. */
+  const fetchKeys = (): Promise<Map<string, CryptoKey>> => {
+    pendingFetch ??= downloadKeys().finally(() => {
+      pendingFetch = null;
+    });
+    return pendingFetch;
+  };
+
+  const downloadKeys = async (): Promise<Map<string, CryptoKey>> => {
+    lastFetchAtMs = nowMs();
     const response = await fetchImpl(jwksUrl);
     if (!response.ok) throw new Error(`JWKS ${response.status}`);
     const body = (await response.json()) as { keys?: (JsonWebKey & { kid?: string })[] };
@@ -72,6 +85,19 @@ export function createRs256Verifier({
     keys = imported;
     keysExpireAtMs = nowMs() + maxAgeSeconds(response.headers.get('Cache-Control')) * 1000;
     return imported;
+  };
+
+  const loadKeys = async (): Promise<Map<string, CryptoKey>> =>
+    keys && nowMs() < keysExpireAtMs ? keys : fetchKeys();
+
+  /** The key for a key id; one that is unknown triggers a refetch (Google rotated), at most once a minute. */
+  const keyFor = async (kid: string): Promise<CryptoKey | undefined> => {
+    const known = (await loadKeys()).get(kid);
+    if (known) return known;
+    // A refetch already running may carry this key
+    if (pendingFetch) return (await pendingFetch).get(kid);
+    if (nowMs() - lastFetchAtMs < MIN_REFETCH_INTERVAL_MS) return undefined;
+    return (await fetchKeys()).get(kid);
   };
 
   return async function verifyToken(token: string): Promise<boolean> {
@@ -92,7 +118,7 @@ export function createRs256Verifier({
     if (!isValidCommonClaims || !hasValidClaims(payload)) return false;
 
     try {
-      const key = (await loadKeys()).get(header.kid);
+      const key = await keyFor(header.kid);
       if (!key) return false;
       return await crypto.subtle.verify(
         'RSASSA-PKCS1-v1_5',

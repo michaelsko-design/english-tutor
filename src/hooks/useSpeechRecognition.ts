@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LearnerGender } from '../types/learner';
 import { evaluateSpokenSentence, SpeechEvaluationResult } from '../utils/speechSimilarity';
+import { getSpeechRecognitionApi, type SpeechRecognitionLike } from '../utils/speechRecognitionApi';
 
 export type SpeechErrorKind = 'unsupported' | 'not-allowed' | 'no-speech';
 
@@ -27,24 +28,13 @@ export function getSpeechErrorTextHe(kind: SpeechErrorKind, gender: LearnerGende
     : 'לא הצלחנו לשמוע אותך בבירור במיקרופון. לחץ שוב על הכפתור וקרא את המשפט בקול רם וברור!';
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-type RecognitionInstance = any;
-
-function getRecognitionApi(): (new () => RecognitionInstance) | undefined {
-  const w = window as unknown as {
-    SpeechRecognition?: new () => RecognitionInstance;
-    webkitSpeechRecognition?: new () => RecognitionInstance;
-  };
-  return w.SpeechRecognition || w.webkitSpeechRecognition;
-}
-
 /**
  * Web Speech recognition for the voice drills: listens once in en-US and scores the transcript
  * against the target sentence with `evaluateSpokenSentence`.
  */
 export function useSpeechRecognition() {
   const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<RecognitionInstance | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   /** Stops listening without calling the handlers (e.g. when the step changes). */
   const cancel = useCallback(() => {
@@ -65,7 +55,7 @@ export function useSpeechRecognition() {
   useEffect(() => cancel, [cancel]);
 
   const start = (target: string, handlers: SpeechHandlers) => {
-    const RecognitionApi = getRecognitionApi();
+    const RecognitionApi = getSpeechRecognitionApi();
     if (!RecognitionApi) {
       setIsListening(false);
       handlers.onError('unsupported');
@@ -79,13 +69,13 @@ export function useSpeechRecognition() {
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event) => {
       setIsListening(false);
       const transcript: string = event.results?.[0]?.[0]?.transcript || '';
       handlers.onResult(transcript, evaluateSpokenSentence(target, transcript));
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event) => {
       setIsListening(false);
       const errCode = event?.error || '';
       handlers.onError(errCode === 'not-allowed' || errCode === 'service-not-allowed' ? 'not-allowed' : 'no-speech');
@@ -102,4 +92,3 @@ export function useSpeechRecognition() {
 
   return { isListening, start, cancel };
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
