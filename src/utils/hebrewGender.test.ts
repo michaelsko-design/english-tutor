@@ -111,7 +111,9 @@ describe('mission steps for boys', () => {
   it('show the Explorer story question exactly as written', () => {
     for (const mission of SEEDED_MISSIONS) {
       const story = getRawExercisesForMission(mission, 'explorer', 'boy').find((s) => s.type === 'story-unseen');
-      expect(story?.promptHe, mission.id).toContain(mission.drillSeed!.story.questionHe);
+      // Missions with tier seeds ask Explorer their own short story's question
+      const explorerStory = mission.drillSeed!.tiers?.explorer.story ?? mission.drillSeed!.story;
+      expect(story?.promptHe, mission.id).toContain(explorerStory.questionHe);
     }
   });
 

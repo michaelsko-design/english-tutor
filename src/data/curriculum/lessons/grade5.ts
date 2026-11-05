@@ -54,10 +54,10 @@ export const GRADE_5_LESSONS: LessonPack = {
     tipHe: 'next to הוא תמיד שתי מילים: next to the bank, לא next the bank.',
     quickTry: {
       promptHe: 'הפארק ליד הבית. מה מתאים?',
-      questionEn: 'The park is ____ my house.',
-      correct: 'next to',
-      wrong: 'next',
-      explainHe: '"ליד" באנגלית הוא next to, שתי מילים.',
+      questionEn: 'The bank is ____ the school and the shop.',
+      correct: 'between',
+      wrong: 'among',
+      explainHe: '"בין" שני מקומות באנגלית הוא between.',
     },
   },
   'g5-u2-m2': {
@@ -179,10 +179,10 @@ export const GRADE_5_LESSONS: LessonPack = {
     tipHe: 'המילה באה לפני הפועל: she always walks, לא she walks always.',
     quickTry: {
       promptHe: 'מה מתאים?',
-      questionEn: 'Tom is never late. He ____ comes on time.',
-      correct: 'always',
-      wrong: 'never',
-      explainHe: 'Tom אף פעם לא מאחר, אז הוא תמיד בזמן: always.',
+      questionEn: 'Lea hates spiders. She ____ touches them.',
+      correct: 'never',
+      wrong: 'always',
+      explainHe: 'לאה שונאת עכבישים, אז אף פעם לא נוגעת בהם: never.',
     },
   },
   'g5-u4-m3': {

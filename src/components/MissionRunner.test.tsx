@@ -75,6 +75,20 @@ describe('MissionRunner', () => {
     expect(screen.getByRole('button', { name: 'לשלב הבא' })).toBeInTheDocument();
   });
 
+  it('Challenger: the Hebrew sentence hint opens itself after the first wrong answer', async () => {
+    const user = userEvent.setup();
+    const mission = firstMission('grade-3');
+    const [step] = getExercisesForMission(mission, 'challenger', 'girl', 0);
+    renderRunner(mission);
+    expect(step.hintAfterWrongHe).toBeTruthy();
+    expect(screen.queryByRole('note', { name: 'רמז' })).not.toBeInTheDocument();
+
+    await answerWrongly(user, step);
+    await user.click(screen.getByRole('button', { name: 'נסי שוב' }));
+
+    expect(screen.getByRole('note', { name: 'רמז' })).toHaveTextContent((step.hintAfterWrongHe ?? '').replace('💡 ', ''));
+  });
+
   it('leaves the mission from the exit button and with Escape', async () => {
     const user = userEvent.setup();
     const { onClose, onCompleteMission } = renderRunner(firstMission('grade-1'));

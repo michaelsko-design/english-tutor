@@ -625,3 +625,22 @@ describe('mergeLearnerProfiles room positions', () => {
     expect(merged?.positions).toBeUndefined();
   });
 });
+
+describe('mergeLearnerProfiles missionTierStars', () => {
+  it('keeps the highest stars per mission and tier from both sides', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, missionTierStars: { m1: { explorer: 3, master: 1 } } },
+      { missionTierStars: { m1: { explorer: 2, master: 2 }, m2: { challenger: 3 } } }
+    );
+    expect(merged.missionTierStars).toEqual({ m1: { explorer: 3, master: 2 }, m2: { challenger: 3 } });
+  });
+
+  it('keeps a ladder that exists on only one side', () => {
+    const merged = mergeLearnerProfiles(baseProfile, { missionTierStars: { m1: { master: 3 } } });
+    expect(merged.missionTierStars).toEqual({ m1: { master: 3 } });
+  });
+
+  it('leaves the field out when neither side has one', () => {
+    expect(mergeLearnerProfiles(baseProfile, {}).missionTierStars).toBeUndefined();
+  });
+});

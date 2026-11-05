@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hebrew translation review</title>
+<style>
+  :root { color-scheme: light dark; --bg:#f6f7fb; --card:#fff; --ink:#1b1d2a; --muted:#6a6f85; --line:#dcdfec; --good:#1f9d55; --bad:#d9482b; --info:#3b6fe0; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14151c; --card:#1e2029; --ink:#eceef7; --muted:#9ba0b8; --line:#33364a; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.45 system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  main { max-width:860px; margin:0 auto; padding:16px; }
+  header { position:sticky; top:0; background:var(--bg); padding:10px 0; z-index:2; border-bottom:1px solid var(--line); }
+  h1 { font-size:18px; margin:0 0 6px; }
+  .bar { height:8px; background:var(--line); border-radius:4px; overflow:hidden; }
+  .bar > div { height:100%; background:var(--good); width:0; }
+  .muted { color:var(--muted); font-size:13px; }
+  .controls { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; align-items:center; }
+  select, input[type=search], button { font:inherit; font-size:14px; padding:6px 10px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); }
+  button { cursor:pointer; }
+  button.primary { background:var(--info); color:#fff; border-color:var(--info); }
+  .item { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0; border-inline-start:6px solid var(--line); }
+  .item.ok { border-inline-start-color:var(--good); opacity:.75; }
+  .item.fix { border-inline-start-color:var(--bad); }
+  .pair { display:flex; flex-direction:column; gap:8px; }
+  .en { font-size:19px; direction:ltr; text-align:left; white-space:pre-wrap; padding:0 11px; }
+  .he { font-size:22px; direction:rtl; text-align:left; margin:0; width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:transparent; color:var(--ink); font-family:inherit; resize:vertical; }
+  .meta { margin-top:6px; font-size:12px; color:var(--muted); direction:ltr; text-align:left; }
+  .tag { display:inline-block; border:1px solid var(--line); border-radius:6px; padding:0 6px; margin-inline-end:6px; }
+  .tag.new { color:var(--info); border-color:var(--info); }
+  .acts { display:flex; gap:8px; margin-top:10px; }
+  .acts button.ok { background:var(--good); color:#fff; border-color:var(--good); }
+  .acts button.fix { background:var(--bad); color:#fff; border-color:var(--bad); }
+  .empty { text-align:center; padding:40px; color:var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Hebrew translation review <span class="muted" id="count"></span></h1>
+    <div class="bar"><div id="bar"></div></div>
+    <div class="controls">
+      <select id="show"><option value="todo">Not reviewed</option><option value="fix">Marked to fix</option><option value="ok">Approved</option><option value="all">All</option></select>
+      <select id="kind"><option value="">All kinds</option><option value="explain">Explanations &amp; hints</option><option value="story">Stories</option><option value="sentence">Sentences</option><option value="vocab">Words</option></select>
+      <select id="origin"><option value="">New + old</option><option value="new">New tier content only</option><option value="old">Existing content only</option></select>
+      <input type="search" id="q" placeholder="Search English or Hebrew">
+      <button class="primary" id="export">Export results</button>
+    </div>
+    <div class="muted" style="margin-top:6px">Type the correct Hebrew in the box if the translation is wrong, then press "Fix". Your work is saved in this browser as you go. Export when done, then run <code>npm run review:he-tiers -- import &lt;file&gt;</code>.</div>
+  </header>
+  <div id="list"></div>
+</main>
+<script>
+const DATA = /*__REVIEW_DATA__*/null;
+const STORE = 'he-tier-review-v1';
+const PAGE = 40;
+let state = { ok: {}, fix: {} };
+try { state = JSON.parse(localStorage.getItem(STORE)) || state; } catch (e) { /* private window: keep in memory */ }
+const approvedBefore = new Set(DATA.approved);
+const $ = (id) => document.getElementById(id);
+
+function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* ignore */ } }
+function statusOf(item) {
+  if (state.fix[item.h] !== undefined) return 'fix';
+  if (state.ok[item.h] || approvedBefore.has(item.h)) return 'ok';
+  return 'todo';
+}
+function visible() {
+  const show = $('show').value, kind = $('kind').value, origin = $('origin').value, q = $('q').value.trim().toLowerCase();
+  return DATA.items.filter((item) => {
+    if (show !== 'all' && statusOf(item) !== show) return false;
+    if (kind && item.kind !== kind) return false;
+    if (origin === 'new' && !item.isNew) return false;
+    if (origin === 'old' && item.isNew) return false;
+    return !q || item.en.toLowerCase().includes(q) || item.he.includes(q);
+  });
+}
+function progress() {
+  const done = DATA.items.filter((item) => statusOf(item) !== 'todo').length;
+  $('bar').style.width = (100 * done / DATA.items.length) + '%';
+  $('count').textContent = done + ' / ' + DATA.items.length + ' reviewed';
+}
+function card(item) {
+  const el = document.createElement('div');
+  el.className = 'item ' + statusOf(item);
+  const en = document.createElement('div'); en.className = 'en'; en.dir = 'ltr'; en.lang = 'en'; en.textContent = item.en;
+  const he = document.createElement('textarea'); he.className = 'he'; he.rows = Math.max(1, Math.ceil(item.he.length / 45)); he.dir = 'rtl'; he.lang = 'he';
+  he.value = state.fix[item.h] !== undefined ? state.fix[item.h] : item.he;
+  const meta = document.createElement('div'); meta.className = 'meta';
+  meta.innerHTML = '<span class="tag' + (item.isNew ? ' new' : '') + '">' + (item.isNew ? 'new tier content' : 'existing') + '</span><span class="tag">' + item.kind + '</span>';
+  meta.append(item.where.join('  |  ') + (item.count > item.where.length ? '  (+' + (item.count - item.where.length) + ' more)' : ''));
+  const acts = document.createElement('div'); acts.className = 'acts';
+  const ok = document.createElement('button'); ok.className = 'ok'; ok.textContent = '✓ OK';
+  const fix = document.createElement('button'); fix.className = 'fix'; fix.textContent = '✎ Fix';
+  const undo = document.createElement('button'); undo.textContent = 'Undo';
+  ok.onclick = () => { delete state.fix[item.h]; state.ok[item.h] = 1; he.value = item.he; save(); render(); };
+  fix.onclick = () => {
+    const text = he.value.trim();
+    if (text === '' || text === item.he) { he.focus(); return; }
+    delete state.ok[item.h]; state.fix[item.h] = text; save(); render();
+  };
+  undo.onclick = () => { delete state.ok[item.h]; delete state.fix[item.h]; save(); render(); };
+  acts.append(ok, fix, undo);
+  const pair = document.createElement('div'); pair.className = 'pair';
+  pair.append(en, he);
+  el.append(pair, meta, acts);
+  return el;
+}
+function render() {
+  const list = $('list');
+  list.replaceChildren();
+  const shown = visible();
+  if (shown.length === 0) { list.innerHTML = '<div class="empty">Nothing here.</div>'; progress(); return; }
+  shown.slice(0, PAGE).forEach((item) => list.append(card(item)));
+  if (shown.length > PAGE) {
+    const more = document.createElement('div'); more.className = 'empty';
+    more.textContent = (shown.length - PAGE) + ' more in this view. Review these first and they will load next.';
+    list.append(more);
+  }
+  progress();
+}
+$('export').onclick = () => {
+  const approved = Object.keys(state.ok);
+  const fixes = Object.keys(state.fix).map((h) => {
+    const item = DATA.items.find((i) => i.h === h);
+    return { h, en: item.en, oldHe: item.he, newHe: state.fix[h] };
+  });
+  const blob = new Blob([JSON.stringify({ approved, fixes }, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'he-tier-review.json'; a.click();
+};
+['show', 'kind', 'origin'].forEach((id) => $(id).addEventListener('change', render));
+$('q').addEventListener('input', render);
+render();
+</script>
+</body>
+</html>

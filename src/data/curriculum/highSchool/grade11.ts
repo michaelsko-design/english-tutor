@@ -68,6 +68,67 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'Innocent pilots would not have perished in crashes.',
             wrong: ['His business would have doubled its profits.', 'He would have become a war hero.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence about the past is correct?',
+                correct: 'If Ruth had left earlier, she would have caught the bus.',
+                wrong: ['If Ruth had left earlier, she would catch the bus.'],
+                explainHe: 
+                  'בתנאי שלישי יש had + V3 בחלק ה-if ו-would have + V3 בחלק השני. שימו לב ששני החלקים מדברים על העבר.',
+                hintHe: 'כדאי לבדוק: האם שני חלקי המשפט מתארים את העבר?',
+              },
+              story: {
+                passageEn: 'Tom missed the bus. He was late for school. His teacher was not happy.',
+                passageHe: 'תום פספס את האוטובוס. הוא איחר לבית הספר. המורה לא הייתה מרוצה.',
+                questionEn: 'Why was Tom late?',
+                questionHe: 'למה תום איחר?',
+                correct: 'He missed the bus.',
+                wrong: ['He lost his bag.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['reluctant', 'fragile'],
+                ['accumulation', 'punctuation'],
+                ['celebration', 'arrangement'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'If the author had changed the ending many readers would have felt deeply disappointed.',
+              sentenceHe: 'אילו הסופר היה משנה את הסוף, קוראים רבים היו מרגישים אכזבה עמוקה.',
+              decoys: ['has', 'were'],
+              voiceEn: 'She would have helped if she had known.',
+              voiceHe: 'היא הייתה עוזרת אילו הייתה יודעת.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'If he had apologized, she would have forgiven him.',
+                wrong: [
+                  'If he apologized, she would have forgiven him.',
+                  'If he had apologized, she will have forgiven him.',
+                  'If he would have apologized, she would have forgiven him.',
+                ],
+                explainHe: 
+                  'בתנאי שלישי משתמשים ב-had + V3 אחרי if וב-would have + V3 בחלק השני. לא משתמשים בעבר פשוט, ב-will או ב-would אחרי if.',
+                hintEn: 'Check the verb forms after if and in the result part.',
+              },
+              story: {
+                passageEn: 
+                  'Nora had spent months preparing for the national debate final. On the morning of the contest, she noticed that her main argument rested on a statistic from an unreliable website. She considered removing it but decided there was no time to check another source. Her opponent immediately challenged the figure, and the judges frowned. Afterwards, Nora admitted to her coach that a single hour of research earlier in the week would have saved her speech.',
+                passageHe: '',
+                questionEn: 'Why did the judges frown?',
+                questionHe: '',
+                correct: 'Her key figure came from a weak source.',
+                wrong: [
+                  'Nora forgot most of her prepared speech.',
+                  'The opponent had stolen her main argument.',
+                  'Her coach interrupted the speech loudly.',
+                ],
+              },
+              storyHintEn: 'Think about where her main statistic came from.',
+            },
+          },
         },
       },
       {
@@ -79,7 +140,7 @@ const units: HighSchoolUnitSpec[] = [
         grammarTopic: 'HOTS: Cause and Effect & Connectors of Result',
         skills: ['HOTS Cause & Effect', 'Literature Connectors', 'Module F/E'],
         sentenceEn: 'The protagonist made a regretful decision because economic hardship pressured his family.',
-        sentenceHe: 'הגיבור קיבל החלטה מעציבה משום שמצוקה כלכלית לחצה על משפחתו.',
+        sentenceHe: 'הגיבור קיבל החלטה מצערת משום שמצוקה כלכלית לחצה על משפחתו.',
         vocab: [
           [
             'hardship',
@@ -130,6 +191,67 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'מה גרם באופן ישיר לבעלי החיים לערוך את המרד הראשוני שלהם?',
             correct: 'The farmer\'s continuous neglect and cruel mistreatment.',
             wrong: ['A harsh winter that destroyed their barn.', 'An attack by neighboring wild predators.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'Due to the rain, the match was cancelled.',
+                wrong: ['Due to it rained, the match was cancelled.'],
+                explainHe: 'אחרי Due to בא שם עצם (the rain), ולא משפט שלם עם נושא ופועל.',
+                hintHe: 'כדאי לבדוק: מה בא אחרי Due to, שם עצם או משפט שלם?',
+              },
+              story: {
+                passageEn: 
+                  'Dan forgot his umbrella. It rained all afternoon. As a result, he got very wet.',
+                passageHe: 'דן שכח את המטרייה שלו. ירד גשם כל אחר הצהריים. כתוצאה מכך הוא נרטב מאוד.',
+                questionEn: 'Why did Dan get wet?',
+                questionHe: 'למה דן נרטב?',
+                correct: 'He had no umbrella.',
+                wrong: ['He fell in a lake.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['prosperity', 'leisure'],
+                ['avoidable', 'hostile'],
+                ['landscape', 'ingredient'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Consequently rising prices forced many families to cut their spending last winter.',
+              sentenceHe: 'כתוצאה מכך, עליית המחירים אילצה משפחות רבות לקצץ בהוצאותיהן בחורף שעבר.',
+              decoys: ['forcing', 'cutting'],
+              voiceEn: 'Hardship often leads to difficult choices.',
+              voiceHe: 'קושי מוביל לעתים קרובות לבחירות קשות.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Due to the long strike, the trains stopped running.',
+                wrong: [
+                  'Because of the strike started, the trains stopped.',
+                  'Due to the strike, so the trains stopped running.',
+                  'As a result the strike, the trains stopped running.',
+                ],
+                explainHe: 
+                  'Due to ו-Because of באים לפני שם עצם, לא לפני משפט שלם. As a result דורש of לפני שם עצם, ואין צורך ב-so אחרי ביטוי סיבה.',
+                hintEn: 'Look at what follows each cause phrase and the word so.',
+              },
+              story: {
+                passageEn: 
+                  'When the factory closed, nearly two hundred workers lost their jobs. Local shops soon noticed fewer customers, and the cafe on the corner reduced its opening hours. Young people began leaving town to find work in the city, and the primary school was left with half its classes. The mayor admitted that no single decision had caused the decline, but that the closure had set everything else in motion. Years later, a small technology park finally opened.',
+                passageHe: '',
+                questionEn: 'What does the passage suggest the mayor believes?',
+                questionHe: '',
+                correct: 'It started a chain of other problems.',
+                wrong: [
+                  'It alone explains every problem in town.',
+                  'It helped the shops earn more money.',
+                  'It was planned by the young people.',
+                ],
+              },
+              storyHintEn: 'Notice the phrase set everything else in motion.',
+            },
           },
         },
       },
@@ -197,6 +319,66 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'מדוע לא יכול היה הנוסע לחקור את שני השבילים בו-זמנית?',
             correct: 'Because one person cannot travel two divergent life roads.',
             wrong: ['Because the second road was blocked by fallen trees.', 'Because a thunderstorm forced him to return.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'If I had chosen the other road, I would have been late.',
+                wrong: ['If I would have chosen the other road, I had been late.'],
+                explainHe: 
+                  'בתנאי שלישי: If + had + V3 בחלק הראשון, ו-would have + V3 בחלק השני. אי אפשר להחליף ביניהם.',
+                hintHe: 'כדאי לבדוק באיזה חלק של המשפט משתמשים ב-had.',
+              },
+              story: {
+                passageEn: 'Sam saw two paths in the park. He took the short one. It was quiet and green.',
+                passageHe: 'סם ראה שני שבילים בפארק. הוא בחר בשביל הקצר. הוא היה שקט וירוק.',
+                questionEn: 'Which path did Sam take?',
+                questionHe: 'באיזה שביל סם בחר?',
+                correct: 'The short one.',
+                wrong: ['The long one.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['hesitate', 'confess'],
+                ['mandatory', 'vigorous'],
+                ['recite', 'forbid'],
+              ],
+            },
+            master: {
+              sentenceEn: 'If the poet had taken the other road he would have written a different poem.',
+              sentenceHe: 'אילו המשורר היה בוחר בדרך האחרת, הוא היה כותב שיר אחר.',
+              decoys: ['has', 'took'],
+              voiceEn: 'Every choice leaves another path unexplored.',
+              voiceHe: 'כל בחירה משאירה דרך אחרת בלתי נחקרת.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'If she had read the poem, she would have understood it.',
+                wrong: [
+                  'If she had read the poem, she would had understood it.',
+                  'If she would read the poem, she would have understood it.',
+                  'If she had read the poem, she would have understand it.',
+                ],
+                explainHe: 
+                  'בתנאי שלישי הצורה היא would have + V3: אחרי would have בא V3 ולא V1, ולא had. אחרי if לא מוסיפים would.',
+                hintEn: 'Look closely at the verb after would, and after if.',
+              },
+              story: {
+                passageEn: 
+                  'Maya stood at the fork in the path for a long time. Her friends had already chosen the wide, busy trail that led to the lake, and their laughter faded slowly behind the trees. The narrow path looked muddy and uncertain, yet something about it made her curious. Eventually she stepped forward alone. Years later she still described that afternoon as the moment she stopped asking others what she should do.',
+                passageHe: '',
+                questionEn: 'What does the ending suggest about Maya?',
+                questionHe: '',
+                correct: 'She learned to trust her own judgment.',
+                wrong: [
+                  'She deeply regretted leaving her friends.',
+                  'She avoided every forest path afterwards.',
+                  'She was afraid of the busy lake trail.',
+                ],
+              },
+              storyHintEn: 'Think about what changed for her after that afternoon.',
+            },
           },
         },
       },
@@ -269,6 +451,67 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'It reveals the student\'s hidden family struggles and generates empathy.',
             wrong: ['It shows the student wanted to fail high school on purpose.', 'It proves the teacher was deliberately cruel.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'My brother likes noise, whereas I prefer silence.',
+                wrong: ['My brother likes noise, because I prefer silence.'],
+                explainHe: 'Whereas מחבר שני רעיונות מנוגדים. Because מסביר סיבה, ולכן לא מתאים כאן.',
+                hintHe: 'כדאי לשאול: האם המשפט השני מנוגד לראשון או מסביר אותו?',
+              },
+              story: {
+                passageEn: 'Ben likes football. His sister likes books. They never choose the same game.',
+                passageHe: 'בן אוהב כדורגל. אחותו אוהבת ספרים. הם אף פעם לא בוחרים את אותו משחק.',
+                questionEn: 'What does Ben like?',
+                questionHe: 'מה בן אוהב?',
+                correct: 'He likes football.',
+                wrong: ['He likes books.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['pressure', 'distance'],
+                ['dissolve', 'bewilder'],
+                ['inflation', 'architecture'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Although critics admired the novel for its realism some readers found its ending unconvincing.',
+              sentenceHe: 
+                'למרות שמבקרים העריכו את הרומן על הריאליזם שבו, חלק מהקוראים מצאו את סופו לא משכנע.',
+              decoys: ['whereas', 'unconvince'],
+              voiceEn: 'Both characters see the story differently.',
+              voiceHe: 'שתי הדמויות רואות את הסיפור אחרת.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The mother wanted peace, whereas her son wanted adventure.',
+                wrong: [
+                  'Whereas the mother wanted peace, but her son wanted adventure.',
+                  'The mother wanted peace, despite her son wanted adventure.',
+                  'The mother wanted peace, however her son wanted adventure.',
+                ],
+                explainHe: 
+                  'ב-Whereas לא משתמשים יחד עם but; Despite דורש שם עצם ולא משפט; ו-however אחרי פסיק בלבד יוצר שני משפטים מחוברים בצורה שגויה.',
+                hintEn: 'Check each linking word and what follows it.',
+              },
+              story: {
+                passageEn: 
+                  'The town council argued for weeks about a vacant lot. Mr Cohen, a retired teacher, wanted a library, noting that half the children in his neighbourhood had no quiet place to study. The coach of the youth team disagreed. In his view, teenagers needed a gym to release energy, and books could wait. A student named Lior finally proposed a building that offered both, with a reading room above the courts. Both men, surprisingly, nodded.',
+                passageHe: '',
+                questionEn: 'Why did both men nod at Lior\'s idea?',
+                questionHe: '',
+                correct: 'It addressed what each of them wanted.',
+                wrong: [
+                  'It was clearly the cheapest possible plan.',
+                  'It gave the council more time to argue.',
+                  'It replaced the lot with an empty park.',
+                ],
+              },
+              storyHintEn: 'Think about what each man wanted from the empty lot.',
+            },
+          },
         },
       },
       {
@@ -332,6 +575,66 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'Both critically confront racial prejudice in mid-twentieth-century America.',
             wrong: ['Both were written as poetic ballads about European royalty.', 'Both took place exclusively in deep wilderness camps.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'Both stories are about friendship.',
+                wrong: ['Both stories is about friendship.'],
+                explainHe: 'אחרי Both בא שם עצם ברבים ולכן הפועל הוא are, לא is.',
+                hintHe: 'כדאי לבדוק: Both מתייחס לאחד או לשניים?',
+              },
+              story: {
+                passageEn: 'Ana has a cat. Dan has a dog. Both pets like to sleep.',
+                passageHe: 'לאנה יש חתול. לדן יש כלב. שתי חיות המחמד אוהבות לישון.',
+                questionEn: 'What do both pets like?',
+                questionHe: 'מה שתי חיות המחמד אוהבות?',
+                correct: 'They like to sleep.',
+                wrong: ['They like to swim.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['complaint', 'improvement'],
+                ['overtake', 'astonish'],
+                ['pollution', 'budget'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Unlike the first poem which celebrates nature the second poem warns readers about industry.',
+              sentenceHe: 'בניגוד לשיר הראשון שמהלל את הטבע, השיר השני מזהיר את הקוראים מפני התעשייה.',
+              decoys: ['whereas', 'warn'],
+              voiceEn: 'The two poems share one theme.',
+              voiceHe: 'שני השירים חולקים נושא אחד.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Both writers criticize war, yet their methods differ.',
+                wrong: [
+                  'Both writers criticizes war, yet their methods differ.',
+                  'Both writers criticize war, yet differ their methods.',
+                  'Both of writers criticize war, yet their methods differ.',
+                ],
+                explainHe: 
+                  'אחרי Both writers הפועל ברבים (criticize), סדר המילים בחלק השני הוא נושא ואחריו פועל, ואומרים Both writers ולא Both of writers.',
+                hintEn: 'Check the verb agreement and the word order after yet.',
+              },
+              story: {
+                passageEn: 
+                  'Two memoirs describe growing up in the same city during the nineties. The first, written by a banker, remembers crowded markets and a sense of endless opportunity. The second, by a nurse, recalls long power cuts and her mother working two jobs. Readers often assume the authors are describing different places. In fact, both books mention the same street, and each author stresses how much the neighbours helped one another. Perhaps the contrast says more about the writers than about the city.',
+                passageHe: '',
+                questionEn: 'What can be inferred from the differences between the memoirs?',
+                questionHe: '',
+                correct: 'Background influences how a place is remembered.',
+                wrong: [
+                  'The authors lived in completely different cities.',
+                  'The neighbours disliked helping each other.',
+                  'The banker made up his whole story.',
+                ],
+              },
+              storyHintEn: 'Remember both books describe the same street.',
+            },
+          },
         },
       },
       {
@@ -367,7 +670,7 @@ const units: HighSchoolUnitSpec[] = [
             'noun',
             'סמליות',
             '🕊️',
-            'The white dove is a recognized symbol of peace.',
+            'The white dove is a recognized piece of symbolism for peace.',
             'היונה הלבנה היא סמל מוכר לשלום.',
           ],
         ],
@@ -390,11 +693,71 @@ const units: HighSchoolUnitSpec[] = [
             passageEn:
               'In Shirley Jackson\'s chilling short story The Lottery, an ordinary farming community gathers on a bright June morning. At first, the event resembles a harmless civic picnic. Jackson employs intense foreshadowing and dramatic irony, forcing the reader to examine how unthinking adherence to tradition can lead civilized neighbors to commit horrific acts.',
             passageHe:
-              'בסיפורה הקצר ומעורר המחשבה של שירלי ג׳קסון ״הגרלה״, קהילת חקלאים רגילה מתאספת בבוקר יוני בהיר. תחילה, האירוע נראה כמו פיקניק אזרחי תמים. ג׳קסון משתמשת ברמזים מקדימים עוצמתיים ובאירוניה דרמטית, ומאלצת את הקורא לבחון כיצד היצמדות עיוורת למסורת עלולה להוביל שכנים תרבותיים לבצע מעשים מחרידים.',
+              'בסיפורה הקצר והמצמרר של שירלי ג׳קסון ״ההגרלה״, קהילת חקלאים רגילה מתאספת בבוקר יוני בהיר. תחילה, האירוע נראה כמו פיקניק אזרחי תמים. ג׳קסון משתמשת ברמזים מקדימים עוצמתיים ובאירוניה דרמטית, ומאלצת את הקורא לבחון כיצד היצמדות עיוורת למסורת עלולה להוביל שכנים תרבותיים לבצע מעשים מחרידים.',
             questionEn: 'What is the central social critique conveyed through Jackson\'s story?',
             questionHe: 'מהי הביקורת החברתית המרכזית המועברת דרך סיפורה של ג׳קסון?',
             correct: 'The danger of blindly obeying cruel traditions without moral questioning.',
             wrong: ['The difficulty of farming crops in dry summer conditions.', 'The importance of purchasing lottery tickets regularly.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'Because of the storm, the trip was cancelled.',
+                wrong: ['Because of the storm was strong, the trip was cancelled.'],
+                explainHe: 'אחרי Because of בא שם עצם (the storm), לא משפט עם פועל.',
+                hintHe: 'כדאי לבדוק מה בא אחרי Because of.',
+              },
+              story: {
+                passageEn: 
+                  'The dove is white. In many stories, it means peace. Lena draws a dove for the class.',
+                passageHe: 'היונה לבנה. בסיפורים רבים היא מסמלת שלום. לנה מציירת יונה לכיתה.',
+                questionEn: 'What does the dove mean?',
+                questionHe: 'מה מסמלת היונה?',
+                correct: 'It means peace.',
+                wrong: ['It means winter.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['permission', 'obstacle'],
+                ['treaty', 'rumor'],
+                ['equipment', 'machinery'],
+              ],
+            },
+            master: {
+              sentenceEn: 'The writer uses a broken mirror to symbolize how the family lost its trust.',
+              sentenceHe: 'הסופר משתמש במראה שבורה כדי לסמל כיצד המשפחה איבדה את האמון שלה.',
+              decoys: ['symbolism', 'losing'],
+              voiceEn: 'Symbols can carry a deeper meaning.',
+              voiceHe: 'לסמלים יכולה להיות משמעות עמוקה יותר.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Because of his pride, the hero lost everything he loved.',
+                wrong: [
+                  'Because of he was proud, the hero lost everything he loved.',
+                  'Because his pride, the hero lost everything he loved.',
+                  'As a result of his pride, so the hero lost everything he loved.',
+                ],
+                explainHe: 
+                  'Because of דורש שם עצם (his pride); המילה Because ללא of דורשת משפט שלם; ואחרי As a result of אין צורך ב-so.',
+                hintEn: 'Check what follows Because and whether of is needed.',
+              },
+              story: {
+                passageEn: 
+                  'For decades the lighthouse on the cliff had guided fishing boats safely home. When a modern navigation system replaced it, the council planned to demolish the empty tower. Residents protested, arguing that it was more than a building. Old fishermen told their grandchildren that the beam had meant someone was always watching over them. In the end the council turned the tower into a small museum, keeping the lamp lit every evening. Tourists now climb the stairs to see it.',
+                passageHe: '',
+                questionEn: 'What does the lamp that is lit every evening most likely represent?',
+                questionHe: '',
+                correct: 'A living reminder of the town\'s past.',
+                wrong: [
+                  'A signal that the museum is closed to visitors.',
+                  'The newest form of boat navigation.',
+                  'The council\'s plan to knock it down.',
+                ],
+              },
+              storyHintEn: 'Think about what the beam meant to the fishermen.',
+            },
           },
         },
       },
@@ -470,6 +833,66 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'He should have reduced cruising speed after ice warnings were received.',
             wrong: ['He should have steered the ship directly into the Arctic circle.', 'He should have turned off the ship\'s engines completely for days.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'You should have called me yesterday.',
+                wrong: ['You should called me yesterday.'],
+                explainHe: 'לביטוי חרטה על העבר משתמשים ב-should have + V3.',
+                hintHe: 'כדאי לבדוק: מה חסר בין should לבין הפועל?',
+              },
+              story: {
+                passageEn: 'Dina did not study for the test. She got a low grade. Now she feels sad.',
+                passageHe: 'דינה לא למדה למבחן. היא קיבלה ציון נמוך. עכשיו היא עצובה.',
+                questionEn: 'Why is Dina sad?',
+                questionHe: 'למה דינה עצובה?',
+                correct: 'She got a low grade.',
+                wrong: ['She lost her pen.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['humorous', 'ornamental'],
+                ['jealousy', 'amusement'],
+                ['forbid', 'sharpen'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'The government should have warned residents earlier about the dangerous flooding in the valley.',
+              sentenceHe: 'הממשלה הייתה צריכה להזהיר את התושבים מוקדם יותר מפני ההצפה המסוכנת בעמק.',
+              decoys: ['warns', 'early'],
+              voiceEn: 'We should have left much earlier.',
+              voiceHe: 'היינו צריכים לצאת הרבה קודם.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'They should have checked the map before leaving.',
+                wrong: [
+                  'They should checked the map before leaving.',
+                  'They should have check the map before leaving.',
+                  'They should of checked the map before leaving.',
+                ],
+                explainHe: 
+                  'should have + V3 הוא המבנה לחרטה. חסר have בדוגמה הראשונה, V1 במקום V3 בשנייה, וכתיבת of במקום have בשלישית.',
+                hintEn: 'Look at the words between should and the main verb.',
+              },
+              story: {
+                passageEn: 
+                  'The hikers had been warned about afternoon fog, yet the group leader, eager to reach the summit, ignored the advice. By three o\'clock, the path had vanished into white mist and two members began to panic. The leader finally admitted that turning back at noon would have kept everyone safe. They descended slowly, holding a rope between them, and reached the car park after dark. No one was hurt, but nobody spoke about the summit again.',
+                passageHe: '',
+                questionEn: 'How did the leader probably feel at the end?',
+                questionHe: '',
+                correct: 'Regretful about his earlier decision.',
+                wrong: [
+                  'Proud of reaching the summit first.',
+                  'Amused that the group was afraid.',
+                  'Pleased that the fog had lifted.',
+                ],
+              },
+              storyHintEn: 'Notice the leader\'s admission and the silence at the end.',
+            },
+          },
         },
       },
       {
@@ -481,7 +904,7 @@ const units: HighSchoolUnitSpec[] = [
         grammarTopic: 'Modals of Past Deduction: Must have & Couldn\'t have + V3',
         skills: ['Past Deduction', 'Archaeology & History', 'Logical Reconstruction'],
         sentenceEn: 'The ancient engineers must have possessed advanced mathematics to align the monuments so precisely.',
-        sentenceHe: 'המהנדסים הקדמונים חייבים היו להחזיק במתמטיקה מתקדמת כדי ליישר את המונומנטים בצורה כה מדויקת.',
+        sentenceHe: 'המהנדסים הקדמונים היו חייבים לשלוט במתמטיקה מתקדמת כדי ליישר את המונומנטים בצורה כה מדויקת.',
         vocab: [
           [
             'align',
@@ -532,6 +955,66 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'מדוע הבונים הנאוליתיים לא יכלו להשתמש באיזמלי ברזל?',
             correct: 'Because iron metallurgy had not yet been invented in Britain.',
             wrong: ['Because iron was considered sacred and forbidden to touch.', 'Because the rocks were too soft for metal contact.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'The door is open, so someone must have come in.',
+                wrong: ['The door is open, so someone must came in.'],
+                explainHe: 'להסקת מסקנה על העבר משתמשים ב-must have + V3.',
+                hintHe: 'כדאי לבדוק איזו צורה של הפועל באה אחרי must have.',
+              },
+              story: {
+                passageEn: 'The cake is gone. There are crumbs on the floor. The dog looks very happy.',
+                passageHe: 'העוגה נעלמה. יש פירורים על הרצפה. הכלב נראה מאוד מאושר.',
+                questionEn: 'Who ate the cake?',
+                questionHe: 'מי אכל את העוגה?',
+                correct: 'The dog probably did.',
+                wrong: ['The cat probably did.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['collide', 'dissolve'],
+                ['treaty', 'election'],
+                ['compose', 'hibernate'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'The villagers could not have built such a huge tower without skilled foreign help.',
+              sentenceHe: 'הכפריים לא יכלו לבנות מגדל ענק כזה בלי עזרה זרה מיומנת.',
+              decoys: ['builds', 'are'],
+              voiceEn: 'It must have been very cold.',
+              voiceHe: 'בטח היה קר מאוד.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The thieves must have entered through the window.',
+                wrong: [
+                  'The thieves must entered through the window.',
+                  'The thieves must have enter through the window.',
+                  'The thieves must has entered through the window.',
+                ],
+                explainHe: 
+                  'המבנה הנכון הוא must have + V3, ללא שינוי בגוף: חסר have בדוגמה הראשונה, V1 במקום V3 בשנייה, ו-has במקום have בשלישית.',
+                hintEn: 'Check each word between must and the window.',
+              },
+              story: {
+                passageEn: 
+                  'Archaeologists found a bronze bowl beside the ancient road, but no tools for making it were nearby. The clay beneath the bowl came from a region three hundred kilometres away. Scholars noticed that the bowl\'s decoration matched jewellery from distant ports. A few experts suggested that local craftsmen had simply invented the style. However, the shape of the handles was unknown in the area before that century. The debate continues.',
+                passageHe: '',
+                questionEn: 'What do the clay and the decoration most strongly suggest?',
+                questionHe: '',
+                correct: 'It probably came from somewhere else.',
+                wrong: [
+                  'Local people made it from nearby clay.',
+                  'It was certainly buried much later.',
+                  'Archaeologists made the bowl themselves.',
+                ],
+              },
+              storyHintEn: 'Where did the clay come from?',
+            },
           },
         },
       },
@@ -591,11 +1074,73 @@ const units: HighSchoolUnitSpec[] = [
             passageEn:
               'Before Johannes Gutenberg perfected movable metal type in 1440, every single volume had to be handwritten by scribes, requiring up to a year per copy. Gutenberg must have realized that mechanizing typography would democratize literacy. Within five decades, over twenty million books were printed, sparking the Renaissance across Europe.',
             passageHe:
-              'לפני שיוהנס גוטנברג שכלל את האותיות המיטלטלות ממתכת בשנת 1440, כל כרך בודד נאלץ להיכתב ידנית על ידי סופרים, תהליך שארך עד שנה לעותק. גוטנברג חייב היה להבין שמיכון הדפוס ידמוקרטיזציה של ידיעת קרוא וכתוב. תוך חמישה עשורים הודפסו למעלה מעשרים מיליון ספרים, מה שהצית את תקופת הרנסאנס ברחבי אירופה.',
+              'לפני שיוהנס גוטנברג שכלל את האותיות המיטלטלות ממתכת בשנת 1440, כל כרך בודד נאלץ להיכתב ידנית על ידי סופרים, תהליך שארך עד שנה לעותק. גוטנברג חייב היה להבין שמיכון הדפוס יוביל לדמוקרטיזציה של ידיעת קרוא וכתוב. תוך חמישה עשורים הודפסו למעלה מעשרים מיליון ספרים, מה שהצית את תקופת הרנסאנס ברחבי אירופה.',
             questionEn: 'How did Gutenberg\'s invention impact the Renaissance in Europe?',
             questionHe: 'כיצד השפיעה המצאתו של גוטנברג על הרנסאנס באירופה?',
             correct: 'By making books widely accessible, dramatically expanding literacy and ideas.',
             wrong: ['By banning the publication of religious scriptures.', 'By forcing schools to close printing presses.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'She could not have known about the surprise.',
+                wrong: ['She could not known about the surprise.'],
+                explainHe: 'could not have + V3 מבטא שהדבר היה בלתי אפשרי בעבר. חייבים לכתוב have לפני V3.',
+                hintHe: 'כדאי לבדוק איזו מילה חסרה אחרי could not.',
+              },
+              story: {
+                passageEn: 
+                  'Long ago, people copied books by hand. Then printing machines came. Books became cheaper, and more people could read.',
+                passageHe: 
+                  'לפני הרבה שנים אנשים העתיקו ספרים ביד. אחר כך הגיעו מכונות הדפוס. ספרים נעשו זולים יותר, ויותר אנשים יכלו לקרוא.',
+                questionEn: 'What did printing machines change?',
+                questionHe: 'מה שינו מכונות הדפוס?',
+                correct: 'Books became cheaper.',
+                wrong: ['Books became smaller.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['forbid', 'inhabit'],
+                ['decorate', 'unwrap'],
+                ['shortage', 'vacancy'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'The printing press could not have changed education without cheap paper and many readers.',
+              sentenceHe: 'הדפוס לא היה יכול לשנות את החינוך בלי נייר זול וקוראים רבים.',
+              decoys: ['spread', 'change'],
+              voiceEn: 'Their work left a lasting legacy.',
+              voiceHe: 'עבודתם הותירה מורשת מתמשכת.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'No one could have predicted such rapid change.',
+                wrong: [
+                  'No one could have predict such rapid change.',
+                  'No one could predicted such rapid change.',
+                  'No one couldn\'t have predicted such rapid change.',
+                ],
+                explainHe: 
+                  'could have + V3: בדוגמה הראשונה V1 במקום V3, בשנייה חסר have, ובשלישית יש שלילה כפולה (No one couldn\'t).',
+                hintEn: 'Check the verb form, and count the negatives.',
+              },
+              story: {
+                passageEn: 
+                  'When the first telephones appeared, many newspapers dismissed them as noisy toys that would never replace the letter. Within two decades, however, businesses were hiring operators, and families were paying for a line to be installed in the hall. Historians now point out that the early critics judged the invention by what it was, not by what it allowed people to do. The telephone\'s real effect was to shrink distances between towns. Today the same pattern repeats with new technology.',
+                passageHe: '',
+                questionEn: 'Why were the early critics mistaken?',
+                questionHe: '',
+                correct: 'They judged only its present form.',
+                wrong: [
+                  'Telephones were too expensive for businesses.',
+                  'Letters became faster than calls.',
+                  'Operators refused to use the machines.',
+                ],
+              },
+              storyHintEn: 'Read what historians say about judging an invention.',
+            },
           },
         },
       },
@@ -668,6 +1213,69 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'It facilitates memory consolidation, converting daily facts into long-term retention.',
             wrong: ['It lowers analytic scores by creating excessive tiredness.', 'It makes students forget unimportant vocabulary completely.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'What is skimming?',
+                correct: 'Reading quickly to get the main idea.',
+                wrong: ['Reading slowly to learn every word.'],
+                explainHe: 'Skimming היא קריאה מהירה כדי להבין את הרעיון המרכזי, בלי לעצור על כל מילה.',
+                hintHe: 'כדאי לחשוב: האם סורקים את הטקסט במהירות או קוראים כל מילה?',
+              },
+              story: {
+                passageEn: 
+                  'Yael reads the title first. Then she looks at the pictures. Now she knows what the text is about.',
+                passageHe: 
+                  'יעל קוראת קודם את הכותרת. אחר כך היא מסתכלת בתמונות. עכשיו היא יודעת על מה הטקסט.',
+                questionEn: 'What does Yael read first?',
+                questionHe: 'מה יעל קוראת קודם?',
+                correct: 'The title.',
+                wrong: ['The last line.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['talkative', 'jealous'],
+                ['postpone', 'accuse'],
+                ['agricultural', 'nautical'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Skimming the headings first helps students predict the topic before reading every paragraph carefully.',
+              sentenceHe: 
+                'סריקת הכותרות תחילה עוזרת לתלמידים לנחש את הנושא לפני שהם קוראים כל פסקה בעיון.',
+              decoys: ['skim', 'predicts'],
+              voiceEn: 'Context clues explain unknown words.',
+              voiceHe: 'רמזים מההקשר מסבירים מילים לא מוכרות.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The study shows that sleep improves memory.',
+                wrong: [
+                  'The study show that sleep improves memory.',
+                  'The study shows that sleep improve memory.',
+                  'The study shows sleep that improves memory.',
+                ],
+                explainHe: 
+                  'במשפט הזה שני נושאים בגוף שלישי יחיד: The study shows ו-sleep improves. בנוסף, אחרי shows בא that ואז הנושא.',
+                hintEn: 'Check both verbs and the position of the word that.',
+              },
+              story: {
+                passageEn: 
+                  'A recent survey asked three hundred students how they prepare for exams. Most reported that they reread their notes several times, yet those who tested themselves with practice questions scored noticeably higher. The researchers explained that rereading feels comfortable because the material looks familiar, but familiarity is not the same as understanding. Teachers who read the findings began to replace some lecture time with short quizzes. Students complained at first, then admitted the quizzes helped. One teacher said the change surprised her.',
+                passageHe: '',
+                questionEn: 'Why does rereading often mislead students?',
+                questionHe: '',
+                correct: 'It feels like real understanding.',
+                wrong: [
+                  'Notes often contain serious errors.',
+                  'It makes the content harder to read.',
+                  'It replaces the teacher\'s lectures.',
+                ],
+              },
+              storyHintEn: 'Compare feeling familiar with truly understanding.',
+            },
+          },
         },
       },
       {
@@ -730,6 +1338,69 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'מה הראתה האינפוגרפיקה על ההשתתפות בספורט בחוץ?',
             correct: 'It remained resilient, because screens mostly replaced television viewing.',
             wrong: ['It fell to zero percent across the entire country.', 'It was completely outlawed by local youth councils.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'The number of cars rose sharply last year.',
+                wrong: ['The number of cars rosed sharply last year.'],
+                explainHe: 'לפועל rise יש צורת עבר לא רגילה: rose. אין להוסיף ed.',
+                hintHe: 'כדאי לבדוק: האם rise הוא פועל רגיל בעבר?',
+              },
+              story: {
+                passageEn: 
+                  'In a class survey, 20 students like pizza. Only 5 like fish. Pizza is the most popular food.',
+                passageHe: 
+                  'בסקר בכיתה, 20 תלמידים אוהבים פיצה. רק 5 אוהבים דג. פיצה היא האוכל הפופולרי ביותר.',
+                questionEn: 'Which food is more popular?',
+                questionHe: 'איזה אוכל פופולרי יותר?',
+                correct: 'Pizza is more popular.',
+                wrong: ['Fish is more popular.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['inhabit', 'withdraw'],
+                ['gratefully', 'eagerly'],
+                ['compliment', 'ingredient'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'The statistics indicate that unemployment fell steadily among graduates throughout the past five years.',
+              sentenceHe: 
+                'הנתונים מצביעים על כך שהאבטלה ירדה בהתמדה בקרב בוגרים לאורך חמש השנים האחרונות.',
+              decoys: ['rises', 'fallen'],
+              voiceEn: 'The graph shows a steady increase.',
+              voiceHe: 'הגרף מראה עלייה מתמדת.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Sales rose steadily from March to June.',
+                wrong: [
+                  'Sales rised steadily from March to June.',
+                  'Sales rose steady from March to June.',
+                  'Sales rose steadily since March to June.',
+                ],
+                explainHe: 
+                  'rose היא צורת העבר של rise. הפועל מקבל תואר פועל (steadily) ולא תואר, ועם from משתמשים ב-to ולא ב-since.',
+                hintEn: 'Check the past form, the adverb, and the linking word.',
+              },
+              story: {
+                passageEn: 
+                  'A city council published a chart showing that bicycle use had doubled since the opening of protected bike lanes, while car traffic in the centre dropped by only five percent. Supporters celebrated the result. A transport analyst, however, warned that the chart said nothing about why the drivers stayed: many commuters from distant suburbs had no safe alternative. She suggested that new bus routes might reveal a bigger change than lanes alone. The council promised to study the question.',
+                passageHe: '',
+                questionEn: 'What is the analyst\'s main point?',
+                questionHe: '',
+                correct: 'The data does not tell the whole story.',
+                wrong: [
+                  'The bike lanes should be removed soon.',
+                  'Car traffic fell by about half.',
+                  'Suburban commuters prefer cycling.',
+                ],
+              },
+              storyHintEn: 'Think about what the chart does not explain.',
+            },
           },
         },
       },
@@ -797,6 +1468,67 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'כיצד מיתוג בין שתי שפות מועיל לבני נוער?',
             correct: 'It enhances executive mental functions and reduces cognitive fatigue.',
             wrong: ['It makes them forget grammar rules of their native tongue.', 'It slows down overall reading comprehension permanently.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'She speaks two languages, so she is bilingual.',
+                wrong: ['She speaks one language, so she is bilingual.'],
+                explainHe: 'Bilingual פירושו דובר/ת שתי שפות. אם מדברים רק שפה אחת, זה אינו נכון.',
+                hintHe: 'כדאי לזכור: הקידומת -bi מציינת שניים (דו-).',
+              },
+              story: {
+                passageEn: 
+                  'Omer speaks Hebrew and English. He talks to his grandmother in Hebrew. He watches films in English.',
+                passageHe: 'עומר מדבר עברית ואנגלית. הוא מדבר עם סבתו בעברית. הוא רואה סרטים באנגלית.',
+                questionEn: 'How many languages does Omer speak?',
+                questionHe: 'כמה שפות עומר מדבר?',
+                correct: 'He speaks two languages.',
+                wrong: ['He speaks five languages.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['fragile', 'reluctant'],
+                ['fiscal', 'nautical'],
+                ['rigidity', 'confusion'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Students who practise speaking daily become more confident and flexible in unfamiliar situations.',
+              sentenceHe: 'תלמידים שמתרגלים דיבור מדי יום נעשים בטוחים וגמישים יותר במצבים לא מוכרים.',
+              decoys: ['confidence', 'flexibly'],
+              voiceEn: 'Learning languages keeps the mind active.',
+              voiceHe: 'לימוד שפות שומר על המוח פעיל.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The research was conducted by a team of linguists.',
+                wrong: [
+                  'The research was conduct by a team of linguists.',
+                  'The research were conducted by a team of linguists.',
+                  'The research was conducted from a team of linguists.',
+                ],
+                explainHe: 
+                  'במבנה סביל: was/were + V3. הנושא research ביחיד ולכן was, ואת מבצע הפעולה מציינים עם by.',
+                hintEn: 'Check the verb form, the be-verb, and the preposition.',
+              },
+              story: {
+                passageEn: 
+                  'A language school compared two groups of adults who began Spanish together. One group attended three long lessons a week; the other studied twenty minutes every day using an app and a weekly conversation club. After six months the second group could hold longer conversations and forgot fewer words. The director noticed that the daily group also reported feeling less anxious about speaking. She decided to redesign the schedule for all new classes. Some teachers worried about losing lesson time.',
+                passageHe: '',
+                questionEn: 'Why did the director change the schedule?',
+                questionHe: '',
+                correct: 'Short daily practice worked better.',
+                wrong: [
+                  'The long lessons were too expensive to run.',
+                  'The app group forgot more words.',
+                  'Teachers asked for fewer students.',
+                ],
+              },
+              storyHintEn: 'Compare the two groups after six months.',
+            },
           },
         },
       },

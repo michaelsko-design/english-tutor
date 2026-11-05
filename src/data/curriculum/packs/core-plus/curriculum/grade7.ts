@@ -27,7 +27,7 @@ const UNITS: MiddleSchoolUnitSpec[] = [
         sentenceHe: 'כמה לקוחות מחכים, וכמה גבינה נשארה לנו?',
         vocab: [
           ['ingredient', 'noun', 'מרכיב (במתכון)', '🧂', 'Flour is the main ingredient in this bread.', 'קמח הוא המרכיב העיקרי בלחם הזה.'],
-          ['customer', 'noun', 'לקוח / לקוחה', '🧍', 'The first customer ordered two pancakes.', 'הלקוח הראשון הזמין שתי פנקייקים.'],
+          ['customer', 'noun', 'לקוח / לקוחה', '🧍', 'The first customer ordered two pancakes.', 'הלקוח הראשון הזמין שני פנקייקים.'],
           ['amount', 'noun', 'כמות', '⚖️', 'We need a small amount of butter for the pan.', 'אנחנו צריכים כמות קטנה של חמאה למחבת.'],
           ['portion', 'noun', 'מנה', '🍽️', 'Every portion comes with a fresh salad.', 'כל מנה מגיעה עם סלט טרי.'],
         ],
@@ -55,6 +55,66 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             correct: 'How many eggs and how much milk they have.',
             wrong: ['How many customers visited last week.', 'How much money the beach shop earns.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'How many eggs do we have?',
+                wrong: ['How much eggs do we have?'],
+                explainHe: 'eggs אפשר לספור, ולכן How many.',
+                hintHe: 'אפשר לספור ביצים אחת אחת? מילת הכמות צריכה להתאים לדבר שסופרים.',
+              },
+              story: {
+                passageEn: 'Dina has a food truck. She sells salad and juice. Today she has ten customers.',
+                passageHe: 'לדינה יש משאית אוכל. היא מוכרת סלט ומיץ. היום יש לה עשרה לקוחות.',
+                questionEn: 'How many customers does she have today?',
+                questionHe: 'כמה לקוחות יש לה היום?',
+                correct: 'Ten.',
+                wrong: ['Two.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['recipe', 'oven'],
+                ['menu', 'kitchen'],
+                ['number', 'bunch'],
+                ['ingredient', 'pan'],
+              ],
+            },
+            master: {
+              sentenceEn: 'How many onions do we need and how much olive oil is left today?',
+              sentenceHe: 'כמה בצלים אנחנו צריכים וכמה שמן זית נשאר היום?',
+              decoys: ['lot', 'few'],
+              voiceEn: 'There is not much milk in the fridge.',
+              voiceHe: 'אין הרבה חלב במקרר.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'There are many people in line but there is not much bread.',
+                wrong: [
+                  'There are much people in line but there is not much bread.',
+                  'There are many people in line but there is not many bread.',
+                  'There is many people in line but there is not much bread.',
+                ],
+                explainHe: 
+                  'people אפשר לספור ולכן many, ו-bread אי אפשר לספור ולכן much. people הם רבים, ולכן are.',
+                hintEn: 'Which nouns can you count, and which cannot?',
+              },
+              story: {
+                passageEn: 
+                  'Elad runs a juice truck near the university. On hot days a long line waits for his drinks, so he buys a lot of oranges early in the morning. Last Tuesday it rained, and he had only a few customers. He still had plenty of oranges, so he gave a free cup to every student who came. The next day, the line was longer than ever.',
+                passageHe: '',
+                questionEn: 'Why was the line so long the next day?',
+                questionHe: '',
+                correct: 'People liked the free juice and came back.',
+                wrong: [
+                  'The rain made the oranges cheaper.',
+                  'Elad closed the truck for two days.',
+                  'A new university opened nearby.',
+                ],
+              },
+              storyHintEn: 'Think about what Elad did on the rainy day.',
+            },
+          },
         },
       },
       {
@@ -71,7 +131,7 @@ const UNITS: MiddleSchoolUnitSpec[] = [
           ['spice', 'noun', 'תבלין', '🌶️', 'Cumin is my favorite spice for soup.', 'כמון הוא התבלין האהוב עליי למרק.'],
           ['recipe', 'noun', 'מתכון', '📖', 'My grandmother never writes down her recipe.', 'סבתא שלי אף פעם לא כותבת את המתכון שלה.'],
           ['sprinkle', 'verb', 'לפזר (מעט)', '🧂', 'Sprinkle some cinnamon on top of the cake.', 'פזרו קצת קינמון על העוגה.'],
-          ['taste', 'verb', 'לטעום / להיות בטעם', '👅', 'Taste the soup before you add more pepper.', 'טעמו את המרק לפני שאתם מוסיפים עוד פלפל.'],
+          ['taste', 'verb', 'לטעום / טעם', '👅', 'Taste the soup before you add more pepper.', 'טעמו את המרק לפני שאתם מוסיפים עוד פלפל.'],
         ],
         seed: {
           wrongWords: [
@@ -97,6 +157,65 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             correct: 'The fresh tomatoes from his uncle’s garden.',
             wrong: ['The expensive cheese from France.', 'The hot sauce from the market.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'I need a few eggs.',
+                wrong: ['I need a little eggs.'],
+                explainHe: 'eggs אפשר לספור, ולכן a few.',
+                hintHe: 'ביצים סופרים אחת אחת. איזו מילת כמות מתאימה לדברים שסופרים?',
+              },
+              story: {
+                passageEn: 'Hila makes soup. She adds a little salt. She puts in a few carrots.',
+                passageHe: 'הילה מכינה מרק. היא מוסיפה קצת מלח. היא שמה כמה גזרים.',
+                questionEn: 'What does she put in the soup?',
+                questionHe: 'מה היא שמה במרק?',
+                correct: 'A few carrots.',
+                wrong: ['A few apples.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['dessert', 'cheese'],
+                ['kitchen', 'apron'],
+                ['boil', 'slice'],
+                ['chop', 'peel'],
+              ],
+            },
+            master: {
+              sentenceEn: 'Add a few onions and a little black pepper to the pan before serving.',
+              sentenceHe: 'הוסיפו כמה בצלים וקצת פלפל שחור למחבת לפני ההגשה.',
+              decoys: ['salty', 'spoon'],
+              voiceEn: 'I only need a little time.',
+              voiceHe: 'אני צריך/ה רק קצת זמן.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'We have a few lemons but only a little sugar.',
+                wrong: [
+                  'We have a little lemons but only a little sugar.',
+                  'We have a few lemons but only a few sugar.',
+                  'We have a few lemon but only a little sugar.',
+                ],
+                explainHe: 'lemons אפשר לספור ולכן a few ברבים. sugar אי אפשר לספור ולכן a little.',
+                hintEn: 'Check which noun you can count.',
+              },
+              story: {
+                passageEn: 
+                  'Ofir wanted to impress his grandmother, so he decided to cook her favorite soup. He found the recipe in an old notebook, but the writing was faded. It said "a few carrots" and "a little something special". Ofir called his mother, who laughed and said that the special thing is only love. He added a few extra carrots, tasted the soup twice, and finally carried the bowl to the table with a nervous smile.',
+                passageHe: '',
+                questionEn: 'What did the mother mean by "something special"?',
+                questionHe: '',
+                correct: 'The care you put into the cooking.',
+                wrong: [
+                  'A rare spice from another country.',
+                  'A secret kind of expensive cheese.',
+                  'A sweet ingredient hidden in the carrots.',
+                ],
+              },
+              storyHintEn: 'Read what Ofir’s mother said about the special thing.',
+            },
+          },
         },
       },
       {
@@ -112,7 +231,7 @@ const UNITS: MiddleSchoolUnitSpec[] = [
         sentenceHe: 'הרווחנו הרבה כסף היום, אבל היו לנו רק כמה דקות לנוח.',
         vocab: [
           ['budget', 'noun', 'תקציב', '📊', 'Our budget for new pans is two hundred shekels.', 'התקציב שלנו למחבתות חדשות הוא מאתיים שקלים.'],
-          ['profit', 'noun', 'רווח', '📈', 'The truck made a big profit in the summer.', 'המשאית הרוויחה רווח גדול בקיץ.'],
+          ['profit', 'noun', 'רווח', '📈', 'The truck made a big profit in the summer.', 'המשאית הניבה רווח גדול בקיץ.'],
           ['earn', 'verb', 'להרוויח (כסף)', '💵', 'Teenagers can earn money by babysitting.', 'בני נוער יכולים להרוויח כסף משמרטפות.'],
           ['crowd', 'noun', 'המון / קהל גדול', '👥', 'A huge crowd stood in line for ice cream.', 'המון אנשים עמדו בתור לגלידה.'],
         ],
@@ -143,6 +262,65 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'מדוע הצוות של נועה הרוויח רווח יפה?',
             correct: 'They sold three hundred portions of falafel.',
             wrong: ['They raised the prices of all the drinks.', 'They closed the truck early in the afternoon.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'We have a little time.',
+                wrong: ['We have a few time.'],
+                explainHe: 'time אי אפשר לספור, ולכן a little.',
+                hintHe: 'האם אפשר לספור זמן אחד, שניים? מילת הכמות צריכה להתאים.',
+              },
+              story: {
+                passageEn: 'The market is busy. Yoni sells fruit. He sold a lot of apples today.',
+                passageHe: 'השוק עמוס. יוני מוכר פירות. היום הוא מכר הרבה תפוחים.',
+                questionEn: 'What did Yoni sell a lot of?',
+                questionHe: 'ממה יוני מכר הרבה?',
+                correct: 'Apples.',
+                wrong: ['Bread.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['menu', 'kitchen'],
+                ['engine', 'wheel'],
+                ['spend', 'borrow'],
+                ['freezer', 'cashier'],
+              ],
+            },
+            master: {
+              sentenceEn: 'We earned a profit but there were not many sandwiches left by the evening.',
+              sentenceHe: 'הרווחנו, אבל לא נשארו הרבה כריכים עד הערב.',
+              decoys: ['much', 'few'],
+              voiceEn: 'A large crowd came to the market.',
+              voiceHe: 'קהל גדול הגיע לשוק.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The truck sold many drinks but we have a little juice left.',
+                wrong: [
+                  'The truck sold much drinks but we have a little juice left.',
+                  'The truck sold many drinks but we have a few juice left.',
+                  'The truck sold many drink but we have a little juice left.',
+                ],
+                explainHe: 'drinks אפשר לספור ולכן many ברבים. juice אי אפשר לספור ולכן a little.',
+                hintEn: 'Count the nouns: which can be counted?',
+              },
+              story: {
+                passageEn: 
+                  'The manager of the market looked at the numbers on Sunday night. The crowd had been huge, and every truck sold almost everything. Only one truck, the smallest one, earned less than usual. Its owner, Rina, had spent most of her budget on a beautiful sign and a few flowers, but she had bought very little food. Next week, she says, she will do the opposite.',
+                passageHe: '',
+                questionEn: 'What went wrong for Rina’s truck?',
+                questionHe: '',
+                correct: 'She spent money on decoration instead of food.',
+                wrong: [
+                  'She had too many cooks in the small truck.',
+                  'The crowd did not come to her side of the market.',
+                  'Her prices were higher than the other trucks.',
+                ],
+              },
+              storyHintEn: 'Look at how Rina spent her budget.',
+            },
           },
         },
       },
@@ -195,6 +373,67 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             correct: 'Its battery lasts only two hours.',
             wrong: ['It is too heavy for the backpack.', 'It doesn’t play loud music.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'The bag is too heavy.',
+                wrong: ['The bag is enough heavy.'],
+                explainHe: 'too בא לפני שם התואר: too heavy.',
+                hintHe: 'שימו לב לסדר המילים. איפה עומדת המילה too ביחס לשם התואר?',
+              },
+              story: {
+                passageEn: 
+                  'Ari wants to buy a phone. The phone is nice, but it is too expensive. He has only fifty shekels.',
+                passageHe: 'ארי רוצה לקנות טלפון. הטלפון יפה, אבל הוא יקר מדי. יש לו רק חמישים שקלים.',
+                questionEn: 'Why does Ari not buy the phone?',
+                questionHe: 'למה ארי לא קונה את הטלפון?',
+                correct: 'It is too expensive.',
+                wrong: ['It is too small.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['case', 'cover'],
+                ['bright', 'quiet'],
+                ['delete', 'download'],
+                ['battery', 'charger'],
+              ],
+            },
+            master: {
+              sentenceEn: 'This tablet is too expensive for me but the battery is strong enough.',
+              sentenceHe: 'הטאבלט הזה יקר מדי בשבילי אבל הסוללה חזקה מספיק.',
+              decoys: ['much', 'tall'],
+              voiceEn: 'My phone screen is big enough.',
+              voiceHe: 'המסך של הטלפון שלי גדול מספיק.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The box is too heavy for one child to carry.',
+                wrong: [
+                  'The box is heavy too for one child to carry.',
+                  'The box is too heavily for one child to carry.',
+                  'The box is enough heavy for one child to carry.',
+                ],
+                explainHe: 
+                  'too בא לפני שם התואר ושם התואר נשאר בצורתו: too heavy. enough בא אחרי התואר, לא לפניו.',
+                hintEn: 'Check where too goes and the form of the adjective.',
+              },
+              story: {
+                passageEn: 
+                  'Shai bought a very cheap speaker online. When it arrived, he was excited and took it to the beach. But after twenty minutes the music stopped. The battery was not strong enough, and the speaker was too quiet to hear over the waves. His older cousin laughed kindly and told him that a better speaker costs more. Shai nodded and started saving his money.',
+                passageHe: '',
+                questionEn: 'What lesson did Shai learn about the speaker?',
+                questionHe: '',
+                correct: 'A very cheap product is not always a good choice.',
+                wrong: [
+                  'Speakers should never be taken to the beach.',
+                  'Music sounds better when the battery is low.',
+                  'His cousin’s speaker was worse than his own.',
+                ],
+              },
+              storyHintEn: 'Think about the battery, the sound and the price.',
+            },
+          },
         },
       },
       {
@@ -237,6 +476,68 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'מדוע מאיה בוחרת במצלמה הכסופה?',
             correct: 'Because she loves taking photos of the stars.',
             wrong: ['Because it is cheaper than the black one.', 'Because her club leader told her to.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Dan is taller than Ron.',
+                wrong: ['Dan is more tall than Ron.'],
+                explainHe: 'לשם תואר קצר מוסיפים er ואחריו than: taller than.',
+                hintHe: 'tall היא מילה קצרה. איך משווים מילה קצרה?',
+              },
+              story: {
+                passageEn: 
+                  'Ella has two bikes. The red bike is faster than the blue bike. The blue bike is older.',
+                passageHe: 
+                  'לאלה יש שני זוגות אופניים. האופניים האדומים מהירים יותר מהכחולים. האופניים הכחולים ישנים יותר.',
+                questionEn: 'Which bike is faster?',
+                questionHe: 'אילו אופניים מהירים יותר?',
+                correct: 'The red bike.',
+                wrong: ['The blue bike.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['measure', 'wrap'],
+                ['friendly', 'muddy'],
+                ['rude', 'tasty'],
+                ['friendly', 'lazy'],
+              ],
+            },
+            master: {
+              sentenceEn: 'Our new school website is easier to use than the old one.',
+              sentenceHe: 'האתר החדש של בית הספר שלנו קל יותר לשימוש מהישן.',
+              decoys: ['more', 'easy'],
+              voiceEn: 'This tablet is cheaper than that one.',
+              voiceHe: 'הטאבלט הזה זול יותר מההוא.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The silver watch is more expensive than the black one.',
+                wrong: [
+                  'The silver watch is expensiver than the black one.',
+                  'The silver watch is more expensive that the black one.',
+                  'The silver watch is more expensive as the black one.',
+                ],
+                explainHe: 
+                  'שם תואר ארוך (expensive) מקבל more ולא er. אחרי ההשוואה בא than, ולא that או as.',
+                hintEn: 'Check how to compare a long adjective and the word after it.',
+              },
+              story: {
+                passageEn: 
+                  'Two bakeries stand on Dina’s street. The first one is bigger and sells cheaper bread, but the line is always long. The second one is smaller, and a loaf costs a little more. Dina’s mother prefers the small bakery. She says she does not mind paying extra because the owner knows every customer by name and the bread is always warm.',
+                passageHe: '',
+                questionEn: 'Why does Dina’s mother prefer the small bakery?',
+                questionHe: '',
+                correct: 'She enjoys the personal service and warm bread.',
+                wrong: [
+                  'The bread there is cheaper than in the big one.',
+                  'The line at the small bakery is longer.',
+                  'The owner of the big bakery is her cousin.',
+                ],
+              },
+              storyHintEn: 'Think about what she says about the owner.',
+            },
           },
         },
       },
@@ -281,6 +582,67 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'מה הייתה הבעיה עם הרובוט בשנה שעברה?',
             correct: 'It was too slow.',
             wrong: ['It was too expensive to build.', 'It was not big enough for the plants.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'The robot is too slow.',
+                wrong: ['The robot is enough slow.'],
+                explainHe: 'too בא לפני שם התואר: too slow. enough לא בא לפניו.',
+                hintHe: 'שימו לב לסדר המילים: איפה עומדת המילה too?',
+              },
+              story: {
+                passageEn: 
+                  'Noy built a small robot. It is faster than a snail. It is not fast enough for the race.',
+                passageHe: 'נוי בנה רובוט קטן. הוא מהיר יותר מחילזון. הוא לא מהיר מספיק למירוץ.',
+                questionEn: 'Why can the robot not win the race?',
+                questionHe: 'למה הרובוט לא יכול לנצח במירוץ?',
+                correct: 'It is not fast enough.',
+                wrong: ['It is too fast.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['president', 'neighbor'],
+                ['borrow', 'forgive'],
+                ['broken', 'sleepy'],
+                ['luck', 'noise'],
+              ],
+            },
+            master: {
+              sentenceEn: 'The new model is lighter than the old one but not strong enough.',
+              sentenceHe: 'הדגם החדש קל יותר מהישן אבל לא חזק מספיק.',
+              decoys: ['lightest', 'too'],
+              voiceEn: 'We worked hard to improve the robot.',
+              voiceHe: 'עבדנו קשה כדי לשפר את הרובוט.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The robot is fast enough to win but too noisy for the judges.',
+                wrong: [
+                  'The robot is enough fast to win but too noisy for the judges.',
+                  'The robot is fast enough to win but too noisier for the judges.',
+                  'The robot is fast enough to win but noisy too for the judges.',
+                ],
+                explainHe: 
+                  'enough בא אחרי שם התואר (fast enough), ו-too בא לפניו (too noisy). אחרי too התואר נשאר בצורתו הרגילה.',
+                hintEn: 'Check where enough and too stand and the adjective form.',
+              },
+              story: {
+                passageEn: 
+                  'The judges walked slowly between the tables at the fair. Many robots were colorful and fast, but several of them stopped working during the demonstration. Maya’s robot was plain gray and quite slow. Still, it finished all three tasks without a single mistake, even when the lights went off for a moment. At the end, the head judge said that a prize should go to the project that works every time.',
+                passageHe: '',
+                questionEn: 'Why did the head judge value Maya’s robot?',
+                questionHe: '',
+                correct: 'It worked correctly each time, even in difficult moments.',
+                wrong: [
+                  'It was the most colorful robot at the fair.',
+                  'It was faster than all the other robots.',
+                  'It stopped working during the demonstration.',
+                ],
+              },
+              storyHintEn: 'Think about which robots had problems.',
+            },
           },
         },
       },

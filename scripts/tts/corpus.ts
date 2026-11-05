@@ -47,7 +47,10 @@ function addCurriculum(corpus: CorpusBuilder): void {
         }
         for (const tier of TIERS) {
           corpus.add(mission.tierObjectives[tier]?.samplePromptEn.replace(/_+/g, ''));
-          getExercisesForMission(mission, tier).forEach((step) => addStep(corpus, step));
+          // Each replay salt drills other vocabulary words of the mission, so voice them all
+          for (let salt = 0; salt < mission.vocabulary.length; salt++) {
+            getExercisesForMission(mission, tier, 'girl', salt).forEach((step) => addStep(corpus, step));
+          }
         }
       }
     }

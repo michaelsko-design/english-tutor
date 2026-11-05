@@ -28,7 +28,7 @@ const UNITS: MiddleSchoolUnitSpec[] = [
         vocab: [
           ['resolution', 'noun', 'החלטה (לשנה החדשה)', '📝', 'My resolution is to sleep more and scroll less.', 'ההחלטה שלי היא לישון יותר ולגלול פחות.'],
           ['pomegranate', 'noun', 'רימון', '🍎', 'A pomegranate has hundreds of red seeds.', 'לרימון יש מאות גרעינים אדומים.'],
-          ['shelter', 'noun', 'מחסה / מבנה זמני', '⛺', 'The sukkah is a simple shelter with a leafy roof.', 'הסוכה היא מבנה זמני ופשוט עם גג של עלים.'],
+          ['shelter', 'noun', 'מחסה / מבנה זמני', '⛺', 'The sukkah is a simple shelter with a leafy roof.', 'הסוכה היא מחסה פשוט עם גג עלים.'],
           ['branch', 'noun', 'ענף', '🌿', 'We put palm branches on top of the sukkah.', 'שמנו ענפי דקל על גג הסוכה.'],
         ],
         seed: {
@@ -55,6 +55,65 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'מה אבא של גילי שכח לקנות?',
             correct: 'Palm branches.',
             wrong: ['Paper chains.', 'Apples and honey.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which word is right? I ___ going to learn to swim.',
+                correct: 'am',
+                wrong: ['is'],
+                explainHe: 'עם I משתמשים ב-am: I am going to.',
+                hintHe: 'איזו צורה של be הולכת עם I?',
+              },
+              story: {
+                passageEn: 'Gili wants to play the drums. She has a plan. She will practice every day.',
+                passageHe: 'גילי רוצה לנגן בתופים. יש לה תוכנית. היא תתאמן בכל יום.',
+                questionEn: 'What will Gili do every day?',
+                questionHe: 'מה גילי תעשה בכל יום?',
+                correct: 'Practice the drums.',
+                wrong: ['Go shopping.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['nickname', 'allergy'],
+                ['banana', 'carrot'],
+                ['bridge', 'road'],
+                ['chair', 'shoe'],
+              ],
+            },
+            master: {
+              sentenceEn: 'We are going to build a big sukkah and I will bring branches.',
+              sentenceHe: 'אנחנו מתכוונים לבנות סוכה גדולה ואני אביא ענפים.',
+              decoys: ['builds', 'bringing'],
+              voiceEn: 'I will help you with the lights.',
+              voiceHe: 'אני אעזור לך עם האורות.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'We are going to visit Grandma after the holiday.',
+                wrong: [
+                  'We are going visit Grandma after the holiday.',
+                  'We going to visit Grandma after the holiday.',
+                  'We are going to visiting Grandma after the holiday.',
+                ],
+                explainHe: 'תוכנית מראש: are going to + פועל בצורת הבסיס.',
+                hintEn: 'Count the parts of be going to.',
+              },
+              story: {
+                passageEn: 
+                  'Every year before Sukkot, Uri and his father build the sukkah in the yard. This year the wind was strong, and half of the roof fell down on the first evening. Uri wanted to cancel the dinner, but his father laughed and called the neighbors. Within an hour six people arrived with ladders, new branches and cold lemonade. They ate dinner under a roof that was a little crooked and a lot of fun.',
+                passageHe: '',
+                questionEn: 'What can we understand about the neighbors?',
+                questionHe: '',
+                correct: 'They were ready to help right away.',
+                wrong: [
+                  'They were angry about the noise.',
+                  'They did not want to come.',
+                  'They were not at home that evening.',
+                ],
+              },
+              storyHintEn: 'What happened after his father called the neighbors?',
+            },
           },
         },
       },
@@ -98,6 +157,65 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'מה נטע החזיקה כשהיא הגיעה?',
             correct: 'A box of doughnuts.',
             wrong: ['A big umbrella.', 'A bag of presents.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which is right? Dad ___ cooking when it rained.',
+                correct: 'was',
+                wrong: ['were'],
+                explainHe: 'עם Dad (יחיד) משתמשים ב-was.',
+                hintHe: 'Dad הוא אדם אחד. איזו צורה של be מתאימה?',
+              },
+              story: {
+                passageEn: 'It rained on Hanukkah. The kids played inside. They ate doughnuts.',
+                passageHe: 'ירד גשם בחנוכה. הילדים שיחקו בפנים. הם אכלו סופגניות.',
+                questionEn: 'What did the kids eat?',
+                questionHe: 'מה הילדים אכלו?',
+                correct: 'Doughnuts.',
+                wrong: ['Sandwiches.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['rainbow', 'cloud'],
+                ['dry', 'dusty'],
+                ['eat', 'pour'],
+                ['milk', 'juice'],
+              ],
+            },
+            master: {
+              sentenceEn: 'The children were playing board games when the lights suddenly went out.',
+              sentenceHe: 'הילדים שיחקו במשחקי קופסה כשהאורות כבו פתאום.',
+              decoys: ['played', 'was'],
+              voiceEn: 'Grandma was frying latkes for us.',
+              voiceHe: 'סבתא טיגנה לנו לביבות.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'I was drying my hair when the phone rang.',
+                wrong: [
+                  'I were drying my hair when the phone rang.',
+                  'I was dry my hair when the phone rang.',
+                  'I was drying my hair when the phone was ring.',
+                ],
+                explainHe: 'עם I משתמשים ב-was + ing, והפעולה הקצרה ב-Past Simple.',
+                hintEn: 'Check the helping verb and each verb ending.',
+              },
+              story: {
+                passageEn: 
+                  'On the last night of Hanukkah, Ruti was carrying a tray of candles down the stairs when she heard a loud crash of thunder. She stopped, looked at the dark window, and saw that the whole street had lost its power. For a moment everything was black, except for eight small flames on her tray. Her little brother clapped his hands and shouted that Hanukkah had its own lights.',
+                passageHe: '',
+                questionEn: 'Why was the little brother so happy?',
+                questionHe: '',
+                correct: 'The candles gave light in the dark.',
+                wrong: [
+                  'The thunder had stopped at last.',
+                  'Ruti had dropped the tray.',
+                  'The electricity came back on.',
+                ],
+              },
+              storyHintEn: 'What was the only light in the street?',
+            },
           },
         },
       },
@@ -145,6 +263,65 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'מה יעל ואחיה ראו כשהסערה נגמרה?',
             correct: 'A beautiful rainbow over the hills.',
             wrong: ['Snow in their garden.', 'A broken window in the school.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which is right? The forecast says it ___ rain.',
+                correct: 'will',
+                wrong: ['wills'],
+                explainHe: 'לתחזית עתידית משתמשים ב-will (שאינו מקבל s בגוף שלישי), ואחריו בא פועל בצורת הבסיס.',
+                hintHe: 'שימו לב: באיזה פועל עזר משתמשים לחיזוי עתיד? זכרו שפועלי עזר מודליים אינם מקבלים s בגוף שלישי.',
+              },
+              story: {
+                passageEn: 'It is cold today. Dan sits near the heater. He drinks hot tea.',
+                passageHe: 'היום קר. דן יושב ליד תנור החימום. הוא שותה תה חם.',
+                questionEn: 'What hot drink does Dan have near the heater?',
+                questionHe: 'מה דן שותה?',
+                correct: 'Hot tea.',
+                wrong: ['Cold milk.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['recipe', 'menu'],
+                ['sofa', 'curtain'],
+                ['dive', 'cook'],
+                ['salty', 'noisy'],
+              ],
+            },
+            master: {
+              sentenceEn: 'The forecast says it will rain all day so we are going to stay inside.',
+              sentenceHe: 'התחזית אומרת שירד גשם כל היום אז אנחנו מתכוונים להישאר בפנים.',
+              decoys: ['rains', 'stays'],
+              voiceEn: 'It was a cold and gloomy day.',
+              voiceHe: 'זה היה יום קר וקודר.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'We were eating dinner when the storm began.',
+                wrong: [
+                  'We was eating dinner when the storm began.',
+                  'We were eat dinner when the storm began.',
+                  'We eating dinner when the storm began.',
+                ],
+                explainHe: 'עם We משתמשים ב-were + ing לפעולה הארוכה.',
+                hintEn: 'Check the helping verb and the ending of eat.',
+              },
+              story: {
+                passageEn: 
+                  'The weather app showed a red warning for the whole weekend, so the Cohen family packed candles, water and warm blankets on Friday afternoon. Late at night the wind hit the windows, and the lights went out. While the parents were looking for the matches, the youngest child found the flashlight that Dad had hidden for a birthday present. The family spent the night playing cards by its light.',
+                passageHe: '',
+                questionEn: 'What can we understand about the family?',
+                questionHe: '',
+                correct: 'They prepared well for the storm.',
+                wrong: [
+                  'They were surprised by the weather.',
+                  'They forgot to buy candles.',
+                  'They left the house at night.',
+                ],
+              },
+              storyHintEn: 'What did the family do before the storm arrived?',
+            },
           },
         },
       },
@@ -198,6 +375,65 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             correct: 'They danced in the rain.',
             wrong: ['They went home quickly.', 'They hid under the trees.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which is right? We ___ marching in the parade.',
+                correct: 'were',
+                wrong: ['was'],
+                explainHe: 'עם We משתמשים ב-were.',
+                hintHe: 'We הוא רבים. איזו צורה של be מתאימה?',
+              },
+              story: {
+                passageEn: 'It was Purim. Eli wore a big hat. He danced in the street.',
+                passageHe: 'היה פורים. אלי חבש כובע גדול. הוא רקד ברחוב.',
+                questionEn: 'What did Eli wear?',
+                questionHe: 'מה אלי לבש?',
+                correct: 'A big hat.',
+                wrong: ['A red shoe.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['idea', 'schedule'],
+                ['concert', 'lesson'],
+                ['ladder', 'lantern'],
+                ['plastic', 'marble'],
+              ],
+            },
+            master: {
+              sentenceEn: 'Everyone was dancing in the street when it suddenly started to rain heavily.',
+              sentenceHe: 'כולם רקדו ברחוב כשפתאום התחיל לרדת גשם חזק.',
+              decoys: ['danced', 'were'],
+              voiceEn: 'My disguise was a giant almond.',
+              voiceHe: 'התחפושת שלי הייתה שקד ענק.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'They were wearing masks when the parade began.',
+                wrong: [
+                  'They was wearing masks when the parade began.',
+                  'They were wear masks when the parade began.',
+                  'They were wearing masks when the parade was begin.',
+                ],
+                explainHe: 'עם They משתמשים ב-were + ing, והפעולה הקצרה (began) ב-Past Simple.',
+                hintEn: 'Check the helping verb and each verb form.',
+              },
+              story: {
+                passageEn: 
+                  'Michal spent three weeks sewing a costume of a rainbow for the school Purim parade. On the morning of the parade, her little dog chewed the last, red stripe. Michal almost cried, but her grandmother took a red scarf from her closet and tied it carefully to the costume. During the parade a photographer from the local paper asked her to pose, because hers was the most colorful costume of all.',
+                passageHe: '',
+                questionEn: 'How did Michal probably feel at the end?',
+                questionHe: '',
+                correct: 'Happy that the problem was solved.',
+                wrong: [
+                  'Angry that nobody helped her.',
+                  'Worried about the missing costume.',
+                  'Bored because the parade was long.',
+                ],
+              },
+              storyHintEn: 'Think about how the red stripe problem ended.',
+            },
+          },
         },
       },
       {
@@ -241,6 +477,65 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             correct: 'They must take their rubbish home.',
             wrong: ['They should bring more flags.', 'They have to leave before noon.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which is right? You should ___ early.',
+                correct: 'arrive',
+                wrong: ['arriving'],
+                explainHe: 'אחרי should בא פועל בצורת הבסיס, בלי ing.',
+                hintHe: 'אחרי should הפועל מופיע בצורה הפשוטה ביותר.',
+              },
+              story: {
+                passageEn: 'It is Independence Day. The family goes to the park. They have a barbecue.',
+                passageHe: 'היום יום העצמאות. המשפחה הולכת לפארק. הם עושים מנגל.',
+                questionEn: 'Where does the family go?',
+                questionHe: 'לאן המשפחה הולכת?',
+                correct: 'To the park.',
+                wrong: ['To the beach.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['uniform', 'backpack'],
+                ['homework', 'weather'],
+                ['bathtub', 'dentist'],
+                ['plastic', 'electric'],
+              ],
+            },
+            master: {
+              sentenceEn: 'You must wear a hat and you should drink a lot of water.',
+              sentenceHe: 'חובה לחבוש כובע וכדאי לשתות הרבה מים.',
+              decoys: ['have', 'wears'],
+              voiceEn: 'We have to stand during the anthem.',
+              voiceHe: 'אנחנו צריכים לעמוד בזמן ההמנון.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Students must wear white shirts to the ceremony.',
+                wrong: [
+                  'Students must to wear white shirts to the ceremony.',
+                  'Students must wearing white shirts to the ceremony.',
+                  'Students musts wear white shirts to the ceremony.',
+                ],
+                explainHe: 'אחרי must בא פועל בצורת הבסיס, בלי to, בלי ing ובלי s.',
+                hintEn: 'What can follow a modal verb?',
+              },
+              story: {
+                passageEn: 
+                  'Last Independence Day, Avi and his cousins arrived at the park at ten in the morning, but all the picnic tables were already taken. A park ranger told them that families usually come at sunrise to keep a place. Avi suggested sharing a big table with a family who had only three people. They agreed, and by evening the two families were singing together and sharing the salads.',
+                passageHe: '',
+                questionEn: 'What can we understand from the story?',
+                questionHe: '',
+                correct: 'Sharing a table solved the problem.',
+                wrong: [
+                  'Families must arrive after sunset.',
+                  'Park rangers keep tables for guests.',
+                  'Barbecues are not allowed in parks.',
+                ],
+              },
+              storyHintEn: 'How did the two families end the problem?',
+            },
+          },
         },
       },
       {
@@ -283,6 +578,66 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'מה הם ראו בזמן שטיילו לאורך הנחל?',
             correct: 'A family of wild boars.',
             wrong: ['A group of camels.', 'A big waterfall.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which is right? We ___ going to hike tomorrow.',
+                correct: 'are',
+                wrong: ['is'],
+                explainHe: 'עם We משתמשים ב-are: We are going to.',
+                hintHe: 'We הוא רבים. איזו צורה של be מתאימה?',
+              },
+              story: {
+                passageEn: 'Dana has a map. She will hike with her brother. They take water.',
+                passageHe: 'לדנה יש מפה. היא תטייל ברגל עם אחיה. הם לוקחים מים.',
+                questionEn: 'What do they take?',
+                questionHe: 'מה הם לוקחים?',
+                correct: 'Water.',
+                wrong: ['Pizza.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['itinerary', 'sunburn'],
+                ['puddle', 'tent'],
+                ['ski', 'sail'],
+                ['sunburn', 'allergy'],
+              ],
+            },
+            master: {
+              sentenceEn: 'We were hiking near a river when we saw a family of deer.',
+              sentenceHe: 'טיילנו ברגל ליד נהר כשראינו משפחה של צבאים.',
+              decoys: ['hiked', 'was'],
+              voiceEn: 'You should wear a hat today.',
+              voiceHe: 'כדאי לחבוש כובע היום.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'We were walking home when it started to rain.',
+                wrong: [
+                  'We was walking home when it started to rain.',
+                  'We were walking home when it start to rain.',
+                  'We walking home when it started to rain.',
+                ],
+                explainHe: 
+                  'פעולה ארוכה ב-Past Continuous (were + ing), והפעולה שקטעה אותה ב-Past Simple (started).',
+                hintEn: 'Check the helping verb and the second verb.',
+              },
+              story: {
+                passageEn: 
+                  'Ofer packed his backpack the night before the trip: two bottles of water, a hat, sunscreen and a thin jacket. His friend laughed at the jacket, because the forecast promised thirty-five degrees. At the top of the mountain the wind was so cold that his friend was shivering, and she gratefully borrowed the jacket. They ate lunch together under a tree and planned their next hike.',
+                passageHe: '',
+                questionEn: 'Why was the jacket useful?',
+                questionHe: '',
+                correct: 'The mountain top was colder than expected.',
+                wrong: [
+                  'It was raining on the way down.',
+                  'Ofer needed it to carry water.',
+                  'His friend forgot to bring a hat.',
+                ],
+              },
+              storyHintEn: 'What was the weather like at the top?',
+            },
           },
         },
       },

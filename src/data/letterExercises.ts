@@ -177,6 +177,8 @@ function buildFindStep(letter: AlphabetLetter, ctx: LetterStepContext): MissionE
   };
 }
 
+const TIER_LETTER_SHIFT: Record<ProficiencyTier, number> = { explorer: 0, challenger: 1, master: 2 };
+
 export function buildLetterExercises(
   mission: MissionNode,
   tier: ProficiencyTier,
@@ -194,10 +196,12 @@ export function buildLetterExercises(
   };
   // Each step practises another letter of the mission, so all of them come up; a Boss spreads
   // its five steps over its unit's letters
+  // Each tier starts at another letter, so a replay at a higher tier practises the letters in a new order
+  const tierShift = TIER_LETTER_SHIFT[tier];
   const letterAt = (stepIdx: number) =>
     mission.isBoss
-      ? letters[Math.floor((stepIdx * letters.length) / STEP_COUNT) % letters.length]
-      : letters[stepIdx % letters.length];
+      ? letters[(Math.floor((stepIdx * letters.length) / STEP_COUNT) + tierShift) % letters.length]
+      : letters[(stepIdx + tierShift) % letters.length];
   return [
     buildListenStep(letterAt(0), ctx),
     buildCaseStep(letterAt(1), ctx, isMaster),

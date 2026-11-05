@@ -41,3 +41,4 @@ emulator-export-*/
 coverage/
 .art-gemini-icon-batches.json
 scripts/tts/hebrewReview.json.bak
+review-out/

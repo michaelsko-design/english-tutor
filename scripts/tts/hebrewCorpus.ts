@@ -44,6 +44,7 @@ export function getStepHebrew(step: MissionExerciseStep): string[] {
   return [
     step.promptHe,
     step.hintHe,
+    step.hintAfterWrongHe,
     step.cardTextHe,
     step.targetSentenceHe,
     step.speakTargetHe,
@@ -64,9 +65,12 @@ function addMissions(corpus: CorpusBuilder): void {
         }
         for (const tier of TIERS) {
           for (const gender of GENDERS) {
-            getExercisesForMission(mission, tier, gender).forEach((step) =>
-              getStepHebrew(step).forEach((text) => corpus.add(text)),
-            );
+            // Each replay salt drills other vocabulary words, with their own Hebrew
+            for (let salt = 0; salt < mission.vocabulary.length; salt++) {
+              getExercisesForMission(mission, tier, gender, salt).forEach((step) =>
+                getStepHebrew(step).forEach((text) => corpus.add(text)),
+              );
+            }
           }
         }
       }

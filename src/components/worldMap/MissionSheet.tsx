@@ -10,6 +10,7 @@ import { toggleSpeech, useCurrentSpeech, useStopSpeechOnLeave } from '../../hook
 import { isSameSpeech } from '../../services/tts';
 import { SpeakIcon, STOP_SPEECH_LABEL } from '../SpeakIcon';
 import { TierChoice } from '../mission/TierChoice';
+import type { MissionLadder } from '../../data/tierProgress';
 import { StarRow } from './mapPieces';
 import { WorldMapStyle } from './worldMapStyles';
 import { Button } from '../ui/Button';
@@ -23,6 +24,8 @@ interface MissionSheetProps {
   previousTitleHe: string | null;
   tier: ProficiencyTier;
   onSelectTier?: (tier: ProficiencyTier) => void;
+  /** Stars earned so far at each tier of this mission */
+  ladder?: MissionLadder;
   theme: ThemeDefinition;
   style: WorldMapStyle;
   gender: LearnerGender;
@@ -54,6 +57,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
   previousTitleHe,
   tier,
   onSelectTier,
+  ladder,
   theme,
   style,
   gender,
@@ -165,7 +169,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
               </div>
 
               {onSelectTier && (
-                <TierChoice tier={tier} onChangeTier={onSelectTier} gender={gender} theme={theme} isCompact />
+                <TierChoice tier={tier} onChangeTier={onSelectTier} gender={gender} theme={theme} isCompact ladder={ladder} />
               )}
 
               {tierObjective && (

@@ -56,6 +56,65 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             correct: 'Two weeks.',
             wrong: ['Two days.', 'A few seconds.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which word is right? Grandpa ___ to walk to school.',
+                correct: 'used',
+                wrong: ['use'],
+                explainHe: 'להרגל בעבר כותבים used to (עם d).',
+                hintHe: 'מדובר בהרגל מהעבר. איך נראית צורת העבר של use?',
+              },
+              story: {
+                passageEn: 'Grandma had no phone. She wrote letters. She liked it.',
+                passageHe: 'לסבתא לא היה טלפון. היא כתבה מכתבים. היא אהבה את זה.',
+                questionEn: 'What did Grandma write?',
+                questionHe: 'מה סבתא כתבה?',
+                correct: 'Letters.',
+                wrong: ['Emails.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['cassette', 'radio'],
+                ['towel', 'candle'],
+                ['telescope', 'telephone'],
+                ['suitcase', 'wallet'],
+              ],
+            },
+            master: {
+              sentenceEn: 'My mother used to write long letters to her friends abroad.',
+              sentenceHe: 'אמא שלי נהגה לכתוב מכתבים ארוכים לחברות שלה בחו״ל.',
+              decoys: ['using', 'wrote'],
+              voiceEn: 'We used to live near the sea.',
+              voiceHe: 'פעם גרנו ליד הים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'My uncle used to collect old stamps.',
+                wrong: [
+                  'My uncle use to collect old stamps.',
+                  'My uncle used to collecting old stamps.',
+                  'My uncle used collect old stamps.',
+                ],
+                explainHe: 'הרגל בעבר: used to + פועל בצורת הבסיס.',
+                hintEn: 'Check used and the verb that follows.',
+              },
+              story: {
+                passageEn: 
+                  'When Grandpa Moshe was twelve, his family had no television. Every evening the neighbors used to gather in the yard of the only house with a radio. They listened to stories and songs, and the children sat on the floor in front. Moshe says that nobody talked during the program, and afterwards everybody discussed it for an hour. Today he laughs when his grandchildren watch five shows at once.',
+                passageHe: '',
+                questionEn: 'What does the story suggest about those evenings?',
+                questionHe: '',
+                correct: 'People enjoyed doing it together.',
+                wrong: [
+                  'People were bored and went home.',
+                  'Everybody had a radio at home.',
+                  'The children were not allowed to listen.',
+                ],
+              },
+              storyHintEn: 'Think about who sat together and what they did.',
+            },
+          },
         },
       },
       {
@@ -99,6 +158,66 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             correct: 'Together in a children’s house.',
             wrong: ['At home with their parents.', 'In tents near the fields.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which is right? We did not ___ to have a car.',
+                correct: 'use',
+                wrong: ['used'],
+                explainHe: 'אחרי did not הפועל חוזר לצורת הבסיס: use to.',
+                hintHe: 'שימו לב: אחרי did not, באיזו צורה מופיע הפועל?',
+              },
+              story: {
+                passageEn: 
+                  'Dina asked her Grandma about school. Grandma walked to school every day. It took thirty minutes.',
+                passageHe: 'דינה שאלה את סבתא על בית הספר. סבתא הלכה לבית הספר כל יום. זה לקח שלושים דקות.',
+                questionEn: 'How did Grandma go to school?',
+                questionHe: 'איך סבתא הגיעה לבית הספר?',
+                correct: 'She walked.',
+                wrong: ['By bus.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['mistake', 'accident'],
+                ['dinner', 'breakfast'],
+                ['famous', 'tall'],
+                ['homework', 'diary'],
+              ],
+            },
+            master: {
+              sentenceEn: 'Did you use to play outside with your friends when you were a child?',
+              sentenceHe: 'פעם שיחקת בחוץ עם החברים שלך כשהיית ילד/ה?',
+              decoys: ['used', 'plays'],
+              voiceEn: 'I did not use to like fish.',
+              voiceHe: 'פעם לא אהבתי דגים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Did she use to live in Haifa?',
+                wrong: [
+                  'Did she used to live in Haifa?',
+                  'Does she use to live in Haifa?',
+                  'Did she use live in Haifa?',
+                ],
+                explainHe: 'בשאלה: Did + נושא + use to + פועל בסיסי.',
+                hintEn: 'Check the helping verb and the d on use.',
+              },
+              story: {
+                passageEn: 
+                  'Rachel looked at an old photo of her father as a boy. He was standing next to a bike that was too big for him, with a serious face. Her grandmother explained that he used to deliver bread every morning before school, and that he never complained. His strict teacher once sent a note praising him for always arriving on time. Rachel looked at the photo again and smiled.',
+                passageHe: '',
+                questionEn: 'What kind of boy was he?',
+                questionHe: '',
+                correct: 'He was responsible and hardworking.',
+                wrong: [
+                  'He was lazy and often late.',
+                  'He was rich and bought a big bike.',
+                  'He disliked school and his teacher.',
+                ],
+              },
+              storyHintEn: 'Look at what he did before school every day.',
+            },
+          },
         },
       },
       {
@@ -116,7 +235,7 @@ const UNITS: MiddleSchoolUnitSpec[] = [
           ['decade', 'noun', 'עשור', '📅', 'Phones changed a lot in the last decade.', 'הטלפונים השתנו מאוד בעשור האחרון.'],
           ['nostalgic', 'adjective', 'נוסטלגי / מתגעגע לעבר', '🥹', 'Old songs make my parents feel nostalgic.', 'שירים ישנים גורמים להורים שלי להתגעגע לעבר.'],
           ['transform', 'verb', 'לשנות מן היסוד', '🔄', 'The internet transformed the way we learn.', 'האינטרנט שינה מן היסוד את הדרך שבה אנחנו לומדים.'],
-          ['ancestor', 'noun', 'אב קדמון / בן משפחה מדורות קודמים', '🌳', 'My ancestors came from Morocco and Poland.', 'בני המשפחה שלי מדורות קודמים הגיעו ממרוקו ומפולין.'],
+          ['ancestor', 'noun', 'אב קדמון / בן משפחה מדורות קודמים', '🌳', 'My ancestors came from Morocco and Poland.', 'אבותיי הגיעו ממרוקו ומפולין.'],
         ],
         seed: {
           wrongWords: [
@@ -142,6 +261,65 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'מדוע משפחות רבות נהגו לשבת סביב הרדיו בכל ערב?',
             correct: 'To hear the news.',
             wrong: ['To dance to loud music.', 'To repair it together.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which word is right? Dad ___ to play football.',
+                correct: 'used',
+                wrong: ['using'],
+                explainHe: 'הרגל בעבר: used to + פועל בסיסי.',
+                hintHe: 'שימו לב: כשמדברים על הרגל בעבר במשפט חיובי, באיזו צורה של use משתמשים?',
+              },
+              story: {
+                passageEn: 'The museum has an old radio. Grandpa listens to it. He feels happy.',
+                passageHe: 'במוזיאון יש רדיו ישן. סבא מקשיב לו. הוא מרגיש שמח.',
+                questionEn: 'What does the museum have?',
+                questionHe: 'מה יש במוזיאון?',
+                correct: 'An old radio.',
+                wrong: ['A new phone.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['weekend', 'lunch'],
+                ['expensive', 'popular'],
+                ['wash', 'measure'],
+                ['century', 'moment'],
+              ],
+            },
+            master: {
+              sentenceEn: 'People used to travel for weeks but now we fly in hours.',
+              sentenceHe: 'אנשים נהגו לנסוע שבועות אבל עכשיו אנחנו טסים בתוך שעות.',
+              decoys: ['travelled', 'flew'],
+              voiceEn: 'Life used to be much slower.',
+              voiceHe: 'פעם החיים היו איטיים הרבה יותר.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'We used to visit Grandma every Friday.',
+                wrong: [
+                  'We use to visit Grandma every Friday.',
+                  'We used visit Grandma every Friday.',
+                  'We were used to visit Grandma every Friday.',
+                ],
+                explainHe: 'הרגל שהיה בעבר: used to + פועל בצורת הבסיס.',
+                hintEn: 'Check the form of used and what follows it.',
+              },
+              story: {
+                passageEn: 
+                  'In the museum, a boy named Gal stopped in front of a heavy black telephone. The guide explained that families used to share one line with their neighbors, so they had to wait if someone was talking. Gal asked how people made secret calls. The guide laughed and said that they usually did not, because the neighbors could listen in. Gal looked at his own phone and put it back into his pocket.',
+                passageHe: '',
+                questionEn: 'Why did people not make secret calls on these phones?',
+                questionHe: '',
+                correct: 'Other people could hear the conversation.',
+                wrong: [
+                  'The phones were too heavy to lift.',
+                  'They were not allowed to call.',
+                  'The phones had no sound.',
+                ],
+              },
+              storyHintEn: 'Think about who else was on the same line.',
+            },
           },
         },
       },
@@ -194,6 +372,65 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             correct: 'Because the boats sink.',
             wrong: ['Because the beach is closed.', 'Because his parents are busy.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which word is right? She enjoys ___ football.',
+                correct: 'playing',
+                wrong: ['to play'],
+                explainHe: 'אחרי enjoy בא פועל עם ing: enjoys playing.',
+                hintHe: 'לפועל enjoy יש מבנה קבוע: איזו סיומת הפועל הבא מקבל?',
+              },
+              story: {
+                passageEn: 'Lior likes music. He plays the guitar every day. His sister enjoys listening.',
+                passageHe: 'ליאור אוהב מוזיקה. הוא מנגן בגיטרה כל יום. אחותו נהנית להקשיב.',
+                questionEn: 'What does Lior play?',
+                questionHe: 'במה ליאור מנגן?',
+                correct: 'The guitar.',
+                wrong: ['The drums.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['deny', 'risk'],
+                ['color', 'season'],
+                ['miss', 'finish'],
+                ['finish', 'deny'],
+              ],
+            },
+            master: {
+              sentenceEn: 'My sister enjoys painting pictures but she avoids drawing in the dark.',
+              sentenceHe: 'אחותי נהנית לצייר תמונות אבל היא נמנעת מלצייר בחושך.',
+              decoys: ['paint', 'to'],
+              voiceEn: 'Do you mind opening the window?',
+              voiceHe: 'אכפת לכם לפתוח את החלון?',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'He finished doing his homework at nine.',
+                wrong: [
+                  'He finished to do his homework at nine.',
+                  'He finished do his homework at nine.',
+                  'He finish doing his homework at nine.',
+                ],
+                explainHe: 'אחרי finish בא פועל עם ing: finished doing.',
+                hintEn: 'What ending follows finish?',
+              },
+              story: {
+                passageEn: 
+                  'Yuval used to hate running, but his doctor told him to try it. At first he avoided running on weekdays because he was too tired after school. His older brother did not mind waking up early, so he invited Yuval to join him on Saturdays. After three months, Yuval was running ten kilometers and admitted that he enjoyed it more than any video game.',
+                passageHe: '',
+                questionEn: 'Why did Yuval start running on Saturdays?',
+                questionHe: '',
+                correct: 'His brother invited him to come along.',
+                wrong: [
+                  'He wanted to beat his brother.',
+                  'School finished earlier on Saturdays.',
+                  'The doctor ran with him.',
+                ],
+              },
+              storyHintEn: 'Who made the Saturday plan possible?',
+            },
+          },
         },
       },
       {
@@ -235,6 +472,65 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'מה הלהקה הבטיחה לעשות?',
             correct: 'To keep the noise down after eight o’clock.',
             wrong: ['To pay for a professional studio.', 'To play every song on the radio.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which is right? He decided ___ a book.',
+                correct: 'to buy',
+                wrong: ['buying'],
+                explainHe: 'אחרי decide בא to + פועל בסיסי.',
+                hintHe: 'אחרי להחליט באנגלית באה מילה קטנה לפני הפועל.',
+              },
+              story: {
+                passageEn: 'Maya wanted a bike. She did not have money. She decided to save.',
+                passageHe: 'מאיה רצתה אופניים. לא היה לה כסף. היא החליטה לחסוך.',
+                questionEn: 'What did Maya decide to do?',
+                questionHe: 'מה מאיה החליטה לעשות?',
+                correct: 'To save money.',
+                wrong: ['To sell her bike.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['warn', 'invite'],
+                ['tell', 'remind'],
+                ['allow', 'teach'],
+                ['suggest', 'mention'],
+              ],
+            },
+            master: {
+              sentenceEn: 'My brother promised to help me but he refused to tell our parents.',
+              sentenceHe: 'אחי הבטיח לעזור לי אבל סירב לספר להורים שלנו.',
+              decoys: ['helping', 'told'],
+              voiceEn: 'We decided to start again.',
+              voiceHe: 'החלטנו להתחיל מחדש.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'They managed to finish the project on time.',
+                wrong: [
+                  'They managed finishing the project on time.',
+                  'They managed finish the project on time.',
+                  'They managing to finish the project on time.',
+                ],
+                explainHe: 'אחרי manage בא to + פועל בצורת הבסיס.',
+                hintEn: 'Look at the word between managed and the verb.',
+              },
+              story: {
+                passageEn: 
+                  'Tamar could not afford to buy a ticket to the concert of her favorite singer, but she did not give up. She asked her neighbor if she could walk his dog every day for two weeks. Her neighbor agreed and promised to pay her at the end. On the day of the concert, Tamar counted her money and found that she still needed ten shekels. She smiled, opened her piggy bank, and took out her old coins.',
+                passageHe: '',
+                questionEn: 'What can we guess happened next?',
+                questionHe: '',
+                correct: 'She had enough money for the ticket.',
+                wrong: [
+                  'She decided to stay home instead.',
+                  'Her neighbor refused to pay her.',
+                  'She lost all her coins on the way.',
+                ],
+              },
+              storyHintEn: 'Count what she had and what she still needed.',
+            },
           },
         },
       },
@@ -282,6 +578,65 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'מה אמיר החליט לעשות?',
             correct: 'To teach older people how to use smartphones.',
             wrong: ['To build a new computer game.', 'To move to another city.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which is right? I want ___ a doctor.',
+                correct: 'to be',
+                wrong: ['being'],
+                explainHe: 'אחרי want בא to + פועל בסיסי.',
+                hintHe: 'אחרי want באה מילה קטנה לפני הפועל.',
+              },
+              story: {
+                passageEn: 'Shani helps at a shelter. She feeds the dogs. She loves it.',
+                passageHe: 'שני עוזרת בבית מחסה לבעלי חיים. היא מאכילה את הכלבים. היא אוהבת את זה.',
+                questionEn: 'Who does Shani feed?',
+                questionHe: 'את מי שני מאכילה?',
+                correct: 'The dogs.',
+                wrong: ['The cats.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['allergy', 'ticket'],
+                ['graduate', 'swim'],
+                ['famous', 'tall'],
+                ['animal', 'season'],
+              ],
+            },
+            master: {
+              sentenceEn: 'Dana used to be shy but now she enjoys helping new people.',
+              sentenceHe: 'דנה פעם הייתה ביישנית אבל עכשיו היא נהנית לעזור לאנשים חדשים.',
+              decoys: ['help', 'helped'],
+              voiceEn: 'I am determined to learn Spanish.',
+              voiceHe: 'אני נחוש/ה ללמוד ספרדית.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'She wants to join the choir and enjoys singing.',
+                wrong: [
+                  'She wants joining the choir and enjoys singing.',
+                  'She wants to join the choir and enjoys to sing.',
+                  'She want to join the choir and enjoys singing.',
+                ],
+                explainHe: 'want + to + פועל בסיסי, ו-enjoy + פועל עם ing.',
+                hintEn: 'Check the verb pattern after each main verb.',
+              },
+              story: {
+                passageEn: 
+                  'When Eden was ten, she used to be afraid of speaking in front of the class. Her teacher suggested joining the school radio club, where nobody could see her face. She agreed to try, and after a month she was reading the morning news. This year she decided to teach younger children how to use the microphone. Last week one of them said that Eden helped her stop being nervous.',
+                passageHe: '',
+                questionEn: 'Why did the radio club help Eden?',
+                questionHe: '',
+                correct: 'She could speak without being seen.',
+                wrong: [
+                  'She was the best reader in school.',
+                  'The teacher read the news for her.',
+                  'Younger children were afraid of her.',
+                ],
+              },
+              storyHintEn: 'What was different about speaking on the radio?',
+            },
           },
         },
       },

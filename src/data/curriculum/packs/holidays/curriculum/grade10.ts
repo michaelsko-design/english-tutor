@@ -55,6 +55,54 @@ const UNITS: HighSchoolUnitSpec[] = [
             correct: 'From the bakery.',
             wrong: ['From the market.', 'From a restaurant.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Fresh bread is bought before the holiday.',
+                wrong: ['Fresh bread are bought before the holiday.'],
+                explainHe: 'bread הוא ביחיד, ולכן is + V3: is bought.',
+                hintHe: 'שימו לב אם bread ביחיד או ברבים, ואיזו צורה של be מתאימה.',
+              },
+              story: {
+                passageEn:
+                  'On Rosh Hashana, we eat apples with honey. The apples are cut into pieces. Everyone makes a wish for a sweet year.',
+                passageHe:
+                  'בראש השנה אנחנו אוכלים תפוחים עם דבש. התפוחים נחתכים לחתיכות. כולם מביעים משאלה לשנה מתוקה.',
+                questionEn: 'What do we eat with honey?',
+                questionHe: 'מה אוכלים עם דבש?',
+                correct: 'Apples.',
+                wrong: ['Bread.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['passport', 'climate'], ['replace', 'cancel'], ['nervous', 'jealous'], ['island', 'elbow']],
+            },
+            master: {
+              sentenceEn: 'During the holiday meal, blessings are said over fruit that grows in Israel.',
+              sentenceHe: 'במהלך ארוחת החג אומרים ברכות על פירות שגדלים בישראל.',
+              decoys: ['is', 'saying'],
+              voiceEn: 'Holiday cakes are baked in many homes.',
+              voiceHe: 'עוגות חג נאפות בבתים רבים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Round loaves are placed on the table before the meal.',
+                wrong: ['Round loaves is placed on the table before the meal.', 'Round loaves are place on the table before the meal.', 'Round loaves placed are on the table before the meal.'],
+                explainHe: 'סביל בהווה: am / is / are + V3. loaves ברבים ולכן are placed, בסדר הזה.',
+                hintEn: 'Check the verb be, the verb form and the word order.',
+              },
+              story: {
+                passageEn:
+                  'Before Rosh Hashana, Hannah and her grandmother prepare a small jar of honey for each guest. The jars used to be bought in the supermarket, but today they decorate each one by hand and write a different wish on a label. The guests are invited to read their label aloud before eating the first apple. Last year one label said "May your year be full of surprises", and the guest who received it is still waiting to see what it means.',
+                passageHe: '',
+                questionEn: 'What can we infer about the wish on that label?',
+                questionHe: '',
+                correct: 'It describes something unexpected that has not happened yet.',
+                wrong: ['It promises a large amount of money.', 'It was written by the supermarket.', 'It was already fulfilled last week.'],
+              },
+              storyHintEn: 'Think about what surprises are like.',
+            },
+          },
         },
       },
       {
@@ -96,6 +144,56 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'מי מביא את העלווה לגג?',
             correct: 'A neighbour brings it from his garden.',
             wrong: ['The children buy it at the market.', 'The grandparents bring it from the north.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'We visited a farm that grows olives.',
+                wrong: ['We visited a farm who grows olives.'],
+                explainHe: 'farm הוא מקום (לא אדם), ולכן that או which, ולא who.',
+                hintHe: 'בדקו אם המילה לפני החסר היא אדם או דבר.',
+              },
+              story: {
+                passageEn:
+                  'We built a sukkah with my uncle, who is a carpenter. The roof is made of palm leaves. We ate dinner there on Friday.',
+                passageHe:
+                  'בנינו סוכה עם הדוד שלי, שהוא נגר. הגג עשוי מעלי דקל. אכלנו שם ארוחת ערב ביום שישי.',
+                questionEn: 'Who is the carpenter?',
+                questionHe: 'מי הנגר?',
+                correct: 'My uncle.',
+                wrong: ['My brother.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['river', 'mountain'], ['chocolate', 'sunshine'], ['jealousy', 'loneliness'], ['insect', 'elbow']],
+            },
+            master: {
+              sentenceEn:
+                'The family invites neighbours whose own sukkah is too small to hold all their guests.',
+              sentenceHe: 'המשפחה מזמינה שכנים שהסוכה שלהם קטנה מכדי להכיל את כל האורחים שלהם.',
+              decoys: ['who', 'that'],
+              voiceEn: 'The guests who arrived early helped us.',
+              voiceHe: 'האורחים שהגיעו מוקדם עזרו לנו.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'I admire people who welcome strangers into their homes.',
+                wrong: ['I admire people which welcome strangers into their homes.', 'I admire people who welcomes strangers into their homes.', 'I admire people whose welcome strangers into their homes.'],
+                explainHe:
+                  'לבני אדם משתמשים ב-who, והפועל מתאים לרבים: people who welcome. whose מראה שייכות ואינו מתאים כאן.',
+                hintEn: 'Check the pronoun for people and the verb after it.',
+              },
+              story: {
+                passageEn:
+                  'Every year before Sukkot, the Levi family lets its youngest child choose the decorations for the sukkah. Last year, six-year-old Lia insisted on hanging a paper lantern that she had made at school, even though it was far too big. Her father, who is usually very careful about appearances, decided not to argue. During the first dinner, the lantern swung gently in the wind and cast a warm light on the faces around the table. Several guests said afterwards that it was the most beautiful decoration they had ever seen.',
+                passageHe: '',
+                questionEn: 'Why did the father let Lia hang the lantern?',
+                questionHe: '',
+                correct: 'He wanted his daughter to feel that her choice mattered.',
+                wrong: ['He thought the lantern was exactly the right size.', 'The guests had asked him to hang it.', 'He was not at home on that evening.'],
+              },
+              storyHintEn: 'Notice the word insisted and how he usually acts.',
+            },
           },
         },
       },
@@ -142,6 +240,56 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'מה נמדד בגליל בינואר?',
             correct: 'More rain than in the whole previous winter.',
             wrong: ['Less rain than in a normal year.', 'The coldest night in history.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Doughnuts are eaten during Hanukkah.',
+                wrong: ['Doughnuts is eaten during Hanukkah.'],
+                explainHe: 'Doughnuts ברבים, ולכן are + V3: are eaten.',
+                hintHe: 'בדקו אם הנושא ביחיד או ברבים.',
+              },
+              story: {
+                passageEn:
+                  'It rained all night in the north. The river was full in the morning. The children stayed home.',
+                passageHe: 'ירד גשם כל הלילה בצפון. הנהר היה מלא בבוקר. הילדים נשארו בבית.',
+                questionEn: 'What happened to the river?',
+                questionHe: 'מה קרה לנהר?',
+                correct: 'It was full.',
+                wrong: ['It was dry.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['predict', 'invent'], ['darken', 'freeze'], ['mountain', 'tower'], ['temperature', 'latitude']],
+            },
+            master: {
+              sentenceEn:
+                'The reservoirs, which were almost empty in autumn, were filled by heavy rain in January.',
+              sentenceHe: 'מאגרי המים, שהיו כמעט ריקים בסתיו, התמלאו בגשם כבד בינואר.',
+              decoys: ['whose', 'fill'],
+              voiceEn: 'The candles were lit by the children.',
+              voiceHe: 'הנרות הודלקו על ידי הילדים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct:
+                  'The festival, which was celebrated last week, attracted thousands of visitors.',
+                wrong: ['The festival, that was celebrated last week, attracted thousands of visitors.', 'The festival, which celebrated last week, attracted thousands of visitors.', 'The festival, which was celebrate last week, attracted thousands of visitors.'],
+                explainHe:
+                  'בפסוקית בין פסיקים משתמשים ב-which ולא ב-that. סביל בעבר: was + V3 (was celebrated).',
+                hintEn: 'Check the pronoun and the passive verb.',
+              },
+              story: {
+                passageEn:
+                  'In one very dry winter, the water level of a large lake fell so low that fishermen could walk on parts of the lake bed. Officials urged households to use less water, and several cities announced limits on watering gardens. People complained at first, but when the rains finally came the following year, many of them had already changed their habits for good. Water experts say that this experience shaped the way people think about water even today.',
+                passageHe: '',
+                questionEn: 'What can we conclude about the dry winter?',
+                questionHe: '',
+                correct: 'It taught many people to save water for years afterwards.',
+                wrong: ['It caused the lake to disappear forever.', 'It convinced officials that rain was unnecessary.', 'It ended when people watered their gardens.'],
+              },
+              storyHintEn: 'Look at what people kept doing after the rain came.',
+            },
           },
         },
       },
@@ -194,6 +342,56 @@ const UNITS: HighSchoolUnitSpec[] = [
             correct: 'To buy books for a children’s hospital.',
             wrong: ['To build a new school gym.', 'To plant trees in the park.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'The costumes were made by the students.',
+                wrong: ['The costumes was made by the students.'],
+                explainHe: 'costumes ברבים והפעולה בעבר, ולכן were + V3: were made.',
+                hintHe: 'בדקו אם הנושא ביחיד או ברבים לפני שבוחרים בין was ל-were.',
+              },
+              story: {
+                passageEn:
+                  'Last Friday, a party was held at school. Many cookies were baked by the parents. The money was given to charity.',
+                passageHe:
+                  'ביום שישי שעבר נערכה מסיבה בבית הספר. עוגיות רבות נאפו על ידי ההורים. הכסף ניתן לצדקה.',
+                questionEn: 'What was held at school?',
+                questionHe: 'מה נערך בבית הספר?',
+                correct: 'A party.',
+                wrong: ['A race.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['pebble', 'statue'], ['recipe', 'ladder'], ['summer', 'midnight'], ['concert', 'banquet']],
+            },
+            master: {
+              sentenceEn:
+                'Hundreds of costumes were collected by volunteers and donated to families in need.',
+              sentenceHe: 'מאות תחפושות נאספו על ידי מתנדבים ונתרמו למשפחות נזקקות.',
+              decoys: ['collect', 'was'],
+              voiceEn: 'A big parade was organised last spring.',
+              voiceHe: 'מצעד גדול אורגן באביב שעבר.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Many trees were damaged by the strong wind last night.',
+                wrong: ['Many trees was damaged by the strong wind last night.', 'Many trees were damage by the strong wind last night.', 'Many trees were damaged the strong wind last night.'],
+                explainHe:
+                  'סביל בעבר: was / were + V3 + by (מבצע הפעולה). trees ברבים ולכן were, damaged היא V3, ויש להשתמש ב-by.',
+                hintEn: 'Check the verb be, the verb form and the word by.',
+              },
+              story: {
+                passageEn:
+                  'The Purim carnival in our neighbourhood was almost cancelled this year. The hall where it is usually held had been closed after a leak in the roof, and the organisers could not find another place. At the last moment, the owner of a nearby supermarket offered his large car park. Tables were moved, lights were hung between the trees, and hundreds of children arrived in costumes. The organisers admitted that the evening was more colourful than any carnival held in the old hall.',
+                passageHe: '',
+                questionEn: 'Why was the carnival held in a car park?',
+                questionHe: '',
+                correct: 'The usual hall could not be used because of damage.',
+                wrong: ['The organisers wanted a smaller crowd.', 'The supermarket owner needed more customers.', 'The children refused to go inside the hall.'],
+              },
+              storyHintEn: 'What had happened to the hall?',
+            },
+          },
         },
       },
       {
@@ -235,6 +433,54 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'איך אנשים בבית יכולים לצפות בטקס?',
             correct: 'It is broadcast live on television.',
             wrong: ['It is shown only in cinemas.', 'It is streamed the next morning.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'The song that we sang was beautiful.',
+                wrong: ['The song who we sang was beautiful.'],
+                explainHe: 'song הוא דבר, ולכן that או which, ולא who.',
+                hintHe: 'בדקו אם המילה לפני החסר היא אדם או דבר.',
+              },
+              story: {
+                passageEn:
+                  'We went to a ceremony on Independence Day. The flag, which was very big, hung over the stage. Everyone sang the anthem.',
+                passageHe:
+                  'הלכנו לטקס ביום העצמאות. הדגל, שהיה גדול מאוד, היה תלוי מעל הבמה. כולם שרו את ההמנון.',
+                questionEn: 'What did everyone sing?',
+                questionHe: 'מה כולם שרו?',
+                correct: 'The anthem.',
+                wrong: ['A birthday song.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['punishment', 'imprisonment'], ['weekend', 'elevator'], ['flag', 'trophy'], ['weather', 'recipe']],
+            },
+            master: {
+              sentenceEn: 'The story that is told at the Seder reminds families of their freedom.',
+              sentenceHe: 'הסיפור שמסופר בליל הסדר מזכיר למשפחות את החירות שלהן.',
+              decoys: ['who', 'tells'],
+              voiceEn: 'The flag that was raised is blue and white.',
+              voiceHe: 'הדגל שהונף הוא כחול ולבן.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The man who lit the torch is a famous doctor.',
+                wrong: ['The man which lit the torch is a famous doctor.', 'The man whose lit the torch is a famous doctor.', 'The man who he lit the torch is a famous doctor.'],
+                explainHe: 'לאדם משתמשים ב-who, בלי which, בלי whose ובלי כינוי נוסף כמו he.',
+                hintEn: 'Check the pronoun for a person and look for extra words.',
+              },
+              story: {
+                passageEn:
+                  'At our school ceremony for Independence Day, the principal asked a surprising question: "What would you say to the first people who lived here after 1948?" Most students described the difficulties of those years, such as small apartments, rationing and the shortage of work. One quiet girl, whose grandmother had arrived by ship as a child, said only that she would thank them for not giving up. The hall became silent for a moment, and then everybody applauded.',
+                passageHe: '',
+                questionEn: 'Why did the hall become silent?',
+                questionHe: '',
+                correct: 'The simple answer touched everyone in the hall.',
+                wrong: ['The principal had lost the microphone.', 'Nobody understood the question.', 'The ceremony ended earlier than planned.'],
+              },
+              storyHintEn: 'Notice how her answer differed from the others.',
+            },
           },
         },
       },
@@ -281,6 +527,55 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'איך מובלים סלי הפירות?',
             correct: 'On decorated tractors.',
             wrong: ['In small boats.', 'By train.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'If I had a day off, I would visit a farm.',
+                wrong: ['If I have a day off, I would visit a farm.'],
+                explainHe: 'תנאי שני: If + Past Simple (had), ובתוצאה would + פועל בסיס.',
+                hintHe: 'מצב דמיוני: בדקו איזה זמן מתאים אחרי if.',
+              },
+              story: {
+                passageEn:
+                  'It was a very hot day. The class went on a trip to a farm. They picked apples and drank cold water.',
+                passageHe: 'היה יום חם מאוד. הכיתה יצאה לטיול בחווה. הם קטפו תפוחים ושתו מים קרים.',
+                questionEn: 'What did the class pick?',
+                questionHe: 'מה הכיתה קטפה?',
+                correct: 'Apples.',
+                wrong: ['Grapes.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['pollution', 'traffic'], ['pollution', 'laziness'], ['exam', 'invitation'], ['snowstorm', 'blizzard']],
+            },
+            master: {
+              sentenceEn:
+                'If farmers had more water, they would grow vegetables that are sold in local markets.',
+              sentenceHe: 'אילו היו לחקלאים יותר מים, הם היו מגדלים ירקות שנמכרים בשווקים מקומיים.',
+              decoys: ['will', 'selling'],
+              voiceEn: 'The fruit was carried by young farmers.',
+              voiceHe: 'הפירות נישאו על ידי חקלאים צעירים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'If we had a bus, we would travel to the north every month.',
+                wrong: ['If we have a bus, we would travel to the north every month.', 'If we had a bus, we will travel to the north every month.', 'If we would have a bus, we would travel to the north every month.'],
+                explainHe:
+                  'תנאי שני: If + Past Simple, would + פועל בסיס. לא Present אחרי if, לא will, ולא would אחרי if.',
+                hintEn: 'Check the tense after if and the verb in the result.',
+              },
+              story: {
+                passageEn:
+                  'Every summer, the Peled family drives north to spend a week at a field school. Last summer, a severe heatwave made hiking impossible after ten in the morning, so the instructors changed the programme: the group walked at dawn, rested during the hottest hours in the shade of an old carob tree, and then helped farmers pick tomatoes in the evening. Dan, the youngest child, complained at first, but on the last day he said that this had been his favourite holiday. His mother admitted that she was also surprised.',
+                passageHe: '',
+                questionEn: 'What can we infer about the changed programme?',
+                questionHe: '',
+                correct: 'It turned out better than the family had expected.',
+                wrong: ['It was cancelled after two days.', 'It made the family leave early.', 'It only included hiking at noon.'],
+              },
+              storyHintEn: 'Compare how Dan felt at first and on the last day.',
+            },
           },
         },
       },

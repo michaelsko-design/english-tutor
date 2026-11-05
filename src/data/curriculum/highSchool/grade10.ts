@@ -68,6 +68,55 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'They are recycled into eco-friendly school benches.',
             wrong: ['They are thrown into the ocean.', 'They are burned in local factories.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Old glass jars are collected here.',
+                wrong: ['Old glass jars is collected here.'],
+                explainHe: 'jars הוא ברבים, ולכן משתמשים ב-are ואחריו צורת V3: are collected.',
+                hintHe: 'שימו לב אם הנושא ביחיד או ברבים, ואיזו צורה של be מתאימה לו.',
+              },
+              story: {
+                passageEn:
+                  'Dana lives in a green town. Paper is collected from every house on Monday. The paper is then made into new notebooks.',
+                passageHe:
+                  'דנה גרה בעיירה ירוקה. נייר נאסף מכל בית ביום שני. אחר כך הנייר הופך למחברות חדשות.',
+                questionEn: 'When is the paper collected?',
+                questionHe: 'מתי נאסף הנייר?',
+                correct: 'On Monday.',
+                wrong: ['On Friday.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['benefit', 'solution'], ['wasteful', 'polluted'], ['pollute', 'inherit']],
+            },
+            master: {
+              sentenceEn: 'Several local rivers are polluted by factories that were built decades ago.',
+              sentenceHe: 'כמה נהרות מקומיים מזוהמים על ידי מפעלים שנבנו לפני עשרות שנים.',
+              decoys: ['pollute', 'been'],
+              voiceEn: 'Our school is cleaned by volunteers.',
+              voiceHe: 'בית הספר שלנו מנוקה על ידי מתנדבים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Electricity is produced by wind turbines in this region.',
+                wrong: ['Electricity are produced by wind turbines in this region.', 'Electricity is produce by wind turbines in this region.', 'Electricity is producing by wind turbines in this region.'],
+                explainHe:
+                  'בסביל בהווה: am / is / are + V3. electricity הוא שם עצם שאינו ניתן לספירה ולכן is, ואחריו V3: produced.',
+                hintEn: 'Check the verb be and the form of the main verb.',
+              },
+              story: {
+                passageEn:
+                  'Every spring, the town of Eilot holds a clean-up day. Residents are asked to bring their own gloves and bags, and the collected rubbish is sorted in the town square. Last year, however, fewer people than expected arrived, and the mayor was disappointed. A week later, a local teenager posted a short video that showed the polluted beach next to her home. Within two days, hundreds of volunteers had signed up for the next event, and the mayor thanked the teenager in public.',
+                passageHe: '',
+                questionEn: 'Why did more people volunteer for the next clean-up day?',
+                questionHe: '',
+                correct: 'The video made them realise how bad the beach looked.',
+                wrong: ['The mayor offered to pay every single volunteer.', 'The town square was closed for repairs and cleaning.', 'The previous event had been cancelled by the police.'],
+              },
+              storyHintEn: 'Look at what happened after the video was posted.',
+            },
+          },
         },
       },
       {
@@ -79,7 +128,7 @@ const units: HighSchoolUnitSpec[] = [
         grammarTopic: 'Passive Voice (Past Simple: was/were + V3)',
         skills: ['Past Passive', 'Clean Tech', 'Contextual Reading'],
         sentenceEn: 'The solar panels were installed on public roofs last month.',
-        sentenceHe: 'לוחות השמש הותקנו על גגות ציבוריים בחודש שעבר.',
+        sentenceHe: 'הלוחות הסולאריים הותקנו על גגות ציבוריים בחודש שעבר.',
         vocab: [
           [
             'efficient',
@@ -130,6 +179,56 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'כיצד שותפו נתוני איכות האוויר עם התושבים?',
             correct: 'Through a dedicated mobile application.',
             wrong: ['Through weekly printed newspapers.', 'Through television broadcasts only.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'The old bridge was repaired last year.',
+                wrong: ['The old bridge were repaired last year.'],
+                explainHe: 'bridge הוא ביחיד והפעולה בעבר, ולכן was + V3: was repaired.',
+                hintHe: 'בדקו אם הנושא ביחיד או ברבים לפני שבוחרים בין was ל-were.',
+              },
+              story: {
+                passageEn:
+                  'A new library was opened in our town. It was built last year. Many children visit it after school.',
+                passageHe:
+                  'ספרייה חדשה נפתחה בעיירה שלנו. היא נבנתה בשנה שעברה. ילדים רבים מבקרים בה אחרי בית הספר.',
+                questionEn: 'When was the library built?',
+                questionHe: 'מתי נבנתה הספרייה?',
+                correct: 'Last year.',
+                wrong: ['Next year.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['elastic', 'edible'], ['consume', 'pollute'], ['silent', 'empty']],
+            },
+            master: {
+              sentenceEn:
+                'The old power station was closed down after thousands of complaints were received.',
+              sentenceHe: 'תחנת הכוח הישנה נסגרה לאחר שהתקבלו אלפי תלונות.',
+              decoys: ['are', 'closing'],
+              voiceEn: 'Many trees were planted along the river.',
+              voiceHe: 'עצים רבים ניטעו לאורך הנהר.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Several new schools were built in the city last decade.',
+                wrong: ['Several new schools was built in the city last decade.', 'Several new schools were build in the city last decade.', 'Several new schools built were in the city last decade.'],
+                explainHe:
+                  'בסביל בעבר: was / were + V3. schools ברבים ולכן were, built היא צורת V3 של build, והסדר הנכון הוא were built.',
+                hintEn: 'Look at the verb be and the third form of build.',
+              },
+              story: {
+                passageEn:
+                  'When the city of Karmiel decided to cut its electricity costs, engineers first measured how much energy each building used. The results were surprising: the oldest school wasted almost twice as much power as the newest one. Instead of rebuilding it, the council chose to install better windows and LED lights. After one winter, the bill was reduced by a third, and the savings were spent on new laboratory equipment.',
+                passageHe: '',
+                questionEn: 'What can we conclude about the decision to improve the old school?',
+                questionHe: '',
+                correct: 'It saved money without the cost of a new building.',
+                wrong: ['It proved that new buildings use more energy.', 'It made the electricity bills twice as high.', 'It was cancelled after the first cold winter.'],
+              },
+              storyHintEn: 'Think about why the council did not rebuild the school.',
+            },
           },
         },
       },
@@ -182,7 +281,7 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'will be enacted',
             wrong: ['will enacted', 'are enact'],
             explainHe:
-              'סביל בעתיד נבנה באמצעות will be בתוספת הפועל השלישי (will be enacted).',
+              'סביל בעתיד נבנה באמצעות will be בתוספת צורת הפועל השלישית (V3) (למשל: will be enacted).',
             hintHe: 'סביל בעתיד צריך שלושה חלקים: will, צורת הבסיס של הפועל להיות, ואז V3.',
           },
           story: {
@@ -194,6 +293,56 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'מה הייתה המטרה העיקרית של הקמת מועצת הנוער הבינלאומית?',
             correct: 'To supervise renewable energy projects in developing regions.',
             wrong: ['To organize sports competitions in Geneva.', 'To cancel international research funds.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'New rules will be announced tomorrow.',
+                wrong: ['New rules will announced tomorrow.'],
+                explainHe: 'סביל בעתיד: will be + V3. בלי be המשפט חסר.',
+                hintHe: 'סביל בעתיד צריך את be בין will לבין צורת V3.',
+              },
+              story: {
+                passageEn:
+                  'The students planned a clean beach day. Bags and gloves were given to everyone. Forty students came to help.',
+                passageHe:
+                  'התלמידים תכננו יום ניקיון בחוף. שקיות וכפפות חולקו לכולם. ארבעים תלמידים באו לעזור.',
+                questionEn: 'What was given to everyone?',
+                questionHe: 'מה חולק לכולם?',
+                correct: 'Bags and gloves.',
+                wrong: ['Food and water.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['accident', 'curfew'], ['swim', 'shrink'], ['optional', 'harmful']],
+            },
+            master: {
+              sentenceEn:
+                'Proposals that were presented by students will be reviewed by the committee next month.',
+              sentenceHe: 'הצעות שהוצגו על ידי תלמידים ייבדקו על ידי הוועדה בחודש הבא.',
+              decoys: ['reviewing', 'is'],
+              voiceEn: 'The winners will be announced tonight.',
+              voiceHe: 'הזוכים יוכרזו הערב.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The final report was written by a team of young researchers.',
+                wrong: ['The final report written was by a team of young researchers.', 'The final report was wrote by a team of young researchers.', 'The final report were written by a team of young researchers.'],
+                explainHe:
+                  'בסביל: be + V3 בסדר הנכון. written היא V3 של write, ו-report ביחיד ולכן was.',
+                hintEn: 'Check word order, the verb be and the third form.',
+              },
+              story: {
+                passageEn:
+                  'Maya had always believed that one person could not change a whole city. Then her class joined a project in which each student adopted a neglected public garden. Maya received a plot beside the bus station, where nothing but weeds and broken glass had been seen for years. She worked there every afternoon for a month. When a journalist visited, the garden was full of herbs, and neighbours had begun to leave their own gifts of plants at the gate.',
+                passageHe: '',
+                questionEn: 'What does the story suggest about Maya at the end?',
+                questionHe: '',
+                correct: 'Her work inspired other people in the neighbourhood.',
+                wrong: ['She became sure that one person cannot change anything.', 'She stopped working because the garden was too small.', 'She forced her neighbours to pay for the new plants.'],
+              },
+              storyHintEn: 'Think about why neighbours left plants at the gate.',
+            },
           },
         },
       },
@@ -266,6 +415,55 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'By verifying the scientific dates with NASA experts.',
             wrong: ['By deleting their social media accounts.', 'By interviewing the video creator.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'The girl who sings in the choir is my cousin.',
+                wrong: ['The girl which sings in the choir is my cousin.'],
+                explainHe: 'לבני אדם משתמשים ב-who, ולא ב-which.',
+                hintHe: 'המילה girl מתארת אדם. איזו מילת זיקה מתאימה לאדם?',
+              },
+              story: {
+                passageEn:
+                  'Yael read a message about free pizza. She asked her teacher, who checked it online. The message was fake.',
+                passageHe:
+                  'יעל קראה הודעה על פיצה בחינם. היא שאלה את המורה שלה, שבדק אותה באינטרנט. ההודעה הייתה מזויפת.',
+                questionEn: 'Who checked the message?',
+                questionHe: 'מי בדק את ההודעה?',
+                correct: 'The teacher.',
+                wrong: ['Her mother.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['flexible', 'comfortable'], ['boring', 'amusing'], ['invent', 'ignore']],
+            },
+            master: {
+              sentenceEn: 'The story that went viral was written by someone who ignored the facts.',
+              sentenceHe: 'הסיפור שהפך לויראלי נכתב על ידי מישהו שהתעלם מהעובדות.',
+              decoys: ['whose', 'whom'],
+              voiceEn: 'Check the source before you share it.',
+              voiceHe: 'בדקו את המקור לפני שאתם משתפים אותו.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'People who share rumours online can cause real harm.',
+                wrong: ['People which share rumours online can cause real harm.', 'People who shares rumours online can cause real harm.', 'People whose share rumours online can cause real harm.'],
+                explainHe:
+                  'לבני אדם משתמשים ב-who, והפועל בפסוקית מתאים לנושא: people ... who share (רבים).',
+                hintEn: 'Check the pronoun for people and the verb after it.',
+              },
+              story: {
+                passageEn:
+                  'Tomer received a message that said his school would close for a week because of a storm. Several classmates who read it immediately shared it with their friends. Tomer, however, noticed that the message had no name and no date. He opened the official school website, which showed a normal schedule. By the evening, the false message had reached hundreds of students, and the principal had to send an email to calm everyone.',
+                passageHe: '',
+                questionEn: 'Why did Tomer doubt the message?',
+                questionHe: '',
+                correct: 'It did not show who wrote it or when.',
+                wrong: ['The school website had been closed for repairs.', 'His classmates told him it was only a joke.', 'It was sent to him by the principal herself.'],
+              },
+              storyHintEn: 'Notice what was missing from the message.',
+            },
+          },
         },
       },
       {
@@ -332,6 +530,56 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'Adjust their privacy settings carefully.',
             wrong: ['Stop using computers permanently.', 'Share their passwords with friends.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Our teacher, who lives nearby, walks to school.',
+                wrong: ['Our teacher, that lives nearby, walks to school.'],
+                explainHe: 'בפסוקית עם מידע נוסף בין פסיקים לא משתמשים ב-that. לאדם משתמשים ב-who.',
+                hintHe: 'מידע נוסף בין פסיקים לא מקבל that. מה מתאים לאדם?',
+              },
+              story: {
+                passageEn:
+                  'Ben has a new phone. His phone, which is very fast, has a good camera. Ben takes photos of his dog every day.',
+                passageHe:
+                  'לבן יש טלפון חדש. הטלפון שלו, שהוא מהיר מאוד, כולל מצלמה טובה. בן מצלם את הכלב שלו כל יום.',
+                questionEn: 'What does Ben take photos of?',
+                questionHe: 'את מה בן מצלם?',
+                correct: 'His dog.',
+                wrong: ['His school.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['repair', 'harvest'], ['imaginary', 'seasonal'], ['fashion', 'popularity']],
+            },
+            master: {
+              sentenceEn:
+                'Our headteacher, who spoke at the assembly, warned us about fake online profiles.',
+              sentenceHe: 'מנהל בית הספר שלנו, שנאם באסיפה, הזהיר אותנו מפני פרופילים מזויפים ברשת.',
+              decoys: ['which', 'whom'],
+              voiceEn: 'My phone, which is old, still works.',
+              voiceHe: 'הטלפון שלי, שהוא ישן, עדיין עובד.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The museum, which opened last year, attracts many tourists.',
+                wrong: ['The museum, that opened last year, attracts many tourists.', 'The museum, who opened last year, attracts many tourists.', 'The museum, which it opened last year, attracts many tourists.'],
+                explainHe:
+                  'בפסוקית לא-מגדירה בין פסיקים משתמשים ב-which לדברים (לא that, לא who) ולא מוסיפים כינוי נוסף כמו it.',
+                hintEn: 'Check the pronoun for things and look for extra words.',
+              },
+              story: {
+                passageEn:
+                  'When Lior turned sixteen, she decided to look herself up online, expecting to find nothing. To her surprise, the first page of results showed a photograph from a school trip, a comment she had written at the age of twelve, and the name of her street. Her older brother, who works in technology, helped her delete what she could and change her settings. Lior now says she would think twice before posting anything, because removing something completely is much harder than posting it.',
+                passageHe: '',
+                questionEn: 'What did Lior learn from the experience?',
+                questionHe: '',
+                correct: 'Content that is shared once may be hard to remove.',
+                wrong: ['Search engines never show private information.', 'Only adults leave a digital footprint behind.', 'Her brother posts photographs without asking.'],
+              },
+              storyHintEn: 'Think about which is easier: posting or deleting.',
+            },
+          },
         },
       },
       {
@@ -395,6 +643,56 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'כיצד גילו בודקי העובדות שההקלטה הייתה מזויפת?',
             correct: 'By analyzing the acoustic sound waves with specialized software.',
             wrong: ['By calling the radio station directly.', 'By deleting the internet archive.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'I know a man whose son is a pilot.',
+                wrong: ['I know a man who son is a pilot.'],
+                explainHe: 'whose מראה שייכות: הבן של האיש. who משמש כשהאדם עצמו עושה את הפעולה.',
+                hintHe: 'הבן שייך לאיש. איזו מילת זיקה מראה שייכות?',
+              },
+              story: {
+                passageEn:
+                  'Noam read two articles about the same match. The first article gave facts about both teams. The second article only praised one team.',
+                passageHe:
+                  'נעם קרא שתי כתבות על אותו משחק. הכתבה הראשונה נתנה עובדות על שתי הקבוצות. הכתבה השנייה רק שיבחה קבוצה אחת.',
+                questionEn: 'Which article gave facts about both teams?',
+                questionHe: 'איזו כתבה נתנה עובדות על שתי הקבוצות?',
+                correct: 'The first one.',
+                wrong: ['The second one.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['wishful', 'casual'], ['emotional', 'exaggerated'], ['translate', 'memorize']],
+            },
+            master: {
+              sentenceEn:
+                'Readers whose attention is captured by dramatic headlines rarely read the full article.',
+              sentenceHe: 'קוראים שתשומת לבם נתפסת על ידי כותרות דרמטיות כמעט לא קוראים את הכתבה המלאה.',
+              decoys: ['who', 'whom'],
+              voiceEn: 'A good reporter always asks difficult questions.',
+              voiceHe: 'עיתונאי טוב תמיד שואל שאלות קשות.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The editor whose article won the prize is visiting our school.',
+                wrong: ['The editor who article won the prize is visiting our school.', 'The editor whose article won the prize are visiting our school.', 'The editor whose his article won the prize is visiting our school.'],
+                explainHe:
+                  'whose מראה שייכות ואחריו בא שם עצם ישירות, בלי כינוי נוסף (לא whose his). הפועל מתאים ליחיד: is.',
+                hintEn: 'Check the word showing belonging and any extra words.',
+              },
+              story: {
+                passageEn:
+                  'Karin works for a news website whose editors want as many clicks as possible. Last month her manager asked her to publish a calm report about a small earthquake under the headline "Disaster Strikes: Thousands Panic!" Karin knew that nobody was injured and that nobody had panicked. She argued with the manager for an hour, and finally they agreed on a headline that was dramatic but true. She admitted afterwards that it was not an easy choice, because her job depended on the popularity of the website.',
+                passageHe: '',
+                questionEn: 'What can we infer about Karin?',
+                questionHe: '',
+                correct: 'She cares more about accuracy than about easy clicks.',
+                wrong: ['She enjoys writing exaggerated headlines.', 'She was fired for disagreeing with her manager.', 'She believes earthquakes are never dangerous.'],
+              },
+              storyHintEn: 'Notice how she reacted to the first headline.',
+            },
           },
         },
       },
@@ -467,6 +765,54 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'Because they emit ultraviolet light without any external power.',
             wrong: ['Because they were completely black.', 'Because they dissolved in water instantly.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'He is wearing a helmet, so he must be a cyclist.',
+                wrong: ["He is wearing a helmet, so he can't be a cyclist."],
+                explainHe:
+                  "הקסדה היא ראיה, ולכן בטוחים שהוא רוכב: must be. can't be מביע ודאות שזה לא ייתכן.",
+                hintHe: 'הראיה תומכת בכך שהוא רוכב אופניים. איזו ודאות מתאימה?',
+              },
+              story: {
+                passageEn:
+                  'Tal heard a noise in the kitchen. Her cat was asleep on her bed. So it was not the cat.',
+                passageHe: 'טל שמעה רעש במטבח. החתול שלה ישן על המיטה שלה. אז זה לא היה החתול.',
+                questionEn: 'Where was the cat?',
+                questionHe: 'איפה היה החתול?',
+                correct: 'On her bed.',
+                wrong: ['In the kitchen.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['precede', 'translate'], ['weather', 'pollution'], ['laboratory', 'microscope']],
+            },
+            master: {
+              sentenceEn: 'The footprints are too small so they must belong to a child.',
+              sentenceHe: 'העקבות קטנות מדי ולכן הן חייבות להשתייך לילד.',
+              decoys: ['belongs', 'adult'],
+              voiceEn: 'The lab results cannot be correct.',
+              voiceHe: 'תוצאות המעבדה לא יכולות להיות נכונות.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'She has been absent all week, so she must be ill.',
+                wrong: ['She has been absent all week, so she must is ill.', 'She has been absent all week, so she must being ill.', 'She has been absent all week, so she must to be ill.'],
+                explainHe: 'אחרי must בא פועל בסיס: must be. לא must is, לא must being ולא must to be.',
+                hintEn: 'Look at what comes right after the modal verb.',
+              },
+              story: {
+                passageEn:
+                  'Dr. Navon opened the old sealed box and found a notebook, a pair of glasses and a rusty compass. The dates in the notebook were all from 1912. Strangely, the final page described a storm that happened in 1925. Dr. Navon first thought that the date must be a mistake, but the paper and ink looked exactly the same as on the earlier pages. She finally decided that the writer had probably continued to use the notebook for many years.',
+                passageHe: '',
+                questionEn: 'What does Dr. Navon finally conclude?',
+                questionHe: '',
+                correct: 'The notebook was used over a long period of time.',
+                wrong: ['The last page was added by a different person.', 'The box had been opened several times before.', 'The storm of 1925 never really happened.'],
+              },
+              storyHintEn: 'Why did the paper and ink matter?',
+            },
+          },
         },
       },
       {
@@ -530,6 +876,55 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'It might be an echo from passing comets.',
             wrong: ['It was a secret military broadcast.', 'It was an error in the microwave oven.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'I am not sure, so it might be a plane.',
+                wrong: ['I am not sure, so it must be a plane.'],
+                explainHe: 'כשלא בטוחים משתמשים ב-might. must מביע ודאות גבוהה.',
+                hintHe: 'המשפט אומר שאין ודאות. איזו מילה מביעה אפשרות בלבד?',
+              },
+              story: {
+                passageEn:
+                  'Dan saw a strange light in the sky. He thinks it could be a plane. He is not sure, so he looks again.',
+                passageHe:
+                  'דן ראה אור מוזר בשמיים. הוא חושב שאולי זה מטוס. הוא לא בטוח, ולכן הוא מסתכל שוב.',
+                questionEn: 'Is Dan sure about the light?',
+                questionHe: 'האם דן בטוח לגבי האור?',
+                correct: 'No, he is not sure.',
+                wrong: ['Yes, he is sure.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['resource', 'ingredient'], ['musical', 'tropical'], ['launch', 'repair']],
+            },
+            master: {
+              sentenceEn:
+                'The unusual lights over the mountains could be caused by sunlight reflecting off ice.',
+              sentenceHe: 'האורות החריגים מעל ההרים עשויים להיגרם מאור שמש המוחזר מקרח.',
+              decoys: ['causing', 'reflect'],
+              voiceEn: 'It might snow in the mountains tonight.',
+              voiceHe: 'ייתכן שיירד שלג בהרים הלילה.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The strange noise might come from the old pipes.',
+                wrong: ['The strange noise might to come from the old pipes.', 'The strange noise might comes from the old pipes.', 'The strange noise might coming from the old pipes.'],
+                explainHe: 'אחרי might בא פועל בסיס: בלי to, בלי s ובלי ing.',
+                hintEn: 'Look at the form of the verb right after might.',
+              },
+              story: {
+                passageEn:
+                  'For three nights, fishermen near Eilat reported a faint blue glow under the water. A university team collected samples and put them under a microscope. Inside, they found millions of tiny organisms that produce light when the water moves. The scientists admitted that this could not be the only explanation, because the glow also appeared on calm nights. They plan to return with special cameras next summer.',
+                passageHe: '',
+                questionEn: 'Why are the scientists still not completely sure?',
+                questionHe: '',
+                correct: 'The light also appeared when the sea was quiet.',
+                wrong: ['The organisms were too big to see.', 'The fishermen refused to talk to them.', 'No samples were taken from the water.'],
+              },
+              storyHintEn: 'On which nights did the explanation not fit?',
+            },
+          },
         },
       },
       {
@@ -558,7 +953,7 @@ const units: HighSchoolUnitSpec[] = [
             'מסתורי / בלתי מוסבר',
             '🔮',
             'A mysterious glow lit up the dark underwater trench.',
-            'זוהר מסתורי האיר את השוחה התת-ימית החשוכה.',
+            'זוהר מסתורי האיר את השקע התת-ימי החשוך.',
           ],
           [
             'organism',
@@ -596,6 +991,56 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'כיצד יצורים בשקע מריאנה מייצרים אנרגיית חיים?',
             correct: 'Through chemosynthesis, utilizing mineral sulfur.',
             wrong: ['Through direct sunlight absorbed from above.', 'By eating plants drifting from surface waters.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'The lights are on, so someone must be home.',
+                wrong: ["The lights are on, so someone can't be home."],
+                explainHe: 'האורות דולקים, ולכן בטוחים שמישהו בבית: must be.',
+                hintHe: 'יש ראיה שמישהו בבית. איזו ודאות מתאימה לראיה הזאת?',
+              },
+              story: {
+                passageEn:
+                  'A diver found a strange shell on the sea floor. It was bigger than a plate. She took a photo and sent it to a scientist.',
+                passageHe:
+                  'צוללנית מצאה צדף מוזר בקרקעית הים. הוא היה גדול מצלחת. היא צילמה ושלחה את התמונה למדען.',
+                questionEn: 'What did the diver find?',
+                questionHe: 'מה הצוללנית מצאה?',
+                correct: 'A big strange shell.',
+                wrong: ['A small silver coin.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['schedule', 'postpone'], ['wooden', 'salty'], ['mineral', 'crystal']],
+            },
+            master: {
+              sentenceEn:
+                'The creatures must use chemicals for energy because no sunlight reaches the seabed.',
+              sentenceHe: 'היצורים חייבים להשתמש בכימיקלים לאנרגיה כי שום אור שמש לא מגיע לקרקעית הים.',
+              decoys: ['uses', 'reach'],
+              voiceEn: 'That strange fish cannot be a plant.',
+              voiceHe: 'הדג המוזר הזה לא יכול להיות צמח.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The animal has no eyes, so it must live in darkness.',
+                wrong: ['The animal has no eyes, so it must lives in darkness.', 'The animal has no eyes, so it must to live in darkness.', 'The animal has no eyes, so it must be live in darkness.'],
+                explainHe:
+                  'אחרי must בא פועל בסיס אחד: must live. לא must lives, לא must to live ולא must be live.',
+                hintEn: 'Check the verb after the modal and any extra words.',
+              },
+              story: {
+                passageEn:
+                  'In 2019, a research ship lowered a camera into a deep cave in the ocean floor. The footage showed white worms, each as long as a pencil, clustered around a hot stream of water. There were no plants, no algae and no light at all. Biologists were amazed, because they had assumed that nothing larger than bacteria could live there. After studying the worms, they concluded that the animals feed on bacteria that turn chemicals from the hot water into food.',
+                passageHe: '',
+                questionEn: 'What surprised the biologists most?',
+                questionHe: '',
+                correct: 'Large animals were living where they expected only tiny life.',
+                wrong: ['The worms were growing on plants and algae.', 'The cave was full of bright sunlight.', 'The camera stopped working at the surface.'],
+              },
+              storyHintEn: 'Compare what they expected with what they saw.',
+            },
           },
         },
       },
@@ -668,6 +1113,56 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'If the test fleet maintains zero collisions for six months.',
             wrong: ['If ticket prices are doubled immediately.', 'If drivers agree to work overtime.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'If the robot breaks, we will repair it.',
+                wrong: ['If the robot will break, we will repair it.'],
+                explainHe: 'אחרי if בתנאי ראשון משתמשים ב-Present Simple (breaks), ולא ב-will.',
+                hintHe: 'אחרי if לא שמים will. בדקו איפה הוא מופיע.',
+              },
+              story: {
+                passageEn:
+                  'The school has a new robot teacher. If it works well, other classes will get one too. The students test it every day.',
+                passageHe:
+                  'בבית הספר יש מורה רובוט חדש. אם הוא יעבוד טוב, גם כיתות אחרות יקבלו אחד. התלמידים בודקים אותו כל יום.',
+                questionEn: 'What will happen if the robot works well?',
+                questionHe: 'מה יקרה אם הרובוט יעבוד טוב?',
+                correct: 'Other classes will get one.',
+                wrong: ['The school will close.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['rural', 'seasonal'], ['musical', 'tropical'], ['celebrate', 'inherit']],
+            },
+            master: {
+              sentenceEn:
+                'If companies collect more personal data, governments will introduce stricter privacy laws.',
+              sentenceHe: 'אם חברות יאספו עוד מידע אישי, ממשלות יחוקקו חוקי פרטיות מחמירים יותר.',
+              decoys: ['would', 'introduced'],
+              voiceEn: 'If we cooperate, the project will succeed.',
+              voiceHe: 'אם נשתף פעולה, הפרויקט יצליח.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'If people stop trusting the app, its owners will lose money.',
+                wrong: ['If people will stop trusting the app, its owners will lose money.', 'If people stop trusting the app, its owners would lose money.', 'If people stopped trusting the app, its owners will lose money.'],
+                explainHe:
+                  'תנאי ראשון: If + Present Simple, ובתוצאה will + פועל בסיס. לא will אחרי if, ולא would או Past Simple.',
+                hintEn: 'Check the verb forms before and after the comma.',
+              },
+              story: {
+                passageEn:
+                  'The city of Haifa is considering a ban on delivery robots on narrow pavements. Supporters say that if the robots stay, accidents will become more common, especially for elderly walkers. The companies disagree. They claim that if the city introduces a ban, hundreds of small shops will lose customers who depend on quick deliveries. The mayor has promised to decide only after a three-month trial in two neighbourhoods, in which both sides will present their data.',
+                passageHe: '',
+                questionEn: 'Why will the mayor wait before making a decision?',
+                questionHe: '',
+                correct: 'A trial will give both sides a chance to show real data.',
+                wrong: ['The robots must first be repaired by the city.', 'Both sides have already reached an agreement.', 'Elderly walkers asked for the shops to be closed.'],
+              },
+              storyHintEn: 'Look for what happens before the decision is made.',
+            },
+          },
         },
       },
       {
@@ -728,11 +1223,61 @@ const units: HighSchoolUnitSpec[] = [
             passageEn:
               'An art gallery in Tokyo hosted an exhibition where all paintings were produced by deep neural networks. Visitors were asked to guess which canvases were made by humans. If visitors knew an algorithm painted the portrait, they rated its emotional resonance substantially lower.',
             passageHe:
-              'גלריית אמנות בטוקיו אירחה תערוכה שבה כל הציורים הופקו על ידי רשתות נוירונים עמוקות. המבקרים התבקשו לנחש אילו קנבסים נוצרו על ידי בני אדם. אילו המבקרים ידעו שאלגוריתם צייר את הדיוקן, הם דירגו את התהודה הרגשית שלו באופן נמוך משמעותית.',
+              'גלריית אמנות בטוקיו אירחה תערוכה שבה כל הציורים הופקו על ידי רשתות נוירונים עמוקות. המבקרים התבקשו לנחש אילו קנבסים נוצרו על ידי בני אדם. אם המבקרים ידעו שאלגוריתם צייר את הדיוקן, הם דירגו את התהודה הרגשית שלו באופן נמוך משמעותית.',
             questionEn: 'How did knowing a computer painted a portrait affect visitors?',
             questionHe: 'כיצד הידיעה שמחשב צייר את הדיוקן השפיעה על המבקרים?',
             correct: 'They rated its emotional impact significantly lower.',
             wrong: ['They offered twice as much money to buy it.', 'They refused to enter the gallery.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'If I had a drone, I would film the beach.',
+                wrong: ['If I had a drone, I will film the beach.'],
+                explainHe: 'תנאי שני: If + Past Simple (had), ובתוצאה would + פועל בסיס.',
+                hintHe: 'מצב דמיוני. בדקו איזה פועל עזר מתאים לצורת העבר אחרי if.',
+              },
+              story: {
+                passageEn:
+                  'Mia loves to paint. If she had a tablet, she would draw on it. Her birthday is next week.',
+                passageHe:
+                  'מיה אוהבת לצייר. אילו היה לה טאבלט, היא הייתה מציירת עליו. יום ההולדת שלה בשבוע הבא.',
+                questionEn: 'What would Mia do with a tablet?',
+                questionHe: 'מה מיה הייתה עושה עם טאבלט?',
+                correct: 'She would draw on it.',
+                wrong: ['She would sell it.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['pollution', 'unemployment'], ['passport', 'scholarship'], ['keyboard', 'password']],
+            },
+            master: {
+              sentenceEn:
+                'If every student had a personal tutor, exam results would probably improve across the country.',
+              sentenceHe: 'אילו לכל תלמיד היה מורה פרטי, תוצאות המבחנים כנראה היו משתפרות בכל הארץ.',
+              decoys: ['improving', 'were'],
+              voiceEn: 'If I were famous, I would help children.',
+              voiceHe: 'אילו הייתי מפורסם/ת, הייתי עוזר/ת לילדים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'If she knew the answer, she would tell her classmates.',
+                wrong: ['If she knows the answer, she would tell her classmates.', 'If she knew the answer, she will tell her classmates.', 'If she would know the answer, she would tell her classmates.'],
+                explainHe:
+                  'תנאי שני: If + Past Simple, would + פועל בסיס. לא Present אחרי if, לא will, ולא would אחרי if.',
+                hintEn: 'Check both verbs: one is past, one has would.',
+              },
+              story: {
+                passageEn:
+                  'Last year, a young composer named Eli used a program to create a short piece of piano music in seconds. He entered it into a school competition and won second place. When the judges discovered that a computer had written most of the notes, some of them demanded that the prize be taken back. Eli argued that he had chosen the style, the speed and the final version himself. The argument continued for weeks. In the end, the school decided to add a new category for music created with technology.',
+                passageHe: '',
+                questionEn: 'How did the school solve the problem?',
+                questionHe: '',
+                correct: 'It created a separate group for computer-assisted music.',
+                wrong: ['It gave the first prize to the computer.', 'It banned all piano competitions in school.', 'It asked Eli to pay for the program.'],
+              },
+              storyHintEn: 'What did the school add at the end?',
+            },
           },
         },
       },
@@ -797,6 +1342,56 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'מה הוכיח המחקר לגבי בוטים מותאמים אישית להוראה?',
             correct: 'They significantly boosted reading scores when paired with human teachers.',
             wrong: ['They completely replaced the need for human teachers.', 'They caused students to fail examinations.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'If we plan well, the trip will be fun.',
+                wrong: ['If we will plan well, the trip will be fun.'],
+                explainHe: 'אחרי if בתנאי ראשון משתמשים ב-Present Simple (plan), ולא ב-will.',
+                hintHe: 'בדקו איזו מילה לא שייכת אחרי if.',
+              },
+              story: {
+                passageEn:
+                  'Lina wants to use less plastic. If she brings a bottle to school, she will save money. She also brings her own bag.',
+                passageHe:
+                  'לינה רוצה להשתמש בפחות פלסטיק. אם תביא בקבוק לבית הספר, היא תחסוך כסף. היא גם מביאה תיק משלה.',
+                questionEn: 'What does Lina bring from home?',
+                questionHe: 'מה לינה מביאה מהבית?',
+                correct: 'A bottle and a bag.',
+                wrong: ['A pen and a book.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [['escape', 'compete'], ['accident', 'experiment'], ['budget', 'invention']],
+            },
+            master: {
+              sentenceEn:
+                'Unless companies are honest about how they use data, customers will stop trusting them.',
+              sentenceHe: 'אלא אם כן חברות יהיו כנות לגבי השימוש שלהן במידע, לקוחות יפסיקו לסמוך עליהן.',
+              decoys: ['than', 'trusted'],
+              voiceEn: 'Strong principles guide good decisions.',
+              voiceHe: 'עקרונות חזקים מנחים החלטות טובות.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'If the experiment succeeds, the team will publish the results.',
+                wrong: ['If the experiment will succeed, the team will publish the results.', 'Unless the experiment succeeds, the team will publish the results.', 'If the experiment succeeded, the team will publish the results.'],
+                explainHe:
+                  'אחרי if בתנאי ראשון משתמשים ב-Present Simple. unless פירושו if not ולכן לא מתאים כאן, ו-Past Simple לא מתאים לתוצאה עם will.',
+                hintEn: 'Check the tense after if and the meaning of unless.',
+              },
+              story: {
+                passageEn:
+                  'A group of researchers followed two hundred teenagers for a year. One half used a language-learning app every day, while the other half studied only with their regular textbooks. At the end of the year, the app users had improved their speaking scores by fifteen percent, but the textbook group had improved by only four percent. Interestingly, the students who combined the app with weekly conversations with a teacher achieved the highest scores of all.',
+                passageHe: '',
+                questionEn: 'What is the main message of the study?',
+                questionHe: '',
+                correct: 'Technology works best when it is combined with human contact.',
+                wrong: ['Textbooks are more effective than any app.', 'Teachers should be replaced by language apps.', 'Speaking scores cannot be improved in a year.'],
+              },
+              storyHintEn: 'Which group scored highest of all?',
+            },
           },
         },
       },

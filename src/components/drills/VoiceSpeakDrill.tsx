@@ -20,6 +20,8 @@ interface VoiceSpeakDrillProps {
   onStartListening: () => void;
   /** "I'm in a quiet place" — moves on without speaking */
   onSkip: () => void;
+  /** Master: say it from memory. The sentence stays hidden until the learner asks to see it (or has tried) */
+  hideText?: boolean;
 }
 
 const NORMAL_RATE = 0.95;
@@ -48,7 +50,10 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
   onSpeakEnglish,
   onStartListening,
   onSkip,
+  hideText = false,
 }) => {
+  const [isRevealed, setIsRevealed] = React.useState(false);
+  const isTextHidden = hideText && !isRevealed && !isCompleted && speechEval === null;
   const isGirl = gender === 'girl';
   const prefersReducedMotion = usePrefersReducedMotion();
   const normalSpeech = useSpeechToggle(onSpeakEnglish, targetEn, NORMAL_RATE);
@@ -72,26 +77,42 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
   return (
     <div className="space-y-3 sm:space-y-5">
       <div className={`p-4 sm:p-5 md:p-6 rounded-3xl border-2 border-current/15 ${theme.cardBgClass} space-y-3 sm:space-y-4 text-center`}>
-        <p className="text-fluid-speak sm:text-fluid-speak-sm md:text-fluid-speak-lg font-black leading-snug" dir="ltr" lang="en">
-          {words.map((item, idx) => (
-            <React.Fragment key={`${item.targetWord}-${idx}`}>
-              {idx > 0 && ' '}
-              <button
-                type="button"
-                onClick={() => onSpeakEnglish(item.targetWord, WORD_RATE)}
-                className={`inline rounded-lg px-0.5 transition-colors ${getWordClass(speechEval !== null, item.matched)}`}
-                title="Tap any word to hear it pronounced"
-              >
-                {item.targetWord}
-              </button>
-            </React.Fragment>
-          ))}
-        </p>
+        {isTextHidden ? (
+          <div className="space-y-2" data-testid="hidden-sentence">
+            <p className="text-fluid-speak sm:text-fluid-speak-sm font-black tracking-widest" dir="ltr" aria-hidden="true">
+              {targetEn.split(/\s+/).map(() => '• ').join('')}
+            </p>
+            <p className={`text-sm md:text-base font-bold ${theme.mutedTextClass}`}>
+              {isGirl ? 'הקשיבי היטב, ואז אמרי את המשפט מהזיכרון' : 'הקשב היטב, ואז אמור את המשפט מהזיכרון'}
+            </p>
+            <button type="button" onClick={() => setIsRevealed(true)} className={listenButtonClass}>
+              <span>👀 הצגת המשפט</span>
+            </button>
+          </div>
+        ) : (
+          <>
+            <p className="text-fluid-speak sm:text-fluid-speak-sm md:text-fluid-speak-lg font-black leading-snug" dir="ltr" lang="en">
+              {words.map((item, idx) => (
+                <React.Fragment key={`${item.targetWord}-${idx}`}>
+                  {idx > 0 && ' '}
+                  <button
+                    type="button"
+                    onClick={() => onSpeakEnglish(item.targetWord, WORD_RATE)}
+                    className={`inline rounded-lg px-0.5 transition-colors ${getWordClass(speechEval !== null, item.matched)}`}
+                    title="Tap any word to hear it pronounced"
+                  >
+                    {item.targetWord}
+                  </button>
+                </React.Fragment>
+              ))}
+            </p>
 
-        {targetHe && (
-          <p className={`text-sm md:text-base font-semibold ${theme.mutedTextClass}`} dir="rtl" lang="he">
-            {targetHe}
-          </p>
+            {targetHe && (
+              <p className={`text-sm md:text-base font-semibold ${theme.mutedTextClass}`} dir="rtl" lang="he">
+                {targetHe}
+              </p>
+            )}
+          </>
         )}
 
         <div className="flex flex-wrap items-center justify-center gap-2.5">

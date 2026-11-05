@@ -27,7 +27,11 @@ interface BlendStepContext {
   he: ReturnType<typeof hebrewTemplate>;
   optionCount: number;
   words: BlendWord[];
+  /** Master adds this many letters that are not in the word to the tiles */
+  decoyLetterCount: number;
 }
+
+const DECOY_LETTER_POOL = 'bdfgklmnprstvz'.split('');
 
 /** Picture options: the word's picture and pictures of other words of the mission. */
 function pictureOptions(word: BlendWord, ctx: BlendStepContext): MultipleChoiceOption[] {
@@ -78,6 +82,12 @@ function buildReadStep(word: BlendWord, ctx: BlendStepContext, canSlide: boolean
   };
 }
 
+function pickDecoyLetters(word: string, ctx: BlendStepContext): string[] {
+  if (ctx.decoyLetterCount === 0) return [];
+  const unused = DECOY_LETTER_POOL.filter((letter) => !word.includes(letter));
+  return seededShuffle(unused, `${ctx.missionId}|${word}|decoys`).slice(0, ctx.decoyLetterCount);
+}
+
 function buildBuildStep(word: BlendWord, ctx: BlendStepContext): MissionExerciseStep {
   const { he } = ctx;
   return {
@@ -90,7 +100,10 @@ function buildBuildStep(word: BlendWord, ctx: BlendStepContext): MissionExercise
     questionEn: word.word,
     cardDisplay: word.emoji,
     targetSentenceEn: word.word,
-    letterTiles: seededShuffle(word.word.split(''), `${ctx.missionId}|${word.word}|tiles`),
+    letterTiles: seededShuffle(
+      [...word.word.split(''), ...pickDecoyLetters(word.word, ctx)],
+      `${ctx.missionId}|${word.word}|tiles`
+    ),
   };
 }
 
@@ -163,6 +176,8 @@ function buildSentenceStep(ctx: BlendStepContext, sentenceIdx: number): MissionE
   };
 }
 
+const TIER_WORD_SHIFT: Record<ProficiencyTier, number> = { explorer: 0, challenger: 1, master: 2 };
+
 export function buildBlendingExercises(
   mission: MissionNode,
   tier: ProficiencyTier,
@@ -173,9 +188,11 @@ export function buildBlendingExercises(
     missionId: mission.id,
     he: hebrewTemplate(gender),
     optionCount: tier === 'explorer' ? 2 : 3,
+    decoyLetterCount: tier === 'master' ? 2 : 0,
     words: mission.phonics.words.map(getBlendWord),
   };
-  const wordAt = (stepIdx: number) => ctx.words[stepIdx % ctx.words.length];
+  // Each tier starts at another word of the mission
+  const wordAt = (stepIdx: number) => ctx.words[(stepIdx + TIER_WORD_SHIFT[tier]) % ctx.words.length];
   const hasSentences = Boolean(mission.phonics.sightWords?.length) && Boolean(mission.isBoss);
   return [
     buildListenStep(wordAt(0), ctx),

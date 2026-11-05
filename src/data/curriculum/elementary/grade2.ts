@@ -49,6 +49,56 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'in the bag',
             wrong: ['in the box', 'on the bed'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'I have a dog.',
+                wrong: ['I has a dog.'],
+                explainHe: 'עם I אומרים have ולא has: I have a dog.',
+                hintHe: 'כדאי לבדוק איזו מילה באה אחרי I.',
+              },
+              story: {
+                passageEn: 'Dan has a toy car. The car is yellow. It is under his bed.',
+                passageHe: 'לדן יש מכונית צעצוע. המכונית צהובה. היא מתחת למיטה שלו.',
+                questionEn: 'Where is the car?',
+                questionHe: 'איפה המכונית?',
+                correct: 'under his bed',
+                wrong: ['in his bag'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['door', 'hat'],
+                ['sweet', 'open'],
+                ['rain', 'sun'],
+              ],
+            },
+            master: {
+              sentenceEn: 'The big green bag is on the bed.',
+              sentenceHe: 'התיק הירוק הגדול נמצא על המיטה.',
+              decoys: ['bags', 'are'],
+              voiceEn: 'I kick the ball to my dad.',
+              voiceHe: 'אני בועט/ת בכדור אל אבא.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'I have a big red bag.',
+                wrong: ['I has a big red bag.', 'I have big red bag.', 'I have a big red bags.'],
+                explainHe: 'עם I אומרים have. לפני דבר אחד אומרים a, ובלי s בסוף.',
+                hintEn: 'Check have, the little word a, and the end of bag.',
+              },
+              story: {
+                passageEn: 
+                  'Ben goes to the toy shop. He has five coins in his bag. The big red ball is ten coins. The little blue ball is four coins. Ben says, I like both. Then he pays.',
+                passageHe: '',
+                questionEn: 'Which ball can Ben buy?',
+                questionHe: '',
+                correct: 'the blue ball',
+                wrong: ['the big red ball', 'both of the balls', 'no ball at all'],
+              },
+              storyHintEn: 'Count the coins. What can Ben pay for?',
+            },
+          },
         },
       },
       {
@@ -59,7 +109,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
         grammarTopic: 'Questions: What is this? & It is a...',
         skills: ['What is this', 'It is a...', 'Toy Names'],
         sentenceEn: 'What is this? It is a cute teddy bear.',
-        sentenceHe: 'מה זה? זהו דובי צעצוע חמוד.',
+        sentenceHe: 'מה זה? זה דובי חמוד.',
         vocab: [
           ['box', 'noun', 'קופסה', '📦', 'Open the gift box!', 'פתחו את קופסת המתנה!'],
           ['doll', 'noun', 'בובה', '🪆', 'Her doll has a pink dress.', 'לבובה שלה יש שמלה ורודה.'],
@@ -87,6 +137,58 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             questionHe: 'מה יש בקופסה?',
             correct: 'a doll',
             wrong: ['a ball', 'a bus'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'What is this? 🧸',
+                correct: 'It is a teddy.',
+                wrong: ['Is it a teddy.'],
+                explainHe: 'עונים It is a ...: קודם It ואז is.',
+                hintHe: 'תשובה מתחילה ב-It. מה בא אחריו?',
+              },
+              story: {
+                passageEn: 'Mia has a gift box. It is small. A teddy is in the box.',
+                passageHe: 'למיה יש קופסת מתנה. היא קטנה. דובי צעצוע נמצא בקופסה.',
+                questionEn: 'What is small?',
+                questionHe: 'מה קטן?',
+                correct: 'the box',
+                wrong: ['the teddy'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['cow', 'sun'],
+                ['bus', 'spoon'],
+                ['rock', 'glass'],
+                ['many', 'two'],
+              ],
+            },
+            master: {
+              sentenceEn: 'The small doll is in the big box.',
+              sentenceHe: 'הבובה הקטנה נמצאת בקופסה הגדולה.',
+              decoys: ['are', 'boxes'],
+              voiceEn: 'It is a soft teddy bear.',
+              voiceHe: 'זה דובי צעצוע רך.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'It is a soft teddy.',
+                wrong: ['It is soft a teddy.', 'It is soft teddy.', 'It are a soft teddy.'],
+                explainHe: 
+                  'כשעונים על What is this? אומרים It is a ... – הסדר הוא It, is, a, ואז החפץ. עם It אומרים is.',
+                hintEn: 'Look at is, the word a, and the order of words.',
+              },
+              story: {
+                passageEn: 
+                  'Lily opens a big box. She hears a small noise. Something moves in the box. It has long ears and a little tail. It eats a carrot. Lily laughs.',
+                passageHe: '',
+                questionEn: 'What is in the box?',
+                questionHe: '',
+                correct: 'a rabbit',
+                wrong: ['a teddy bear', 'a doll', 'a cat'],
+              },
+              storyHintEn: 'Think: long ears, a little tail, and a carrot.',
+            },
           },
         },
       },
@@ -128,6 +230,56 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             questionHe: 'מה יש לחתול?',
             correct: 'a little red hat',
             wrong: ['a big bag', 'a blue ball'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which word rhymes with cat?',
+                correct: 'hat',
+                wrong: ['dog'],
+                explainHe: 'המילים cat ו-hat נגמרות שתיהן ב-at ולכן הן מתחרזות.',
+                hintHe: 'כדאי להקשיב לסוף של cat.',
+              },
+              story: {
+                passageEn: 'A cat sits on a red mat. The cat has a hat.',
+                passageHe: 'חתול יושב על שטיחון אדום. לחתול יש כובע.',
+                questionEn: 'Where does the cat sit?',
+                questionHe: 'איפה החתול יושב?',
+                correct: 'on a red mat',
+                wrong: ['in a bag'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['sky', 'rain'],
+                ['milk', 'honey'],
+                ['sky', 'sun'],
+              ],
+            },
+            master: {
+              sentenceEn: 'The little cat sat on my red hat.',
+              sentenceHe: 'החתול הקטן ישב על הכובע האדום שלי.',
+              decoys: ['sit', 'cats'],
+              voiceEn: 'I see a cat and a bat.',
+              voiceHe: 'אני רואה חתול ומחבט.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The cat has a red hat.',
+                wrong: ['The cat have a red hat.', 'The cat has red a hat.', 'The cats has a red hat.'],
+                explainHe: 'חתול אחד: The cat has. אחרי a בא הצבע ואז שם הדבר ביחיד.',
+                hintEn: 'Check has, the word a, and the end of cat.',
+              },
+              story: {
+                passageEn: 
+                  'Sam goes to the park with his bag. The sun is very hot. Sam has a bat, a hat and a ball in the bag. He takes one thing out and puts it on his head. Then he plays with his friend.',
+                passageHe: '',
+                questionEn: 'What does Sam take out?',
+                questionHe: '',
+                correct: 'the hat',
+                wrong: ['the bat', 'the ball', 'the bag'],
+              },
+              storyHintEn: 'Where do you put a hat? Think about the sun.',
+            },
           },
         },
       },
@@ -175,6 +327,56 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'an apple',
             wrong: ['a banana', 'a ball'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'This is an egg.',
+                wrong: ['This is a egg.'],
+                explainHe: 'לפני מילה שמתחילה בתנועה אומרים an: an egg.',
+                hintHe: 'באיזו אות מתחילה המילה egg?',
+              },
+              story: {
+                passageEn: 'My mother has a basket. In the basket are two apples. We eat them in the park.',
+                passageHe: 'לאמא שלי יש סל. בסל יש שני תפוחים. אנחנו אוכלים אותם בפארק.',
+                questionEn: 'How many apples are in the basket?',
+                questionHe: 'כמה תפוחים יש בסל?',
+                correct: 'two',
+                wrong: ['one'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['Socks', 'Doors'],
+                ['table', 'window'],
+                ['rain', 'sky'],
+              ],
+            },
+            master: {
+              sentenceEn: 'Our family eats sweet apples in the park.',
+              sentenceHe: 'המשפחה שלנו אוכלת תפוחים מתוקים בפארק.',
+              decoys: ['eat', 'an'],
+              voiceEn: 'My mother has a red basket.',
+              voiceHe: 'לאמא שלי יש סל אדום.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'My mother has an apple.',
+                wrong: ['My mother has a apple.', 'My mother have an apple.', 'My mothers has an apple.'],
+                explainHe: 'לפני תנועה אומרים an, ויש תפוח אחד. עם My mother אומרים has.',
+                hintEn: 'Check a or an, and the word has.',
+              },
+              story: {
+                passageEn: 
+                  'It is Sunday. Dad cuts an apple into pieces. My sister takes one piece. My brother takes one piece. Mom takes one piece. I take the last piece. We are a happy family.',
+                passageHe: '',
+                questionEn: 'How many people take a piece?',
+                questionHe: '',
+                correct: 'four',
+                wrong: ['one', 'two', 'three'],
+              },
+              storyHintEn: 'Count who takes a piece.',
+            },
+          },
         },
       },
       {
@@ -214,6 +416,57 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'my sister',
             wrong: ['my brother', 'my dad'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which one is right?',
+                correct: 'This is my sister.',
+                wrong: ['This are my sister.'],
+                explainHe: 'על אדם אחד אומרים This is my ...: is מתאים ליחיד.',
+                hintHe: 'מדברים על אחות אחת. איזה פועל מתאים?',
+              },
+              story: {
+                passageEn: 'This is my baby sister. She is little. She has a pink hat.',
+                passageHe: 'זו אחותי התינוקת. היא קטנה. יש לה כובע ורוד.',
+                questionEn: 'What is on her head?',
+                questionHe: 'מה על הראש שלה?',
+                correct: 'a pink hat',
+                wrong: ['a blue hat'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['table', 'pencil'],
+                ['bus', 'door'],
+                ['lamp', 'shoe'],
+                ['bus', 'door'],
+              ],
+            },
+            master: {
+              sentenceEn: 'My baby sister sleeps in a little bed.',
+              sentenceHe: 'אחותי התינוקת ישנה במיטה קטנה.',
+              decoys: ['sleep', 'beds'],
+              voiceEn: 'My father reads to the baby.',
+              voiceHe: 'אבא שלי קורא לתינוק/ת.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'This is my big brother.',
+                wrong: ['This are my big brother.', 'This is big my brother.', 'This is my big brothers.'],
+                explainHe: 'על אחד אומרים This is my ...: is ליחיד, my לפני התיאור, ושם הדבר ביחיד.',
+                hintEn: 'Check is, the order of my and big, and the end of brother.',
+              },
+              story: {
+                passageEn: 
+                  'Dan has a baby sister. At night the baby cries. Dad sits with her. Mom sings a song. The baby closes her eyes. Now the house is quiet.',
+                passageHe: '',
+                questionEn: 'Why is the house quiet at the end?',
+                questionHe: '',
+                correct: 'The baby is asleep.',
+                wrong: ['Dan is at school.', 'Dad is at work.', 'Mom is angry.'],
+              },
+              storyHintEn: 'What do eyes do when we sleep?',
+            },
+          },
         },
       },
       {
@@ -229,7 +482,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
         vocab: [
           ['banana', 'noun', 'בננה', '🍌', 'A banana is a yellow fruit.', 'בננה היא פרי צהוב.'],
           ['carrot', 'noun', 'גזר', '🥕', 'Rabbits like to eat carrots.', 'ארנבים אוהבים לאכול גזר.'],
-          ['milk', 'noun', 'חלב', '🥛', 'I drink milk in the morning.', 'שותים חלב בבוקר.'],
+          ['milk', 'noun', 'חלב', '🥛', 'I drink milk in the morning.', 'אני שותה חלב בבוקר.'],
         ],
         seed: {
           wrongWords: [
@@ -251,9 +504,63 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             passageHe:
               'הגיע זמן הפיקניק! לאמא יש חלב. לאבא יש בננה. לאחות שלי יש גזר. לי יש תפוח. כולנו אוהבים את החטיפים הבריאים שלנו.',
             questionEn: 'What does my sister have?',
-            questionHe: 'מה יש לאחות?',
+            questionHe: 'מה יש לאחות שלי?',
             correct: 'a carrot',
             wrong: ['milk', 'a banana'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which one is right?',
+                correct: 'two carrots',
+                wrong: ['two carrot'],
+                explainHe: 'אחרי מספר גדול מאחד מוסיפים s: two carrots.',
+                hintHe: 'כמה גזרים יש? מה קורה לסוף המילה?',
+              },
+              story: {
+                passageEn: 'Dad has a glass of milk. My sister has two carrots. I have a banana.',
+                passageHe: 'לאבא יש כוס חלב. לאחות שלי יש שני גזרים. לי יש בננה.',
+                questionEn: 'Who has milk?',
+                questionHe: 'למי יש חלב?',
+                correct: 'Dad',
+                wrong: ['my sister'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['chair', 'shoe'],
+                ['shoes', 'socks'],
+                ['bread', 'rice'],
+              ],
+            },
+            master: {
+              sentenceEn: 'My sister drinks milk and eats carrots.',
+              sentenceHe: 'אחותי שותה חלב ואוכלת גזר.',
+              decoys: ['eat', 'banana'],
+              voiceEn: 'I eat an apple at school.',
+              voiceHe: 'אני אוכל/ת תפוח בבית הספר.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'We have three yellow bananas.',
+                wrong: [
+                  'We have three yellow banana.',
+                  'We has three yellow bananas.',
+                  'We have yellow three bananas.',
+                ],
+                explainHe: 'עם We אומרים have. אחרי three מוסיפים s: bananas. והמספר בא לפני הצבע.',
+                hintEn: 'Check have, the number place, and the end of banana.',
+              },
+              story: {
+                passageEn: 
+                  'Dana is hungry after school. She does not want cake. She goes to the kitchen and takes a long orange snack. It is crunchy. Rabbits like it too.',
+                passageHe: '',
+                questionEn: 'What does Dana eat?',
+                questionHe: '',
+                correct: 'a carrot',
+                wrong: ['a banana', 'an apple', 'milk'],
+              },
+              storyHintEn: 'Which snack is orange and crunchy?',
+            },
           },
         },
       },
@@ -301,6 +608,56 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'pink',
             wrong: ['red', 'blue'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'It is a cow.',
+                wrong: ['It is cow a.'],
+                explainHe: 'אומרים It is a ... וסדר המילים הוא It, is, a, ואז החיה.',
+                hintHe: 'המילה הקטנה a באה לפני שם החיה.',
+              },
+              story: {
+                passageEn: 'The hen is on the farm. The hen has one egg. The egg is white.',
+                passageHe: 'התרנגולת בחווה. לתרנגולת יש ביצה אחת. הביצה לבנה.',
+                questionEn: 'What color is the egg?',
+                questionHe: 'באיזה צבע הביצה?',
+                correct: 'white',
+                wrong: ['brown'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['car', 'door'],
+                ['sock', 'rain'],
+                ['lamp', 'sock'],
+              ],
+            },
+            master: {
+              sentenceEn: 'The cow and hen live on the farm.',
+              sentenceHe: 'הפרה והתרנגולת גרות בחווה.',
+              decoys: ['lives', 'pigs'],
+              voiceEn: 'I see a cow in the field.',
+              voiceHe: 'אני רואה פרה בשדה.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'It is a little pink pig.',
+                wrong: ['It are a little pink pig.', 'It is a little pink pigs.', 'It is little a pink pig.'],
+                explainHe: 'עם It אומרים is. מילה שמתארת באה אחרי a, ושם החיה ביחיד.',
+                hintEn: 'Check is, the place of a, and the end of pig.',
+              },
+              story: {
+                passageEn: 
+                  'It is early morning on the farm. Ben hears a loud sound. Then he sees a big animal near the barn. It is black and white. It gives Ben milk. Ben says thank you.',
+                passageHe: '',
+                questionEn: 'Which animal does Ben see?',
+                questionHe: '',
+                correct: 'a cow',
+                wrong: ['a hen', 'a pig', 'a dog'],
+              },
+              storyHintEn: 'Which farm animal gives us milk?',
+            },
+          },
         },
       },
       {
@@ -338,6 +695,56 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             questionHe: 'איזו חיית מחמד יש לדן?',
             correct: 'a rabbit',
             wrong: ['a dog', 'a fish'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which question is right?',
+                correct: 'Is it a dog?',
+                wrong: ['It is a dog?'],
+                explainHe: 'שאלת כן/לא מתחילה ב-Is: Is it a dog?',
+                hintHe: 'איזו מילה פותחת שאלה?',
+              },
+              story: {
+                passageEn: 'Lea has a pet fish. The fish is orange. It is in a bowl.',
+                passageHe: 'ללאה יש דג מחמד. הדג כתום. הוא בקערה.',
+                questionEn: 'Where is the fish?',
+                questionHe: 'איפה הדג?',
+                correct: 'in a bowl',
+                wrong: ['in a bed'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['chair', 'moon'],
+                ['chair', 'sock'],
+                ['shoe', 'book'],
+              ],
+            },
+            master: {
+              sentenceEn: 'My dog and my rabbit are good friends.',
+              sentenceHe: 'הכלב והארנב שלי הם חברים טובים.',
+              decoys: ['is', 'dogs'],
+              voiceEn: 'I have a pet rabbit.',
+              voiceHe: 'יש לי ארנב מחמד.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Is it a white rabbit?',
+                wrong: ['Is a white it rabbit?', 'It is a white rabbit?', 'Is it white a rabbit?'],
+                explainHe: 'שאלה על חיה מתחילה ב-Is ואחריו it, ואחר כך a והצבע והחיה.',
+                hintEn: 'Which word starts a question? Then check the order.',
+              },
+              story: {
+                passageEn: 
+                  'Noa has two pets. One pet has long ears and likes carrots. The other pet lives in water. Noa gives food to the pet with long ears first. Then she cleans the bowl.',
+                passageHe: '',
+                questionEn: 'Which pet gets food first?',
+                questionHe: '',
+                correct: 'the rabbit',
+                wrong: ['the fish', 'the dog', 'the bird'],
+              },
+              storyHintEn: 'Who has long ears and likes carrots?',
+            },
           },
         },
       },
@@ -379,6 +786,56 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             questionHe: 'באיזה צבע הכבשה?',
             correct: 'white',
             wrong: ['black', 'pink'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which word rhymes with dog?',
+                correct: 'frog',
+                wrong: ['cat'],
+                explainHe: 'המילים dog ו-frog נגמרות שתיהן ב-og ולכן הן מתחרזות.',
+                hintHe: 'כדאי להקשיב לסוף של dog.',
+              },
+              story: {
+                passageEn: 'The sheep is on the grass. The horse is on the farm. The frog is on a log.',
+                passageHe: 'הכבשה על הדשא. הסוס בחווה. הצפרדע על גזע עץ.',
+                questionEn: 'Where is the frog?',
+                questionHe: 'איפה הצפרדע?',
+                correct: 'on a log',
+                wrong: ['on the grass'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['table', 'book'],
+                ['rock', 'door'],
+                ['lamp', 'plane'],
+              ],
+            },
+            master: {
+              sentenceEn: 'The horse runs and the sheep eats grass.',
+              sentenceHe: 'הסוס רץ והכבשה אוכלת עשב.',
+              decoys: ['run', 'sheeps'],
+              voiceEn: 'A little frog jumps very high.',
+              voiceHe: 'צפרדע קטנה קופצת גבוה מאוד.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The big horse runs fast.',
+                wrong: ['The big horse run fast.', 'The big horses runs fast.', 'The horse big runs fast.'],
+                explainHe: 'סוס אחד: runs עם s. ומילה שמתארת באה לפני שם הדבר.',
+                hintEn: 'Check the end of run, the end of horse, and word order.',
+              },
+              story: {
+                passageEn: 
+                  'Tom looks at the water near the farm. A green animal jumps on a log. It is small and it can jump very high. Tom laughs. Then the animal jumps into the water and swims away.',
+                passageHe: '',
+                questionEn: 'What animal does Tom see?',
+                questionHe: '',
+                correct: 'a frog',
+                wrong: ['a sheep', 'a horse', 'a dog'],
+              },
+              storyHintEn: 'Which animal is green and jumps?',
+            },
           },
         },
       },
@@ -426,6 +883,56 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             correct: 'blue',
             wrong: ['red', 'green'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which one is right?',
+                correct: 'This is my door.',
+                wrong: ['This are my door.'],
+                explainHe: 'על דבר אחד אומרים This is my ...: is מתאים ליחיד.',
+                hintHe: 'דלת אחת: איזה פועל מתאים?',
+              },
+              story: {
+                passageEn: 'My house has a blue door. My bed is in my room. The room is small.',
+                passageHe: 'לבית שלי יש דלת כחולה. המיטה שלי בחדר שלי. החדר קטן.',
+                questionEn: 'What color is the door?',
+                questionHe: 'באיזה צבע הדלת?',
+                correct: 'blue',
+                wrong: ['red'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['milk', 'rain'],
+                ['cup', 'soup'],
+                ['sun', 'rain'],
+              ],
+            },
+            master: {
+              sentenceEn: 'I open the door of my house.',
+              sentenceHe: 'אני פותח/ת את הדלת של הבית שלי.',
+              decoys: ['opens', 'doors'],
+              voiceEn: 'My bed is very soft.',
+              voiceHe: 'המיטה שלי רכה מאוד.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'This is my blue door.',
+                wrong: ['This are my blue door.', 'This is me blue door.', 'This is my blue doors.'],
+                explainHe: 'אומרים This is my ... עם is ו-my. שם הדבר ביחיד: door.',
+                hintEn: 'Check is, my, and the end of door.',
+              },
+              story: {
+                passageEn: 
+                  'Gil comes home from school. The door is open. He sees a pair of big black shoes by the door. Gil has small shoes. Mom has little red shoes. Gil smiles and runs in.',
+                passageHe: '',
+                questionEn: 'Who is home?',
+                questionHe: '',
+                correct: 'Dad',
+                wrong: ['Mom', 'the baby', 'Gil'],
+              },
+              storyHintEn: 'Whose shoes are big? Not Gil. Not Mom.',
+            },
+          },
         },
       },
       {
@@ -439,8 +946,8 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
         sentenceHe: 'יש לי חולצה אדומה ונעליים כחולות.',
         vocab: [
           ['shirt', 'noun', 'חולצה', '👕', 'My shirt is clean and new.', 'החולצה שלי נקייה וחדשה.'],
-          ['shoes', 'noun', 'נעליים', '👟', 'I put on my shoes.', 'נועלים את הנעליים.'],
-          ['socks', 'noun', 'גרביים', '🧦', 'I have two warm socks.', 'יש לי שתי גרביים חמות.'],
+          ['shoes', 'noun', 'נעליים', '👟', 'I put on my shoes.', 'אני נועל/ת את הנעליים שלי.'],
+          ['socks', 'noun', 'גרביים', '🧦', 'I have two warm socks.', 'יש לי שני גרביים חמים.'],
         ],
         seed: {
           wrongWords: [
@@ -458,11 +965,61 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
           },
           story: {
             passageEn: 'I get dressed. I have a green shirt. I have blue socks and red shoes.',
-            passageHe: 'מתלבשים בבוקר. יש לי חולצה ירוקה. יש לי גרביים כחולות ונעליים אדומות.',
+            passageHe: 'אני מתלבש/ת. יש לי חולצה ירוקה. יש לי גרביים כחולים ונעליים אדומות.',
             questionEn: 'What color are the shoes?',
             questionHe: 'באיזה צבע הנעליים?',
             correct: 'red',
             wrong: ['green', 'yellow'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'I have two shoes.',
+                wrong: ['I have two shoe.'],
+                explainHe: 'אחרי two מוסיפים s: two shoes.',
+                hintHe: 'כמה נעליים? מה קורה לסוף המילה?',
+              },
+              story: {
+                passageEn: 'I have a blue shirt. I have red socks. My shoes are black.',
+                passageHe: 'יש לי חולצה כחולה. יש לי גרביים אדומים. הנעליים שלי שחורות.',
+                questionEn: 'What color are the socks?',
+                questionHe: 'באיזה צבע הגרביים?',
+                correct: 'red',
+                wrong: ['blue'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['bus', 'pencil'],
+                ['milk', 'soup'],
+                ['rain', 'milk'],
+              ],
+            },
+            master: {
+              sentenceEn: 'I put on my warm socks and shoes.',
+              sentenceHe: 'אני גורב/ת גרביים חמים ונועל/ת נעליים.',
+              decoys: ['puts', 'sock'],
+              voiceEn: 'My shirt is on the chair.',
+              voiceHe: 'החולצה שלי על הכיסא.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'I have three green shirts.',
+                wrong: ['I have three green shirt.', 'I has three green shirts.', 'I have green three shirts.'],
+                explainHe: 'עם I אומרים have. אחרי three מוסיפים s: shirts. והמספר בא לפני הצבע.',
+                hintEn: 'Check have, the number place, and the end of shirt.',
+              },
+              story: {
+                passageEn: 
+                  'Dana puts on her shoes and walks outside. After ten minutes she comes back. Her shoes and socks are very wet, and her hair is wet too. She takes dry socks from the bed.',
+                passageHe: '',
+                questionEn: 'What is the weather outside?',
+                questionHe: '',
+                correct: 'It is raining.',
+                wrong: ['It is sunny.', 'It is very hot.', 'It is a nice day.'],
+              },
+              storyHintEn: 'Why are shoes and hair wet?',
+            },
           },
         },
       },
@@ -478,7 +1035,7 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
         sentenceHe: 'אני יכול/ה לשבת על הכיסא האדום.',
         vocab: [
           ['chair', 'noun', 'כיסא', '🪑', 'I sit on a small chair.', 'אני יושב/ת על כיסא קטן.'],
-          ['window', 'noun', 'חלון', '🪟', 'I can see the sun from the window.', 'אפשר לראות את השמש מהחלון.'],
+          ['window', 'noun', 'חלון', '🪟', 'I can see the sun from the window.', 'אני יכול/ה לראות את השמש מהחלון.'],
           ['jacket', 'noun', 'מעיל / ג׳קט', '🧥', 'My jacket is warm.', 'המעיל שלי חם.'],
         ],
         seed: {
@@ -504,6 +1061,60 @@ export const grade2Curriculum = buildElementaryGrade('grade-2', [
             questionHe: 'איפה אני יושב/ת?',
             correct: 'on the chair',
             wrong: ['on the bed', 'on the window'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'I can jump high.',
+                wrong: ['I can jumps high.'],
+                explainHe: 'אחרי can הפועל נשאר בצורה הפשוטה, בלי s.',
+                hintHe: 'מה כותבים אחרי can?',
+              },
+              story: {
+                passageEn: 'My room has a window. I sit on a chair. I have a red jacket.',
+                passageHe: 'בחדר שלי יש חלון. אני יושב/ת על כיסא. יש לי מעיל אדום.',
+                questionEn: 'What is red?',
+                questionHe: 'מה אדום?',
+                correct: 'my jacket',
+                wrong: ['my chair'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['sky', 'milk'],
+                ['sock', 'pen'],
+                ['shoes', 'socks'],
+              ],
+            },
+            master: {
+              sentenceEn: 'I can look out of the big window.',
+              sentenceHe: 'אני יכול/ה להסתכל החוצה מהחלון הגדול.',
+              decoys: ['looks', 'chairs'],
+              voiceEn: 'I can wear my warm jacket.',
+              voiceHe: 'אני יכול/ה ללבוש את המעיל החם שלי.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'I can open the big window.',
+                wrong: [
+                  'I can opens the big window.',
+                  'I can open big the window.',
+                  'I can to open the big window.',
+                ],
+                explainHe: 'אחרי can הפועל בצורה פשוטה, בלי s ובלי to. והמילה big באה אחרי the.',
+                hintEn: 'Check the verb after can and the order of words.',
+              },
+              story: {
+                passageEn: 
+                  'Mina sits on a chair near the window. She looks outside. Dark clouds come and the wind blows. Mina stands up, closes the window and takes her jacket from the chair. Then she goes to the door.',
+                passageHe: '',
+                questionEn: 'Why does Mina close the window?',
+                questionHe: '',
+                correct: 'It is going to rain.',
+                wrong: ['She wants to sleep.', 'She likes the sun.', 'Her chair is old.'],
+              },
+              storyHintEn: 'Look at the clouds and the wind.',
+            },
           },
         },
       },

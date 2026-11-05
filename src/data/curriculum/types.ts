@@ -27,7 +27,74 @@ export interface DistractorWord {
  * Compact authored data from which the 5-step elementary exercises are generated
  * (see `src/data/elementaryExercises.ts`).
  */
+/** A rule check (step 4) written for one tier. */
+export interface TierRuleItem {
+  questionEn: string;
+  correct: string;
+  /** Explorer: one wrong answer; Challenger: two; Master: three */
+  wrong: string[];
+  explainHe: string;
+  hintHe: string;
+}
+
+/** A story and one question about it (step 5) written for one tier. */
+export interface TierStoryItem {
+  passageEn: string;
+  passageHe: string;
+  questionEn: string;
+  questionHe: string;
+  correct: string;
+  wrong: string[];
+}
+
+/**
+ * The questions that make the three tiers different missions (not the same mission with fewer
+ * options). Explorer recognizes, Challenger uses words in context, Master produces and reasons.
+ * Challenger's sentence, rule and story are the seed's own (`shortSentence*` is Explorer's).
+ */
+export interface TierSeeds {
+  explorer: {
+    /** A short, easy rule check with one wrong answer */
+    rule: TierRuleItem;
+    /** A 2–3 sentence story with one literal question and one wrong answer */
+    story: TierStoryItem;
+  };
+  challenger: {
+    /**
+     * For each vocabulary word (same order), two English words that do NOT fit the blank of that
+     * word's example sentence. Any word can be the focus, as a replay rotates through them.
+     */
+    clozeWrong: [string, string][];
+  };
+  master: {
+    /** A different, longer key sentence than the mission's own, built from its Hebrew */
+    sentenceEn: string;
+    sentenceHe: string;
+    /** Two extra words that do not belong in the sentence */
+    decoys: [string, string];
+    /** A different sentence to say from memory */
+    voiceEn: string;
+    voiceHe: string;
+    /** Find the mistake: `sentenceWithMistake` is shown, options are the corrected versions */
+    errorFix: {
+      questionEn: string;
+      correct: string;
+      /** Three corrections that are still wrong */
+      wrong: [string, string, string];
+      explainHe: string;
+      /** Short English-only hint */
+      hintEn: string;
+    };
+    /** A longer story (no Hebrew shown) with an inference question and four answers */
+    story: TierStoryItem & { wrong: [string, string, string] };
+    /** One short English-only hint for the story */
+    storyHintEn: string;
+  };
+}
+
 export interface DrillSeed {
+  /** The per-tier questions; every mission has them once the content is authored (see tierSeeds tests). */
+  tiers?: TierSeeds;
   /** Two wrong words for the vocabulary match (step 1) and the cloze variant. */
   wrongWords: [DistractorWord, DistractorWord];
   /** Short 3–5 word sentence for Explorer sentence builder & speaking drill. */

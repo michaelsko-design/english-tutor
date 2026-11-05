@@ -27,7 +27,7 @@ const UNITS: HighSchoolUnitSpec[] = [
             'לרדוף אחרי / לחתור להשגת מטרה',
             '🏃',
             'She decided to pursue a career in marine biology.',
-            'היא החליטה לחתור לקריירה בביולוגיה ימית.',
+            'היא החליטה לפתח קריירה בביולוגיה ימית.',
           ],
           [
             'relocate',
@@ -81,6 +81,68 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'במה רונן עוסק היום?',
             correct: 'He runs one of the most popular bakeries in the city.',
             wrong: ['He works as a rich banker in New York.', 'He teaches baking at a school in Rehovot.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'If she had left earlier, she would be home now.',
+                wrong: ['If she had left earlier, she will be home now.'],
+                explainHe: 
+                  'בתנאי מעורב החלק של if בעבר (had left) והתוצאה בהווה (would be). will שייך לתנאי אחר.',
+                hintHe: 'החלק הראשון מדבר על עבר שלא קרה, והשני על המצב עכשיו.',
+              },
+              story: {
+                passageEn: 
+                  'Amit missed the bus this morning. He walked to school and arrived late. Now he is tired.',
+                passageHe: 'עמית פספס את האוטובוס הבוקר. הוא הלך לבית הספר והגיע באיחור. עכשיו הוא עייף.',
+                questionEn: 'How did Amit get to school?',
+                questionHe: 'איך עמית הגיע לבית הספר?',
+                correct: 'He walked.',
+                wrong: ['He took a taxi.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['purchase', 'embroider'],
+                ['evolve', 'gamble'],
+                ['punctual', 'fertile'],
+                ['pension', 'mortgage'],
+              ],
+            },
+            master: {
+              sentenceEn: 'If Dana had chosen medicine she would probably be working in a hospital today.',
+              sentenceHe: 'אילו דנה הייתה בוחרת ברפואה היא כנראה הייתה עובדת היום בבית חולים.',
+              decoys: ['will', 'yesterday'],
+              voiceEn: 'If I had waited, I would feel better.',
+              voiceHe: 'אילו חיכיתי, הייתי מרגיש/ה טוב יותר.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'If he had accepted the offer, he would live in Berlin now.',
+                wrong: [
+                  'If he accepted the offer, he would live in Berlin now.',
+                  'If he had accepted the offer, he would lived in Berlin now.',
+                  'If he had accepted the offer, he will live in Berlin now.',
+                ],
+                explainHe: 
+                  'בתנאי מעורב: if + had + V3 לתנאי בעבר, ו-would + פועל בצורת שורש לתוצאה בהווה. לא משתמשים ב-will וגם לא ב-would + עבר.',
+                hintEn: 'Check both halves: the past condition and the present result.',
+              },
+              story: {
+                passageEn: 
+                  'When Nitzan was seventeen, a famous football club invited her to a trial. Her parents wanted her to finish school first, so she stayed home and studied hard. Nowadays she teaches physics at a university, and her students often ask whether she regrets her decision. She usually answers with a smile that she often watches the matches of the club and that she has never felt jealous.',
+                passageHe: '',
+                questionEn: 'What can we infer about Nitzan today?',
+                questionHe: '',
+                correct: 'She is satisfied with the path she chose.',
+                wrong: [
+                  'She wishes she had never studied physics.',
+                  'She plays for the club in the evenings.',
+                  'Her parents regret their decision.',
+                ],
+              },
+              storyHintEn: 'Notice how she answers her students.',
+            },
           },
         },
       },
@@ -156,6 +218,67 @@ const UNITS: HighSchoolUnitSpec[] = [
             correct: 'She hesitated and said nothing.',
             wrong: ['She raised her hand at once.', 'She asked a friend to answer.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'If Omer were taller, he would have caught the ball.',
+                wrong: ['If Omer was taller, he would caught the ball.'],
+                explainHe: 'במשפט תנאי מעורב עם were בחלק הראשון, התוצאה בעבר היא would have + V3.',
+                hintHe: 'התוצאה כבר קרתה (או לא קרתה) בעבר, לכן צריך would have + V3.',
+              },
+              story: {
+                passageEn: 
+                  'Ruth is very careful. Yesterday she checked her bag twice. She did not forget her keys.',
+                passageHe: 'רות מאוד זהירה. אתמול היא בדקה את התיק שלה פעמיים. היא לא שכחה את המפתחות.',
+                questionEn: 'What did Ruth check?',
+                questionHe: 'מה רות בדקה?',
+                correct: 'Her bag.',
+                wrong: ['Her phone.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['thrifty', 'frugal'],
+                ['careless', 'foolish'],
+                ['boast', 'threaten'],
+                ['vocabulary', 'mortgage'],
+              ],
+            },
+            master: {
+              sentenceEn: 'If Yoav were more patient he would not have quit the course after one week.',
+              sentenceHe: 'אילו יואב היה סבלני יותר הוא לא היה פורש מהקורס אחרי שבוע אחד.',
+              decoys: ['will', 'been'],
+              voiceEn: 'If she were calmer she would have won.',
+              voiceHe: 'אילו הייתה רגועה יותר היא הייתה מנצחת.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'If Tali were less shy, she would have joined the debate team.',
+                wrong: [
+                  'If Tali were less shy, she would joined the debate team.',
+                  'If Tali had less shy, she would have joined the debate team.',
+                  'If Tali were less shy, she will have joined the debate team.',
+                ],
+                explainHe: 
+                  'תכונה בהווה מופיעה ב-were, והתוצאה בעבר ב-would have + V3. אין לשלב would עם עבר פשוט, ולא משתמשים ב-will.',
+                hintEn: 'Check the trait in the first half and the result in the second half.',
+              },
+              story: {
+                passageEn: 
+                  'Gili is known in her class as extremely cautious. Before every test she makes a detailed plan, and she never answers a question unless she is completely sure. Last month the class had to choose a captain for the science competition, and the teacher noticed that Gili had the best ideas. Yet she stayed silent while two louder classmates volunteered. Afterwards the teacher told her quietly that the team had lost a good leader.',
+                passageHe: '',
+                questionEn: 'Why did the teacher say the team had lost a good leader?',
+                questionHe: '',
+                correct: 'Her caution stopped her from volunteering.',
+                wrong: [
+                  'Gili had refused to join the competition.',
+                  'The louder classmates had left the team.',
+                  'The teacher had chosen another captain.',
+                ],
+              },
+              storyHintEn: 'Why did Gili stay silent?',
+            },
+          },
         },
       },
       {
@@ -230,6 +353,68 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'מה קורה להלן בחיים הראשונים?',
             correct: 'She discovers a painful secret and starts a new business.',
             wrong: ['She misses the train and goes home.', 'She moves away from London for good.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is about something that did not happen?',
+                correct: 'If I had taken that job, my life would be different.',
+                wrong: ['If I take this job, my life will be different.'],
+                explainHe: 'had taken מראה שהדבר לא קרה בעבר. If I take הוא תנאי אפשרי לעתיד.',
+                hintHe: 'חפשו את המשפט שמדבר על משהו שכבר אי אפשר לשנות.',
+              },
+              story: {
+                passageEn: 
+                  'Max nearly took a different train. In the end he stayed on his train and met an old friend. They talked for an hour.',
+                passageHe: 
+                  'מקס כמעט עלה על רכבת אחרת. בסוף הוא נשאר ברכבת שלו ופגש חבר ותיק. הם דיברו שעה.',
+                questionEn: 'Who did Max meet?',
+                questionHe: 'את מי מקס פגש?',
+                correct: 'An old friend.',
+                wrong: ['A new teacher.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['mechanical', 'nomadic'],
+                ['souvenir', 'pronunciation'],
+                ['elastic', 'edible'],
+                ['dance', 'shiver'],
+              ],
+            },
+            master: {
+              sentenceEn: 'If the letter had arrived on time her career would be very different today.',
+              sentenceHe: 'אילו המכתב היה מגיע בזמן הקריירה שלה הייתה שונה מאוד היום.',
+              decoys: ['will', 'have'],
+              voiceEn: 'One small choice can change everything.',
+              voiceHe: 'בחירה קטנה אחת יכולה לשנות הכול.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'If she had stayed in London, she would have a different job now.',
+                wrong: [
+                  'If she stayed in London, she would have a different job now.',
+                  'If she had stayed in London, she would had a different job now.',
+                  'If she had stay in London, she would have a different job now.',
+                ],
+                explainHe: 
+                  'בתנאי מעורב: had + V3 בחלק של if (had stayed) ו-would + פועל בצורת שורש בתוצאה. עבר פשוט בחלק של if משנה את המשמעות.',
+                hintEn: 'Check the verb form in each half of the sentence.',
+              },
+              story: {
+                passageEn: 
+                  'Tamar still remembers the morning of her violin audition. She woke up late, missed her usual bus, and shared a taxi with a stranger who happened to be a music teacher. During the ride they talked about Bach, and by the end she had a new teacher and a place in his small youth orchestra. She never made it to the audition, but she often says the missed bus was the best thing that ever happened to her.',
+                passageHe: '',
+                questionEn: 'Why does Tamar call the missed bus the best thing?',
+                questionHe: '',
+                correct: 'It led to opportunities more valuable than the audition.',
+                wrong: [
+                  'She enjoys travelling by taxi more than by bus.',
+                  'She believes auditions are not important at all.',
+                  'She passed the audition thanks to the stranger.',
+                ],
+              },
+              storyHintEn: 'Where did the missed bus lead?',
+            },
           },
         },
       },
@@ -311,6 +496,70 @@ const UNITS: HighSchoolUnitSpec[] = [
             correct: 'Students who learn synonyms.',
             wrong: ['Students who copy words from the passage.', 'Students who read the questions first.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence has the same meaning as "The film is very long"?',
+                correct: 'The movie lasts a long time.',
+                wrong: ['The film is very short.'],
+                explainHe: 
+                  'פרפרזה שומרת על המשמעות אבל משתמשת במילים אחרות: movie במקום film, lasts a long time במקום is very long.',
+                hintHe: 'חפשו משפט עם אותה משמעות ובמילים שונות.',
+              },
+              story: {
+                passageEn: 
+                  'The shop opens early. The store starts work in the morning. These two sentences mean the same.',
+                passageHe: 'החנות נפתחת מוקדם. החנות מתחילה לעבוד בבוקר. שני המשפטים האלה אומרים אותו דבר.',
+                questionEn: 'What do the two sentences do?',
+                questionHe: 'מה עושים שני המשפטים?',
+                correct: 'They mean the same.',
+                wrong: ['They mean the opposite.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['blueprint', 'postcard'],
+                ['prefix', 'suffix'],
+                ['loyal', 'sensitive'],
+                ['repair', 'weigh'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Skilled writers often replace common words with synonyms to avoid repeating themselves in essays.',
+              sentenceHe: 
+                'כותבים מיומנים מחליפים לעתים קרובות מילים נפוצות במילים נרדפות כדי להימנע מחזרה בחיבורים.',
+              decoys: ['copy', 'antonyms'],
+              voiceEn: 'Say it again in your own words.',
+              voiceHe: 'אמרו זאת שוב במילים שלכם.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The sentence was paraphrased by the student in simpler words.',
+                wrong: [
+                  'The sentence was paraphrase by the student in simpler words.',
+                  'The sentence paraphrased by the student in simpler words.',
+                  'The sentence was paraphrasing by the student in simpler words.',
+                ],
+                explainHe: 
+                  'במבנה סביל משתמשים ב-was + V3 (was paraphrased). אי אפשר להשמיט את was או להשתמש ב-ing.',
+                hintEn: 'Look for the passive form: was and the third form.',
+              },
+              story: {
+                passageEn: 
+                  'In the Bagrut reading section, Eyal found the sentence: rapid urbanisation has placed enormous pressure on public services. One answer option said that fast growth of cities has made it hard for public services to cope. Another repeated the words rapid urbanisation and added that cities are always beautiful. Eyal chose the first, even though it shared almost no words with the original, and his teacher later confirmed that he was right.',
+                passageHe: '',
+                questionEn: 'Why did Eyal choose the first option?',
+                questionHe: '',
+                correct: 'It expressed the same meaning in different words.',
+                wrong: [
+                  'It used exactly the same words as the passage.',
+                  'It was the longest answer of all.',
+                  'It praised the beauty of cities.',
+                ],
+              },
+              storyHintEn: 'Compare meaning, not words.',
+            },
+          },
         },
       },
       {
@@ -363,7 +612,7 @@ const UNITS: HighSchoolUnitSpec[] = [
             { wordEn: 'decorate', translationHe: 'לקשט' },
           ],
           shortSentenceEn: 'Keep your summary concise.',
-          shortSentenceHe: 'כדאי שהסיכום יהיה תמציתי.',
+          shortSentenceHe: 'הקפידו שהסיכום יהיה תמציתי.',
           rule: {
             questionEn: 'Which sentence belongs in a SUMMARY of an article about sleep?',
             correct: 'Teenagers need more sleep than most of them actually get.',
@@ -384,6 +633,67 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'מהי המסקנה העיקרית של המחקר?',
             correct: 'Green roofs can reduce heat and improve urban life.',
             wrong: ['Residents should grow vegetables on every roof.', 'Summer afternoons in Tel Aviv are getting shorter.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is the main idea?',
+                correct: 'Exercise keeps the body and mind healthy.',
+                wrong: ['Dan ran five kilometres on Tuesday.'],
+                explainHe: 'הרעיון המרכזי הוא כללי וחשוב. פרט כמו מי רץ וכמה הוא רק דוגמה.',
+                hintHe: 'איזה משפט כללי ואיזה פרט צדדי?',
+              },
+              story: {
+                passageEn: 'A summary is short. It gives the main idea. It leaves out small details.',
+                passageHe: 'סיכום הוא קצר. הוא נותן את הרעיון המרכזי. הוא משמיט פרטים קטנים.',
+                questionEn: 'What does a summary leave out?',
+                questionHe: 'מה סיכום משמיט?',
+                correct: 'Small details.',
+                wrong: ['The main idea.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['expand', 'multiply'],
+                ['vague', 'confusing'],
+                ['essential', 'vital'],
+                ['length', 'format'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'A concise summary includes the main ideas and leaves out examples and unnecessary details.',
+              sentenceHe: 'סיכום תמציתי כולל את הרעיונות המרכזיים ומשמיט דוגמאות ופרטים מיותרים.',
+              decoys: ['yesterday', 'between'],
+              voiceEn: 'Good summaries are short and clear.',
+              voiceHe: 'סיכומים טובים הם קצרים וברורים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The article mainly discusses how sleep affects teenagers.',
+                wrong: [
+                  'The article mainly discuss how sleep affects teenagers.',
+                  'The article mainly discusses how does sleep affect teenagers.',
+                  'The article main discusses how sleep affects teenagers.',
+                ],
+                explainHe: 
+                  'הנושא the article דורש discusses; אחרי how במשפט עקיף משתמשים בסדר רגיל (sleep affects) ולא בשאלה; ו-mainly הוא תואר פועל.',
+                hintEn: 'Check the verb ending and the word order after how.',
+              },
+              story: {
+                passageEn: 
+                  'Last winter the town of Arad opened a repair cafe where residents bring broken toasters, lamps and bicycles. Volunteers fix what they can for free and teach owners how to do small repairs themselves. At first, the municipality worried that shops would lose business. Instead, hardware stores reported more customers buying screws and tools, and the cafe itself had a waiting list within two months.',
+                passageHe: '',
+                questionEn: 'What can we conclude about the repair cafe?',
+                questionHe: '',
+                correct: 'It became popular without harming local shops.',
+                wrong: [
+                  'It was closed after complaints from hardware stores.',
+                  'It only repaired broken toasters.',
+                  'It charged high prices for every repair.',
+                ],
+              },
+              storyHintEn: 'Compare the fears of the municipality with the results.',
+            },
           },
         },
       },
@@ -459,6 +769,67 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'אילו כישורים מפתחים המתנדבים, לפי המחקרים?',
             correct: 'Leadership skills and a stronger sense of responsibility.',
             wrong: ['Farming skills and a love of nature.', 'Language skills and better grades.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is the best summary of a story about a lost dog?',
+                correct: 'A boy finds his lost dog with the help of neighbours.',
+                wrong: ['The dog was brown and had a red collar.'],
+                explainHe: 'סיכום טוב מציג את העלילה המרכזית. תיאור של צבע ורצועה הוא פרט משני.',
+                hintHe: 'סיכום מספר מה קרה בגדול.',
+              },
+              story: {
+                passageEn: 
+                  'Keren read a long article. She wrote one sentence about it. The sentence gave the main idea.',
+                passageHe: 'קרן קראה מאמר ארוך. היא כתבה עליו משפט אחד. המשפט נתן את הרעיון המרכזי.',
+                questionEn: 'What did Keren write?',
+                questionHe: 'מה קרן כתבה?',
+                correct: 'One sentence.',
+                wrong: ['A long letter.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['souvenir', 'pension'],
+                ['forgive', 'assemble'],
+                ['confusing', 'jumbled'],
+                ['chemically', 'geographically'],
+              ],
+            },
+            master: {
+              sentenceEn: 'Before writing a summary read the passage twice and omit every minor example.',
+              sentenceHe: 'לפני כתיבת סיכום קראו את הקטע פעמיים והשמיטו כל דוגמה משנית.',
+              decoys: ['quickly', 'between'],
+              voiceEn: 'The gist is the central idea.',
+              voiceHe: 'התמצית היא הרעיון המרכזי.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'She omitted the examples because they were not essential to the main idea.',
+                wrong: [
+                  'She omit the examples because they were not essential to the main idea.',
+                  'She omitted the examples because they was not essential to the main idea.',
+                  'She omitted the examples because they were not essentially to the main idea.',
+                ],
+                explainHe: 
+                  'בעבר הפועל omitted, הנושא they דורש were, ואחרי were בא שם תואר (essential) ולא תואר פועל.',
+                hintEn: 'Check the tense, the verb be and the word essential.',
+              },
+              story: {
+                passageEn: 
+                  'The final exam question asked students to summarise a passage about a school garden in two sentences. Most students copied the first two sentences of the passage, which described the soil and the size of the garden. Shira read the whole text, noticed that the last paragraph explained how the garden taught pupils responsibility and reduced waste in the canteen, and wrote that as her summary. The examiner later told the class that the first sentences had been only background.',
+                passageHe: '',
+                questionEn: 'Why did the summary of Shira earn higher marks?',
+                questionHe: '',
+                correct: 'It captured the central message of the whole passage.',
+                wrong: [
+                  'It was copied from the beginning of the text.',
+                  'It described the soil and the size of the garden.',
+                  'It was the longest answer in the class.',
+                ],
+              },
+              storyHintEn: 'Where is the central message of a text?',
+            },
           },
         },
       },

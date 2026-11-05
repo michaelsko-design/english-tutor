@@ -11,6 +11,16 @@ import {
 } from '../utils/hints';
 import { hebrewTemplate } from '../utils/hebrewGender';
 import { getSentenceHintWords } from './wordGlosses';
+import { buildChallengerSteps } from './tierSteps/challengerSteps';
+import { buildExplorerSteps } from './tierSteps/explorerSteps';
+import { buildMasterSteps } from './tierSteps/masterSteps';
+import { createTierContext, type TierContext } from './tierSteps/shared';
+
+function buildTierSteps(tier: ProficiencyTier, ctx: TierContext): MissionExerciseStep[] {
+  if (tier === 'explorer') return buildExplorerSteps(ctx);
+  if (tier === 'challenger') return buildChallengerSteps(ctx);
+  return buildMasterSteps(ctx);
+}
 
 /**
  * Generates the 5-step mission for elementary missions (Grades 1–6) from the
@@ -27,8 +37,12 @@ import { getSentenceHintWords } from './wordGlosses';
 export function buildElementaryExercises(
   mission: MissionNode,
   tier: ProficiencyTier,
-  gender: LearnerGender = 'girl'
+  gender: LearnerGender = 'girl',
+  salt: number = 0
 ): MissionExerciseStep[] {
+  const tierContext = createTierContext(mission, gender, salt);
+  if (tierContext) return buildTierSteps(tier, tierContext);
+  // Missions whose tier seeds are not authored yet keep the older single-seed steps
   const he = hebrewTemplate(gender);
   const seed = mission.drillSeed;
   if (!seed) return [];

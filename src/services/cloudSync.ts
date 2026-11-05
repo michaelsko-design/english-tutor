@@ -1,3 +1,4 @@
+import { mergeTierStars } from '../data/tierProgress';
 import {
   deleteField,
   doc,
@@ -165,6 +166,7 @@ export function mergeLearnerProfiles(
     ? getLedgerBalance(resolvedLedger)
     : Math.max(local.stats?.diamonds || 0, cloud.stats?.diamonds || 0);
 
+  const resolvedTierStars = mergeTierStars(local.missionTierStars, cloud.missionTierStars);
   const resolvedRewardDates = mergeLatestDates(local.missionRewardDates, cloud.missionRewardDates);
   const resolvedVaultPractice = mergeVaultPractice(local.vaultPractice, cloud.vaultPractice);
 
@@ -215,6 +217,7 @@ export function mergeLearnerProfiles(
     ...(resolvedFriendsHub ? { friendsHub: resolvedFriendsHub } : {}),
     ...(resolvedActivityLog ? { activityLog: resolvedActivityLog } : {}),
     ...(resolvedLedger ? { diamondLedger: resolvedLedger } : {}),
+    ...(Object.keys(resolvedTierStars).length > 0 ? { missionTierStars: resolvedTierStars } : {}),
     ...(resolvedRewardDates ? { missionRewardDates: resolvedRewardDates } : {}),
     ...(resolvedVaultPractice ? { vaultPractice: resolvedVaultPractice } : {}),
     stats: {

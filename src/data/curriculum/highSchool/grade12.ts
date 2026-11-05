@@ -32,7 +32,7 @@ const units: HighSchoolUnitSpec[] = [
             'יתר על כן / נוסף על כך',
             '📚',
             'Moreover, group seminars enhance student communication skills.',
-            'יתר על כן, סמינרים קבוצתיים משפרים את מיומנויות התקשורת של התלמיד.',
+            'יתר על כן, סמינרים קבוצתיים משפרים את מיומנויות התקשורת של התלמידים.',
           ],
           [
             'perspective',
@@ -71,6 +71,69 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'By evaluating presentations, offering professional feedback, and recruiting talent.',
             wrong: ['By canceling final degree graduation ceremonies.', 'By writing all research papers for the students.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence adds one more good point? The app is free.',
+                correct: 'Furthermore, it is easy to use.',
+                wrong: ['However, it is easy to use.'],
+                explainHe: 
+                  'Furthermore מוסיף עוד נקודה באותו כיוון, ו-However מציג ניגוד. כאן הרעיון השני הוא עוד יתרון.',
+                hintHe: 'האם הרעיון השני מוסיף יתרון נוסף או מנוגד לראשון?',
+              },
+              story: {
+                passageEn: 
+                  'Noa loves her town library. It has free books. Moreover, it has quiet rooms for study.',
+                passageHe: 
+                  'נועה אוהבת את ספריית העיר שלה. יש בה ספרים בחינם. יתרה מזאת, יש בה חדרים שקטים ללמידה.',
+                questionEn: 'What does the library have for study?',
+                questionHe: 'מה יש בספרייה ללמידה?',
+                correct: 'Quiet rooms.',
+                wrong: ['Free pizza.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['whereas', 'albeit'],
+                ['thereby', 'whereby'],
+                ['deadline', 'ingredient'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Online courses are affordable and furthermore they give learners flexible schedules.',
+              sentenceHe: 'קורסים מקוונים הם במחיר סביר ויתרה מזאת הם נותנים ללומדים לוחות זמנים גמישים.',
+              decoys: ['nevertheless', 'despite'],
+              voiceEn: 'Reading widens our view of the world.',
+              voiceHe: 'קריאה מרחיבה את ההשקפה שלנו על העולם.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Libraries are free; furthermore, they offer quiet study rooms.',
+                wrong: [
+                  'Libraries are free, furthermore, they offer quiet study rooms.',
+                  'Libraries are free; furthermore, they offers quiet study rooms.',
+                  'Libraries are free; however, they also offer quiet study rooms.',
+                ],
+                explainHe: 
+                  'כששני משפטים שלמים מחוברים ב-furthermore, שמים נקודה-פסיק לפניו ופסיק אחריו. כדאי לבדוק גם את הפועל (they offer) ואת משמעות מילת הקישור: להוספה furthermore, לניגוד however.',
+                hintEn: 'Check the punctuation, the verb form and the linking word.',
+              },
+              story: {
+                passageEn: 
+                  'Every spring Dana visits the small library near her school. Her friends prefer the new shopping mall, because it has a cinema and many cafes. Dana, in contrast, enjoys the silence of the reading hall. Last month she borrowed a thick book about ancient cities, and she finished it in three days. The next week her history teacher asked who could describe the old harbour of Caesarea. Dana raised her hand before anyone else, and her classmates turned to look at her in surprise.',
+                passageHe: '',
+                questionEn: 'Why were her classmates surprised?',
+                questionHe: '',
+                correct: 'They did not expect her to know about the harbour.',
+                wrong: [
+                  'Her friends had already answered the question before her.',
+                  'The teacher had asked about the shopping mall instead.',
+                  'She had borrowed the book only a few minutes earlier.',
+                ],
+              },
+              storyHintEn: 'Think about what her friends usually do.',
+            },
+          },
         },
       },
       {
@@ -98,7 +161,7 @@ const units: HighSchoolUnitSpec[] = [
             'מהותי / ניכר / בעל ערך רב',
             '💎',
             'The research team made substantial progress this semester.',
-            'צוות המחקר עשה התקדמות ניכרת בסמסטר זה.',
+            'צוות המחקר רשם התקדמות ניכרת בסמסטר זה.',
           ],
           [
             'yield',
@@ -136,6 +199,66 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'מה הייתה התוצאה הישירה של הפחתת בזבוז המים ב-34%?',
             correct: 'Regional water tariffs were substantially reduced for local farmers.',
             wrong: ['Farmers abandoned their agricultural land.', 'The satellite was permanently deactivated.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is punctuated correctly?',
+                correct: 'The road was closed; consequently, we stayed home.',
+                wrong: ['The road was closed consequently we stayed home.'],
+                explainHe: 'לפני consequently בין שני משפטים שלמים באה נקודה-פסיק, ואחריו פסיק.',
+                hintHe: 'איזה סימן מפריד בין שני משפטים שלמים לפני מילת התוצאה?',
+              },
+              story: {
+                passageEn: 
+                  'Yael studied every night. She passed the exam. Therefore, her parents were proud.',
+                passageHe: 'יעל למדה בכל לילה. היא עברה את המבחן. לכן ההורים שלה היו גאים.',
+                questionEn: 'Why were her parents proud?',
+                questionHe: 'למה ההורים שלה היו גאים?',
+                correct: 'Yael passed the exam.',
+                wrong: ['Yael lost her book.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['albeit', 'scarcely'],
+                ['hostile', 'spacious'],
+                ['soothe', 'restrain'],
+              ],
+            },
+            master: {
+              sentenceEn: 'The factory reduced its waste and therefore the river became much cleaner.',
+              sentenceHe: 'המפעל צמצם את הפסולת שלו ולכן הנהר נעשה נקי הרבה יותר.',
+              decoys: ['although', 'despite'],
+              voiceEn: 'Careful planning produces excellent final results.',
+              voiceHe: 'תכנון קפדני מניב תוצאות סופיות מצוינות.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The tickets sold out; therefore, the concert was moved to a bigger hall.',
+                wrong: [
+                  'The tickets sold out, therefore the concert was moved to a bigger hall.',
+                  'The tickets sold out therefore, the concert was moved to a bigger hall.',
+                  'The tickets sold out; however, the concert was moved to a bigger hall.',
+                ],
+                explainHe: 
+                  'לפני therefore בין שני משפטים שלמים באה נקודה-פסיק ואחריו פסיק. כדאי גם לוודא שמילת הקישור מתאימה: however מציג ניגוד, לא תוצאה.',
+                hintEn: 'Look at the mark before the linking word and its meaning.',
+              },
+              story: {
+                passageEn: 
+                  'The small town of Neve Ilan relied on a single bakery. When the owner fell ill the shop closed for two months. Many residents began buying bread from a supermarket twenty kilometres away. Meanwhile, the local council received dozens of letters from worried families. In the end, three young bakers from the city offered to run the shop together, and the council agreed to lower their rent for the first year.',
+                passageHe: '',
+                questionEn: 'Why did the council lower the rent?',
+                questionHe: '',
+                correct: 'It hoped to encourage the new bakers to reopen the shop.',
+                wrong: [
+                  'It wanted the supermarket to attract more customers.',
+                  'The former owner had demanded a smaller building.',
+                  'The families had refused to buy bread from anyone.',
+                ],
+              },
+              storyHintEn: 'Ask what the council wanted for the town.',
+            },
           },
         },
       },
@@ -203,6 +326,69 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'כיצד התייחס אלוף הדיבייט למבקרי הוראת התכנות?',
             correct: 'By affirming the value of the arts while emphasizing computing as an analytic necessity.',
             wrong: ['By demanding the immediate abolition of all literature classes.', 'By claiming computers will eliminate all human art forever.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence admits a point before disagreeing?',
+                correct: 'Although exams are stressful, they teach discipline.',
+                wrong: ['Moreover exams are stressful, they teach discipline.'],
+                explainHe: 
+                  'Although פותח ויתור: מודים בנקודה אחת ואז מציגים את הטיעון שלנו. Moreover רק מוסיף רעיון ואינו מציג ויתור.',
+                hintHe: 'איזו מילה מתחילה הודאה בנקודה של הצד השני?',
+              },
+              story: {
+                passageEn: 
+                  'Tom joined the school debate team. First, he felt nervous. Then he practised every day, and now he speaks well.',
+                passageHe: 
+                  'תום הצטרף לקבוצת הדיבייט של בית הספר. בהתחלה הוא היה לחוץ. אחר כך הוא התאמן כל יום, ועכשיו הוא מדבר היטב.',
+                questionEn: 'What did Tom do every day?',
+                questionHe: 'מה תום עשה כל יום?',
+                correct: 'He practised.',
+                wrong: ['He cooked dinner.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['undermine', 'discourage'],
+                ['ancient', 'prehistoric'],
+                ['souvenir', 'rumor'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'While online lessons are convenient the classroom still builds stronger friendships among students.',
+              sentenceHe: 'בעוד ששיעורים מקוונים נוחים הכיתה עדיין בונה חברויות חזקות יותר בין התלמידים.',
+              decoys: ['because', 'therefore'],
+              voiceEn: 'Debate teaches students to respect other opinions.',
+              voiceHe: 'דיבייט מלמד תלמידים לכבד דעות אחרות.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Although the debate was long, the audience stayed until the end.',
+                wrong: [
+                  'Although the debate was long, but the audience stayed until the end.',
+                  'Despite the debate was long, the audience stayed until the end.',
+                  'Although the debate was long, the audience staying until the end.',
+                ],
+                explainHe: 
+                  'Although פותח משפט משנה עם נושא ופועל, ואין להוסיף but במשפט הראשי. אחרי despite בא שם עצם ולא משפט, והמשפט הראשי צריך פועל מלא.',
+                hintEn: 'Check the linking word and the verb in the main clause.',
+              },
+              story: {
+                passageEn: 
+                  'Maya was chosen to argue for a phone ban in her school. Her teacher expected a long list of screen dangers, since Maya often complained about the gaming of her brother. Instead, she opened with a surprising sentence: phones can be useful tools. She admitted that students sometimes research and learn with them. Nevertheless, she argued, a full day without notifications would improve concentration far more. The judges wrote down her opening remark and later gave her the highest score for balance.',
+                passageHe: '',
+                questionEn: 'Why did the judges give her the highest score for balance?',
+                questionHe: '',
+                correct: 'She recognised the other side before presenting her own view.',
+                wrong: [
+                  'She agreed with the opposing team on every point.',
+                  'She avoided mentioning phones during her speech.',
+                  'She listed only the dangers of screens as expected.',
+                ],
+              },
+              storyHintEn: 'Notice how she began her speech.',
+            },
           },
         },
       },
@@ -278,6 +464,69 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'They earn significantly higher marks in communicative effectiveness.',
             wrong: ['They are penalized for being overly concise.', 'They force the examiner to deduct points for grammar.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is a clear opinion?',
+                correct: 'I believe schools should start later.',
+                wrong: ['Schools are buildings with many rooms.'],
+                explainHe: 
+                  'משפט עמדה אומר מה הכותב חושב, למשל I believe ... should .... משפט עובדתי רגיל אינו עמדה.',
+                hintHe: 'איזה משפט מראה מה הכותב חושב?',
+              },
+              story: {
+                passageEn: 
+                  'Eli wrote an essay about recycling. His first sentence said that all schools should recycle. Then he gave three reasons.',
+                passageHe: 
+                  'אלי כתב חיבור על מחזור. המשפט הראשון שלו אמר שכל בתי הספר צריכים למחזר. אחר כך הוא נתן שלושה נימוקים.',
+                questionEn: 'What did Eli write about?',
+                questionHe: 'על מה אלי כתב?',
+                correct: 'Recycling.',
+                wrong: ['Football.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['dismantle', 'exhaust'],
+                ['fragrant', 'slippery'],
+                ['hereditary', 'nutritious'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Many teachers strongly believe that volunteering should become a required part of school life.',
+              sentenceHe: 'מורים רבים מאמינים בתוקף שהתנדבות צריכה להפוך לחלק חובה בחיי בית הספר.',
+              decoys: ['optional', 'rarely'],
+              voiceEn: 'I advocate a healthier school lunch menu.',
+              voiceHe: 'אני מצדד/ת בתפריט ארוחות צהריים בריא יותר בבית הספר.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'In my opinion, public libraries should remain free for every citizen.',
+                wrong: [
+                  'In my opinion, public libraries should remains free for every citizen.',
+                  'In my opinion public libraries should to remain free for every citizen.',
+                  'In my opinion, public libraries must be remain free for every citizen.',
+                ],
+                explainHe: 
+                  'אחרי should בא פועל בצורת שורש: בלי s, בלי to ובלי פועל נוסף. כך מנסחים משפט עמדה ברור.',
+                hintEn: 'Look at the verb after should.',
+              },
+              story: {
+                passageEn: 
+                  'Noga stared at the blank page for ten minutes. The exam question asked whether schools should ban sweet drinks, and her mind was full of ideas but none seemed organised. Then she remembered the advice of her teacher and wrote one sentence: schools should ban sweet drinks because they harm health, concentration and the budget. Suddenly, her three paragraphs almost wrote themselves, and she finished with five minutes to spare.',
+                passageHe: '',
+                questionEn: 'Why did the paragraphs almost write themselves?',
+                questionHe: '',
+                correct: 'The opening sentence gave her a clear plan to follow.',
+                wrong: [
+                  'Her teacher wrote the whole essay for her.',
+                  'The question had been changed at the last minute.',
+                  'She copied the ideas from the student next to her.',
+                ],
+              },
+              storyHintEn: 'What did Noga write first?',
+            },
+          },
         },
       },
       {
@@ -343,6 +592,68 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'כיצד הפריכה התלמידה ביעילות את טענת הנגד בנוגע לנסיעות ההורים?',
             correct: 'By showing that well-rested adolescent drivers cause fewer traffic accidents for everyone.',
             wrong: ['By demanding parents resign from their jobs immediately.', 'By suggesting schools abolish morning classes permanently.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Despite the rain, we played outside.',
+                wrong: ['Despite it rained, we played outside.'],
+                explainHe: 'אחרי despite בא שם עצם (the rain) ולא משפט עם נושא ופועל.',
+                hintHe: 'מה בא אחרי despite: שם עצם או משפט שלם?',
+              },
+              story: {
+                passageEn: 
+                  'Some students like uniforms. Others do not. Dina thinks uniforms are fine, although she wants more colours.',
+                passageHe: 
+                  'חלק מהתלמידים אוהבים תלבושת אחידה. אחרים לא. דינה חושבת שתלבושת אחידה בסדר, אף על פי שהיא רוצה יותר צבעים.',
+                questionEn: 'What does Dina want?',
+                questionHe: 'מה דינה רוצה?',
+                correct: 'More colours.',
+                wrong: ['No uniforms at all.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['recession', 'vacancy'],
+                ['lecture', 'sculpture'],
+                ['reluctantly', 'nervously'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Despite the strong objections of parents the school decided to extend the school day.',
+              sentenceHe: 'למרות ההתנגדות החזקה של ההורים בית הספר החליט להאריך את יום הלימודים.',
+              decoys: ['although', 'because'],
+              voiceEn: 'Critics may disagree but the facts remain.',
+              voiceHe: 'מבקרים עשויים לא להסכים אך העובדות נשארות.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Although many people disagree, the new law is clearly beneficial.',
+                wrong: [
+                  'Although many people disagree, but the new law is clearly beneficial.',
+                  'Despite many people disagree, the new law is clearly beneficial.',
+                  'Although many people disagreement, the new law is clearly beneficial.',
+                ],
+                explainHe: 
+                  'Although פותח משפט שלם עם נושא ופועל ואינו מצריך but; אחרי despite בא שם עצם. כדאי לבדוק גם שיש פועל במשפט המשנה.',
+                hintEn: 'Check which structure follows the linking word.',
+              },
+              story: {
+                passageEn: 
+                  'Itay wanted the cafeteria to stop selling sugary snacks. At the council meeting, a classmate answered that students would simply buy sweets outside the school gates. Itay nodded and replied that this might happen at first. However, he pointed out that a nearby school had tried the same plan and, after one year, fewer students bought sweets at all. Even the classmate who disagreed asked to see the figures.',
+                passageHe: '',
+                questionEn: 'What made the classmate ask to see the figures?',
+                questionHe: '',
+                correct: 'Itay supported his reply with evidence from another school.',
+                wrong: [
+                  'Itay refused to listen to any objection.',
+                  'The council had already cancelled the rule.',
+                  'The classmate wanted to sell sweets outside school.',
+                ],
+              },
+              storyHintEn: 'Which example did Itay mention?',
+            },
           },
         },
       },
@@ -410,6 +721,69 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'איזו המלצה סופית הפכה את סיכום חיבור המודל לחד ומוצלח?',
             correct: 'Advocating for a balanced hybrid flexibility rather than extreme opposites.',
             wrong: ['Demanding the total closure of all corporate enterprises.', 'Insisting workers return to strict forty-hour physical weeks.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is best for a conclusion?',
+                correct: 'In conclusion, school sports are good for everyone.',
+                wrong: ['For example, my cousin plays football on Fridays.'],
+                explainHe: 
+                  'המסקנה מסכמת את העמדה בקצרה, למשל In conclusion. דוגמה אישית שייכת לגוף החיבור.',
+                hintHe: 'איזה משפט מסכם את העמדה ואיזה נותן רק דוגמה?',
+              },
+              story: {
+                passageEn: 
+                  'Roni wrote a short essay. First she gave her opinion. At the end, she wrote one sentence to sum it up.',
+                passageHe: 'רוני כתבה חיבור קצר. קודם היא כתבה את דעתה. בסוף היא כתבה משפט אחד שמסכם הכול.',
+                questionEn: 'What did Roni write at the end?',
+                questionHe: 'מה רוני כתבה בסוף?',
+                correct: 'A sentence to sum it up.',
+                wrong: ['A new story.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['gossip', 'nostalgia'],
+                ['hereditary', 'ceremonial'],
+                ['punish', 'deprive'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'In conclusion schools must balance creative freedom with strict academic standards for every student.',
+              sentenceHe: 
+                'לסיכום בתי ספר חייבים לאזן בין חופש יצירתי לבין סטנדרטים אקדמיים מחמירים לכל תלמיד.',
+              decoys: ['although', 'rarely'],
+              voiceEn: 'Good essays end with a clear conclusion.',
+              voiceHe: 'חיבורים טובים מסתיימים במסקנה ברורה.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'To sum up, we should invest in education because it benefits everyone.',
+                wrong: [
+                  'To sum up, we should invest in education because it benefit everyone.',
+                  'To sum up, we should investing in education because it benefits everyone.',
+                  'To sum up, we should invest in education because of it benefits everyone.',
+                ],
+                explainHe: 
+                  'אחרי should בא פועל בצורת שורש, אחרי because בא משפט עם פועל שמתאים לנושא (it benefits), ו-because of בא לפני שם עצם.',
+                hintEn: 'Check the verbs and the words before it benefits.',
+              },
+              story: {
+                passageEn: 
+                  'Mr Cohen collected the essays on Sunday. Most students ended with the same sentence: there are many opinions about this topic. Only Yarden wrote that schools should add an hour of art every week and that this small change would help students think more freely. Mr Cohen smiled, put her essay on top of the pile, and wrote the word Convincing next to the final paragraph.',
+                passageHe: '',
+                questionEn: 'Why did Mr Cohen write Convincing next to the last paragraph?',
+                questionHe: '',
+                correct: 'Her ending took a clear position and gave a reason.',
+                wrong: [
+                  'Her ending was the same as everyone else.',
+                  'Her essay was the shortest in the pile.',
+                  'Her ending asked the teacher a question.',
+                ],
+              },
+              storyHintEn: 'Compare her ending with the others.',
+            },
           },
         },
       },
@@ -482,6 +856,68 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'Skeptical and critical due to the absence of scientific peer-reviewed evidence.',
             wrong: ['Enthusiastic and recommending immediate government subsidies.', 'Fascinated and buying headsets for all his university staff.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'A writer says: "I do not believe this promise." What is the tone?',
+                correct: 'Doubtful and critical',
+                wrong: ['Happy and proud'],
+                explainHe: 'כשהכותב אומר שהוא אינו מאמין להבטחה, הטון שלו ספקני וביקורתי.',
+                hintHe: 'מי שלא מאמין להבטחה: איזה טון הוא משמיע?',
+              },
+              story: {
+                passageEn: 
+                  'The ad says that a pill makes you smart in one day. Ben reads it and laughs. He does not believe it.',
+                passageHe: 
+                  'המודעה אומרת שכדור הופך אותך לחכם ביום אחד. בן קורא אותה וצוחק. הוא לא מאמין לזה.',
+                questionEn: 'Does Ben believe the ad?',
+                questionHe: 'האם בן מאמין למודעה?',
+                correct: 'No, he does not.',
+                wrong: ['Yes, he does.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['sluggish', 'nutritious'],
+                ['hospitable', 'punctual'],
+                ['vocal', 'ornamental'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'The author sounds doubtful because he describes the so called miracle cure with obvious irony.',
+              sentenceHe: 'הכותב נשמע מפקפק כי הוא מתאר את תרופת הפלא כביכול באירוניה ברורה.',
+              decoys: ['quickly', 'under'],
+              voiceEn: 'The writer sounds critical of the plan.',
+              voiceHe: 'הכותב נשמע ביקורתי כלפי התוכנית.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The writer seems skeptical because he gives no evidence for his claims.',
+                wrong: [
+                  'The writer seem skeptical because he gives no evidence for his claims.',
+                  'The writer seems skeptically because he gives no evidence for his claims.',
+                  'The writer seems skeptical because he gives no evidences for his claims.',
+                ],
+                explainHe: 
+                  'הנושא the writer דורש seems, אחרי seems בא שם תואר (skeptical) ולא תואר פועל, ו-evidence הוא שם עצם שאינו ניתן לספירה, ולכן אין evidences.',
+                hintEn: 'Check the verb ending, the word after seems and the noun.',
+              },
+              story: {
+                passageEn: 
+                  'Dr Rosen wrote a review of a new documentary about electric cars. She praised the beautiful photography and admitted the director had worked hard. Yet she noted that the film never mentions the cost of batteries, the mining needed to make them, or the electricity that comes from coal. Her final line read: it is an excellent advertisement, but we should not mistake an advertisement for an investigation.',
+                passageHe: '',
+                questionEn: 'What is the attitude of Dr Rosen toward the documentary?',
+                questionHe: '',
+                correct: 'Respectful but critical, because important facts are missing.',
+                wrong: [
+                  'Completely enthusiastic, because the photography was beautiful.',
+                  'Indifferent, because she did not watch the whole film.',
+                  'Angry, because the director wasted a lot of money.',
+                ],
+              },
+              storyHintEn: 'Look at her final line.',
+            },
+          },
         },
       },
       {
@@ -548,6 +984,68 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'Beavers and vegetation stabilized riverbanks and reduced soil erosion.',
             wrong: ['The river dried up and transformed into arid desert.', 'All bird populations migrated away permanently.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'To answer a question about two paragraphs, what should you do?',
+                correct: 'Connect ideas from both paragraphs.',
+                wrong: ['Read only the first paragraph.'],
+                explainHe: 'שאלת סינתזה דורשת לחבר בין פרטים משתי הפסקאות, ולא להסתמך על אחת מהן בלבד.',
+                hintHe: 'כשיש שתי פסקאות בשאלה, כדאי להשתמש בשתיהן.',
+              },
+              story: {
+                passageEn: 
+                  'Rain fell in the hills. Then the river grew big. The farmers moved their sheep away.',
+                passageHe: 'גשם ירד בגבעות. אחר כך הנהר גדל. החקלאים הרחיקו את הכבשים שלהם.',
+                questionEn: 'Why did the farmers move their sheep?',
+                questionHe: 'למה החקלאים הרחיקו את הכבשים?',
+                correct: 'The river grew big.',
+                wrong: ['The sheep were sick.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['ornamental', 'alphabetical'],
+                ['monetary', 'linguistic'],
+                ['resignation', 'recreation'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Small changes in one habitat can create unexpected effects across the whole ecological system.',
+              sentenceHe: 
+                'שינויים קטנים בבית גידול אחד יכולים ליצור השפעות בלתי צפויות על כל המערכת האקולוגית.',
+              decoys: ['although', 'nearly'],
+              voiceEn: 'One event can cause many other changes.',
+              voiceHe: 'אירוע אחד יכול לגרום להרבה שינויים אחרים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The drought reduced the harvest; as a result, food prices rose sharply.',
+                wrong: [
+                  'The drought reduced the harvest as a result, food prices rose sharply.',
+                  'The drought reduced the harvest; as a result, food prices risen sharply.',
+                  'The drought reduced the harvest; as a result food prices raised sharply.',
+                ],
+                explainHe: 
+                  'לפני as a result בין שני משפטים שלמים באה נקודה-פסיק. בנוסף, rose היא צורת העבר של rise (פועל שאינו מקבל מושא), ואילו risen דורש have.',
+                hintEn: 'Check the punctuation and the form of the verb rise.',
+              },
+              story: {
+                passageEn: 
+                  'When the city council closed the old canal to build a parking lot, nobody worried about the fish. A year later the herons that fed on those fish had moved to a park three kilometres away. Residents who used to photograph the birds from the bridge stopped visiting, and the small cafe beside the canal lost half of its customers. This spring, the owner started a petition asking the council to reopen the water.',
+                passageHe: '',
+                questionEn: 'Why did the cafe owner start the petition?',
+                questionHe: '',
+                correct: 'The closure of the canal had indirectly damaged his business.',
+                wrong: [
+                  'He wanted to build a bigger parking lot.',
+                  'The herons had asked him to reopen the canal.',
+                  'The council had offered to buy his cafe.',
+                ],
+              },
+              storyHintEn: 'Follow the chain from fish to birds to customers.',
+            },
+          },
         },
       },
       {
@@ -560,7 +1058,7 @@ const units: HighSchoolUnitSpec[] = [
         grammarTopic: 'Module G Full Unseen Synthesis & Academic Vocabulary',
         skills: ['Module G Excellence', 'Academic Synthesis', 'High-Stakes Unseen'],
         sentenceEn: 'The investigative report revealed that urban green spaces yield profound mental and economic dividends.',
-        sentenceHe: 'דו״ח החקירה חשף ששטחים ירוקים עירוניים מניבים דיבידנדים נפשיים וכלכליים עמוקים.',
+        sentenceHe: 'דו״ח התחקיר חשף ששטחים ירוקים עירוניים מניבים רווחים נפשיים וכלכליים משמעותיים.',
         vocab: [
           [
             'dividend',
@@ -614,6 +1112,69 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'איזו תשואה כלכלית ניתנת למדידה הניבה תחזוקת העצים העירונית?',
             correct: 'Six dollars in savings for every single dollar spent on maintenance.',
             wrong: ['No economic benefit was recorded in healthcare budgets.', 'Cities lost municipal revenues due to fallen leaves.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'What does "justify your answer" ask you to do?',
+                correct: 'Give a reason from the text.',
+                wrong: ['Give your favorite colour.'],
+                explainHe: 'Justify your answer פירושו לנמק בעזרת הטקסט: לצטט או לנסח מחדש משפט רלוונטי.',
+                hintHe: 'נימוק בבגרות מגיע מתוך הטקסט.',
+              },
+              story: {
+                passageEn: 
+                  'A new park opened in the city. Many people walk there after work. They say they feel calm.',
+                passageHe: 
+                  'פארק חדש נפתח בעיר. אנשים רבים מטיילים בו אחרי העבודה. הם אומרים שהם מרגישים רגועים.',
+                questionEn: 'How do people feel in the park?',
+                questionHe: 'איך אנשים מרגישים בפארק?',
+                correct: 'They feel calm.',
+                wrong: ['They feel angry.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['verdict', 'trophy'],
+                ['celestial', 'mythical'],
+                ['demolish', 'evacuate'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Careful investment in public parks can revitalize entire neighbourhoods and improve resident health.',
+              sentenceHe: 
+                'השקעה זהירה בפארקים ציבוריים יכולה להפיח חיים בשכונות שלמות ולשפר את בריאות התושבים.',
+              decoys: ['demolish', 'however'],
+              voiceEn: 'The report shows clear economic benefits.',
+              voiceHe: 'הדוח מראה יתרונות כלכליים ברורים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'According to the report, green spaces reduce stress among city residents.',
+                wrong: [
+                  'According the report, green spaces reduce stress among city residents.',
+                  'According to the report, green spaces reduces stress among city residents.',
+                  'According to the report, green spaces reduce stress between city residents.',
+                ],
+                explainHe: 
+                  'הביטוי הנכון הוא according to. הנושא green spaces הוא רבים ולכן reduce בלי s, ו-among מתאים לקבוצה גדולה (תושבי העיר).',
+                hintEn: 'Check the small words and the verb ending.',
+              },
+              story: {
+                passageEn: 
+                  'A metropolitan council in northern Europe replaced a noisy motorway with a long, shaded promenade. Critics warned that traffic would collapse and that shops would lose customers. Two years later, bus journeys took only five minutes longer, while the number of pedestrians had tripled. The local newspaper reported that rents on the promenade had risen, and that a chain of supermarkets had asked to open three new branches there.',
+                passageHe: '',
+                questionEn: 'What does the rise in rents suggest?',
+                questionHe: '',
+                correct: 'The area had become more attractive to businesses.',
+                wrong: [
+                  'The shops on the promenade were failing.',
+                  'Traffic had become much worse than before.',
+                  'Pedestrians no longer wanted to visit.',
+                ],
+              },
+              storyHintEn: 'Why would businesses agree to pay more?',
+            },
           },
         },
       },
@@ -689,6 +1250,67 @@ const units: HighSchoolUnitSpec[] = [
             correct: 'Emotional intelligence, cross-cultural empathy, and intellectual adaptability.',
             wrong: ['The willingness to work without any digital technology.', 'Strict memorization of corporate rulebooks only.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Not only does Ben swim, but he also runs.',
+                wrong: ['Not only Ben swims, but he also runs.'],
+                explainHe: 'אחרי Not only בתחילת משפט משתמשים בהיפוך כמו בשאלה: פועל עזר לפני הנושא (למשל: does Ben swim).',
+                hintHe: 'אחרי Not only בא פועל עזר לפני הנושא.',
+              },
+              story: {
+                passageEn: 
+                  'Lia studies English and Spanish. She wants to work in other countries. She practises every evening.',
+                passageHe: 'ליה לומדת אנגלית וספרדית. היא רוצה לעבוד במדינות אחרות. היא מתרגלת בכל ערב.',
+                questionEn: 'When does Lia practise?',
+                questionHe: 'מתי ליה מתרגלת?',
+                correct: 'Every evening.',
+                wrong: ['Every morning.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['monotony', 'nostalgia'],
+                ['erase', 'squander'],
+                ['sympathy', 'hesitation'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Not only do employers value technical skills but they also look for adaptability and teamwork.',
+              sentenceHe: 'לא רק שמעסיקים מעריכים כישורים טכניים, אלא שהם גם מחפשים יכולת הסתגלות ועבודת צוות.',
+              decoys: ['does', 'nothing'],
+              voiceEn: 'Learning never stops in a modern career.',
+              voiceHe: 'הלמידה אף פעם לא נפסקת בקריירה מודרנית.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Not only did the company hire graduates, but it also trained them.',
+                wrong: [
+                  'Not only the company hired graduates, but it also trained them.',
+                  'Not only did the company hired graduates, but it also trained them.',
+                  'Not only did the company hire graduates, but also it trained them.',
+                ],
+                explainHe: 
+                  'אחרי Not only בתחילת משפט בא פועל עזר לפני הנושא (did the company), ואחריו הפועל בצורת שורש (hire). גם סדר המילים אחרי but נשמר: but it also trained.',
+                hintEn: 'Check the order of words and the verb form after did.',
+              },
+              story: {
+                passageEn: 
+                  'At the age of thirty-five, Hadas lost her job when the printing company she worked for closed. Her friends advised her to look for another printing company, but she signed up for an evening course in web design instead. For a year she worked in a cafe during the day and studied at night. Now she designs websites for three international firms, and last month she was invited to train new employees at one of them.',
+                passageHe: '',
+                questionEn: 'What does the story suggest about Hadas?',
+                questionHe: '',
+                correct: 'She was willing to learn new skills when circumstances changed.',
+                wrong: [
+                  'She was unable to find any work outside the printing business.',
+                  'She refused to accept any advice from her old friends.',
+                  'She disliked every kind of modern technology and training.',
+                ],
+              },
+              storyHintEn: 'Think about how she reacted to losing her job.',
+            },
+          },
         },
       },
       {
@@ -700,7 +1322,7 @@ const units: HighSchoolUnitSpec[] = [
         grammarTopic: 'Formal Register & Discourse in Professional Negotiations',
         skills: ['Formal Register', 'Leadership Ethics', 'Negotiation English'],
         sentenceEn: 'Ethical leaders demonstrate personal integrity when navigating high-stakes business negotiations.',
-        sentenceHe: 'מנהיגים מוסריים מפגינים יושרה אישית בעת ניהול משא ומתן עסקי בעל הימור גבוה.',
+        sentenceHe: 'מנהיגים מוסריים מפגינים יושרה אישית בעת ניהול משא ומתן עסקי עתיר סיכונים.',
         vocab: [
           [
             'integrity',
@@ -754,6 +1376,68 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'מה הפגינה המהנדסת בעצירת ייצור הטורבינות?',
             correct: 'Unyielding professional integrity prioritizing human safety over commercial speed.',
             wrong: ['A total lack of interest in corporate engineering.', 'A desire to sabotage her company\'s reputation.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is more formal?',
+                correct: 'I would like to ask about the job.',
+                wrong: ['Wanna ask about the job?'],
+                explainHe: 
+                  'במשלב פורמלי משתמשים בביטויים מלאים ומנומסים כמו I would like to, ולא בקיצורי דיבור.',
+                hintHe: 'משלב רשמי הוא מלא ומנומס.',
+              },
+              story: {
+                passageEn: 
+                  'Mia found a wallet on the bus. She did not keep the money. She gave it to the driver.',
+                passageHe: 'מיה מצאה ארנק באוטובוס. היא לא לקחה את הכסף. היא נתנה אותו לנהג.',
+                questionEn: 'What did Mia do with the wallet?',
+                questionHe: 'מה מיה עשתה עם הארנק?',
+                correct: 'She gave it to the driver.',
+                wrong: ['She kept the money.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['arrogance', 'suspicion'],
+                ['blueprint', 'souvenir'],
+                ['lunar', 'sluggish'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Trustworthy managers remain honest during difficult negotiations and respect every member of the team.',
+              sentenceHe: 'מנהלים אמינים נשארים ישרים במהלך משא ומתן קשה ומכבדים כל חבר בצוות.',
+              decoys: ['hey', 'whereas'],
+              voiceEn: 'Honest leaders earn lasting respect from others.',
+              voiceHe: 'מנהיגים ישרים זוכים לכבוד מתמשך מאחרים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'I would be grateful if you could send me the details.',
+                wrong: [
+                  'I would be grateful if you can send me the details.',
+                  'I would be grateful if you could to send me the details.',
+                  'I would grateful if you could send me the details.',
+                ],
+                explainHe: 
+                  'בבקשה פורמלית משתמשים ב-I would be grateful if you could + פועל בצורת שורש. חשוב לא לשכוח את be, ולא להוסיף to אחרי could.',
+                hintEn: 'Check the polite request pattern word by word.',
+              },
+              story: {
+                passageEn: 
+                  'Before the contract signing, the director of a small software firm discovered that the offer of a rival company was ten percent lower than his own. His assistant suggested quietly raising the quality claims in the proposal to compensate. The director thought for a moment, then asked her to delete the idea and to print the original document. He lost the contract, but three months later the same client returned, saying it had heard that his firm never exaggerated.',
+                passageHe: '',
+                questionEn: 'Why did the client return?',
+                questionHe: '',
+                correct: 'It trusted the firm because of its honest reputation.',
+                wrong: [
+                  'It wanted a cheaper offer than before.',
+                  'The rival company had refused to sign.',
+                  'The director had raised the quality claims.',
+                ],
+              },
+              storyHintEn: 'What did the client hear about the firm?',
+            },
           },
         },
       },
@@ -821,6 +1505,66 @@ const units: HighSchoolUnitSpec[] = [
             questionHe: 'על איזה מסע כולל הרהרו הבוגרים במהלך טקס הסיום?',
             correct: 'From elementary phonics foundations to sophisticated literary analysis, debate, and global fluency.',
             wrong: ['A rapid two-week crash course with no academic challenges.', 'A strictly physical sports training camp without academic studies.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Graduates aspire to study abroad.',
+                wrong: ['Graduates aspire study abroad.'],
+                explainHe: 'אחרי aspire בא to ואחריו פועל בצורת שורש: aspire to study.',
+                hintHe: 'בדקו איזו מילה קטנה חסרה אחרי aspire.',
+              },
+              story: {
+                passageEn: 
+                  'Tomer finished school today. His family came to the ceremony. He felt proud and happy.',
+                passageHe: 'תומר סיים היום את בית הספר. המשפחה שלו הגיעה לטקס. הוא הרגיש גאה ושמח.',
+                questionEn: 'How did Tomer feel?',
+                questionHe: 'איך תומר הרגיש?',
+                correct: 'Proud and happy.',
+                wrong: ['Tired and angry.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['vanish', 'tremble'],
+                ['ignorance', 'vagueness'],
+                ['disaster', 'scandal'],
+              ],
+            },
+            master: {
+              sentenceEn: 'The graduates celebrated their triumph and aspired to even greater goals.',
+              sentenceHe: 'הבוגרים חגגו את ניצחונם ושאפו להשיג מטרות גדולות עוד יותר.',
+              decoys: ['although', 'between'],
+              voiceEn: 'Mastery requires years of patient practice.',
+              voiceHe: 'שליטה דורשת שנים של תרגול סבלני.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Having completed her exams, she aspired to become a doctor.',
+                wrong: [
+                  'Having completed her exams, she aspired become a doctor.',
+                  'Having completing her exams, she aspired to become a doctor.',
+                  'Having completed her exams, she aspire to become a doctor.',
+                ],
+                explainHe: 
+                  'aspire to + פועל בצורת שורש; Having + V3 מתאר פעולה שהסתיימה לפני כן; ובמשפט בעבר הפועל aspired.',
+                hintEn: 'Check the verb forms and the word to.',
+              },
+              story: {
+                passageEn: 
+                  'On the last day of school, Oren found an old notebook in his locker. On the first page, written in twelve-year-old handwriting, was a list titled Things I Will Never Do. The list included speaking in front of the class, learning English properly, and leaving home to study. Oren smiled quietly, because that morning he had given the farewell speech in English, and next month he would fly abroad for university.',
+                passageHe: '',
+                questionEn: 'Why did Oren smile?',
+                questionHe: '',
+                correct: 'He had accomplished everything he once believed was impossible.',
+                wrong: [
+                  'The notebook contained his best exam answers.',
+                  'He was afraid of the speech he had to give.',
+                  'His teacher had written the list for him.',
+                ],
+              },
+              storyHintEn: 'Compare the old list with what happened today.',
+            },
           },
         },
       },

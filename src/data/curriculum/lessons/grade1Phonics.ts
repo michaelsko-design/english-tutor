@@ -91,7 +91,7 @@ export const GRADE_1_PHONICS_LESSONS: LessonPack = {
     tryWord: 'van',
     tryEmoji: '🚐',
     wrongEmoji: '🐷',
-    tryHe: 'טנדר',
+    tryHe: 'מסחרית',
   }),
   'g1-u15-m2': blendLesson({
     titleHe: 'מחברים אותיות: i ו-o 🧱',

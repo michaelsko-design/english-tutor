@@ -64,6 +64,7 @@ import { ProUpsellContext, type ProUpsellFocus } from './pro/proUpsellContext';
 import { ProUpsellSheet } from './pro/ProUpsellSheet';
 import { FreeMissionsDoneCard } from './pro/FreeMissionsDoneCard';
 import { ScreenLoading } from './ScreenLoading';
+import { FIRST_TIER_CLEAR_DIAMONDS, getMissionLadder, recordTierStars } from '../data/tierProgress';
 
 const MissionRunner = lazyNamed(() => import('./MissionRunner'), 'MissionRunner');
 const VocabularyVaultModal = lazyNamed(() => import('./VocabularyVaultModal'), 'VocabularyVaultModal');
@@ -217,6 +218,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
   const handleCompleteMission = (result: {
     missionId: string;
+    tier: ProficiencyTier;
     starsEarned: 1 | 2 | 3;
     xpEarned: number;
     diamondsEarned: number;
@@ -224,6 +226,18 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     isFullReward: boolean;
     isVoiceSkipped: boolean;
   }) => {
+    const legacyLadder = getMissionLadder(profile, result.missionId);
+    const { tierStars, isFirstClear } = recordTierStars(
+      // A mission played before tiers were tracked keeps its old stars on the preferred tier
+      {
+        ...profile.missionTierStars,
+        [result.missionId]: profile.missionTierStars?.[result.missionId] ?? legacyLadder,
+      },
+      result.missionId,
+      result.tier,
+      result.starsEarned
+    );
+    const firstClearDiamonds = isFirstClear ? FIRST_TIER_CLEAR_DIAMONDS[result.tier] : 0;
     const prevStarsForMission = profile.missionProgress?.[result.missionId] || 0;
     const updatedMissionStars = Math.max(prevStarsForMission, result.starsEarned);
     const starDelta = Math.max(0, updatedMissionStars - prevStarsForMission);
@@ -251,6 +265,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         ...(profile.missionProgress || {}),
         [result.missionId]: updatedMissionStars,
       },
+      missionTierStars: tierStars,
       ...(result.isFullReward
         ? { missionRewardDates: { ...(profile.missionRewardDates || {}), [result.missionId]: missionTodayStr } }
         : {}),
@@ -260,7 +275,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         level: levelForXp(newXp, withActivity.stats.level),
         stars: profile.stats.stars + starDelta,
         maxPossibleStars: totalGradeStarsPossible,
-        diamonds: withActivity.stats.diamonds + result.diamondsEarned,
+        diamonds: withActivity.stats.diamonds + result.diamondsEarned + firstClearDiamonds,
         wordsMastered: profile.stats.wordsMastered + result.wordsLearnedCount,
         missionsCompleted: profile.stats.missionsCompleted + 1,
       },
@@ -479,6 +494,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             missionProgress={profile.missionProgress || {}}
             selectedTier={profile.preferredTier}
             onSelectTier={handleSelectTier}
+            getLadder={(missionId) => getMissionLadder(profile, missionId)}
             theme={theme}
             gender={profile.gender}
             onStartMission={(mission) => handleLaunchMission(mission, true)}
@@ -601,6 +617,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             learnerName={profile.name}
             theme={theme}
             onSpeakEnglish={speakEnglish}
+            ladder={getMissionLadder(profile, activePracticeMission.id)}
             onCompleteMission={handleCompleteMission}
             onClose={() => setActivePracticeMission(null)}
             roomRewardPreview={

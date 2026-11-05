@@ -17,7 +17,8 @@ describe('sentence-builder word translations', () => {
     for (const mission of missions) {
       for (const tier of TIERS) {
         for (const step of getExercisesForMission(mission, tier)) {
-          if (step.type !== 'sentence-builder') continue;
+          // Master's sentence has no translate icons on purpose (it is the production tier)
+          if (step.type !== 'sentence-builder' || !step.hintWords) continue;
           const translated = new Set((step.hintWords ?? []).map((gloss) => getWordGlossKey(gloss.wordEn)));
           for (const word of step.scrambledWords ?? []) {
             const key = getWordGlossKey(word);

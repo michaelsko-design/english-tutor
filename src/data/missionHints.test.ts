@@ -45,12 +45,17 @@ describe('mission hints (Feature 20)', () => {
 
   it('never names the vocabulary answer in step 1', () => {
     for (const mission of ALL_MISSIONS) {
-      const v0 = mission.vocabulary[0];
       for (const tier of TIERS) {
         const [step1] = getExercisesForMission(mission, tier);
         const where = `${mission.id} ${tier}`;
-        if (tier === 'challenger') {
+        // The word a tier drills: Explorer word #1, Challenger word #2 (tiered missions), else word #1.
+        const tiered = Boolean(mission.drillSeed?.tiers);
+        const v0 = mission.vocabulary[tier === 'challenger' && tiered ? 1 : 0];
+        if (tier === 'challenger' && !tiered) {
           // The options are Hebrew meanings, so the hint must not carry the Hebrew translation.
+          expect(step1.hintHe, where).not.toContain(v0.translationHe);
+        } else if (tier === 'challenger') {
+          // A cloze: the hint shows the Hebrew sentence, which must not hand over the blanked word.
           expect(step1.hintHe, where).not.toContain(v0.translationHe);
         } else {
           // The options are English words.
@@ -64,9 +69,14 @@ describe('mission hints (Feature 20)', () => {
     for (const mission of SEEDED_MISSIONS) {
       for (const tier of TIERS) {
         const step5 = getExercisesForMission(mission, tier)[4];
-        expect(step5.hintHe.toLowerCase(), `${mission.id} ${tier}`).not.toContain(
-          mission.drillSeed!.story.correct.toLowerCase()
-        );
+        const seed = mission.drillSeed!;
+        const answer =
+          tier === 'explorer' && seed.tiers
+            ? seed.tiers.explorer.story.correct
+            : tier === 'master' && seed.tiers
+              ? seed.tiers.master.story.correct
+              : seed.story.correct;
+        expect(step5.hintHe.toLowerCase(), `${mission.id} ${tier}`).not.toContain(answer.toLowerCase());
       }
     }
   });

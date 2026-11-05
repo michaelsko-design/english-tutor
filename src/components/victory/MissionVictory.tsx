@@ -3,8 +3,11 @@ import { ModalPortal } from '../ModalPortal';
 import { useDialog } from '../../hooks/useDialog';
 import { Trophy, Zap } from 'lucide-react';
 import { MissionNode } from '../../data/curriculum';
+import { ProficiencyTier } from '../../types/learner';
+import { getNextTier, type MissionLadder } from '../../data/tierProgress';
+import { TierLadder } from '../mission/TierLadder';
 import { RoomRewardItem } from '../../data/roomRewards';
-import { ThemeDefinition } from '../../themes/themeRegistry';
+import { ThemeDefinition, TIER_CONFIG } from '../../themes/themeRegistry';
 import { useAnimationClock } from '../../hooks/useAnimationClock';
 import { celebrate } from '../../utils/celebrate';
 import { getVictoryDurationMs, getVictoryFrame, VictoryFrame } from '../../utils/rewardFeedback';
@@ -19,6 +22,9 @@ import { VibeAmount } from '../ui/VibeAmount';
 interface MissionVictoryProps {
   mission: MissionNode;
   tierLabelEn: string;
+  tier?: ProficiencyTier;
+  /** The mission's stars per tier including this run */
+  ladder?: MissionLadder;
   starsEarned: 1 | 2 | 3;
   xpEarned: number;
   maxCombo: number;
@@ -53,6 +59,16 @@ function playFrameEffects(prev: VictoryFrame, next: VictoryFrame, starsEarned: n
   if (!prev.isItemRevealed && next.isItemRevealed) playSfx('celebrate');
 }
 
+/** What to try next on this mission: the next tier's new questions, or the trophy message. */
+function getNextTierMessage(ladder: MissionLadder, playedTier: ProficiencyTier | undefined): string {
+  const next = getNextTier(ladder);
+  if (!next) return '🏆 שלטת בכל שלוש הרמות של המשימה הזו!';
+  if (next === playedTier) return `עוד ניסיון ב${TIER_CONFIG[next].labelHe} ותקבלו שלושה כוכבים ⭐`;
+  return ladder[next] === 0
+    ? `${TIER_CONFIG[next].badgeEmoji} הרמה הבאה, ${TIER_CONFIG[next].labelHe}: שאלות חדשות לגמרי מחכות לכם!`
+    : `${TIER_CONFIG[next].badgeEmoji} עוד ניסיון ב${TIER_CONFIG[next].labelHe} ותקבלו שלושה כוכבים ⭐`;
+}
+
 /**
  * Feature 24: the staged mission victory. Over about four seconds the stars land one by one,
  * the XP bar fills toward the next level (with a level-up badge), the diamonds and words count
@@ -61,6 +77,8 @@ function playFrameEffects(prev: VictoryFrame, next: VictoryFrame, starsEarned: n
 export const MissionVictory: React.FC<MissionVictoryProps> = ({
   mission,
   tierLabelEn,
+  tier,
+  ladder,
   starsEarned,
   xpEarned,
   maxCombo,
@@ -200,6 +218,14 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
             />
           </div>
         </div>
+
+        {/* The mission's climb through the tiers, and what is next */}
+        {ladder && (
+          <div className="space-y-1.5">
+            <TierLadder ladder={ladder} currentTier={tier} />
+            <p className="text-xs font-bold">{getNextTierMessage(ladder, tier)}</p>
+          </div>
+        )}
 
         {/* Earned rewards count up */}
         <div className="grid grid-cols-3 gap-3" aria-hidden="true">

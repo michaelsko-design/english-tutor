@@ -79,6 +79,68 @@ const UNITS: HighSchoolUnitSpec[] = [
             correct: 'He edits short videos about his neighbours.',
             wrong: ['He travels to the film school by bus.', 'He works in a cinema in the Negev.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'I wish I had a bigger room.',
+                wrong: ['I wish I have a bigger room.'],
+                explainHe: 
+                  'כשמבטאים משאלה על ההווה אחרי I wish משתמשים בצורת עבר פשוט (had), גם אם מדובר בהווה.',
+                hintHe: 'כדאי לבדוק באיזו צורה בא הפועל אחרי I wish.',
+              },
+              story: {
+                passageEn: 
+                  'Noa lives in a small flat. She wishes she had a garden. She dreams of planting flowers.',
+                passageHe: 'נועה גרה בדירה קטנה. היא מייחלת שתהיה לה גינה. היא חולמת לשתול פרחים.',
+                questionEn: 'What does Noa wish for?',
+                questionHe: 'מה נועה מייחלת לו?',
+                correct: 'A garden of her own.',
+                wrong: ['A new school.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['blame', 'scold'],
+                ['complaint', 'frustration'],
+                ['capable', 'tolerant'],
+                ['warranty', 'ornament'],
+              ],
+            },
+            master: {
+              sentenceEn: 'Many teenagers wish they lived in a city where public transport ran all night.',
+              sentenceHe: 'בני נוער רבים מייחלים לגור בעיר שבה התחבורה הציבורית פועלת כל הלילה.',
+              decoys: ['live', 'runs'],
+              voiceEn: 'I wish we had a faster train.',
+              voiceHe: 'הלוואי שהייתה לנו רכבת מהירה יותר.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'I wish I owned a house near the beach.',
+                wrong: [
+                  'I wish I own a house near the beach.',
+                  'I wish I will own a house near the beach.',
+                  'I wish I would owned a house near the beach.',
+                ],
+                explainHe: 
+                  'משאלה על ההווה: I wish + עבר פשוט (owned). אי אפשר להשתמש בהווה, ב-will, או ב-would עם עבר.',
+                hintEn: 'Look at the verb form directly after I wish.',
+              },
+              story: {
+                passageEn: 
+                  'Eitan\'s brother lives in Berlin and posts photos of snowy streets and quiet cafes. Eitan, who has never left the country, scrolls through them every evening. He often tells his mother that he wishes he had grown up somewhere with real seasons. His mother only smiles and reminds him that his brother recently asked about the sunsets in Tel Aviv. Eitan puts down his phone and looks out of the window. Outside, the sky is turning orange.',
+                passageHe: '',
+                questionEn: 'What is the mother trying to show Eitan?',
+                questionHe: '',
+                correct: 'Others also envy the life he has.',
+                wrong: [
+                  'His brother is lonely in Berlin.',
+                  'He should move to Berlin at once.',
+                  'Snow is dangerous for children.',
+                ],
+              },
+              storyHintEn: 'Think about what his brother asked about.',
+            },
+          },
         },
       },
       {
@@ -153,6 +215,69 @@ const UNITS: HighSchoolUnitSpec[] = [
             correct: 'At a mutual friend\'s birthday party.',
             wrong: ['In the school library after the project.', 'On the phone that same evening.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'If only I had studied harder!',
+                wrong: ['If only I have studied harder!'],
+                explainHe: 'חרטה על העבר: If only + had + V3. אי אפשר להשתמש ב-have.',
+                hintHe: 'כדאי לחשוב איזה פועל עזר מתאים לעבר.',
+              },
+              story: {
+                passageEn: 
+                  'Gal left his phone on the bus. He ran after it, but it was too late. He wishes he had checked his bag.',
+                passageHe: 
+                  'גל השאיר את הטלפון שלו באוטובוס. הוא רץ אחריו, אבל זה היה מאוחר מדי. הוא מצטער שלא בדק את התיק.',
+                questionEn: 'Where did Gal leave his phone?',
+                questionHe: 'איפה גל השאיר את הטלפון?',
+                correct: 'On the bus.',
+                wrong: ['At school.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['reward', 'permission'],
+                ['advance', 'genius'],
+                ['skilled', 'patient'],
+                ['divorce', 'evacuate'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'If only the council had listened to the engineers before the old bridge collapsed.',
+              sentenceHe: 'הלוואי שהמועצה הייתה מקשיבה למהנדסים לפני שהגשר הישן קרס.',
+              decoys: ['has', 'listen'],
+              voiceEn: 'I wish I had listened earlier.',
+              voiceHe: 'הלוואי שהייתי מקשיב/ה קודם.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'If only we had left before the storm began.',
+                wrong: [
+                  'If only we have left before the storm began.',
+                  'If only we would leave before the storm began.',
+                  'If only we had leave before the storm began.',
+                ],
+                explainHe: 
+                  'חרטה על העבר: If only + had + V3 (had left). לא משתמשים ב-have, ב-would, או ב-V1 אחרי had.',
+                hintEn: 'Look at the two words after If only we.',
+              },
+              story: {
+                passageEn: 
+                  'For years, Hadas avoided speaking to her sister after a quarrel over their grandmother\'s house. When the old woman died, the relatives gathered, and the two sisters sat at opposite ends of the room. At the end of the evening, Hadas found a letter in the kitchen drawer, written in her grandmother\'s careful handwriting. It asked them only to share the garden and to remember the summers they had spent there. Hadas read it twice, then walked slowly across the room.',
+                passageHe: '',
+                questionEn: 'Why did Hadas walk across the room?',
+                questionHe: '',
+                correct: 'She decided to end the quarrel.',
+                wrong: [
+                  'She needed to find the kitchen drawer.',
+                  'She hoped to sell the family house.',
+                  'Her sister had called her loudly.',
+                ],
+              },
+              storyHintEn: 'Think about what the letter asked them to remember.',
+            },
+          },
         },
       },
       {
@@ -186,7 +311,7 @@ const UNITS: HighSchoolUnitSpec[] = [
           [
             'ambition',
             'noun',
-            'שאפתנות / יומרה',
+            'שאפתנות / שאיפה',
             '🏔️',
             'Without ambition, talent alone rarely leads to success.',
             'בלי שאפתנות, כישרון לבדו רק לעתים רחוקות מוביל להצלחה.',
@@ -224,6 +349,68 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'למה הדייג מתחרט בסוף הסיפור?',
             correct: 'He is lonely in his huge palace.',
             wrong: ['The fish takes back the mountain of gold.', 'His hut is destroyed by a storm.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'I wish I had never lost the key.',
+                wrong: ['I wish I have never lost the key.'],
+                explainHe: 'משאלה על העבר: I wish + had + V3.',
+                hintHe: 'כדאי לבדוק: האם המשאלה על העבר או על ההווה?',
+              },
+              story: {
+                passageEn: 
+                  'A girl found a magic lamp. She wished for a huge cake. But she wished she had asked for a friend.',
+                passageHe: 'ילדה מצאה מנורת קסמים. היא ביקשה עוגה ענקית. אבל היא הצטערה שלא ביקשה חבר.',
+                questionEn: 'What did the girl wish for first?',
+                questionHe: 'מה הילדה ביקשה קודם?',
+                correct: 'A huge cake.',
+                wrong: ['A new bike.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['describe', 'withdraw'],
+                ['equipment', 'evidence'],
+                ['scenery', 'moisture'],
+                ['inheritance', 'vacation'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'The poor woodcutter wished he had asked for happiness rather than a mountain of treasure.',
+              sentenceHe: 'חוטב העצים העני הצטער שלא ביקש אושר במקום הר של אוצרות.',
+              decoys: ['asks', 'wish'],
+              voiceEn: 'He wishes he had been braver.',
+              voiceHe: 'הוא מצטער שלא היה אמיץ יותר.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'She wishes she had spent more time with her parents.',
+                wrong: [
+                  'She wishes she spends more time with her parents.',
+                  'She wishes she would have spent more time with her parents.',
+                  'She wishes she had spend more time with her parents.',
+                ],
+                explainHe: 
+                  'משאלה על העבר: wishes + had + V3 (had spent). לא משתמשים בהווה, ב-would have, או ב-V1 אחרי had.',
+                hintEn: 'Check the verb form after she wishes she.',
+              },
+              story: {
+                passageEn: 
+                  'The king of a small valley was offered one wish by a passing traveler. After days of thought, he asked for the tallest tower in the world, so that every neighbor would admire him. The tower rose above the clouds, but its shadow covered the farms below, and the harvests failed. Hungry villagers climbed to his gate with empty baskets. The king looked at his magnificent view and found that he could no longer see a single green field.',
+                passageHe: '',
+                questionEn: 'What lesson does the story suggest?',
+                questionHe: '',
+                correct: 'Pride can bring unexpected harm.',
+                wrong: [
+                  'Large towers always protect farmers.',
+                  'Travelers should never make offers.',
+                  'Kings must choose wishes quickly.',
+                ],
+              },
+              storyHintEn: 'Think about who was affected by the shadow.',
+            },
           },
         },
       },
@@ -293,7 +480,7 @@ const UNITS: HighSchoolUnitSpec[] = [
             wrong: ['Ron washed his car at the station.', 'Ron had washed his car at the station.'],
             explainHe:
               'have + object + V3 (had his car washed) אומר שמישהו אחר עשה את העבודה בשביל רון. had washed his car הוא Past Perfect: רון עשה זאת בעצמו.',
-            hintHe: 'בגרם החפץ בא לפני הפועל בצורת V3. בדקו איפה נמצא his car בכל משפט.',
+            hintHe: 'במבנה גרימה (causative), החפץ בא לפני הפועל בצורת V3. בדקו איפה נמצא his car בכל משפט.',
           },
           story: {
             passageEn:
@@ -304,6 +491,68 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'על מה הדירה שמרה אחרי השיפוץ?',
             correct: 'Its beautiful old arches.',
             wrong: ['Its old kitchen appliances.', 'Its original windows.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'We had the roof repaired last week.',
+                wrong: ['We had the roof repair last week.'],
+                explainHe: 'במבנה הסיבתי have + מושא + V3, הפועל בא בצורת V3 (repaired).',
+                hintHe: 'כדאי לבדוק: מי עושה את התיקון, אנחנו או מישהו אחר?',
+              },
+              story: {
+                passageEn: 
+                  'The washing machine broke. Dad called a technician. The technician fixed it in one hour.',
+                passageHe: 'מכונת הכביסה התקלקלה. אבא התקשר לטכנאי. הטכנאי תיקן אותה בתוך שעה.',
+                questionEn: 'Who fixed the washing machine?',
+                questionHe: 'מי תיקן את מכונת הכביסה?',
+                correct: 'A technician did.',
+                wrong: ['Dad did.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['impress', 'scold'],
+                ['lecturer', 'librarian'],
+                ['curtain', 'cupboard'],
+                ['pronounce', 'inherit'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'We are having the whole apartment repainted by professionals before our relatives arrive next month.',
+              sentenceHe: 
+                'אנחנו נותנים לאנשי מקצוע לצבוע מחדש את כל הדירה לפני שהקרובים שלנו מגיעים בחודש הבא.',
+              decoys: ['paint', 'repaints'],
+              voiceEn: 'I had my laptop repaired yesterday.',
+              voiceHe: 'תיקנו לי את המחשב הנייד אתמול.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'They had the windows cleaned by a local company.',
+                wrong: [
+                  'They had the windows clean by a local company.',
+                  'They had cleaned the windows by a local company.',
+                  'They had the windows cleaning by a local company.',
+                ],
+                explainHe: 'במבנה have + מושא + V3, הפועל אחרי המושא הוא V3 (cleaned). לא V1, ולא V-ing.',
+                hintEn: 'Look at the word right after the windows.',
+              },
+              story: {
+                passageEn: 
+                  'When the Cohens bought their house, the electrician warned that the wiring was forty years old. They hesitated because the cost was high, so for months they used extension cords in every room. One evening a fuse burned out and half the street lost power. The next morning they called the company and arranged a complete replacement. Mrs Cohen later joked that the expensive visit had cost far less than the evening of darkness would have.',
+                passageHe: '',
+                questionEn: 'Why did the Cohens finally replace the wiring?',
+                questionHe: '',
+                correct: 'They saw that waiting was risky.',
+                wrong: [
+                  'A neighbour offered them a discount.',
+                  'They wanted to sell the house soon.',
+                  'The extension cords were too short.',
+                ],
+              },
+              storyHintEn: 'Think about what happened to the whole street.',
+            },
           },
         },
       },
@@ -363,7 +612,7 @@ const UNITS: HighSchoolUnitSpec[] = [
             correct: 'will get',
             wrong: ['got', 'are getting to'],
             explainHe:
-              'בגרם הזמן משתנה רק בפועל get או have. Next week מראה עתיד, ולכן will get, ואחריו החפץ ו-V3 (the boiler checked).',
+              'במבנה גרימה (causative), הזמן משתנה רק בפועל get או have. Next week מראה עתיד, ולכן will get, ואחריו החפץ ו-V3 (the boiler checked).',
             hintHe: 'הביטוי Next week מראה מתי זה יקרה. רק הפועל הראשון משנה זמן; checked נשאר תמיד אותו דבר.',
           },
           story: {
@@ -375,6 +624,67 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'מה קרה למצלמה השנה?',
             correct: 'It fell into the sand.',
             wrong: ['It was stolen on the beach.', 'It was left at home in Netanya.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'She got her hair cut yesterday.',
+                wrong: ['She got her hair cutting yesterday.'],
+                explainHe: 'במבנה get + מושא + V3 הפועל בא בצורת V3 (cut), כי מישהו אחר עושה את הפעולה.',
+                hintHe: 'כדאי לבדוק איזו צורה של הפועל מתאימה אחרי her hair.',
+              },
+              story: {
+                passageEn: 'Tal needs a new suit. She goes to a tailor. The tailor shortens the sleeves.',
+                passageHe: 'טל צריכה חליפה חדשה. היא הולכת לחייט. החייט מקצר את השרוולים.',
+                questionEn: 'What does the tailor do?',
+                questionHe: 'מה עושה החייט?',
+                correct: 'He shortens the sleeves.',
+                wrong: ['He washes the suit.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['decorate', 'sweeten'],
+                ['collar', 'sleeve'],
+                ['landscape', 'sculpture'],
+                ['marry', 'inherit'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Next week we are getting our wedding portraits taken by a famous local photographer.',
+              sentenceHe: 'בשבוע הבא צלם מקומי מפורסם יצלם את תמונות החתונה שלנו.',
+              decoys: ['take', 'taking'],
+              voiceEn: 'She got her jacket altered.',
+              voiceHe: 'היא נתנה את המעיל שלה לתיקון.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'He got his passport renewed at the embassy.',
+                wrong: [
+                  'He got his passport renew at the embassy.',
+                  'He got renewed his passport at the embassy.',
+                  'He got his passport renewing at the embassy.',
+                ],
+                explainHe: 
+                  'המבנה הוא get + מושא + V3: his passport renewed. הפועל בא אחרי המושא ובצורת V3.',
+                hintEn: 'Check the order and the form of the verb renew.',
+              },
+              story: {
+                passageEn: 
+                  'Every spring, the town hired an inspector to examine the old stone bridge. For many years the reports were short and cheerful. This year, however, the inspector spent three days measuring cracks and photographing the foundations. He then asked the mayor to close the bridge to heavy vehicles until a structural engineer could examine it. The mayor sighed and said the delivery companies would complain, but she signed the order. Within a week, the first complaints arrived.',
+                passageHe: '',
+                questionEn: 'What does the mayor\'s decision show?',
+                questionHe: '',
+                correct: 'She valued safety over complaints.',
+                wrong: [
+                  'She disliked the inspector\'s reports.',
+                  'She had not read the report.',
+                  'The bridge had been repaired already.',
+                ],
+              },
+              storyHintEn: 'Notice that she signed although she expected complaints.',
+            },
           },
         },
       },
@@ -393,10 +703,10 @@ const UNITS: HighSchoolUnitSpec[] = [
           [
             'outsource',
             'verb',
-            'להעביר עבודה לגורם חיצוני / מיקור חוץ',
+            'להוציא למיקור חוץ / להעביר לגורם חיצוני',
             '📦',
             'Many companies outsource their customer service abroad.',
-            'חברות רבות מעבירות את שירות הלקוחות שלהן לחו"ל.',
+            'חברות רבות מוציאות את שירות הלקוחות שלהן למיקור חוץ בחו"ל.',
           ],
           [
             'convenience',
@@ -420,7 +730,7 @@ const UNITS: HighSchoolUnitSpec[] = [
             'תחזוקה',
             '⚙️',
             'Regular maintenance keeps old buildings safe.',
-            'תחזוקה קבועה שומרת על בניינים ישנים בטוחים.',
+            'תחזוקה קבועה שומרת על בטיחותם של בניינים ישנים.',
           ],
         ],
         seed: {
@@ -438,18 +748,81 @@ const UNITS: HighSchoolUnitSpec[] = [
               'We have just had designed the invitations by an artist.',
             ],
             explainHe:
-              'בגרם הסדר קבוע: have/get בזמן הנכון (have had), אחריו החפץ (the invitations), ורק אז V3 (designed).',
+              'במבנה גרימה (causative), הסדר קבוע: have/get בזמן הנכון (have had), אחריו החפץ (the invitations), ורק אז V3 (designed).',
             hintHe: 'בדקו את הסדר: הפועל שמראה זמן, אחריו הדבר שעליו עובדים, ובסוף הפועל בצורת V3.',
           },
           story: {
             passageEn:
               'Tamar runs a small wedding-planning business in the Galilee. She believes that couples should enjoy their wedding day, so she outsources almost every task. She has the flowers arranged by a local florist and gets the music played by a student band. At the end, every couple receives one clear invoice instead of twenty different bills.',
             passageHe:
-              'תמר מנהלת עסק קטן לתכנון חתונות בגליל. היא מאמינה שזוגות צריכים ליהנות מיום החתונה שלהם, ולכן היא מעבירה כמעט כל משימה לאנשי מקצוע. היא דואגת שמשתלה מקומית תסדר את הפרחים ושלהקת סטודנטים תנגן את המוזיקה. בסוף, כל זוג מקבל חשבונית ברורה אחת במקום עשרים חשבונות שונים.',
+              'תמר מנהלת עסק קטן לתכנון חתונות בגליל. היא מאמינה שזוגות צריכים ליהנות מיום החתונה שלהם, ולכן היא מעבירה כמעט כל משימה לאנשי מקצוע. היא דואגת שחנות פרחים מקומית תסדר את הפרחים ושלהקת סטודנטים תנגן את המוזיקה. בסוף, כל זוג מקבל חשבונית ברורה אחת במקום עשרים חשבונות שונים.',
             questionEn: 'What does every couple receive at the end?',
             questionHe: 'מה מקבל כל זוג בסוף?',
             correct: 'One clear invoice instead of twenty bills.',
             wrong: ['A free concert by a student band.', 'A discount from a local florist.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'We had our car washed this morning.',
+                wrong: ['We had our car wash this morning.'],
+                explainHe: 'במבנה have + מושא + V3, הפועל בא בצורת V3 (washed).',
+                hintHe: 'כדאי לבדוק את צורת הפועל אחרי our car.',
+              },
+              story: {
+                passageEn: 
+                  'Mum has no time to cook. She orders dinner from a restaurant. Dinner arrives at the door.',
+                passageHe: 'לאמא אין זמן לבשל. היא מזמינה ארוחת ערב ממסעדה. הארוחה מגיעה עד הדלת.',
+                questionEn: 'Why does Mum order dinner?',
+                questionHe: 'למה אמא מזמינה ארוחת ערב?',
+                correct: 'She has no time to cook.',
+                wrong: ['She loves washing dishes.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['compose', 'weigh'],
+                ['obstacle', 'hardship'],
+                ['anthem', 'ingredient'],
+                ['weather', 'laughter'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Busy families increasingly have their groceries delivered because shopping in person takes too much time.',
+              sentenceHe: 
+                'משפחות עסוקות מזמינות יותר ויותר מצרכים במשלוח הביתה כי קניות באופן אישי לוקחות יותר מדי זמן.',
+              decoys: ['deliver', 'delivering'],
+              voiceEn: 'We had the invoice checked twice.',
+              voiceHe: 'נתנו לבדוק את החשבונית פעמיים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The firm had its accounts audited by an outside expert.',
+                wrong: [
+                  'The firm had its accounts audit by an outside expert.',
+                  'The firm had audited its accounts by an outside expert.',
+                  'The firm had its accounts auditing by an outside expert.',
+                ],
+                explainHe: 
+                  'המבנה הסיבתי: had + מושא + V3 (accounts audited). אחרי המושא בא V3, ולא V1 או V-ing.',
+                hintEn: 'Check the word that follows its accounts.',
+              },
+              story: {
+                passageEn: 
+                  'A restaurant owner calculated that she spent twelve hours a week washing tablecloths. She was reluctant to hand the job to a laundry company, because she believed it would be expensive. After a trial month, she compared the invoice with the cost of detergent, electricity and the hours of staff time. To her surprise, the outside service was cheaper, and her staff finally had time to greet customers properly. She now recommends the idea to other owners.',
+                passageHe: '',
+                questionEn: 'Why did her opinion change?',
+                questionHe: '',
+                correct: 'The figures proved it was cheaper.',
+                wrong: [
+                  'Her tablecloths were no longer needed.',
+                  'Her staff asked for longer hours.',
+                  'Detergent became much more expensive.',
+                ],
+              },
+              storyHintEn: 'Think about what she compared after the trial month.',
+            },
           },
         },
       },

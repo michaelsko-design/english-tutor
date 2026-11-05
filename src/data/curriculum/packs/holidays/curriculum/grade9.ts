@@ -55,6 +55,67 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             correct: 'Last year’s paper apples.',
             wrong: ['Pictures of honey cake.', 'A calendar for the new year.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'We have lived here for two years.',
+                wrong: ['We has lived here for two years.'],
+                explainHe: 'עם We משתמשים ב-have: We have lived.',
+                hintHe: 'We הוא רבים. איזה פועל עזר מתאים?',
+              },
+              story: {
+                passageEn: 
+                  'Rina ate a pomegranate. It was sweet and red. She has loved it since she was little.',
+                passageHe: 'רינה אכלה רימון. הוא היה מתוק ואדום. היא אוהבת אותו מאז שהייתה קטנה.',
+                questionEn: 'What colour was the pomegranate?',
+                questionHe: 'באיזה צבע היה הרימון?',
+                correct: 'Red.',
+                wrong: ['Green.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['alarm', 'blanket'],
+                ['banana', 'peach'],
+                ['diet', 'allergy'],
+                ['walk', 'dance'],
+              ],
+            },
+            master: {
+              sentenceEn: 'Since summer I have saved money and I am going to buy gifts.',
+              sentenceHe: 'מאז הקיץ חסכתי כסף ואני הולך/ת לקנות מתנות.',
+              decoys: ['has', 'buying'],
+              voiceEn: 'I am going to write a greeting card.',
+              voiceHe: 'אני הולך/ת לכתוב כרטיס ברכה.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'We have celebrated Rosh Hashana with my grandparents since I was a baby.',
+                wrong: [
+                  'We have celebrated Rosh Hashana with my grandparents since when I was a baby.',
+                  'We has celebrated Rosh Hashana with my grandparents since I was a baby.',
+                  'We have celebrate Rosh Hashana with my grandparents since I was a baby.',
+                ],
+                explainHe: 
+                  'since בא עם נקודת התחלה (since I was a baby), ו-Present Perfect = have / has + V3. עם We נשתמש ב-have.',
+                hintEn: 'Check the helping verb, the verb form and the time word.',
+              },
+              story: {
+                passageEn: 
+                  'On the evening before Rosh Hashana, Ofir looked at his list from last year. He had promised to call his grandmother every week, but he had called only twice. This time, he did not write a long list. He wrote one sentence on a card, put it next to his phone, and set a reminder for every Friday afternoon.',
+                passageHe: '',
+                questionEn: 'Why did Ofir write only one sentence this year?',
+                questionHe: '',
+                correct: 'He wanted a goal that he could really keep.',
+                wrong: [
+                  'He had no time to write more.',
+                  'His grandmother asked him to stop calling so often.',
+                  'He forgot what he had promised.',
+                ],
+              },
+              storyHintEn: 'Think about the list from last year.',
+            },
+          },
         },
       },
       {
@@ -96,6 +157,67 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'איפה המשפחה סיימה את הארוחה?',
             correct: 'In the living room.',
             wrong: ['In the sukkah.', 'At the neighbours’ house.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'I was drawing when you called.',
+                wrong: ['I were drawing when you called.'],
+                explainHe: 'עם I משתמשים ב-was בעבר המתמשך: I was drawing.',
+                hintHe: 'I הוא יחיד. איזו צורת עבר של be מתאימה?',
+              },
+              story: {
+                passageEn: 'It was raining. Dad was fixing the sukkah. The kids were holding the roof.',
+                passageHe: 'ירד גשם. אבא תיקן את הסוכה. הילדים החזיקו את הגג.',
+                questionEn: 'What was Dad doing?',
+                questionHe: 'מה אבא עשה?',
+                correct: 'Fixing the sukkah.',
+                wrong: ['Eating dinner.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['sweep', 'repair'],
+                ['winter', 'exam'],
+                ['permanent', 'lifelong'],
+                ['decoration', 'silence'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'While the children were cutting paper stars their father was carrying the heavy table.',
+              sentenceHe: 'בזמן שהילדים גזרו כוכבי נייר אביהם סחב את השולחן הכבד.',
+              decoys: ['cut', 'is'],
+              voiceEn: 'We were eating when it started to rain.',
+              voiceHe: 'אכלנו כשהתחיל לרדת גשם.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'My sister was painting a banner while I was cutting the branches.',
+                wrong: [
+                  'My sister were painting a banner while I was cutting the branches.',
+                  'My sister was paint a banner while I was cutting the branches.',
+                  'My sister was painting a banner while I were cutting the branches.',
+                ],
+                explainHe: 
+                  'Past Continuous: was / were + V-ing. עם I ועם My sister (יחיד) משתמשים ב-was, ואחריו פועל עם ing.',
+                hintEn: 'Check each helping verb and each verb ending.',
+              },
+              story: {
+                passageEn: 
+                  'The first rain of the year arrived suddenly while the Levy family was still hanging paper chains. Father tried to cover the roof with a plastic sheet, but the wind kept lifting it. Mother ran to bring towels, and the children saved the lanterns from the puddles. Later, they all sat inside, wet and laughing, and agreed that this was the most memorable Sukkot ever.',
+                passageHe: '',
+                questionEn: 'Why did the family remember this Sukkot?',
+                questionHe: '',
+                correct: 'The sudden storm became a funny shared adventure.',
+                wrong: [
+                  'Nobody helped to build the sukkah.',
+                  'They finished decorating long before the storm began.',
+                  'The rain stopped as soon as it began.',
+                ],
+              },
+              storyHintEn: 'How did they feel at the end?',
+            },
           },
         },
       },
@@ -141,6 +263,68 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             correct: 'In the community hall.',
             wrong: ['In the school gym.', 'At Hila’s house.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Although it was cold, we went outside.',
+                wrong: ['Although it was cold, but we went outside.'],
+                explainHe: 'אחרי Although לא מוסיפים but. המשפט כבר מביע ניגוד.',
+                hintHe: 'כבר יש מילת ניגוד אחת במשפט. האם צריך עוד אחת?',
+              },
+              story: {
+                passageEn: 
+                  'It was a rainy night. The family lit the candles. The flames were small but bright.',
+                passageHe: 'זה היה לילה גשום. המשפחה הדליקה את הנרות. הלהבות היו קטנות אבל בוהקות.',
+                questionEn: 'How were the flames?',
+                questionHe: 'איך היו הלהבות?',
+                correct: 'Small but bright.',
+                wrong: ['Big and red.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['mistake', 'disaster'],
+                ['faint', 'vanish'],
+                ['puddle', 'pebble'],
+                ['drought', 'heatwave'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Although the roads were flooded the whole family came to light candles with us.',
+              sentenceHe: 'למרות שהכבישים הוצפו כל המשפחה הגיעה להדליק נרות איתנו.',
+              decoys: ['but', 'however'],
+              voiceEn: 'If it rains we will stay inside.',
+              voiceHe: 'אם ירד גשם נישאר בפנים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Although the power went out, we sang songs by candlelight.',
+                wrong: [
+                  'Although the power went out, but we sang songs by candlelight.',
+                  'Although the power go out, we sang songs by candlelight.',
+                  'Although the power went out, we was singing songs by candlelight.',
+                ],
+                explainHe: 
+                  'אחרי Although לא מוסיפים but. וצריך להקפיד על צורות הפועל: went (עבר פשוט) ו-sang.',
+                hintEn: 'Check for a double connector and wrong verb forms.',
+              },
+              story: {
+                passageEn: 
+                  'During the downpour, the electricity in the village failed, and the families could not use their heaters. Instead of going home, the neighbours carried blankets and hot soup to the community hall. Children played board games by candlelight while the adults shared stories about older winters. Although the night was cold, nobody wanted to leave, and the mayor said that he had never felt so proud of his village.',
+                passageHe: '',
+                questionEn: 'Why was the mayor proud of the village?',
+                questionHe: '',
+                correct: 'People supported each other during a difficult night.',
+                wrong: [
+                  'The heaters worked even without any electricity at all.',
+                  'Nobody came to the community hall.',
+                  'The storm ended earlier than expected.',
+                ],
+              },
+              storyHintEn: 'Think about how the neighbours acted together.',
+            },
+          },
         },
       },
     ],
@@ -164,7 +348,7 @@ const UNITS: MiddleSchoolUnitSpec[] = [
         sentenceHe: 'אילו יכולתי לבחור כל תחפושת בפורים הזה, הייתי מתחפש/ת לאסטרונאוט.',
         vocab: [
           ['costume', 'noun', 'תחפושת', '🎭', 'It took her two weeks to make the costume.', 'לקח לה שבועיים להכין את התחפושת.'],
-          ['disguise', 'noun / verb', 'הסוואה / להסוות', '🕶️', 'Nobody recognised him in his clever disguise.', 'אף אחד לא זיהה אותו בהסוואה המתוחכמת שלו.'],
+          ['disguise', 'noun / verb', 'תחפושת / להתחפש; הסוואה / להסוות', '🕶️', 'Nobody recognised him in his clever disguise.', 'אף אחד לא זיהה אותו בתחפושת המתוחכמת שלו.'],
           ['sapling', 'noun', 'שתיל', '🌱', 'Our class planted ten saplings on Tu BiShvat.', 'הכיתה שלנו שתלה עשרה שתילים בט״ו בשבט.'],
           ['donate', 'verb', 'לתרום', '🎁', 'Many families donate food baskets before Purim.', 'משפחות רבות תורמות סלי מזון לפני פורים.'],
         ],
@@ -194,6 +378,68 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'ממה הכינו תלמידי כיתות ט׳ את התחפושות?',
             correct: 'Recycled boxes.',
             wrong: ['Old curtains.', 'New fabric.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'If I had wings, I would fly to school.',
+                wrong: ['If I would have wings, I fly to school.'],
+                explainHe: 'בתנאי שני אחרי If בא Past Simple (had), ובתוצאה would + פועל מקור (fly).',
+                hintHe: 'מצב דמיוני: מה בא אחרי If, ומה בא אחרי would?',
+              },
+              story: {
+                passageEn: 
+                  'Gal has a pirate costume. It has a red hat. If he had a parrot, he would put it on his shoulder.',
+                passageHe: 
+                  'לגל יש תחפושת פיראט. יש לה כובע אדום. אילו היה לו תוכי, הוא היה שם אותו על הכתף.',
+                questionEn: 'What colour is the hat?',
+                questionHe: 'באיזה צבע הכובע?',
+                correct: 'Red.',
+                wrong: ['Blue.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['weather', 'sunshine'],
+                ['tradition', 'recipe'],
+                ['bench', 'statue'],
+                ['steal', 'destroy'],
+              ],
+            },
+            master: {
+              sentenceEn: 'If I could plant a forest I would choose olive trees and wild flowers.',
+              sentenceHe: 'אילו יכולתי לנטוע יער הייתי בוחר/ת עצי זית ופרחי בר.',
+              decoys: ['will', 'chosen'],
+              voiceEn: 'I would wear a funny hat.',
+              voiceHe: 'הייתי חובש/ת כובע מצחיק.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'If we had enough money, we would donate more food to families.',
+                wrong: [
+                  'If we would have enough money, we would donate more food to families.',
+                  'If we had enough money, we will donate more food to families.',
+                  'If we have enough money, we would donating more food to families.',
+                ],
+                explainHe: 
+                  'תנאי שני: If + Past Simple (had), ובתוצאה would + פועל מקור (donate). אין would אחרי If.',
+                hintEn: 'Check the verb after If and after would.',
+              },
+              story: {
+                passageEn: 
+                  'Every Purim, Tal and her classmates collect costumes for children who cannot afford them. Last year, Tal brought an old astronaut suit that was too small for her. A week later, she saw a shy boy wearing it at the party. He walked proudly across the room, and other children gathered around him with questions about space. Tal never told him that the suit was hers.',
+                passageHe: '',
+                questionEn: 'Why did Tal never tell the boy the suit was hers?',
+                questionHe: '',
+                correct: 'She wanted him to enjoy the gift without shame.',
+                wrong: [
+                  'She was sure that nobody wanted to know about it.',
+                  'She had already forgotten bringing the old suit.',
+                  'She was upset that the boy had worn her suit.',
+                ],
+              },
+              storyHintEn: 'Think about how the boy might feel.',
+            },
           },
         },
       },
@@ -236,6 +482,67 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'ממתי הם שומרים על המסורת הזאת?',
             correct: 'Since their oldest son was born.',
             wrong: ['Since they moved to the city.', 'Since last Passover.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'We have lived here since 2020.',
+                wrong: ['We have lived here for 2020.'],
+                explainHe: '2020 היא נקודת התחלה בזמן, ולכן since. for בא עם משך זמן (for two years).',
+                hintHe: '2020 היא משך זמן או נקודה בזמן?',
+              },
+              story: {
+                passageEn: 
+                  'Grandma makes the Seder every year. She has made it for thirty years. The whole family comes.',
+                passageHe: 'סבתא מכינה את הסדר בכל שנה. היא מכינה אותו כבר שלושים שנה. כל המשפחה באה.',
+                questionEn: 'How long has Grandma made the Seder?',
+                questionHe: 'כמה זמן סבתא מכינה את הסדר?',
+                correct: 'For thirty years.',
+                wrong: ['For three years.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['slavery', 'punishment'],
+                ['currency', 'border'],
+                ['museum', 'invitation'],
+                ['bench', 'picnic'],
+              ],
+            },
+            master: {
+              sentenceEn: 'My family has gathered at this park every Independence Day since I was born.',
+              sentenceHe: 'המשפחה שלי מתאספת בפארק הזה בכל יום עצמאות מאז שנולדתי.',
+              decoys: ['have', 'for'],
+              voiceEn: 'We have cleaned the house for days.',
+              voiceHe: 'ניקינו את הבית במשך ימים.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The Cohen family has hosted the Seder in this house since 1998.',
+                wrong: [
+                  'The Cohen family has hosted the Seder in this house for 1998.',
+                  'The Cohen family have hosted the Seder in this house since 1998.',
+                  'The Cohen family has host the Seder in this house since 1998.',
+                ],
+                explainHe: 
+                  'since בא עם נקודת התחלה (1998). וגם: עם the Cohen family (יחיד) משתמשים ב-has ואחריו V3 (hosted).',
+                hintEn: 'Check the time word, the helping verb and the verb form.',
+              },
+              story: {
+                passageEn: 
+                  'For many years, Mr Katz refused to attend the Independence Day ceremony because the noise of the fireworks reminded him of difficult memories. This year his granddaughter invited him to watch from a quiet hill outside the city. They sat together with a blanket and hot tea. When the first firework appeared far away, he smiled gently and held her hand.',
+                passageHe: '',
+                questionEn: 'Why did the quiet hill make a difference for Mr Katz?',
+                questionHe: '',
+                correct: 'He could enjoy the evening without the loud noise.',
+                wrong: [
+                  'He disliked the city and its ceremonies.',
+                  'His granddaughter did not like fireworks.',
+                  'The fireworks were much closer than in earlier years.',
+                ],
+              },
+              storyHintEn: 'Why had he avoided the ceremony before?',
+            },
           },
         },
       },
@@ -282,6 +589,67 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'לאן הלכה תנועת הנוער בשבועות?',
             correct: 'To a dairy farm in the Jezreel Valley.',
             wrong: ['To a beach in Eilat.', 'To a museum in Jerusalem.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'If it is sunny, we will swim.',
+                wrong: ['If it will be sunny, we swim.'],
+                explainHe: 'בתנאי ראשון: אחרי If בא Present Simple (is), ובתוצאה will + פועל מקור.',
+                hintHe: 'תוכנית אפשרית: מה בא אחרי If, ומה בא אחרי will?',
+              },
+              story: {
+                passageEn: 
+                  'It is hot today. Shira has sunscreen in her bag. She will go to the beach with her cousin.',
+                passageHe: 'חם היום. לשירה יש קרם הגנה בתיק. היא תלך לחוף עם בת הדוד שלה.',
+                questionEn: 'Who will Shira go with?',
+                questionHe: 'עם מי שירה תלך?',
+                correct: 'Her cousin.',
+                wrong: ['Her teacher.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['frost', 'snowstorm'],
+                ['spicy', 'salty'],
+                ['airline', 'envelope'],
+                ['shade', 'chlorine'],
+              ],
+            },
+            master: {
+              sentenceEn: 'If I finish my project early I will join my cousins at the beach.',
+              sentenceHe: 'אם אסיים את הפרויקט מוקדם אצטרף לבני הדוד שלי בחוף.',
+              decoys: ['joined', 'going'],
+              voiceEn: 'We are going to visit Eilat.',
+              voiceHe: 'אנחנו הולכים לבקר באילת.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'If the weather is cool, we will walk along the river.',
+                wrong: [
+                  'If the weather will be cool, we will walk along the river.',
+                  'If the weather were cool, we will walk along the river.',
+                  'If the weather is cool, we will walking along the river.',
+                ],
+                explainHe: 
+                  'תנאי ראשון: If + Present Simple (is), ובתוצאה will + פועל מקור (walk). אין will אחרי If.',
+                hintEn: 'Check the verb after If and after will.',
+              },
+              story: {
+                passageEn: 
+                  'Maya planned an exciting summer itinerary: a week in Eilat, two days at a dairy farm, and a hike in the Galilee. Then she checked the weather forecast. Temperatures in Eilat would reach forty-two degrees every day. Instead of cancelling the trip, she moved the hike to the early morning, packed extra sunscreen, and chose a hotel with a swimming pool.',
+                passageHe: '',
+                questionEn: 'What does Maya do about the heat?',
+                questionHe: '',
+                correct: 'She changes her plans to stay comfortable and safe.',
+                wrong: [
+                  'She cancels all her summer plans.',
+                  'She decides to spend every single day at the dairy farm.',
+                  'She ignores the forecast and packs less.',
+                ],
+              },
+              storyHintEn: 'Look at what she changed, not what she cancelled.',
+            },
           },
         },
       },

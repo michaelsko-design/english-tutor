@@ -10,6 +10,7 @@ import { inflectHebrew } from '../../utils/hebrewGender';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { Companion } from '../companion/Companion';
 import { TierChoice } from './TierChoice';
+import type { MissionLadder } from '../../data/tierProgress';
 import { Button } from '../ui/Button';
 
 /**
@@ -26,6 +27,8 @@ interface MissionIntroProps {
   stepCount: number;
   tier: ProficiencyTier;
   onChangeTier: (tier: ProficiencyTier) => void;
+  /** Stars earned so far at each tier */
+  ladder?: MissionLadder;
   gender: LearnerGender;
   theme: ThemeDefinition;
   lessonOffer: LessonOffer;
@@ -46,6 +49,7 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
   stepCount,
   tier,
   onChangeTier,
+  ladder,
   gender,
   theme,
   lessonOffer,
@@ -115,10 +119,10 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
 
       {/* Phones get the three tiers as one row of chips, so Start is on screen without scrolling */}
       <div className="sm:hidden">
-        <TierChoice tier={tier} onChangeTier={onChangeTier} gender={gender} theme={theme} isCompact />
+        <TierChoice tier={tier} onChangeTier={onChangeTier} gender={gender} theme={theme} isCompact ladder={ladder} />
       </div>
       <div className="hidden sm:block">
-        <TierChoice tier={tier} onChangeTier={onChangeTier} gender={gender} theme={theme} />
+        <TierChoice tier={tier} onChangeTier={onChangeTier} gender={gender} theme={theme} ladder={ladder} />
       </div>
 
       {lessonOffer === 'optional' && (

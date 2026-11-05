@@ -15,6 +15,7 @@ import { MapPathLayer } from './worldMap/MapPathLayer';
 import { MapLandmark, UnitBanner } from './worldMap/mapPieces';
 import { BossCastleStop, MissionCoinStop } from './worldMap/MapStops';
 import { MissionSheet } from './worldMap/MissionSheet';
+import { hasMasterTrophy, type MissionLadder } from '../data/tierProgress';
 import { WORLD_MAP_STYLES } from './worldMap/worldMapStyles';
 import { Button } from './ui/Button';
 
@@ -23,6 +24,8 @@ interface MissionMapProps {
   missionProgress: Record<string, number>;
   selectedTier: ProficiencyTier;
   onSelectTier?: (tier: ProficiencyTier) => void;
+  /** A mission's stars per tier, for its sheet's tier ladder */
+  getLadder?: (missionId: string) => MissionLadder;
   theme: ThemeDefinition;
   gender: LearnerGender;
   onStartMission: (mission: MissionNode) => void;
@@ -46,6 +49,7 @@ export const MissionMap: React.FC<MissionMapProps> = ({
   missionProgress,
   selectedTier,
   onSelectTier,
+  getLadder,
   theme,
   gender,
   onStartMission,
@@ -172,6 +176,7 @@ export const MissionMap: React.FC<MissionMapProps> = ({
                   gender={gender}
                   style={style}
                   onSelect={handleSelectStop}
+                  hasMasterTrophy={Boolean(getLadder && hasMasterTrophy(getLadder(stop.state.mission.id)))}
                 />
               );
             })}
@@ -198,6 +203,7 @@ export const MissionMap: React.FC<MissionMapProps> = ({
           previousTitleHe={previousTitleHe}
           tier={selectedTier}
           onSelectTier={onSelectTier}
+          ladder={getLadder?.(openStop.state.mission.id)}
           theme={theme}
           style={style}
           gender={gender}

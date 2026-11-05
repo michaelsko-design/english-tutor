@@ -28,7 +28,7 @@ const UNITS: MiddleSchoolUnitSpec[] = [
         vocab: [
           ['witness', 'noun / verb', 'עד ראייה / לחזות ב-', '👀', 'A witness saw a tall figure near the back door.', 'עד ראייה ראה דמות גבוהה ליד הדלת האחורית.'],
           ['suspect', 'noun / verb', 'חשוד / לחשוד', '🕵️', 'The police questioned the main suspect for two hours.', 'המשטרה חקרה את החשוד העיקרי במשך שעתיים.'],
-          ['clue', 'noun', 'רמז / ראיה', '🔎', 'The detective found an important clue under the window.', 'הבלש מצא רמז חשוב מתחת לחלון.'],
+          ['clue', 'noun', 'רמז / קצה חוט', '🔎', 'The detective found an important clue under the window.', 'הבלש מצא רמז חשוב מתחת לחלון.'],
           ['disappear', 'verb', 'להיעלם', '💨', 'The famous painting disappeared during the night.', 'הציור המפורסם נעלם במהלך הלילה.'],
         ],
         seed: {
@@ -58,6 +58,67 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'מתי השומר נעל את כל הדלתות?',
             correct: 'At eight o’clock.',
             wrong: ['At midnight.', 'On Sunday morning.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Dan had eaten before we arrived.',
+                wrong: ['Dan has eaten before we arrived.'],
+                explainHe: 'הסיפור בעבר, ולכן הפעולה המוקדמת באה ב-Past Perfect: had eaten.',
+                hintHe: 'הסיפור כולו בעבר. איזה פועל עזר מתאים לפעולה המוקדמת?',
+              },
+              story: {
+                passageEn: 
+                  'The bell rang at nine. The thief had left at eight. The guard found an open window.',
+                passageHe: 'הפעמון צלצל בתשע. הגנב עזב בשמונה. השומר מצא חלון פתוח.',
+                questionEn: 'When had the thief left?',
+                questionHe: 'מתי הגנב עזב?',
+                correct: 'At eight.',
+                wrong: ['At ten.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['verdict', 'alibi'],
+                ['crime', 'prison'],
+                ['motive', 'trial'],
+                ['whisper', 'sneeze'],
+              ],
+            },
+            master: {
+              sentenceEn: 'By the time the police arrived the suspect had already left the museum.',
+              sentenceHe: 'עד שהמשטרה הגיעה החשוד כבר עזב את המוזיאון.',
+              decoys: ['has', 'leave'],
+              voiceEn: 'She had never seen that man.',
+              voiceHe: 'היא מעולם לא ראתה את האיש ההוא.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The witness had seen the thief before the lights went out.',
+                wrong: [
+                  'The witness has seen the thief before the lights went out.',
+                  'The witness had see the thief before the lights went out.',
+                  'The witness have seen the thief before the lights went out.',
+                ],
+                explainHe: 
+                  'הפעולה המוקדמת בעבר באה ב-Past Perfect: had + V3 (had seen). has ו-have הם Present Perfect.',
+                hintEn: 'Check the helping verb and the form of see.',
+              },
+              story: {
+                passageEn: 
+                  'Inspector Barak arrived at the old library at dawn. The front door was locked, yet the shelves were empty and the floor was still wet. He noticed that the dust on the windowsill had been wiped clean, and a rope hung outside the window. Nobody inside had heard anything, because the night guard was wearing headphones. Barak smiled and said, "The thief did not use the door."',
+                passageHe: '',
+                questionEn: 'How did the thief most likely enter and leave?',
+                questionHe: '',
+                correct: 'Through the window, using the rope.',
+                wrong: [
+                  'Through the locked front door.',
+                  'By following the guard inside.',
+                  'From the roof of the neighbouring building.',
+                ],
+              },
+              storyHintEn: 'Look for clues around the window.',
+            },
           },
         },
       },
@@ -101,6 +162,67 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             correct: 'Since midnight.',
             wrong: ['Since seven in the morning.', 'Since the day before.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Had the girl seen the clue?',
+                wrong: ['Did the girl seen the clue?'],
+                explainHe: 'שאלה ב-Past Perfect: Had + נושא + V3 (seen). Did בא עם פועל מקור.',
+                hintHe: 'בשאלה ב-Past Perfect פועל העזר הוא had. מה בא אחריו?',
+              },
+              story: {
+                passageEn: 
+                  'The lights went out at ten. The guard had gone home at nine. Nobody was in the building.',
+                passageHe: 'האורות כבו בעשר. השומר הלך הביתה בתשע. אף אחד לא היה בבניין.',
+                questionEn: 'When had the guard gone home?',
+                questionHe: 'מתי השומר הלך הביתה?',
+                correct: 'At nine.',
+                wrong: ['At ten.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['arrest', 'protect'],
+                ['lock', 'camera'],
+                ['ceiling', 'chimney'],
+                ['weather', 'ticket'],
+              ],
+            },
+            master: {
+              sentenceEn: 'The guard had not checked the cameras before the lights went out.',
+              sentenceHe: 'השומר לא בדק את המצלמות לפני שהאורות כבו.',
+              decoys: ['did', 'has'],
+              voiceEn: 'Nobody had touched the old painting.',
+              voiceHe: 'אף אחד לא נגע בציור הישן.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Had the visitors left the gallery before the alarm started?',
+                wrong: [
+                  'Did the visitors left the gallery before the alarm started?',
+                  'Had the visitors leave the gallery before the alarm started?',
+                  'The visitors had left the gallery before the alarm started?',
+                ],
+                explainHe: 
+                  'שאלה ב-Past Perfect: Had + נושא + V3 (left). אחרי Had לא באה צורת מקור, ואין להשתמש ב-Did עם V3.',
+                hintEn: 'Check the first word and the verb form.',
+              },
+              story: {
+                passageEn: 
+                  'When the detectives reached the control room, the screens were black. The engineer explained that the system had shut down at midnight, but nobody had reported the problem, because the night guard had fallen asleep. A cleaner had noticed a blue light near the stairs, but she had thought it was part of the exhibition. Only in the morning did she mention it to the manager.',
+                passageHe: '',
+                questionEn: 'Why did nobody report the problem at midnight?',
+                questionHe: '',
+                correct: 'The guard slept and the cleaner misunderstood a light.',
+                wrong: [
+                  'The cameras were not connected to any power supply that night.',
+                  'The detectives arrived long before the system failed.',
+                  'The manager had turned the whole system off earlier.',
+                ],
+              },
+              storyHintEn: 'Think about what the guard and the cleaner did.',
+            },
+          },
         },
       },
       {
@@ -118,7 +240,7 @@ const UNITS: MiddleSchoolUnitSpec[] = [
           ['mystery', 'noun', 'תעלומה', '❓', 'The missing painting remained a mystery for a week.', 'הציור החסר נשאר תעלומה במשך שבוע.'],
           ['detective', 'noun', 'בלש', '🕵️', 'A young detective noticed what everyone else had missed.', 'בלש צעיר שם לב למה שכל האחרים פספסו.'],
           ['reveal', 'verb', 'לחשוף / לגלות', '💡', 'The cameras revealed a hidden door behind the shelves.', 'המצלמות חשפו דלת נסתרת מאחורי המדפים.'],
-          ['confess', 'verb', 'להודות (באשמה)', '🗣️', 'In the end, the night cleaner confessed to the crime.', 'בסוף, המנקה של הלילה הודה בפשע.'],
+          ['confess', 'verb', 'להודות (באשמה)', '🗣️', 'In the end, the night cleaner confessed to the crime.', 'בסופו של דבר, מנקה הלילה הודה בפשע.'],
         ],
         seed: {
           wrongWords: [
@@ -126,7 +248,7 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             { wordEn: 'souvenir', translationHe: 'מזכרת' },
           ],
           shortSentenceEn: 'The detective solved the case.',
-          shortSentenceHe: 'הבלש פתר את התיק.',
+          shortSentenceHe: 'הבלש פענח את התיק.',
           rule: {
             questionEn: 'Which sentence puts the two past actions in the correct order?',
             correct: 'When we arrived at the gallery, the tour had already started.',
@@ -147,6 +269,66 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'איפה החוקרת מצאה את הציור?',
             correct: 'In an old storage room inside the museum.',
             wrong: ['In a car outside the city.', 'In the museum gift shop.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'When we arrived, the show had started.',
+                wrong: ['When we arrived, the show has started.'],
+                explainHe: 'ההגעה קרתה בעבר, והתחלת ההצגה קרתה לפניה: had started.',
+                hintHe: 'איזו פעולה קרתה קודם? היא מקבלת את had.',
+              },
+              story: {
+                passageEn: 'Eli looked for his cat. He found it under the bed. It had eaten his sandwich!',
+                passageHe: 'אלי חיפש את החתול שלו. הוא מצא אותו מתחת למיטה. החתול אכל את הכריך שלו!',
+                questionEn: 'What had the cat eaten?',
+                questionHe: 'מה החתול אכל?',
+                correct: 'A sandwich.',
+                wrong: ['A fish.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['holiday', 'bargain'],
+                ['badge', 'uniform'],
+                ['lock', 'steal'],
+                ['belong', 'complain'],
+              ],
+            },
+            master: {
+              sentenceEn: 'After the detective had read the plans she understood where the painting was.',
+              sentenceHe: 'אחרי שהבלשית קראה את התוכניות היא הבינה איפה הציור.',
+              decoys: ['has', 'reading'],
+              voiceEn: 'The thief had hidden the key.',
+              voiceHe: 'הגנב החביא את המפתח.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The thief confessed after the detective had shown him the evidence.',
+                wrong: [
+                  'The thief had confessed after the detective showed him the evidence.',
+                  'The thief confessed after the detective has shown him the evidence.',
+                  'The thief confessed after the detective had show him the evidence.',
+                ],
+                explainHe: 
+                  'הפעולה המוקדמת (הבלש הראה) באה ב-Past Perfect: had shown. הווידוי המאוחר יותר ב-Past Simple: confessed.',
+                hintEn: 'Which action happened first? Check the verb forms.',
+              },
+              story: {
+                passageEn: 
+                  'The newspaper said that the thief had broken in through the roof, but the detective doubted it. The roof tiles were old and covered with moss that nobody had disturbed, and the ladder in the garden was still tied with a rusty lock. She decided to question the people who had worked in the building every day. Within an hour, one of the museum guards asked to speak to her privately.',
+                passageHe: '',
+                questionEn: 'What did the detective conclude?',
+                questionHe: '',
+                correct: 'The crime was probably done by someone inside.',
+                wrong: [
+                  'The thief had used a ladder from the garden.',
+                  'The newspaper had described everything correctly.',
+                  'The roof had been damaged by a storm.',
+                ],
+              },
+              storyHintEn: 'The moss and the ladder tell you something.',
+            },
           },
         },
       },
@@ -199,6 +381,68 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             correct: 'More batteries for the cameras.',
             wrong: ['Warmer clothes for the night.', 'A bigger tent for the penguins.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Dan said that he was hungry.',
+                wrong: ['Dan said that he is hungry.'],
+                explainHe: 'בדיבור עקיף אחרי said הזמן זז אחורה: is הופך ל-was.',
+                hintHe: 'אחרי said הזמן זז צעד אחורה. איך נראה is בעבר?',
+              },
+              story: {
+                passageEn: 
+                  'Noa called from the ship. She said that the sea was calm. She said that the food was good.',
+                passageHe: 'נועה התקשרה מהספינה. היא אמרה שהים רגוע. היא אמרה שהאוכל טוב.',
+                questionEn: 'What did Noa say about the sea?',
+                questionHe: 'מה נועה אמרה על הים?',
+                correct: 'It was calm.',
+                wrong: ['It was cold.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['glacier', 'iceberg'],
+                ['serve', 'cook'],
+                ['promise', 'ensure'],
+                ['invite', 'memorize'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'The leader announced that the team would leave the camp early the next morning.',
+              sentenceHe: 'ראש הצוות הודיע שהצוות יעזוב את המחנה מוקדם למחרת בבוקר.',
+              decoys: ['is', 'left'],
+              voiceEn: 'She said that she was tired.',
+              voiceHe: 'היא אמרה שהיא עייפה.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Tom told me that the camp was very close to the river.',
+                wrong: [
+                  'Tom said me that the camp was very close to the river.',
+                  'Tom told me that the camp be very close to the river.',
+                  'Tom told to me that the camp was very close to the river.',
+                ],
+                explainHe: 
+                  'tell בא עם מישהו ששומע (told me). say לא בא עם מושא אישי. וגם בדיבור עקיף משתמשים ב-was ולא ב-be.',
+                hintEn: 'Check the verb after Tom and who hears it.',
+              },
+              story: {
+                passageEn: 
+                  'During the radio call, the doctor said that the patient was feeling much better. However, she added that the helicopter could not land until the snow stopped. The leader told the team to stay calm and to pack only the essential equipment. Nobody complained, but several members looked at the grey sky nervously.',
+                passageHe: '',
+                questionEn: 'What can we infer about the situation?',
+                questionHe: '',
+                correct: 'They could not leave before the weather improved.',
+                wrong: [
+                  'The patient was too sick to speak on the radio.',
+                  'The doctor refused to help the team on the radio.',
+                  'The leader wanted everyone to carry heavy bags.',
+                ],
+              },
+              storyHintEn: 'Why could the helicopter not land?',
+            },
+          },
         },
       },
       {
@@ -240,6 +484,67 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'למה מאיה שמחה להישאר עוד לילה?',
             correct: 'She had not seen the southern lights yet.',
             wrong: ['She wanted to finish her science project.', 'She was afraid of flying.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Dad told me that dinner was ready.',
+                wrong: ['Dad said me that dinner was ready.'],
+                explainHe: 'tell בא עם מישהו ששומע (told me). say לא בא עם me ישירות.',
+                hintHe: 'אחרי הפועל יש me. איזה פועל מתאים למישהו ששומע?',
+              },
+              story: {
+                passageEn: 
+                  'Dina told her friend a secret. She said that she was moving to Haifa. Her friend was sad.',
+                passageHe: 'דינה סיפרה לחברה שלה סוד. היא אמרה שהיא עוברת לחיפה. החברה שלה הייתה עצובה.',
+                questionEn: 'Where is Dina moving?',
+                questionHe: 'לאן דינה עוברת?',
+                correct: 'To Haifa.',
+                wrong: ['To Eilat.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['arrive', 'sleep'],
+                ['order', 'demand'],
+                ['habit', 'weekend'],
+                ['cook', 'travel'],
+              ],
+            },
+            master: {
+              sentenceEn: 'The pilot promised that he would call the base after the storm ended.',
+              sentenceHe: 'הטייס הבטיח שהוא יתקשר לבסיס אחרי שהסערה תסתיים.',
+              decoys: ['told', 'will'],
+              voiceEn: 'My sister told me a funny story.',
+              voiceHe: 'אחותי סיפרה לי סיפור מצחיק.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'She said that she would reply to all of our messages.',
+                wrong: [
+                  'She said me that she would reply to all of our messages.',
+                  'She said that she would replies to all of our messages.',
+                  'She told that she would reply to all of our messages.',
+                ],
+                explainHe: 
+                  'say בא בלי מושא אישי, ו-tell צריך מישהו ששומע. אחרי would בא פועל מקור (reply).',
+                hintEn: 'Check the reporting verb and the verb after would.',
+              },
+              story: {
+                passageEn: 
+                  'Before leaving, the manager told the volunteers that the camp would close in ten days. One volunteer admitted that he had not packed his winter jacket, while another complained that the food supply was too small. The manager replied calmly that a boat would bring everything they needed on Friday. Everyone relaxed, but the oldest volunteer kept looking at the sea and said nothing.',
+                passageHe: '',
+                questionEn: 'Why was the oldest volunteer probably still worried?',
+                questionHe: '',
+                correct: 'He doubted that the boat would arrive on time.',
+                wrong: [
+                  'He was angry about the small food supply in the camp.',
+                  'He was sure the camp would stay open.',
+                  'He wanted to buy a winter jacket.',
+                ],
+              },
+              storyHintEn: 'He looked at the sea and said nothing.',
+            },
           },
         },
       },
@@ -287,6 +592,68 @@ const UNITS: MiddleSchoolUnitSpec[] = [
             questionHe: 'כמה קרח איבד הקרחון?',
             correct: 'Almost two metres.',
             wrong: ['Almost ten metres.', 'Nothing at all.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is right?',
+                correct: 'Maya said that she liked the trip.',
+                wrong: ['Maya said that she likes the trip.'],
+                explainHe: 'בדיבור עקיף אחרי said הזמן זז אחורה: likes הופך ל-liked.',
+                hintHe: 'אחרי said הזמן זז צעד אחורה. מהו העבר של likes?',
+              },
+              story: {
+                passageEn: 
+                  'The reporter asked the scientist a question. The scientist said that the ice was thin. The reporter wrote this down.',
+                passageHe: 'הכתב שאל את המדען שאלה. המדען אמר שהקרח דק. הכתב רשם זאת.',
+                questionEn: 'What did the scientist say?',
+                questionHe: 'מה המדען אמר?',
+                correct: 'That the ice was thin.',
+                wrong: ['That the ice was thick.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['recipe', 'poster'],
+                ['publish', 'print'],
+                ['colourful', 'cheerful'],
+                ['dissolve', 'boil'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'The scientist explained that the team had measured the ice every week since January.',
+              sentenceHe: 'המדענית הסבירה שהצוות מדד את הקרח בכל שבוע מאז ינואר.',
+              decoys: ['has', 'explain'],
+              voiceEn: 'The reporter said that she was late.',
+              voiceHe: 'הכתבת אמרה שהיא מאחרת.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Lior said that the team had collected enough samples for the study.',
+                wrong: [
+                  'Lior said that the team has collected enough samples for the study.',
+                  'Lior said me that the team had collected enough samples for the study.',
+                  'Lior said that the team had collect enough samples for the study.',
+                ],
+                explainHe: 
+                  'בדיבור עקיף Present Perfect הופך ל-Past Perfect: had collected. told צריך מישהו ששומע אחריו.',
+                hintEn: 'Check the tense after said and the verb form.',
+              },
+              story: {
+                passageEn: 
+                  'When the reporter read her notes, she realised that the quote sounded wrong. The scientist had said that the ice might melt completely in fifty years, but the reporter had written that it would melt next year. The editor called the scientist to check the facts. In the afternoon, the newspaper published a correction on its front page, and the reporter promised to record every interview in the future.',
+                passageHe: '',
+                questionEn: 'Why did the newspaper publish a correction?',
+                questionHe: '',
+                correct: 'The reporter had changed what the scientist said.',
+                wrong: [
+                  'The scientist wanted to change his opinion again later.',
+                  'The editor had lost the notes of the interview.',
+                  'The ice had melted faster than anyone expected.',
+                ],
+              },
+              storyHintEn: 'Compare what was said with what was written.',
+            },
           },
         },
       },

@@ -26,7 +26,20 @@ interface StopProps {
   gender: LearnerGender;
   style: WorldMapStyle;
   onSelect: (stop: MapStop) => void;
+  /** Three stars on the mission's Master tier: a trophy sits on the stop */
+  hasMasterTrophy?: boolean;
 }
+
+/** The Master trophy pinned to a mission's stop on the map. */
+const MasterTrophyBadge: React.FC = () => (
+  <span
+    className="absolute -top-2 -right-2 z-[3] text-lg leading-none drop-shadow pointer-events-none"
+    role="img"
+    aria-label="גביע מאסטר"
+  >
+    🏆
+  </span>
+);
 
 function getStopLabel(stop: MapStop, gender: LearnerGender): string {
   const { mission, status, stars } = stop.state;
@@ -53,7 +66,7 @@ const COIN_CLASS_BY_STATUS: Record<Exclude<MapStop['state']['status'], 'open'>, 
  * A mission coin: gold with stars when done, pulsing with the companion on it when it's next, grey
  * when locked, violet with a crown when it needs Pro.
  */
-export const MissionCoinStop: React.FC<StopProps> = ({ stop, mapHeight, theme, gender, style, onSelect }) => {
+export const MissionCoinStop: React.FC<StopProps> = ({ stop, mapHeight, theme, gender, style, onSelect, hasMasterTrophy }) => {
   const isReducedMotion = usePrefersReducedMotion();
   const { mission, status, stars, isCurrent } = stop.state;
   const coinClass = status === 'open' ? style.openCoinClass : COIN_CLASS_BY_STATUS[status];
@@ -96,6 +109,7 @@ export const MissionCoinStop: React.FC<StopProps> = ({ stop, mapHeight, theme, g
         {status === 'locked' && <LockBadge className="-bottom-1 -right-1" />}
         {status === 'pro' && <ProBadge className="-bottom-1 -right-1" />}
       </button>
+      {hasMasterTrophy && <MasterTrophyBadge />}
       <div className="absolute top-full mt-1.5 left-1/2 -translate-x-1/2 w-max flex flex-col items-center pointer-events-none">
         {status === 'done' ? (
           <span className={`px-1.5 py-0.5 rounded-full ${style.stopLabelClass}`}>
@@ -140,7 +154,7 @@ function useCastleOpening(missionId: string, isNewlyOpen: boolean): { isShut: bo
 }
 
 /** The Boss stop: a castle showing the stars earned toward its gate, which opens when the gate is met. */
-export const BossCastleStop: React.FC<StopProps> = ({ stop, mapHeight, theme, gender, style, onSelect }) => {
+export const BossCastleStop: React.FC<StopProps> = ({ stop, mapHeight, theme, gender, style, onSelect, hasMasterTrophy }) => {
   const { mission, status, stars, isCurrent, bossGate } = stop.state;
   const isNewlyOpen = status === 'open' && Boolean(bossGate?.isMet);
   const { isShut, isOpening } = useCastleOpening(mission.id, isNewlyOpen);
@@ -196,6 +210,7 @@ export const BossCastleStop: React.FC<StopProps> = ({ stop, mapHeight, theme, ge
           </span>
         )}
       </button>
+      {hasMasterTrophy && <MasterTrophyBadge />}
       <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 w-max whitespace-nowrap pointer-events-none">
         {status === 'done' ? (
           <span className={`flex px-1.5 py-0.5 rounded-full ${style.stopLabelClass}`}>

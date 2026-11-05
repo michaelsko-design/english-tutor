@@ -344,6 +344,12 @@ export interface LearnerProfile {
   stats: LearnerStats;
   /** Maps missionId -> stars earned (0 to 3) */
   missionProgress: Record<string, number>;
+  /**
+   * Best stars (0–3) per mission and tier, so each mission shows an Explorer → Challenger → Master
+   * ladder. `missionProgress` stays the best of them. Profiles from before this have none: their
+   * stars count for the preferred tier (data/tierProgress.ts).
+   */
+  missionTierStars?: Record<string, Partial<Record<ProficiencyTier, number>>>;
   /** Unlocked shop item IDs */
   unlockedRewardIds: string[];
   /** Optional custom equipped avatar emoji from the shop */

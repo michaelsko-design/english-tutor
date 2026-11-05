@@ -3,6 +3,7 @@ import { ModalPortal } from './ModalPortal';
 import { useDialog } from '../hooks/useDialog';
 import { toSpeakableText } from '../services/tts/ttsText';
 import { MissionNode } from '../data/curriculum';
+import type { MissionLadder } from '../data/tierProgress';
 import { RoomRewardItem } from '../data/roomRewards';
 import {
   getExercisesForMission,
@@ -73,12 +74,16 @@ interface MissionRunnerProps {
   mission: MissionNode;
   tier: ProficiencyTier;
   onChangeTier: (newTier: ProficiencyTier) => void;
+  /** Stars the learner already has at each tier of this mission */
+  ladder?: MissionLadder;
   gender: LearnerGender;
   learnerName: string;
   theme: ThemeDefinition;
   onSpeakEnglish: (text: string, rate?: number) => void;
   onCompleteMission: (result: {
     missionId: string;
+    /** The tier played, for the mission's tier ladder */
+    tier: ProficiencyTier;
     starsEarned: 1 | 2 | 3;
     xpEarned: number;
     diamondsEarned: number;
@@ -116,6 +121,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   mission,
   tier,
   onChangeTier,
+  ladder,
   gender,
   learnerName,
   theme,
@@ -416,6 +422,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
       <MissionVictory
         mission={mission}
         tierLabelEn={tierMeta.labelEn}
+        tier={tier}
+        ladder={ladder ? { ...ladder, [tier]: Math.max(ladder[tier], starsEarned) } : undefined}
         starsEarned={starsEarned}
         xpEarned={totalXpEarned}
         maxCombo={maxCombo}
@@ -431,6 +439,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
         onCollect={() =>
           onCompleteMission({
             missionId: mission.id,
+            tier,
             starsEarned,
             xpEarned: totalXpEarned,
             diamondsEarned: totalDiamondsEarned,
@@ -470,6 +479,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
               stepCount={steps.length}
               tier={tier}
               onChangeTier={onChangeTier}
+              ladder={ladder}
               gender={gender}
               theme={theme}
               lessonOffer={lessonOffer}
@@ -543,7 +553,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                   </button>
                 )}
                 <HintPopover
-                  hintHe={currentStep.hintHe}
+                  hintHe={attemptedCurrentStep && currentStep.hintAfterWrongHe ? currentStep.hintAfterWrongHe : currentStep.hintHe}
                   isOpen={showHint}
                   onToggle={setShowHint}
                   theme={theme}
@@ -627,6 +637,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                         onSpeakEnglish={onSpeakEnglish}
                         onStartListening={handleStartSpeechRecognition}
                         onSkip={() => registerSkippedStep(getVoiceSkippedHe(gender))}
+                        hideText={currentStep.hideText}
                       />
                     )
                   )}
@@ -659,8 +670,9 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                   </div>
                 )}
 
-                {/* Grade 1 blending: build the word with letter magnets */}
-                {currentStep.type === 'blend-build' && currentStep.letterTiles && currentStep.targetSentenceEn && (
+                {/* Grade 1 blending (the letters' names are said) and Master's word spelling (from the Hebrew): letter magnets */}
+                {(currentStep.type === 'blend-build' || currentStep.type === 'word-spell') &&
+                  currentStep.letterTiles && currentStep.targetSentenceEn && (
                   <SpellingMagnetDrill
                     targetEn={currentStep.targetSentenceEn}
                     letterTiles={currentStep.letterTiles}
@@ -674,8 +686,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     listenEn={currentStep.targetSentenceEn}
                     listenRate={0.7}
                     onSpeakEnglish={onSpeakEnglish}
-                    speaksLetters
-                    hasListenButton={false}
+                    speaksLetters={currentStep.type === 'blend-build'}
+                    hasListenButton={currentStep.type === 'word-spell'}
                     theme={theme}
                   />
                 )}
@@ -721,7 +733,11 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
           showNext={stepCompleted}
           nextLabel={currentStepIdx + 1 < steps.length ? 'לשלב הבא' : 'סיום משימה וקבלת פרסים 🏆'}
           onNext={handleNextStep}
-          onTryAgain={() => session.setFeedback(null)}
+          onTryAgain={() => {
+            session.setFeedback(null);
+            // A step with a fuller hint shows it when the learner comes back to retry
+            if (currentStep.hintAfterWrongHe) setShowHint(true);
+          }}
           tryAgainLabel={isGirl ? 'נסי שוב' : 'נסה שוב'}
           xpGain={feedbackHe.xpGain}
           theme={theme}

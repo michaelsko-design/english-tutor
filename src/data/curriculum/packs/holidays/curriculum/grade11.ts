@@ -82,6 +82,69 @@ const UNITS: HighSchoolUnitSpec[] = [
             correct: 'It is covered with palm branches.',
             wrong: ['It is covered with paper chains.', 'It is covered with pieces of cloth.'],
           },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'Apples are eaten on Rosh Hashana.',
+                wrong: ['Apples is eaten on Rosh Hashana.'],
+                explainHe: 'במבנה סביל משתמשים ב-be + V3. כשהנושא ברבים (apples), נכתוב are.',
+                hintHe: 'כדאי לבדוק: האם apples ברבים או ביחיד?',
+              },
+              story: {
+                passageEn: 
+                  'On Sukkot, families build a sukkah. They eat meals inside it. Children decorate it with paper chains.',
+                passageHe: 
+                  'בסוכות משפחות בונות סוכה. הן אוכלות בתוכה ארוחות. ילדים מקשטים אותה בשרשראות נייר.',
+                questionEn: 'What do families do inside the sukkah?',
+                questionHe: 'מה המשפחות עושות בתוך הסוכה?',
+                correct: 'They eat meals.',
+                wrong: ['They sleep all day.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['date', 'peach'],
+                ['election', 'surrender'],
+                ['permanent', 'perpetual'],
+                ['construction', 'inflation'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Honey cake is traditionally baked in many homes before the holiday begins each autumn.',
+              sentenceHe: 'עוגת דבש נאפית באופן מסורתי בבתים רבים לפני שהחג מתחיל בכל סתיו.',
+              decoys: ['bakes', 'bake'],
+              voiceEn: 'The sukkah is built every year.',
+              voiceHe: 'הסוכה נבנית בכל שנה.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Pomegranates are eaten at the festive table.',
+                wrong: [
+                  'Pomegranates eaten at the festive table.',
+                  'Pomegranates are eat at the festive table.',
+                  'Pomegranates is eaten at the festive table.',
+                ],
+                explainHe: 
+                  'משפט סביל בהווה: are + V3. חסר are בדוגמה הראשונה, V1 במקום V3 בשנייה, ו-is במקום are בשלישית.',
+                hintEn: 'Check the be-verb and the verb form together.',
+              },
+              story: {
+                passageEn: 
+                  'In the weeks before Sukkot, a village near Jerusalem gathers branches from the surrounding hills. Children are given the task of choosing the greenest palm leaves, while their grandparents tie the frame with rope. The families insist that the roof must be open enough to see the stars, yet thick enough to give shade at noon. When the work is finished, an old neighbour is invited to bless the sukkah. He usually says that a good sukkah teaches people to be thankful for very little.',
+                passageHe: '',
+                questionEn: 'What does the neighbour\'s comment mean?',
+                questionHe: '',
+                correct: 'Little things can bring gratitude.',
+                wrong: [
+                  'Large houses are better than huts.',
+                  'Rope is worth more than leaves.',
+                  'Only a sukkah lets people see stars.',
+                ],
+              },
+              storyHintEn: 'Think about the word little in his sentence.',
+            },
+          },
         },
       },
       {
@@ -147,11 +210,73 @@ const UNITS: HighSchoolUnitSpec[] = [
             passageEn:
               'Hanukkah remembers the revolt of the Maccabees and the rededication of the Temple in Jerusalem. Because only one small jar of pure oil was found, there was only enough for one day. According to tradition, it burned for eight days. As a result, Jewish families light candles for eight nights and eat foods fried in oil, like doughnuts and potato pancakes.',
             passageHe:
-              'חנוכה מזכירה את מרד המכבים ואת חנוכת בית המקדש בירושלים. מכיוון שנמצא רק כד קטן אחד של שמן טהור, היה בו מספיק רק ליום אחד. לפי המסורת, היא דלקה שמונה ימים. כתוצאה מכך, משפחות יהודיות מדליקות נרות שמונה לילות ואוכלות מאכלים מטוגנים בשמן, כמו סופגניות ולביבות.',
+              'חנוכה מזכיר את מרד המכבים ואת חנוכת בית המקדש בירושלים. מכיוון שנמצא רק כד קטן אחד של שמן טהור, היה בו מספיק רק ליום אחד. לפי המסורת, השמן דלק שמונה ימים. כתוצאה מכך, משפחות יהודיות מדליקות נרות שמונה לילות ואוכלות מאכלים מטוגנים בשמן, כמו סופגניות ולביבות.',
             questionEn: 'Why do families eat foods fried in oil on Hanukkah?',
             questionHe: 'למה משפחות אוכלות מאכלים מטוגנים בשמן בחנוכה?',
             correct: 'To remember the oil that burned for eight days.',
             wrong: ['Because oil is cheap in the winter.', 'To celebrate the end of the rainy season.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'Because of the rain, we stayed at home.',
+                wrong: ['Because of it rained, we stayed at home.'],
+                explainHe: 'אחרי Because of בא שם עצם (the rain), ולא משפט שלם.',
+                hintHe: 'כדאי לבדוק מה בא אחרי Because of.',
+              },
+              story: {
+                passageEn: 
+                  'It rained all day. The children could not play outside. So they played games at home.',
+                passageHe: 'ירד גשם כל היום. הילדים לא יכלו לשחק בחוץ. אז הם שיחקו משחקים בבית.',
+                questionEn: 'Why did the children play at home?',
+                questionHe: 'למה הילדים שיחקו בבית?',
+                correct: 'Because it rained.',
+                wrong: ['Because they were tired.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['disaster', 'sermon'],
+                ['banquet', 'carnival'],
+                ['heatwave', 'drought'],
+                ['darken', 'extinguish'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'As a result of the storm the Hanukkah festival was moved into the community centre.',
+              sentenceHe: 'כתוצאה מהסערה, חגיגת החנוכה הועברה אל המתנ״ס.',
+              decoys: ['because', 'moving'],
+              voiceEn: 'The candles were lit at sunset.',
+              voiceHe: 'הנרות הודלקו בשקיעה.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Due to the rain, the parade was cancelled.',
+                wrong: [
+                  'Due to it rained, the parade was cancelled.',
+                  'Because of the rain, so the parade was cancelled.',
+                  'As a result the rain, the parade was cancelled.',
+                ],
+                explainHe: 
+                  'Due to ו-Because of דורשים שם עצם, ואין צורך ב-so אחרי הביטוי. As a result דורש of לפני שם עצם.',
+                hintEn: 'Look at what follows each cause phrase.',
+              },
+              story: {
+                passageEn: 
+                  'During a week of heavy storms, a school in the north lost power on the first night of Hanukkah. The principal feared that the ceremony would be cancelled, but a parent proposed using the candles from the kitchen. Students sat in the dark corridor, and as each flame was lit, the singing grew louder. A teacher later remarked that the storm had made the lights seem brighter than any year before. Several families asked to repeat the evening next winter.',
+                passageHe: '',
+                questionEn: 'Why did the lights seem brighter?',
+                questionHe: '',
+                correct: 'The darkness made them stand out.',
+                wrong: [
+                  'The school installed new bulbs.',
+                  'More candles were used than usual.',
+                  'The ceremony was held outdoors.',
+                ],
+              },
+              storyHintEn: 'Think about the power cut in the corridor.',
+            },
           },
         },
       },
@@ -216,7 +341,7 @@ const UNITS: HighSchoolUnitSpec[] = [
             ],
             explainHe:
               'לפני שם עצם (the rain) צריך ביטוי שמסתיים ב-of: as a result of. אחרי because בלבד צריך לבוא משפט שלם.',
-            hintHe: 'אחרי החיבור בא שם עצם ולא משפט. איזו אפשרות מחברת את שם העצם בצורה נכונה?',
+            hintHe: 'אחרי מילת הקישור בא שם עצם ולא משפט. איזו אפשרות מחברת את שם העצם בצורה נכונה?',
           },
           story: {
             passageEn:
@@ -227,6 +352,66 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'למה מפלס האגם ירד במשך שנים רבות?',
             correct: 'Because of long dry summers.',
             wrong: ['Because of too much desalinated water.', 'Because farmers stopped using it.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which passive sentence is correct?',
+                correct: 'The lake was filled by the winter rain.',
+                wrong: ['The lake was fill by the winter rain.'],
+                explainHe: 'במשפט סביל אחרי was בא V3 (filled), לא V1.',
+                hintHe: 'כדאי לבדוק איזו צורה של הפועל באה אחרי was.',
+              },
+              story: {
+                passageEn: 'This winter was very rainy. The lake got fuller. The farmers were happy.',
+                passageHe: 'החורף היה גשום מאוד. האגם התמלא. החקלאים היו שמחים.',
+                questionEn: 'What happened to the lake?',
+                questionHe: 'מה קרה לאגם?',
+                correct: 'It got fuller.',
+                wrong: ['It got smaller.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['orchard', 'desert'],
+                ['hostile', 'mechanical'],
+                ['anger', 'disgust'],
+                ['absence', 'alternative'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Thanks to the plentiful rain the reservoir was refilled and the farmers were relieved.',
+              sentenceHe: 'הודות לגשמים הרבים המאגר התמלא מחדש והחקלאים הרגישו הקלה.',
+              decoys: ['refilling', 'refill'],
+              voiceEn: 'Heavy rain filled the lake.',
+              voiceHe: 'גשם כבד מילא את האגם.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The fields were watered by the long winter rains.',
+                wrong: [
+                  'The fields watered by the long winter rains.',
+                  'The fields were water by the long winter rains.',
+                  'The fields was watered by the long winter rains.',
+                ],
+                explainHe: 'בסביל: be + V3. כשהנושא ברבים (fields) משתמשים ב-were, ואחרי were בא V3.',
+                hintEn: 'Check the be-verb and the form of water.',
+              },
+              story: {
+                passageEn: 
+                  'After three dry winters, the water level of the lake had fallen so low that old stone walls appeared along the shore. Farmers rationed every drop, and children were taught to turn off taps. Then, in January, rain fell for eleven days. Residents stood on balconies to watch it, and some even danced in the street. Officials cautiously reminded everyone that one wet winter does not erase years of shortage, and the water-saving campaign would continue.',
+                passageHe: '',
+                questionEn: 'Why did officials keep the campaign?',
+                questionHe: '',
+                correct: 'One wet winter was not enough.',
+                wrong: [
+                  'The lake had overflowed its banks.',
+                  'Children refused to turn off taps.',
+                  'Farmers wanted extra water to sell.',
+                ],
+              },
+              storyHintEn: 'Read what officials said about one wet winter.',
+            },
           },
         },
       },
@@ -296,7 +481,7 @@ const UNITS: HighSchoolUnitSpec[] = [
             wrong: ['Purim is noisy, and similarly Tu BiShvat is calm.', 'Purim is noisy, and likewise Tu BiShvat is calm.'],
             explainHe:
               'whereas מחבר בין שני דברים מנוגדים. similarly ו-likewise מראים דמיון, ולכן הם לא מתאימים כאן.',
-            hintHe: 'שני חלקי המשפט מתארים תכונות הפוכות. איזה מחבר מראה הבדל ולא דמיון?',
+            hintHe: 'שני חלקי המשפט מתארים תכונות הפוכות. איזו מילת קישור מראה הבדל ולא דמיון?',
           },
           story: {
             passageEn:
@@ -307,6 +492,68 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'מה משפחות אוכלות בט״ו בשבט?',
             correct: 'Dried fruit such as figs and dates.',
             wrong: ['Sweet pastries filled with jam.', 'Fried doughnuts and potato pancakes.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'Tu BiShvat is about trees, but Purim is about costumes.',
+                wrong: ['Tu BiShvat is about trees, because Purim is about costumes.'],
+                explainHe: 'But מחבר שני רעיונות מנוגדים. Because מסביר סיבה, ולכן לא מתאים כאן.',
+                hintHe: 'כדאי לשאול: האם שני החגים שונים זה מזה?',
+              },
+              story: {
+                passageEn: 
+                  'On Tu BiShvat, children plant trees. On Purim, children wear costumes. Both holidays are fun.',
+                passageHe: 'בט״ו בשבט ילדים שותלים עצים. בפורים ילדים לובשים תחפושות. שני החגים כיפיים.',
+                questionEn: 'What do children do on Purim?',
+                questionHe: 'מה ילדים עושים בפורים?',
+                correct: 'They wear costumes.',
+                wrong: ['They plant trees.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['migrate', 'erupt'],
+                ['boulder', 'bench'],
+                ['verdict', 'compromise'],
+                ['election', 'mortgage'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Unlike Tu BiShvat which is usually quiet Purim features loud parades and colourful street parties.',
+              sentenceHe: 'בניגוד לט״ו בשבט שבדרך כלל שקט, בפורים יש מצעדים רועשים ומסיבות רחוב צבעוניות.',
+              decoys: ['whereas', 'quieter'],
+              voiceEn: 'Both holidays bring families together.',
+              voiceHe: 'שני החגים מפגישים משפחות.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'Tu BiShvat is calm, whereas Purim is noisy.',
+                wrong: [
+                  'Tu BiShvat is calm, whereas Purim noisy is.',
+                  'Tu BiShvat is calm, whereas of Purim is noisy.',
+                  'Tu BiShvat is calm, unlike Purim noisy.',
+                ],
+                explainHe: 
+                  'Whereas פותח משפט שלם עם נושא ופועל (Purim is noisy). אין להוסיף of, ולא לשנות את סדר המילים.',
+                hintEn: 'Check the word order after whereas.',
+              },
+              story: {
+                passageEn: 
+                  'Neighbours in Haifa celebrate both holidays differently every year. In February, the children from Mr Levi\'s street march to a nearby hill with small trees, and each one writes a wish on a tag tied to a branch. A month later the same street is full of princesses, robots and clowns, while someone plays music from an open window. The oldest resident says she prefers the first holiday because she can hear the birds, but she admits that she has never missed the second.',
+                passageHe: '',
+                questionEn: 'What does the oldest resident\'s attitude suggest?',
+                questionHe: '',
+                correct: 'She values both holidays.',
+                wrong: [
+                  'She dislikes noisy street music.',
+                  'She has never noticed the trees.',
+                  'She finds children too young.',
+                ],
+              },
+              storyHintEn: 'Look at what she admits at the end.',
+            },
           },
         },
       },
@@ -378,6 +625,68 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'למה נבחרים מדליקי המשואות?',
             correct: 'For their special contribution to society.',
             wrong: ['For their success in a national quiz.', 'For organising picnics in the parks.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'The girl who sings is my cousin.',
+                wrong: ['The girl which sings is my cousin.'],
+                explainHe: 'לאדם משתמשים ב-who ולא ב-which.',
+                hintHe: 'כדאי לבדוק: מדברים על אדם או על חפץ?',
+              },
+              story: {
+                passageEn: 
+                  'Dan has a friend who lives in Haifa. His friend has a dog that likes the beach. They go there every Friday.',
+                passageHe: 'לדן יש חבר שגר בחיפה. לחבר יש כלב שאוהב את החוף. הם הולכים לשם בכל יום שישי.',
+                questionEn: 'Where does Dan\'s friend live?',
+                questionHe: 'איפה גר החבר של דן?',
+                correct: 'In Haifa.',
+                wrong: ['In Eilat.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['exploitation', 'isolation'],
+                ['tournament', 'pilgrimage'],
+                ['allergic', 'digestive'],
+                ['punishment', 'taxation'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'The festival that attracts tourists takes place in the village where my grandfather lived.',
+              sentenceHe: 'הפסטיבל שמושך תיירים מתקיים בכפר שבו סבי גר.',
+              decoys: ['who', 'whose'],
+              voiceEn: 'This is the park where we met.',
+              voiceHe: 'זה הפארק שבו נפגשנו.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The woman who baked the cake is my aunt.',
+                wrong: [
+                  'The woman which baked the cake is my aunt.',
+                  'The woman who she baked the cake is my aunt.',
+                  'The woman whose baked the cake is my aunt.',
+                ],
+                explainHe: 
+                  'לאדם משתמשים ב-who, ואין להוסיף כינוי נושא (she) אחריו. Whose מביע שייכות ולא מתאים כאן.',
+                hintEn: 'Check the word after woman.',
+              },
+              story: {
+                passageEn: 
+                  'The village where Rina spent her summers has a small museum that few tourists visit. Its owner, who used to be a fisherman, collects objects that the sea brings to the shore: bottles, ropes, even a broken wooden clock. Visitors who ask about the clock hear a long story about a ship that never arrived. Rina once asked him whether the story was true, and he winked. According to him, a good museum is a place where imagination is allowed to work.',
+                passageHe: '',
+                questionEn: 'What does the wink suggest?',
+                questionHe: '',
+                correct: 'The story may have been invented.',
+                wrong: [
+                  'The clock still worked perfectly.',
+                  'The ship arrived safely last year.',
+                  'Rina had visited before.',
+                ],
+              },
+              storyHintEn: 'Think about why he winked instead of answering.',
+            },
           },
         },
       },
@@ -453,6 +762,68 @@ const UNITS: HighSchoolUnitSpec[] = [
             questionHe: 'איך קיבוצים רבים חוגגים את שבועות?',
             correct: 'With tractors full of fresh produce.',
             wrong: ['With a week of reading the Haggadah.', 'With fireworks over the beach.'],
+          },
+          tiers: {
+            explorer: {
+              rule: {
+                questionEn: 'Which sentence is correct?',
+                correct: 'Matza is the bread that we eat on Passover.',
+                wrong: ['Matza is the bread who we eat on Passover.'],
+                explainHe: 'לחפץ משתמשים ב-that או ב-which, לא ב-who.',
+                hintHe: 'כדאי לבדוק: מתארים אדם או חפץ?',
+              },
+              story: {
+                passageEn: 
+                  'In summer it is very hot in Israel. People go to the beach. They drink a lot of water.',
+                passageHe: 'בקיץ חם מאוד בישראל. אנשים הולכים לים. הם שותים הרבה מים.',
+                questionEn: 'What do people drink?',
+                questionHe: 'מה אנשים שותים?',
+                correct: 'A lot of water.',
+                wrong: ['Hot tea only.'],
+              },
+            },
+            challenger: {
+              clozeWrong: [
+                ['currency', 'pension'],
+                ['demolish', 'outnumber'],
+                ['leavened', 'fermented'],
+                ['pleasant', 'chilly'],
+              ],
+            },
+            master: {
+              sentenceEn: 
+                'Passover recalls the exodus from Egypt whereas Independence Day marks the founding of Israel.',
+              sentenceHe: 'פסח מזכיר את יציאת מצרים, ואילו יום העצמאות מציין את הקמת ישראל.',
+              decoys: ['which', 'where'],
+              voiceEn: 'We commemorate the past every year.',
+              voiceHe: 'אנחנו מנציחים את העבר בכל שנה.',
+              errorFix: {
+                questionEn: 'Which sentence has no mistake?',
+                correct: 'The ceremony, which starts at sunset, is broadcast live.',
+                wrong: [
+                  'The ceremony, who starts at sunset, is broadcast live.',
+                  'The ceremony, that starts at sunset, is broadcast live.',
+                  'The ceremony, which it starts at sunset, is broadcast live.',
+                ],
+                explainHe: 
+                  'בפסוקית זיקה עם פסיקים משתמשים ב-which (לא ב-who) ולא ב-that, ואין להוסיף כינוי נושא (it).',
+                hintEn: 'Check the word after the first comma.',
+              },
+              story: {
+                passageEn: 
+                  'Every year, a school in the Negev invites survivors and soldiers to speak before Independence Day. Last year, a retired pilot described the heat of the first summer after the war, when water arrived in trucks and children shared one cup. The students were quiet for a long time. Afterwards, a girl who had planned a funny speech asked to change her text. She said that the pilot\'s cup had taught her more about gratitude than any lesson.',
+                passageHe: '',
+                questionEn: 'Why did the girl change her speech?',
+                questionHe: '',
+                correct: 'She was moved by the pilot\'s story.',
+                wrong: [
+                  'She forgot the words she had written.',
+                  'The headteacher refused her jokes.',
+                  'The students asked her to speak shorter.',
+                ],
+              },
+              storyHintEn: 'Notice what she says about the pilot\'s cup.',
+            },
           },
         },
       },

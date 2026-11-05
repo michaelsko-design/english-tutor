@@ -1,6 +1,7 @@
 import React from 'react';
 import { LearnerGender, ProficiencyTier } from '../../types/learner';
 import { ThemeDefinition, TIER_CONFIG } from '../../themes/themeRegistry';
+import type { MissionLadder } from '../../data/tierProgress';
 
 interface TierChoiceProps {
   tier: ProficiencyTier;
@@ -9,12 +10,18 @@ interface TierChoiceProps {
   theme: ThemeDefinition;
   /** Three chips in a row (the world map's mission sheet) instead of full-width cards */
   isCompact?: boolean;
+  /** The stars already earned at each tier; a tier never played is marked as new questions */
+  ladder?: MissionLadder;
+}
+
+function starsLabel(stars: number): string {
+  return `${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}`;
 }
 
 export const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
 
 /** The three challenge tiers as chunky buttons: on the mission intro and the world map's mission sheet. */
-export const TierChoice: React.FC<TierChoiceProps> = ({ tier, onChangeTier, gender, theme, isCompact = false }) => {
+export const TierChoice: React.FC<TierChoiceProps> = ({ tier, onChangeTier, gender, theme, isCompact = false, ladder }) => {
   const legend = gender === 'girl' ? 'בחרי רמת אתגר:' : 'בחר רמת אתגר:';
   const selectedStyle = 'bg-emerald-500/15 border-2 border-emerald-500 btn-chunky-correct';
 
@@ -40,6 +47,11 @@ export const TierChoice: React.FC<TierChoiceProps> = ({ tier, onChangeTier, gend
                   {meta.badgeEmoji}
                 </span>
                 <span className="text-sm font-extrabold">{meta.labelHe}</span>
+                {ladder && (
+                  <span className="text-xs font-bold text-amber-500" dir="ltr">
+                    {ladder[tierId] > 0 ? starsLabel(ladder[tierId]) : 'שאלות חדשות'}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -77,6 +89,11 @@ export const TierChoice: React.FC<TierChoiceProps> = ({ tier, onChangeTier, gend
               </span>
               <span className={`block text-xs font-bold mt-0.5 ${theme.mutedTextClass}`}>{meta.descriptionHe}</span>
             </span>
+            {ladder && (
+              <span className="text-sm font-bold text-amber-500 shrink-0" dir="ltr">
+                {ladder[tierId] > 0 ? starsLabel(ladder[tierId]) : <span className="text-xs">שאלות חדשות</span>}
+              </span>
+            )}
           </button>
         );
       })}

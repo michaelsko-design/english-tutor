@@ -28,7 +28,9 @@ export type DrillType =
   | 'blend-listen'
   | 'blend-read'
   | 'blend-build'
-  | 'blend-change';
+  | 'blend-change'
+  // Master: spell a word from its Hebrew with letter magnets
+  | 'word-spell';
 
 export interface MultipleChoiceOption {
   textEn: string;
@@ -45,6 +47,8 @@ export interface MissionExerciseStep {
   badgeLabelHe: string;
   promptHe: string;
   hintHe: string;
+  /** A fuller hint that replaces `hintHe` (and opens itself) after the learner's first wrong answer */
+  hintAfterWrongHe?: string;
   // For chat-reply, grammar-detective, story-unseen
   speakerName?: string;
   speakerAvatar?: string;
@@ -64,6 +68,8 @@ export interface MissionExerciseStep {
   speakTargetEn?: string;
   speakTargetHe?: string;
   focusWordEn?: string;
+  /** Voice step (Master): the sentence stays hidden until the learner taps "show" or has tried saying it */
+  hideText?: boolean;
   /** Letters and blending steps: what the question card shows very large (a letter, a picture, a word) */
   cardDisplay?: string;
   /** Blending steps: the word as sound tiles ("sh", "i", "p") */
@@ -87,7 +93,7 @@ export function getExercisesForMission(
   gender: LearnerGender = 'girl',
   salt: number = 0
 ): MissionExerciseStep[] {
-  const steps = getRawExercisesForMission(mission, tier, gender);
+  const steps = getRawExercisesForMission(mission, tier, gender, salt);
   return steps.map((step) =>
     resolveStepGenderSlashes(shuffleStepChoices(step, `${mission.id}|${tier}|${step.id}|${salt}`), gender)
   );
@@ -105,6 +111,7 @@ export function resolveStepGenderSlashes<T extends MissionExerciseStep>(step: T,
     badgeLabelHe: resolve(step.badgeLabelHe),
     promptHe: resolve(step.promptHe),
     hintHe: resolve(step.hintHe),
+    hintAfterWrongHe: resolveOptional(step.hintAfterWrongHe),
     contextPassageHe: resolveOptional(step.contextPassageHe),
     targetSentenceHe: resolveOptional(step.targetSentenceHe),
     cardTextHe: resolveOptional(step.cardTextHe),
@@ -138,14 +145,15 @@ export function shuffleStepChoices<T extends MissionExerciseStep>(step: T, seedK
 export function getRawExercisesForMission(
   mission: MissionNode,
   tier: ProficiencyTier,
-  gender: LearnerGender
+  gender: LearnerGender,
+  salt: number = 0
 ): MissionExerciseStep[] {
   // Grade 1 phonics: letters A–Z, then blending them into words (Feature 48)
   if (mission.phonics?.kind === 'letters') return buildLetterExercises(mission, tier, gender);
   if (mission.phonics?.kind === 'blending') return buildBlendingExercises(mission, tier, gender);
   // All missions across Grades 1 through 12 with drillSeed delegate to the structured generator
   if (mission.drillSeed) {
-    return buildElementaryExercises(mission, tier, gender);
+    return buildElementaryExercises(mission, tier, gender, salt);
   }
 
   // Graceful fallback for any dynamic mission node missing drillSeed

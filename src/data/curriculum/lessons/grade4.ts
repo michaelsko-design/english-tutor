@@ -17,10 +17,10 @@ export const GRADE_4_LESSONS: LessonPack = {
     tipHe: 'can’t הוא קיצור של can not: אי אפשר.',
     quickTry: {
       promptHe: 'מה בא אחרי can?',
-      questionEn: 'A frog can ____ high.',
-      correct: 'jump',
-      wrong: 'jumps',
-      explainHe: 'אחרי can בא הפועל בלי s: jump.',
+      questionEn: 'My dad can ____ a big truck.',
+      correct: 'drive',
+      wrong: 'drives',
+      explainHe: 'אחרי can בא הפועל בלי s: drive.',
     },
   },
   'g4-u1-m2': {

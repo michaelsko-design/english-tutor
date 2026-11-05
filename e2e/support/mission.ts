@@ -88,6 +88,71 @@ const SENTENCE_BY_WORDS = new Map(
   })
 );
 
+/** Sorted letters → the curriculum words spelled with exactly those letters */
+const WORDS_BY_LETTERS = new Map<string, string[]>();
+for (const text of collectStrings(CURRICULUM_BY_GRADE)) {
+  if (!/^[A-Za-z]{2,}$/.test(text)) continue;
+  const key = text.toLowerCase().split('').sort().join('');
+  const known = WORDS_BY_LETTERS.get(key) ?? [];
+  if (!known.includes(text.toLowerCase())) WORDS_BY_LETTERS.set(key, [...known, text.toLowerCase()]);
+}
+
+/** The words made of exactly these letters (anagrams are rare, so usually one) */
+export function wordsFromLetters(letters: string[]): string[] {
+  return WORDS_BY_LETTERS.get(letters.map((letter) => letter.toLowerCase()).sort().join('')) ?? [];
+}
+
+/** Master's word-spell step: the letters on offer, then the word built from them */
+export async function spellWord(page: Page, mission: Locator): Promise<void> {
+  const tiles = mission.getByLabel('האותיות');
+  const letters = (await tiles.getByRole('button').evaluateAll((buttons) =>
+    buttons.map((button) => (button.getAttribute('aria-label') ?? '').replace('letter ', ''))
+  )) as string[];
+  const candidates = wordsFromLetters(letters);
+  if (candidates.length === 0) throw new Error(`no curriculum word has the letters: ${letters.join('')}`);
+  const check = mission.getByRole('button', { name: /בדיקת איות/ });
+  const tryAgain = page.getByRole('button', { name: /נס(י|ה) שוב/ });
+  const next = page.getByRole('button', { name: NEXT_STEP });
+  for (const word of candidates) {
+    for (const letter of word) {
+      await tiles.getByRole('button', { name: `letter ${letter}`, disabled: false }).first().click();
+    }
+    await check.click();
+    await expect(next.or(tryAgain)).toBeVisible();
+    if (await next.isVisible()) return;
+    await tryAgain.click();
+    await mission.getByRole('button', { name: /איפוס אותיות/ }).click();
+  }
+  throw new Error('no candidate word was right');
+}
+
+/**
+ * Master's sentence builder has two extra chips: finds the curriculum sentence whose words are
+ * among the chips on screen and leave exactly two chips over, then taps its words in order.
+ */
+export async function buildSentenceAmongDecoys(mission: Locator): Promise<void> {
+  const bank = mission.getByLabel('בנק המילים');
+  const chips = (await bank.getByRole('button').allTextContents()).map((word) => word.trim());
+  const answers = [...new Set(collectStrings(CURRICULUM_BY_GRADE))]
+    .filter((text) => /^[A-Z][^.!?]*[.!?]$/.test(text))
+    .map(toSentenceWords)
+    .filter((words) => words.length === chips.length - 2 && isSubMultiset(words, chips));
+  if (answers.length === 0) throw new Error(`no curriculum sentence fits the chips: ${chips.join(' ')}`);
+  for (const word of answers[0]) {
+    await bank.getByRole('button', { name: word, exact: true, disabled: false }).first().click();
+  }
+}
+
+function isSubMultiset(part: string[], whole: string[]): boolean {
+  const left = [...whole];
+  return part.every((word) => {
+    const at = left.indexOf(word);
+    if (at < 0) return false;
+    left.splice(at, 1);
+    return true;
+  });
+}
+
 /**
  * Builds the sentence-builder step's sentence: finds the curriculum sentence made of exactly the
  * word chips on screen, then taps the chips in that sentence's order.

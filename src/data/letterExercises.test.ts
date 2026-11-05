@@ -92,6 +92,25 @@ describe('grade 1 letters and blending units (Feature 48)', () => {
     }
   });
 
+  it('gives Master two extra letter tiles in the word build, and each tier starts at another word', () => {
+    for (const mission of BLEND_MISSIONS) {
+      if (mission.phonics?.kind !== 'blending') continue;
+      const build = (tier: 'explorer' | 'challenger' | 'master') =>
+        getExercisesForMission(mission, tier).find((s) => s.type === 'blend-build')!;
+      const master = build('master');
+      const word = master.targetSentenceEn ?? '';
+      expect(master.letterTiles, mission.id).toHaveLength(word.length + 2);
+      // Every letter of the word is still among the tiles
+      const remaining = [...(master.letterTiles ?? [])];
+      for (const letter of word) remaining.splice(remaining.indexOf(letter), 1);
+      expect(remaining.every((extra) => !word.includes(extra)), mission.id).toBe(true);
+      if (mission.phonics.words.length >= 3) {
+        const words = ['explorer', 'challenger', 'master'].map((t) => build(t as 'explorer').targetSentenceEn);
+        expect(new Set(words).size, mission.id).toBe(3);
+      }
+    }
+  });
+
   it('never reads a reading check aloud by itself', () => {
     for (const mission of BLEND_MISSIONS) {
       for (const tier of TIERS) {
