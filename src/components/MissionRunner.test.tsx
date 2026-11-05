@@ -61,6 +61,24 @@ describe('MissionRunner', () => {
     );
   });
 
+  it('a mission with a missed first try finishes with fewer than 3 stars', async () => {
+    const user = userEvent.setup();
+    const mission = firstMission('grade-1');
+    const steps = getExercisesForMission(mission, 'challenger', 'girl', 0);
+    const { onCompleteMission } = renderRunner(mission);
+
+    await answerWrongly(user, steps[0]);
+    await user.click(screen.getByRole('button', { name: 'נסי שוב' }));
+    for (const [index, step] of steps.entries()) {
+      await answerCorrectly(user, step);
+      await user.click(screen.getByRole('button', { name: index === steps.length - 1 ? /סיום משימה/ : /לשלב הבא/ }));
+    }
+    await user.click(await screen.findByRole('button', { name: /איסוף פרסים/ }));
+
+    const [result] = onCompleteMission.mock.calls[0] as [{ starsEarned: number }];
+    expect(result.starsEarned).toBeLessThan(3);
+  });
+
   it('a wrong answer shows the try-again sheet, and the step can be answered again', async () => {
     const user = userEvent.setup();
     const mission = firstMission('grade-1');

@@ -4,7 +4,9 @@
  * Uses the two emulator test accounts (see .claude/test-user-emulator.md); never the live project.
  */
 import { initializeApp } from 'firebase/app';
-import { connectAuthEmulator, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  connectAuthEmulator, createUserWithEmailAndPassword, getAuth, signInAnonymously, signInWithEmailAndPassword,
+} from 'firebase/auth';
 import {
   connectFirestoreEmulator, deleteDoc, doc, getDoc, getFirestore, setDoc, updateDoc, writeBatch,
 } from 'firebase/firestore';
@@ -37,8 +39,13 @@ const today = (() => {
 
 const a = app('a');
 const b = app('b');
-const ua = (await signInWithEmailAndPassword(a.auth, 'emutest@peachnote.tutor.local', PIN)).user;
-const ub = (await signInWithEmailAndPassword(b.auth, 'emutest2@peachnote.tutor.local', PIN)).user;
+// The accounts exist only in the emulator, so a fresh emulator (firebase emulators:exec) gets them created
+const signInOrCreate = (appPair, email) =>
+  signInWithEmailAndPassword(appPair.auth, email, PIN)
+    .catch(() => createUserWithEmailAndPassword(appPair.auth, email, PIN))
+    .then((credential) => credential.user);
+const ua = await signInOrCreate(a, 'emutest@peachnote.tutor.local');
+const ub = await signInOrCreate(b, 'emutest2@peachnote.tutor.local');
 const pairId = [ua.uid, ub.uid].sort().join('_');
 
 // A's public profile (a request must match it)
@@ -281,6 +288,206 @@ await deleteDoc(doc(b.db, 'parentLinks', linkId)).catch(() => {});
 for (const path of [`entitlements/${ua.uid}`, `subscriptions/${'x'.repeat(32)}`, `checkouts/${'x'.repeat(32)}`]) {
   await fetch(ownerDoc(path), { method: 'DELETE', headers: { Authorization: 'Bearer owner' } }).catch(() => {});
 }
+
+// ---- Gap coverage (audit "Test coverage" item 2): A and B are learners, C a third real account, D anonymous ----
+// C only exists in the emulator; it is a stranger to both A and B.
+const c = app('c');
+const C_EMAIL = 'emutest3@peachnote.tutor.local';
+const uc = await signInOrCreate(c, C_EMAIL);
+const d = app('d');
+await signInAnonymously(d.auth);
+const nowIso = () => new Date().toISOString();
+
+// Lookups: usernames and friend codes belong to their owner
+const lookupEntry = (uid) => ({ uid, displayName: 'Noa', avatarEmoji: '🐱' });
+await deleteDoc(doc(a.db, 'usernames', 'emutest')).catch(() => {});
+await deleteDoc(doc(a.db, 'friendCodeOwners', ua.uid)).catch(() => {});
+await deleteDoc(doc(a.db, 'friendCodes', 'K7MP2QXA')).catch(() => {});
+await expect('a learner cannot claim the username of another sign-in email', false, () =>
+  setDoc(doc(b.db, 'usernames', 'emutest'), lookupEntry(ub.uid)));
+await expect('a username entry pointing at another uid is denied', false, () =>
+  setDoc(doc(a.db, 'usernames', 'emutest'), lookupEntry(ub.uid)));
+await expect('the owner of the sign-in email can publish the username', true, () =>
+  setDoc(doc(a.db, 'usernames', 'emutest'), lookupEntry(ua.uid)));
+await expect('another learner can look the username up', true, () => getDoc(doc(b.db, 'usernames', 'emutest')));
+await expect('a non-owner cannot overwrite a username', false, () =>
+  setDoc(doc(b.db, 'usernames', 'emutest'), lookupEntry(ub.uid)));
+await expect('a non-owner cannot delete a username', false, () => deleteDoc(doc(b.db, 'usernames', 'emutest')));
+await expect('the owner can delete the username', true, () => deleteDoc(doc(a.db, 'usernames', 'emutest')));
+await claimFriendCode('K7MP2QXA');
+await expect('another learner can look a friend code up', true, () => getDoc(doc(b.db, 'friendCodes', 'K7MP2QXA')));
+await expect('a non-owner cannot take over a friend code', false, () =>
+  setDoc(doc(b.db, 'friendCodes', 'K7MP2QXA'), lookupEntry(ub.uid)));
+await expect('a non-owner cannot delete a friend code', false, () => deleteDoc(doc(b.db, 'friendCodes', 'K7MP2QXA')));
+await expect('a learner cannot read another learner\'s code-owner record', false, () =>
+  getDoc(doc(b.db, 'friendCodeOwners', ua.uid)));
+await expect('a code-owner record for a code the learner does not own is denied', false, () =>
+  setDoc(doc(b.db, 'friendCodeOwners', ub.uid), { code: 'K7MP2QXA' }));
+await deleteDoc(doc(a.db, 'friendCodeOwners', ua.uid)).catch(() => {});
+await deleteDoc(doc(a.db, 'friendCodes', 'K7MP2QXA')).catch(() => {});
+
+// Friendships and contests between A (requester) and B (invitee), with C as a stranger
+const counterNow = await getDoc(counterRef);
+const counterData = counterNow.exists() ? counterNow.data() : null;
+const requestCount = counterData && counterData.dateStr === today ? counterData.count + 1 : 1;
+if (requestCount > 10) {
+  results.push(['SKIP', 'friendship and contest rules: daily friend-request limit already reached in the emulator', '']);
+} else {
+  await deleteDoc(doc(a.db, 'friendships', pairId)).catch(() => {});
+  await setDoc(doc(b.db, 'publicProfiles', ub.uid), {
+    displayName: 'Ido', avatarEmoji: '🐶', level: 1, streakDays: 0, stars: 0, missionsCompleted: 0, updatedAt: nowIso(),
+  });
+  const friendRequest = () => {
+    const batch = writeBatch(a.db);
+    batch.set(doc(a.db, 'friendships', pairId), { ...request, createdAt: nowIso() });
+    batch.set(counterRef, { dateStr: today, count: requestCount });
+    return batch.commit();
+  };
+  const friendshipRef = (db) => doc(db, 'friendships', pairId);
+  await expect('a learner can send a friend request', true, friendRequest);
+  await expect('the requester cannot accept their own request', false, () =>
+    updateDoc(friendshipRef(a.db), { status: 'accepted', acceptedAt: nowIso() }));
+  await expect('a stranger cannot read a friendship', false, () => getDoc(friendshipRef(c.db)));
+  await expect('a stranger cannot accept a friendship', false, () =>
+    updateDoc(friendshipRef(c.db), { status: 'accepted', acceptedAt: nowIso() }));
+  await expect('a stranger cannot delete a friendship', false, () => deleteDoc(friendshipRef(c.db)));
+  await expect('a pending request does not open the requester\'s public profile', false, () =>
+    getDoc(doc(b.db, 'publicProfiles', ua.uid)));
+  await expect('the invitee cannot change other fields when accepting', false, () =>
+    updateDoc(friendshipRef(b.db), { status: 'accepted', acceptedAt: nowIso(), requesterName: 'Mallory' }));
+  await expect('a reaction on a pending request is denied', false, () =>
+    updateDoc(friendshipRef(b.db), { ['reactions.' + ub.uid]: { emoji: '🎉', at: nowIso() } }));
+  await expect('the invitee can accept', true, () =>
+    updateDoc(friendshipRef(b.db), { status: 'accepted', acceptedAt: nowIso() }));
+  await expect('friends can read each other\'s public profile', true, () => getDoc(doc(b.db, 'publicProfiles', ua.uid)));
+  await expect('a stranger cannot read a public profile', false, () => getDoc(doc(c.db, 'publicProfiles', ua.uid)));
+  await expect('a friend can send a preset reaction', true, () =>
+    updateDoc(friendshipRef(b.db), { ['reactions.' + ub.uid]: { emoji: '🎉', at: nowIso() } }));
+  await expect('a reaction that is not a preset is denied', false, () =>
+    updateDoc(friendshipRef(b.db), { ['reactions.' + ub.uid]: { emoji: 'hi', at: nowIso() } }));
+  await expect('a friend cannot write the other friend\'s reaction', false, () =>
+    updateDoc(friendshipRef(b.db), { ['reactions.' + ua.uid]: { emoji: '🎉', at: nowIso() } }));
+  await expect('a stranger cannot react', false, () =>
+    updateDoc(friendshipRef(c.db), { ['reactions.' + uc.uid]: { emoji: '🎉', at: nowIso() } }));
+
+  const contestId = `${pairId}_${today}`;
+  const contestRef = (db) => doc(db, 'contests', contestId);
+  const contest = (overrides = {}) => ({
+    uids: [ua.uid, ub.uid], createdBy: ua.uid, creatorName: 'Noa', inviteeName: 'Ido', dateStr: today,
+    expiresAtMs: Date.now() + 12 * 3600 * 1000, seed: 42, unitNumber: 1, status: 'invited', createdAt: nowIso(),
+    ...overrides,
+  });
+  const contestResult = (overrides = {}) => ({
+    correctCount: 5, totalCount: 10, timeMs: 60000, finishedAt: nowIso(), ...overrides,
+  });
+  const putResult = (db, uid, value) => updateDoc(contestRef(db), { ['results.' + uid]: value });
+  await deleteDoc(contestRef(a.db)).catch(() => {});
+  await expect('a contest created in someone else\'s name is denied', false, () =>
+    setDoc(contestRef(a.db), contest({ createdBy: ub.uid })));
+  await expect('a contest whose first uid is not the creator is denied', false, () =>
+    setDoc(contestRef(a.db), contest({ uids: [ub.uid, ua.uid] })));
+  await expect('a contest with a stranger is denied', false, () =>
+    setDoc(doc(c.db, 'contests', `${[uc.uid, ua.uid].sort().join('_')}_${today}`),
+      contest({ uids: [uc.uid, ua.uid], createdBy: uc.uid, creatorName: 'Eve' })));
+  await expect('a contest that already ended is denied', false, () =>
+    setDoc(contestRef(a.db), contest({ expiresAtMs: Date.now() - 1000 })));
+  await expect('a contest that lasts more than a day is denied', false, () =>
+    setDoc(contestRef(a.db), contest({ expiresAtMs: Date.now() + 30 * 3600 * 1000 })));
+  await expect('a contest created as already accepted is denied', false, () =>
+    setDoc(contestRef(a.db), contest({ status: 'accepted' })));
+  await expect('a contest with the wrong id is denied', false, () =>
+    setDoc(doc(a.db, 'contests', `${pairId}_2099-01-01`), contest()));
+  await expect('a contest with a made-up creator name is denied', false, () =>
+    setDoc(contestRef(a.db), contest({ creatorName: 'Mallory' })));
+  await expect('a friend can invite to a contest', true, () => setDoc(contestRef(a.db), contest()));
+  await expect('a stranger cannot read a contest', false, () => getDoc(contestRef(c.db)));
+  await expect('the invitee cannot post a result before accepting', false, () =>
+    putResult(b.db, ub.uid, contestResult()));
+  await expect('the creator cannot accept their own invitation', false, () =>
+    updateDoc(contestRef(a.db), { status: 'accepted' }));
+  await expect('a player cannot post a result for the other player', false, () =>
+    putResult(a.db, ub.uid, contestResult()));
+  await expect('a result faster than 3 seconds is denied', false, () =>
+    putResult(a.db, ua.uid, contestResult({ timeMs: 1000 })));
+  await expect('a result with fewer than 5 questions is denied', false, () =>
+    putResult(a.db, ua.uid, contestResult({ totalCount: 3, correctCount: 3 })));
+  await expect('a result with more correct answers than questions is denied', false, () =>
+    putResult(a.db, ua.uid, contestResult({ correctCount: 11 })));
+  await expect('a result with an extra field is denied', false, () =>
+    putResult(a.db, ua.uid, contestResult({ bonus: 1 })));
+  await expect('the creator can post a valid result', true, () => putResult(a.db, ua.uid, contestResult()));
+  await expect('a result cannot be replaced', false, () => putResult(a.db, ua.uid, contestResult({ correctCount: 10 })));
+  await expect('the invitee can accept', true, () => updateDoc(contestRef(b.db), { status: 'accepted' }));
+  await expect('the invitee can post a valid result after accepting', true, () =>
+    putResult(b.db, ub.uid, contestResult({ correctCount: 7 })));
+  // An expired contest cannot be created by a client, so it is seeded the way the server would
+  const expiredId = `${pairId}_2020-01-01`;
+  await seedAsServer(`contests/${expiredId}`, {
+    uids: { arrayValue: { values: [{ stringValue: ua.uid }, { stringValue: ub.uid }] } },
+    createdBy: { stringValue: ua.uid }, status: { stringValue: 'accepted' }, dateStr: { stringValue: '2020-01-01' },
+    expiresAtMs: { integerValue: '1000' },
+  });
+  await expect('a result on an expired contest is denied', false, () =>
+    updateDoc(doc(b.db, 'contests', expiredId), { ['results.' + ub.uid]: contestResult() }));
+  await expect('a player can delete an expired contest', true, () => deleteDoc(doc(b.db, 'contests', expiredId)));
+  await expect('a stranger cannot delete a contest', false, () => deleteDoc(contestRef(c.db)));
+  await expect('a player can delete a contest', true, () => deleteDoc(contestRef(a.db)));
+  await expect('a friend can remove the friendship', true, () => deleteDoc(friendshipRef(b.db)));
+  await deleteDoc(doc(b.db, 'publicProfiles', ub.uid)).catch(() => {});
+}
+
+// Parent codes: only their learner changes them
+await deleteDoc(doc(a.db, 'parentInvites', CODE)).catch(() => {});
+await setDoc(doc(a.db, 'parentInvites', CODE), invite());
+await expect('another learner cannot change a parent code', false, () =>
+  updateDoc(doc(b.db, 'parentInvites', CODE), { childName: 'Mallory' }));
+await expect('another learner cannot delete a parent code', false, () => deleteDoc(doc(b.db, 'parentInvites', CODE)));
+await expect('a learner cannot hand a parent code to another learner', false, () =>
+  updateDoc(doc(a.db, 'parentInvites', CODE), { childUid: ub.uid }));
+await expect('a parent cannot claim a code for a different child uid', false, () => claim(b.db, { childUid: uc.uid }));
+await deleteDoc(doc(a.db, 'parentInvites', CODE)).catch(() => {});
+
+// Anonymous (guest) sessions can only reach their own learners document
+await expect('a guest can save their own learner document', true, () =>
+  setDoc(doc(d.db, 'learners', d.auth.currentUser.uid), { probe: true }));
+await expect('a guest can read their own learner document', true, () =>
+  getDoc(doc(d.db, 'learners', d.auth.currentUser.uid)));
+await expect('a guest cannot read another learner document', false, () => getDoc(doc(d.db, 'learners', ua.uid)));
+await deleteDoc(doc(d.db, 'learners', d.auth.currentUser.uid)).catch(() => {});
+const guestDenied = {
+  'a friend code': ['friendCodes', 'K7MP2QXA'],
+  'a username': ['usernames', 'emutest'],
+  'a public profile': ['publicProfiles', ua.uid],
+  'a friendship': ['friendships', pairId],
+  'a contest': ['contests', `${pairId}_${today}`],
+  'a parent code': ['parentInvites', CODE],
+  'a parent link': ['parentLinks', linkId],
+  'a report snapshot': ['reportSnapshots', ua.uid],
+  'an entitlement': ['entitlements', ua.uid],
+  'a push subscription': ['pushSubscriptions', ua.uid],
+};
+for (const [label, [collectionName, id]] of Object.entries(guestDenied)) {
+  await expect(`a guest cannot read ${label}`, false, () => getDoc(doc(d.db, collectionName, id)));
+}
+await expect('a guest cannot publish a friend code', false, () =>
+  setDoc(doc(d.db, 'friendCodes', 'K7MP2QXB'), lookupEntry(d.auth.currentUser.uid)));
+await expect('a guest cannot publish a public profile', false, () =>
+  setDoc(doc(d.db, 'publicProfiles', d.auth.currentUser.uid), publicProfile(1)));
+await expect('a guest cannot make a parent code', false, () =>
+  setDoc(doc(d.db, 'parentInvites', 'K7MP2QXC'), invite({ childUid: d.auth.currentUser.uid })));
+await expect('a guest cannot save a push subscription', false, () =>
+  setDoc(doc(d.db, 'pushSubscriptions', d.auth.currentUser.uid), pushSub()));
+const signedOut = app('signedOut');
+await expect('a signed-out visitor cannot read a learner document', false, () => getDoc(doc(signedOut.db, 'learners', ua.uid)));
+await expect('a signed-out visitor cannot read a friend code', false, () => getDoc(doc(signedOut.db, 'friendCodes', 'K7MP2QXA')));
+
+// Anything the rules do not name is denied, even for a real account
+await expect('an unknown top-level collection is denied for reads', false, () => getDoc(doc(a.db, 'madeUp', 'x')));
+await expect('an unknown top-level collection is denied for writes', false, () => setDoc(doc(a.db, 'madeUp', 'x'), { a: 1 }));
+await expect('an unknown subcollection of a learner is denied', false, () =>
+  setDoc(doc(a.db, 'learners', ua.uid, 'madeUp', 'x'), { a: 1 }));
+await expect('another learner cannot write a learner document', false, () =>
+  setDoc(doc(b.db, 'learners', ua.uid), { probe: true }));
 
 for (const [status, label, detail] of results) console.log(`${status}  ${label}${detail ? `  (${detail})` : ''}`);
 process.exit(results.some(([s]) => s === 'FAIL') ? 1 : 0);

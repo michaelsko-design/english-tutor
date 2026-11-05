@@ -122,13 +122,13 @@ These are tracked as one backlog item.
 
 | Area | Lines | Notes |
 |---|---|---|
-| Overall | 60.8% (was 60.2%) | |
+| Overall | 69.1% (was 60.8%) | |
 | `api/` | 92% | floor 90 |
 | `src/data` | 98% | floor 95 |
 | `src/utils` | 87% | floor 85 |
-| `src/services` | 63% (was 58%) | `friendsService` 0%, `parentService` 54% |
-| `src/hooks` | 34% (was 32%) | |
-| `src/components` | 37% | 23 component tests for about 150 components |
+| `src/services` | 79% (was 63%) | `friendsService` 100%, `parentService` 99%; floor 78 |
+| `src/hooks` | 76% (was 34%) | sync, reporting and friends hooks tested; floor 75 |
+| `src/components` | 47% (was 37%) | sign-in, guest save, parent portal, Pro screens and mission flow now tested |
 | `src/App.tsx` | 0% | |
 
 Tests added in this change:
@@ -137,11 +137,6 @@ Tests added in this change:
 - `accountService.test.ts`.
 - The push-endpoint tests listed under H1.
 
-Next tests, in priority order (tracked in the backlog):
-1. `friendsService` (0%): request, accept and remove. Also, after M1, a request to a learner with the hub off is refused (unit test plus a smoke deny case).
-2. The rules smoke test gaps: denials for usernames and friendCodes by non-owners, friendship self-accept and third-party read, contest forgery and expiry, non-friend `publicProfiles` reads, `parentInvites` misuse, anonymous access everywhere except `learners`, and an unknown path denied.
-3. `parentService` (54%): pairing, unlinking, and data deletion.
-4. The hooks behind sync and reporting: `useActiveTimeTracker`, `useReminderSync`, `useReportSnapshotPublisher`, `usePendingInvite`, `useFriendsHub`, `useFriendPresence` (fake timers, mocked services).
-5. Components on critical flows (RTL, behaviour and RTL text): sign-in and PIN entry, parent pairing and PIN reset, checkout and the Pro screens, settings and account deletion, and the mission step flow.
-6. End-to-end tests: friends (invite, accept, contest) and a guest upgrading to a saved account while keeping the profile.
-7. Raise the floors as these land. The target is 80% lines on `api/`, `src/services`, `src/utils` and `src/hooks`.
+Tests added in the coverage follow-up (2026-11-05): `friendsService` (100%), `parentService` (99%), the six sync and reporting hooks, RTL tests for sign-in flows, guest save, the parent portal, Pro payment pages, the account card and the mission flow, 85 more rules smoke checks (149 in all, no rules hole found), and Playwright specs for friends and the guest upgrade. Floors were raised to match.
+
+Still to do (tracked in the backlog): the target is 80% lines on `api/`, `src/services`, `src/utils` and `src/hooks`; services (79%) and hooks (76%) are just below it. Components (47%) and `src/App.tsx` (0%) have no target yet.

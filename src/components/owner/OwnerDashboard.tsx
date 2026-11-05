@@ -10,10 +10,7 @@ import {
   RefreshCw,
   LogOut,
   TrendingUp,
-  UserCheck,
-  Award,
   Calendar,
-  Sparkles,
   HeartHandshake,
 } from 'lucide-react';
 import { auth, googleProvider } from '../../services/firebase';

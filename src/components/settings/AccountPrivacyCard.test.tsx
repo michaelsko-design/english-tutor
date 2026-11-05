@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AccountResult } from '../../services/accountService';
+import { downloadProfileJson, type AccountResult } from '../../services/accountService';
 import { makeProfile, TEST_THEME } from '../../test/fixtures';
 import { AccountPrivacyCard } from './AccountPrivacyCard';
 
@@ -49,6 +49,28 @@ describe('AccountPrivacyCard: signing out', () => {
     await user.click(screen.getByRole('button', { name: 'התנתקות מהחשבון' }));
 
     expect(onSignOut).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows an error and stays signed in when signing out fails', async () => {
+    const user = userEvent.setup();
+    onSignOut.mockRejectedValueOnce(new Error('offline'));
+    renderCard();
+
+    await user.click(screen.getByRole('button', { name: 'התנתקות מהחשבון' }));
+
+    expect(await screen.findByText('אירעה שגיאה בהתנתקות.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'התנתקות מהחשבון' })).toBeEnabled();
+  });
+});
+
+describe('AccountPrivacyCard: downloading the data', () => {
+  it('hands the profile to the download helper', async () => {
+    const user = userEvent.setup();
+    renderCard();
+
+    await user.click(screen.getByRole('button', { name: 'הורדת הנתונים' }));
+
+    expect(downloadProfileJson).toHaveBeenCalledWith(expect.objectContaining({ name: expect.any(String) }));
   });
 });
 

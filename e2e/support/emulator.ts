@@ -145,3 +145,22 @@ export async function createGoogleAccount(): Promise<GoogleTestAccount> {
   const body = (await response.json()) as { localId: string; idToken: string; refreshToken: string; expiresIn: string };
   return { uid: body.localId, email, idToken: body.idToken, refreshToken: body.refreshToken, expiresIn: Number(body.expiresIn) };
 }
+
+export interface GuestTestAccount {
+  uid: string;
+  idToken: string;
+  refreshToken: string;
+  /** Seconds the id token is valid */
+  expiresIn: number;
+}
+
+/** An anonymous (guest) account in the Auth emulator. */
+export async function createGuestAccount(): Promise<GuestTestAccount> {
+  const response = await request(`${AUTH_ORIGIN}/identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ returnSecureToken: true }),
+  });
+  const body = (await response.json()) as { localId: string; idToken: string; refreshToken: string; expiresIn: string };
+  return { uid: body.localId, idToken: body.idToken, refreshToken: body.refreshToken, expiresIn: Number(body.expiresIn) };
+}
