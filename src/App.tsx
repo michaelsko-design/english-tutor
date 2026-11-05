@@ -37,6 +37,7 @@ import { setListenerGender } from './services/tts';
 import { HebrewAudioContext, playsHebrewAloud } from './data/hebrewAudio';
 import { AccountResult, deleteAccount } from './services/accountService';
 import { DEFAULT_PROFILE, WELCOME_GIFT_DIAMONDS } from './data/defaultProfile';
+import { isUnreadableProfile, parseStoredProfile } from './services/localProfile';
 
 // Screens most visits never open load in their own chunks
 const OnboardingView = lazyNamed(() => import('./components/OnboardingView'), 'OnboardingView');
@@ -46,6 +47,8 @@ const FirstLaunchGreeting = lazyNamed(() => import('./components/home/FirstLaunc
 const ProfileTour = lazyNamed(() => import('./components/tutorial/ProfileTour'), 'ProfileTour');
 
 const STORAGE_KEY = 'english_tutor_learner_profile_v2';
+/** Where unreadable saved text is kept before the next save replaces it */
+const CORRUPT_BACKUP_KEY = 'english_tutor_learner_profile_v2_corrupt';
 /** A burst of changes is saved to the cloud this long after the last one */
 const SAVE_DELAY_MS = 1000;
 
@@ -54,26 +57,9 @@ export function App() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved);
-        return {
-          ...DEFAULT_PROFILE,
-          ...parsed,
-          isShabbatObserver:
-            parsed.isShabbatObserver !== undefined
-              ? parsed.isShabbatObserver
-              : true,
-          missionProgress: {
-            ...(parsed.missionProgress || {}),
-          },
-          unlockedRewardIds:
-            parsed.unlockedRewardIds || DEFAULT_PROFILE.unlockedRewardIds,
-          claimedDailyQuestIds:
-            parsed.claimedDailyQuestIds || DEFAULT_PROFILE.claimedDailyQuestIds,
-          dailyCounters: {
-            ...DEFAULT_PROFILE.dailyCounters,
-            ...(parsed.dailyCounters || {}),
-          },
-        };
+        const loaded = parseStoredProfile(saved);
+        if (isUnreadableProfile(saved)) localStorage.setItem(CORRUPT_BACKUP_KEY, saved);
+        return loaded;
       }
     } catch {
       // ignore storage errors
