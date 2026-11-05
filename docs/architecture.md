@@ -126,6 +126,7 @@ The curriculum is organized into modular grade packs covering Grades 1 to 12:
   - `explorer` (Beginner - 1.0x XP, +5 💎)
   - `challenger` (Standard - 1.5x XP, +12 💎)
   - `master` (Advanced - 2.0x XP, +20 💎)
+  - Each tier plays different questions, with its own stars per mission and a first-clear diamond bonus: see 4.5.1.
 
 ### 4.5. 5-Step Interactive Mission Engine (`MissionRunner.tsx`)
 Each learning mission consists of 5 pedagogical drill stages:
@@ -143,6 +144,35 @@ Each learning mission consists of 5 pedagogical drill stages:
   - Isolated letter sounds (IPA phonemes) were tried and rejected by ear, so letters are taught by their name (`[letter:b]` clips) and words.
 - **Fits a phone**: on phones the steps fill the screen (no gutters); the peeking companion sits over the card's top corner (the instruction keeps `pe-16` room for it). The big items (instruction, question text, big letters and pictures, the voice sentence and mic, the victory stars, the intro / lesson / victory companions) use the fluid sizes in `tailwind.config.js` (`text-fluid-*`, `w-fluid-*`, via `fluid()`): they grow with the screen height (`svh`) from a compact size at 640px to their full size at 820px, so phones in between use their room without a jump. `Companion` takes a `sizeClassName` for that. The `short:` Tailwind screen (`max-height: 720px`, listed after the width screens so it wins) only tightens spacing, hides the victory tiles' captions, and on short wide screens hides the story picture and lets the passage scroll in its own box. **Passage steps on phones** (`mission/StoryPassage.tsx`): the picture and passage come first on their own screen with "קראתי, לשאלה", then the question and answers with a "חזרה לקטע" button under them (CSS only: the other part is `hidden sm:block`); wide screens show both together. **Passage translation**: on the easiest tier `PassageBox` (`canRevealHebrew`) offers the Hebrew translation as a clue, hidden until the learner taps "רמז: הצגת תרגום לעברית" (missions and exam prep). Check buttons that can fall below the fold use `drills/StickyActionBar.tsx` (sentence builder, spelling, mini-lesson); the victory's Collect is sticky. The mission card is `overflow-clip`, not `overflow-hidden`, so sticky works. `e2e/mission-fit.spec.ts` (phone, 360×640) checks each screen's main control is on screen.
 - A mission opens on an intro screen (`mission/MissionIntro.tsx`) where the tier is chosen; the steps have no tier switcher. A first play then shows the mission's mini-lesson (4.24). The runner's look and the companion are described in 4.17.
+
+#### 4.5.1. Mission tiers are different questions (`data/tierSteps/`, `data/tierProgress.ts`)
+Explorer 🌱, Challenger ⚡ and Master 👑 are three different versions of every mission (grades 1–12, base curriculum and the unreleased `core-plus` / `holidays` packs), not one mission with fewer options. The 5-step shape, badges and star math are the same; the questions differ:
+
+| | Explorer: recognize | Challenger: use in context | Master: produce and reason |
+|---|---|---|---|
+| Step 1 vocabulary | word #1, picture/emoji → English, 2 options | word #2, cloze sentence (`tiers.challenger.clozeWrong`), 3 options | word #3 spelled from its Hebrew (`word-spell`, letter magnets); if no plain single word, Hebrew → English with 4 options |
+| Step 2 sentence | short sentence (`shortSentenceEn`) | the mission's key sentence | a different longer sentence (`master.sentenceEn`) plus 2 decoy chips, no word-translation icons |
+| Step 3 voice | short sentence, slow first | key sentence | a different sentence with the text hidden (`hideText`, "say it from memory"); pronunciation focus is the spelled word |
+| Step 4 grammar | `explorer.rule`, 2 options | the seed's own `rule`, 3 options | `master.errorFix` (find the correct version), 4 options |
+| Step 5 story | `explorer.story`, 2 options, Hebrew tap-to-reveal | the seed's own `story` + Hebrew | `master.story`, longer, no Hebrew, inference question, 4 options |
+
+- **Where it lives**: `src/data/tierSteps/` has one builder per tier (`explorerSteps.ts`, `challengerSteps.ts`, `masterSteps.ts`) and `shared.ts` (`TierContext`, `pickVocab`, `buildSentenceStep`, `buildVoiceStep`, `choiceOptions`, `englishHint`). `elementaryExercises.ts` picks the builder from the tier. The authored data is `DrillSeed.tiers` (`TierSeeds` in `data/curriculum/types.ts`); a mission with no `tiers` falls back to the old shared steps (kept for fixtures only). Grade 1 phonics keeps its own builders (`letterExercises.ts`, `blendingExercises.ts`), with tier shifts (Master reverses direction, mixes in earlier letters, adds decoy tiles).
+- **Replay variety**: which vocabulary word is the focus rotates with `shuffleSalt` (`pickVocab`), so a second play of the same tier is not identical. That is why `clozeWrong` has an entry for every vocabulary word.
+- **Hints**: Challenger's cloze hint is a generic nudge (the Hebrew sentence would give the answer away); `hintAfterWrongHe` opens the Hebrew sentence after the first wrong answer (via `onTryAgain`). Master hints are one short English line.
+- **Tier stars** (`LearnerProfile.missionTierStars[missionId][tier]`, 0–3): saved by `DashboardView`'s mission result handler via `recordTierStars`. `missionProgress` stays the best over tiers (map, parent link and streaks read it). `mergeTierStars` (per-cell max) is wired into `mergeLearnerProfiles`. Old profiles with only `missionProgress` are credited by `getMissionLadder`: their best stars count for the preferred tier and every tier below it.
+- **Rewards**: the first clear of a tier on a mission pays a one-time diamond bonus (`FIRST_TIER_CLEAR_DIAMONDS`: explorer 3, challenger 8, master 15) through the normal diamond ledger; replays pay XP only. Master 3★ puts a crown on the map node.
+- **UI**: `mission/TierLadder.tsx` (🌱⚡👑 with stars, `role=list`, name "התקדמות ברמות המשימה") on the victory screen, intro and map sheet; `mission/TierChoice.tsx` picks the tier.
+- **Tests that guard it**: `tierSteps.test.ts` (the contract per tier: option counts, Master story has no Hebrew, tiers share no question and answer pair), `tierSeedLint.test.ts` (every mission has `tiers`, `REQUIRE_ALL_TIER_SEEDS = true`; unique correct answers, `___` cloze present, vocabulary coverage), `tierProgress.test.ts` (merge, legacy credit, first-clear), plus `missionHints.test.ts` and `wordGlosses.test.ts`. E2E: `e2e/mission-master.spec.ts` (Master steps, desktop and phone), `e2e/tier-ladder.spec.ts` (Explorer play, ladder and saved stars).
+
+**Adding or editing a mission (checklist)**
+1. Author the mission and its `drillSeed` in `curriculum/<level>/gradeN.ts` (or `packs/<pack>/curriculum/gradeN.ts`), including the full `tiers` block: `explorer.rule/story`, `challenger.clozeWrong` (one pair per vocabulary word, in order, words that do NOT fit the blank), `master.*` (new sentence + 2 decoys, a different voice sentence, `errorFix` with 3 wrong corrections, longer story with 3 wrong answers, English hints). Master must not reuse Challenger's sentence, rule or story. Hints and explanations in Hebrew are gender-neutral plural.
+2. Every word of the new sentence-builder sentences (Explorer short, key, Master) needs a Hebrew gloss: `src/data/wordGlossesExtra.ts` or the mission vocabulary (`wordGlosses.test.ts`).
+3. Run `npm test`: `tierSeedLint.test.ts`, `tierSteps.test.ts`, `missionHints.test.ts` and `wordGlosses.test.ts` name what is missing. Never lower `REQUIRE_ALL_TIER_SEEDS`.
+4. Review the Hebrew you wrote: `npm run review:he-tiers` writes `review-out/he-tiers.html` (English above Hebrew, only items not yet in the ledger `scripts/review/hebrewTierReview.json`); the reviewer exports a JSON of fixes and `npm run review:he-tiers -- import <file>` applies them (whole quoted string literals only, exactly one match; anything else is listed as MANUAL and edited by hand). `npm run review:cloze` writes `review-out/cloze-distractors.html`: every Challenger cloze question with each option put into the sentence, with the known-weak words first, to catch a distractor that also fits.
+5. TTS: any new English or (grades 1–2) Hebrew text changes the corpus: `tts:check` → `tts:render` → `tts:check` → `tts:render:he -- submit/status/collect` for grades 1–2 → `tts:upload` → commit `public/tts/manifest.json` last (see CLAUDE.md).
+6. A new `LearnerProfile` field of the same kind needs `mergeLearnerProfiles`; a new tier-level behavior needs a case in `tierSteps.test.ts`.
+7. Play-test with Playwright inside the emulators: `npx firebase emulators:exec --only auth,firestore --project demo-english-vibe "npx playwright test e2e/mission-master.spec.ts"` (add `--project=desktop` or `--project=mobile`). `npm run test:e2e -- <file>` does not take extra args. The first run after a pause often fails at `page.goto` (cold Vite server): run it again. On phones the story step opens a "קראתי, לשאלה" passage screen first.
+8. Packs stay hidden: `RELEASED_CONTENT_PACKS` stays empty until a pack is released on purpose (4.26).
 
 ### 4.6. Gamification, Streaks & Shabbat Shield
 - **Daily Quests (`DailyQuestsCard.tsx`)**: 3 daily challenges rewarding XP and diamonds (Daily Mission, Voice Practice, 3-Star Mastery).
@@ -473,7 +503,9 @@ Time comes from `activityLog[].activeSeconds`, counted by `hooks/useActiveTimeTr
 │   │   ├── diamondLedger.ts          # Per-device earned/spent diamond totals, balance & merge (+ .test.ts)
 │   │   ├── customWordLists.ts        # School word list parsing, session steps, scoring & rewards (+ .test.ts)
 │   │   ├── homeBase.ts               # Home base: quest rings, companion greeting, Play label, map peek, first-launch steps (+ .test.ts)
-│   │   ├── elementaryExercises.ts    # Tier-aware 5-step generator for elementary drill seeds
+│   │   ├── elementaryExercises.ts    # Picks the per-tier step builder for a drill seed (4.5.1)
+│   │   ├── tierSteps/                # explorerSteps / challengerSteps / masterSteps + shared helpers: the three tiers' different questions
+│   │   ├── tierProgress.ts           # Per-tier stars (missionTierStars): merge, legacy credit, ladder, first-clear diamonds (+ .test.ts)
 │   │   ├── missionExercises.ts       # Concrete exercise definitions & seeded option/word shuffler
 │   │   ├── examPrep.ts               # Exam study plan building, session/mock steps & scoring (+ .test.ts)
 │   │   ├── examBank.ts               # Exam question bank loading & bank items as exam steps, practice vs. mock pool (+ .test.ts: sweep, no repeats)

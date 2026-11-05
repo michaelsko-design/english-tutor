@@ -34,6 +34,12 @@ Emulator testing: never sign in or create accounts against the live Firebase pro
 - Hebrew clips are reviewed by ear with `npm run tts:review:he` (mark good/regenerate, then `tts:render:he -- regenerate` + `collect`, compare, upload with `--force`); commit `scripts/tts/hebrewReview.json`.
 - All read-aloud goes through `getTtsService().speak(...)`; 🔊 buttons use `useSpeechToggle`; screens that read aloud use `useStopSpeechOnLeave`.
 
+**Mission tiers** (Explorer / Challenger / Master are different questions; `docs/architecture.md` §4.5.1 has the contract and the add-a-mission checklist):
+- Every mission's `drillSeed` needs the full `tiers` block (`TierSeeds` in `data/curriculum/types.ts`), including the `core-plus` and `holidays` pack missions; `tierSeedLint.test.ts` enforces it (`REQUIRE_ALL_TIER_SEEDS` stays `true`). Master must not reuse Challenger's sentence, rule or story. Step builders are in `src/data/tierSteps/`.
+- Stars are per tier (`missionTierStars`, merged in `mergeLearnerProfiles` via `mergeTierStars`); `missionProgress` stays the best over tiers. Old profiles are credited by `getMissionLadder` (preferred tier and all below).
+- New or changed tier Hebrew: review with `npm run review:he-tiers` (import fixes with `-- import <file>`); check Challenger distractors with `npm run review:cloze`. Then the TTS release order above.
+- Play-test in Playwright inside the emulators: `npx firebase emulators:exec --only auth,firestore --project demo-english-vibe "npx playwright test <spec>"`; rerun once if the first `page.goto` times out.
+
 **Sentence-builder glossary**: every word of a new or changed sentence-builder sentence needs a Hebrew translation for the hint's translate icons: add it to `src/data/wordGlossesExtra.ts` (or the mission vocabulary); `npm test` (`wordGlosses.test.ts`) fails on a missing one. Only people's names are exempt.
 
 **Profile sync**:
