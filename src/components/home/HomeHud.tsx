@@ -82,7 +82,7 @@ export const HomeHud: React.FC<HomeHudProps> = ({
 
   return (
     <header className={`sticky top-0 z-30 ${theme.hudBgClass} px-3 md:px-8 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top))]`}>
-      <div className="max-w-6xl mx-auto flex items-center gap-2">
+      <div className="max-w-6xl wide:max-w-[1600px] mx-auto flex items-center gap-2">
         {/* Avatar in the level ring */}
         <button
           type="button"

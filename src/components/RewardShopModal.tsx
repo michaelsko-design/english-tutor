@@ -99,7 +99,7 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-label="חנות הפרסים"
-        className={`outline-none w-full max-w-4xl max-h-[90dvh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
+        className={`outline-none w-full max-w-4xl wide:max-w-6xl max-h-[90dvh] flex flex-col rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
       >
         {/* Header */}
         <div
@@ -175,7 +175,7 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
         </div>
 
         {/* Items Grid */}
-        <div className="p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 wide:grid-cols-4 gap-4">
           {filteredItems.map((item) => {
             const isUnlocked = isOwned(item);
             const isEquipped =

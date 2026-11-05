@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Play } from 'lucide-react';
 import { MissionNode } from '../../data/curriculum';
 import { BossGate } from '../../data/milestones';
@@ -7,6 +7,7 @@ import { LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { inflectHebrew } from '../../utils/hebrewGender';
 import { useArtStatus } from '../../hooks/useArtStatus';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { Companion } from '../companion/Companion';
 import { Button } from '../ui/Button';
 import { VibeAmount } from '../ui/VibeAmount';
@@ -23,22 +24,8 @@ interface HomeHeroProps {
   onPlay: () => void;
 }
 
-const WIDE_QUERY = '(min-width: 640px)';
+const SM_QUERY = '(min-width: 640px)';
 const COMPANION_PX = { phone: 108, wide: 156 };
-
-function useIsWideScreen(): boolean {
-  const [isWide, setIsWide] = useState(() =>
-    typeof window !== 'undefined' && typeof window.matchMedia === 'function' ? window.matchMedia(WIDE_QUERY).matches : false
-  );
-  useEffect(() => {
-    if (typeof window.matchMedia !== 'function') return;
-    const query = window.matchMedia(WIDE_QUERY);
-    const handleChange = () => setIsWide(query.matches);
-    query.addEventListener('change', handleChange);
-    return () => query.removeEventListener('change', handleChange);
-  }, []);
-  return isWide;
-}
 
 /**
  * Feature 27: the home scene. The theme's home picture (building on the left) with the
@@ -56,13 +43,13 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
   onPlay,
 }) => {
   const sceneStatus = useArtStatus(theme.art.homeScene);
-  const isWide = useIsWideScreen();
+  const isWide = useMediaQuery(SM_QUERY);
   const companionSize = isWide ? COMPANION_PX.wide : COMPANION_PX.phone;
 
   return (
     <section
       aria-label="המשימה של היום"
-      className={`relative isolate overflow-hidden rounded-3xl min-h-[380px] sm:min-h-[400px] lg:min-h-[420px] ${theme.heroCardClass}`}
+      className={`relative isolate overflow-hidden rounded-3xl min-h-[380px] sm:min-h-[400px] lg:min-h-[420px] wide:min-h-[360px] ${theme.heroCardClass}`}
     >
       {sceneStatus === 'loaded' && (
         <img

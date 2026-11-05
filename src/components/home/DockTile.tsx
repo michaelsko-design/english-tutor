@@ -21,7 +21,7 @@ export const DockTile: React.FC<DockTileProps> = ({ emoji, labelHe, theme, onCli
     type="button"
     onClick={onClick}
     aria-label={hasNews && newsLabelHe ? `${labelHe}: ${newsLabelHe}` : labelHe}
-    className={`btn-chunky relative flex-1 min-w-0 aspect-square max-h-24 rounded-2xl flex flex-col items-center justify-center gap-1 px-1 ${theme.cardBgClass}`}
+    className={`btn-chunky relative flex-1 min-w-0 aspect-square max-h-24 wide:aspect-auto wide:h-24 rounded-2xl flex flex-col items-center justify-center gap-1 px-1 ${theme.cardBgClass}`}
   >
     <EmojiIcon emoji={emoji} size={DOCK_ICON_SIZE} />
     <span className="text-xs sm:text-sm font-extrabold leading-tight text-center">{labelHe}</span>

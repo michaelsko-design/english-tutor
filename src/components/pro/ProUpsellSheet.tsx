@@ -23,6 +23,7 @@ import { Companion } from '../companion/Companion';
 import { HebrewSpeakButton } from '../drills/HebrewSpeakButton';
 import { ShareTextActions } from '../ShareTextActions';
 import { Button } from '../ui/Button';
+import { SHEET_OVERLAY_CLASS, SHEET_PANEL_WIDE_CLASS } from '../ui/sheetLayout';
 
 interface ProUpsellSheetProps {
   learner: ProAskLearner;
@@ -127,7 +128,7 @@ export const ProUpsellSheet: React.FC<ProUpsellSheetProps> = ({ learner, focus, 
   })();
 
   return createPortal(
-    <div className="fixed inset-0 z-[80] flex items-end justify-center" role="presentation">
+    <div className={`${SHEET_OVERLAY_CLASS} z-[80]`} role="presentation">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
       <section
         ref={sheetRef}
@@ -135,7 +136,7 @@ export const ProUpsellSheet: React.FC<ProUpsellSheetProps> = ({ learner, focus, 
         role="dialog"
         aria-modal="true"
         aria-labelledby="pro-upsell-title"
-        className={`relative w-full max-w-lg max-h-[88dvh] overflow-y-auto overscroll-contain rounded-t-3xl p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] space-y-4 outline-none ${theme.cardBgClass} ${
+        className={`relative w-full max-w-lg max-h-[88dvh] overflow-y-auto overscroll-contain rounded-t-3xl p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] space-y-4 outline-none ${SHEET_PANEL_WIDE_CLASS} ${theme.cardBgClass} ${
           isReducedMotion ? '' : 'animate-sheet-up'
         }`}
       >

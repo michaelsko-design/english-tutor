@@ -10,7 +10,7 @@
 - [x] **Create a new Google account for EnglishVibe** - In order to send and receive emails and to set the email logo.
 
 ### UI
-- [ ] **Wide WEB Layout** - right now the web layout looks almost like the one on a phone - vertical (mostly the map and the pop up windows like the room). design a wide landscape layout that would take advantage of the 16:9 screen size on a desktop / tablet.
+- [x] **Wide WEB Layout** (built, `docs/architecture.md` §4.22 "Wide layout") - right now the web layout looks almost like the one on a phone - vertical (mostly the map and the pop up windows like the room). design a wide landscape layout that would take advantage of the 16:9 screen size on a desktop / tablet.
 
 ### Technical
 

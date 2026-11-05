@@ -7,6 +7,7 @@ import type { LearnerGender } from '../../types/learner';
 import { useDialog } from '../../hooks/useDialog';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { Button } from '../ui/Button';
+import { SHEET_OVERLAY_CLASS, SHEET_PANEL_WIDE_CLASS } from '../ui/sheetLayout';
 import { ThemeMapPreview } from './ThemeMapPreview';
 
 interface ThemePreviewSheetProps {
@@ -29,7 +30,7 @@ export const ThemePreviewSheet: React.FC<ThemePreviewSheetProps> = ({ previewThe
   useDialog(sheetRef, { onClose });
 
   return createPortal(
-    <div className="fixed inset-0 z-[70] flex items-end justify-center" role="presentation">
+    <div className={`${SHEET_OVERLAY_CLASS} z-[70]`} role="presentation">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
       <section
         ref={sheetRef}
@@ -37,7 +38,7 @@ export const ThemePreviewSheet: React.FC<ThemePreviewSheetProps> = ({ previewThe
         role="dialog"
         aria-modal="true"
         aria-labelledby="theme-preview-title"
-        className={`relative w-full max-w-lg max-h-[92dvh] overflow-y-auto overscroll-contain rounded-t-3xl p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] space-y-3 outline-none ${theme.cardBgClass} ${
+        className={`relative w-full max-w-lg max-h-[92dvh] overflow-y-auto overscroll-contain rounded-t-3xl p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] space-y-3 outline-none ${SHEET_PANEL_WIDE_CLASS} ${theme.cardBgClass} ${
           isReducedMotion ? '' : 'animate-sheet-up'
         }`}
       >

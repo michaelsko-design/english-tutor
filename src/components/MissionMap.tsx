@@ -36,8 +36,11 @@ interface MissionMapProps {
 
 /** Where the current mission lands in the map window, as a share of its height from the top */
 const CURRENT_STOP_VIEW_SHARE = 0.55;
-/** The map window: about one phone screen, so the page around it still scrolls */
-const MAP_WINDOW_HEIGHT = 'min(76vh, 760px)';
+/**
+ * The map window: about one phone screen, so the page around it still scrolls. On wide screens it
+ * fills the height under the header and the map title, beside the home panel.
+ */
+const MAP_WINDOW_HEIGHT_CLASS = 'h-[min(76vh,760px)] wide:h-[calc(100dvh-11rem)] wide:min-h-[420px]';
 
 /**
  * The World Map (Feature 26): one illustrated region per unit on the theme's map background,
@@ -130,8 +133,8 @@ export const MissionMap: React.FC<MissionMapProps> = ({
         )}
       </div>
 
-      <div className="mx-auto w-full max-w-[520px] rounded-[28px] overflow-hidden border-4 border-white/60 shadow-xl">
-        <div ref={scrollRef} className="relative overflow-y-auto overscroll-contain" style={{ height: MAP_WINDOW_HEIGHT }}>
+      <div className="mx-auto w-full max-w-[520px] wide:max-w-[680px] rounded-[28px] overflow-hidden border-4 border-white/60 shadow-xl">
+        <div ref={scrollRef} className={`relative overflow-y-auto overscroll-contain ${MAP_WINDOW_HEIGHT_CLASS}`}>
           <div
             ref={canvasRef}
             className={`relative w-full ${style.canvasFallbackClass}`}

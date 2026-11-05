@@ -36,6 +36,7 @@ import { FixedFurniture, getRoomGeometry } from '../../data/roomGeometry';
 import { STANDING_KINDS, ScenePoint, getStandingPoint } from './roomLayout';
 import { formatVibeGain } from '../../utils/bidi';
 import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
+import { useIsWideLayout } from '../../hooks/useMediaQuery';
 import { Button } from '../ui/Button';
 import { EmojiIcon } from '../art/EmojiIcon';
 
@@ -50,6 +51,14 @@ interface RoomScreenProps {
 }
 
 const WALK_MS = 700;
+
+/**
+ * Wide screens: the modal grows to the screen, the 4:3 room is as wide as fits in the height left
+ * under the modal's header and padding (10rem), and the panel beside it scrolls on its own.
+ */
+const ROOM_MAX_WIDTH_CLASS = 'max-w-3xl wide:max-w-[min(96vw,1500px)]';
+const ROOM_SCENE_WIDE_CLASS = 'wide:mx-auto wide:w-[min(100%,calc((100dvh-10rem)*4/3))]';
+const ROOM_PANEL_WIDE_CLASS = 'wide:max-h-[calc(100dvh-10rem)] wide:overflow-y-auto wide:overscroll-contain';
 
 /** Room activities shown in the panel under the scene; the inventory shows when none is open. */
 type RoomPanel = 'wardrobe' | 'phone' | 'journal' | 'games' | 'stickers';
@@ -101,13 +110,15 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   const [activePanel, setActivePanel] = useState<RoomPanel | null>(null);
   const walkTimer = useRef<number | undefined>(undefined);
   const panelRef = useRef<HTMLDivElement>(null);
+  const isWideLayout = useIsWideLayout();
 
   useEffect(() => () => window.clearTimeout(walkTimer.current), []);
 
-  // On a phone the panels sit below the room: bring a newly opened one into view
+  // On a phone the panels sit below the room: bring a newly opened one into view (wide screens show it beside the room)
   useEffect(() => {
-    if (activePanel) panelRef.current?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
-  }, [activePanel]);
+    if (!activePanel || isWideLayout) return;
+    panelRef.current?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+  }, [activePanel, isWideLayout]);
 
   /** Moves the avatar next to `target` (or onto it, when it is a spot to stand on), then runs `onArrive` once it gets there. */
   const walkTo = (target: ScenePoint, onArrive: () => void, isStandingSpot = false) => {
@@ -266,8 +277,11 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
   );
 
   return (
-    <ExamModalShell theme={theme} labelHe="החדר האנגלי שלי" onClose={onClose} maxWidthClass="max-w-3xl" header={header}>
-      <div className="p-3 sm:p-5 space-y-3 sm:space-y-4">
+    <ExamModalShell theme={theme} labelHe="החדר האנגלי שלי" onClose={onClose} maxWidthClass={ROOM_MAX_WIDTH_CLASS} header={header}>
+      {/* Phones: the room, then its panel below. Wide screens: the room as big as the height allows, the panel beside it */}
+      <div className="p-3 sm:p-5 space-y-3 sm:space-y-4 wide:space-y-0 wide:grid wide:grid-cols-[minmax(0,1fr)_minmax(320px,380px)] wide:gap-5 wide:items-start">
+        <div className="space-y-3 sm:space-y-4">
+        <div className={ROOM_SCENE_WIDE_CLASS}>
         <RoomScene
           themeId={profile.themeId}
           avatarEmoji={avatarEmoji}
@@ -284,6 +298,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
           onMoveRequestHandled={() => setMoveRequestKey(null)}
           onTapFixed={naming ? () => undefined : handleTapFixed}
         />
+        </div>
 
         {statusText && (
           <p className="text-xs sm:text-sm font-extrabold text-center" role="status">
@@ -303,7 +318,9 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
             )}
           </div>
         )}
+        </div>
 
+        <div className={`space-y-3 sm:space-y-4 ${ROOM_PANEL_WIDE_CLASS}`}>
         <div ref={panelRef}>
         {activePanel === 'wardrobe' ? (
           <WardrobePanel
@@ -375,6 +392,7 @@ export const RoomScreen: React.FC<RoomScreenProps> = ({
         <p className={`text-xs text-center ${theme.mutedTextClass}`}>
           🚪 ארון: הלבשה · 📱 טלפון: הודעות קוליות · 🛏️ מיטה: יומן חלומות · 📖 ספר המשחקים: משחקי מילים · 🎨 מדבקות: אלבום וציור
         </p>
+        </div>
       </div>
 
       {isStickersHintOpen && (

@@ -15,6 +15,7 @@ import { StarRow } from './mapPieces';
 import { WorldMapStyle } from './worldMapStyles';
 import { Button } from '../ui/Button';
 import { VibeAmount } from '../ui/VibeAmount';
+import { SHEET_OVERLAY_CLASS, SHEET_PANEL_WIDE_CLASS } from '../ui/sheetLayout';
 import { ASK_PARENT_LABEL_HE } from '../../data/proAsk';
 import { APP_NAME } from '../../config/appInfo';
 
@@ -95,13 +96,13 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
   }, [onClose]);
 
   return createPortal(
-    <div className="fixed inset-0 z-[70] flex items-end justify-center" role="presentation">
+    <div className={`${SHEET_OVERLAY_CLASS} z-[70]`} role="presentation">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
       <section
         role="dialog"
         aria-modal="true"
         aria-labelledby="mission-sheet-title"
-        className={`relative w-full max-w-lg max-h-[88dvh] overflow-y-auto overscroll-contain rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.35)] ${style.sheetBgClass} ${style.sheetEdgeClass} ${
+        className={`relative w-full max-w-lg wide:max-w-4xl max-h-[88dvh] overflow-y-auto overscroll-contain rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.35)] ${SHEET_PANEL_WIDE_CLASS} ${style.sheetBgClass} ${style.sheetEdgeClass} ${
           isReducedMotion ? '' : 'animate-sheet-up'
         }`}
       >
@@ -118,7 +119,9 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
           </button>
         </div>
 
-        <div className="px-4 sm:px-6 pb-4 space-y-4">
+        {/* Wide screens: the mission and its tier on one side, its words on the other */}
+        <div className="px-4 sm:px-6 pb-4 space-y-4 wide:space-y-0 wide:grid wide:grid-cols-2 wide:gap-6 wide:items-start">
+          <div className="space-y-4">
           <header className="space-y-1.5">
             <span className={`inline-block px-3 py-1 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
               {mission.isBoss ? '👑 משימת בוס · ' : ''}
@@ -193,6 +196,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
               )}
             </>
           )}
+          </div>
 
           <div className="space-y-2">
             <h4 className="text-sm font-extrabold flex items-center gap-1.5">

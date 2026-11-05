@@ -378,7 +378,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
   return (
     <ProUpsellContext.Provider value={setUpsellFocus}>
-    <div className={`relative isolate min-h-screen w-full ${theme.pageBgClass} pb-24 md:pb-14 transition-colors duration-300`}>
+    <div className={`relative isolate min-h-screen w-full ${theme.pageBgClass} pb-24 md:pb-14 wide:pb-6 transition-colors duration-300`}>
       {/* FEATURE 12: STICKER STUDIO BACKGROUND */}
       {backgroundSticker && <StickerBackground sticker={backgroundSticker} />}
 
@@ -398,7 +398,12 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         onEditProfile={onEditOnboarding}
       />
 
-      <main id="dashboard-top" className="max-w-6xl mx-auto px-3.5 md:px-8 pt-3 md:pt-5 space-y-3 md:space-y-4">
+      {/* Phones: one column. Wide screens: the home panel at the start (right), the map beside it */}
+      <main
+        id="dashboard-top"
+        className="max-w-6xl wide:max-w-[1600px] mx-auto px-3.5 md:px-8 pt-3 md:pt-5 space-y-3 md:space-y-4 wide:space-y-0 wide:grid wide:grid-cols-[minmax(340px,440px)_minmax(0,1fr)] wide:gap-6 wide:items-start"
+      >
+        <div className="space-y-3 md:space-y-4">
         {/* FEATURE 27: HOME SCENE WITH THE COMPANION AND ONE PLAY BUTTON */}
         <HomeHero
           theme={theme}
@@ -420,7 +425,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         <QuestRings rings={questRings} theme={theme} onOpen={() => setOpenSheet('quests')} />
 
         {/* FEATURE 27: THE DOCK (exam prep, word lists, room, friends, report) */}
-        <nav aria-label="פעילויות נוספות" className="flex gap-2 sm:gap-3">
+        <nav aria-label="פעילויות נוספות" className="flex gap-2 sm:gap-3 wide:grid wide:grid-cols-3">
           <RoomHub
             profile={profile}
             theme={theme}
@@ -477,18 +482,21 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         {/* AN OPTIONAL, CLOSABLE OFFER OF THE DAILY REMINDER */}
         <ReminderNudgeCard profile={profile} theme={theme} onUpdateProfile={onUpdateProfile} />
 
-        {/* FEATURE 27: MAP PEEK, THEN THE FULL MAP */}
+        {/* FEATURE 27: MAP PEEK, THEN THE FULL MAP (wide screens show the map beside it, no peek) */}
         {mapPeek && (
-          <MapPeek
-            peek={mapPeek}
-            gradeLabelHe={currentGradeMeta.labelHe}
-            theme={theme}
-            onOpenMap={() => scrollToSection('mission-map')}
-          />
+          <div className="wide:hidden">
+            <MapPeek
+              peek={mapPeek}
+              gradeLabelHe={currentGradeMeta.labelHe}
+              theme={theme}
+              onOpenMap={() => scrollToSection('mission-map')}
+            />
+          </div>
         )}
+        </div>
 
-        {/* FEATURE 2 & 4: INTERACTIVE STORY WORLD & MISSION MAP */}
-        <div id="mission-map" className="scroll-mt-16">
+        {/* FEATURE 2 & 4: INTERACTIVE STORY WORLD & MISSION MAP (stays in view on wide screens) */}
+        <div id="mission-map" className="scroll-mt-16 wide:sticky wide:top-16">
           <MissionMap
             units={gradeCurriculum.units}
             missionProgress={profile.missionProgress || {}}
@@ -587,7 +595,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
           theme={theme}
           labelHe="אתגרים יומיים ורצף שבועי"
           onClose={() => setOpenSheet(null)}
-          maxWidthClass="max-w-3xl"
+          maxWidthClass="max-w-3xl wide:max-w-5xl"
           header={<h2 className="font-extrabold text-base sm:text-lg">🎯 אתגרים יומיים</h2>}
         >
           <div className="p-3 sm:p-4">

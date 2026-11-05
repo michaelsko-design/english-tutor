@@ -30,8 +30,11 @@ export default {
       // Short screens (small phones, landscape): the mission screens tighten their spacing and hide
       // extras (the story picture) so their buttons stay on screen. Sizes use the fluid scale below.
       // Listed after the width screens, so a short: class wins over sm:/md: when both match.
+      // Wide (desktop, landscape tablet): side-by-side layouts. Same query as WIDE_LAYOUT_QUERY in
+      // src/hooks/useMediaQuery.ts. Listed last, so a wide: class wins over short: when both match.
       screens: {
         short: { raw: '(max-height: 720px)' },
+        wide: { raw: '(min-width: 1024px) and (orientation: landscape)' },
       },
       // Suffixes: none for phones, -sm / -lg for the sm: / md: widths
       fontSize: {

@@ -90,7 +90,7 @@ export const FriendsScreen: React.FC<FriendsScreenProps> = ({
       theme={theme}
       labelHe="מרכז החברים"
       onClose={onClose}
-      maxWidthClass="max-w-2xl"
+      maxWidthClass="max-w-2xl wide:max-w-4xl"
       header={<h2 className="font-extrabold text-base sm:text-lg">👫 מרכז החברים</h2>}
     >
       <div className="p-3 sm:p-5 space-y-4">
@@ -152,7 +152,7 @@ export const FriendsScreen: React.FC<FriendsScreenProps> = ({
               עדיין אין חברים ברשימה. {isGirl ? 'הוסיפי' : 'הוסף'} חבר או חברה עם קוד, או {isGirl ? 'שלחי' : 'שלח'} קישור הזמנה.
             </p>
           )}
-          <ul className="grid sm:grid-cols-2 gap-2">
+          <ul className="grid sm:grid-cols-2 wide:grid-cols-3 gap-2">
             {accepted.map((friend) => (
               <FriendCard
                 key={friend.friendshipId}

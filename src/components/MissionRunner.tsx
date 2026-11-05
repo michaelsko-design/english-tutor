@@ -68,6 +68,11 @@ const PEEK_COMPANION_SIZE = 64;
 /** How much of the peeking companion shows above the card */
 const PEEK_VISIBLE_SHARE = 0.72;
 
+/** The gaps between the parts of a step (instruction, passage, question, answers) */
+const STEP_BODY_SPACING_CLASS = 'space-y-3 sm:space-y-5 short:space-y-2.5';
+/** Wide screens, a step with a passage: two columns, the instruction across both */
+const PASSAGE_STEP_WIDE_CLASS = 'wide:grid wide:grid-cols-2 wide:gap-x-8 wide:gap-y-4 wide:space-y-0 wide:items-start';
+
 /** The intro (tier choice), the mini-lesson (Feature 42), then the steps */
 type MissionPhase = 'intro' | 'lesson' | 'steps';
 
@@ -460,6 +465,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   // Phones show a passage step's question only after the passage was read
   const questionPartClass = hasPassage && isReadingPassage ? 'hidden sm:block' : '';
   const questionCard = currentStep ? getQuestionCardContent(currentStep) : null;
+  // Wide screens widen the card for a passage step, to show the passage beside the question
+  const isPassageStepShown = hasPassage && isInSteps && !isLessonReviewOpen;
   // On phones the mission fills the screen (no gutters or rounded inset); the intro stays a card
   const isIntro = shownPhase === 'intro';
   const overlayPaddingClass = isIntro ? 'p-2' : 'p-0';
@@ -474,7 +481,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
         <div
           ref={cardRef}
           tabIndex={-1}
-          className={`outline-none w-full max-w-3xl overflow-clip shadow-2xl border-current/15 ${cardShapeClass} ${theme.pageBgClass}`}
+          className={`outline-none w-full max-w-3xl ${isPassageStepShown ? 'wide:max-w-6xl' : ''} overflow-clip shadow-2xl border-current/15 ${cardShapeClass} ${theme.pageBgClass}`}
         >
           {shownPhase === 'intro' ? (
             <MissionIntro
@@ -566,10 +573,11 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
               </div>
 
               {/* Main Exercise Body */}
-              <div className="px-3 py-3 sm:p-6 md:p-8 space-y-3 sm:space-y-5 short:space-y-2.5">
+              {/* Wide screens, a step with a passage: the passage on one side, the question on the other */}
+              <div className={`px-3 py-3 sm:p-6 md:p-8 ${STEP_BODY_SPACING_CLASS} ${hasPassage ? PASSAGE_STEP_WIDE_CLASS : ''}`}>
                 {/* Step badge & the one-line instruction; the instruction leaves room at its end for
                     the companion peeking over the card's corner */}
-                <div className="space-y-1">
+                <div className="space-y-1 wide:col-span-2">
                   <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-extrabold ${theme.badgeClass}`}>
                     {currentStep.badgeLabelHe}
                   </span>
@@ -592,7 +600,11 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                 )}
 
                 {/* Wide screens: room between the passage and the card for the peeking companion */}
-                {hasPassage && <div className="hidden sm:block h-8" aria-hidden="true" />}
+                {hasPassage && <div className="hidden sm:block wide:hidden h-8" aria-hidden="true" />}
+
+                <div className={STEP_BODY_SPACING_CLASS}>
+                {/* Wide screens, passage beside the question: room above the card for the peeking companion */}
+                {hasPassage && <div className="hidden wide:block h-8" aria-hidden="true" />}
 
                 {/* The question card (or the voice studio card), with the companion peeking over its corner */}
                 <div className={`relative ${questionPartClass}`}>
@@ -718,9 +730,10 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     }
                   />
                 )}
+                </div>
 
                 {/* Room to scroll everything up above the feedback sheet */}
-                {feedbackHe && <div className="h-[55dvh]" aria-hidden="true" />}
+                {feedbackHe && <div className="h-[55dvh] wide:col-span-2" aria-hidden="true" />}
               </div>
             </>
           )}
