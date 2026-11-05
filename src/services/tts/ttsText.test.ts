@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   addListenerGender,
+  splitHebrewOpener,
   parseListenerGender,
   buildLiveTtsQuery,
   getClipKey,
@@ -180,5 +181,17 @@ describe('listener gender', () => {
     expect(parseListenerGender('סיימת את המשימה!')).toEqual({ gender: null, text: 'סיימת את המשימה!' });
     expect(isHebrewSpeakable(tagged)).toBe(true);
     expect(getClipKey(tagged, 'normal')).not.toBe(getClipKey(addListenerGender('סיימת את המשימה!', 'girl'), 'normal'));
+  });
+});
+
+describe('splitHebrewOpener', () => {
+  it('splits a line that opens with the praise and goes on', () => {
+    expect(splitHebrewOpener('מעולה! duck מתחיל באות D.')).toEqual({ opener: 'מעולה!', rest: 'duck מתחיל באות D.' });
+  });
+
+  it('leaves other lines whole', () => {
+    expect(splitHebrewOpener('מעולה!')).toBeNull();
+    expect(splitHebrewOpener('אמרו מעולה! cat')).toBeNull();
+    expect(splitHebrewOpener('כל הכבוד!')).toBeNull();
   });
 });

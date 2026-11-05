@@ -14,10 +14,12 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { join } from 'node:path';
-import { HEBREW_VOICE } from '../../src/services/tts/ttsText';
+import { getClipText, HEBREW_OPENERS, HEBREW_VOICE } from '../../src/services/tts/ttsText';
 import { bumpClipRevisions, unbumpClipRevisions } from './clipRevisions';
 import { collectCorpus } from './corpus';
 import { toGeminiText } from './geminiSpelling';
+import { getVoiceDir } from './clipManifest';
+import { buildWholeLines } from './wholeLines';
 import { getReviewDirs } from './hebrewReviewPaths';
 import { buildReviewPlaces, REVIEW_GROUPS } from './hebrewReviewOrder';
 import {
@@ -53,6 +55,10 @@ const LAST_RANK = Number.MAX_SAFE_INTEGER;
 const knownKeys = new Set(phrases.map((phrase) => phrase.key));
 /** The text exactly as Gemini was given it: niqqud on the words that read by the listener's gender. */
 const spokenByKey = new Map(phrases.map((phrase) => [phrase.key, toGeminiText(phrase.text)]));
+/** The shared openers ("מעולה!", "כל הכבוד!", …) are heard in hundreds of lines, so they get their own group, first in the walk. */
+const OPENER_TEXTS: ReadonlySet<string> = new Set(HEBREW_OPENERS.map((opener) => getClipText(opener)));
+const OPENER_RANK = -1;
+const isOpenerClip = (text: string): boolean => OPENER_TEXTS.has(getClipText(text.replace(/^\[to:(?:girl|boy)\] /, '')));
 
 function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
@@ -84,8 +90,34 @@ function parseDetail(body: Record<string, unknown>): ReviewDetail {
   return { reasons: [...new Set(reasons)], note };
 }
 
+const wholeLines = buildWholeLines();
+const englishPartKeys = new Set(wholeLines.flatMap((line) => line.parts.filter((part) => part.voice === 'en').map((part) => part.key)));
+const MAX_LINE_MATCHES = 30;
+
+/** An English rest ("The king has a gold crown.") is an Azure clip of the English voice. */
+function sendEnglishClip(res: ServerResponse, key: string): void {
+  const path = join(getVoiceDir('female'), `${key}.mp3`);
+  if (!englishPartKeys.has(key) || !existsSync(path)) return sendJson(res, 404, { error: 'No such clip.' });
+  res.writeHead(200, { 'Content-Type': 'audio/mpeg', 'Content-Length': statSync(path).size, 'Cache-Control': 'no-store' });
+  res.end(readFileSync(path));
+}
+
+/** Lines that open with a shared opener, to play the opener and the rest back to back. */
+function matchingLines(query: string): unknown[] {
+  const needle = query.trim().toLowerCase();
+  return wholeLines
+    .filter((line) => !needle || line.text.toLowerCase().includes(needle))
+    .slice(0, MAX_LINE_MATCHES)
+    .map((line) => ({
+      text: line.text,
+      spoken: toGeminiText(line.text),
+      parts: line.parts.map((part) => ({ ...part, isMissing: !existsSync(part.voice === 'he' ? clipPath(dirs, part.key) : join(getVoiceDir('female'), `${part.key}.mp3`)) })),
+    }));
+}
+
 function sendClip(res: ServerResponse, url: URL): void {
   const key = decodeURIComponent(url.pathname.slice('/clip/'.length)).replace(/\.mp3$/, '');
+  if (url.searchParams.get('voice') === 'en') return sendEnglishClip(res, key);
   const take = url.searchParams.get('take') ?? 'current';
   if (take !== 'current' && !isTakeName(take)) return sendJson(res, 400, { error: 'Bad take.' });
   const path = take === 'current' ? clipPath(dirs, key) : candidatePath(dirs, key, take);
@@ -95,12 +127,22 @@ function sendClip(res: ServerResponse, url: URL): void {
 }
 
 async function handleApi(req: IncomingMessage, res: ServerResponse, url: URL): Promise<void> {
+  if (url.pathname === '/api/lines') return sendJson(res, 200, { lines: matchingLines(url.searchParams.get('q') ?? '') });
   if (url.pathname === '/api/clips') {
     // The walk order: general lines, core units, the Pro tail, then the packs; unplaced lines last
     const items = listReviewItems(phrases, loadState(dirs.statePath), dirs)
-      .map((item) => ({ ...item, spoken: spokenByKey.get(item.key) ?? item.text, group: places.get(item.key)?.group ?? 'other', where: places.get(item.key)?.label ?? '', rank: places.get(item.key)?.rank ?? LAST_RANK }))
-      .sort((a, b) => a.rank - b.rank);
-    return sendJson(res, 200, { items, groups: REVIEW_GROUPS, reasons: REVIEW_REASONS, maxNote: MAX_NOTE_LENGTH, undoable: listUndoable(dirs) });
+      .map((item) => {
+        const isOpener = isOpenerClip(item.text);
+        return {
+          ...item,
+          spoken: spokenByKey.get(item.key) ?? item.text,
+          group: isOpener ? 'opener' : (places.get(item.key)?.group ?? 'other'),
+          where: isOpener ? 'opener' : (places.get(item.key)?.label ?? ''),
+          rank: isOpener ? OPENER_RANK : (places.get(item.key)?.rank ?? LAST_RANK),
+        };
+      })
+      .sort((a, b) => a.rank - b.rank || a.text.localeCompare(b.text));
+    return sendJson(res, 200, { items, groups: [...REVIEW_GROUPS, 'opener'], reasons: REVIEW_REASONS, maxNote: MAX_NOTE_LENGTH, undoable: listUndoable(dirs) });
   }
   const body = await readBody(req);
   const key = String(body.key ?? '');

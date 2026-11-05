@@ -127,6 +127,32 @@ describe('hybrid read-aloud service', () => {
     expect(offline.device.speak).toHaveBeenCalledWith(text, expect.objectContaining({ lang: 'he' }));
   });
 
+  it("plays the praise in the learner's gender and then the rest of the line, as two clips", async () => {
+    const rest = 'duck מתחיל באות D.';
+    const keys = ['[to:girl] מעולה', '[to:boy] מעולה', rest].map((text) => getClipKey(text, 'normal'));
+    const { service, fetchMock } = setup({ hebrewClipKeys: keys, listenerGender: 'boy' });
+    await service.speak(`מעולה! ${rest}`, { lang: 'he' });
+    const urls = fetchMock.mock.calls.map(([url]) => String(url)).filter((url) => url.includes('he-female'));
+    expect(urls).toEqual([`/tts/v4/he-female/${keys[1]}.mp3`, `/tts/v4/he-female/${keys[2]}.mp3`]);
+  });
+
+  it('plays the Hebrew opener, then the English voice for an English-only rest', async () => {
+    const opener = getClipKey('[to:girl] מעולה', 'normal');
+    const sentence = getClipKey('The king has a gold crown.', 'normal');
+    const { service, fetchMock } = setup({ hebrewClipKeys: [opener], clipKeys: [sentence], listenerGender: 'girl' });
+    await service.speak('מעולה! "The king has a gold crown."', { lang: 'he' });
+    const urls = fetchMock.mock.calls.map(([url]) => String(url)).filter((url) => /\/tts\//.test(url) && url.endsWith('.mp3'));
+    expect(urls).toEqual([`/tts/v4/he-female/${opener}.mp3`, expect.stringContaining(`/female/${sentence}.mp3`)]);
+  });
+
+  it('reads the whole line when one of the two clips is missing', async () => {
+    const text = 'מעולה! duck מתחיל באות D.';
+    const whole = getClipKey(text, 'normal');
+    const { service, fetchMock } = setup({ hebrewClipKeys: [whole, getClipKey('duck מתחיל באות D.', 'normal')] });
+    await service.speak(text, { lang: 'he' });
+    expect(fetchMock).toHaveBeenCalledWith(`/tts/v4/he-female/${whole}.mp3`, expect.anything());
+  });
+
   it('reads Hebrew without a clip with the online Hebrew voice, then the device Hebrew voice', async () => {
     const { service, fetchMock, device } = setup();
     let engine: TtsEngine | null = null;

@@ -100,6 +100,7 @@ export function inflectHebrew(text: string, gender: LearnerGender): string {
     ['בחרי', 'בחר'],
     ['השלימי', 'השלם'],
     ['לחצי', 'לחץ'],
+    ['השתמשי', 'השתמש'],
     ['הקשיבי', 'הקשב'],
     ['חזרי', 'חזור'],
     ['האזיני', 'האזן'],

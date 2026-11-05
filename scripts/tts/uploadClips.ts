@@ -1,16 +1,15 @@
 /**
- * Uploads the rendered clips (public/tts/v<N>/<voice>/<key>.mp3) to the Cloudflare R2 bucket that
+ * Uploads the clips the manifest lists (public/tts/v<N>/<voice>/<key>.mp3) to the Cloudflare R2 bucket that
  * serves them: `npm run tts:upload -- [--force] [--dry-run]`. The object key equals the URL path
  * (`tts/v1/female/<key>.mp3`), so the app only needs the bucket's public base URL
  * (VITE_TTS_CLIP_BASE_URL). Clips already in the bucket are skipped unless --force (a `redo`
  * re-render needs --force). Needs R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY and
  * R2_BUCKET in .env.local.
  */
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
 import { ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { loadEnv } from 'vite';
-import { TTS_PUBLIC_DIR } from './clipManifest';
+import { listManifestClips, readManifest } from './clipManifest';
 
 const CLIP_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 const UPLOAD_CONCURRENCY = 16;
@@ -42,18 +41,13 @@ function readR2Config(): R2Config {
   return config as R2Config;
 }
 
+/** The clips the manifest lists, so clips that are not in it never reach the bucket. */
 function listLocalClips(): LocalClip[] {
-  const clips: LocalClip[] = [];
-  for (const version of readdirSync(TTS_PUBLIC_DIR, { withFileTypes: true })) {
-    if (!version.isDirectory()) continue;
-    for (const voice of readdirSync(join(TTS_PUBLIC_DIR, version.name), { withFileTypes: true })) {
-      if (!voice.isDirectory()) continue;
-      const dir = join(TTS_PUBLIC_DIR, version.name, voice.name);
-      for (const name of readdirSync(dir).filter((entry) => entry.endsWith('.mp3'))) {
-        clips.push({ key: `tts/${version.name}/${voice.name}/${name}`, file: join(dir, name) });
-      }
-    }
-  }
+  const manifest = readManifest();
+  if (!manifest) throw new Error('No public/tts/manifest.json: run tts:render (or tts:render:he -- collect) first.');
+  const clips = listManifestClips(manifest);
+  const missing = clips.filter((clip) => !existsSync(clip.file));
+  if (missing.length > 0) throw new Error(`${missing.length} clips in the manifest have no file, e.g. ${missing[0]?.file}. Render them first.`);
   return clips;
 }
 

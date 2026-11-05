@@ -4,9 +4,17 @@ import { GEMINI_BOY_FORMS, GEMINI_GIRL_FORMS, toGeminiText } from './geminiSpell
 import { encodeMp3, readPcm } from './geminiTts';
 
 describe('toGeminiText', () => {
+  it('ends a sentence with a full stop so it does not sound like a question, but not a word or a line that has a mark', () => {
+    expect(toGeminiText('שבועות וכיף של קיץ')).toBe('שבועות וכיף של קיץ.');
+    expect(toGeminiText('cat')).toBe('cat');
+    expect(toGeminiText('כמה ברווזים רואה?')).toBe('כמה ברווזים רואה?');
+    expect(toGeminiText('לא בדיוק —')).toBe('לא בדיוק —');
+  });
+
+
   it("gives each clip the listener's form of a word that reads by gender", () => {
-    expect(toGeminiText('[to:girl] מעולה! בנית את המילה cat')).toBe('מְעֻלָּה! בָּנִית את המילה cat');
-    expect(toGeminiText('[to:boy] מעולה! בנית את המילה cat')).toBe('מְעֻלָּה! בָּנִיתָ את המילה cat');
+    expect(toGeminiText('[to:girl] מעולה! בנית את המילה cat')).toBe('מְעֻלָּה! בָּנִיתְּ את המילה cat.');
+    expect(toGeminiText('[to:boy] מעולה! בנית את המילה cat')).toBe('מְעֻלֶּה! בָּנִיתָ את המילה cat.');
   });
 
   it('says "אני רואה" in the learner\'s form only in a line said to them', () => {
@@ -17,9 +25,9 @@ describe('toGeminiText', () => {
 
   it('spells out words Gemini misreads, for every listener, and leaves the rest as written', () => {
     expect(toGeminiText('הקשיבי ובחרי את האות:')).toBe('הקשיבי וּבִחְרִי את האות:');
-    expect(toGeminiText('הבנית שלו')).toBe('הבנית שלו');
-    expect(toGeminiText('זו האות Z. Z כמו zebra')).toBe('זוֹ האות Zed. Zed כמו zebra');
-    expect(toGeminiText('האותיות X, Y, Z')).toBe('האותיות X, Y, Zed');
+    expect(toGeminiText('הבנית שלו')).toBe('הבנית שלו.');
+    expect(toGeminiText('זו האות Z. Z כמו zebra')).toBe('זוֹ האות Zed. Zed כמו zebra.');
+    expect(toGeminiText('האותיות X, Y, Z')).toBe('האותיות X, Y, Zed.');
   });
 
   it('says "בבוס" as be-BOS', () => {

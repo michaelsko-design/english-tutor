@@ -120,6 +120,7 @@ export const LISTENER_GENDERED_PRONUNCIATIONS: Record<(typeof LISTENER_GENDERED_
   דילגת: { girl: 'di.ˈlagt', boy: 'di.ˈlag.ta' },
   אותך: { girl: 'o.ˈtaχ', boy: 'ot.ˈχa' },
   שלך: { girl: 'ʃe.ˈlaχ', boy: 'ʃel.ˈχa' },
+  מעולה: { girl: 'me.ʔu.ˈla', boy: 'me.ʔu.ˈle' },
 };
 
 /** A piece of Hebrew text, with the IPA (and pause) to say it with when it is a listed word. */

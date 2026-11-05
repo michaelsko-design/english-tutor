@@ -94,7 +94,47 @@ export type ListenerGender = 'girl' | 'boy';
  * differently ("בנית": banit / banita). A line with one gets a clip per gender, and the voice says
  * the word in the learner's form (api/_lib/hebrewPronunciation.ts spells out both).
  */
-export const LISTENER_GENDERED_WORDS = ['בנית', 'שמעת', 'ששמעת', 'קראת', 'סיימת', 'דילגת', 'אותך', 'שלך'] as const;
+export const LISTENER_GENDERED_WORDS = ['בנית', 'שמעת', 'ששמעת', 'קראת', 'סיימת', 'דילגת', 'אותך', 'שלך', 'מעולה'] as const;
+
+/**
+ * Phrases that open many lines. Each is its own clip, rendered once, and the rest of the line is a
+ * clip of its own (played one after the other), so the same words are not rendered hundreds of times.
+ * "מעולה!" also changes by gender (me'ula to a girl, me'ule to a boy) and came out in either form
+ * inside a sentence, so it gets a girl and a boy clip. The others are said the same to everyone.
+ */
+export const HEBREW_OPENERS = [
+  'מעולה!',
+  'כל הכבוד!',
+  'כמעט!',
+  'לא הפעם:',
+  'לא בדיוק —',
+  'המשפט בעברית:',
+  'איזו מילה משלימה את המשפט?',
+  'טיפ:',
+  'שימו לב:',
+  'אתגר הבוס:',
+] as const;
+
+/** A line that starts with an opener and goes on: the opener and the rest of the line. */
+export function splitHebrewOpener(text: string): { opener: string; rest: string } | null {
+  for (const opener of HEBREW_OPENERS) {
+    if (!text.startsWith(`${opener} `)) continue;
+    const rest = text.slice(opener.length).trim();
+    if (rest) return { opener, rest };
+  }
+  return null;
+}
+
+/**
+ * The rest of an opener line when it is an English sentence only (`"The king has a gold crown."`):
+ * that sentence without its quotes, to be read by the English voice (the clip the app already has
+ * for it), not by the Hebrew one. Null when the rest has Hebrew in it.
+ */
+export function englishRestOf(rest: string): string | null {
+  if (/[א-ת]/.test(rest)) return null;
+  const clean = getClipText(toSpeakableText(rest).replace(/^["“]|["”]$/g, '').trim());
+  return clean || null;
+}
 
 const LISTENER_GENDERED = new RegExp(`(?<![\\u05d0-\\u05ea])(?:${LISTENER_GENDERED_WORDS.join('|')})(?![\\u05d0-\\u05ea])`);
 const LISTENER_TOKEN = /^\[to:(girl|boy)\] /;

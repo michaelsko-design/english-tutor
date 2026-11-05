@@ -20,6 +20,7 @@
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "tts:render:he": "vite-node scripts/tts/renderGeminiBatch.ts --",
+    "tts:cut:he": "vite-node scripts/tts/cutOpenerClips.ts",
     "tts:review:he": "vite-node scripts/tts/reviewHebrewClips.ts --",
     "review:cloze": "vite-node scripts/review/clozeSheet.ts",
     "review:cloze-audit": "vite-node scripts/review/clozeAudit.ts",

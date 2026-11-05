@@ -45,6 +45,11 @@
   <div class="progress"><div id="bar"></div></div>
   <div class="muted" id="summary"></div>
   <div id="notice"></div>
+  <details id="joined" class="card" style="margin:12px 0">
+    <summary><strong>Play a whole line</strong> <span class="muted">(opener + rest, back to back, as in the game)</span></summary>
+    <input type="search" id="joined-search" placeholder="Search a line, e.g. מעולה or בנית or ship…" dir="auto" style="margin-top:12px">
+    <div id="joined-list"></div>
+  </details>
   <nav id="tabs"></nav>
   <label class="muted">Part of the app: <select id="scope"></select></label>
   <input type="search" id="search" placeholder="Search the Hebrew text…" dir="auto">
@@ -62,7 +67,8 @@ const TAB_KEY = 'hebrewReviewTab';
 const SCOPE_KEY = 'hebrewReviewScope';
 // Which clips the list shows: what the first learners meet first; the Pro tail and the packs come later
 const SCOPES = [
-  ['first', 'Core units + general lines (start here)', ['general', 'core', 'other']],
+  ['opener', 'Openers only (מעולה, כל הכבוד…): check these first', ['opener']],
+  ['first', 'Core units + general lines', ['opener', 'general', 'core', 'other']],
   ['pro-tail', 'Pro: last 2 core units of each grade', ['pro-tail']],
   ['packs', 'Content packs (not released yet)', ['packs']],
   ['everything', 'Everything', null],
@@ -339,6 +345,54 @@ $('scope').addEventListener('change', () => {
   render();
 });
 reload().catch((error) => { $('view').textContent = error.message; });
+</script>
+<script>
+// "Play a whole line": the opener clip, then the rest, one right after the other, like the game's player
+(() => {
+  const search = document.getElementById('joined-search');
+  const list = document.getElementById('joined-list');
+  let player = null;
+  const clipUrl = (part) => `/clip/${encodeURIComponent(part.key)}.mp3${part.voice === 'en' ? '?voice=en' : ''}`;
+  const stop = () => { if (player) { player.pause(); player = null; } };
+  function playParts(parts) {
+    stop();
+    const [first, ...rest] = parts.map((part) => new Audio(clipUrl(part)));
+    player = first;
+    let current = first;
+    const next = rest.slice();
+    const advance = () => { const audio = next.shift(); if (!audio) return; current = audio; player = audio; audio.addEventListener('ended', advance, { once: true }); audio.play(); };
+    current.addEventListener('ended', advance, { once: true });
+    current.play();
+  }
+  function render(lines) {
+    list.replaceChildren(...lines.map((line) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)';
+      const button = document.createElement('button');
+      const isMissing = line.parts.some((part) => part.isMissing);
+      button.textContent = isMissing ? 'Clip missing' : '▶ Play';
+      button.disabled = isMissing;
+      button.className = 'ghost';
+      button.style.cssText = 'padding:6px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font:inherit';
+      button.addEventListener('click', () => playParts(line.parts));
+      const text = document.createElement('span');
+      text.dir = 'auto';
+      text.textContent = line.spoken;
+      row.append(button, text);
+      return row;
+    }));
+    if (!lines.length) list.textContent = 'No line matches.';
+  }
+  let timer = null;
+  async function load() {
+    try {
+      const response = await fetch(`/api/lines?q=${encodeURIComponent(search.value)}`);
+      render((await response.json()).lines);
+    } catch { list.textContent = 'Could not load the lines.'; }
+  }
+  search.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(load, 200); });
+  document.getElementById('joined').addEventListener('toggle', (event) => { if (event.target.open) load(); });
+})();
 </script>
 </body>
 </html>

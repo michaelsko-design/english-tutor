@@ -173,9 +173,9 @@ function assertYoungGradesOnly(): void {
   }
 }
 
-export function buildHebrewCorpus(): CorpusBuilder {
+export function buildHebrewCorpus(isSplittingOpeners = true): CorpusBuilder {
   assertYoungGradesOnly();
-  const corpus = new CorpusBuilder(isHebrewSpeakable, true);
+  const corpus = new CorpusBuilder(isHebrewSpeakable, true, isSplittingOpeners);
   addFixedFeedback(corpus);
   addMissions(corpus);
   addLessons(corpus);

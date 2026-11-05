@@ -26,8 +26,8 @@ describe('labSegments', () => {
   });
 
   it('gives the niqqud variant as one clip and the others split', () => {
-    expect(labSegments('niqqud', '[to:girl] קראי. שלום')).toEqual(['קִרְאִי. שלום']);
-    expect(labSegments('sentences-niqqud', '[to:girl] קראי. שלום')).toEqual(['קִרְאִי.', 'שלום']);
+    expect(labSegments('niqqud', '[to:girl] קראי. שלום')).toEqual(['קִרְאִי. שלום.']);
+    expect(labSegments('sentences-niqqud', '[to:girl] קראי. שלום')).toEqual(['קִרְאִי.', 'שלום.']);
   });
 });
 

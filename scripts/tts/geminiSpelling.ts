@@ -3,8 +3,8 @@
  * lines go as written, with no instructions: an instruction in the text is read aloud, and naming
  * the listener ("to a girl") doesn't change the forms it uses. Checked by ear (2026-10):
  * - a word written the same for a girl and a boy ("בנית") is read in either form, so each clip gets
- *   that one word in niqqud for its listener (בָּנִית banit / בָּנִיתָ banita; a closing sheva marks
- *   קָרָאתְ as karat);
+ *   that one word in niqqud for its listener (בָּנִיתְּ banit / בָּנִיתָ banita; the closing sheva
+ *   and dagesh mark the girl's form, as in שָׁמַעַתְּ: sheva alone, or none, often gave banita);
  * - a few words it misreads get niqqud too (ובחרי as uvhari, לחץ as lahetz).
  * Azure's IPA list (api/_lib/hebrewPronunciation.ts) stays for the online voice.
  */
@@ -18,7 +18,9 @@ type GenderedWord = (typeof LISTENER_GENDERED_WORDS)[number] | 'רואה';
 
 /** A girl's form of each word that reads by gender. */
 export const GEMINI_GIRL_FORMS: Record<GenderedWord, string> = {
-  בנית: 'בָּנִית',
+  // Shva plus dagesh, like the other girl forms: with the shva alone (בָּנִיתְ) Gemini said banita in
+  // many takes; this one was banit in 3 of 3 (2026-11 spelling test)
+  בנית: 'בָּנִיתְּ',
   שמעת: 'שָׁמַעַתְּ',
   ששמעת: 'שֶׁשָּׁמַעַתְּ',
   קראת: 'קָרָאתְ',
@@ -26,6 +28,8 @@ export const GEMINI_GIRL_FORMS: Record<GenderedWord, string> = {
   דילגת: 'דִּילַגְתְּ',
   אותך: 'אוֹתָךְ',
   שלך: 'שֶׁלָּךְ',
+  // "Great!" is feminine (me'ula) for a girl and masculine (me'ule) for a boy
+  מעולה: 'מְעֻלָּה',
   רואה: 'רוֹאָה',
 };
 
@@ -39,6 +43,7 @@ export const GEMINI_BOY_FORMS: Record<GenderedWord, string> = {
   דילגת: 'דִּילַגְתָּ',
   אותך: 'אוֹתְךָ',
   שלך: 'שֶׁלְּךָ',
+  מעולה: 'מְעֻלֶּה',
   רואה: 'רוֹאֶה',
 };
 
@@ -63,7 +68,6 @@ export const GEMINI_SPELLINGS: Readonly<Record<string, string>> = {
   דובי: 'דּוּבִי',
   לאוגר: 'לָאוֹגֶר',
   מצדף: 'מִצֶּדֶף',
-  מעולה: 'מְעֻלָּה',
   מיטה: 'מִטָּה',
   לימון: 'לִימוֹן',
   תרנגולת: 'תַּרְנְגֹלֶת',
@@ -112,7 +116,18 @@ export function toGeminiText(clipText: string): string {
   const { gender, text } = parseListenerGender(clipText);
   const forms = gender === 'girl' ? GEMINI_GIRL_FORMS : gender === 'boy' ? GEMINI_BOY_FORMS : null;
   const whole = applyFullNiqqud(text);
-  if (whole !== text) return whole;
+  if (whole !== text) return withFinalStop(whole);
   const forListener = forms ? replaceWords(text, forms) : text;
-  return replaceWords(forListener, GEMINI_SPELLINGS).replace(LONE_LETTER, (letter) => GEMINI_LETTER_NAMES[letter] ?? letter);
+  return withFinalStop(replaceWords(forListener, GEMINI_SPELLINGS).replace(LONE_LETTER, (letter) => GEMINI_LETTER_NAMES[letter] ?? letter));
+}
+
+const ENDS_WITH_PUNCTUATION = /[.!?:;,…—"”')]$/;
+
+/**
+ * A sentence with no closing mark came out sounding like a question (2026-11, by ear). A full stop
+ * is not read aloud and keeps the ending falling. Single words (vault, letters) stay as they are.
+ */
+function withFinalStop(text: string): string {
+  const line = text.trimEnd();
+  return /\s/.test(line) && !ENDS_WITH_PUNCTUATION.test(line) ? `${line}.` : text;
 }

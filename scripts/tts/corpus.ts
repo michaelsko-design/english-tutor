@@ -19,10 +19,13 @@ import { VOICE_MESSAGES } from '../../src/data/voiceMessages';
 import { DREAM_FRAMES } from '../../src/data/dreamJournal';
 import { DEMO_SENTENCE, DEMO_SENTENCE_RATE } from '../../src/services/tts/demoPhrases';
 import {
+  englishRestOf,
   HEBREW_VOICE,
   isCloudSpeakable,
   letterToken,
   parseLetterToken,
+  parseListenerGender,
+  splitHebrewOpener,
   type ClipVoice,
 } from '../../src/services/tts/ttsText';
 import { ALPHABET } from '../../src/data/alphabet';
@@ -138,6 +141,15 @@ function addRoom(corpus: CorpusBuilder): void {
     .forEach((frame) => frame.blanks.flat().forEach((word) => corpus.add(word.en, 0.9)));
 }
 
+/** The English sentence after a Hebrew opener ("מעולה! "The king has a gold crown.""): the English voice reads it. */
+function addEnglishOpenerRests(corpus: CorpusBuilder): void {
+  for (const phrase of buildHebrewCorpus(false).list()) {
+    const split = splitHebrewOpener(parseListenerGender(phrase.text).text);
+    const english = split ? englishRestOf(split.rest) : null;
+    if (english) corpus.add(english);
+  }
+}
+
 function buildEnglishCorpus(): CorpusBuilder {
   // Letter tokens ([letter:b]) are rendered with their own SSML
   const corpus = new CorpusBuilder((text, maxChars) => parseLetterToken(text) !== null || isCloudSpeakable(text, maxChars));
@@ -147,6 +159,7 @@ function buildEnglishCorpus(): CorpusBuilder {
   addRoom(corpus);
   addPhonics(corpus);
   corpus.add(DEMO_SENTENCE, DEMO_SENTENCE_RATE);
+  addEnglishOpenerRests(corpus);
   return corpus;
 }
 
@@ -157,6 +170,11 @@ function buildCorpus(voice: ClipVoice): CorpusBuilder {
 /** The phrases a voice has clips for: the English corpus for female and male, the Hebrew one for he-female. */
 export function collectCorpus(voice: ClipVoice = 'female'): CorpusPhrase[] {
   return buildCorpus(voice).list();
+}
+
+/** The Hebrew lines as whole clips, before openers are split off: the clips rendered earlier, to cut into parts. */
+export function collectWholeLineHebrewCorpus(): CorpusPhrase[] {
+  return buildHebrewCorpus(false).list();
 }
 
 /** Fixed text the app reads aloud that gets no clip (not plain English), so the device voice reads it. */

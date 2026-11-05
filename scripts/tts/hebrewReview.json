@@ -29,6 +29,11 @@
     "fp": "26784-cc453a3ba217db7f",
     "at": "2026-10-30"
   },
+  "101ur0sljx": {
+    "status": "good",
+    "fp": "15696-eea9bf81fd465f3c",
+    "at": "2026-11-05"
+  },
   "102vn790s2p": {
     "status": "good",
     "fp": "35568-566ef8e1fd66b22c",
@@ -88,6 +93,11 @@
     "status": "good",
     "fp": "27648-b313b7cf9399c859",
     "at": "2026-10-30"
+  },
+  "1095c1e8hfe": {
+    "status": "good",
+    "fp": "13536-f6a2240a14f24b47",
+    "at": "2026-11-05"
   },
   "1096fau2kg0": {
     "status": "good",
@@ -602,6 +612,11 @@
     "fp": "22464-9b639a1ef88c8cd8",
     "at": "2026-10-30"
   },
+  "12zzsrey94g": {
+    "status": "good",
+    "fp": "14256-7fd144918ac14226",
+    "at": "2026-11-05"
+  },
   "131zng3dz5z": {
     "status": "good",
     "fp": "31968-a876c3c6a6aaebc7",
@@ -781,6 +796,11 @@
     "status": "good",
     "fp": "29088-00eda85dea475219",
     "at": "2026-10-31"
+  },
+  "13w345pu4st": {
+    "status": "good",
+    "fp": "13968-71334d999bd290e8",
+    "at": "2026-11-05"
   },
   "13wf3uejl9j": {
     "status": "good",
@@ -1075,6 +1095,11 @@
     "fp": "34848-1bc60e420748dfc7",
     "at": "2026-10-31"
   },
+  "159f80je4c": {
+    "status": "good",
+    "fp": "13104-a67ba2a9f647fd67",
+    "at": "2026-11-05"
+  },
   "15bbivd0xm2": {
     "status": "good",
     "fp": "57888-2b3a2d0e40e8f73f",
@@ -1135,6 +1160,15 @@
     "fp": "31536-f6345d77fbbabb1f",
     "at": "2026-10-31"
   },
+  "15slu52ijr7": {
+    "status": "regenerate",
+    "reasons": [
+      "letter-name"
+    ],
+    "note": "the letter E sound is not pronounced correctly",
+    "fp": "31968-9fab5ac2b918812f",
+    "at": "2026-11-05"
+  },
   "15tykpjqow6": {
     "status": "good",
     "fp": "10224-4b92b206b45643e9",
@@ -1160,6 +1194,14 @@
     "fp": "44496-d7f6d573469a81a3",
     "at": "2026-10-31"
   },
+  "160jmu5nrxd": {
+    "status": "regenerate",
+    "reasons": [
+      "wrong-gender"
+    ],
+    "fp": "13824-e1ea1f2f78b8379c",
+    "at": "2026-11-05"
+  },
   "162jgua4y00": {
     "status": "good",
     "fp": "15408-8cc50260a49d1e5d",
@@ -1184,6 +1226,11 @@
     "status": "good",
     "fp": "32256-b746056f965dc302",
     "at": "2026-10-31"
+  },
+  "16av5nggb0h": {
+    "status": "good",
+    "fp": "12096-f2aa11be473ff08f",
+    "at": "2026-11-05"
   },
   "16b1yirmxxg": {
     "status": "good",
@@ -1355,10 +1402,114 @@
     "fp": "39888-733c05aebd051931",
     "at": "2026-10-31"
   },
+  "17k1cxhoowa": {
+    "status": "good",
+    "fp": "18576-e419c4b8dc427f72",
+    "at": "2026-11-05"
+  },
+  "17q36e26nhx": {
+    "status": "good",
+    "fp": "9216-7a4c09cebf411201",
+    "at": "2026-11-05"
+  },
+  "1868me11qrl": {
+    "status": "good",
+    "fp": "18288-1d5d4d527a1a3ea7",
+    "at": "2026-11-05"
+  },
+  "18l1d1v5oqx": {
+    "status": "good",
+    "fp": "15264-bca68855ea2384f9",
+    "at": "2026-11-05"
+  },
+  "193f83tmy7t": {
+    "status": "good",
+    "fp": "16128-46350f88da8a6b16",
+    "at": "2026-11-05"
+  },
   "19a2bnvptm0": {
     "status": "good",
     "fp": "35424-d094774eb2d07ef1",
     "at": "2026-10-31"
+  },
+  "19dd9ralrzp": {
+    "status": "regenerate",
+    "reasons": [
+      "wrong-gender"
+    ],
+    "fp": "19296-4000355f7c32c026",
+    "at": "2026-11-05"
+  },
+  "19kz356ry1j": {
+    "status": "good",
+    "fp": "32688-7d16da295832be80",
+    "at": "2026-11-05"
+  },
+  "19zce3yv0ct": {
+    "status": "good",
+    "fp": "23328-e31bc04bcc77798b",
+    "at": "2026-11-05"
+  },
+  "19zkbfb869m": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
+    "fp": "22896-18a26650b2f2f610",
+    "at": "2026-11-05"
+  },
+  "1anm88yv8jr": {
+    "status": "regenerate",
+    "fp": "31968-995682c3e06d81e1",
+    "at": "2026-11-05"
+  },
+  "1apbzh1lw3o": {
+    "status": "good",
+    "fp": "49536-f2feaa03b91e623d",
+    "at": "2026-11-05"
+  },
+  "1avwiusxnvx": {
+    "status": "good",
+    "fp": "30384-c692b6baa1516470",
+    "at": "2026-11-05"
+  },
+  "1b2rrpiwiog": {
+    "status": "good",
+    "fp": "19584-a3669c770ea20281",
+    "at": "2026-11-05"
+  },
+  "1bk62lm5vod": {
+    "status": "good",
+    "fp": "8064-b5f4967f2693fe76",
+    "at": "2026-11-05"
+  },
+  "1bmvkeqo8um": {
+    "status": "good",
+    "fp": "13248-e335cf359b7a43cb",
+    "at": "2026-11-05"
+  },
+  "1d3gmpmo0ib": {
+    "status": "regenerate",
+    "reasons": [
+      "wrong-gender"
+    ],
+    "fp": "18864-3762957980d8728b",
+    "at": "2026-11-05"
+  },
+  "1ddemx2nj7n": {
+    "status": "good",
+    "fp": "38448-9b6a0f00c4e50f6b",
+    "at": "2026-11-05"
+  },
+  "1dhmwman96": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
+    "fp": "19728-b5e0048c2b355585",
+    "at": "2026-11-05"
   },
   "1e59q62j4vv": {
     "status": "good",
@@ -1370,20 +1521,52 @@
     "fp": "34416-99451c42fd35b545",
     "at": "2026-10-31"
   },
+  "1f9im8z5d01": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
+    "fp": "22608-601423fa8b0c2ebb",
+    "at": "2026-11-05"
+  },
   "1fn0bhat2b6": {
     "status": "good",
     "fp": "36144-831a23accfa505b9",
     "at": "2026-10-31"
+  },
+  "1gbcrto6bik": {
+    "status": "good",
+    "fp": "14976-ef2c59b451a7c90c",
+    "at": "2026-11-05"
   },
   "1h0la3nxa3e": {
     "status": "good",
     "fp": "36864-dfa2dff88bf24430",
     "at": "2026-10-31"
   },
+  "1hak8sc39hh": {
+    "status": "regenerate",
+    "reasons": [
+      "wrong-gender"
+    ],
+    "fp": "19728-3b86586ada33c608",
+    "at": "2026-11-05"
+  },
   "1hf8w1gmbr3": {
     "status": "good",
     "fp": "37728-7e9b492961cd2be6",
     "at": "2026-10-31"
+  },
+  "1hy19ljpvja": {
+    "status": "good",
+    "fp": "15408-5de632711ff91079",
+    "at": "2026-11-05"
+  },
+  "1i60oa1ani8": {
+    "status": "good",
+    "fp": "21168-0586f31cc49f7b1a",
+    "at": "2026-11-05"
   },
   "1if9lvrj4vu": {
     "status": "regenerate",
@@ -1394,6 +1577,29 @@
     "fp": "35424-0ab9353e7d7105b0",
     "at": "2026-10-31"
   },
+  "1j2mwafkogi": {
+    "status": "good",
+    "fp": "15264-c3e79d6091503e5b",
+    "at": "2026-11-05"
+  },
+  "1javftlblix": {
+    "status": "good",
+    "fp": "15264-394690b1ed0ebfbe",
+    "at": "2026-11-05"
+  },
+  "1jrm5dw9u14": {
+    "status": "regenerate",
+    "reasons": [
+      "wrong-gender"
+    ],
+    "fp": "20448-d8ffab3d73573c7a",
+    "at": "2026-11-05"
+  },
+  "1k8ort1th12": {
+    "status": "good",
+    "fp": "73296-06c8d1c1f75bc0fd",
+    "at": "2026-11-05"
+  },
   "1kjtb1o7967": {
     "status": "regenerate",
     "reasons": [
@@ -1403,50 +1609,232 @@
     "fp": "47088-6a195b8d77630f7c",
     "at": "2026-10-31"
   },
+  "1lj0fevkzmn": {
+    "status": "regenerate",
+    "reasons": [
+      "wrong-gender"
+    ],
+    "fp": "23184-5ace9a2f3d0e2852",
+    "at": "2026-11-05"
+  },
+  "1lnev9dlkjd": {
+    "status": "good",
+    "fp": "12528-bf98e6a427dc6caf",
+    "at": "2026-11-05"
+  },
   "1lxxyb189v2": {
     "status": "good",
     "fp": "35424-16e1b75ffff792cb",
     "at": "2026-10-31"
+  },
+  "1m5nezff0nw": {
+    "status": "good",
+    "fp": "19008-51c330f3fc2692bf",
+    "at": "2026-11-05"
   },
   "1mh9op11oqg": {
     "status": "good",
     "fp": "36144-1ded94c05e02ac33",
     "at": "2026-10-31"
   },
+  "1mwuqzk39js": {
+    "status": "regenerate",
+    "fp": "13968-1329f56e2d4b5667",
+    "at": "2026-11-05"
+  },
+  "1njxvj9vn2h": {
+    "status": "good",
+    "fp": "24336-3d9a578fe22125b8",
+    "at": "2026-11-05"
+  },
+  "1o5ipoxnb0f": {
+    "status": "good",
+    "fp": "14544-820f9ba46e991ef3",
+    "at": "2026-11-05"
+  },
+  "1paap5np1j1": {
+    "status": "good",
+    "fp": "14688-94f97c53dcc2925f",
+    "at": "2026-11-05"
+  },
+  "1q9zz8t2hvv": {
+    "status": "good",
+    "fp": "57744-36461b88dec10412",
+    "at": "2026-11-05"
+  },
+  "1qn9adtz9aw": {
+    "status": "good",
+    "fp": "37296-0ea7d534611a6304",
+    "at": "2026-11-05"
+  },
+  "1qvo9ty4kmc": {
+    "status": "regenerate",
+    "reasons": [
+      "wrong-gender"
+    ],
+    "fp": "19584-8139ced4783acdf2",
+    "at": "2026-11-05"
+  },
+  "1rj9mtwjgon": {
+    "status": "regenerate",
+    "reasons": [
+      "wrong-gender"
+    ],
+    "fp": "18288-b6de4ba68c981e8e",
+    "at": "2026-11-05"
+  },
+  "1rr5v5bjyua": {
+    "status": "good",
+    "fp": "11664-078c461433f7810b",
+    "at": "2026-11-05"
+  },
+  "1s7w627zb0d": {
+    "status": "good",
+    "fp": "24768-f2a7b0b72e050cb9",
+    "at": "2026-11-05"
+  },
+  "1tbw9rlpzo": {
+    "status": "good",
+    "fp": "26496-547587c29b298f09",
+    "at": "2026-11-05"
+  },
+  "1tsmh5l7zlv": {
+    "status": "regenerate",
+    "fp": "12816-0ea9efc65cd5b2a0",
+    "at": "2026-11-05"
+  },
   "1uo0kpk0s43": {
     "status": "good",
     "fp": "34704-b0dd8d883b42bfd9",
     "at": "2026-10-31"
+  },
+  "1uzx2pxc5cz": {
+    "status": "good",
+    "fp": "23616-446375e6046c95fa",
+    "at": "2026-11-05"
+  },
+  "1vaajbufl5n": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "if its for a boy - it should be ממשיכים",
+    "fp": "24768-a5a1f4a55efaeb80",
+    "at": "2026-11-05"
   },
   "1w61yl1fnme": {
     "status": "good",
     "fp": "34848-4c41c136597acd2f",
     "at": "2026-10-31"
   },
+  "1wg0d2jdefi": {
+    "status": "good",
+    "fp": "7580-df61c2c68eca1d15",
+    "at": "2026-11-05"
+  },
   "1whnzdxe12r": {
     "status": "good",
     "fp": "33408-a9b2f8f0db944afc",
     "at": "2026-10-31"
+  },
+  "1winp1doq3l": {
+    "status": "good",
+    "fp": "18288-4c29d4d75d05d863",
+    "at": "2026-11-05"
+  },
+  "1x2owiwr7bv": {
+    "status": "good",
+    "fp": "15984-eee45ba76324bd0d",
+    "at": "2026-11-05"
+  },
+  "1xd7wy7s1kl": {
+    "status": "regenerate",
+    "reasons": [
+      "mispronounced"
+    ],
+    "fp": "21024-67048acfd7d07e9f",
+    "at": "2026-11-05"
+  },
+  "1xqz30hr18o": {
+    "status": "good",
+    "fp": "19008-989e066120e55bde",
+    "at": "2026-11-05"
+  },
+  "1y49vnhjn7i": {
+    "status": "good",
+    "fp": "11808-ebca5177b1970a3d",
+    "at": "2026-11-05"
+  },
+  "1ytmrzu0dg5": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
+    "fp": "18576-1eae3fb4317eedea",
+    "at": "2026-11-05"
   },
   "1yuhnu6luif": {
     "status": "good",
     "fp": "37584-10e5e244a167e457",
     "at": "2026-10-31"
   },
+  "1yukvfzt3h4": {
+    "status": "good",
+    "fp": "14256-9b040f16d0359fb9",
+    "at": "2026-11-05"
+  },
+  "1z20gelvq5n": {
+    "status": "good",
+    "fp": "5852-6d3eea8019aaec22",
+    "at": "2026-11-05"
+  },
+  "1z78vzh1cuf": {
+    "status": "good",
+    "fp": "31968-32e4d21df22271c5",
+    "at": "2026-11-05"
+  },
+  "1zie9dwwopd": {
+    "status": "good",
+    "fp": "14688-1c5084696c4a5563",
+    "at": "2026-11-05"
+  },
   "1zm1dywir6j": {
     "status": "good",
     "fp": "35424-0570d8b12be2bb11",
     "at": "2026-10-31"
+  },
+  "1zv0r1wcqlo": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
+    "fp": "20304-233312b27b10a6ae",
+    "at": "2026-11-05"
   },
   "216rw7h3hct": {
     "status": "good",
     "fp": "54288-ffef492be7d96e38",
     "at": "2026-10-31"
   },
+  "21ep6xk8w7s": {
+    "status": "good",
+    "fp": "13968-d9c4be80d816c061",
+    "at": "2026-11-05"
+  },
   "21jaiw2illa": {
     "status": "good",
     "fp": "38016-31969261a60ab6f6",
     "at": "2026-10-31"
+  },
+  "21zeqw61dpx": {
+    "status": "regenerate",
+    "reasons": [
+      "wrong-gender"
+    ],
+    "fp": "19584-1c100c0649f7e9a1",
+    "at": "2026-11-05"
   },
   "22a1qmnxf57": {
     "status": "good",
@@ -1462,6 +1850,64 @@
     "fp": "55584-e046b3b56788699b",
     "at": "2026-10-31"
   },
+  "23v11l3hly7": {
+    "status": "good",
+    "fp": "34848-0415c6d95facc9bc",
+    "at": "2026-11-05"
+  },
+  "250ks9tf7in": {
+    "status": "good",
+    "fp": "13968-547aa29ab238f3e7",
+    "at": "2026-11-05"
+  },
+  "264a16ujy42": {
+    "status": "regenerate",
+    "reasons": [
+      "wrong-gender"
+    ],
+    "fp": "7488-595afc0ca3df8db5",
+    "at": "2026-11-05"
+  },
+  "268gxrf477y": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
+    "fp": "23904-ed59eb5522d325b3",
+    "at": "2026-11-05"
+  },
+  "26fh8zjhjb0": {
+    "status": "good",
+    "fp": "7776-5f9322275a883e39",
+    "at": "2026-11-05"
+  },
+  "26ms2m0kfcj": {
+    "status": "regenerate",
+    "reasons": [
+      "english-accent"
+    ],
+    "fp": "7292-1da678e55d240d99",
+    "at": "2026-11-05"
+  },
+  "272s5nam85s": {
+    "status": "regenerate",
+    "reasons": [
+      "wrong-gender"
+    ],
+    "fp": "16128-c775ed7363e1ade6",
+    "at": "2026-11-05"
+  },
+  "27zzx0phzzw": {
+    "status": "good",
+    "fp": "20396-e0460cd611b4fcf0",
+    "at": "2026-11-05"
+  },
+  "289lohqc4rs": {
+    "status": "good",
+    "fp": "13248-a4b065bb385631c8",
+    "at": "2026-11-05"
+  },
   "2993fyd2vm0": {
     "status": "good",
     "fp": "37728-5c75b0815bf9fa8f",
@@ -1472,6 +1918,71 @@
     "fp": "31104-3d8e9dd6af347939",
     "at": "2026-10-31"
   },
+  "2a97cc191pb": {
+    "status": "regenerate",
+    "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
+    "fp": "19008-395e668646b351a5",
+    "at": "2026-11-05"
+  },
+  "2b8mp8xt1xs": {
+    "status": "regenerate",
+    "fp": "13824-023bb62e7bc3e5f2",
+    "at": "2026-11-05"
+  },
+  "2b9wpq1cxqq": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
+    "fp": "20304-f66b237f66ac4c28",
+    "at": "2026-11-05"
+  },
+  "2bm9v1wy2gy": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
+    "fp": "22464-16e09f478cb07860",
+    "at": "2026-11-05"
+  },
+  "2c1oadbrryj": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
+    "fp": "22608-be6acb401851871c",
+    "at": "2026-11-05"
+  },
+  "2d51ifo14hu": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
+    "fp": "20736-c90b2b2f8b7967ea",
+    "at": "2026-11-05"
+  },
+  "2dffq4h9gwn": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
+    "fp": "21456-20910ec040986aa4",
+    "at": "2026-11-05"
+  },
+  "2dihc48cmrh": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
+    "fp": "20016-156a476e1e7de2d3",
+    "at": "2026-11-05"
+  },
   "2dqhf58hh0s": {
     "status": "regenerate",
     "reasons": [
@@ -1480,6 +1991,25 @@
     "note": "the gender is male so the text should say \"אנא השתמש\" instead of \"אנא השתמשי\"",
     "fp": "51696-520cd1df66531ae2",
     "at": "2026-10-31"
+  },
+  "2ebybgc84gz": {
+    "status": "good",
+    "fp": "21024-1379b6a080481b91",
+    "at": "2026-11-05"
+  },
+  "2ehlj1qxpve": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
+    "fp": "19008-f599f9b02e32527f",
+    "at": "2026-11-05"
+  },
+  "2ekkt7gwvdq": {
+    "status": "good",
+    "fp": "29808-d55fbfda38b201fb",
+    "at": "2026-11-05"
   },
   "2es7jdllj42": {
     "status": "good",
@@ -1491,6 +2021,21 @@
     "fp": "39744-e2b2082f4c5b2e76",
     "at": "2026-10-31"
   },
+  "2gmrmg7r9ca": {
+    "status": "regenerate",
+    "fp": "12384-699e628e75b1f67c",
+    "at": "2026-11-05"
+  },
+  "3ayfongvb3": {
+    "status": "good",
+    "fp": "31536-45d02b6dc1012cbe",
+    "at": "2026-11-05"
+  },
+  "3sryjq77tq": {
+    "status": "good",
+    "fp": "6624-f9bc4d71905c68fd",
+    "at": "2026-11-05"
+  },
   "3vdet9q9yg": {
     "status": "regenerate",
     "reasons": [
@@ -1500,10 +2045,20 @@
     "fp": "47808-28b81159f03c06c9",
     "at": "2026-10-31"
   },
+  "3xsgxx5lba": {
+    "status": "good",
+    "fp": "10656-52a00d8757e87299",
+    "at": "2026-11-05"
+  },
   "49n79dkigs": {
     "status": "good",
     "fp": "35136-f4bacb419b86c4af",
     "at": "2026-10-31"
+  },
+  "5cu11hishm": {
+    "status": "good",
+    "fp": "15264-a4eaa65680b5f7f6",
+    "at": "2026-11-05"
   },
   "5rtglke9qf": {
     "status": "regenerate",
@@ -1513,6 +2068,31 @@
     "note": "ZED was read as Zi. should be ZED",
     "fp": "34848-76368917d3a19e4c",
     "at": "2026-10-31"
+  },
+  "5w8h0umq47": {
+    "status": "good",
+    "fp": "15696-977460f94289ec83",
+    "at": "2026-11-05"
+  },
+  "6ankvai7q9": {
+    "status": "good",
+    "fp": "14976-726a4f5cdffbb2c3",
+    "at": "2026-11-05"
+  },
+  "6dzhe6as8l": {
+    "status": "good",
+    "fp": "15264-76905a8be9e09aa9",
+    "at": "2026-11-05"
+  },
+  "6qui41hmrb": {
+    "status": "good",
+    "fp": "3548-5929e5f966e24bbb",
+    "at": "2026-11-05"
+  },
+  "6vs2eon8g6": {
+    "status": "good",
+    "fp": "14256-e8c955d1eabb6beb",
+    "at": "2026-11-05"
   },
   "70re0beaw6": {
     "status": "good",
@@ -1524,6 +2104,36 @@
     "fp": "34848-61dc4609618a6fcd",
     "at": "2026-10-31"
   },
+  "982un6htcm": {
+    "status": "good",
+    "fp": "14976-f776073ec809e3e4",
+    "at": "2026-11-05"
+  },
+  "9to99ellmn": {
+    "status": "good",
+    "fp": "14256-8ec2df64fa794f17",
+    "at": "2026-11-05"
+  },
+  "9v2vth9upe": {
+    "status": "good",
+    "fp": "31824-be47c9ae32dba27d",
+    "at": "2026-11-05"
+  },
+  "b2hxy50dau": {
+    "status": "regenerate",
+    "fp": "13824-178dae5ad4a26ae5",
+    "at": "2026-11-05"
+  },
+  "bi3w0qvvxu": {
+    "status": "good",
+    "fp": "16704-f57bfbed1e1e9aa7",
+    "at": "2026-11-05"
+  },
+  "brf2u1zr12": {
+    "status": "good",
+    "fp": "6140-4a6bcc97e53b9752",
+    "at": "2026-11-05"
+  },
   "bslxdyn9tb": {
     "status": "good",
     "fp": "32256-ab7623c39417d3a2",
@@ -1534,6 +2144,26 @@
     "fp": "34704-bd9a31efa76105df",
     "at": "2026-10-31"
   },
+  "ch1r138gj6": {
+    "status": "good",
+    "fp": "5564-9dc3014038fb486d",
+    "at": "2026-11-05"
+  },
+  "duwq2pvldr": {
+    "status": "good",
+    "fp": "11900-49f37e46ddbe4fa1",
+    "at": "2026-11-05"
+  },
+  "e17vlwrsu5": {
+    "status": "good",
+    "fp": "15984-c0c41e7d0380a159",
+    "at": "2026-11-05"
+  },
+  "eujach8zie": {
+    "status": "good",
+    "fp": "14976-558b8f4f610bf5c0",
+    "at": "2026-11-05"
+  },
   "fajbiphdm9": {
     "status": "regenerate",
     "reasons": [
@@ -1543,40 +2173,229 @@
     "fp": "32544-21344dfedf85817c",
     "at": "2026-10-31"
   },
+  "fcegydl60c": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
+    "fp": "21024-e341ea0eef8ef258",
+    "at": "2026-11-05"
+  },
+  "fcf8rnll1x": {
+    "status": "good",
+    "fp": "13248-6acc9ab594d2b49a",
+    "at": "2026-11-05"
+  },
+  "fzpb97h1k4": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
+    "fp": "19728-4e0b8f610762af16",
+    "at": "2026-11-05"
+  },
+  "hfl7z1qcvc": {
+    "status": "good",
+    "fp": "19296-8d0f956e6fefc8ec",
+    "at": "2026-11-05"
+  },
   "hnx7tww483": {
     "status": "good",
     "fp": "37296-5f764c0dbf4f12db",
     "at": "2026-10-31"
+  },
+  "htwvu35ok9": {
+    "status": "good",
+    "fp": "14976-7d4a6ff9b8f5a781",
+    "at": "2026-11-05"
+  },
+  "huastyg1ug": {
+    "status": "good",
+    "fp": "19728-5e2da6c51c5fe34a",
+    "at": "2026-11-05"
   },
   "j74jrb8d8i": {
     "status": "good",
     "fp": "34704-451224e55a4cf714",
     "at": "2026-10-31"
   },
+  "jf4yvqmfqc": {
+    "status": "good",
+    "fp": "14688-a97295d9de0cddce",
+    "at": "2026-11-05"
+  },
+  "k0docza26b": {
+    "status": "good",
+    "fp": "32544-a6510f16a0bc1837",
+    "at": "2026-11-05"
+  },
+  "k5u0gsc1d": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
+    "fp": "18864-2c4e5e5f04263494",
+    "at": "2026-11-05"
+  },
+  "kp5leh9l2n": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
+    "fp": "24336-082aff727955ba27",
+    "at": "2026-11-05"
+  },
   "l238dbace": {
     "status": "good",
     "fp": "35568-b06417e23cb3980e",
     "at": "2026-10-31"
+  },
+  "lriakel7y9": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
+    "fp": "19584-5aeacd30ab9cc5bc",
+    "at": "2026-11-05"
+  },
+  "lv1w05hrmw": {
+    "status": "good",
+    "fp": "23328-e8d7c08d29522778",
+    "at": "2026-11-05"
+  },
+  "m3gfcjrc3g": {
+    "status": "good",
+    "fp": "6716-c325ba8181306c65",
+    "at": "2026-11-05"
+  },
+  "mmko923dmz": {
+    "status": "good",
+    "fp": "37584-401d164a226dbe3e",
+    "at": "2026-11-05"
+  },
+  "mtye4s9t8": {
+    "status": "regenerate",
+    "fp": "14256-1fe8ec5a73a28a7c",
+    "at": "2026-11-05"
+  },
+  "nqm0tmfker": {
+    "status": "good",
+    "fp": "14256-618cad499692ac41",
+    "at": "2026-11-05"
   },
   "ooqfy477ki": {
     "status": "good",
     "fp": "33408-63bfdaf16803048e",
     "at": "2026-10-31"
   },
+  "p1l197lntw": {
+    "status": "good",
+    "fp": "8300-518141f7ada82367",
+    "at": "2026-11-05"
+  },
+  "pphh3jwzuk": {
+    "status": "good",
+    "fp": "39456-55d03da4a0cb4fb2",
+    "at": "2026-11-05"
+  },
+  "q3pp0ym8he": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
+    "fp": "22608-f77c97753611c023",
+    "at": "2026-11-05"
+  },
+  "rgsnlpttt7": {
+    "status": "regenerate",
+    "fp": "15696-240ab78879686e1e",
+    "at": "2026-11-05"
+  },
+  "rjxqdyhqqc": {
+    "status": "good",
+    "fp": "24336-19f22d6a55bc0c6c",
+    "at": "2026-11-05"
+  },
+  "sfvatmaev": {
+    "status": "good",
+    "fp": "15984-5dd7eba9cc5b2c7e",
+    "at": "2026-11-05"
+  },
   "thf6fbbun0": {
     "status": "good",
     "fp": "31968-117a155437aeff83",
     "at": "2026-10-31"
+  },
+  "tqkpf2oogq": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
+    "fp": "20016-9b0fa36fe2433315",
+    "at": "2026-11-05"
   },
   "usa9t6xz42": {
     "status": "good",
     "fp": "36864-b4a6f17e9490cf57",
     "at": "2026-10-31"
   },
+  "vxsmhy9lja": {
+    "status": "good",
+    "fp": "13824-7e9c87c682d136bd",
+    "at": "2026-11-05"
+  },
   "w88wn9qmwh": {
     "status": "good",
     "fp": "35856-1ed3a3ac16299d11",
     "at": "2026-10-31"
+  },
+  "wi4le0fjdr": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
+    "fp": "22176-2ae754211f449fe6",
+    "at": "2026-11-05"
+  },
+  "xzppuu6iti": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
+    "fp": "19008-f6299b1cba338b9a",
+    "at": "2026-11-05"
+  },
+  "yby1ck155s": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
+    "fp": "23328-3eb41a8a22034aad",
+    "at": "2026-11-05"
+  },
+  "yj41cllbv5": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
+    "fp": "21024-a07b10f2d57c5423",
+    "at": "2026-11-05"
+  },
+  "zh8qd04ui5": {
+    "status": "good",
+    "fp": "15696-943b336f57ecab55",
+    "at": "2026-11-05"
   },
   "zmfnd1hcvm": {
     "status": "good",

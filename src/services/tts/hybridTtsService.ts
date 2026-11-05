@@ -11,6 +11,8 @@ import { voiceForListener } from './hebrewListener';
 import {
   APP_CHECK_HEADER,
   HEBREW_VOICE,
+  englishRestOf,
+  splitHebrewOpener,
   type ListenerGender,
   isSpeakableBy,
   toPlainSpeech,
@@ -20,6 +22,7 @@ import {
   CLIP_BASE_RATE,
   getClipKey,
   getClipSpeed,
+  getClipText,
   getSpeedBucket,
   normalizeTtsText,
   toSpeakableText,
@@ -136,6 +139,34 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
     return toPlayable(getClipUrl(voice, key), 'clip', speed === 'slow' ? 1 : rate / CLIP_BASE_RATE, signal);
   };
 
+  /**
+   * The clips of a line that opens with an opener ("מעולה!"): the opener in the learner's gender, then
+   * the rest (a Hebrew clip, or the English voice's clip when the rest is an English sentence). Null
+   * when either is missing.
+   */
+  const findOpenerClips = async (text: string, voice: ClipVoice, rate: number, signal: AbortSignal): Promise<Playable[] | null> => {
+    const split = splitHebrewOpener(text);
+    if (!split) return null;
+    const manifest = await loadManifest();
+    const hebrewClips = manifest?.get(HEBREW_VOICE);
+    const english = englishRestOf(split.rest);
+    const englishClips = manifest?.get(voice);
+    if (!hebrewClips || (english && !englishClips)) return null;
+    const gender = deps.getListenerGender?.() ?? null;
+    // The corpus keys a one-word part without its punctuation, then tags it (getClipText first, as corpusBuilder does)
+    const openerKey = getClipKey(voiceForListener(getClipText(split.opener), gender), 'normal');
+    const parts: { clips: ReadonlySet<string>; voice: ClipVoice; key: string }[] = [
+      { clips: hebrewClips, voice: HEBREW_VOICE, key: openerKey },
+      english
+        ? { clips: englishClips as ReadonlySet<string>, voice, key: getClipKey(english, 'normal') }
+        : { clips: hebrewClips, voice: HEBREW_VOICE, key: getClipKey(voiceForListener(getClipText(split.rest), gender), 'normal') },
+    ];
+    if (!parts.every((part) => part.clips.has(part.key))) return null;
+    const playbackRate = rate / CLIP_BASE_RATE;
+    const playables = await Promise.all(parts.map((part) => toPlayable(getClipUrl(part.voice, part.key), 'clip', playbackRate, signal)));
+    return playables.every((playable): playable is Playable => playable !== null) ? playables : null;
+  };
+
   const fetchLive = async (text: string, voice: ClipVoice, rate: number, signal: AbortSignal): Promise<Playable | null> => {
     if (!isSpeakableBy(voice, text) || deps.now() < livePausedUntil || !deps.isOnline()) return null;
     const speed = getClipSpeed(text, getSpeedBucket(rate));
@@ -228,21 +259,42 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
 
     const audio = deps.getAudio();
     if (audio) {
-      let playable: Playable | null;
+      let playable: Playable | null = null;
+      let opener: Playable[] | null;
       // The online voice gets LIVE_TIMEOUT_MS; a slower answer is dropped for the device voice.
       const timer = setTimeout(() => controller.abort(), LIVE_TIMEOUT_MS);
       try {
-        playable = (await findClip(voiced, clipVoice, rate, controller.signal)) ??
-          (await fetchLive(toPlainSpeech(voiced), clipVoice, rate, controller.signal));
+        opener = lang === 'he' ? await findOpenerClips(text, voice, rate, controller.signal) : null;
+        if (!opener) {
+          playable = (await findClip(voiced, clipVoice, rate, controller.signal)) ??
+            (await fetchLive(toPlainSpeech(voiced), clipVoice, rate, controller.signal));
+        }
       } catch {
         // A timeout, an abort or a network error falls through to the device voice.
         playable = null;
+        opener = null;
       } finally {
         clearTimeout(timer);
       }
       if (!isCurrent()) {
         playable?.revoke?.();
+        opener?.forEach((part) => part.revoke?.());
         return;
+      }
+      if (opener) {
+        // "מעולה!" in the learner's gender, then the rest of the line
+        let hasPlayed = false;
+        try {
+          for (const [index, part] of opener.entries()) {
+            if (!isCurrent()) return;
+            hasPlayed = await play(audio, part, index === 0 ? options.onPlaybackStart : undefined);
+            if (!hasPlayed || !isCurrent()) break;
+          }
+        } finally {
+          opener.forEach((part) => part.revoke?.());
+        }
+        // Nothing played (the browser refused): the device voice below reads the line
+        if (hasPlayed || !isCurrent()) return;
       }
       if (playable) {
         const didPlay = await play(audio, playable, options.onPlaybackStart);

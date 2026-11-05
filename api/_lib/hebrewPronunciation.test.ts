@@ -52,8 +52,8 @@ describe('markPronunciations', () => {
   });
 
   it("spells words that read by gender in the learner's form, and leaves them to the voice without one", () => {
-    expect(spelled('מעולה! בנית את המילה', 'girl')).toEqual([{ text: 'בנית', ipa: 'ba.ˈnit' }]);
-    expect(spelled('מעולה! בנית את המילה', 'boy')).toEqual([{ text: 'בנית', ipa: 'ba.ˈni.ta' }]);
+    expect(spelled('מעולה! בנית את המילה', 'girl')).toEqual([{ text: 'מעולה', ipa: 'me.ʔu.ˈla' }, { text: 'בנית', ipa: 'ba.ˈnit' }]);
+    expect(spelled('מעולה! בנית את המילה', 'boy')).toEqual([{ text: 'מעולה', ipa: 'me.ʔu.ˈle' }, { text: 'בנית', ipa: 'ba.ˈni.ta' }]);
     expect(spelled('מעולה! בנית את המילה')).toEqual([]);
     // The rest of the list still applies
     expect(spelled('הקשיבי ובחרי את האות ששמעת', 'girl').map((s) => s.ipa)).toEqual([

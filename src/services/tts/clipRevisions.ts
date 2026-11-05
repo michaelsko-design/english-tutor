@@ -11,6 +11,7 @@ export const CLIP_REVISIONS: Readonly<Record<string, number>> = {
   'he-female/14x6k9vrdei': 2,
   'he-female/17vzduizfym': 2,
   'he-female/1apbzh1lw3o': 2,
+  'he-female/jf4yvqmfqc': 2,
   'he-female/lt3qmr46kb': 2,
   'he-female/n8cr3mr4bg': 2,
   'he-female/nmes33qxcf': 2,

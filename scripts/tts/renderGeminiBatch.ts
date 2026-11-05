@@ -106,12 +106,14 @@ async function submit(apiKey: string): Promise<void> {
 }
 
 /** The lines marked for regenerate in the review: rendered as new takes, the originals stay. */
-async function regenerate(apiKey: string): Promise<void> {
+async function regenerate(apiKey: string, onlyContaining?: string): Promise<void> {
   const dirs = getReviewDirs();
   const phrases = collectCorpus(HEBREW_VOICE);
   const keys = new Set(keysToRegenerate(listReviewItems(phrases, loadState(dirs.statePath), dirs)));
-  console.log(`${keys.size} clips marked for regenerate.`);
-  return submitPhrases(apiKey, phrases.filter((phrase) => keys.has(phrase.key)), 'candidate');
+  // `regenerate "<text>"` sends only the marked lines that contain the text
+  const todo = phrases.filter((phrase) => keys.has(phrase.key) && (!onlyContaining || phrase.text.includes(onlyContaining)));
+  console.log(`${keys.size} clips marked for regenerate${onlyContaining ? `, ${todo.length} containing "${onlyContaining}"` : ''}.`);
+  return submitPhrases(apiKey, todo, 'candidate');
 }
 
 /** A few flagged lines in every lab way: what to listen to before choosing how to fix the rest. */
@@ -284,7 +286,7 @@ async function main(): Promise<void> {
   if (command === 'redo') return redo(argument);
   const apiKey = readApiKey();
   if (command === 'submit') return submit(apiKey);
-  if (command === 'regenerate') return regenerate(apiKey);
+  if (command === 'regenerate') return regenerate(apiKey, argument);
   if (command === 'lab') return lab(apiKey, process.argv.includes('dry'), process.argv.includes('models'));
   if (command === 'status') return collect(apiKey, true);
   if (command === 'collect') return collect(apiKey, false);
