@@ -121,6 +121,27 @@ describe('tier steps: three genuinely different missions', () => {
     expect(s5.contextPassageHe).toBeUndefined();
   });
 
+  it('Master: a comma in the sentence is its own chip, in its place', () => {
+    const fixture = TIER_FIXTURE_MISSION;
+    const tiers = fixture.drillSeed!.tiers!;
+    const withComma: MissionNode = {
+      ...fixture,
+      drillSeed: {
+        ...fixture.drillSeed!,
+        tiers: { ...tiers, master: { ...tiers.master, sentenceEn: 'If it rains, we stay at home.' } },
+      },
+    };
+    const step = stepsFor('master', withComma)[1];
+    expect(step.scrambledWords).toHaveLength(7 + 1 + 2);
+    expect(step.scrambledWords?.filter((chip) => chip === ',')).toHaveLength(1);
+    expect(step.scrambledWords).toEqual(expect.arrayContaining(['rains', 'we']));
+    expect(step.promptHe).toContain('פסיק');
+    // The other tiers never show a comma chip
+    for (const tier of ['explorer', 'challenger'] as const) {
+      expect(stepsFor(tier, withComma)[1].scrambledWords).not.toContain(',');
+    }
+  });
+
   it('Master hints are English only: no Hebrew letters', () => {
     const [, , , s4, s5] = stepsFor('master');
     expect(s4.hintHe).not.toMatch(/[֐-׿]/);

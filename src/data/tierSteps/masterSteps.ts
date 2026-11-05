@@ -8,6 +8,7 @@ import {
   englishHint,
   pickVocab,
   splitWords,
+  splitWordsAndCommas,
   type TierContext,
 } from './shared';
 
@@ -70,6 +71,9 @@ export function buildMasterSteps(ctx: TierContext): MissionExerciseStep[] {
   const { he, mission, tiers } = ctx;
   const master = tiers.master;
   const sentenceWords = splitWords(master.sentenceEn);
+  // A comma is a chip of its own, so the learner has to place it
+  const sentenceChips = splitWordsAndCommas(master.sentenceEn);
+  const hasComma = sentenceChips.length > sentenceWords.length;
   // The voice step's pronunciation focus is the word step 1 spells
   const focus = pickSpellableWord(ctx) ?? pickVocab(ctx, 2);
 
@@ -78,12 +82,14 @@ export function buildMasterSteps(ctx: TierContext): MissionExerciseStep[] {
     stepNumber: 2,
     type: 'sentence-builder',
     badgeLabelHe: he`🧩 שלב 2/5: משפט חדש (עם מילים מיותרות)`,
-    promptHe: he`הרכיבי את המשפט. שימו לב: יש שתי מילים מיותרות!`,
+    promptHe: hasComma
+      ? he`הרכיבי את המשפט. שימו לב: יש שתי מילים מיותרות, ואת הפסיק צריך לשים במקום הנכון!`
+      : he`הרכיבי את המשפט. שימו לב: יש שתי מילים מיותרות!`,
     hintHe: `💡 ${getSentenceOrderHintHe(sentenceWords)}`,
     questionEn: 'Tap the words in the right order:',
     targetSentenceEn: master.sentenceEn,
     targetSentenceHe: master.sentenceHe,
-    scrambledWords: [...sentenceWords, ...master.decoys],
+    scrambledWords: [...sentenceChips, ...master.decoys],
   };
 
   const step3: MissionExerciseStep = {

@@ -53,6 +53,7 @@ import {
 } from '../utils/missionFeedback';
 import { useStopSpeechOnLeave } from '../hooks/useSpeech';
 import { DrillFeedback, normalizeSentence, useDrillSession } from '../hooks/useDrillSession';
+import { COMMA_CHIP, hasCommaChip, joinSentenceChips, normalizeSentenceWithCommas } from '../utils/sentenceChips';
 import type { SpokenPart } from '../data/hebrewAudio';
 import {
   getSentenceOrderWrongHe,
@@ -323,7 +324,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   const handleWordOrderChange = (nextIndices: number[], change: MagnetChange) => {
     if (stepCompleted || !currentStep.scrambledWords) return;
     session.setWordIndices(nextIndices);
-    if (change.kind === 'add') onSpeakEnglish(currentStep.scrambledWords[change.idx], 0.95);
+    const tapped = currentStep.scrambledWords[change.idx];
+    if (change.kind === 'add' && tapped !== COMMA_CHIP) onSpeakEnglish(tapped, 0.95);
   };
 
   const handleCheckWord = () => {
@@ -339,11 +341,12 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
 
   const handleCheckSentence = () => {
     if (!currentStep.scrambledWords || !currentStep.targetSentenceEn) return;
-    const builtSentence = selectedWordIndices
-      .map((i) => currentStep.scrambledWords![i])
-      .join(' ');
+    const chips = currentStep.scrambledWords;
+    const builtSentence = joinSentenceChips(selectedWordIndices.map((i) => chips[i]));
+    // With a comma chip (Master) the comma's place is part of the answer
+    const normalize = hasCommaChip(chips) ? normalizeSentenceWithCommas : normalizeSentence;
 
-    if (normalizeSentence(builtSentence) === normalizeSentence(currentStep.targetSentenceEn)) {
+    if (normalize(builtSentence) === normalize(currentStep.targetSentenceEn)) {
       speakAnswerEnglish(currentStep.targetSentenceEn);
       registerCorrectAnswer(
         isGirl

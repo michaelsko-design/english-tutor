@@ -72,6 +72,11 @@ function toSentenceWords(sentenceEn: string): string[] {
   return sentenceEn.replace(/[.!?",]/g, '').split(/\s+/).filter(Boolean);
 }
 
+/** Master's chips: like `toSentenceWords`, but each comma is a chip of its own */
+function toSentenceChips(sentenceEn: string): string[] {
+  return sentenceEn.replace(/[.!?"]/g, '').replace(/,/g, ' , ').split(/\s+/).filter(Boolean);
+}
+
 /** Every string in the curriculum data (sample sentences, examples, vocabulary...) */
 function collectStrings(value: unknown, found: string[] = []): string[] {
   if (typeof value === 'string') found.push(value);
@@ -135,7 +140,7 @@ export async function buildSentenceAmongDecoys(mission: Locator): Promise<void> 
   const chips = (await bank.getByRole('button').allTextContents()).map((word) => word.trim());
   const answers = [...new Set(collectStrings(CURRICULUM_BY_GRADE))]
     .filter((text) => /^[A-Z][^.!?]*[.!?]$/.test(text))
-    .map(toSentenceWords)
+    .map(toSentenceChips)
     .filter((words) => words.length === chips.length - 2 && isSubMultiset(words, chips));
   if (answers.length === 0) throw new Error(`no curriculum sentence fits the chips: ${chips.join(' ')}`);
   for (const word of answers[0]) {

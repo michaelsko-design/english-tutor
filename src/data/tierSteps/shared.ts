@@ -8,6 +8,7 @@ import {
   getSentenceOrderHintHe,
   isolateLtr,
 } from '../../utils/hints';
+import { COMMA_CHIP } from '../../utils/sentenceChips';
 import { getSentenceHintWords } from '../wordGlosses';
 
 /** What every tier's step builder needs. */
@@ -46,6 +47,15 @@ export function pickVocab(ctx: TierContext, offset: number): VocabularyItem {
 export function splitWords(sentence: string): string[] {
   return sentence
     .replace(/[.!?",]/g, '')
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+/** Like `splitWords`, but each comma stays as a chip of its own, in its place after the word. */
+export function splitWordsAndCommas(sentence: string): string[] {
+  return sentence
+    .replace(/[.!?"]/g, '')
+    .replace(/,/g, ` ${COMMA_CHIP} `)
     .split(/\s+/)
     .filter(Boolean);
 }

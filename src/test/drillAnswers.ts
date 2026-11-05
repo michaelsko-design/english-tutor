@@ -16,7 +16,7 @@ export interface AnswerableStep {
   textEn?: string;
 }
 
-const toComparable = (word: string) => word.replace(/[.!?",]/g, '').toLowerCase();
+const toComparable = (word: string) => (word === ',' ? word : word.replace(/[.!?",]/g, '').toLowerCase());
 
 /** The answer button's accessible name: a picture option is named by its word (the emoji is hidden) */
 export function getOptionName(option: MultipleChoiceOption): string {
@@ -45,7 +45,12 @@ async function tapInOrder(
 }
 
 async function buildSentence(user: TestUser, words: string[], target: string) {
-  const tokens = target.split(/\s+/).filter(Boolean);
+  // A bank with a comma chip (Master) needs the comma tapped after its word
+  const hasCommaChip = words.includes(',');
+  const tokens = target
+    .split(/\s+/)
+    .filter(Boolean)
+    .flatMap((token) => (hasCommaChip && token.endsWith(',') ? [token.slice(0, -1), ','] : [token]));
   let tokenIdx = 0;
   await tapInOrder(user, 'בנק המילים', words, (isUsed) => {
     if (tokenIdx >= tokens.length) return null;

@@ -1,22 +1,23 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MissionNode } from '../data/curriculum';
 import { CURRICULUM_BY_GRADE } from '../test/curriculum';
 import { getExercisesForMission } from '../data/missionExercises';
-import { GradeId } from '../types/learner';
+import { GradeId, ProficiencyTier } from '../types/learner';
+import { TIER_FIXTURE_MISSION } from '../data/testing/tierFixture';
 import { answerCorrectly, answerWrongly } from '../test/drillAnswers';
 import { TEST_THEME } from '../test/fixtures';
 import { MissionRunner } from './MissionRunner';
 
 const firstMission = (gradeId: GradeId): MissionNode => CURRICULUM_BY_GRADE[gradeId].units[0].missions[0];
 
-function renderRunner(mission: MissionNode) {
+function renderRunner(mission: MissionNode, tier: ProficiencyTier = 'challenger') {
   const handlers = { onCompleteMission: vi.fn(), onClose: vi.fn(), onChangeTier: vi.fn() };
   render(
     <MissionRunner
       mission={mission}
-      tier="challenger"
+      tier={tier}
       gender="girl"
       learnerName="נועה"
       theme={TEST_THEME}
@@ -73,6 +74,37 @@ describe('MissionRunner', () => {
 
     expect(screen.getByRole('alert')).toHaveTextContent('נכון!');
     expect(screen.getByRole('button', { name: 'לשלב הבא' })).toBeInTheDocument();
+  });
+
+  it('Master: the comma is a chip, and it has to be in the right place', async () => {
+    const user = userEvent.setup();
+    const tiers = TIER_FIXTURE_MISSION.drillSeed!.tiers!;
+    const mission: MissionNode = {
+      ...TIER_FIXTURE_MISSION,
+      drillSeed: {
+        ...TIER_FIXTURE_MISSION.drillSeed!,
+        tiers: { ...tiers, master: { ...tiers.master, sentenceEn: 'If it rains, we stay at home.' } },
+      },
+    };
+    const [spell, sentence] = getExercisesForMission(mission, 'master', 'girl', 0);
+    renderRunner(mission, 'master');
+
+    await answerCorrectly(user, spell);
+    await user.click(screen.getByRole('button', { name: /לשלב הבא/ }));
+
+    // The right words without the comma are not enough
+    const bank = () => within(screen.getByLabelText('בנק המילים'));
+    for (const word of ['If', 'it', 'rains', 'we', 'stay', 'at', 'home']) {
+      await user.click(bank().getByRole('button', { name: new RegExp(`^${word}$`) }));
+    }
+    await user.click(screen.getByRole('button', { name: /בדיקת משפט/ }));
+    expect(screen.getByRole('alert')).toHaveTextContent('לא נכון.');
+    await user.click(screen.getByRole('button', { name: 'נסי שוב' }));
+
+    // Cleared and built again with the comma after "rains"
+    await user.click(screen.getByRole('button', { name: /איפוס/ }));
+    await answerCorrectly(user, sentence);
+    expect(screen.getByRole('alert')).toHaveTextContent('נכון!');
   });
 
   it('Challenger: the Hebrew sentence hint opens itself after the first wrong answer', async () => {

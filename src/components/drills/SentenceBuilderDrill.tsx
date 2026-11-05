@@ -5,6 +5,7 @@ import { Languages, RotateCcw } from 'lucide-react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { MagnetChange, toggleMagnet, toMagnetId } from '../../utils/magnetOrder';
 import { playSfx } from '../../utils/sfx';
+import { COMMA_CHIP } from '../../utils/sentenceChips';
 import {
   DraggableMagnet,
   MAGNET_BANK_ID,
@@ -140,7 +141,7 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
                     {word}
                   </DraggableMagnet>
                 )}
-                {readsAloud && onSpeakEnglish && (
+                {readsAloud && onSpeakEnglish && word !== COMMA_CHIP && (
                   <OptionSpeakButton text={word} onSpeakEnglish={onSpeakEnglish} className={SPEAK_WORD_CLASS} isCompact />
                 )}
               </div>
