@@ -20,7 +20,8 @@ import { OptionSpeakButton } from './OptionSpeakButton';
 import { HebrewSpeakButton } from './HebrewSpeakButton';
 import { useReadsHebrewAloud } from '../../data/hebrewAudio';
 
-const SPEAK_WORD_CLASS = 'min-h-11';
+/** Sky blue, apart from the theme-coloured word chip and the amber translate icon */
+const SPEAK_WORD_CLASS = 'bg-sky-500/20 text-sky-600 dark:bg-sky-400/25 dark:text-sky-300 hover:bg-sky-500/30';
 interface SentenceBuilderDrillProps {
   scrambledWords: string[];
   selectedIndices: number[];
@@ -119,7 +120,7 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
             const gloss = wordHelp?.revealedGlossFor(word);
             return (
             <div key={`bank-${idx}-${word}`} className="relative flex flex-col items-center">
-              <div className="flex items-center gap-1">
+              <div className="flex flex-col items-center gap-1">
                 {placed.includes(idx) ? (
                   <button
                     type="button"
@@ -140,7 +141,7 @@ export const SentenceBuilderDrill: React.FC<SentenceBuilderDrillProps> = ({
                   </DraggableMagnet>
                 )}
                 {readsAloud && onSpeakEnglish && (
-                  <OptionSpeakButton text={word} onSpeakEnglish={onSpeakEnglish} className={`${SPEAK_WORD_CLASS} ${theme.secondaryBtnClass}`} />
+                  <OptionSpeakButton text={word} onSpeakEnglish={onSpeakEnglish} className={SPEAK_WORD_CLASS} isCompact />
                 )}
               </div>
               {wordHelp && !isCompleted && wordHelp.isActive && wordHelp.canReveal(word) && (

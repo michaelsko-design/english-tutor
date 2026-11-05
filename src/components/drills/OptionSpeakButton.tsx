@@ -21,13 +21,15 @@ interface OptionSpeakButtonProps {
   className: string;
   /** Hebrew text shows for every grade (the placement gate) */
   isHebrewAlways?: boolean;
+  /** A small button (a word-bank chip's listen button, under the word) instead of the answer-row size */
+  isCompact?: boolean;
 }
 
 /**
  * Feature 47: a 🔊 beside an answer option for learners who can't read it yet. It only listens;
  * answering is the option button itself. Nothing shows for a picture-only option.
  */
-export const OptionSpeakButton: React.FC<OptionSpeakButtonProps> = ({ text, onSpeakEnglish, className, isHebrewAlways = false }) => {
+export const OptionSpeakButton: React.FC<OptionSpeakButtonProps> = ({ text, onSpeakEnglish, className, isHebrewAlways = false, isCompact = false }) => {
   const readsHebrew = useReadsHebrewAloud() || isHebrewAlways;
   const spokenText = toSpeakableText(text);
   const speak = getTextLang(text) === 'en' ? onSpeakEnglish : readsHebrew ? readHebrew : undefined;
@@ -38,11 +40,11 @@ export const OptionSpeakButton: React.FC<OptionSpeakButtonProps> = ({ text, onSp
     <button
       type="button"
       onClick={speech.toggle}
-      className={`min-w-12 rounded-2xl flex items-center justify-center shrink-0 ${className}`}
+      className={`${isCompact ? 'min-w-9 min-h-7 px-2 rounded-xl' : 'min-w-12 rounded-2xl'} flex items-center justify-center shrink-0 ${className}`}
       aria-label={`${label}: ${text}`}
       title={label}
     >
-      <SpeakIcon isSpeaking={speech.isSpeaking} className="w-5 h-5" />
+      <SpeakIcon isSpeaking={speech.isSpeaking} className={isCompact ? 'w-4 h-4' : 'w-5 h-5'} />
     </button>
   );
 };
