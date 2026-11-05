@@ -26,17 +26,18 @@ export default defineConfig({
         'src/main.tsx',
       ],
       reporter: ['text-summary', 'json-summary', 'html'],
-      // Floors just under today's numbers (70.4% lines overall;docs/audits/2026-10-code-security-audit.md): raise them as tests are added
+      // Floors just under today's numbers (74.6% lines overall;docs/audits/2026-10-code-security-audit.md): raise them as tests are added
       thresholds: {
-        lines: 69,
-        statements: 68,
-        functions: 67,
-        branches: 61,
+        lines: 73,
+        statements: 72,
+        functions: 71,
+        branches: 65,
         'api/**': { lines: 90 },
         'src/data/**': { lines: 95 },
         'src/utils/**': { lines: 85 },
         'src/services/**': { lines: 83 },
         'src/hooks/**': { lines: 88 },
+        'src/components/**': { lines: 55 },
       },
     },
     projects: [

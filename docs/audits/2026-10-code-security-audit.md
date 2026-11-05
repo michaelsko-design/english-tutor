@@ -122,13 +122,13 @@ These are tracked as one backlog item.
 
 | Area | Lines | Notes |
 |---|---|---|
-| Overall | 70.4% (was 60.8%) | |
+| Overall | 74.6% (was 60.8%) | |
 | `api/` | 92% | floor 90 |
 | `src/data` | 98% | floor 95 |
 | `src/utils` | 87% | floor 85 |
 | `src/services` | 85% (was 63%) | `friendsService` 100%, `parentService` 99%, `accountService` flows tested; floor 83 |
 | `src/hooks` | 90% (was 34%) | sync, reporting, friends, speech and sticker-sync hooks tested; floor 88 |
-| `src/components` | 47% (was 37%) | sign-in, guest save, parent portal, Pro screens and mission flow now tested |
+| `src/components` | 56% (was 37%) | sign-in, guest save, parent portal, Pro screens, mission flow, onboarding, word lists, exam prep, friends hub and screen, placement test, item naming and dream journal tested; floor 55 |
 | `src/App.tsx` | 0% | |
 
 Tests added in this change:
@@ -139,4 +139,4 @@ Tests added in this change:
 
 Tests added in the coverage follow-up (2026-11-05): `friendsService` (100%), `parentService` (99%), the six sync and reporting hooks, RTL tests for sign-in flows, guest save, the parent portal, Pro payment pages, the account card and the mission flow, 85 more rules smoke checks (149 in all, no rules hole found), and Playwright specs for friends and the guest upgrade. Floors were raised to match.
 
-Still to do (tracked in the backlog): the 80% target is met on `api/`, `src/services`, `src/utils` and `src/hooks`. Components (47%) and `src/App.tsx` (0%) have no target yet.
+Still to do (tracked in the backlog): the 80% target is met on `api/`, `src/services`, `src/utils` and `src/hooks`. Components (56%) and `src/App.tsx` (0%) have no target yet.
