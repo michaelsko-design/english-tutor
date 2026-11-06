@@ -460,14 +460,14 @@ describe('DashboardView mobile bar and Pro sheet', () => {
 });
 
 describe('DashboardView new pack card', () => {
-  const OFFER = { pack: { id: 'core-plus' }, firstMissionId: 'mission-1', unit: { packId: 'core-plus' } };
+  const OFFER = { pack: { id: 'season2-1' }, firstMissionId: 'mission-1', unit: { packId: 'season2-1' } };
 
   it('scrolls to the map and remembers the pack when it is opened', async () => {
     packOffer.value = OFFER;
     const user = setup();
     await click(user, 'pack-open');
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
-    expect(JSON.parse(localStorage.getItem(localStorage.key(0) ?? '') ?? '[]')).toContain('core-plus');
+    expect(JSON.parse(localStorage.getItem(localStorage.key(0) ?? '') ?? '[]')).toContain('season2-1');
   });
 
   it('remembers the pack when the card is dismissed', async () => {
@@ -475,6 +475,6 @@ describe('DashboardView new pack card', () => {
     const user = setup();
     await click(user, 'pack-close');
     const lastCall = packOffer.calls[packOffer.calls.length - 1];
-    expect(lastCall[2]).toContain('core-plus');
+    expect(lastCall[2]).toContain('season2-1');
   });
 });

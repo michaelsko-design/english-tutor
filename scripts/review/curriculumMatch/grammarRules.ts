@@ -27,7 +27,7 @@ const RULES: readonly GrammarRule[] = [
   { heading: /clauses: subordinated|conjunctions: subordinating/i, appTopic: /because|although|while|concession|subordinat|connectors? of (cause|contrast|result)/i },
   { heading: /relative.*non-defining/i, appTopic: /non-defining/i },
   { heading: /relative/i, appTopic: /relative clause/i },
-  { heading: /reported speech/i, appTopic: /reported speech|indirect speech/i },
+  { heading: /reported speech/i, appTopic: /reported (speech|statements|questions|commands)|indirect speech/i },
   { heading: /conditional imperative/i, appTopic: /conditional imperative|if .*imperative/i },
   { heading: /real condition \(modality\)/i, appTopic: /first conditional.*(modal|might|can|may)|realistic predictions/i },
   { heading: /first conditional/i, appTopic: /first conditional/i },

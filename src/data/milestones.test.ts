@@ -133,7 +133,7 @@ describe('getSuggestedMission', () => {
 
 describe('unlock tracks of content packs', () => {
   const sequenceUnit = makeUnit(5);
-  const openUnits = [makeUnit(6), makeUnit(7)].map((u) => ({ ...u, track: 'holidays' }));
+  const openUnits = [makeUnit(6), makeUnit(7)].map((u) => ({ ...u, track: 'holidays-autumn' }));
   const done = (units: CurriculumUnit[]) =>
     Object.fromEntries(units.flatMap((u) => u.missions).map((m) => [m.id, 3]));
 

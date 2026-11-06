@@ -76,16 +76,18 @@ export interface NewPackCopy {
 export function getNewPackCopy(pack: ContentPack, unitCount: number, gender: LearnerGender, isProLocked = false): NewPackCopy {
   const isGirl = gender === 'girl';
   const titleHe = `חדש! ${pack.titleHe}`;
+  const isOne = unitCount === 1;
   if (isProLocked) {
-    const askHe = 'אפשר לבקש מהורה לפתוח אותן.';
+    const waitingHe = isOne ? 'יחידה חדשה מחכה במפה' : `${unitCount} יחידות חדשות מחכות במפה`;
+    const askHe = isOne ? 'אפשר לבקש מהורה לפתוח אותה.' : 'אפשר לבקש מהורה לפתוח אותן.';
     return {
       titleHe,
-      bodyHe: `${unitCount} יחידות חדשות מחכות במפה, עם ${isolateLtr('Pro')}. ${askHe}`,
+      bodyHe: `${waitingHe}, עם ${isolateLtr('Pro')}. ${askHe}`,
       buttonHe: ASK_PARENT_LABEL_HE,
-      spokenHe: `${titleHe}. ${unitCount} יחידות חדשות מחכות במפה, עם ${PRO_SPOKEN_HE}. ${askHe}`,
+      spokenHe: `${titleHe}. ${waitingHe}, עם ${PRO_SPOKEN_HE}. ${askHe}`,
     };
   }
-  const bodyHe = `${unitCount} יחידות חדשות נוספו למפה שלך.`;
+  const bodyHe = isOne ? 'יחידה חדשה נוספה למפה שלך.' : `${unitCount} יחידות חדשות נוספו למפה שלך.`;
   return {
     titleHe,
     bodyHe,

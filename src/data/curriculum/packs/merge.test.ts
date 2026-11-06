@@ -16,8 +16,10 @@ const BASE: GradeCurriculumPack = {
   gradeId: 'grade-5',
   units: [1, 2, 3, 4].map((n) => ({ ...makeUnit(n, `Unit ${n}: Base`), unitNumber: n })),
 };
-const CORE: PackUnits = { pack: CONTENT_PACKS['core-plus'], units: [makeUnit(21, 'Trips'), makeUnit(22, 'Records')] };
-const HOLIDAYS: PackUnits = { pack: CONTENT_PACKS.holidays, units: [makeUnit(31, 'Winter'), makeUnit(32, 'Spring')] };
+const CORE: PackUnits = { pack: CONTENT_PACKS['season2-1'], units: [makeUnit(21, 'Trips')] };
+const CORE_2: PackUnits = { pack: CONTENT_PACKS['season2-2'], units: [makeUnit(22, 'Records')] };
+const HOLIDAYS: PackUnits = { pack: CONTENT_PACKS['holidays-autumn'], units: [makeUnit(31, 'Winter')] };
+const HOLIDAYS_2: PackUnits = { pack: CONTENT_PACKS['holidays-spring'], units: [makeUnit(32, 'Spring')] };
 
 const bankFor = (label: string): ExamUnitBank => ({ vocabulary: [], grammar: [], sentences: [], passages: [label] }) as never;
 
@@ -28,9 +30,9 @@ describe('mergeCurriculum', () => {
 
   it('adds a pack after the grade units with places, titles and the pack id', () => {
     const merged = mergeCurriculum(BASE, [CORE]);
-    expect(merged.units.map((u) => u.unitNumber)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(merged.units.map((u) => u.unitNumber)).toEqual([1, 2, 3, 4, 5]);
     expect(merged.units[4].titleEn).toBe('Unit 5: Trips');
-    expect(merged.units[4].packId).toBe('core-plus');
+    expect(merged.units[4].packId).toBe('season2-1');
     expect(merged.units[4].track).toBeUndefined();
     expect(merged.units[4].missions.map((m) => [m.id, m.unitNumber])).toEqual([
       ['g5-u21-m1', 5],
@@ -40,17 +42,17 @@ describe('mergeCurriculum', () => {
     expect(BASE.units).toHaveLength(4);
   });
 
-  it('puts an open pack on its own track', () => {
-    const merged = mergeCurriculum(BASE, [HOLIDAYS]);
+  it('puts each open pack on its own track', () => {
+    const merged = mergeCurriculum(BASE, [HOLIDAYS, HOLIDAYS_2]);
     expect(merged.units.slice(4).map((u) => [u.titleEn, u.track])).toEqual([
-      ['Unit 5: Winter', 'holidays'],
-      ['Unit 6: Spring', 'holidays'],
+      ['Unit 5: Winter', 'holidays-autumn'],
+      ['Unit 6: Spring', 'holidays-spring'],
     ]);
   });
 
   it('keeps release order, and the same mission ids whichever pack ships first', () => {
-    const coreFirst = mergeCurriculum(BASE, [CORE, HOLIDAYS]);
-    const holidaysFirst = mergeCurriculum(BASE, [HOLIDAYS, CORE]);
+    const coreFirst = mergeCurriculum(BASE, [CORE, CORE_2, HOLIDAYS, HOLIDAYS_2]);
+    const holidaysFirst = mergeCurriculum(BASE, [HOLIDAYS, HOLIDAYS_2, CORE, CORE_2]);
     expect(coreFirst.units.map((u) => u.titleEn).slice(4)).toEqual([
       'Unit 5: Trips',
       'Unit 6: Records',
@@ -82,13 +84,13 @@ describe('mergeLessonPacks', () => {
 describe('mergeExamBank', () => {
   it('moves each pack bank to its unit place', () => {
     const base: ExamBankPack = { 1: bankFor('base-1') };
-    const units = mergeCurriculum(BASE, [HOLIDAYS, CORE]).units;
+    const units = mergeCurriculum(BASE, [HOLIDAYS, CORE, CORE_2]).units;
     const merged = mergeExamBank(base, [{ 21: bankFor('trips'), 22: bankFor('records') }, { 31: bankFor('winter') }], units);
     expect(merged[1]).toBe(base[1]);
     expect(merged[5]).toEqual(bankFor('winter'));
-    expect(merged[6]).toBeUndefined();
-    expect(merged[7]).toEqual(bankFor('trips'));
-    expect(merged[8]).toEqual(bankFor('records'));
+    expect(merged[6]).toEqual(bankFor('trips'));
+    expect(merged[7]).toEqual(bankFor('records'));
+    expect(merged[8]).toBeUndefined();
     expect(merged[21]).toBeUndefined();
   });
 });

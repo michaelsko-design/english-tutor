@@ -1,29 +1,54 @@
 import type { ContentPack, ContentPackId, ReleasedPack } from './types';
 
 export const CONTENT_PACKS: Record<ContentPackId, ContentPack> = {
-  'core-plus': {
-    id: 'core-plus',
-    titleHe: 'עונה 2: עוד הרפתקאות',
-    titleEn: 'Season 2: More Adventures',
+  'season2-1': {
+    id: 'season2-1',
+    titleHe: 'עונה 2: פרק 1',
+    titleEn: 'Season 2: Chapter 1',
     unlock: 'sequence',
-    idUnitNumbers: [21, 22],
-    xpUnitNumbers: [5, 6],
+    kind: 'core',
+    idUnitNumber: 21,
+    xpUnitNumber: 5,
   },
-  holidays: {
-    id: 'holidays',
-    titleHe: 'חגים ועונות',
-    titleEn: 'Holidays & Seasons',
+  'season2-2': {
+    id: 'season2-2',
+    titleHe: 'עונה 2: פרק 2',
+    titleEn: 'Season 2: Chapter 2',
+    unlock: 'sequence',
+    kind: 'core',
+    after: 'season2-1',
+    idUnitNumber: 22,
+    xpUnitNumber: 6,
+  },
+  'holidays-autumn': {
+    id: 'holidays-autumn',
+    titleHe: 'חגי הסתיו והחורף',
+    titleEn: 'Autumn & Winter Holidays',
     unlock: 'open',
-    idUnitNumbers: [31, 32],
-    xpUnitNumbers: [7, 8],
+    kind: 'seasonal',
+    idUnitNumber: 31,
+    xpUnitNumber: 7,
+  },
+  'holidays-spring': {
+    id: 'holidays-spring',
+    titleHe: 'חגי האביב והקיץ',
+    titleEn: 'Spring & Summer Holidays',
+    unlock: 'open',
+    kind: 'seasonal',
+    idUnitNumber: 32,
+    xpUnitNumber: 8,
   },
 };
+
+/** Every pack adds exactly one unit to each grade */
+export const PACK_UNIT_COUNT = 1;
 
 export const CONTENT_PACK_IDS = Object.keys(CONTENT_PACKS) as ContentPackId[];
 
 /**
  * The packs learners see, in the order they shipped (their units are added to the map in this
- * order, so a unit's place never changes after it ships). To release a pack: add it here with
+ * order, so a unit's place never changes after it ships). A pack with `after` ships only after
+ * that pack (`registry.test.ts`). To release a pack: add it here with
  * today's date and its `access` (free, or Pro only), and add its curriculum, lessons and exam bank to `RELEASED_PACK_CURRICULA`
  * (`curriculum/loader.ts`), `RELEASED_PACK_LESSON_LOADERS` (`miniLessons.ts`) and
  * `RELEASED_PACK_EXAM_BANK_LOADERS` (`examBank.ts`). See docs/architecture.md §4.26.

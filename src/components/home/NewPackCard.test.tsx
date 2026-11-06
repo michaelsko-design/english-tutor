@@ -7,8 +7,8 @@ import { TEST_THEME } from '../../test/fixtures';
 import { NewPackCard } from './NewPackCard';
 
 const OFFER: NewPackOffer = {
-  pack: CONTENT_PACKS.holidays,
-  unitCount: 2,
+  pack: CONTENT_PACKS['holidays-autumn'],
+  unitCount: 1,
   firstMissionId: 'g2-u31-m1',
   badgeEmoji: '🕎',
 };
@@ -24,8 +24,8 @@ function renderCard(readsHebrewAloud: boolean, isProLocked = false) {
 describe('NewPackCard', () => {
   it("names the pack and how many units it adds", () => {
     renderCard(false);
-    expect(screen.getByRole('heading', { name: 'חדש! חגים ועונות' })).toBeInTheDocument();
-    expect(screen.getByText('2 יחידות חדשות נוספו למפה שלך.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'חדש! חגי הסתיו והחורף' })).toBeInTheDocument();
+    expect(screen.getByText('יחידה חדשה נוספה למפה שלך.')).toBeInTheDocument();
   });
 
   it('opens the pack or closes the card', async () => {
@@ -50,7 +50,7 @@ describe('NewPackCard', () => {
   it('asks a parent for a Pro pack the learner cannot play yet', async () => {
     const user = userEvent.setup();
     const handlers = renderCard(false, true);
-    expect(screen.getByText(/מחכות במפה/)).toBeInTheDocument();
+    expect(screen.getByText(/יחידה חדשה מחכה במפה/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /לבקש מהורה/ }));
     expect(handlers.onOpen).toHaveBeenCalledTimes(1);
   });

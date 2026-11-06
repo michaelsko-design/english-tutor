@@ -4,10 +4,17 @@ import type { LessonPack } from '../lessons/types';
 import type { GradeCurriculumPack } from '../types';
 
 /**
- * Content expansion packs: extra units for every grade, written, tested and voiced ahead of time
- * and switched on later as an update or a seasonal special (`registry.ts`).
+ * Content expansion packs: one extra unit in every grade, written, tested and voiced ahead of time
+ * and switched on later as an update or a seasonal special (`registry.ts`). One unit per pack, so
+ * new content can ship a little at a time.
  */
-export type ContentPackId = 'core-plus' | 'holidays';
+export type ContentPackId = 'season2-1' | 'season2-2' | 'holidays-autumn' | 'holidays-spring';
+
+/**
+ * `core` packs continue the grade's path and enrich it toward the Ministry curriculum, one after
+ * another (`after`); `seasonal` packs are themed specials on their own open track.
+ */
+export type PackKind = 'core' | 'seasonal';
 
 /**
  * How a released pack's units unlock: `sequence` continues the grade's path (after unit 4's Boss),
@@ -20,14 +27,17 @@ export interface ContentPack {
   titleHe: string;
   titleEn: string;
   unlock: PackUnlock;
-  /** The unit numbers in the pack's mission ids (`g5-u21-m1`), the same in every grade */
-  idUnitNumbers: readonly [number, number];
-  /** The unit numbers its rewards are scaled by, so a pack pays like units 5–8 */
-  xpUnitNumbers: readonly [number, number];
+  kind: PackKind;
+  /** A sequence pack that must be released before this one (its unit comes first on the path) */
+  after?: ContentPackId;
+  /** The unit number in the pack's mission ids (`g5-u21-m1`), the same in every grade */
+  idUnitNumber: number;
+  /** The unit number its rewards are scaled by, so a pack pays like units 5–8 */
+  xpUnitNumber: number;
 }
 
 /**
- * A pack's two units of each grade, built with the grade's builder. Pack files build them with a
+ * A pack's unit of each grade, built with the grade's builder. Pack files build them with a
  * `/*#__PURE__*\/` call, so an unreleased pack is dropped from the production bundle.
  */
 export type PackCurriculum = Partial<Record<GradeId, GradeCurriculumPack>>;

@@ -25,7 +25,7 @@ import {
 import { getHebrewCopy, inflectHebrew } from '../../src/utils/hebrewGender';
 import { BLEND_WORDS } from '../../src/data/blendingWords';
 import { getSpeechErrorTextHe, type SpeechErrorKind } from '../../src/hooks/useSpeechRecognition';
-import { CONTENT_PACKS } from '../../src/data/curriculum/packs/registry';
+import { CONTENT_PACKS, PACK_UNIT_COUNT } from '../../src/data/curriculum/packs/registry';
 import { getNewPackCopy } from '../../src/data/contentPacks';
 import { getProSheetSpokenHe } from '../../src/data/proAsk';
 import { CorpusBuilder } from './corpusBuilder';
@@ -152,12 +152,12 @@ function addFixedFeedback(corpus: CorpusBuilder): void {
     corpus.add(getHebrewCopy(gender, '').stickersLockedBody);
   }
   corpus.add(NON_READER_RESULT_HE);
-  // The home card of a newly released content pack (2 units in every grade)
+  // The home card of a newly released content pack (one unit in every grade)
   // A pack's access is set when it ships, so both the free and the Pro card are voiced
   for (const pack of Object.values(CONTENT_PACKS)) {
     GENDERS.forEach((gender) => {
-      corpus.add(getNewPackCopy(pack, 2, gender).spokenHe);
-      corpus.add(getNewPackCopy(pack, 2, gender, true).spokenHe);
+      corpus.add(getNewPackCopy(pack, PACK_UNIT_COUNT, gender).spokenHe);
+      corpus.add(getNewPackCopy(pack, PACK_UNIT_COUNT, gender, true).spokenHe);
     });
   }
   // The Pro "ask a parent" sheet

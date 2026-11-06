@@ -81,8 +81,8 @@ describe('isPro', () => {
 
 describe('missions', () => {
   const released: ReleasedPack[] = [
-    { id: 'core-plus', releasedAt: '2026-12-01', access: 'pro' },
-    { id: 'holidays', releasedAt: '2026-12-01', access: 'free' },
+    { id: 'season2-1', releasedAt: '2026-12-01', access: 'pro' },
+    { id: 'holidays-autumn', releasedAt: '2026-12-01', access: 'free' },
   ];
 
   it('gives units 1–2 of a grade free, and units 1–5 of grade 1', () => {
@@ -91,9 +91,9 @@ describe('missions', () => {
   });
 
   it('follows a released pack\'s access', () => {
-    expect(isFreeUnit(unit(5, 21, { packId: 'core-plus' }), released)).toBe(false);
-    expect(isFreeUnit(unit(5, 31, { packId: 'holidays' }), released)).toBe(true);
-    expect(getPackAccess('core-plus', [])).toBe('free');
+    expect(isFreeUnit(unit(5, 21, { packId: 'season2-1' }), released)).toBe(false);
+    expect(isFreeUnit(unit(5, 31, { packId: 'holidays-autumn' }), released)).toBe(true);
+    expect(getPackAccess('season2-1', [])).toBe('free');
   });
 
   it('keeps missions that already have stars, and opens everything for Pro or with gating off', () => {

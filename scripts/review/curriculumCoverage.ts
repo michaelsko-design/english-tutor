@@ -5,6 +5,7 @@
  *   python -I scripts/review/ministryWordLists.py     (once: official Excel → parsed JSON)
  *   npm run review:coverage                           (released content)
  *   npm run review:coverage -- --with-packs           (as if every content pack had shipped)
+ *   npm run review:coverage -- --packs season2-1,season2-2   (as if these packs had shipped, in this order)
  *
  * Writes review-out/curriculum-coverage.html and .json. Matching is approximate (curriculumMatch/wordMatch.ts).
  * "Taught" = a mission vocabulary word. "Seen" = appears in any English the grade shows
@@ -14,7 +15,9 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { BASE_CURRICULUM_BY_GRADE } from '../../src/data/curriculum/base';
 import { ALL_EXAM_BANKS } from '../../src/data/curriculum/examBank';
 import { ALL_LESSON_PACKS } from '../../src/data/curriculum/lessons';
-import { ALL_EXAM_BANKS_WITH_PACKS, ALL_LESSON_PACKS_WITH_PACKS, CURRICULUM_WITH_ALL_PACKS } from '../../src/data/curriculum/packs/all';
+import { getContentWithPacks } from '../../src/data/curriculum/packs/all';
+import { CONTENT_PACK_IDS } from '../../src/data/curriculum/packs/registry';
+import type { ContentPackId } from '../../src/data/curriculum/packs/types';
 import { checkHeading, type GrammarHeading, type GrammarResult } from './curriculumMatch/grammarRules';
 import { buildIndex, entryFoundIn, entryVariants, normalizeText, variantForms, type TextIndex } from './curriculumMatch/wordMatch';
 
@@ -79,10 +82,24 @@ function collectEnglish(value: unknown, key: string, out: string[]): void {
   }
 }
 
-function gradeTexts(withPacks: boolean): Map<number, GradeTexts> {
-  const curriculum = withPacks ? CURRICULUM_WITH_ALL_PACKS : BASE_CURRICULUM_BY_GRADE;
-  const lessons = withPacks ? ALL_LESSON_PACKS_WITH_PACKS : ALL_LESSON_PACKS;
-  const exams = withPacks ? ALL_EXAM_BANKS_WITH_PACKS : ALL_EXAM_BANKS;
+/** The packs to count: none, every pack (`--with-packs`) or a list (`--packs a,b`); unknown ids throw */
+function packsFromArgs(argv: readonly string[]): ContentPackId[] {
+  if (argv.includes('--with-packs')) return [...CONTENT_PACK_IDS];
+  const flag = argv.indexOf('--packs');
+  if (flag === -1) return [];
+  const ids = (argv[flag + 1] ?? '').split(',').map((id) => id.trim()).filter(Boolean);
+  const unknown = ids.filter((id) => !CONTENT_PACK_IDS.includes(id as ContentPackId));
+  if (ids.length === 0 || unknown.length > 0) {
+    throw new Error(`--packs needs known pack ids (${CONTENT_PACK_IDS.join(', ')}); got: ${argv[flag + 1] ?? 'nothing'}`);
+  }
+  return ids as ContentPackId[];
+}
+
+function gradeTexts(packIds: readonly ContentPackId[]): Map<number, GradeTexts> {
+  const withPacks = packIds.length > 0 ? getContentWithPacks(packIds) : null;
+  const curriculum = withPacks?.curriculum ?? BASE_CURRICULUM_BY_GRADE;
+  const lessons = withPacks?.lessons ?? ALL_LESSON_PACKS;
+  const exams = withPacks?.examBanks ?? ALL_EXAM_BANKS;
   const result = new Map<number, GradeTexts>();
   for (const grade of GRADES) {
     const pack = curriculum[`grade-${grade}` as keyof typeof curriculum];
@@ -261,7 +278,7 @@ function summaryLine(result: ListResult): string {
   return `${spec.label.padEnd(32)} by end of grade ${String(spec.lastGrade).padStart(2)}: taught ${pct(counts.taught, total).padStart(4)}, seen ${pct(counts.taught + counts.seen, total).padStart(4)}  | productive words taught ${pct(prodCounts.taught, prodTotal).padStart(4)} | only later ${counts.later}, never ${counts.missing}`;
 }
 
-function renderHtml(results: readonly ListResult[], beyond: Map<number, BeyondWords>, grammar: readonly GrammarResult[], withPacks: boolean): string {
+function renderHtml(results: readonly ListResult[], beyond: Map<number, BeyondWords>, grammar: readonly GrammarResult[], packLabel: string): string {
   const rows = results
     .map((r) => `<tr><td>${r.spec.label}</td><td>${r.spec.firstGrade}–${r.spec.lastGrade}</td><td>${r.total}</td><td>${pct(r.counts.taught, r.total)}</td><td>${pct(r.counts.taught + r.counts.seen, r.total)}</td><td>${pct(r.prodCounts.taught, r.prodTotal)}</td><td>${r.counts.later}</td><td>${r.counts.missing}</td></tr>`)
     .join('\n');
@@ -281,7 +298,7 @@ function renderHtml(results: readonly ListResult[], beyond: Map<number, BeyondWo
   }).join('\n');
   return `<!doctype html><html lang="en"><meta charset="utf-8"><title>Curriculum coverage</title>
 <style>body{font:14px system-ui;margin:24px;max-width:1100px}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:4px 8px;text-align:left}p{line-height:1.6}</style>
-<h1>Ministry word lists vs. EnglishVibe ${withPacks ? '(all content packs)' : '(released content)'}</h1>
+<h1>Ministry word lists vs. EnglishVibe (${packLabel})</h1>
 <p>Approximate matching (regular inflections + common irregulars). "Taught" = a mission vocabulary word in grades 1 to the band's last grade. "Seen" = taught or appears in any English the app shows in those grades. * = productive word in the official list.</p>
 <table><tr><th>Official list</th><th>Grades</th><th>Entries</th><th>Taught</th><th>Taught + seen</th><th>Productive taught</th><th>Only later</th><th>Never</th></tr>${rows}</table>
 <h2>Gaps per list</h2>${details}
@@ -294,20 +311,22 @@ ${renderGrammarHtml(grammar)}
 }
 
 function main(): void {
-  const withPacks = process.argv.includes('--with-packs');
+  const packIds = packsFromArgs(process.argv);
+  const isAllPacks = process.argv.includes('--with-packs');
+  const packLabel = isAllPacks ? 'all content packs' : packIds.length > 0 ? `with ${packIds.join(', ')}` : 'released content';
   const official = loadJsonList<OfficialEntry>(WORD_LISTS_PATH);
-  const texts = gradeTexts(withPacks);
+  const texts = gradeTexts(packIds);
   const indexes = cumulativeIndexes(texts);
   const results = LISTS.map((spec) => checkList(spec, official.filter((e) => e.list === spec.id), indexes));
   const beyond = wordsBeyondLists(texts, official);
   const grammar = checkGrammar(texts);
 
   mkdirSync(OUT_DIR, { recursive: true });
-  const suffix = withPacks ? '-with-packs' : '';
-  writeFileSync(`${OUT_DIR}/curriculum-coverage${suffix}.html`, renderHtml(results, beyond, grammar, withPacks));
+  const suffix = isAllPacks ? '-with-packs' : packIds.length > 0 ? `-with-${packIds.join('+')}` : '';
+  writeFileSync(`${OUT_DIR}/curriculum-coverage${suffix}.html`, renderHtml(results, beyond, grammar, packLabel));
   writeFileSync(
     `${OUT_DIR}/curriculum-coverage${suffix}.json`,
-    JSON.stringify({ withPacks, lists: results, beyondLists: Object.fromEntries(beyond), grammar }, null, 1),
+    JSON.stringify({ packs: packIds, lists: results, beyondLists: Object.fromEntries(beyond), grammar }, null, 1),
   );
   results.forEach((r) => console.log(summaryLine(r)));
   GRADES.forEach((g) => {

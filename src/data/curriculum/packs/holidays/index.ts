@@ -1,36 +1,54 @@
 import type { PackCurriculum, PackExamBankLoaders, PackLessonLoaders } from '../types';
-import { HOLIDAYS_GRADE_1_CURRICULUM } from './curriculum/grade1';
-import { HOLIDAYS_GRADE_2_CURRICULUM } from './curriculum/grade2';
-import { HOLIDAYS_GRADE_3_CURRICULUM } from './curriculum/grade3';
-import { HOLIDAYS_GRADE_4_CURRICULUM } from './curriculum/grade4';
-import { HOLIDAYS_GRADE_5_CURRICULUM } from './curriculum/grade5';
-import { HOLIDAYS_GRADE_6_CURRICULUM } from './curriculum/grade6';
-import { HOLIDAYS_GRADE_7_CURRICULUM } from './curriculum/grade7';
-import { HOLIDAYS_GRADE_8_CURRICULUM } from './curriculum/grade8';
-import { HOLIDAYS_GRADE_9_CURRICULUM } from './curriculum/grade9';
-import { HOLIDAYS_GRADE_10_CURRICULUM } from './curriculum/grade10';
-import { HOLIDAYS_GRADE_11_CURRICULUM } from './curriculum/grade11';
-import { HOLIDAYS_GRADE_12_CURRICULUM } from './curriculum/grade12';
+import { HOLIDAYS_AUTUMN_GRADE_1_CURRICULUM, HOLIDAYS_SPRING_GRADE_1_CURRICULUM } from './curriculum/grade1';
+import { HOLIDAYS_AUTUMN_GRADE_2_CURRICULUM, HOLIDAYS_SPRING_GRADE_2_CURRICULUM } from './curriculum/grade2';
+import { HOLIDAYS_AUTUMN_GRADE_3_CURRICULUM, HOLIDAYS_SPRING_GRADE_3_CURRICULUM } from './curriculum/grade3';
+import { HOLIDAYS_AUTUMN_GRADE_4_CURRICULUM, HOLIDAYS_SPRING_GRADE_4_CURRICULUM } from './curriculum/grade4';
+import { HOLIDAYS_AUTUMN_GRADE_5_CURRICULUM, HOLIDAYS_SPRING_GRADE_5_CURRICULUM } from './curriculum/grade5';
+import { HOLIDAYS_AUTUMN_GRADE_6_CURRICULUM, HOLIDAYS_SPRING_GRADE_6_CURRICULUM } from './curriculum/grade6';
+import { HOLIDAYS_AUTUMN_GRADE_7_CURRICULUM, HOLIDAYS_SPRING_GRADE_7_CURRICULUM } from './curriculum/grade7';
+import { HOLIDAYS_AUTUMN_GRADE_8_CURRICULUM, HOLIDAYS_SPRING_GRADE_8_CURRICULUM } from './curriculum/grade8';
+import { HOLIDAYS_AUTUMN_GRADE_9_CURRICULUM, HOLIDAYS_SPRING_GRADE_9_CURRICULUM } from './curriculum/grade9';
+import { HOLIDAYS_AUTUMN_GRADE_10_CURRICULUM, HOLIDAYS_SPRING_GRADE_10_CURRICULUM } from './curriculum/grade10';
+import { HOLIDAYS_AUTUMN_GRADE_11_CURRICULUM, HOLIDAYS_SPRING_GRADE_11_CURRICULUM } from './curriculum/grade11';
+import { HOLIDAYS_AUTUMN_GRADE_12_CURRICULUM, HOLIDAYS_SPRING_GRADE_12_CURRICULUM } from './curriculum/grade12';
 
-/**
- * The holidays pack (`../registry.ts`): its two units of every grade, and lazy loaders for their
- * lessons and exam banks. Imported by the app only once the pack is released (or in the preview).
- */
-export const HOLIDAYS_CURRICULUM: PackCurriculum = {
-  'grade-1': HOLIDAYS_GRADE_1_CURRICULUM,
-  'grade-2': HOLIDAYS_GRADE_2_CURRICULUM,
-  'grade-3': HOLIDAYS_GRADE_3_CURRICULUM,
-  'grade-4': HOLIDAYS_GRADE_4_CURRICULUM,
-  'grade-5': HOLIDAYS_GRADE_5_CURRICULUM,
-  'grade-6': HOLIDAYS_GRADE_6_CURRICULUM,
-  'grade-7': HOLIDAYS_GRADE_7_CURRICULUM,
-  'grade-8': HOLIDAYS_GRADE_8_CURRICULUM,
-  'grade-9': HOLIDAYS_GRADE_9_CURRICULUM,
-  'grade-10': HOLIDAYS_GRADE_10_CURRICULUM,
-  'grade-11': HOLIDAYS_GRADE_11_CURRICULUM,
-  'grade-12': HOLIDAYS_GRADE_12_CURRICULUM,
+/** The holidays-autumn pack (`../registry.ts`): its unit of every grade. Imported by the app only once the pack is released (or in the preview). */
+export const HOLIDAYS_AUTUMN_CURRICULUM: PackCurriculum = {
+  'grade-1': HOLIDAYS_AUTUMN_GRADE_1_CURRICULUM,
+  'grade-2': HOLIDAYS_AUTUMN_GRADE_2_CURRICULUM,
+  'grade-3': HOLIDAYS_AUTUMN_GRADE_3_CURRICULUM,
+  'grade-4': HOLIDAYS_AUTUMN_GRADE_4_CURRICULUM,
+  'grade-5': HOLIDAYS_AUTUMN_GRADE_5_CURRICULUM,
+  'grade-6': HOLIDAYS_AUTUMN_GRADE_6_CURRICULUM,
+  'grade-7': HOLIDAYS_AUTUMN_GRADE_7_CURRICULUM,
+  'grade-8': HOLIDAYS_AUTUMN_GRADE_8_CURRICULUM,
+  'grade-9': HOLIDAYS_AUTUMN_GRADE_9_CURRICULUM,
+  'grade-10': HOLIDAYS_AUTUMN_GRADE_10_CURRICULUM,
+  'grade-11': HOLIDAYS_AUTUMN_GRADE_11_CURRICULUM,
+  'grade-12': HOLIDAYS_AUTUMN_GRADE_12_CURRICULUM,
 };
 
+/** The holidays-spring pack (`../registry.ts`): its unit of every grade. Imported by the app only once the pack is released (or in the preview). */
+export const HOLIDAYS_SPRING_CURRICULUM: PackCurriculum = {
+  'grade-1': HOLIDAYS_SPRING_GRADE_1_CURRICULUM,
+  'grade-2': HOLIDAYS_SPRING_GRADE_2_CURRICULUM,
+  'grade-3': HOLIDAYS_SPRING_GRADE_3_CURRICULUM,
+  'grade-4': HOLIDAYS_SPRING_GRADE_4_CURRICULUM,
+  'grade-5': HOLIDAYS_SPRING_GRADE_5_CURRICULUM,
+  'grade-6': HOLIDAYS_SPRING_GRADE_6_CURRICULUM,
+  'grade-7': HOLIDAYS_SPRING_GRADE_7_CURRICULUM,
+  'grade-8': HOLIDAYS_SPRING_GRADE_8_CURRICULUM,
+  'grade-9': HOLIDAYS_SPRING_GRADE_9_CURRICULUM,
+  'grade-10': HOLIDAYS_SPRING_GRADE_10_CURRICULUM,
+  'grade-11': HOLIDAYS_SPRING_GRADE_11_CURRICULUM,
+  'grade-12': HOLIDAYS_SPRING_GRADE_12_CURRICULUM,
+};
+
+/**
+ * Lazy loaders for the holidays source's lessons and exam banks, shared by its two packs: lessons are
+ * keyed by mission id and banks by the unit number in the mission ids, so each pack only picks up
+ * its own unit's (`mergeLessonPacks`, `mergeExamBank`).
+ */
 export const HOLIDAYS_LESSON_LOADERS: PackLessonLoaders = {
   1: () => import('./lessons/grade1').then((m) => m.HOLIDAYS_GRADE_1_LESSONS),
   2: () => import('./lessons/grade2').then((m) => m.HOLIDAYS_GRADE_2_LESSONS),
