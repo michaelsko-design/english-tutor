@@ -11,6 +11,7 @@ import {
   scoreContestAnswers,
 } from '../../data/contests';
 import { useFriendsHub } from '../../hooks/useFriendsHub';
+import { useTrackFeature } from '../../hooks/useTrackFeature';
 import {
   FriendIdentity,
   createContestDoc,
@@ -83,6 +84,7 @@ export const FriendsHub: React.FC<FriendsHubProps> = ({
   const myUid = isEnabled && isRealAccount && authUser ? authUser.uid : null;
   const hub = useFriendsHub(myUid);
   const [view, setView] = useState<HubView>({ kind: 'closed' });
+  useTrackFeature('feature_friends', view.kind !== 'closed');
   const [inviteCode, setInviteCode] = useState<string | undefined>(undefined);
   const [busyFriendUid, setBusyFriendUid] = useState<string | null>(null);
   const [contestErrorHe, setContestErrorHe] = useState<string | null>(null);

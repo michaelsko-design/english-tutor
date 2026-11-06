@@ -9,6 +9,7 @@ import type { ExamSessionNext } from './ExamSessionRunner';
 import { lazyNamed } from '../../utils/lazyNamed';
 import { ScreenLoading } from '../ScreenLoading';
 import { useProAccess } from '../../hooks/useProAccess';
+import { useTrackFeature } from '../../hooks/useTrackFeature';
 import { canOpenExamDay } from '../../data/proGate';
 import { useOpenProUpsell } from '../pro/proUpsellContext';
 
@@ -43,6 +44,7 @@ export const ExamPrepHub: React.FC<ExamPrepHubProps> = ({
   onSpeakEnglish,
 }) => {
   const [view, setView] = useState<HubView>({ kind: 'none' });
+  useTrackFeature('feature_exam_prep', view.kind !== 'none');
   const proAccess = useProAccess();
   const openProUpsell = useOpenProUpsell();
   const todayStr = toLocalDateStr(new Date());

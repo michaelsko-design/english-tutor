@@ -18,6 +18,22 @@ describe('computeUsageStats', () => {
     expect(stats.missionsByTier).toEqual({ explorer: 2, challenger: 0, master: 1 });
   });
 
+  it('counts distinct learners per opened feature, most used first', () => {
+    const stats = computeUsageStats(
+      [
+        row('a', '2026-11-05', { session_start: 1, feature_room: 2 }),
+        row('a', '2026-11-06', { feature_room: 1, feature_shop: 1 }),
+        row('b', '2026-11-06', { feature_room: 1 }),
+      ],
+      [],
+      '2026-11-06'
+    );
+    expect(stats.features).toEqual([
+      { key: 'feature_room', learners: 2 },
+      { key: 'feature_shop', learners: 1 },
+    ]);
+  });
+
   it('computes day-1 retention only over learners old enough', () => {
     const stats = computeUsageStats(
       [row('a', '2026-11-04', { session_start: 1 }), row('a', '2026-11-05', { session_start: 1 }), row('b', '2026-11-04', { session_start: 1 }), row('c', '2026-11-06', { session_start: 1 })],

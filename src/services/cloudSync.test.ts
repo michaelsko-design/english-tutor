@@ -586,6 +586,15 @@ describe('mergeLearnerProfiles fields added by the audit', () => {
     expect(merged.parentalConsentAt).toBe('2026-10-12T00:00:00.000Z');
     expect(merged.schoolGradeId).toBe('grade-5');
   });
+
+  it('keeps the analytics opt-out from the newer side', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, isAnalyticsOptedOut: true, updatedAt: '2026-11-02T00:00:00.000Z' },
+      { ...baseProfile, isAnalyticsOptedOut: false, updatedAt: '2026-11-01T00:00:00.000Z' }
+    );
+    expect(merged.isAnalyticsOptedOut).toBe(true);
+    expect(mergeLearnerProfiles(baseProfile, baseProfile).isAnalyticsOptedOut).toBeUndefined();
+  });
 });
 
 describe('buildLoginProfile', () => {

@@ -17,7 +17,7 @@
 - [ ] **Re-check the `@grpc/grpc-js` advisory** (audit LOW list) - `npm audit` reports 4 high findings through `firebase` → `@firebase/firestore` → `@grpc/grpc-js@1.9.x`. `firebase` 13.2.0 (checked 2026-11-05) still pins `~1.9.0`, so there is nothing to upgrade to yet. Re-check on the next `firebase` release.
 - [ ] **Retire the old Firebase API key** - The old browser key (`AIzaSyAXCk…`) is still unrestricted and still works against this project. Find which of the other projects (Maps APIs showed active usage) use it, move them to their own keys, then restrict or delete it.
 - [x] **Set up product analytics** - Built first-party and anonymous (Firestore counters + scrubbed client errors, shown in the owner dashboard; `docs/architecture.md` §4.30). No third-party tool, CSP unchanged. Needs `firestore.rules` deployed before it records anything.
-- [ ] **Analytics follow-ups** - A parent opt-out toggle (profile field + `mergeLearnerProfiles`), screen/feature-usage events, and privacy-policy wording about anonymous usage statistics.
+- [x] **Analytics follow-ups** - Parent opt-out toggle (settings, account tab), feature-open counters in the owner dashboard, and a privacy-notice section. Needs the updated `firestore.rules` deployed before the push (new `feature_*` counter names). Open: have a lawyer check the Hebrew privacy wording; opted-out learners' old counters can't be deleted by clients.
 
 ### Content
 

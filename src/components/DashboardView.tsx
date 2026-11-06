@@ -65,6 +65,7 @@ import { ProUpsellSheet } from './pro/ProUpsellSheet';
 import { FreeMissionsDoneCard } from './pro/FreeMissionsDoneCard';
 import { ScreenLoading } from './ScreenLoading';
 import { trackMissionFinish } from '../services/analytics';
+import { useTrackFeature } from '../hooks/useTrackFeature';
 import { FIRST_TIER_CLEAR_DIAMONDS, getMissionLadder, recordTierStars } from '../data/tierProgress';
 
 const MissionRunner = lazyNamed(() => import('./MissionRunner'), 'MissionRunner');
@@ -137,11 +138,13 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     useState<MissionNode | null>(null);
   const [isVocabVaultOpen, setIsVocabVaultOpen] = useState(false);
   const [isRewardShopOpen, setIsRewardShopOpen] = useState(false);
+  useTrackFeature('feature_shop', isRewardShopOpen);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isPlacementOpen, setIsPlacementOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [roomRewardToast, setRoomRewardToast] = useState<RoomRewardItem | null>(null);
   const [isRoomOpen, setIsRoomOpen] = useState(false);
+  useTrackFeature('feature_room', isRoomOpen);
   const [openSheet, setOpenSheet] = useState<HomeSheet | null>(null);
   const [seenPackIds, setSeenPackIds] = useState<string[]>(() => readSeenPacks());
   const [mapFocus, setMapFocus] = useState<{ missionId: string; requestId: number } | null>(null);

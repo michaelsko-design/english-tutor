@@ -15,7 +15,17 @@ const FUNNEL_STEPS: Array<{ key: keyof Usage['funnel']; label: string }> = [
   { key: 'threeStars', label: 'Earned 3 stars' },
 ];
 
-const percent = (share: number | null): string => (share === null ? '–' : `${Math.round(share * 100)}%`);
+const FEATURE_LABELS: Record<string, string> = {
+  feature_exam_prep: 'Exam prep',
+  feature_word_lists: 'Word lists',
+  feature_friends: 'Friends',
+  feature_progress_report: 'Progress report',
+  feature_room: 'Room',
+  feature_shop: 'Reward shop',
+  feature_settings: 'Settings',
+};
+
+const percent =(share: number | null): string => (share === null ? '–' : `${Math.round(share * 100)}%`);
 
 /** Funnel, return rate, tier mix and client errors, from the anonymous first-party counters */
 export const UsageCard: React.FC<{ usage: OwnerStats['usage'] }> = ({ usage }) => {
@@ -28,6 +38,7 @@ export const UsageCard: React.FC<{ usage: OwnerStats['usage'] }> = ({ usage }) =
     );
   }
   const { funnel, retention, missionsByTier, errors, windowDays } = usage;
+  const features = usage.features ?? [];
   const top = Math.max(1, funnel.sessions);
   const tierTotal = missionsByTier.explorer + missionsByTier.challenger + missionsByTier.master;
 
@@ -67,6 +78,20 @@ export const UsageCard: React.FC<{ usage: OwnerStats['usage'] }> = ({ usage }) =
         Missions by tier: Explorer {missionsByTier.explorer}, Challenger {missionsByTier.challenger}, Master{' '}
         {missionsByTier.master} ({tierTotal} total)
       </p>
+
+      <h3 className="mt-4 text-xs font-bold text-slate-900 dark:text-white">Features opened (learners)</h3>
+      {features.length === 0 ? (
+        <p className={MUTED}>No feature opens yet.</p>
+      ) : (
+        <ul className="mt-1 space-y-1">
+          {features.map(({ key, learners }) => (
+            <li key={key} className="flex justify-between text-xs text-slate-700 dark:text-slate-300">
+              <span>{FEATURE_LABELS[key] ?? key}</span>
+              <span className="font-bold tabular-nums">{learners}</span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <h3 className="mt-4 text-xs font-bold text-slate-900 dark:text-white">Errors</h3>
       {errors.length === 0 ? (

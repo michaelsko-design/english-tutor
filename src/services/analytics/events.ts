@@ -12,7 +12,27 @@ export const ANALYTICS_EVENTS = [
   'mission_finish_tier_challenger',
   'mission_finish_tier_master',
   'mission_three_stars',
+  'feature_exam_prep',
+  'feature_word_lists',
+  'feature_friends',
+  'feature_progress_report',
+  'feature_room',
+  'feature_shop',
+  'feature_settings',
 ] as const;
+
+/** The "feature opened" counters, in the order the owner dashboard lists them */
+export const FEATURE_EVENTS = [
+  'feature_exam_prep',
+  'feature_word_lists',
+  'feature_friends',
+  'feature_progress_report',
+  'feature_room',
+  'feature_shop',
+  'feature_settings',
+] as const satisfies readonly (typeof ANALYTICS_EVENTS)[number][];
+
+export type FeatureEvent = (typeof FEATURE_EVENTS)[number];
 
 export type AnalyticsEvent = (typeof ANALYTICS_EVENTS)[number];
 

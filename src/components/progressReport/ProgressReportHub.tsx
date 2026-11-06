@@ -1,4 +1,5 @@
 import React, { Suspense, useState } from 'react';
+import { useTrackFeature } from '../../hooks/useTrackFeature';
 import { toLocalDateStr } from '../../data/examPrep';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
@@ -17,6 +18,7 @@ interface ProgressReportHubProps {
 /** Feature 9: the home dock tile (Feature 27) that opens the weekly report for parents and teachers. */
 export const ProgressReportHub: React.FC<ProgressReportHubProps> = ({ profile, theme, onSpeakEnglish }) => {
   const [isReportOpen, setIsReportOpen] = useState(false);
+  useTrackFeature('feature_progress_report', isReportOpen);
 
   return (
     <>

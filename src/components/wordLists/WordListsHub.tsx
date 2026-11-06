@@ -17,6 +17,7 @@ import { lazyNamed } from '../../utils/lazyNamed';
 import { ScreenLoading } from '../ScreenLoading';
 import { hasFullAccess, maxWordLists } from '../../data/proGate';
 import { useProAccess } from '../../hooks/useProAccess';
+import { useTrackFeature } from '../../hooks/useTrackFeature';
 import { useOpenProUpsell } from '../pro/proUpsellContext';
 
 const WordListImporter = lazyNamed(() => import('./WordListImporter'), 'WordListImporter');
@@ -34,6 +35,7 @@ type HubView = { kind: 'none' } | { kind: 'card' } | { kind: 'import' } | { kind
 /** Feature 10: the home dock tile (Feature 27), the lists card in a sheet, plus the import and practice overlays. */
 export const WordListsHub: React.FC<WordListsHubProps> = ({ profile, theme, onUpdateProfile, onSpeakEnglish }) => {
   const [view, setView] = useState<HubView>({ kind: 'none' });
+  useTrackFeature('feature_word_lists', view.kind !== 'none');
   const proAccess = useProAccess();
   const openProUpsell = useOpenProUpsell();
   const listLimit = maxWordLists(proAccess);

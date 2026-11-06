@@ -364,6 +364,8 @@ export interface LearnerProfile {
   voicePreference?: 'female' | 'male';
   /** When a parent agreed to the privacy notice at onboarding (learners under 13) */
   parentalConsentAt?: string;
+  /** A parent switched off the anonymous usage counters and error reports; missing means on */
+  isAnalyticsOptedOut?: boolean;
   /** Whether the new user has seen and acknowledged the complimentary welcome diamonds modal */
   hasSeenWelcomeGiftModal?: boolean;
   /** Whether the one-time diamonds for turning on the daily reminder were paid (data/reminderReward.ts) */

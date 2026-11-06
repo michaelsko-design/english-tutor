@@ -27,11 +27,15 @@ export interface UsageStats {
   missionsByTier: { explorer: number; challenger: number; master: number };
   /** Share of learners (first seen at least N days ago) who came back exactly N days later; null with no cohort yet */
   retention: { day1: number | null; day7: number | null };
+  /** Distinct learners who opened each feature in the window, most used first */
+  features: Array<{ key: string; learners: number }>;
   errors: Array<{ message: string; source: string; count: number; days: number }>;
 }
 
 const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TOP_ERRORS = 8;
+/** Counter names that mean "opened a feature" (the feature_* events in src/services/analytics/events.ts) */
+const FEATURE_PREFIX = 'feature_';
 const count = (value: unknown): number => (typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 0);
 
 export function readAnalyticsRows(rows: ReadonlyArray<{ fields: Record<string, unknown> }>): AnalyticsDayRow[] {
@@ -72,6 +76,7 @@ export function computeUsageStats(
   const tiers = { explorer: 0, challenger: 0, master: 0 };
   const firstSeen = new Map<string, string>();
   const seenDays = new Map<string, Set<string>>();
+  const featureLearners = new Map<string, Set<string>>();
 
   for (const { uid, day, counts } of analyticsRows) {
     if (day > todayStr) continue;
@@ -87,6 +92,10 @@ export function computeUsageStats(
     tiers.explorer += counts.mission_finish_tier_explorer ?? 0;
     tiers.challenger += counts.mission_finish_tier_challenger ?? 0;
     tiers.master += counts.mission_finish_tier_master ?? 0;
+    for (const [key, value] of Object.entries(counts)) {
+      if (!key.startsWith(FEATURE_PREFIX) || !value) continue;
+      featureLearners.set(key, (featureLearners.get(key) ?? new Set<string>()).add(uid));
+    }
   }
 
   const errorMap = new Map<string, { message: string; source: string; count: number; days: Set<string> }>();
@@ -111,6 +120,9 @@ export function computeUsageStats(
     },
     missionsByTier: tiers,
     retention: { day1: retentionFor(firstSeen, seenDays, 1, todayStr), day7: retentionFor(firstSeen, seenDays, 7, todayStr) },
+    features: [...featureLearners.entries()]
+      .map(([key, learners]) => ({ key, learners: learners.size }))
+      .sort((a, b) => b.learners - a.learners || a.key.localeCompare(b.key)),
     errors: [...errorMap.values()]
       .sort((a, b) => b.count - a.count)
       .slice(0, TOP_ERRORS)

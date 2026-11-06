@@ -20,6 +20,8 @@ import type { AccountResult } from '../../services/accountService';
 import { APP_NAME } from '../../config/appInfo';
 import { AppLogo } from '../AppLogo';
 import { AccountPrivacyCard } from './AccountPrivacyCard';
+import { AnalyticsOptOutCard } from './AnalyticsOptOutCard';
+import { useTrackFeature } from '../../hooks/useTrackFeature';
 import { ParentLinkCard } from './ParentLinkCard';
 import { StreakReminderCard } from './StreakReminderCard';
 import { applyReminderReward } from '../../data/reminderReward';
@@ -85,6 +87,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onDeleteAccount,
 }) => {
   const idPrefix = useId();
+  useTrackFeature('feature_settings', true);
   const [activeTab, setActiveTab] = useState<SettingsTabId>('profile');
   const [draft, setDraft] = useState<ProfileDraft>(() => toDraft(profile));
   const [isParentApprovingFriends, setIsParentApprovingFriends] = useState(false);
@@ -320,6 +323,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <span className="block text-xs sm:text-sm font-bold">הורים:</span>
             <ParentLinkCard profile={profile} theme={activeTheme} />
           </div>
+          <AnalyticsOptOutCard profile={profile} theme={activeTheme} onProfileChange={onProfileChange} />
           <div className="space-y-1.5">
             <span className="block text-xs sm:text-sm font-bold">פרטיות וחשבון:</span>
             <AccountPrivacyCard

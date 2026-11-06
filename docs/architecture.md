@@ -465,7 +465,10 @@ First-party and anonymous: no third-party origin (CSP unchanged), no cookies, no
 - **Storage:** `analyticsDaily/{day}_{uid}` holds per-day counters (`increment`), batched in memory and flushed at most once a minute and when the page is hidden (`analyticsService.ts`). Write-only for clients; failures are swallowed.
 - **Errors:** `errorReporter.ts` writes `clientErrors/{day}_{hash}` (message and stack scrubbed of URLs, emails and long numbers, 10 distinct errors per session) from `AppErrorBoundary`, `window.onerror` and `unhandledrejection`. Signed-in sessions only.
 - **Dashboard:** `api/owner-stats.ts` reads both collections (test accounts excluded) and `computeUsageStats` returns the funnel, day-1/day-7 return and top errors; `UsageCard` shows them.
-- Off under Vitest and when Firebase is not configured. Not done yet: a parent opt-out toggle, screen/feature-level events, the privacy-policy wording.
+- **Feature opens:** `feature_*` counters (exam prep, word lists, friends, progress report, room, shop, settings) via `useTrackFeature(event, isOpen)`; `usageStats.features` counts distinct learners per feature. A new one goes in `events.ts` (`ANALYTICS_EVENTS` and `FEATURE_EVENTS`), the `firestore.rules` key list (deploy the rules before pushing), and the `FEATURE_LABELS` in `UsageCard`.
+- **Parent opt-out:** `LearnerProfile.isAnalyticsOptedOut` (missing = on), merged like the other preferences in `mergeLearnerProfiles`, set from `AnalyticsOptOutCard` (settings, account tab). `App` sets the analytics context only after the cloud profile loaded and the learner is not opted out; with no context, events and error reports are dropped. Counters already written stay (they are keyed by the anonymous uid and cannot be deleted by clients).
+- The privacy notice (`PrivacyNoticeDialog`) has a section on the anonymous usage statistics.
+- Off under Vitest and when Firebase is not configured.
 
 ## 5. Directory Structure
 

@@ -284,16 +284,19 @@ export function App() {
   // Anonymous usage counters (docs/architecture.md, product analytics): one session_start per sign-in
   const analyticsUid = authUser?.uid;
   const analyticsGrade = profile.gradeId;
+  // Counting waits for the cloud profile, so a parent's opt-out is known before the first event
+  const isAnalyticsAllowed =
+    Boolean(analyticsUid) && isFirebaseConfigured && !isAuthInitializing && !isCloudLoadFailed && !profile.isAnalyticsOptedOut;
   useEffect(() => {
-    if (!analyticsUid || !isFirebaseConfigured) {
+    if (!isAnalyticsAllowed || !analyticsUid) {
       setAnalyticsContext(null);
       return;
     }
     setAnalyticsContext({ uid: analyticsUid, gradeId: analyticsGrade ?? 'unknown' });
-  }, [analyticsUid, analyticsGrade]);
+  }, [isAnalyticsAllowed, analyticsUid, analyticsGrade]);
   useEffect(() => {
-    if (analyticsUid && isFirebaseConfigured) trackEvent('session_start');
-  }, [analyticsUid]);
+    if (isAnalyticsAllowed) trackEvent('session_start');
+  }, [isAnalyticsAllowed, analyticsUid]);
 
   const proAccess = useLearnerProAccess(authUser?.uid);
   const activeTheme = resolveLearnerTheme(profile.themeId, profile.companionId, proAccess);

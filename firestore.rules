@@ -521,7 +521,9 @@ service cloud.firestore {
         && request.resource.data.counts.keys().hasOnly([
           'session_start', 'onboarding_done', 'placement_done', 'mission_finish',
           'mission_finish_tier_explorer', 'mission_finish_tier_challenger',
-          'mission_finish_tier_master', 'mission_three_stars'])
+          'mission_finish_tier_master', 'mission_three_stars',
+          'feature_exam_prep', 'feature_word_lists', 'feature_friends', 'feature_progress_report',
+          'feature_room', 'feature_shop', 'feature_settings'])
         && request.resource.data.counts.get('session_start', 0) <= 1000000
         && request.resource.data.counts.get('mission_finish', 0) <= 1000000;
     }

@@ -188,6 +188,11 @@ export function mergeLearnerProfiles(
     ? cloud.voicePreference ?? local.voicePreference
     : local.voicePreference ?? cloud.voicePreference;
 
+  // A preference like the others: the newer side wins, so it can be switched back on too
+  const resolvedAnalyticsOptOut = preferCloudPrefs
+    ? cloud.isAnalyticsOptedOut ?? local.isAnalyticsOptedOut
+    : local.isAnalyticsOptedOut ?? cloud.isAnalyticsOptedOut;
+
   const merged: LearnerProfile = {
     isOnboarded: Boolean(local.isOnboarded || cloud.isOnboarded),
     name:
@@ -209,6 +214,7 @@ export function mergeLearnerProfiles(
     ...(resolvedVoice ? { voicePreference: resolvedVoice } : {}),
     ...(resolvedSchoolGrade ? { schoolGradeId: resolvedSchoolGrade } : {}),
     ...(resolvedConsent ? { parentalConsentAt: resolvedConsent } : {}),
+    ...(resolvedAnalyticsOptOut !== undefined ? { isAnalyticsOptedOut: resolvedAnalyticsOptOut } : {}),
     ...(resolvedAvatar ? { equippedAvatarEmoji: resolvedAvatar } : {}),
     ...(resolvedPlacement ? { placementResult: resolvedPlacement } : {}),
     ...(resolvedExamPrep ? { examPrep: resolvedExamPrep } : {}),

@@ -298,6 +298,8 @@ await expect('a learner can write their own analytics counters', true, () =>
   setDoc(dayDoc(ua.uid), dayData(ua.uid, { session_start: increment(1) }), { merge: true }));
 await expect('a learner cannot write analytics under another uid', false, () =>
   setDoc(doc(a.db, 'analyticsDaily', `${today}_${ub.uid}`), dayData(ub.uid, { session_start: increment(1) }), { merge: true }));
+await expect('a learner can count a feature open', true, () =>
+  setDoc(dayDoc(ua.uid), dayData(ua.uid, { feature_room: increment(1) }), { merge: true }));
 await expect('an analytics counter outside the allow-list is rejected', false, () =>
   setDoc(dayDoc(ua.uid), dayData(ua.uid, { typed_text: increment(1) }), { merge: true }));
 await expect('an analytics document with an extra field is rejected', false, () =>
