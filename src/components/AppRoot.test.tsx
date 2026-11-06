@@ -13,6 +13,7 @@ vi.mock('firebase/auth', () => ({
 }));
 vi.mock('../App', () => ({ default: () => <div>learner app</div> }));
 vi.mock('./parent/ParentPortal', () => ({ ParentPortal: () => <div>parent area</div> }));
+vi.mock('./owner/OwnerDashboard', () => ({ OwnerDashboard: () => <div>owner dashboard</div> }));
 vi.mock('../services/accountService', () => ({
   getAccountKind: (user: { kind: string }) => user.kind,
 }));
@@ -81,5 +82,20 @@ describe('AppRoot', () => {
     render(<AppRoot />);
 
     expect(screen.getByText('parent area')).toBeInTheDocument();
+  });
+
+  it.each(['/?owner', '/owner/', '/owner'])('opens the owner dashboard for %s', async (url) => {
+    window.history.replaceState(null, '', url);
+    render(<AppRoot />);
+
+    expect(await screen.findByText('owner dashboard')).toBeInTheDocument();
+    expect(firebase.listener).toBeNull();
+  });
+
+  it('does not treat other /owner-like paths as the dashboard', () => {
+    window.history.replaceState(null, '', '/owners');
+    render(<AppRoot />);
+
+    expect(screen.queryByText('owner dashboard')).not.toBeInTheDocument();
   });
 });

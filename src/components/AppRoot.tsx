@@ -14,7 +14,9 @@ const ParentPortal = lazyNamed(() => import('./parent/ParentPortal'), 'ParentPor
 
 // The owner's stats page (`?owner`): lazy, separate from the learner app; the server checks the owner
 const OwnerDashboard = lazyNamed(() => import('./owner/OwnerDashboard'), 'OwnerDashboard');
-const isOwnerRoute = (search: string): boolean => new URLSearchParams(search).has('owner');
+// Two doors to the same page: `/?owner` (browser) and `/owner/` (the installable mini-app, owner/index.html)
+export const isOwnerRoute = (pathname: string, search: string): boolean =>
+  /^\/owner\/?$/.test(pathname) || new URLSearchParams(search).has('owner');
 
 type Screen = 'checking' | 'app' | 'parent';
 
@@ -44,7 +46,7 @@ async function resolveScreen(user: User | null): Promise<Screen> {
 }
 
 export const AppRoot: React.FC = () => {
-  if (isOwnerRoute(window.location.search)) {
+  if (isOwnerRoute(window.location.pathname, window.location.search)) {
     return (
       <React.Suspense fallback={<ScreenLoading />}>
         <OwnerDashboard />

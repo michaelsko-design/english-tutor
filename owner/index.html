@@ -1,0 +1,25 @@
+<!doctype html>
+<!-- The owner's installable mini-app entry (/owner/): same bundle as the learner app, but its own manifest
+     (id/scope /owner/), name and icon, so Android installs it as a second app. AppRoot opens the dashboard
+     for this path. The learner app and `/?owner` are untouched. -->
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0f766e" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="EV Owner" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/owner-favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/owner-icon-192.png" />
+    <link rel="apple-touch-icon" href="/owner-apple-touch-icon.png" />
+    <link rel="manifest" href="/owner.webmanifest" />
+    <title>EV Owner</title>
+  </head>
+  <body class="antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

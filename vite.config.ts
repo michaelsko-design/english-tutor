@@ -145,6 +145,10 @@ export default defineConfig(({ mode }) => ({
     swPrecachePlugin(),
   ],
   build: {
-    rollupOptions: { output: { manualChunks: vendorChunk } },
+    rollupOptions: {
+      // Two HTML entries: the learner app and the owner's installable mini-app (/owner/)
+      input: { main: resolve(__dirname, 'index.html'), owner: resolve(__dirname, 'owner/index.html') },
+      output: { manualChunks: vendorChunk },
+    },
   },
 }));
