@@ -137,16 +137,16 @@ const ActivityTrendChart: React.FC<{ daily: OwnerStats['daily'] }> = ({ daily })
 
         {/* Dynamic Day Inspection Pill */}
         {activeDay && activeDayInfo && (
-          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs dark:border-slate-800 dark:bg-slate-800/80">
-            <div className="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-300">
-              <Calendar className="h-3.5 w-3.5 text-slate-400" />
+          <div className="flex flex-col gap-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs dark:border-slate-800 dark:bg-slate-800/80 sm:flex-row sm:items-center sm:gap-3">
+            <div className="flex items-center gap-1.5 whitespace-nowrap font-bold text-slate-700 dark:text-slate-300">
+              <Calendar className="h-3.5 w-3.5 shrink-0 text-slate-400" />
               <span>
                 {activeDayInfo.weekday} {activeDayInfo.shortDate}
                 {activeDayInfo.isWeekend && ' (Weekend)'}
               </span>
             </div>
-            <div className="h-3 w-px bg-slate-300 dark:bg-slate-700" />
-            <div className="flex items-center gap-2 font-bold tabular-nums">
+            <div className="hidden h-3 w-px bg-slate-300 dark:bg-slate-700 sm:block" />
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 whitespace-nowrap font-bold tabular-nums">
               <span className="text-indigo-600 dark:text-indigo-400">{activeDay.missions} missions</span>
               <span className="text-slate-400">·</span>
               <span className="text-emerald-600 dark:text-emerald-400">{activeDay.activeUsers} users</span>
@@ -163,23 +163,23 @@ const ActivityTrendChart: React.FC<{ daily: OwnerStats['daily'] }> = ({ daily })
 
       {/* Mini Stats Banner */}
       <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-2.5 text-center text-xs dark:bg-slate-800/50">
-        <div>
+        <div className="flex flex-col items-center gap-0.5 sm:block">
           <span className="text-slate-500 dark:text-slate-400">14-Day Missions:</span>{' '}
           <strong className="text-slate-900 dark:text-white tabular-nums">{total14dMissions.toLocaleString()}</strong>
         </div>
-        <div>
+        <div className="flex flex-col items-center gap-0.5 sm:block">
           <span className="text-slate-500 dark:text-slate-400">Daily Average:</span>{' '}
-          <strong className="text-slate-900 dark:text-white tabular-nums">{avg14dMissions} / day</strong>
+          <strong className="whitespace-nowrap text-slate-900 dark:text-white tabular-nums">{avg14dMissions} / day</strong>
         </div>
-        <div>
+        <div className="flex flex-col items-center gap-0.5 sm:block">
           <span className="text-slate-500 dark:text-slate-400">Peak Day:</span>{' '}
-          <strong className="text-slate-900 dark:text-white tabular-nums">{peakDay?.missions ?? 0} missions</strong>
+          <strong className="whitespace-nowrap text-slate-900 dark:text-white tabular-nums">{peakDay?.missions ?? 0} missions</strong>
         </div>
       </div>
 
       {/* Dual Bar + Line Chart */}
       <div className="mt-6">
-        <div className="relative flex h-48 items-end gap-1.5 sm:gap-2">
+        <div className="relative flex h-48 items-end gap-0.5 sm:gap-2">
           {daily.map((day, idx) => {
             const { weekday, isWeekend, shortDate } = getDayInfo(day.dateStr);
             const missionHeightPercent = Math.max(4, Math.round((day.missions / maxMissions) * 100));
@@ -191,7 +191,7 @@ const ActivityTrendChart: React.FC<{ daily: OwnerStats['daily'] }> = ({ daily })
             return (
               <div
                 key={day.dateStr}
-                className="group relative flex h-full flex-1 cursor-pointer flex-col justify-end"
+                className="group relative flex h-full min-w-0 flex-1 cursor-pointer flex-col justify-end"
                 onMouseEnter={() => setHoveredIdx(idx)}
                 onMouseLeave={() => setHoveredIdx(null)}
               >
@@ -234,7 +234,10 @@ const ActivityTrendChart: React.FC<{ daily: OwnerStats['daily'] }> = ({ daily })
                       : 'border-slate-200 text-slate-500 dark:border-slate-800 dark:text-slate-400'
                   }`}
                 >
-                  <p className="font-semibold">{weekday}</p>
+                  <p className="font-semibold">
+                    <span className="sm:hidden">{weekday.slice(0, 2)}</span>
+                    <span className="hidden sm:inline">{weekday}</span>
+                  </p>
                   <p className="text-[9px] opacity-75">{shortDate.split('-')[1]}</p>
                 </div>
               </div>
