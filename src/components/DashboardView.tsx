@@ -18,7 +18,8 @@ import type { GradeCurriculumPack, MissionNode } from '../data/curriculum';
 import { getLoadedGrade, gradesInMissionIds } from '../data/curriculum/loader';
 import { useGradeCurricula } from '../hooks/useGradeCurricula';
 import { countCompletedMissions, getSuggestedMission } from '../data/milestones';
-import { DailyQuestDefinition, RewardShopItem, getDailyQuests } from '../data/rewardShop';
+import { DailyQuestDefinition, REWARD_SHOP_ITEMS, RewardShopItem, getDailyQuests } from '../data/rewardShop';
+import { MYSTERY_BOX_TIER_BY_ID, rollMysteryBox } from '../data/mysteryBox';
 import { getHomeGreetingHe, getMapPeek, getQuestRings } from '../data/homeBase';
 import { MissionMap } from './MissionMap';
 
@@ -345,6 +346,23 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         diamonds: profile.stats.diamonds - item.costDiamonds,
       },
     });
+  };
+
+  /** Opens a mystery box: charges the price and unlocks the won item in one update. */
+  const handleOpenMysteryBox = (box: RewardShopItem): RewardShopItem | null => {
+    const tier = MYSTERY_BOX_TIER_BY_ID[box.id];
+    if (!tier || profile.stats.diamonds < box.costDiamonds) return null;
+    const { itemId } = rollMysteryBox(profile.unlockedRewardIds || [], tier, new Date(), Math.random);
+    const won = REWARD_SHOP_ITEMS.find((item) => item.id === itemId);
+    // Nothing left to win: the box stays closed and costs nothing
+    if (!won) return null;
+    onUpdateProfile({
+      ...profile,
+      unlockedRewardIds: Array.from(new Set([...(profile.unlockedRewardIds || []), won.id])),
+      equippedAvatarEmoji: won.category === 'avatar' ? won.emoji : profile.equippedAvatarEmoji,
+      stats: { ...profile.stats, diamonds: profile.stats.diamonds - box.costDiamonds },
+    });
+    return won;
   };
 
   const handleEquipAvatar = (emoji: string) => {
@@ -709,6 +727,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             learnerName={profile.name}
             theme={theme}
             onBuyReward={handleBuyReward}
+            onOpenMysteryBox={handleOpenMysteryBox}
             onEquipAvatar={handleEquipAvatar}
             onClose={() => setIsRewardShopOpen(false)}
           />

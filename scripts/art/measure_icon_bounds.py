@@ -14,7 +14,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[2]
 ICONS = ROOT / 'public' / 'art' / 'icons'
 ICON_ART = ROOT / 'src' / 'components' / 'art' / 'iconArt.ts'
-ROOM_FILES = [ROOT / 'src' / 'data' / 'room.ts']
+ROOM_FILES = [ROOT / 'src' / 'data' / 'room.ts', ROOT / 'src' / 'data' / 'shopRoomItems.ts']
 OUT = ROOT / 'src' / 'data' / 'roomIconBounds.ts'
 ALPHA_MIN = 40
 VARIATION_SELECTOR = '️'

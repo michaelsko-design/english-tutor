@@ -37,6 +37,8 @@
 - [ ] **Self-issued PIN recovery code** (low priority) - A child with no parent can save a recovery code from settings and later set a new PIN with username + code (`api/recover-pin.ts`: look up the uid via `usernames/{slug}`, constant-time hash compare, rotate the code). Needs the same `FIREBASE_SERVICE_ACCOUNT_JSON` as the parent PIN reset, plus a Firestore-backed attempt limit per username because the call is unauthenticated. Until then an unpaired child who forgets the PIN and has no linked Google account still needs `scripts/resetLearnerPin.mjs`.
 - [ ] **Streak reminder emails via Resend** (low priority) - Optional parent/learner emails on top of the push reminders: a streak-saver email and a Sunday weekly-report email (`buildWeeklyReportTextHe`), sent through Resend from the daily cron. Needs an email field with consent (children's data, `docs/architecture.md` §4.21), `firestore.rules` and the smoke test updated, a Resend account/API key, an unsubscribe link and the same Shabbat skipping as the push reminder.
 
+- [ ] **Shop depth follow-ups**: if the expanded shop (~90 items, ~16k diamonds) still runs dry, add collectible pets, buyable app themes, more seasonal items (Purim, Lag BaOmer, Shavuot) and per-item art beyond the shared emoji icons.
+
 
 ## Probably never to implement Features
 - [ ] **Arabic for Arabic-speaking learners** - Move the inline Hebrew copy into a string catalogue first, then add Arabic. this is a feature that may never be implemented, leave it for later.

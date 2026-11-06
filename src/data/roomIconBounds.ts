@@ -7,33 +7,82 @@ export interface IconBounds {
 }
 
 export const ROOM_ICON_BOUNDS: Readonly<Record<string, IconBounds>> = {
+  '☀': { left: 0.074, right: 0.926, top: 0.074, bottom: 0.922 }, // word-sun
+  '♟': { left: 0.227, right: 0.777, top: 0.074, bottom: 0.926 }, // word-chess-pawn
   '⚽': { left: 0.074, right: 0.926, top: 0.074, bottom: 0.926 }, // room-ball
+  '⛄': { left: 0.148, right: 0.852, top: 0.07, bottom: 0.926 }, // word-snowman
+  '✈': { left: 0.07, right: 0.926, top: 0.211, bottom: 0.785 }, // word-airplane
+  '❄': { left: 0.113, right: 0.883, top: 0.07, bottom: 0.926 }, // word-snowflake
   '❤': { left: 0.074, right: 0.922, top: 0.137, bottom: 0.863 }, // room-heart
   '⭐': { left: 0.074, right: 0.922, top: 0.094, bottom: 0.906 }, // room-star
+  '🇮🇱': { left: 0.074, right: 0.922, top: 0.082, bottom: 0.918 }, // word-israel-flag
   '🌈': { left: 0.074, right: 0.926, top: 0.23, bottom: 0.77 }, // room-rainbow
+  '🌋': { left: 0.074, right: 0.926, top: 0.195, bottom: 0.805 }, // word-volcano-2
+  '🌌': { left: 0.074, right: 0.926, top: 0.109, bottom: 0.891 }, // word-galaxy-2
   '🌍': { left: 0.152, right: 0.844, top: 0.074, bottom: 0.926 }, // room-globe
+  '🌙': { left: 0.082, right: 0.918, top: 0.07, bottom: 0.926 }, // ui-moon
+  '🌲': { left: 0.195, right: 0.801, top: 0.074, bottom: 0.926 }, // word-pine-tree
+  '🌴': { left: 0.137, right: 0.863, top: 0.074, bottom: 0.922 }, // word-palm-tree
   '🌵': { left: 0.23, right: 0.766, top: 0.074, bottom: 0.926 }, // room-cactus
+  '🌷': { left: 0.219, right: 0.777, top: 0.07, bottom: 0.926 }, // word-tulip
   '🌸': { left: 0.156, right: 0.84, top: 0.074, bottom: 0.926 }, // decor-flower-lamp
+  '🍀': { left: 0.113, right: 0.883, top: 0.074, bottom: 0.926 }, // ui-clover
+  '🍉': { left: 0.07, right: 0.926, top: 0.207, bottom: 0.793 }, // word-watermelon
+  '🍋': { left: 0.105, right: 0.891, top: 0.074, bottom: 0.922 }, // word-lemon
+  '🍎': { left: 0.125, right: 0.871, top: 0.074, bottom: 0.922 }, // word-apple
+  '🍓': { left: 0.141, right: 0.855, top: 0.074, bottom: 0.926 }, // word-strawberry
+  '🍕': { left: 0.074, right: 0.926, top: 0.117, bottom: 0.879 }, // word-pizza
+  '🍦': { left: 0.277, right: 0.723, top: 0.074, bottom: 0.926 }, // word-ice-cream
+  '🍩': { left: 0.074, right: 0.926, top: 0.102, bottom: 0.895 }, // word-donut
+  '🍪': { left: 0.07, right: 0.922, top: 0.07, bottom: 0.922 }, // word-cookie
+  '🍫': { left: 0.16, right: 0.836, top: 0.07, bottom: 0.926 }, // word-chocolate
+  '🍭': { left: 0.234, right: 0.766, top: 0.07, bottom: 0.922 }, // word-lollipop
+  '🍯': { left: 0.082, right: 0.918, top: 0.074, bottom: 0.926 }, // word-honey
+  '🍰': { left: 0.074, right: 0.926, top: 0.09, bottom: 0.906 }, // word-cake-slice
+  '🎆': { left: 0.074, right: 0.922, top: 0.086, bottom: 0.914 }, // word-fireworks
   '🎨': { left: 0.07, right: 0.926, top: 0.141, bottom: 0.855 }, // pass-sticker-studio
+  '🎪': { left: 0.086, right: 0.91, top: 0.074, bottom: 0.922 }, // word-circus-tent
+  '🎮': { left: 0.07, right: 0.926, top: 0.219, bottom: 0.781 }, // ui-gamepad
+  '🎲': { left: 0.105, right: 0.895, top: 0.074, bottom: 0.926 }, // word-dice
   '🎸': { left: 0.078, right: 0.918, top: 0.074, bottom: 0.926 }, // sticker-guitar
+  '🎹': { left: 0.07, right: 0.926, top: 0.16, bottom: 0.836 }, // word-piano
+  '🎻': { left: 0.109, right: 0.887, top: 0.07, bottom: 0.926 }, // word-violin
   '🏆': { left: 0.09, right: 0.91, top: 0.07, bottom: 0.922 }, // room-trophy
+  '🏖': { left: 0.074, right: 0.926, top: 0.09, bottom: 0.906 }, // word-beach-2
+  '🏺': { left: 0.207, right: 0.793, top: 0.07, bottom: 0.926 }, // word-vase
+  '🐚': { left: 0.074, right: 0.926, top: 0.148, bottom: 0.848 }, // word-shell
   '💡': { left: 0.207, right: 0.789, top: 0.074, bottom: 0.922 }, // room-lamp
   '💻': { left: 0.074, right: 0.926, top: 0.184, bottom: 0.812 }, // room-computer
   '📖': { left: 0.074, right: 0.926, top: 0.195, bottom: 0.805 }, // games-book
   '📚': { left: 0.074, right: 0.926, top: 0.113, bottom: 0.887 }, // room-books
   '📱': { left: 0.219, right: 0.781, top: 0.074, bottom: 0.922 }, // phone
+  '📷': { left: 0.07, right: 0.926, top: 0.152, bottom: 0.844 }, // word-camera
+  '📺': { left: 0.102, right: 0.898, top: 0.07, bottom: 0.926 }, // word-television
+  '🔬': { left: 0.227, right: 0.77, top: 0.074, bottom: 0.926 }, // word-microscope
+  '🔮': { left: 0.152, right: 0.848, top: 0.074, bottom: 0.926 }, // word-crystal-ball
+  '🕎': { left: 0.078, right: 0.918, top: 0.074, bottom: 0.922 }, // word-menorah
+  '🕯': { left: 0.195, right: 0.805, top: 0.074, bottom: 0.922 }, // word-candle
   '🕰': { left: 0.07, right: 0.926, top: 0.07, bottom: 0.926 }, // room-clock
   '🖼': { left: 0.074, right: 0.926, top: 0.117, bottom: 0.879 }, // room-picture
+  '🗺': { left: 0.074, right: 0.922, top: 0.121, bottom: 0.879 }, // ui-map
+  '🚂': { left: 0.074, right: 0.922, top: 0.164, bottom: 0.832 }, // word-steam-train
   '🚪': { left: 0.164, right: 0.832, top: 0.074, bottom: 0.926 }, // wardrobe
+  '🚲': { left: 0.074, right: 0.926, top: 0.211, bottom: 0.789 }, // word-bicycle
   '🛋': { left: 0.074, right: 0.926, top: 0.211, bottom: 0.789 }, // room-sofa
   '🛏': { left: 0.074, right: 0.926, top: 0.113, bottom: 0.887 }, // bed
   '🤖': { left: 0.215, right: 0.785, top: 0.074, bottom: 0.926 }, // room-robot
   '🥁': { left: 0.074, right: 0.922, top: 0.086, bottom: 0.914 }, // room-drum
   '🥐': { left: 0.074, right: 0.922, top: 0.172, bottom: 0.824 }, // sticker-croissant
+  '🧁': { left: 0.18, right: 0.82, top: 0.07, bottom: 0.926 }, // word-cupcake
+  '🧩': { left: 0.07, right: 0.926, top: 0.082, bottom: 0.914 }, // ui-puzzle
   '🧭': { left: 0.164, right: 0.832, top: 0.074, bottom: 0.926 }, // sticker-compass
   '🧸': { left: 0.156, right: 0.84, top: 0.074, bottom: 0.922 }, // room-teddy
   '🪁': { left: 0.18, right: 0.816, top: 0.074, bottom: 0.926 }, // room-kite
+  '🪆': { left: 0.223, right: 0.777, top: 0.074, bottom: 0.926 }, // word-nesting-doll
   '🪑': { left: 0.191, right: 0.805, top: 0.07, bottom: 0.926 }, // room-chair
+  '🪙': { left: 0.07, right: 0.926, top: 0.07, bottom: 0.926 }, // word-coin
   '🪞': { left: 0.164, right: 0.832, top: 0.07, bottom: 0.926 }, // room-mirror
+  '🪟': { left: 0.074, right: 0.926, top: 0.121, bottom: 0.875 }, // word-window
   '🪴': { left: 0.207, right: 0.789, top: 0.07, bottom: 0.926 }, // room-plant
+  '🫓': { left: 0.074, right: 0.922, top: 0.086, bottom: 0.914 }, // word-matzah
 };

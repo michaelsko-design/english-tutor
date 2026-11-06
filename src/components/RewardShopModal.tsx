@@ -8,6 +8,8 @@ import {
   RewardCategory,
   RewardShopItem,
 } from '../data/rewardShop';
+import { getRewardRarity } from '../data/mysteryBox';
+import { isSeasonOpen, RARITY_LABEL_HE, RewardRarity, SEASON_WINDOWS } from '../data/shopRarity';
 import { LearnerGender } from '../types/learner';
 import { STREAK_SHIELD_ITEM_ID } from '../data/streak';
 import { ThemeDefinition } from '../themes/themeRegistry';
@@ -23,9 +25,18 @@ interface RewardShopModalProps {
   learnerName: string;
   theme: ThemeDefinition;
   onBuyReward: (item: RewardShopItem) => void;
+  /** Opens a mystery box; returns the item won, or null when nothing happened */
+  onOpenMysteryBox?: (box: RewardShopItem) => RewardShopItem | null;
   onEquipAvatar: (emoji: string) => void;
   onClose: () => void;
 }
+
+const RARITY_STYLE: Record<RewardRarity, { badge: string; box: string }> = {
+  common: { badge: 'bg-slate-500/15 text-slate-700 dark:text-slate-200', box: 'border-slate-400 bg-slate-500/10' },
+  rare: { badge: 'bg-sky-500/20 text-sky-700 dark:text-sky-200', box: 'border-sky-400 bg-sky-500/10' },
+  epic: { badge: 'bg-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-200', box: 'border-fuchsia-400 bg-fuchsia-500/10' },
+  legendary: { badge: 'bg-amber-400/30 text-amber-800 dark:text-amber-200', box: 'border-amber-400 bg-amber-400/15' },
+};
 
 export const RewardShopModal: React.FC<RewardShopModalProps> = ({
   diamonds,
@@ -36,21 +47,51 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
   learnerName,
   theme,
   onBuyReward,
+  onOpenMysteryBox,
   onEquipAvatar,
   onClose,
 }) => {
   const isGirl = gender === 'girl';
-  const [selectedCategory, setSelectedCategory] = useState<RewardCategory | 'all'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<RewardCategory | 'all' | 'seasonal'>('all');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [revealedItem, setRevealedItem] = useState<RewardShopItem | null>(null);
 
+  const now = new Date();
   const shopItems = getRewardShopItems(gender);
-  const filteredItems = shopItems.filter(
-    (item) => selectedCategory === 'all' || item.category === selectedCategory
-  );
 
-  /** Owned for good; a streak shield is used up, so it is never "owned" */
+  /** Owned for good; shields and mystery boxes are used up, so they are never "owned" */
   const isOwned = (item: RewardShopItem): boolean =>
-    item.id !== STREAK_SHIELD_ITEM_ID && (item.costDiamonds === 0 || unlockedRewardIds.includes(item.id));
+    item.id !== STREAK_SHIELD_ITEM_ID &&
+    item.category !== 'mystery' &&
+    (item.costDiamonds === 0 || unlockedRewardIds.includes(item.id));
+
+  // A seasonal item is on sale only inside its window; one already owned stays visible
+  const visibleItems = shopItems.filter((item) => isSeasonOpen(item.season, now) || isOwned(item));
+  const filteredItems = visibleItems
+    .filter((item) =>
+      selectedCategory === 'all'
+        ? true
+        : selectedCategory === 'seasonal'
+          ? Boolean(item.season)
+          : item.category === selectedCategory
+    )
+    // Mystery boxes first, then cheapest first so the next goal is always near the top
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      const boxOrder = Number(b.item.category === 'mystery') - Number(a.item.category === 'mystery');
+      return boxOrder || a.item.costDiamonds - b.item.costDiamonds || a.index - b.index;
+    })
+    .map(({ item }) => item);
+
+  const nextGoal = visibleItems
+    .filter(
+      (item) =>
+        !isOwned(item) &&
+        item.category !== 'mystery' &&
+        item.id !== STREAK_SHIELD_ITEM_ID &&
+        item.costDiamonds > diamonds
+    )
+    .sort((a, b) => a.costDiamonds - b.costDiamonds)[0];
 
   const dialogRef = useRef<HTMLDivElement>(null);
   useDialog(dialogRef, { onClose: onClose });
@@ -73,6 +114,7 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
     }
 
     if (diamonds < item.costDiamonds) {
+      setRevealedItem(null);
       setStatusMessage(
         isGirl
           ? `חסרים לך עוד ${item.costDiamonds - diamonds} 💎 כדי לפתוח את "${item.titleHe}". השלימי משימה כדי להרוויח עוד!`
@@ -81,6 +123,19 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
       return;
     }
 
+    if (item.category === 'mystery') {
+      const won = onOpenMysteryBox?.(item) ?? null;
+      if (!won) {
+        setStatusMessage('כבר יש לך כל פריט שהקופסה הזאת יכולה לתת, אז היא נשארה סגורה ולא שילמת. נסו קופסה אחרת!');
+        return;
+      }
+      celebrate(getRewardRarity(won) === 'common' ? 'small' : 'big');
+      setRevealedItem(shopItems.find((candidate) => candidate.id === won.id) ?? won);
+      setStatusMessage(null);
+      return;
+    }
+
+    setRevealedItem(null);
     celebrate('small');
     onBuyReward(item);
     setStatusMessage(
@@ -150,11 +205,13 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
               { id: 'sticker', label: '🎀 אלבום מדבקות' },
               { id: 'studio-decor', label: '🌸 עיצוב החדר והסטודיו' },
               { id: 'boost', label: '🛡️ מגני רצף' },
+              { id: 'mystery', label: '🎁 קופסאות הפתעה' },
+              { id: 'seasonal', label: '🗓️ עונתי' },
             ].map((tab) => (
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setSelectedCategory(tab.id as RewardCategory | 'all')}
+                onClick={() => setSelectedCategory(tab.id as RewardCategory | 'all' | 'seasonal')}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all ${
                   selectedCategory === tab.id
                     ? theme.primaryBtnClass
@@ -166,6 +223,31 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
             ))}
           </div>
 
+          {nextGoal && !revealedItem && (
+            <p className={`text-xs font-extrabold ${theme.mutedTextClass}`}>
+              🎯 המטרה הבאה: <EmojiIcon emoji={nextGoal.emoji} size="1rem" /> {nextGoal.titleHe} — חסרים עוד{' '}
+              {nextGoal.costDiamonds - diamonds} 💎
+            </p>
+          )}
+
+          {revealedItem && (
+            <div
+              role="status"
+              className={`p-4 rounded-2xl border-2 flex items-center gap-3 ${RARITY_STYLE[getRewardRarity(revealedItem)].box}`}
+            >
+              <EmojiIcon emoji={revealedItem.emoji} size="3.5rem" />
+              <div className="min-w-0">
+                <p className="text-xs font-extrabold">
+                  🎉 {RARITY_LABEL_HE[getRewardRarity(revealedItem)]} — קיבלת פריט חדש!
+                </p>
+                <p className="font-extrabold text-base">{revealedItem.titleHe}</p>
+                <p className="text-xs opacity-80" dir="ltr" lang="en">
+                  {revealedItem.titleEn}
+                </p>
+              </div>
+            </div>
+          )}
+
           {statusMessage && (
             <div className="p-3 rounded-2xl bg-purple-500/15 border border-purple-400/40 text-xs font-extrabold flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-purple-500 shrink-0" />
@@ -173,6 +255,12 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
             </div>
           )}
         </div>
+
+        {filteredItems.length === 0 && (
+          <p className={`p-6 text-sm font-extrabold text-center ${theme.mutedTextClass}`}>
+            🗓️ אין עכשיו פריטים עונתיים למכירה. הם חוזרים בחגים ובעונות, כדאי לחסוך יהלומים!
+          </p>
+        )}
 
         {/* Items Grid */}
         <div className="p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 wide:grid-cols-4 gap-4">
@@ -216,6 +304,14 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
                 </div>
 
                 <div>
+                  {item.category !== 'mystery' && item.costDiamonds > 0 && (
+                    <span
+                      className={`inline-block mb-1 px-2 py-0.5 rounded-full text-xs font-extrabold ${RARITY_STYLE[getRewardRarity(item)].badge}`}
+                    >
+                      {RARITY_LABEL_HE[getRewardRarity(item)]}
+                      {item.season ? ` · ${SEASON_WINDOWS[item.season].labelHe}` : ''}
+                    </span>
+                  )}
                   <h3 className="font-extrabold text-sm md:text-base">
                     {item.titleHe}
                   </h3>
@@ -264,6 +360,8 @@ export const RewardShopModal: React.FC<RewardShopModalProps> = ({
                       <Lock className="w-3.5 h-3.5 shrink-0" />
                       <span>חסרים עוד {missingDiamonds} 💎</span>
                     </>
+                  ) : item.category === 'mystery' ? (
+                    `🎁 פתיחת קופסה ב-${item.costDiamonds} 💎`
                   ) : (
                     `פתיחה ב-${item.costDiamonds} 💎`
                   )}

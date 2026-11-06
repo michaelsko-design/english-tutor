@@ -1,6 +1,7 @@
 import { LearnerProfile, LearnerRoom } from '../types/learner';
 import { levelForXp } from './progressRewards';
 import { getStickerImage } from './stickerImageStore';
+import { EXTRA_SHOP_ROOM_ITEMS } from './shopRoomItems';
 
 /**
  * Feature 12 — My English Room: the room item catalog, fixed slots, 3-star rewards and the
@@ -94,6 +95,9 @@ export const SHOP_ROOM_ITEMS: RoomItem[] = [
   { id: 'sticker-strawberry-croissant', emoji: '🥐', nameEn: 'croissant', nameHe: 'קרואסון', slotKind: 'board' },
   { id: 'sticker-backstage-pass', emoji: '🎸', nameEn: 'guitar', nameHe: 'גיטרה', slotKind: 'board' },
   { id: 'sticker-london-compass', emoji: '🧭', nameEn: 'compass', nameHe: 'מצפן', slotKind: 'board' },
+  ...EXTRA_SHOP_ROOM_ITEMS.map(
+    ({ id, emoji, nameEn, nameHe, slotKind }): RoomItem => ({ id, emoji, nameEn, nameHe, slotKind })
+  ),
 ];
 
 /** Every learner starts with these, so the room has something to place from day one. */

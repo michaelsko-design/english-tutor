@@ -7,7 +7,12 @@ import { TEST_THEME } from '../test/fixtures';
 import { RewardShopModal } from './RewardShopModal';
 
 function renderShop(props: { diamonds?: number; unlockedRewardIds?: string[]; gender?: LearnerGender } = {}) {
-  const handlers = { onBuyReward: vi.fn(), onEquipAvatar: vi.fn(), onClose: vi.fn() };
+  const handlers = {
+    onBuyReward: vi.fn(),
+    onOpenMysteryBox: vi.fn<(box: RewardShopItem) => RewardShopItem | null>(() => null),
+    onEquipAvatar: vi.fn(),
+    onClose: vi.fn(),
+  };
   render(
     <RewardShopModal
       diamonds={props.diamonds ?? 0}
@@ -89,6 +94,54 @@ describe('RewardShopModal', () => {
 
     expect(screen.getByRole('heading', { name: sticker.titleHe })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: avatar.titleHe })).not.toBeInTheDocument();
+  });
+
+  it('opens a mystery box and reveals the item that was won', async () => {
+    const items = getRewardShopItems('girl');
+    const box = items.find((i) => i.id === 'mystery-bronze')!;
+    const prize = items.find((i) => i.id === 'avatar-tiger')!;
+    const handlers = renderShop({ diamonds: box.costDiamonds });
+    handlers.onOpenMysteryBox.mockReturnValue(prize);
+
+    await userEvent.click(within(cardOf(box)).getByRole('button'));
+
+    expect(handlers.onOpenMysteryBox).toHaveBeenCalledWith(box);
+    expect(handlers.onBuyReward).not.toHaveBeenCalled();
+    expect(screen.getByRole('status')).toHaveTextContent(prize.titleHe);
+  });
+
+  it('does not open a mystery box the learner cannot afford', async () => {
+    const box = getRewardShopItems('girl').find((i) => i.id === 'mystery-gold')!;
+    const handlers = renderShop({ diamonds: 10 });
+
+    await userEvent.click(within(cardOf(box)).getByRole('button'));
+
+    expect(handlers.onOpenMysteryBox).not.toHaveBeenCalled();
+  });
+
+  it('keeps a mystery box on sale after buying it (boxes are never owned)', () => {
+    const box = getRewardShopItems('girl').find((i) => i.id === 'mystery-bronze')!;
+    renderShop({ diamonds: 500, unlockedRewardIds: [box.id] });
+
+    expect(within(cardOf(box)).getByRole('button')).toHaveTextContent('פתיחת קופסה');
+  });
+
+  it('explains an empty seasonal tab instead of showing nothing', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 6)); // November: no season is open
+    try {
+      renderShop();
+      await userEvent.click(screen.getByRole('button', { name: /עונתי/ }));
+      expect(screen.getByText(/אין עכשיו פריטים עונתיים/)).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('shows the next goal the learner cannot afford yet', () => {
+    renderShop({ diamonds: 0 });
+
+    expect(screen.getByText(/המטרה הבאה/)).toBeInTheDocument();
   });
 
   it('closes on Escape and on the close button', async () => {

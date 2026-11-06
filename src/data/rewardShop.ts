@@ -1,7 +1,11 @@
 import { DailyActivityCounters, LearnerGender } from '../types/learner';
 import { inflectHebrew } from '../utils/hebrewGender';
 
-export type RewardCategory = 'avatar' | 'accessory' | 'sticker' | 'studio-decor' | 'boost';
+import { EXTRA_AVATARS, EXTRA_WEAR } from './shopExtraCatalog';
+import { EXTRA_SHOP_ROOM_ITEMS } from './shopRoomItems';
+import { RewardRarity, SeasonId, SEASON_WINDOWS } from './shopRarity';
+
+export type RewardCategory = 'avatar' | 'accessory' | 'sticker' | 'studio-decor' | 'boost' | 'mystery';
 
 export interface RewardShopItem {
   id: string;
@@ -11,6 +15,10 @@ export interface RewardShopItem {
   titleHe: string;
   descriptionHe: string;
   costDiamonds: number;
+  /** Missing = derived from the price (see rarityFromCost) */
+  rarity?: RewardRarity;
+  /** Limited-time item: can only be bought inside the season's window */
+  season?: SeasonId;
 }
 
 export interface DailyQuestDefinition {
@@ -55,6 +63,15 @@ export const DAILY_QUESTS: DailyQuestDefinition[] = [
     rewardXp: 40,
     getCurrentCount: (c) => c.threeStarMissionsToday,
   },
+];
+
+export type MysteryBoxTier = 'bronze' | 'silver' | 'gold';
+
+/** Mystery boxes are shop cards that can be bought again and again, like the streak shield. */
+export const MYSTERY_BOX_ITEMS: RewardShopItem[] = [
+  { id: 'mystery-bronze', category: 'mystery', emoji: '🎁', titleEn: 'Bronze Mystery Box', titleHe: 'קופסת הפתעה ארד', descriptionHe: 'פריט אקראי שעוד אין לך. לרוב רגיל, לפעמים נדיר!', costDiamonds: 60 },
+  { id: 'mystery-silver', category: 'mystery', emoji: '🎁', titleEn: 'Silver Mystery Box', titleHe: 'קופסת הפתעה כסף', descriptionHe: 'פריט אקראי שעוד אין לך. סיכוי טוב לנדיר ואפילו לאפי!', costDiamonds: 150 },
+  { id: 'mystery-gold', category: 'mystery', emoji: '🎁', titleEn: 'Gold Mystery Box', titleHe: 'קופסת הפתעה זהב', descriptionHe: 'פריט אקראי שעוד אין לך. נדיר, אפי ואפילו אגדי!', costDiamonds: 350 },
 ];
 
 export const REWARD_SHOP_ITEMS: RewardShopItem[] = [
@@ -206,6 +223,52 @@ export const REWARD_SHOP_ITEMS: RewardShopItem[] = [
     descriptionHe: 'שומר על הרצף שלך ביום לימודים שפספסת. כל מגן שומר על יום אחד, ואפשר לקנות עוד.',
     costDiamonds: 50,
   },
+
+  // Mystery boxes: open one for a random item you don't own yet (see mysteryBox.ts)
+  ...MYSTERY_BOX_ITEMS,
+
+  // Expansion catalog (rarity tiers, seasonal items)
+  ...EXTRA_AVATARS.map(
+    (a): RewardShopItem => ({
+      id: a.id,
+      category: 'avatar',
+      emoji: a.emoji,
+      titleEn: a.titleEn,
+      titleHe: a.titleHe,
+      descriptionHe: 'אווטאר חדש לדשבורד. אפשר להצמיד אותו כאווטאר הראשי.',
+      costDiamonds: a.costDiamonds,
+      rarity: a.rarity,
+    })
+  ),
+  ...EXTRA_WEAR.map(
+    (w): RewardShopItem => ({
+      id: w.id,
+      category: 'accessory',
+      emoji: w.emoji,
+      titleEn: w.nameEn,
+      titleHe: `${w.nameHe} לארון`,
+      descriptionHe: `אקססורי לאווטאר בחדר האנגלי. כדי ללבוש אותו אומרים או מאייתים "${w.nameEn}".`,
+      costDiamonds: w.costDiamonds,
+      rarity: w.rarity,
+    })
+  ),
+  ...EXTRA_SHOP_ROOM_ITEMS.map(
+    (r): RewardShopItem => ({
+      id: r.id,
+      category: r.shopCategory,
+      emoji: r.emoji,
+      titleEn: r.nameEn,
+      titleHe: r.nameHe,
+      descriptionHe: r.season
+        ? `פריט לחדר האנגלי. זמין רק בעונת ${SEASON_WINDOWS[r.season].labelHe}!`
+        : r.shopCategory === 'sticker'
+          ? 'מדבקה לאלבום ולחדר האנגלי. כדי להניח אותה אומרים או מאייתים את שמה.'
+          : 'פריט עיצוב לחדר האנגלי. כדי להניח אותו אומרים או מאייתים את שמו.',
+      costDiamonds: r.costDiamonds,
+      rarity: r.rarity,
+      season: r.season,
+    })
+  ),
 ];
 
 export function getDailyQuests(gender: LearnerGender): DailyQuestDefinition[] {

@@ -3,6 +3,7 @@ import { seededShuffle } from '../utils/shuffle';
 import { toLocalDateStr } from './examPrep';
 import { grantDailyActivityReward } from './roomActivities';
 import { NameableItem, applyItemNamedReward, getRoom } from './room';
+import { EXTRA_WEAR } from './shopExtraCatalog';
 
 /**
  * Feature 12, phase 2 — the Wardrobe Dress-Up Studio: clothes and accessories the avatar wears.
@@ -43,10 +44,14 @@ export const WARDROBE_ITEMS: WardrobeItem[] = [
   { id: 'wear-sunglasses', emoji: '🕶️', nameEn: 'sunglasses', nameHe: 'משקפי שמש', layer: 'face', isHumanOnly: false },
   { id: 'wear-crown', emoji: '👑', nameEn: 'crown', nameHe: 'כתר', layer: 'head', isHumanOnly: false },
   { id: 'wear-graduation-cap', emoji: '🎓', nameEn: 'graduation cap', nameHe: 'כובע סיום', layer: 'head', isHumanOnly: false },
+  // More accessories sold in the Reward Shop (shopExtraCatalog.ts)
+  ...EXTRA_WEAR.map(
+    ({ id, emoji, nameEn, nameHe, layer, isHumanOnly }): WardrobeItem => ({ id, emoji, nameEn, nameHe, layer, isHumanOnly })
+  ),
 ];
 
 export const WARDROBE_STARTER_IDS = ['wear-cap', 'wear-glasses', 'wear-scarf', 'wear-shirt', 'wear-jeans'];
-export const SHOP_WARDROBE_IDS = ['wear-sunglasses', 'wear-crown', 'wear-graduation-cap'];
+export const SHOP_WARDROBE_IDS = ['wear-sunglasses', 'wear-crown', 'wear-graduation-cap', ...EXTRA_WEAR.map((item) => item.id)];
 
 /** Wardrobe items awarded by first-time 3-star missions, in order. */
 export const WARDROBE_REWARD_ORDER: string[] = WARDROBE_ITEMS.map((item) => item.id).filter(
