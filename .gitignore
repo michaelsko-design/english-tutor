@@ -43,3 +43,6 @@ coverage/
 scripts/tts/hebrewReview.json.bak
 review-out/
 .tts-archive/
+
+# Ministry of Education source documents (all rights reserved; local reference only)
+docs/ministry-sources/raw/

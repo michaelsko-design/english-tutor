@@ -26,8 +26,9 @@
     "review:cloze-audit": "vite-node scripts/review/clozeAudit.ts",
     "review:cloze-report": "vite-node scripts/review/clozeAuditReport.ts",
     "review:cloze-apply": "vite-node scripts/review/clozeAuditApply.ts --",
-    "review:he-tiers":"vite-node scripts/review/hebrewTierReview.ts --",
-    "tts:upload": "vite-node scripts/tts/uploadClips.ts --"
+    "review:he-tiers": "vite-node scripts/review/hebrewTierReview.ts --",
+    "tts:upload": "vite-node scripts/tts/uploadClips.ts --",
+    "review:coverage": "vite-node scripts/review/curriculumCoverage.ts --"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
