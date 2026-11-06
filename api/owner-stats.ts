@@ -4,10 +4,10 @@
  * The same account can still be a parent: this adds a second route, it changes nothing for parents.
  */
 import { createFirestoreAdmin } from './_lib/firestoreAdmin.js';
-import { AdminError, createAuthAdmin, parseServiceAccount } from './_lib/googleAdmin.js';
-import { authenticateParent, errorResponse, firebaseProjectId, jsonResponse, type ParentRequestDeps } from './_lib/parentRequest.js';
-import { safeEqual } from './_lib/payments/provider.js';
-import { computeOwnerStats, israelDateStr, proChildUidsFrom, type LearnerRow } from './_lib/ownerStats.js';
+import { AdminError, createAuthAdmin } from './_lib/googleAdmin.js';
+import { authenticateOwner } from './_lib/ownerRequest.js';
+import { errorResponse, jsonResponse, type ParentRequestDeps } from './_lib/parentRequest.js';
+import { computeOwnerStats, israelDateStr, proChildUidsFrom, withoutTestUsers, type LearnerRow } from './_lib/ownerStats.js';
 
 const LEARNER_FIELDS = ['gradeId', 'isOnboarded', 'activityLog'] as const;
 
@@ -22,24 +22,21 @@ export async function handleOwnerStatsRequest(
   env: Record<string, string | undefined>,
   deps: OwnerStatsDeps = {}
 ): Promise<Response> {
-  const ownerUid = env.OWNER_UID;
-  if (!ownerUid) return errorResponse(503, 'The owner dashboard is not configured');
-  const caller = await authenticateParent(request, env, deps);
-  if (caller instanceof Response) return caller;
-  if (!safeEqual(caller.parentUid, ownerUid)) return errorResponse(403, 'Owner only');
-
-  const account = parseServiceAccount(env.FIREBASE_SERVICE_ACCOUNT_JSON);
-  if (!account) return errorResponse(503, 'The owner dashboard is not configured');
+  const owner = await authenticateOwner(request, env, deps);
+  if (owner instanceof Response) return owner;
+  const { account, projectId } = owner;
 
   const { fetchImpl = fetch, nowMs = Date.now, createAdmin = createFirestoreAdmin } = deps;
-  const projectId = firebaseProjectId(env);
   const findAnonymousUids = deps.findAnonymousUids ?? ((uids: string[]) => createAuthAdmin(account, projectId, { fetchImpl }).findAnonymousUids(uids));
 
   try {
     const admin = createAdmin(account, projectId, { fetchImpl });
     const now = new Date(nowMs());
-    const learners: LearnerRow[] = await admin.listFieldsOf('learners', LEARNER_FIELDS);
-    const entitlements = await admin.listFieldsOf('entitlements', ['status', 'periodEnd']);
+    // The owner's list of test accounts: every source below is read through it, so only real users are counted
+    const testUids = new Set((await admin.listFieldsOf('testUsers', ['label'])).map((row) => row.id));
+    const uidOf = (row: { id: string }) => [row.id];
+    const learners: LearnerRow[] = withoutTestUsers(await admin.listFieldsOf('learners', LEARNER_FIELDS), testUids, uidOf);
+    const entitlements = withoutTestUsers(await admin.listFieldsOf('entitlements', ['status', 'periodEnd']), testUids, uidOf);
     const anonymousUids = await findAnonymousUids(learners.map((row) => row.id));
     const [links, sends, subscriptions] = await Promise.all([
       admin.listFieldsOf('parentLinks', ['parentUid', 'childUid']),
@@ -47,17 +44,18 @@ export async function handleOwnerStatsRequest(
       admin.listFieldsOf('pushSubscriptions', ['streakDays']),
     ]);
     const stats = computeOwnerStats({
-      parentLinks: links.flatMap(({ fields }) =>
+      excludedTestUsers: testUids.size,
+      parentLinks: withoutTestUsers(links, testUids, ({ fields }) => [String(fields.parentUid), String(fields.childUid)]).flatMap(({ fields }) =>
         typeof fields.parentUid === 'string' && typeof fields.childUid === 'string'
           ? [{ parentUid: fields.parentUid, childUid: fields.childUid }]
           : []
       ),
-      reminderSends: sends.flatMap(({ fields }) =>
+      reminderSends: withoutTestUsers(sends, testUids, ({ fields }) => [String(fields.uid)]).flatMap(({ fields }) =>
         typeof fields.uid === 'string' && typeof fields.dateStr === 'string' && (fields.kind === 'streak' || fields.kind === 'comeback')
           ? [{ uid: fields.uid, dateStr: fields.dateStr, kind: fields.kind }]
           : []
       ),
-      reminderSubscribers: subscriptions.length,
+      reminderSubscribers: withoutTestUsers(subscriptions, testUids, uidOf).length,
       learners,
       anonymousUids,
       proChildUids: proChildUidsFrom(entitlements, now.getTime()),

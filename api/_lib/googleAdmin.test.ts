@@ -86,6 +86,19 @@ describe('createAuthAdmin', () => {
     expect(await admin.lookupUser('nobody')).toBeNull();
   });
 
+  it('finds the uid of an account by its sign-in email, or null when there is none', async () => {
+    const { account } = await makeAccount();
+    const fetchImpl = tokenFetch((url, init) => {
+      if (!url.endsWith('accounts:lookup')) return undefined;
+      const { email } = JSON.parse(init!.body as string) as { email: string[] };
+      return new Response(JSON.stringify(email[0] === 'noa12@peachnote.tutor.local' ? { users: [{ localId: 'noaUid' }] } : {}), { status: 200 });
+    });
+    const admin = createAuthAdmin(account, 'proj', { fetchImpl: fetchImpl as typeof fetch, nowMs: () => NOW_MS });
+
+    expect(await admin.lookupUidByEmail('noa12@peachnote.tutor.local')).toBe('noaUid');
+    expect(await admin.lookupUidByEmail('ghost@peachnote.tutor.local')).toBeNull();
+  });
+
   it('sets the password and reuses the access token until it nearly expires', async () => {
     const { account } = await makeAccount();
     let now = NOW_MS;

@@ -123,6 +123,14 @@ export function createAuthAdmin(account: ServiceAccount, projectId: string, { fe
       return { uid: user.localId, providerIds: (user.providerUserInfo ?? []).map((p) => p.providerId) };
     },
 
+    /** The uid of the account that signs in with this email (a username account's is `<name>@peachnote.tutor.local`), or null. */
+    async lookupUidByEmail(email: string): Promise<string | null> {
+      const response = await call('accounts:lookup', { email: [email] });
+      if (!response.ok) throw new AdminError('Auth lookup failed', response.status);
+      const body = (await response.json()) as { users?: { localId: string }[] };
+      return body.users?.[0]?.localId ?? null;
+    },
+
     /** Which of these accounts still exist (looked up 100 at a time). */
     async findExistingUids(uids: readonly string[]): Promise<Set<string>> {
       const existing = new Set<string>();

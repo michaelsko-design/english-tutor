@@ -494,5 +494,15 @@ service cloud.firestore {
     match /recurringRefs/{refId} {
       allow read, write: if false;
     }
+
+    // Owner dashboard: the daily reminder log and the owner's test-account list. Only the server
+    // (service account) reads or writes them; the app never does.
+    match /reminderSends/{sendId} {
+      allow read, write: if false;
+    }
+
+    match /testUsers/{uid} {
+      allow read, write: if false;
+    }
   }
 }

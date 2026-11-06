@@ -43,6 +43,8 @@ export interface OwnerStats {
   daily: DailyStats[];
   parents: ParentStats;
   reminders: ReminderStats;
+  /** Test accounts on the owner's list, left out of every number above */
+  excludedTestUsers: number;
 }
 
 export interface ParentStats {
@@ -99,6 +101,8 @@ export interface OwnerStatsInput {
   parentLinks?: readonly ParentLinkRow[];
   reminderSends?: readonly ReminderSendRow[];
   reminderSubscribers?: number;
+  /** How many listed test accounts were left out of the rows above (shown on the dashboard) */
+  excludedTestUsers?: number;
 }
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -183,6 +187,7 @@ export function computeOwnerStats({
   parentLinks = [],
   reminderSends = [],
   reminderSubscribers = 0,
+  excludedTestUsers = 0,
 }: OwnerStatsInput): OwnerStats {
   const real = learners.filter((row) => !anonymousUids.has(row.id));
   const windowStart = addDaysToDateStr(todayStr, -(AVERAGE_WINDOW_DAYS - 1));
@@ -273,7 +278,21 @@ export function computeOwnerStats({
     daily,
     parents: computeParentStats(parentLinks),
     reminders: computeReminderStats(reminderSends, missionDays, reminderSubscribers, dailyStart, todayStr),
+    excludedTestUsers,
   };
+}
+
+/**
+ * Drops the rows that belong to a listed test account (any uid `uidsOf` names for the row), so the
+ * owner's numbers describe real users only. The caller passes everything it reads through this.
+ */
+export function withoutTestUsers<T>(
+  rows: readonly T[],
+  testUids: ReadonlySet<string>,
+  uidsOf: (row: T) => readonly string[]
+): T[] {
+  if (testUids.size === 0) return [...rows];
+  return rows.filter((row) => !uidsOf(row).some((uid) => testUids.has(uid)));
 }
 
 function gradeOrder(gradeId: string): number {

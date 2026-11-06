@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeOwnerStats, proChildUidsFrom, type LearnerRow } from './ownerStats';
+import { computeOwnerStats, proChildUidsFrom, withoutTestUsers, type LearnerRow } from './ownerStats';
 
 const NOW = new Date('2026-10-29T10:00:00Z');
 const TODAY = '2026-10-29';
@@ -118,5 +118,43 @@ describe('proChildUidsFrom', () => {
 
   it('keeps live plans and canceled ones still paid for', () => {
     expect([...proChildUidsFrom(docs, now)].sort()).toEqual(['a', 'b', 'c']);
+  });
+});
+
+describe('withoutTestUsers', () => {
+  const rows = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+  const uidOf = (row: { id: string }) => [row.id];
+
+  it('returns every row when no test account is listed', () => {
+    expect(withoutTestUsers(rows, new Set(), uidOf)).toEqual(rows);
+  });
+
+  it('drops the rows of listed accounts', () => {
+    expect(withoutTestUsers(rows, new Set(['b']), uidOf)).toEqual([{ id: 'a' }, { id: 'c' }]);
+  });
+
+  it('drops a row when any uid it names is listed, such as a parent link to a test child', () => {
+    const links = [
+      { parentUid: 'mom', childUid: 'real' },
+      { parentUid: 'mom', childUid: 'tester' },
+      { parentUid: 'testmom', childUid: 'real2' },
+    ];
+    const kept = withoutTestUsers(links, new Set(['tester', 'testmom']), (link) => [link.parentUid, link.childUid]);
+    expect(kept).toEqual([{ parentUid: 'mom', childUid: 'real' }]);
+  });
+});
+
+describe('computeOwnerStats excluded test users', () => {
+  it('reports how many test accounts were left out', () => {
+    const result = computeOwnerStats({
+      learners: [],
+      anonymousUids: new Set(),
+      proChildUids: new Set(),
+      todayStr: TODAY,
+      now: NOW,
+      excludedTestUsers: 3,
+    });
+    expect(result.excludedTestUsers).toBe(3);
+    expect(stats([]).excludedTestUsers).toBe(0);
   });
 });

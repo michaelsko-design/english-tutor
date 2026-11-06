@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { auth, googleProvider } from '../../services/firebase';
 import { fetchOwnerStats, type OwnerStats } from '../../services/ownerStatsService';
+import { TestAccountsCard } from './TestAccountsCard';
 
 type Load =
   | { status: 'idle' }
@@ -644,7 +645,7 @@ const ParentEcosystemCard: React.FC<{
 // 6. Main Stats View
 // ---------------------------------------------------------------------------
 
-const StatsView: React.FC<{ stats: OwnerStats }> = ({ stats }) => {
+const StatsView: React.FC<{ stats: OwnerStats; onTestUsersChanged: () => void }> = ({ stats, onTestUsersChanged }) => {
   const { totals, active, averages, byGrade, daily, parents, reminders } = stats;
 
   const proShare = totals.registered ? Math.round((totals.pro / totals.registered) * 100) : 0;
@@ -767,10 +768,16 @@ const StatsView: React.FC<{ stats: OwnerStats }> = ({ stats }) => {
         <ParentEcosystemCard parents={parents} totals={totals} averages={averages} />
       </div>
 
+      {/* Row 4: the owner's test-account list (left out of every number above) */}
+      <TestAccountsCard onChanged={onTestUsersChanged} />
+
       {/* Footer Info */}
       <div className="flex flex-col items-center justify-between gap-2 border-t border-slate-200/70 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400 sm:flex-row">
         <span>Updated: {new Date(stats.generatedAt).toLocaleString('en-GB')}</span>
-        <span>Telemetry covers the rolling 12-week profile activity log. Aggregates only.</span>
+        <span>
+          Telemetry covers the rolling 12-week profile activity log. Aggregates only
+          {stats.excludedTestUsers > 0 && ` · ${stats.excludedTestUsers} test ${stats.excludedTestUsers === 1 ? 'account' : 'accounts'} excluded`}.
+        </span>
       </div>
     </div>
   );
@@ -797,6 +804,12 @@ export const OwnerDashboard: React.FC = () => {
     setLoad({ status: 'loading' });
     const result = await fetchOwnerStats();
     setLoad(result.ok ? { status: 'ready', stats: result.stats } : { status: 'error', message: result.message });
+  }, []);
+
+  // After the test-account list changed: reload the numbers in place (no spinner, so the list card keeps its state)
+  const reloadQuietly = useCallback(async () => {
+    const result = await fetchOwnerStats();
+    if (result.ok) setLoad({ status: 'ready', stats: result.stats });
   }, []);
 
   const isGoogleUser = !!user && !user.isAnonymous && user.providerData.some((p) => p.providerId === 'google.com');
@@ -914,7 +927,7 @@ export const OwnerDashboard: React.FC = () => {
         )}
 
         {/* Dashboard Content */}
-        {isGoogleUser && load.status === 'ready' && <StatsView stats={load.stats} />}
+        {isGoogleUser && load.status === 'ready' && <StatsView stats={load.stats} onTestUsersChanged={() => void reloadQuietly()} />}
       </main>
     </div>
   );

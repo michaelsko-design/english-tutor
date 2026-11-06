@@ -28,6 +28,12 @@ vi.mock('../../services/ownerStatsService', () => ({
   fetchOwnerStats: () => mockFetchOwnerStats(),
 }));
 
+vi.mock('../../services/ownerTestUsersService', () => ({
+  fetchTestUsers: async () => ({ ok: true, users: [] }),
+  addTestUser: async () => ({ ok: true, users: [] }),
+  removeTestUser: async () => ({ ok: true, users: [] }),
+}));
+
 import { OwnerDashboard } from './OwnerDashboard';
 
 const mockStats: OwnerStats = {
@@ -110,6 +116,7 @@ const mockStats: OwnerStats = {
       { dateStr: '2026-10-26', sent: 15, practised: 7 },
     ],
   },
+  excludedTestUsers: 2,
 };
 
 const mockGoogleUser = {
@@ -189,6 +196,10 @@ describe('OwnerDashboard', () => {
     expect(screen.getByText('Family & Parent Ecosystem')).toBeInTheDocument();
     expect(screen.getByText('18')).toBeInTheDocument(); // withChildren
     expect(screen.getByText('1.39')).toBeInTheDocument(); // avgKidsPerParent
+
+    // Test accounts are listed apart and the footer says how many were left out
+    expect(screen.getByRole('heading', { name: 'Test accounts' })).toBeInTheDocument();
+    expect(screen.getByText(/2 test accounts excluded/)).toBeInTheDocument();
   });
 
   it('allows manual refresh', async () => {

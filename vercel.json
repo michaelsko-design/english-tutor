@@ -29,6 +29,9 @@
     },
     "api/owner-stats.ts": {
       "maxDuration": 60
+    },
+    "api/owner-test-users.ts": {
+      "maxDuration": 15
     }
   },
   "crons": [

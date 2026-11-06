@@ -14,13 +14,22 @@ function setup() {
   fake.seed('parentLinks', 'mom1_kid1', { parentUid: 'mom1', childUid: 'kid1' });
   fake.seed('pushSubscriptions', 'kid1', { streakDays: 3 });
   fake.seed('reminderSends', '2026-10-29_kid1', { uid: 'kid1', dateStr: '2026-10-29', kind: 'streak' });
+  // Listed test accounts: a learner with a Pro grant, a parent link, a push subscription and a reminder, and a test parent
+  fake.seed('testUsers', 'tester1', { label: 'tester', addedAt: 1 });
+  fake.seed('testUsers', 'testmom', { label: 'testmom@example.com', addedAt: 2 });
+  fake.seed('learners', 'tester1', { gradeId: 'grade-7', isOnboarded: true });
+  fake.seed('entitlements', 'tester1', { status: 'active', periodEnd: NOW + 1000 });
+  fake.seed('parentLinks', 'mom1_tester1', { parentUid: 'mom1', childUid: 'tester1' });
+  fake.seed('parentLinks', 'testmom_kid1', { parentUid: 'testmom', childUid: 'kid1' });
+  fake.seed('pushSubscriptions', 'tester1', { streakDays: 9 });
+  fake.seed('reminderSends', '2026-10-29_tester1', { uid: 'tester1', dateStr: '2026-10-29', kind: 'comeback' });
   const deps = {
     nowMs: () => NOW,
     verifyToken: vi.fn(async () => true),
     createAdmin: vi.fn(() => fake.admin) as never,
     findAnonymousUids: vi.fn(async () => new Set(['guest1'])),
   };
-  return { deps };
+  return { deps, fake };
 }
 
 const call = (uid: string | null, provider = 'google.com') =>
@@ -56,8 +65,27 @@ describe('handleOwnerStatsRequest', () => {
     expect(body.byGrade).toEqual([expect.objectContaining({ gradeId: 'grade-4', users: 1, proUsers: 1 })]);
     expect(body.parents).toEqual({ withChildren: 1, links: 1, avgKidsPerParent: 1 });
     expect(body.reminders).toMatchObject({ subscribers: 1, sent: 1, practised: 0 });
+    expect(body.excludedTestUsers).toBe(2);
     expect(JSON.stringify(body)).not.toContain('kid1');
     expect(JSON.stringify(body)).not.toContain('mom1');
+  });
+
+  it('leaves listed test accounts out of every number, and counts them once they are off the list', async () => {
+    const { deps, fake } = setup();
+    const withList = await (await handleOwnerStatsRequest(call('owner1'), ENV, deps)).json();
+    expect(withList.totals).toMatchObject({ registered: 1, pro: 1 });
+    expect(withList.byGrade.map((g: { gradeId: string }) => g.gradeId)).toEqual(['grade-4']);
+    expect(withList.parents).toEqual({ withChildren: 1, links: 1, avgKidsPerParent: 1 });
+    expect(withList.reminders).toMatchObject({ subscribers: 1, sent: 1 });
+
+    fake.docs.delete('testUsers/tester1');
+    fake.docs.delete('testUsers/testmom');
+    const withoutList = await (await handleOwnerStatsRequest(call('owner1'), ENV, deps)).json();
+    expect(withoutList.excludedTestUsers).toBe(0);
+    expect(withoutList.totals).toMatchObject({ registered: 2, pro: 2 });
+    expect(withoutList.byGrade.map((g: { gradeId: string }) => g.gradeId)).toEqual(['grade-4', 'grade-7']);
+    expect(withoutList.parents.links).toBe(3);
+    expect(withoutList.reminders).toMatchObject({ subscribers: 2, sent: 2 });
   });
 
   it('hides the failure details', async () => {

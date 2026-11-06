@@ -8,7 +8,7 @@ import {
   connectAuthEmulator, createUserWithEmailAndPassword, getAuth, signInAnonymously, signInWithEmailAndPassword,
 } from 'firebase/auth';
 import {
-  connectFirestoreEmulator, deleteDoc, doc, getDoc, getFirestore, setDoc, updateDoc, writeBatch,
+  collection, connectFirestoreEmulator, deleteDoc, doc, getDoc, getDocs, getFirestore, setDoc, updateDoc, writeBatch,
 } from 'firebase/firestore';
 
 const PIN = process.env.EMU_PIN || 'emu-test-1234';
@@ -284,6 +284,13 @@ await expect('the paying parent cannot read the checkout record', false, () =>
   getDoc(doc(b.db, 'checkouts', 'x'.repeat(32))));
 await expect('nobody can write a payment record', false, () =>
   setDoc(doc(b.db, 'payments', 'mock_1'), { subscriptionId: 'x', amountAgorot: 0, at: 0 }));
+await expect('nobody can read the owner reminder log', false, () => getDoc(doc(a.db, 'reminderSends', `2026-11-06_${ua.uid}`)));
+await expect('nobody can write the owner reminder log', false, () =>
+  setDoc(doc(a.db, 'reminderSends', `2026-11-06_${ua.uid}`), { uid: ua.uid, dateStr: '2026-11-06', kind: 'streak' }));
+await expect('a learner cannot read the owner test-account list', false, () => getDoc(doc(a.db, 'testUsers', ua.uid)));
+await expect('a learner cannot add themselves to the owner test-account list', false, () =>
+  setDoc(doc(a.db, 'testUsers', ua.uid), { label: 'me', addedAt: 1 }));
+await expect('a learner cannot list the owner test accounts', false, () => getDocs(collection(a.db, 'testUsers')));
 await deleteDoc(doc(b.db, 'parentLinks', linkId)).catch(() => {});
 for (const path of [`entitlements/${ua.uid}`, `subscriptions/${'x'.repeat(32)}`, `checkouts/${'x'.repeat(32)}`]) {
   await fetch(ownerDoc(path), { method: 'DELETE', headers: { Authorization: 'Bearer owner' } }).catch(() => {});
