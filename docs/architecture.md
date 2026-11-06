@@ -459,6 +459,14 @@ Time comes from `activityLog[].activeSeconds`, counted by `hooks/useActiveTimeTr
 
 ---
 
+### 4.30. Product Analytics (`services/analytics/`, `api/_lib/usageStats.ts`, `components/owner/UsageCard.tsx`)
+First-party and anonymous: no third-party origin (CSP unchanged), no cookies, no device ids, no learner text.
+- **Events** are a fixed allow-list (`events.ts`: `session_start`, `onboarding_done`, `placement_done`, `mission_finish`, per-tier finishes, `mission_three_stars`). `trackEvent` drops anything else. A new event must also be added to the `counts` key list in `firestore.rules` (`analyticsDaily`) and, to appear in the dashboard, to `usageStats.ts`.
+- **Storage:** `analyticsDaily/{day}_{uid}` holds per-day counters (`increment`), batched in memory and flushed at most once a minute and when the page is hidden (`analyticsService.ts`). Write-only for clients; failures are swallowed.
+- **Errors:** `errorReporter.ts` writes `clientErrors/{day}_{hash}` (message and stack scrubbed of URLs, emails and long numbers, 10 distinct errors per session) from `AppErrorBoundary`, `window.onerror` and `unhandledrejection`. Signed-in sessions only.
+- **Dashboard:** `api/owner-stats.ts` reads both collections (test accounts excluded) and `computeUsageStats` returns the funnel, day-1/day-7 return and top errors; `UsageCard` shows them.
+- Off under Vitest and when Firebase is not configured. Not done yet: a parent opt-out toggle, screen/feature-level events, the privacy-policy wording.
+
 ## 5. Directory Structure
 
 ```text

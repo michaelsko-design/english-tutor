@@ -3,6 +3,8 @@
  * list comes from `learners/{uid}` with a field mask (grade, dates, activity log).
  */
 
+import type { UsageStats } from './usageStats.js';
+
 export const OWNER_STATS_DAYS = 14;
 const AVERAGE_WINDOW_DAYS = 28;
 
@@ -43,6 +45,8 @@ export interface OwnerStats {
   daily: DailyStats[];
   parents: ParentStats;
   reminders: ReminderStats;
+  /** Product analytics (funnel, retention, errors); absent until the owner API adds it */
+  usage?: UsageStats;
   /** Test accounts on the owner's list, left out of every number above */
   excludedTestUsers: number;
 }

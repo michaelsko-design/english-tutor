@@ -7,6 +7,7 @@ import { createFirestoreAdmin } from './_lib/firestoreAdmin.js';
 import { AdminError, createAuthAdmin } from './_lib/googleAdmin.js';
 import { authenticateOwner } from './_lib/ownerRequest.js';
 import { errorResponse, jsonResponse, type ParentRequestDeps } from './_lib/parentRequest.js';
+import { computeUsageStats, readAnalyticsRows, readClientErrorRows } from './_lib/usageStats.js';
 import { computeOwnerStats, israelDateStr, proChildUidsFrom, withoutTestUsers, type LearnerRow } from './_lib/ownerStats.js';
 
 const LEARNER_FIELDS = ['gradeId', 'isOnboarded', 'activityLog'] as const;
@@ -38,11 +39,19 @@ export async function handleOwnerStatsRequest(
     const learners: LearnerRow[] = withoutTestUsers(await admin.listFieldsOf('learners', LEARNER_FIELDS), testUids, uidOf);
     const entitlements = withoutTestUsers(await admin.listFieldsOf('entitlements', ['status', 'periodEnd']), testUids, uidOf);
     const anonymousUids = await findAnonymousUids(learners.map((row) => row.id));
-    const [links, sends, subscriptions] = await Promise.all([
+    const [links, sends, subscriptions, analyticsDocs, errorDocs] = await Promise.all([
       admin.listFieldsOf('parentLinks', ['parentUid', 'childUid']),
       admin.listFieldsOf('reminderSends', ['uid', 'dateStr', 'kind']),
       admin.listFieldsOf('pushSubscriptions', ['streakDays']),
+      admin.listFieldsOf('analyticsDaily', ['uid', 'day', 'counts']),
+      admin.listFieldsOf('clientErrors', ['day', 'message', 'source', 'count']),
     ]);
+    const todayStr = israelDateStr(now);
+    const usage = computeUsageStats(
+      readAnalyticsRows(withoutTestUsers(analyticsDocs, testUids, ({ fields }) => [String(fields.uid)])),
+      readClientErrorRows(errorDocs),
+      todayStr
+    );
     const stats = computeOwnerStats({
       excludedTestUsers: testUids.size,
       parentLinks: withoutTestUsers(links, testUids, ({ fields }) => [String(fields.parentUid), String(fields.childUid)]).flatMap(({ fields }) =>
@@ -62,7 +71,7 @@ export async function handleOwnerStatsRequest(
       todayStr: israelDateStr(now),
       now,
     });
-    return jsonResponse(200, { ...stats });
+    return jsonResponse(200, { ...stats, usage });
   } catch (error) {
     // Only a status is logged: never ids, tokens or keys
     console.error(`owner-stats: failed (${error instanceof AdminError ? error.status : 'unexpected'})`);

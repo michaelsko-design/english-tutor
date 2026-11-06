@@ -16,6 +16,7 @@ import {
 import { auth, googleProvider } from '../../services/firebase';
 import { fetchOwnerStats, type OwnerStats } from '../../services/ownerStatsService';
 import { TestAccountsCard } from './TestAccountsCard';
+import { UsageCard } from './UsageCard';
 
 type Load =
   | { status: 'idle' }
@@ -767,6 +768,9 @@ const StatsView: React.FC<{ stats: OwnerStats; onTestUsersChanged: () => void }>
         <GradeDistributionCard byGrade={byGrade} />
         <ParentEcosystemCard parents={parents} totals={totals} averages={averages} />
       </div>
+
+      {/* Row 3b: funnel, retention and client errors from the first-party analytics counters */}
+      <UsageCard usage={stats.usage} />
 
       {/* Row 4: the owner's test-account list (left out of every number above) */}
       <TestAccountsCard onChanged={onTestUsersChanged} />

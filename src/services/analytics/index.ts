@@ -1,0 +1,53 @@
+import { db, isFirebaseConfigured } from '../firebase';
+import { toLocalDateStr } from '../../utils/dates';
+import { createAnalytics, type AnalyticsContext } from './analyticsService';
+import { createErrorReporter } from './errorReporter';
+import type { ProficiencyTier } from '../../types/learner';
+import type { AnalyticsEvent } from './events';
+
+/** Off in unit tests (tests mock Firestore) and when Firebase is not configured */
+const isEnabled = (): boolean => isFirebaseConfigured && !import.meta.env.VITEST;
+
+const analytics = createAnalytics({
+  getDb: () => (isEnabled() ? db : null),
+  today: () => toLocalDateStr(new Date()),
+});
+
+let currentUid: string | null = null;
+
+const reportError = createErrorReporter({
+  getDb: () => (isEnabled() ? db : null),
+  getUid: () => currentUid,
+  today: () => toLocalDateStr(new Date()),
+  appVersion: import.meta.env.MODE,
+});
+
+export const trackEvent = (name: AnalyticsEvent): void => analytics.track(name);
+const TIER_EVENTS = {
+  explorer: 'mission_finish_tier_explorer',
+  challenger: 'mission_finish_tier_challenger',
+  master: 'mission_finish_tier_master',
+} as const;
+
+/** A finished mission: the total, the tier played, and whether it earned all three stars */
+export function trackMissionFinish(tier: ProficiencyTier, stars: 1 | 2 | 3): void {
+  trackEvent('mission_finish');
+  trackEvent(TIER_EVENTS[tier]);
+  if (stars === 3) trackEvent('mission_three_stars');
+}
+
+export const reportRenderError = (error: unknown): void => void reportError(error, 'render');
+
+/** Called when the signed-in learner (or their grade) changes; `null` on sign-out */
+export function setAnalyticsContext(context: AnalyticsContext | null): void {
+  currentUid = context?.uid ?? null;
+  analytics.setContext(context);
+}
+
+if (typeof window !== 'undefined' && !import.meta.env.VITEST) {
+  window.addEventListener('error', (event) => void reportError(event.error ?? event.message, 'window'));
+  window.addEventListener('unhandledrejection', (event) => void reportError(event.reason, 'promise'));
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') void analytics.flush();
+  });
+}

@@ -504,5 +504,40 @@ service cloud.firestore {
     match /testUsers/{uid} {
       allow read, write: if false;
     }
+
+    // Product analytics (src/services/analytics): anonymous per-day counters, one document per
+    // learner and day, and scrubbed client errors. Clients can write but never read; the owner API
+    // (service account) reads them. Counter names are the allow-list in events.ts.
+    match /analyticsDaily/{docId} {
+      allow read, delete: if false;
+      allow create, update: if request.auth != null
+        && docId == request.resource.data.day + '_' + request.auth.uid
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'day', 'gradeId', 'counts'])
+        && isShortString(request.resource.data.day, 10)
+        && isNearToday(request.resource.data.day)
+        && isShortString(request.resource.data.gradeId, 20)
+        && request.resource.data.counts is map
+        && request.resource.data.counts.keys().hasOnly([
+          'session_start', 'onboarding_done', 'placement_done', 'mission_finish',
+          'mission_finish_tier_explorer', 'mission_finish_tier_challenger',
+          'mission_finish_tier_master', 'mission_three_stars'])
+        && request.resource.data.counts.get('session_start', 0) <= 1000000
+        && request.resource.data.counts.get('mission_finish', 0) <= 1000000;
+    }
+
+    match /clientErrors/{docId} {
+      allow read, delete: if false;
+      allow create, update: if request.auth != null
+        && request.resource.data.keys().hasOnly(['day', 'message', 'stack', 'source', 'appVersion', 'count', 'lastSeen'])
+        && isShortString(request.resource.data.message, 200)
+        && request.resource.data.stack.size() <= 600
+        && request.resource.data.source in ['render', 'window', 'promise']
+        && request.resource.data.appVersion.size() <= 20
+        && isNearToday(request.resource.data.day)
+        && docId.matches(request.resource.data.day + '_.*')
+        && request.resource.data.count is int
+        && request.resource.data.count <= 1000000;
+    }
   }
 }

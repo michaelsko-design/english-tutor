@@ -37,6 +37,7 @@ import { setListenerGender } from './services/tts';
 import { HebrewAudioContext, playsHebrewAloud } from './data/hebrewAudio';
 import { AccountResult, deleteAccount } from './services/accountService';
 import { DEFAULT_PROFILE, WELCOME_GIFT_DIAMONDS } from './data/defaultProfile';
+import { setAnalyticsContext, trackEvent } from './services/analytics';
 import { isUnreadableProfile, parseStoredProfile } from './services/localProfile';
 
 // Screens most visits never open load in their own chunks
@@ -280,6 +281,20 @@ export function App() {
     handleUpdateProfile(addActiveSeconds(profileRef.current, seconds, new Date()));
   });
 
+  // Anonymous usage counters (docs/architecture.md, product analytics): one session_start per sign-in
+  const analyticsUid = authUser?.uid;
+  const analyticsGrade = profile.gradeId;
+  useEffect(() => {
+    if (!analyticsUid || !isFirebaseConfigured) {
+      setAnalyticsContext(null);
+      return;
+    }
+    setAnalyticsContext({ uid: analyticsUid, gradeId: analyticsGrade ?? 'unknown' });
+  }, [analyticsUid, analyticsGrade]);
+  useEffect(() => {
+    if (analyticsUid && isFirebaseConfigured) trackEvent('session_start');
+  }, [analyticsUid]);
+
   const proAccess = useLearnerProAccess(authUser?.uid);
   const activeTheme = resolveLearnerTheme(profile.themeId, profile.companionId, proAccess);
 
@@ -361,6 +376,7 @@ export function App() {
         initialProfile={profile}
         onComplete={(updated) => {
           handleUpdateProfile(updated);
+          trackEvent('onboarding_done');
           setIsOfferingPlacement(true);
         }}
       />
@@ -446,6 +462,7 @@ export function App() {
             handleUpdateProfile(
               applyPlacementToProfile(profile, result, applyRecommendation)
             );
+            trackEvent('placement_done');
             setIsOfferingPlacement(false);
           }}
           onClose={() => setIsOfferingPlacement(false)}

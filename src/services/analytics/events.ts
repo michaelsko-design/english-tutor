@@ -1,0 +1,30 @@
+/**
+ * Product analytics events: a fixed allow-list of anonymous counters. Nothing here carries learner
+ * text, names or free-form values; an event outside the list is dropped before it is stored.
+ */
+
+export const ANALYTICS_EVENTS = [
+  'session_start',
+  'onboarding_done',
+  'placement_done',
+  'mission_finish',
+  'mission_finish_tier_explorer',
+  'mission_finish_tier_challenger',
+  'mission_finish_tier_master',
+  'mission_three_stars',
+] as const;
+
+export type AnalyticsEvent = (typeof ANALYTICS_EVENTS)[number];
+
+const EVENT_SET: ReadonlySet<string> = new Set(ANALYTICS_EVENTS);
+
+export function isAnalyticsEvent(name: string): name is AnalyticsEvent {
+  return EVENT_SET.has(name);
+}
+
+/** Collection names, shared with firestore.rules and the owner API */
+export const ANALYTICS_DAILY_COLLECTION = 'analyticsDaily';
+export const CLIENT_ERRORS_COLLECTION = 'clientErrors';
+
+/** Largest counter a single day document may hold (matches firestore.rules `isCount`) */
+export const MAX_DAILY_COUNT = 1_000_000;

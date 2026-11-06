@@ -2,6 +2,7 @@ import React from 'react';
 import { RefreshCw } from 'lucide-react';
 import { resolveTheme, ThemeDefinition } from '../themes/themeRegistry';
 import { Companion } from './companion/Companion';
+import { reportRenderError } from '../services/analytics';
 
 const STORAGE_KEY = 'english_tutor_learner_profile_v2';
 const COMPANION_SIZE = 140;
@@ -33,6 +34,7 @@ export class AppErrorBoundary extends React.Component<{ children: React.ReactNod
 
   componentDidCatch(error: Error, info: React.ErrorInfo): void {
     console.error('The app crashed while rendering:', error, info.componentStack);
+    reportRenderError(error);
   }
 
   render(): React.ReactNode {

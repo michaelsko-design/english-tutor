@@ -8,7 +8,7 @@ import {
   connectAuthEmulator, createUserWithEmailAndPassword, getAuth, signInAnonymously, signInWithEmailAndPassword,
 } from 'firebase/auth';
 import {
-  collection, connectFirestoreEmulator, deleteDoc, doc, getDoc, getDocs, getFirestore, setDoc, updateDoc, writeBatch,
+  collection, connectFirestoreEmulator, deleteDoc, doc, getDoc, getDocs, getFirestore, increment, serverTimestamp, setDoc, updateDoc, writeBatch,
 } from 'firebase/firestore';
 
 const PIN = process.env.EMU_PIN || 'emu-test-1234';
@@ -291,6 +291,25 @@ await expect('a learner cannot read the owner test-account list', false, () => g
 await expect('a learner cannot add themselves to the owner test-account list', false, () =>
   setDoc(doc(a.db, 'testUsers', ua.uid), { label: 'me', addedAt: 1 }));
 await expect('a learner cannot list the owner test accounts', false, () => getDocs(collection(a.db, 'testUsers')));
+// Product analytics: write-only counters and scrubbed errors
+const dayDoc = (uid) => doc(a.db, 'analyticsDaily', `${today}_${uid}`);
+const dayData = (uid, counts) => ({ uid, day: today, gradeId: 'grade-3', counts });
+await expect('a learner can write their own analytics counters', true, () =>
+  setDoc(dayDoc(ua.uid), dayData(ua.uid, { session_start: increment(1) }), { merge: true }));
+await expect('a learner cannot write analytics under another uid', false, () =>
+  setDoc(doc(a.db, 'analyticsDaily', `${today}_${ub.uid}`), dayData(ub.uid, { session_start: increment(1) }), { merge: true }));
+await expect('an analytics counter outside the allow-list is rejected', false, () =>
+  setDoc(dayDoc(ua.uid), dayData(ua.uid, { typed_text: increment(1) }), { merge: true }));
+await expect('an analytics document with an extra field is rejected', false, () =>
+  setDoc(dayDoc(ua.uid), { ...dayData(ua.uid, { session_start: increment(1) }), name: 'Dana' }, { merge: true }));
+await expect('a learner cannot read analytics counters', false, () => getDoc(dayDoc(ua.uid)));
+await expect('a learner can report a scrubbed client error', true, () =>
+  setDoc(doc(a.db, 'clientErrors', `${today}_abc`),
+    { day: today, message: 'boom', stack: '', source: 'render', appVersion: 'test', count: increment(1), lastSeen: serverTimestamp() }, { merge: true }));
+await expect('an oversized client error message is rejected', false, () =>
+  setDoc(doc(a.db, 'clientErrors', `${today}_abd`),
+    { day: today, message: 'x'.repeat(500), stack: '', source: 'render', appVersion: 'test', count: increment(1), lastSeen: serverTimestamp() }, { merge: true }));
+await expect('a learner cannot read client errors', false, () => getDoc(doc(a.db, 'clientErrors', `${today}_abc`)));
 await deleteDoc(doc(b.db, 'parentLinks', linkId)).catch(() => {});
 for (const path of [`entitlements/${ua.uid}`, `subscriptions/${'x'.repeat(32)}`, `checkouts/${'x'.repeat(32)}`]) {
   await fetch(ownerDoc(path), { method: 'DELETE', headers: { Authorization: 'Bearer owner' } }).catch(() => {});

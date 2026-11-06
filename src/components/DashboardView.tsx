@@ -64,6 +64,7 @@ import { ProUpsellContext, type ProUpsellFocus } from './pro/proUpsellContext';
 import { ProUpsellSheet } from './pro/ProUpsellSheet';
 import { FreeMissionsDoneCard } from './pro/FreeMissionsDoneCard';
 import { ScreenLoading } from './ScreenLoading';
+import { trackMissionFinish } from '../services/analytics';
 import { FIRST_TIER_CLEAR_DIAMONDS, getMissionLadder, recordTierStars } from '../data/tierProgress';
 
 const MissionRunner = lazyNamed(() => import('./MissionRunner'), 'MissionRunner');
@@ -231,6 +232,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     isFullReward: boolean;
     isVoiceSkipped: boolean;
   }) => {
+    trackMissionFinish(result.tier, result.starsEarned);
     const legacyLadder = getMissionLadder(profile, result.missionId);
     const { tierStars, isFirstClear } = recordTierStars(
       // A mission played before tiers were tracked keeps its old stars on the preferred tier
