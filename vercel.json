@@ -32,6 +32,9 @@
     },
     "api/owner-test-users.ts": {
       "maxDuration": 15
+    },
+    "api/owner-testers.ts": {
+      "maxDuration": 15
     }
   },
   "crons": [

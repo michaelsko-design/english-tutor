@@ -16,6 +16,7 @@ import {
 import { auth, googleProvider } from '../../services/firebase';
 import { fetchOwnerStats, type OwnerStats } from '../../services/ownerStatsService';
 import { TestAccountsCard } from './TestAccountsCard';
+import { EarlyTestersCard } from './EarlyTestersCard';
 import { UsageCard } from './UsageCard';
 
 type Load =
@@ -773,6 +774,7 @@ const StatsView: React.FC<{ stats: OwnerStats; onTestUsersChanged: () => void }>
       <UsageCard usage={stats.usage} />
 
       {/* Row 4: the owner's test-account list (left out of every number above) */}
+      <EarlyTestersCard />
       <TestAccountsCard onChanged={onTestUsersChanged} />
 
       {/* Footer Info */}

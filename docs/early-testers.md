@@ -20,6 +20,8 @@ $env:APP_ORIGIN = "https://<production-domain>"
 4. Check: a fresh private-window sign-up sees only the invite screen; your daughters still sign in.
 
 ## Inviting a child
+In the owner dashboard (`/?owner`), the **Early testers** card does all of this: type aliases (one per line), pick a cohort and validity, press *Create invites*, then *Copy link* per child. The same card lists every invite (open / used / expired), withdraws an unused one, and locks an account out (*Lock out* deletes `allowed/{uid}` and a comp entitlement). It also shows whether access is open. The launch switch itself stays a script (`setAccess.mjs`) on purpose. The script route still works:
+
 `node scripts/createInvite.mjs noa dana --cohort tester-nov26 --days 14` prints one single-use link per label
 (`<APP_ORIGIN>/?access=CODE`). Send it to the parent only. The child signs up with a username and PIN, the code
 redeems itself, and the account is allowed with a comp Pro entitlement. A used or expired link is useless.
