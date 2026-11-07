@@ -391,6 +391,12 @@ export function App() {
       <AccessGateScreen
         theme={activeTheme}
         onRedeemed={() => {
+          // A fresh start: the refused load and the ended live listener leave no state to untangle
+          // (a reload is also what an allowed account does anyway). Falls back to a retry in tests.
+          if (typeof window.location.reload === 'function' && !import.meta.env.VITEST) {
+            window.location.reload();
+            return;
+          }
           setIsAccessDenied(false);
           retryCloudLoadRef.current?.();
         }}
