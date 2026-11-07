@@ -147,7 +147,11 @@ test.describe('early testers (closed access)', () => {
     await page.getByLabel('ההודעה שלכם').fill('אפשר עוד משחקים?');
     await page.getByRole('button', { name: 'שליחה', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'תודה' })).toBeVisible({ timeout: CLOUD_TIMEOUT_MS });
-    const noteIds = await listDocumentIds('feedback');
+    // Notes are kept after deletion, so earlier runs may have left theirs: find this tester's own
+    const noteIds: string[] = [];
+    for (const id of await listDocumentIds('feedback')) {
+      if ((await readDocument(`feedback/${id}`))?.uid === uid) noteIds.push(id);
+    }
     expect(noteIds).toHaveLength(1);
     expect(await readDocument(`feedback/${noteIds[0]}`)).toMatchObject({ uid, kind: 'idea', text: 'אפשר עוד משחקים?' });
 
