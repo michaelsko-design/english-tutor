@@ -135,6 +135,8 @@ function vendorChunk(id: string): string | undefined {
 }
 
 export default defineConfig(({ mode }) => ({
+  // Release id for error reports: the deployed commit on Vercel (firestore.rules allows up to 20 characters)
+  define: { __APP_VERSION__: JSON.stringify((process.env.VERCEL_GIT_COMMIT_SHA ?? mode).slice(0, 12)) },
   resolve: { alias: { 'emoji-jsx': resolve(__dirname, 'src/emojiJsx') } },
   // The JSX runtime is app source (it reads the icon map): served as is, not pre-bundled as a stale copy
   optimizeDeps: { exclude: ['emoji-jsx/jsx-runtime', 'emoji-jsx/jsx-dev-runtime'] },

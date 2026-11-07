@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeUsageStats, readAnalyticsRows } from './usageStats.js';
+import { computeUsageStats, readAllowedRows, readAnalyticsRows } from './usageStats.js';
 
 const row = (uid: string, day: string, counts: Record<string, number>) => ({ uid, day, counts });
 
@@ -65,6 +65,27 @@ describe('computeUsageStats', () => {
   it('ignores malformed rows', () => {
     expect(readAnalyticsRows([{ fields: { uid: 1, day: 'x' } }, { fields: { uid: 'a', day: '2026-11-06', counts: { session_start: 'n' } } }])).toEqual([
       { uid: 'a', day: '2026-11-06', counts: { session_start: 0 } },
+    ]);
+  });
+
+  it('sums struggle counters and builds one row per invited tester, silent ones included', () => {
+    const stats = computeUsageStats(
+      [
+        row('a', '2026-11-05', { session_start: 1, mission_start: 3, mission_abandon: 2, hint_used: 4, mission_finish: 1 }),
+        row('a', '2026-11-06', { session_start: 1, tts_error: 1 }),
+        row('x', '2026-11-06', { session_start: 1, mission_start: 1 }),
+      ],
+      [],
+      '2026-11-06',
+      readAllowedRows([
+        { id: 'a', fields: { label: 'noa', cohort: 'tester' } },
+        { id: 'b', fields: { label: 'dana', cohort: 'tester' } },
+      ])
+    );
+    expect(stats.struggle).toEqual({ missionStarts: 4, missionAbandons: 2, hintsUsed: 4, ttsErrors: 1 });
+    expect(stats.testers).toEqual([
+      { label: 'noa', cohort: 'tester', daysActive: 2, lastSeen: '2026-11-06', sessions: 2, missions: 1, missionAbandons: 2, hintsUsed: 4, ttsErrors: 1 },
+      { label: 'dana', cohort: 'tester', daysActive: 0, lastSeen: null, sessions: 0, missions: 0, missionAbandons: 0, hintsUsed: 0, ttsErrors: 0 },
     ]);
   });
 });

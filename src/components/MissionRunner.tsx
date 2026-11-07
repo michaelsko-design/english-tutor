@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { ModalPortal } from './ModalPortal';
+import { trackEvent } from '../services/analytics';
 import { useDialog } from '../hooks/useDialog';
 import { toSpeakableText } from '../services/tts/ttsText';
 import { MissionNode } from '../data/curriculum';
@@ -570,7 +571,10 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                 <HintPopover
                   hintHe={attemptedCurrentStep && currentStep.hintAfterWrongHe ? currentStep.hintAfterWrongHe : currentStep.hintHe}
                   isOpen={showHint}
-                  onToggle={setShowHint}
+                  onToggle={(isOpen) => {
+                    if (isOpen && !showHint) trackEvent('hint_used');
+                    setShowHint(isOpen);
+                  }}
                   theme={theme}
                   readsAloud={readsHebrewAloud}
                   translationsLeft={hasWordHelp ? wordReveal.left : undefined}

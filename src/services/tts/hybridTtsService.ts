@@ -27,6 +27,7 @@ import {
   normalizeTtsText,
   toSpeakableText,
 } from './ttsText';
+import { trackEvent } from '../analytics';
 import { measureSpeechBounds, type SpeechBounds } from './silenceTrim';
 import type { SpeakOptions, TextToSpeechService, TtsEngine } from './types';
 
@@ -229,7 +230,11 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
       };
       const stopThis = () => finish(true);
       const onEnded = () => finish(true);
-      const onError = () => finish(hasStarted);
+      const onError = () => {
+        // A clip that never started is a read-aloud failure the learner heard as silence
+        if (!hasStarted) trackEvent('tts_error');
+        finish(hasStarted);
+      };
       const onPlaying = () => {
         if (hasStarted) return;
         hasStarted = true;

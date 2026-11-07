@@ -21,6 +21,7 @@ import { APP_NAME } from '../../config/appInfo';
 import { AppLogo } from '../AppLogo';
 import { AccountPrivacyCard } from './AccountPrivacyCard';
 import { AnalyticsOptOutCard } from './AnalyticsOptOutCard';
+import { FeedbackCard } from './FeedbackCard';
 import { useTrackFeature } from '../../hooks/useTrackFeature';
 import { ParentLinkCard } from './ParentLinkCard';
 import { StreakReminderCard } from './StreakReminderCard';
@@ -324,6 +325,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <ParentLinkCard profile={profile} theme={activeTheme} />
           </div>
           <AnalyticsOptOutCard profile={profile} theme={activeTheme} onProfileChange={onProfileChange} />
+          <FeedbackCard gradeId={profile.gradeId ?? 'unknown'} theme={activeTheme} />
           <div className="space-y-1.5">
             <span className="block text-xs sm:text-sm font-bold">פרטיות וחשבון:</span>
             <AccountPrivacyCard

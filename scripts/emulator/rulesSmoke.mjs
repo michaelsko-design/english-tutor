@@ -318,6 +318,8 @@ await expect('a learner cannot write analytics under another uid', false, () =>
   setDoc(doc(a.db, 'analyticsDaily', `${today}_${ub.uid}`), dayData(ub.uid, { session_start: increment(1) }), { merge: true }));
 await expect('a learner can count a feature open', true, () =>
   setDoc(dayDoc(ua.uid), dayData(ua.uid, { feature_room: increment(1) }), { merge: true }));
+await expect('a learner can count struggle signals', true, () =>
+  setDoc(dayDoc(ua.uid), dayData(ua.uid, { mission_start: increment(1), mission_abandon: increment(1), hint_used: increment(1), tts_error: increment(1) }), { merge: true }));
 await expect('an analytics counter outside the allow-list is rejected', false, () =>
   setDoc(dayDoc(ua.uid), dayData(ua.uid, { typed_text: increment(1) }), { merge: true }));
 await expect('an analytics document with an extra field is rejected', false, () =>
@@ -329,6 +331,13 @@ await expect('a learner can report a scrubbed client error', true, () =>
 await expect('an oversized client error message is rejected', false, () =>
   setDoc(doc(a.db, 'clientErrors', `${today}_abd`),
     { day: today, message: 'x'.repeat(500), stack: '', source: 'render', appVersion: 'test', count: increment(1), lastSeen: serverTimestamp() }, { merge: true }));
+const feedbackNote = (uid, extra = {}) => ({ uid, day: today, kind: 'idea', text: 'more games please', gradeId: 'grade-3', screen: 'settings', appVersion: 'abc123', ...extra });
+await expect('an allowed learner can send a feedback note', true, () => setDoc(doc(a.db, 'feedback', 'note-a1'), feedbackNote(ua.uid)));
+await expect('a feedback note under another uid is rejected', false, () => setDoc(doc(a.db, 'feedback', 'note-a2'), feedbackNote(ub.uid)));
+await expect('an oversized feedback note is rejected', false, () => setDoc(doc(a.db, 'feedback', 'note-a3'), feedbackNote(ua.uid, { text: 'x'.repeat(501) })));
+await expect('a feedback note with an extra field is rejected', false, () => setDoc(doc(a.db, 'feedback', 'note-a4'), feedbackNote(ua.uid, { name: 'Dana' })));
+await expect('a learner cannot read feedback notes', false, () => getDoc(doc(a.db, 'feedback', 'note-a1')));
+await expect('a learner cannot edit a sent feedback note', false, () => setDoc(doc(a.db, 'feedback', 'note-a1'), feedbackNote(ua.uid, { text: 'changed' })));
 await expect('a learner cannot read client errors', false, () => getDoc(doc(a.db, 'clientErrors', `${today}_abc`)));
 await deleteDoc(doc(b.db, 'parentLinks', linkId)).catch(() => {});
 for (const path of [`entitlements/${ua.uid}`, `subscriptions/${'x'.repeat(32)}`, `checkouts/${'x'.repeat(32)}`]) {
@@ -550,6 +559,8 @@ const uninvitedProfile = { name: 'Eve', updatedAt: nowIso() };
 await expect('an uninvited account cannot read its learner document', false, () => getDoc(doc(e.db, 'learners', ue.uid)));
 await expect('an uninvited account cannot create its learner document', false, () =>
   setDoc(doc(e.db, 'learners', ue.uid), uninvitedProfile));
+await expect('an uninvited account cannot send feedback', false, () =>
+  setDoc(doc(e.db, 'feedback', 'note-e1'), { uid: ue.uid, day: today, kind: 'idea', text: 'hi', gradeId: 'grade-3', screen: 'settings', appVersion: 'abc' }));
 await expect('an uninvited account cannot write analytics', false, () =>
   setDoc(doc(e.db, 'analyticsDaily', `${today}_${ue.uid}`), { uid: ue.uid, day: today, gradeId: 'grade-3', counts: { session_start: 1 } }));
 await expect('an uninvited account cannot report client errors', false, () =>

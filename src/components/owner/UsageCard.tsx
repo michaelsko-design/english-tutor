@@ -79,6 +79,47 @@ export const UsageCard: React.FC<{ usage: OwnerStats['usage'] }> = ({ usage }) =
         {missionsByTier.master} ({tierTotal} total)
       </p>
 
+      {usage.struggle && (
+        <p className={`mt-4 ${MUTED}`}>
+          Struggle signals: {usage.struggle.missionStarts} missions started, {usage.struggle.missionAbandons} abandoned,{' '}
+          {usage.struggle.hintsUsed} hints opened, {usage.struggle.ttsErrors} read-aloud failures
+        </p>
+      )}
+
+      {usage.testers && usage.testers.length > 0 && (
+        <>
+          <h3 className="mt-4 text-xs font-bold text-slate-900 dark:text-white">Early testers</h3>
+          <div className="overflow-x-auto">
+            <table className="mt-1 w-full text-left text-xs text-slate-700 dark:text-slate-300">
+              <thead className={MUTED}>
+                <tr>
+                  <th className="pr-2 font-medium">Tester</th>
+                  <th className="pr-2 font-medium">Days</th>
+                  <th className="pr-2 font-medium">Last seen</th>
+                  <th className="pr-2 font-medium">Missions</th>
+                  <th className="pr-2 font-medium">Abandoned</th>
+                  <th className="pr-2 font-medium">Hints</th>
+                  <th className="font-medium">Audio errors</th>
+                </tr>
+              </thead>
+              <tbody className="tabular-nums">
+                {usage.testers.map((tester) => (
+                  <tr key={`${tester.cohort}|${tester.label}`}>
+                    <td className="pr-2 font-bold" dir="ltr">{tester.label}</td>
+                    <td className="pr-2">{tester.daysActive}</td>
+                    <td className="pr-2">{tester.lastSeen ?? 'never'}</td>
+                    <td className="pr-2">{tester.missions}</td>
+                    <td className="pr-2">{tester.missionAbandons}</td>
+                    <td className="pr-2">{tester.hintsUsed}</td>
+                    <td>{tester.ttsErrors}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
       <h3 className="mt-4 text-xs font-bold text-slate-900 dark:text-white">Features opened (learners)</h3>
       {features.length === 0 ? (
         <p className={MUTED}>No feature opens yet.</p>
@@ -91,6 +132,22 @@ export const UsageCard: React.FC<{ usage: OwnerStats['usage'] }> = ({ usage }) =
             </li>
           ))}
         </ul>
+      )}
+
+      {usage.feedback && usage.feedback.length > 0 && (
+        <>
+          <h3 className="mt-4 text-xs font-bold text-slate-900 dark:text-white">Tester notes</h3>
+          <ul className="mt-1 space-y-2">
+            {usage.feedback.map((note, index) => (
+              <li key={`${note.day}|${note.tester}|${index}`} className="text-xs text-slate-700 dark:text-slate-300">
+                <span className={MUTED} dir="ltr">
+                  {note.day} · {note.tester} · {note.kind} · grade {note.gradeId} · {note.appVersion}
+                </span>
+                <p className="break-words" dir="auto">{note.text}</p>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
       <h3 className="mt-4 text-xs font-bold text-slate-900 dark:text-white">Errors</h3>

@@ -8,6 +8,9 @@ import type { AnalyticsEvent } from './events';
 /** Off in unit tests (tests mock Firestore) and when Firebase is not configured */
 const isEnabled = (): boolean => isFirebaseConfigured && !import.meta.env.VITEST;
 
+/** The build's commit id (the mode where the define is missing, e.g. a tool that skips vite.config) */
+export const APP_VERSION: string = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : import.meta.env.MODE;
+
 const analytics = createAnalytics({
   getDb: () => (isEnabled() ? db : null),
   today: () => toLocalDateStr(new Date()),
@@ -19,7 +22,7 @@ const reportError = createErrorReporter({
   getDb: () => (isEnabled() ? db : null),
   getUid: () => currentUid,
   today: () => toLocalDateStr(new Date()),
-  appVersion: import.meta.env.MODE,
+  appVersion: APP_VERSION,
 });
 
 export const trackEvent = (name: AnalyticsEvent): void => analytics.track(name);

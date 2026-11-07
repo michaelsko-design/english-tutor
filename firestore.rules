@@ -556,10 +556,28 @@ service cloud.firestore {
           'session_start', 'onboarding_done', 'placement_done', 'mission_finish',
           'mission_finish_tier_explorer', 'mission_finish_tier_challenger',
           'mission_finish_tier_master', 'mission_three_stars',
+          'mission_start', 'mission_abandon', 'hint_used', 'tts_error',
           'feature_exam_prep', 'feature_word_lists', 'feature_friends', 'feature_progress_report',
           'feature_room', 'feature_shop', 'feature_settings'])
         && request.resource.data.counts.get('session_start', 0) <= 1000000
         && request.resource.data.counts.get('mission_finish', 0) <= 1000000;
+    }
+
+    // Early testers' "report a problem / idea" notes: written by the app, read only by the owner API
+    match /feedback/{docId} {
+      allow read, update, delete: if false;
+      allow create: if request.auth != null
+        && isAllowed()
+        && request.resource.data.keys().hasOnly(['uid', 'day', 'kind', 'text', 'gradeId', 'screen', 'appVersion'])
+        && request.resource.data.uid == request.auth.uid
+        && isNearToday(request.resource.data.day)
+        && request.resource.data.kind in ['problem', 'idea']
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 500
+        && isShortString(request.resource.data.gradeId, 20)
+        && isShortString(request.resource.data.screen, 30)
+        && request.resource.data.appVersion.size() <= 20;
     }
 
     match /clientErrors/{docId} {

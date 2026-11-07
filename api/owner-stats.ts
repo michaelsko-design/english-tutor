@@ -7,7 +7,7 @@ import { createFirestoreAdmin } from './_lib/firestoreAdmin.js';
 import { AdminError, createAuthAdmin } from './_lib/googleAdmin.js';
 import { authenticateOwner } from './_lib/ownerRequest.js';
 import { errorResponse, jsonResponse, type ParentRequestDeps } from './_lib/parentRequest.js';
-import { computeUsageStats, readAnalyticsRows, readClientErrorRows } from './_lib/usageStats.js';
+import { computeUsageStats, readAllowedRows, readAnalyticsRows, readClientErrorRows, readFeedbackRows } from './_lib/usageStats.js';
 import { computeOwnerStats, israelDateStr, proChildUidsFrom, withoutTestUsers, type LearnerRow } from './_lib/ownerStats.js';
 
 const LEARNER_FIELDS = ['gradeId', 'isOnboarded', 'activityLog'] as const;
@@ -39,18 +39,23 @@ export async function handleOwnerStatsRequest(
     const learners: LearnerRow[] = withoutTestUsers(await admin.listFieldsOf('learners', LEARNER_FIELDS), testUids, uidOf);
     const entitlements = withoutTestUsers(await admin.listFieldsOf('entitlements', ['status', 'periodEnd']), testUids, uidOf);
     const anonymousUids = await findAnonymousUids(learners.map((row) => row.id));
-    const [links, sends, subscriptions, analyticsDocs, errorDocs] = await Promise.all([
+    const [links, sends, subscriptions, analyticsDocs, errorDocs, allowedDocs, feedbackDocs] = await Promise.all([
       admin.listFieldsOf('parentLinks', ['parentUid', 'childUid']),
       admin.listFieldsOf('reminderSends', ['uid', 'dateStr', 'kind']),
       admin.listFieldsOf('pushSubscriptions', ['streakDays']),
       admin.listFieldsOf('analyticsDaily', ['uid', 'day', 'counts']),
       admin.listFieldsOf('clientErrors', ['day', 'message', 'source', 'count']),
+      admin.listFieldsOf('allowed', ['label', 'cohort']),
+      admin.listFieldsOf('feedback', ['uid', 'day', 'kind', 'text', 'gradeId', 'appVersion']),
     ]);
     const todayStr = israelDateStr(now);
+    const allowedRows = readAllowedRows(withoutTestUsers(allowedDocs, testUids, uidOf));
     const usage = computeUsageStats(
       readAnalyticsRows(withoutTestUsers(analyticsDocs, testUids, ({ fields }) => [String(fields.uid)])),
       readClientErrorRows(errorDocs),
-      todayStr
+      todayStr,
+      allowedRows,
+      readFeedbackRows(feedbackDocs, allowedRows)
     );
     const stats = computeOwnerStats({
       excludedTestUsers: testUids.size,

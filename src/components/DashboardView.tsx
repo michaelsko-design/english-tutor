@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { EmojiIcon } from './art/EmojiIcon';
 import {
   AuthUserSummary,
@@ -65,7 +65,7 @@ import { ProUpsellContext, type ProUpsellFocus } from './pro/proUpsellContext';
 import { ProUpsellSheet } from './pro/ProUpsellSheet';
 import { FreeMissionsDoneCard } from './pro/FreeMissionsDoneCard';
 import { ScreenLoading } from './ScreenLoading';
-import { trackMissionFinish } from '../services/analytics';
+import { trackEvent, trackMissionFinish } from '../services/analytics';
 import { useTrackFeature } from '../hooks/useTrackFeature';
 import { FIRST_TIER_CLEAR_DIAMONDS, getMissionLadder, recordTierStars } from '../data/tierProgress';
 
@@ -224,6 +224,15 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   const handleLaunchMission = (mission: MissionNode, isFromMap = false) => {
     setIsMissionFromMap(isFromMap);
     setActivePracticeMission(mission);
+    isMissionFinishedRef.current = false;
+    trackEvent('mission_start');
+  };
+  // Closing a mission before it finished counts as an abandon (where learners get stuck)
+  const isMissionFinishedRef = useRef(false);
+  const handleCloseMission = () => {
+    if (!isMissionFinishedRef.current) trackEvent('mission_abandon');
+    isMissionFinishedRef.current = true;
+    setActivePracticeMission(null);
   };
 
   const handleCompleteMission = (result: {
@@ -236,6 +245,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     isFullReward: boolean;
     isVoiceSkipped: boolean;
   }) => {
+    isMissionFinishedRef.current = true;
     trackMissionFinish(result.tier, result.starsEarned);
     const legacyLadder = getMissionLadder(profile, result.missionId);
     const { tierStars, isFirstClear } = recordTierStars(
@@ -656,7 +666,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             onQueueEnglish={queueEnglish}
             ladder={getMissionLadder(profile, activePracticeMission.id)}
             onCompleteMission={handleCompleteMission}
-            onClose={() => setActivePracticeMission(null)}
+            onClose={handleCloseMission}
             roomRewardPreview={
               (profile.missionProgress?.[activePracticeMission.id] || 0) < 3 ? getNextRoomReward(profile) : null
             }
