@@ -82,4 +82,12 @@ describe('migrateAndSyncProfileOnLogin', () => {
     expect(firestore.runTransaction).not.toHaveBeenCalled();
     expect(firestore.setDoc).not.toHaveBeenCalled();
   });
+
+  it('does not open from a cached profile when the server refuses the account (locked out)', async () => {
+    firestore.getDocFromServer.mockRejectedValue(Object.assign(new Error('denied'), { code: 'permission-denied' }));
+    firestore.getDocFromCache.mockResolvedValue(snapshot(true, { isOnboarded: true } as Partial<LearnerProfile>));
+
+    await expect(migrateAndSyncProfileOnLogin('u1', freshDefault)).rejects.toMatchObject({ code: 'permission-denied' });
+    expect(firestore.getDocFromCache).not.toHaveBeenCalled();
+  });
 });

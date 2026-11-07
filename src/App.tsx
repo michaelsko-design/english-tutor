@@ -215,7 +215,8 @@ export function App() {
       if (!isCurrent()) return;
 
       // 2. Real-time cross-device sync via Firestore onSnapshot
-      if (db) {
+      const startListener = () => {
+        if (!db || unsubscribeSnapshot) return;
         const learnerDocRef = doc(db, 'learners', firebaseUser.uid);
         unsubscribeSnapshot = onSnapshot(
           learnerDocRef,
@@ -234,11 +235,24 @@ export function App() {
             // server has them
             setSyncStatus(snapshot.metadata.hasPendingWrites ? 'syncing' : 'synced');
           },
-          () => {
-            if (isCurrent()) setSyncStatus('offline-error');
+          (error) => {
+            if (!isCurrent()) return;
+            if (isAccessDeniedError(error)) {
+              // The account was locked out while the app was open: stop saving and show the invite screen
+              unsubscribeSnapshot?.();
+              unsubscribeSnapshot = null;
+              isCloudLoadedRef.current = false;
+              setIsAccessDenied(true);
+              setSyncStatus('local-only');
+              return;
+            }
+            setSyncStatus('offline-error');
           }
         );
-      }
+      };
+      // After a successful invite redeem the listener (ended by the refusal) starts again
+      retryCloudLoadRef.current = () => void loadCloudProfile().then(() => startListener());
+      startListener();
     });
 
     return () => {

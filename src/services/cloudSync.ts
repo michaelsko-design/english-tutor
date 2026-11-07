@@ -574,12 +574,15 @@ export function buildLoginProfile(
 /**
  * The learner's document for sign-in. It comes from the server: a cache cleared (or filled by an
  * older session) must never answer "no profile". Offline, a cached copy that exists still opens
- * the app; with nothing cached the error reaches the retry screen.
+ * the app; with nothing cached the error reaches the retry screen. A permission refusal (an account
+ * that is not, or no longer, allowed) always reaches the caller.
  */
 async function readLoginSnapshot(docRef: DocumentReference) {
   try {
     return await getDocFromServer(docRef);
   } catch (error) {
+    // A refusal is not an outage: a locked-out account must not open on a copy cached earlier
+    if ((error as { code?: unknown })?.code === 'permission-denied') throw error;
     const cached = await getDocFromCache(docRef).catch(() => null);
     if (cached?.exists()) return cached;
     throw error;
