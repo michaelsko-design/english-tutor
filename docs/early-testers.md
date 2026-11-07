@@ -49,6 +49,60 @@ message to parents should say: what the test is, what is collected, how to opt o
 usage statistics*), how to delete the account, and a contact address. (Draft the Hebrew WhatsApp text before the
 first invites go out; it is still an open item, see `backlog.md`.)
 
+## Invite message drafts (Hebrew WhatsApp, to the parent)
+Placeholders in square brackets. Aliases only, never a full name.
+
+### Short version (close friends, current phase)
+```
+היי [שם]! 👋
+אני מריץ בדיקה סגורה של EnglishVibe, אפליקציה ללימוד אנגלית לילדים בעברית, וזה הקישור האישי של [שם הילד/ה]:
+[קישור]
+
+הקישור חד־פעמי ותקף 14 יום, כדאי לפתוח אותו במכשיר של הילד/ה.
+• בוחרים שם משתמש וקוד סודי, ו*חשוב לרשום אותם*, אי אפשר לשחזר אוטומטית.
+• מומלץ לחבר חשבון גוגל של ההורה (באזור ההורים) כדי שאפשר יהיה לאפס את הקוד.
+• כדאי להוסיף למסך הבית מתפריט הדפדפן.
+
+אני רואה נתוני שימוש כלליים (בלי שם מלא ובלי מה שהילד/ה כותב/ת), ואפשר לכבות את זה בהגדרות או למחוק את החשבון בכל רגע.
+כל הערה, תקלה או רעיון אפשר לכתוב לי כאן, וגם מתוך האפליקציה בהגדרות. תודה! 🙏
+```
+
+### Full version with consent wording (for people outside close friends; needs the lawyer review first)
+```
+היי [שם ההורה] 👋
+
+תודה שהסכמת לעזור! EnglishVibe היא אפליקציה ללימוד אנגלית לילדים בכיתות א׳–י״ב, בעברית, עם משימות ומשחקים. היא עדיין בשלב בדיקה סגור, ורק ילדים שהוזמנו יכולים להשתמש בה. המטרה היא לראות איך ילדים אמיתיים משתמשים בה ולתקן מה שלא עובד.
+
+🔗 הקישור האישי של [שם הילד/ה]:
+[קישור]
+הקישור הוא לשימוש חד־פעמי ותקף ל־14 יום. אפשר לפתוח אותו במכשיר של הילד/ה (טלפון או טאבלט) ולא להעביר הלאה.
+
+📝 איך נכנסים:
+1. פותחים את הקישור ובוחרים שם משתמש וקוד סודי (PIN).
+2. חשוב: לרשום את שם המשתמש והקוד במקום בטוח. אי אפשר לשחזר אותם אוטומטית.
+3. מומלץ מאוד לחבר גם חשבון גוגל של ההורה (באזור ההורים באפליקציה). כך אפשר לאפס את הקוד אם נשכח.
+4. כדאי להוסיף את האפליקציה למסך הבית: בתפריט הדפדפן בוחרים "הוספה למסך הבית".
+
+🔒 מה נאסף, בקצרה:
+• התקדמות הלימוד של הילד/ה (משימות, כוכבים, זמן שימוש).
+• מוני שימוש ודיווחי תקלות. הם מקושרים לחשבון, ללא שם מלא וללא תוכן שהילד/ה כותב.
+• הערות שהילד/ה בוחר/ת לשלוח בכפתור "הערה" בהגדרות.
+אנחנו לא שולחים מידע לגורמים אחרים ולא מפרסמים אותו.
+
+⚙️ אתם בשליטה:
+• אפשר לכבות את איסוף הסטטיסטיקות בהגדרות ← חשבון ← "סטטיסטיקות שימוש".
+• אפשר למחוק את החשבון בכל רגע בהגדרות. ההתקדמות והנתונים נמחקים. הערות שנשלחו נשמרות אצלנו בלי קישור לחשבון, ושם הכינוי שלכם בהזמנה נשאר איתן.
+• אם אתם ממשיכים, אתם מאשרים שאתם ההורים או האפוטרופוסים של הילד/ה, ושקראתם את הפרטים האלה.
+
+💬 לשאלות, תקלות או רעיונות, אפשר לכתוב לי כאן או ל־[מייל/טלפון].
+ממש יעזור לראות את הילד/ה משתמש/ת בפעם הראשונה ולשמוע מה היה קשה או מבלבל.
+
+תודה רבה! 🙏
+[השם שלך]
+```
+Note: the app has no parent consent screen before sign-up, so the consent sentence lives in the message itself.
+If the owner decides not to keep notes after deletion, remove that sentence from the full version.
+
 ## Go-live order that was used (do not swap steps 1-3)
 1. `node scripts/allowExisting.mjs` lists every account. Then `--all --cohort existing` (every account that exists
    now, guests included) or name some: `--apply <username> <username> --cohort family`. Unnamed accounts are
