@@ -10,6 +10,19 @@ export interface OnboardingChoices {
   age: number;
 }
 
+const NAVIGATION_TIMEOUT_MS = 60_000;
+
+/** Opens a page; the first load can time out while the dev server compiles under load, so it retries once. */
+async function openPage(page: Page, url: string): Promise<void> {
+  const options = { waitUntil: 'domcontentloaded', timeout: NAVIGATION_TIMEOUT_MS } as const;
+  try {
+    await page.goto(url, options);
+  } catch (error) {
+    if (!(error instanceof Error) || !error.message.includes('Timeout')) throw error;
+    await page.goto(url, options);
+  }
+}
+
 async function submitAuthForm(page: Page, learner: TestLearner, mode: 'login' | 'register') {
   const gate = page.getByRole('dialog', { name: 'התחברות' });
   await gate.getByRole('button', { name: mode === 'register' ? /חדש\/ה כאן/ : /כבר רשום\/ה/ }).click();
@@ -20,13 +33,13 @@ async function submitAuthForm(page: Page, learner: TestLearner, mode: 'login' | 
 
 /** Opens a new account from the sign-in gate (`url` is where the page starts, e.g. an invite link). */
 export async function register(page: Page, learner: TestLearner, url = '/'): Promise<void> {
-  await page.goto(url);
+  await openPage(page, url);
   await submitAuthForm(page, learner, 'register');
 }
 
 /** Signs an existing account in from the sign-in gate. */
 export async function signIn(page: Page, learner: TestLearner, url = '/'): Promise<void> {
-  await page.goto(url);
+  await openPage(page, url);
   await submitAuthForm(page, learner, 'login');
 }
 

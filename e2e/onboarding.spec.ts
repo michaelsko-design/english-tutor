@@ -24,7 +24,8 @@ test.describe('onboarding', () => {
     await expect(page.getByText(/ברוך הבא/)).toBeVisible({ timeout: 20_000 });
     await skipFirstLaunch(page);
     await expectDashboard(page);
-    await expect(page.getByText(/כיתה א׳/).first()).toBeVisible();
+    // The grade label sits in the map peek, which wide screens hide; the map itself is always there
+    await expect(page.locator('#mission-map')).toBeVisible();
 
     const uid = await findUid(learner.username);
     await expect
