@@ -11,6 +11,14 @@
 
 ### UI
 
+### Early-tester phase (closed access is live; runbook and public-launch checklist: `docs/early-testers.md`)
+- [ ] **Parent consent text and Hebrew WhatsApp invite message** - Must say: what the test is and what is collected, write down the username and PIN, link a parent Google account (PIN reset), how to opt out and delete the account, a contact address.
+- [ ] **Lawyer review of the privacy text** - Including the new wording: tester notes and the used-invite record are kept after account deletion, without an account link.
+- [ ] **Delete the 2 test accounts** - New invite, sign in, Settings > delete (deleting only in the Firebase console leaves rows behind).
+- [ ] **"Remove tester completely" dashboard button** (optional) - Deletes the Auth account and all data, also for locked-out accounts.
+- [ ] **Public launch** - Follow "Public launch: full deployment checklist" in `docs/early-testers.md` (`setAccess.mjs --open`, remove `noindex` and the robots `Disallow`, App Check enforce, decide comp Pro, legal).
+- [ ] **E2E upkeep** - `onboarding.spec` has a stale `כיתה א׳` selector (fails on older commits too); `account-deletion` can time out on its first `page.goto` under load.
+
 ### Technical
 
 - [ ] **Delete the unused Vercel Blob store `english-tutor-blob`** (on or after 2026-11-21) - The store (team `clear-shield`, created 2026-10-22, 191 MB, an early try at hosting the read-aloud clips before the move to R2) hit the Hobby limit of 2,000 advanced operations (9.2k used) and is paused until 2026-11-21. Nothing in the app uses it; the `BLOB_*` env vars were removed from Vercel and `.env.local` on 2026-11-05. The dashboard cannot delete it ("too large to delete in the UI"). Steps: confirm R2 has every clip (`npm run tts:upload -- --dry-run`), empty the store with a throwaway script that lists and deletes blobs with `@vercel/blob` (needs a read-write token from the store's settings, and `@vercel/blob` installed outside the repo), then press Delete Store. Optional: it costs nothing while under the free limits.
