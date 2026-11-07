@@ -130,6 +130,7 @@ beforeEach(() => {
   firebaseMock.signInWithPopup.mockReset();
   firebaseMock.signOut.mockReset();
   mockFetchOwnerStats.mockReset();
+  window.history.replaceState(null, '', window.location.pathname);
 });
 
 describe('OwnerDashboard', () => {
@@ -152,54 +153,99 @@ describe('OwnerDashboard', () => {
     expect(firebaseMock.signInWithPopup).toHaveBeenCalledTimes(1);
   });
 
-  it('renders executive command center when authenticated as Google user', async () => {
+  async function renderReady() {
     mockFetchOwnerStats.mockResolvedValue({ ok: true, stats: mockStats });
-
     render(<OwnerDashboard />);
     firebaseMock.listener?.(mockGoogleUser);
-
     expect(await screen.findByText('EnglishVibe · Owner Command')).toBeInTheDocument();
+    await screen.findByRole('tablist');
+  }
+
+  it('opens on the Overview tab with KPIs and the activity chart', async () => {
+    await renderReady();
     expect(screen.getByText('Live Aggregates')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true');
 
-    // Check KPI cards
     expect(screen.getAllByText('Total Learners')[0]).toBeInTheDocument();
-    expect(screen.getByText('120')).toBeInTheDocument(); // registered
+    expect(screen.getByText('120')).toBeInTheDocument();
     expect(screen.getByText('30 guests')).toBeInTheDocument();
-
     expect(screen.getByText('Pro Subscribers')).toBeInTheDocument();
-    expect(screen.getAllByText('24')[0]).toBeInTheDocument(); // pro count
     expect(screen.getByText('20% of registered')).toBeInTheDocument();
-
-    expect(screen.getAllByText('Active Learners')[0]).toBeInTheDocument();
-    expect(screen.getByText('85')).toBeInTheDocument(); // WAU last 7d
-
-    // Check 14-day activity chart
+    expect(screen.getByText('85')).toBeInTheDocument();
     expect(screen.getByText('Daily Learning Activity')).toBeInTheDocument();
     expect(screen.getByText('14-Day Missions:')).toBeInTheDocument();
-    expect(screen.getByText('175')).toBeInTheDocument(); // 45 + 35 + 95
+    expect(screen.getByText('175')).toBeInTheDocument();
 
-    // Check Streak reminder engine
+    // Other tabs' content is not rendered
+    expect(screen.queryByText('Learners by Grade')).not.toBeInTheDocument();
+    expect(screen.getByText(/2 test accounts excluded/)).toBeInTheDocument();
+  });
+
+  it('shows grades and families on the Learners tab', async () => {
+    await renderReady();
+    fireEvent.click(screen.getByRole('tab', { name: 'Learners' }));
+
+    expect(screen.getByText('Learners by Grade')).toBeInTheDocument();
+    expect(screen.getByText('Grade 1')).toBeInTheDocument();
+    expect(screen.getByText('Grade 3')).toBeInTheDocument();
+    expect(screen.getByText('Top Velocity: Grade 2')).toBeInTheDocument();
+    expect(screen.getByText('Family & Parent Ecosystem')).toBeInTheDocument();
+    expect(screen.getByText('18')).toBeInTheDocument();
+    expect(screen.getByText('1.39')).toBeInTheDocument();
+  });
+
+  it('shows the reminder engine on the Engagement tab', async () => {
+    await renderReady();
+    fireEvent.click(screen.getByRole('tab', { name: 'Engagement' }));
+
     expect(screen.getByText('Streak Reminder Engine')).toBeInTheDocument();
-    expect(screen.getByText('40%')).toBeInTheDocument(); // 44 / 110
+    expect(screen.getByText('40%')).toBeInTheDocument();
     expect(screen.getByText('Rescue Rate')).toBeInTheDocument();
     expect(screen.getByText('Keep your streak')).toBeInTheDocument();
     expect(screen.getByText('Come back')).toBeInTheDocument();
+  });
 
-    // Check Curriculum by Grade
+  it('shows the tester lists on the Testers tab', async () => {
+    await renderReady();
+    fireEvent.click(screen.getByRole('tab', { name: 'Testers' }));
+
+    expect(await screen.findByRole('heading', { name: /^Test accounts/ })).toBeInTheDocument();
+    expect(window.location.hash).toBe('#testers');
+  });
+
+  it('opens the tab named in the URL hash', async () => {
+    window.location.hash = '#learners';
+    await renderReady();
+    expect(screen.getByRole('tab', { name: 'Learners' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('Learners by Grade')).toBeInTheDocument();
-    expect(screen.getByText('Grade 1')).toBeInTheDocument();
-    expect(screen.getByText('Grade 2')).toBeInTheDocument();
-    expect(screen.getByText('Grade 3')).toBeInTheDocument();
-    expect(screen.getByText('Top Velocity: Grade 2')).toBeInTheDocument();
+  });
 
-    // Check Family & Parent Ecosystem
-    expect(screen.getByText('Family & Parent Ecosystem')).toBeInTheDocument();
-    expect(screen.getByText('18')).toBeInTheDocument(); // withChildren
-    expect(screen.getByText('1.39')).toBeInTheDocument(); // avgKidsPerParent
+  it('falls back to Overview for an unknown hash', async () => {
+    window.location.hash = '#nonsense';
+    await renderReady();
+    expect(screen.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true');
+  });
 
-    // Test accounts are listed apart and the footer says how many were left out
-    expect(screen.getByRole('heading', { name: /^Test accounts/ })).toBeInTheDocument();
-    expect(screen.getByText(/2 test accounts excluded/)).toBeInTheDocument();
+  it('moves between tabs with the arrow keys', async () => {
+    await renderReady();
+    const overview = screen.getByRole('tab', { name: 'Overview' });
+    fireEvent.keyDown(overview, { key: 'ArrowRight' });
+    expect(screen.getByRole('tab', { name: 'Learners' })).toHaveAttribute('aria-selected', 'true');
+    fireEvent.keyDown(screen.getByRole('tab', { name: 'Learners' }), { key: 'ArrowLeft' });
+    expect(screen.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('pins the header, with Refresh inside it, and keeps the tab after refreshing', async () => {
+    await renderReady();
+    const header = screen.getByTestId('owner-header');
+    expect(header.className).toContain('sticky');
+    expect(header).toContainElement(screen.getByRole('button', { name: /Refresh/i }));
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Learners' }));
+    fireEvent.click(screen.getByRole('button', { name: /Refresh/i }));
+    await waitFor(() => expect(mockFetchOwnerStats).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole('tab', { name: 'Learners' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByText('Learners by Grade')).toBeInTheDocument();
   });
 
   it('allows manual refresh', async () => {
