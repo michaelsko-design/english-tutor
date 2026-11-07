@@ -430,6 +430,14 @@ describe('parent account marker', () => {
     expect(await hasLearnerProfile('parent-1')).toBe(false);
   });
 
+  it('treats a refused learner read (account not allowed while access is closed) as no learner profile', async () => {
+    firestore.getDoc.mockRejectedValueOnce(Object.assign(new Error('denied'), { code: 'permission-denied' }));
+    expect(await hasLearnerProfile('parent-1')).toBe(false);
+
+    firestore.getDoc.mockRejectedValueOnce(Object.assign(new Error('offline'), { code: 'unavailable' }));
+    await expect(hasLearnerProfile('parent-1')).rejects.toThrow('offline');
+  });
+
   it('is inert without a database', async () => {
     firebase.db = null;
 

@@ -33,7 +33,7 @@ function ttsApiDevPlugin(env: Record<string, string>): Plugin {
   };
 }
 
-const DEV_PAYMENT_PATHS = ['/api/checkout', '/api/subscription', '/api/mock-pay'];
+const DEV_PAYMENT_PATHS = ['/api/checkout', '/api/subscription', '/api/mock-pay', '/api/redeem-invite', '/api/erase-account-data'];
 const MAX_DEV_BODY_BYTES = 8 * 1024;
 
 /**

@@ -6,6 +6,8 @@
  * - `/api/mock-pay {checkoutId}` stands in for the gateway's "paid" call to /api/payment-webhook.
  */
 import { handleCheckoutRequest } from '../checkout.js';
+import { handleEraseAccountDataRequest } from '../erase-account-data.js';
+import { handleRedeemInviteRequest } from '../redeem-invite.js';
 import { handlePaymentWebhook } from '../payment-webhook.js';
 import { handleSubscriptionRequest } from '../subscription.js';
 import { errorResponse, readJsonBody } from './parentRequest.js';
@@ -108,6 +110,9 @@ export async function handleDevPaymentsRequest(path: string, request: Request, c
   const deps = { fetchImpl, verifyToken: verifyEmulatorToken };
   if (path === '/api/checkout') return handleCheckoutRequest(request, env, deps);
   if (path === '/api/subscription') return handleSubscriptionRequest(request, env, deps);
+  // Closed early-tester phase: the invite redeem and the account-deletion cleanup
+  if (path === '/api/redeem-invite') return handleRedeemInviteRequest(request, env, deps);
+  if (path === '/api/erase-account-data') return handleEraseAccountDataRequest(request, env, deps);
   if (path === '/api/mock-pay' && request.method === 'POST') return payMockCheckout(request, env, fetchImpl);
   return null;
 }

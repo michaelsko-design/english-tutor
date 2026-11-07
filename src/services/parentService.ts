@@ -154,10 +154,19 @@ export async function isParentAccount(uid: string): Promise<boolean> {
   return (await getDoc(doc(db, 'parents', uid))).exists();
 }
 
-/** Whether the account has a learner profile, so it can't also be a parent account. */
+/**
+ * Whether the account has a learner profile, so it can't also be a parent account. While access is
+ * closed (early testers), the rules refuse this read to an account that is not allowed: such an
+ * account has no usable learner profile, so a parent's Google account is not blocked by it.
+ */
 export async function hasLearnerProfile(uid: string): Promise<boolean> {
   if (!db) return false;
-  return (await getDoc(doc(db, 'learners', uid))).exists();
+  try {
+    return (await getDoc(doc(db, 'learners', uid))).exists();
+  } catch (error) {
+    if ((error as { code?: unknown })?.code === 'permission-denied') return false;
+    throw error;
+  }
 }
 
 /** A parent claims a code: the link is created and the one-time code deleted in the same write. */

@@ -18,15 +18,15 @@ async function submitAuthForm(page: Page, learner: TestLearner, mode: 'login' | 
   await gate.getByRole('button', { name: mode === 'register' ? /יצירת חשבון/ : /התחברות וסנכרון/ }).click();
 }
 
-/** Opens a new account from the sign-in gate. */
-export async function register(page: Page, learner: TestLearner): Promise<void> {
-  await page.goto('/');
+/** Opens a new account from the sign-in gate (`url` is where the page starts, e.g. an invite link). */
+export async function register(page: Page, learner: TestLearner, url = '/'): Promise<void> {
+  await page.goto(url);
   await submitAuthForm(page, learner, 'register');
 }
 
 /** Signs an existing account in from the sign-in gate. */
-export async function signIn(page: Page, learner: TestLearner): Promise<void> {
-  await page.goto('/');
+export async function signIn(page: Page, learner: TestLearner, url = '/'): Promise<void> {
+  await page.goto(url);
   await submitAuthForm(page, learner, 'login');
 }
 

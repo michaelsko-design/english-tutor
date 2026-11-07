@@ -43,6 +43,50 @@ export async function resetEmulators(): Promise<void> {
   });
 }
 
+type PlainField = string | number | boolean | null;
+
+function toFirestore(value: PlainField): FirestoreValue {
+  if (value === null) return { nullValue: null };
+  if (typeof value === 'boolean') return { booleanValue: value };
+  if (typeof value === 'number') return { integerValue: String(value) };
+  return { stringValue: value };
+}
+
+/** Writes (replaces) a document past the security rules, like the Admin SDK on the server. */
+export async function writeDocument(path: string, fields: Record<string, PlainField>): Promise<void> {
+  await request(`${DOCUMENTS}/${path}`, {
+    method: 'PATCH',
+    headers: OWNER_HEADERS,
+    body: JSON.stringify({ fields: Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, toFirestore(v)])) }),
+  });
+}
+
+export async function deleteDocument(path: string): Promise<void> {
+  await request(`${DOCUMENTS}/${path}`, { method: 'DELETE', headers: OWNER_HEADERS });
+}
+
+/** The launch switch (config/access): closed means only allowed accounts can use the app. */
+export async function setAccessOpen(isOpen: boolean): Promise<void> {
+  await writeDocument('config/access', { open: isOpen });
+}
+
+const INVITE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Creates a single-use invite the way the owner dashboard does and returns its code. */
+export async function createInviteCode(label: string, options: { expiresInMs?: number } = {}): Promise<string> {
+  const code = Array.from({ length: 10 }, () => INVITE_ALPHABET[Math.floor(Math.random() * INVITE_ALPHABET.length)]).join('');
+  const now = Date.now();
+  await writeDocument(`invites/${code}`, {
+    label,
+    cohort: 'e2e',
+    createdAt: now,
+    expiresAt: now + (options.expiresInMs ?? 14 * DAY_MS),
+    usedByUid: null,
+  });
+  return code;
+}
+
 export interface TestLearner {
   username: string;
   pin: string;
