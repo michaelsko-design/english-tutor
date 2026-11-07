@@ -5,6 +5,9 @@
     <!-- Zoom stays allowed (WCAG 1.4.4); inputs use 16px text so iOS does not zoom into them. viewport-fit=cover
          lets the safe-area insets (iPhone home indicator) be read with env(). -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Closed early-tester phase: keep search engines out. Remove this line and public/robots.txt's
+         Disallow at the public launch (docs/early-testers.md). -->
+    <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#5d489c" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />

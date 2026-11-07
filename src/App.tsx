@@ -31,6 +31,8 @@ import { useReminderSync } from './hooks/useReminderSync';
 import { useStickerImageSync } from './hooks/useStickerImageSync';
 import { usePendingInvite } from './hooks/usePendingInvite';
 import { CloudLoadErrorScreen } from './components/CloudLoadErrorScreen';
+import { AccessGateScreen } from './components/AccessGateScreen';
+import { isAccessDeniedError } from './services/accessService';
 import { ScreenLoading } from './components/ScreenLoading';
 import { lazyNamed } from './utils/lazyNamed';
 import { setListenerGender } from './services/tts';
@@ -78,6 +80,8 @@ export function App() {
   const [syncStatus, setSyncStatus] = useState<CloudSyncStatus>('local-only');
   /** The first cloud read after sign-in failed: nothing is saved until it succeeds */
   const [isCloudLoadFailed, setIsCloudLoadFailed] = useState<boolean>(false);
+  /** Closed early-tester phase: the account is not allowed yet and must enter its invite code */
+  const [isAccessDenied, setIsAccessDenied] = useState<boolean>(false);
   const isCloudLoadedRef = useRef<boolean>(false);
   const retryCloudLoadRef = useRef<(() => void) | null>(null);
   const [pendingInviteCode, clearPendingInvite] = usePendingInvite();
@@ -143,6 +147,7 @@ export function App() {
       isCloudLoadedRef.current = false;
       retryCloudLoadRef.current = null;
       setIsCloudLoadFailed(false);
+      setIsAccessDenied(false);
       // Sign-out lives on the profile screen: whoever signs in next starts on the dashboard
       setIsEditingOnboarding(false);
 
@@ -187,12 +192,20 @@ export function App() {
           isCloudLoadedRef.current = true;
           setProfile(loadedProfile);
           setIsCloudLoadFailed(false);
+          setIsAccessDenied(false);
           setSyncStatus('synced');
         } catch (error) {
           if (!isCurrent()) return;
           console.warn('Loading the cloud profile failed:', (error as { code?: string })?.code ?? error);
-          setIsCloudLoadFailed(true);
-          setSyncStatus('offline-error');
+          if (isAccessDeniedError(error)) {
+            // Not an outage: this account has no invite yet, so it sees the invite-code screen
+            setIsAccessDenied(true);
+            setIsCloudLoadFailed(false);
+            setSyncStatus('local-only');
+          } else {
+            setIsCloudLoadFailed(true);
+            setSyncStatus('offline-error');
+          }
         } finally {
           if (isCurrent()) setIsAuthInitializing(false);
         }
@@ -286,7 +299,7 @@ export function App() {
   const analyticsGrade = profile.gradeId;
   // Counting waits for the cloud profile, so a parent's opt-out is known before the first event
   const isAnalyticsAllowed =
-    Boolean(analyticsUid) && isFirebaseConfigured && !isAuthInitializing && !isCloudLoadFailed && !profile.isAnalyticsOptedOut;
+    Boolean(analyticsUid) && isFirebaseConfigured && !isAuthInitializing && !isCloudLoadFailed && !isAccessDenied && !profile.isAnalyticsOptedOut;
   useEffect(() => {
     if (!isAnalyticsAllowed || !analyticsUid) {
       setAnalyticsContext(null);
@@ -309,7 +322,7 @@ export function App() {
 
   useStickerImageSync({
     uid: authUser?.uid,
-    isReady: !isAuthInitializing && !isCloudLoadFailed,
+    isReady: !isAuthInitializing && !isCloudLoadFailed && !isAccessDenied,
     profile,
     getLatestProfile: () => profileRef.current,
     onUpdateProfile: handleUpdateProfile,
@@ -356,6 +369,21 @@ export function App() {
           onSignOut={signOutAfterSaving}
         />
       </div>
+    );
+  }
+
+  if (isAccessDenied) {
+    return (
+      <AccessGateScreen
+        theme={activeTheme}
+        onRedeemed={() => {
+          setIsAccessDenied(false);
+          retryCloudLoadRef.current?.();
+        }}
+        onSignOut={() =>
+          signOutAfterSaving().catch((error: unknown) => console.warn('Signing out failed:', error))
+        }
+      />
     );
   }
 

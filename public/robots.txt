@@ -1,0 +1,3 @@
+# Closed early-tester phase: no crawling. Replace with "Allow: /" at the public launch.
+User-agent: *
+Disallow: /

@@ -48,6 +48,24 @@ const ua = await signInOrCreate(a, 'emutest@peachnote.tutor.local');
 const ub = await signInOrCreate(b, 'emutest2@peachnote.tutor.local');
 const pairId = [ua.uid, ub.uid].sort().join('_');
 
+// Closed early-tester phase (isAllowed in firestore.rules): the server (the emulator's owner token,
+// which bypasses the rules) records which accounts are allowed. A, B and C are testers here.
+const EMULATOR_DOCS = 'http://127.0.0.1:8080/v1/projects/demo-english-vibe/databases/(default)/documents';
+const serverWrite = (path, fields) =>
+  fetch(`${EMULATOR_DOCS}/${path}`, {
+    method: 'PATCH',
+    headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fields }),
+  }).then((response) => {
+    if (!response.ok) throw new Error(`server write ${path} failed: ${response.status}`);
+  });
+const serverDelete = (path) =>
+  fetch(`${EMULATOR_DOCS}/${path}`, { method: 'DELETE', headers: { Authorization: 'Bearer owner' } }).catch(() => {});
+const allowedFields = { cohort: { stringValue: 'smoke' }, invitedAt: { integerValue: '1' } };
+await serverDelete('config/access');
+await serverWrite(`allowed/${ua.uid}`, allowedFields);
+await serverWrite(`allowed/${ub.uid}`, allowedFields);
+
 // A's public profile (a request must match it)
 await setDoc(doc(a.db, 'publicProfiles', ua.uid), {
   displayName: 'Noa', avatarEmoji: '🐱', level: 1, streakDays: 0, stars: 0, missionsCompleted: 0,
@@ -322,6 +340,7 @@ for (const path of [`entitlements/${ua.uid}`, `subscriptions/${'x'.repeat(32)}`,
 const c = app('c');
 const C_EMAIL = 'emutest3@peachnote.tutor.local';
 const uc = await signInOrCreate(c, C_EMAIL);
+await serverWrite(`allowed/${uc.uid}`, allowedFields);
 const d = app('d');
 await signInAnonymously(d.auth);
 const nowIso = () => new Date().toISOString();
@@ -475,13 +494,18 @@ await expect('a learner cannot hand a parent code to another learner', false, ()
 await expect('a parent cannot claim a code for a different child uid', false, () => claim(b.db, { childUid: uc.uid }));
 await deleteDoc(doc(a.db, 'parentInvites', CODE)).catch(() => {});
 
-// Anonymous (guest) sessions can only reach their own learners document
+// Anonymous (guest) sessions can only reach their own learners document, and only once access is
+// open: a guest can't redeem an invite code, so the closed tester phase keeps guests out
+await expect('while access is closed, a guest cannot save a learner document', false, () =>
+  setDoc(doc(d.db, 'learners', d.auth.currentUser.uid), { probe: true }));
+await serverWrite('config/access', { open: { booleanValue: true } });
 await expect('a guest can save their own learner document', true, () =>
   setDoc(doc(d.db, 'learners', d.auth.currentUser.uid), { probe: true }));
 await expect('a guest can read their own learner document', true, () =>
   getDoc(doc(d.db, 'learners', d.auth.currentUser.uid)));
 await expect('a guest cannot read another learner document', false, () => getDoc(doc(d.db, 'learners', ua.uid)));
 await deleteDoc(doc(d.db, 'learners', d.auth.currentUser.uid)).catch(() => {});
+await serverDelete('config/access');
 const guestDenied = {
   'a friend code': ['friendCodes', 'K7MP2QXA'],
   'a username': ['usernames', 'emutest'],
@@ -516,6 +540,42 @@ await expect('an unknown subcollection of a learner is denied', false, () =>
   setDoc(doc(a.db, 'learners', ua.uid, 'madeUp', 'x'), { a: 1 }));
 await expect('another learner cannot write a learner document', false, () =>
   setDoc(doc(b.db, 'learners', ua.uid), { probe: true }));
+
+// ---- Closed early-tester phase: an account that was never invited can use nothing ----
+const e = app('e');
+const ue = await signInOrCreate(e, 'emutest-uninvited@peachnote.tutor.local');
+await serverDelete(`allowed/${ue.uid}`);
+await serverDelete('config/access');
+const uninvitedProfile = { name: 'Eve', updatedAt: nowIso() };
+await expect('an uninvited account cannot read its learner document', false, () => getDoc(doc(e.db, 'learners', ue.uid)));
+await expect('an uninvited account cannot create its learner document', false, () =>
+  setDoc(doc(e.db, 'learners', ue.uid), uninvitedProfile));
+await expect('an uninvited account cannot write analytics', false, () =>
+  setDoc(doc(e.db, 'analyticsDaily', `${today}_${ue.uid}`), { uid: ue.uid, day: today, gradeId: 'grade-3', counts: { session_start: 1 } }));
+await expect('an uninvited account cannot report client errors', false, () =>
+  setDoc(doc(e.db, 'clientErrors', `${today}_zzz`),
+    { day: today, message: 'boom', stack: '', source: 'render', appVersion: 'test', count: 1, lastSeen: serverTimestamp() }));
+await expect('an uninvited account cannot publish a username', false, () =>
+  setDoc(doc(e.db, 'usernames', 'emutest-uninvited'), lookupEntry(ue.uid)));
+await expect('an uninvited account cannot allow itself', false, () =>
+  setDoc(doc(e.db, 'allowed', ue.uid), { cohort: 'smoke', invitedAt: 1 }));
+await expect('an uninvited account cannot open access for everyone', false, () =>
+  setDoc(doc(e.db, 'config', 'access'), { open: true }));
+await expect('nobody can read an invite code', false, () => getDoc(doc(a.db, 'invites', 'ABCDEFGH23')));
+await expect('nobody can write an invite code', false, () => setDoc(doc(a.db, 'invites', 'ABCDEFGH23'), { usedByUid: null }));
+await expect('an invited account can read its own allowed record', true, () => getDoc(doc(a.db, 'allowed', ua.uid)));
+await expect('an account cannot read another account allowed record', false, () => getDoc(doc(e.db, 'allowed', ua.uid)));
+await expect('an invited account can still write its learner document', true, () =>
+  setDoc(doc(a.db, 'learners', ua.uid), { name: 'Noa', updatedAt: nowIso() }, { merge: true }));
+// The launch switch: once config/access.open is true, everyone signed in is let in; closing it shuts them out again
+await serverWrite('config/access', { open: { booleanValue: true } });
+await expect('with access open, an uninvited account can create its learner document', true, () =>
+  setDoc(doc(e.db, 'learners', ue.uid), uninvitedProfile));
+await expect('with access open, an account can read the access flag', true, () => getDoc(doc(e.db, 'config', 'access')));
+await serverWrite('config/access', { open: { booleanValue: false } });
+await expect('with access closed again, the uninvited account is shut out', false, () => getDoc(doc(e.db, 'learners', ue.uid)));
+await serverDelete('config/access');
+await deleteDoc(doc(a.db, 'usernames', 'emutest')).catch(() => {});
 
 for (const [status, label, detail] of results) console.log(`${status}  ${label}${detail ? `  (${detail})` : ''}`);
 process.exit(results.some(([s]) => s === 'FAIL') ? 1 : 0);

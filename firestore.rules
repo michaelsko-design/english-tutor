@@ -7,6 +7,19 @@ service cloud.firestore {
         && request.auth.token.firebase.sign_in_provider != 'anonymous';
     }
 
+    // Closed early-tester phase: while config/access.open is false, only accounts with an
+    // allowed/{uid} document (written by /api/redeem-invite or scripts/allowExisting.mjs) can use
+    // learner data. `scripts/setAccess.mjs --open` flips it for everyone, no rules deploy needed.
+    function isAccessOpen() {
+      return exists(/databases/$(database)/documents/config/access)
+        && get(/databases/$(database)/documents/config/access).data.open == true;
+    }
+
+    function isAllowed() {
+      return request.auth != null
+        && (isAccessOpen() || exists(/databases/$(database)/documents/allowed/$(request.auth.uid)));
+    }
+
     function isShortString(value, maxLength) {
       return value is string && value.size() > 0 && value.size() <= maxLength;
     }
@@ -63,7 +76,23 @@ service cloud.firestore {
 
     // Each authenticated learner can only read and write their own profile document
     match /learners/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if request.auth != null && request.auth.uid == userId && isAllowed();
+    }
+
+    // Closed-testing access (see isAllowed). Only the server writes these; a learner reads their own
+    // allowed document, and anyone signed in can read whether access is open.
+    match /allowed/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+
+    match /config/{docId} {
+      allow get: if request.auth != null && docId == 'access';
+      allow list, write: if false;
+    }
+
+    match /invites/{code} {
+      allow read, write: if false;
     }
 
     // Drawn-sticker pictures (src/services/stickerImages.ts): small PNGs, one document each, so they
@@ -72,6 +101,7 @@ service cloud.firestore {
       allow read, delete: if request.auth != null && request.auth.uid == userId;
       allow create, update: if request.auth != null
         && request.auth.uid == userId
+        && isAllowed()
         && request.resource.data.keys().hasOnly(['imageDataUrl', 'createdAt'])
         && request.resource.data.keys().hasAll(['imageDataUrl', 'createdAt'])
         && request.resource.data.imageDataUrl is string
@@ -96,6 +126,7 @@ service cloud.firestore {
       // Deleting the account removes it
       allow delete: if isRealAccount() && request.auth.uid == userId;
       allow create: if isRealAccount()
+        && isAllowed()
         && request.auth.uid == userId
         && request.resource.data.keys().hasOnly(['code'])
         && request.resource.data.code is string
@@ -107,6 +138,7 @@ service cloud.firestore {
       // Only the learner's own code (claimed with its owner record in the same write). New codes
       // have 8 characters; a 6-character code is re-created only by the learner who already owns it.
       allow create: if isRealAccount()
+        && isAllowed()
         && (code.matches('^[A-HJKMNP-Z2-9]{8}$')
           || (code.matches('^[A-HJKMNP-Z2-9]{6}$')
             && exists(docPath('friendCodeOwners', request.auth.uid))
@@ -124,6 +156,7 @@ service cloud.firestore {
     match /usernames/{slug} {
       allow get: if isRealAccount();
       allow create, update: if isRealAccount()
+        && isAllowed()
         && request.auth.token.email == slug + '@peachnote.tutor.local'
         && isLookupEntry(request.resource.data);
       allow delete: if isRealAccount()
@@ -511,6 +544,7 @@ service cloud.firestore {
     match /analyticsDaily/{docId} {
       allow read, delete: if false;
       allow create, update: if request.auth != null
+        && isAllowed()
         && docId == request.resource.data.day + '_' + request.auth.uid
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.keys().hasOnly(['uid', 'day', 'gradeId', 'counts'])
@@ -531,6 +565,7 @@ service cloud.firestore {
     match /clientErrors/{docId} {
       allow read, delete: if false;
       allow create, update: if request.auth != null
+        && isAllowed()
         && request.resource.data.keys().hasOnly(['day', 'message', 'stack', 'source', 'appVersion', 'count', 'lastSeen'])
         && isShortString(request.resource.data.message, 200)
         && request.resource.data.stack.size() <= 600
