@@ -157,6 +157,15 @@ export function createAuthAdmin(account: ServiceAccount, projectId: string, { fe
       return anonymous;
     },
 
+    /** Deletes the sign-in itself. An account that is already gone counts as deleted, so a retry is safe. */
+    async deleteUser(uid: string): Promise<void> {
+      const response = await call('accounts:delete', { localId: uid });
+      if (response.ok || response.status === 404) return;
+      const body = (await response.json().catch(() => ({}))) as { error?: { message?: string } };
+      if (response.status === 400 && body.error?.message === 'USER_NOT_FOUND') return;
+      throw new AdminError('Auth delete failed', response.status);
+    },
+
     async setPassword(uid: string, password: string): Promise<void> {
       const response = await call('accounts:update', { localId: uid, password });
       if (!response.ok) throw new AdminError('Auth update failed', response.status);

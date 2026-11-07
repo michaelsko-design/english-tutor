@@ -118,6 +118,29 @@ describe('createAuthAdmin', () => {
     expect(tokenCalls()).toBe(2);
   });
 
+  it('deletes an account, and treats an account that is already gone as deleted', async () => {
+    const { account } = await makeAccount();
+    const notFound = new Response(JSON.stringify({ error: { message: 'USER_NOT_FOUND' } }), { status: 400 });
+    const fetchImpl = tokenFetch((url, init) => {
+      if (!url.endsWith('accounts:delete')) return undefined;
+      return (JSON.parse(String(init?.body)) as { localId: string }).localId === 'gone1' ? notFound.clone() : new Response('{}', { status: 200 });
+    });
+    const admin = createAuthAdmin(account, 'proj', { fetchImpl: fetchImpl as typeof fetch, nowMs: () => NOW_MS });
+
+    await expect(admin.deleteUser('kid1')).resolves.toBeUndefined();
+    await expect(admin.deleteUser('gone1')).resolves.toBeUndefined();
+    const deleteCall = fetchImpl.mock.calls.find(([url]) => String(url).endsWith('accounts:delete'))!;
+    expect(JSON.parse(deleteCall[1]!.body as string)).toEqual({ localId: 'kid1' });
+  });
+
+  it('fails when deleting an account is refused', async () => {
+    const { account } = await makeAccount();
+    const fetchImpl = tokenFetch((url) => (url.endsWith('accounts:delete') ? new Response('{}', { status: 403 }) : undefined));
+    const admin = createAuthAdmin(account, 'proj', { fetchImpl: fetchImpl as typeof fetch, nowMs: () => NOW_MS });
+
+    await expect(admin.deleteUser('kid1')).rejects.toMatchObject({ status: 403 });
+  });
+
   it('finds which accounts still exist, 100 per lookup', async () => {
     const { account } = await makeAccount();
     const asked: string[][] = [];

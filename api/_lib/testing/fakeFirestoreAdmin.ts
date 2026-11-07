@@ -35,6 +35,12 @@ export function createFakeFirestore(): FakeFirestore {
     async queryDocuments(collection: string, field: string, value: string) {
       return inCollection(collection).filter((doc) => doc.fields[field] === value);
     },
+    async queryArrayContains(collection: string, field: string, value: string) {
+      return inCollection(collection).filter((doc) => {
+        const list = doc.fields[field];
+        return Array.isArray(list) && list.includes(value);
+      });
+    },
     async getDocument(collection: string, id: string) {
       return docs.get(key(collection, id)) ?? null;
     },

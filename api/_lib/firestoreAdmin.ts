@@ -170,6 +170,19 @@ export function createFirestoreAdmin(account: ServiceAccount, projectId: string,
       return results.flatMap((result) => (result.document ? [toPlainDocument(result.document)] : []));
     },
 
+    /** The documents of a top-level collection whose array `field` contains `value`. */
+    async queryArrayContains(collection: string, field: string, value: string): Promise<PlainDocument[]> {
+      const response = await request(`${base}:runQuery`, 'POST', {
+        structuredQuery: {
+          from: [{ collectionId: collection }],
+          where: { fieldFilter: { field: { fieldPath: field }, op: 'ARRAY_CONTAINS', value: { stringValue: value } } },
+        },
+      });
+      if (!response.ok) throw new AdminError('Firestore query failed', response.status);
+      const results = (await response.json()) as Array<{ document?: RestDocument }>;
+      return results.flatMap((result) => (result.document ? [toPlainDocument(result.document)] : []));
+    },
+
     /** One document, or null when it doesn't exist. */
     async getDocument(collection: string, id: string): Promise<PlainDocument | null> {
       const response = await request(`${base}/${collection}/${encodeURIComponent(id)}`, 'GET');

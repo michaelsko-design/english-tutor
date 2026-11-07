@@ -1,11 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Archive, Copy, RefreshCw, UserPlus, X } from 'lucide-react';
+import { Archive, Copy, RefreshCw, Trash2, UserPlus, X } from 'lucide-react';
+import { RemoveTesterDialog } from './RemoveTesterDialog';
+import { toUsernameSlug } from '../../utils/username';
 import {
   archiveFinishedInvites,
   createInvites,
   fetchTesters,
   inviteLink,
   lockOutTester,
+  removeTesterByUsername,
+  removeTesterCompletely,
   withdrawInvite,
   type InviteEntry,
   type OwnerTestersView,
@@ -19,6 +23,14 @@ const INPUT_CLASS =
   'min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100';
 const SMALL_BTN =
   'inline-flex shrink-0 items-center gap-1 rounded-lg border border-slate-200 px-2 py-1 text-xs font-bold text-slate-600 transition-all hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800';
+const DANGER_BTN =
+  'inline-flex shrink-0 items-center gap-1 rounded-lg border border-red-200 px-2 py-1 text-xs font-bold text-red-600 transition-all hover:bg-red-50 disabled:opacity-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/40';
+/** A removal waiting in the confirmation dialog: `uid` is set for a listed tester, not for a username */
+interface PendingRemoval {
+  kind: 'alias' | 'username';
+  expected: string;
+  uid?: string;
+}
 const DEFAULT_COHORT = 'tester';
 const DEFAULT_DAYS = 14;
 const STATUS_CLASS: Record<InviteEntry['status'], string> = {
@@ -44,6 +56,8 @@ export const EarlyTestersCard: React.FC = () => {
   const [isBusy, setIsBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [pendingRemoval, setPendingRemoval] = useState<PendingRemoval | null>(null);
+  const [removeUsername, setRemoveUsername] = useState('');
 
   const apply = useCallback((result: TestersResult): boolean => {
     if (!result.ok) {
@@ -95,6 +109,19 @@ export const EarlyTestersCard: React.FC = () => {
   const handleLockOut = (uid: string, label: string) => {
     // Cuts the child off at once: confirm first
     if (window.confirm(`Lock ${label} out? They can no longer use the app.`)) void run(() => lockOutTester(uid));
+  };
+
+  const handleOpenUsernameRemoval = (event: React.FormEvent) => {
+    event.preventDefault();
+    const slug = toUsernameSlug(removeUsername);
+    if (slug) setPendingRemoval({ kind: 'username', expected: slug });
+  };
+
+  /** Runs only from the dialog's enabled "Delete forever"; the dialog closes whatever the outcome. */
+  const handleRemove = async (removal: PendingRemoval, typed: string) => {
+    const isOk = await run(() => (removal.uid ? removeTesterCompletely(removal.uid, typed) : removeTesterByUsername(removal.expected, typed)));
+    setPendingRemoval(null);
+    if (isOk) setRemoveUsername('');
   };
 
   return (
@@ -217,15 +244,47 @@ export const EarlyTestersCard: React.FC = () => {
                   <span className="min-w-0 truncate text-sm font-semibold text-slate-700 dark:text-slate-200" dir="ltr">
                     {tester.label} <span className={MUTED}>· {tester.cohort}{tester.isGrandfathered ? ' · existing account' : ''}</span>
                   </span>
-                  <button type="button" disabled={isBusy} className={SMALL_BTN} aria-label={`Lock ${tester.label} out`} onClick={() => handleLockOut(tester.uid, tester.label)}>
-                    <X className="h-3 w-3" />
-                    <span>Lock out</span>
-                  </button>
+                  <div className="flex shrink-0 gap-1">
+                    <button type="button" disabled={isBusy} className={SMALL_BTN} aria-label={`Lock ${tester.label} out`} onClick={() => handleLockOut(tester.uid, tester.label)}>
+                      <X className="h-3 w-3" />
+                      <span>Lock out</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isBusy}
+                      className={DANGER_BTN}
+                      aria-label={`Remove ${tester.label} completely`}
+                      onClick={() => setPendingRemoval({ kind: 'alias', expected: tester.label, uid: tester.uid })}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      <span>Remove completely</span>
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
           )}
+
+          <form className="mt-4 flex items-end gap-2" onSubmit={handleOpenUsernameRemoval}>
+            <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
+              Remove a locked-out account by username
+              <input type="text" dir="ltr" autoComplete="off" value={removeUsername} onChange={(event) => setRemoveUsername(event.target.value)} className={`${INPUT_CLASS} mt-1 block w-44`} />
+            </label>
+            <button type="submit" disabled={isBusy || !toUsernameSlug(removeUsername)} className={DANGER_BTN}>
+              <Trash2 className="h-3 w-3" />
+              <span>Remove…</span>
+            </button>
+          </form>
         </>
+      )}
+      {pendingRemoval && (
+        <RemoveTesterDialog
+          expected={pendingRemoval.expected}
+          kind={pendingRemoval.kind}
+          isBusy={isBusy}
+          onCancel={() => setPendingRemoval(null)}
+          onConfirm={(typed) => void handleRemove(pendingRemoval, typed)}
+        />
       )}
     </section>
   );

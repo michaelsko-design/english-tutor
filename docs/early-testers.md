@@ -35,6 +35,10 @@ $env:APP_ORIGIN = "https://<production-domain>"
 - **Allowed accounts**: everyone who can use the app, with the heading count. *Lock out* deletes `allowed/{uid}`
   and a comp entitlement, so the child is cut off on the next open (also when the profile is cached on the device).
   Their learner data is untouched; a new invite brings them back to the same profile.
+- *Remove completely* (red, next to *Lock out*) deletes the sign-in and all of the tester's data for good (notes stay,
+  without a link to the account; a paid entitlement stays). It only opens a dialog: type the alias to enable
+  *Delete forever*. For an account that is already locked out (no longer listed) use *Remove a locked-out account by
+  username* under the list. If it fails halfway, press it again: the sign-in is deleted last.
 - A used link cannot work for a second account. The invite screen also takes a code typed by hand.
 
 ### Usage card
@@ -133,7 +137,7 @@ Later app-only changes (API and client, no rules change) need just the push. A c
 (new counter, new collection) needs the rules deployed **before** the push.
 
 ## Revoking and the kill switch
-- One child: *Lock out* in the dashboard (or delete `allowed/{uid}` in the Firebase console).
+- One child: *Lock out* in the dashboard (or delete `allowed/{uid}` in the Firebase console); *Remove completely* to also delete the account and data.
 - Everyone: `node scripts/setAccess.mjs --closed` is already the state; to freeze the whole app delete the
   `allowed/*` documents, or redeploy the previous rules. Gate code is additive: reverting the commit restores
   open sign-up.
@@ -201,7 +205,7 @@ Do these in order. Steps 1-4 are code or console work and can be done days befor
 | --- | --- |
 | Rules gate | `firestore.rules` (`isAccessOpen`, `isAllowed`, `invites`, `allowed`, `config`, `feedback`) |
 | Redeem | `api/redeem-invite.ts`, client `src/services/accessService.ts`, screen `AccessGateScreen` |
-| Owner API | `api/owner-testers.ts` (GET view, POST create / archive, DELETE withdraw / lock out) |
+| Owner API | `api/owner-testers.ts` (GET view, POST create / archive, DELETE withdraw / lock out / `erase` remove completely) |
 | Dashboard | `src/components/owner/EarlyTestersCard.tsx`, `UsageCard.tsx`, service `ownerTestersService.ts` |
 | Deletion | `api/erase-account-data.ts`, `src/services/accountService.ts` |
 | Notes | `src/services/feedbackService.ts`, `src/components/settings/FeedbackCard.tsx` |

@@ -9,6 +9,8 @@ const service = vi.hoisted(() => ({
   archiveFinishedInvites: vi.fn(),
   withdrawInvite: vi.fn(),
   lockOutTester: vi.fn(),
+  removeTesterCompletely: vi.fn(),
+  removeTesterByUsername: vi.fn(),
   inviteLink: (origin: string, code: string) => `${origin}/?access=${code}`,
 }));
 vi.mock('../../services/ownerTestersService', () => service);
@@ -23,6 +25,8 @@ beforeEach(() => {
   service.archiveFinishedInvites.mockReset();
   service.withdrawInvite.mockReset();
   service.lockOutTester.mockReset();
+  service.removeTesterCompletely.mockReset();
+  service.removeTesterByUsername.mockReset();
 });
 
 describe('parseAliases', () => {
@@ -81,6 +85,58 @@ describe('EarlyTestersCard', () => {
     await user.click(button);
     expect(service.lockOutTester).toHaveBeenCalledWith('u1');
     confirm.mockRestore();
+  });
+
+  describe('removing a tester completely', () => {
+    const withTester = () =>
+      service.fetchTesters.mockResolvedValue({
+        ok: true,
+        view: view({ testers: [{ uid: 'u1', label: 'noa', cohort: 'tester', invitedAt: 1, isGrandfathered: false }] }),
+      });
+
+    it('only opens a confirmation; nothing is deleted until the alias is typed and confirmed', async () => {
+      const user = userEvent.setup();
+      withTester();
+      service.removeTesterCompletely.mockResolvedValue({ ok: true, view: view() });
+      render(<EarlyTestersCard />);
+      await user.click(await screen.findByRole('button', { name: 'Remove noa completely' }));
+      expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+      expect(service.removeTesterCompletely).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+      expect(service.removeTesterCompletely).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole('button', { name: 'Remove noa completely' }));
+      await user.type(screen.getByLabelText(/Type noa to confirm/), 'noa');
+      await user.click(screen.getByRole('button', { name: 'Delete forever' }));
+      expect(service.removeTesterCompletely).toHaveBeenCalledTimes(1);
+      expect(service.removeTesterCompletely).toHaveBeenCalledWith('u1', 'noa');
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+    });
+
+    it('removes a locked-out account by the typed username, again only after confirming', async () => {
+      const user = userEvent.setup();
+      service.removeTesterByUsername.mockResolvedValue({ ok: true, view: view() });
+      render(<EarlyTestersCard />);
+      await user.type(await screen.findByLabelText(/Remove a locked-out account by username/), 'Noa12');
+      await user.click(screen.getByRole('button', { name: /Remove…/ }));
+      expect(service.removeTesterByUsername).not.toHaveBeenCalled();
+      await user.type(screen.getByLabelText(/Type noa12 to confirm/), 'noa12');
+      await user.click(screen.getByRole('button', { name: 'Delete forever' }));
+      expect(service.removeTesterByUsername).toHaveBeenCalledWith('noa12', 'noa12');
+    });
+
+    it('shows the server message when the removal fails', async () => {
+      const user = userEvent.setup();
+      withTester();
+      service.removeTesterCompletely.mockResolvedValue({ ok: false, message: 'Could not update the testers' });
+      render(<EarlyTestersCard />);
+      await user.click(await screen.findByRole('button', { name: 'Remove noa completely' }));
+      await user.type(screen.getByLabelText(/Type noa to confirm/), 'noa');
+      await user.click(screen.getByRole('button', { name: 'Delete forever' }));
+      expect(await screen.findByRole('alert')).toHaveTextContent('Could not update the testers');
+    });
   });
 
   it('does not offer copy or withdraw for a used invite', async () => {

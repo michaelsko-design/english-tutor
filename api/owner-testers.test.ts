@@ -12,15 +12,48 @@ const USED_CODE = 'BCDEFGHJ23';
 function setup() {
   const fake = createFakeFirestore();
   let counter = 0;
+  const auth = {
+    deleteUser: vi.fn(async () => undefined),
+    lookupUidByEmail: vi.fn(async (email: string) => (email === 'noa12@peachnote.tutor.local' ? KID : null)),
+  };
   const deps = {
+    createAuth: vi.fn(() => auth) as never,
     nowMs: () => NOW,
     verifyToken: vi.fn(async () => true),
     createAdmin: vi.fn(() => fake.admin) as never,
     // Distinct codes per call: the index walks through the alphabet
     randomIndex: (limit: number) => counter++ % limit,
   };
-  return { fake, deps };
+  return { fake, deps, auth };
 }
+
+/** A tester with data in every place the removal has to reach */
+function seedFullTester(fake: ReturnType<typeof createFakeFirestore>) {
+  fake.seed('allowed', KID, { label: 'noa', cohort: 'x', invitedAt: NOW });
+  fake.seed('entitlements', KID, { source: 'comp' });
+  fake.seed('learners', KID, { displayName: 'Noa' });
+  fake.seed(`learners/${KID}/stickers`, 's1', { imageDataUrl: 'x' });
+  fake.seed('publicProfiles', KID, { displayName: 'Noa' });
+  fake.seed('friendCodeOwners', KID, { code: 'ABCDEFGH' });
+  fake.seed('friendCodes', 'ABCDEFGH', { uid: KID });
+  fake.seed('usernames', 'noa12', { uid: KID });
+  fake.seed('friendships', 'f1', { uids: [KID, 'otherKid'] });
+  fake.seed('friendships', 'f2', { uids: ['x', 'otherKid'] });
+  fake.seed('contests', 'c1', { uids: [KID, 'otherKid'] });
+  fake.seed('parentLinks', 'p1', { childUid: KID, parentUid: 'parent1' });
+  fake.seed('parentInvites', 'PCODE1', { childUid: KID });
+  fake.seed('reportSnapshots', KID, { week: 1 });
+  fake.seed('pushSubscriptions', KID, { endpoint: 'e' });
+  fake.seed('analyticsDaily', 'a1', { uid: KID });
+  fake.seed('feedback', 'n1', { uid: KID, text: 'fun' });
+}
+
+const REMOVED: Array<[string, string]> = [
+  ['allowed', KID], ['entitlements', KID], ['learners', KID], [`learners/${KID}/stickers`, 's1'],
+  ['publicProfiles', KID], ['friendCodeOwners', KID], ['friendCodes', 'ABCDEFGH'], ['usernames', 'noa12'],
+  ['friendships', 'f1'], ['contests', 'c1'], ['parentLinks', 'p1'], ['parentInvites', 'PCODE1'],
+  ['reportSnapshots', KID], ['pushSubscriptions', KID], ['analyticsDaily', 'a1'],
+];
 
 const call = (method: string, body?: unknown, uid: string | null = 'owner1', provider = 'google.com') =>
   new Request('https://app.test/api/owner-testers', {
@@ -91,6 +124,77 @@ describe('owner-testers', () => {
     await handleOwnerTestersRequest(call('DELETE', { uid: KID }), ENV, deps);
     expect(fake.get('allowed', KID)).toBeUndefined();
     expect(fake.get('entitlements', KID)).toBeDefined();
+  });
+
+  describe('removing a tester completely', () => {
+    it('deletes every record and the sign-in, keeps the friend\'s data and an uid-less note', async () => {
+      const { fake, deps, auth } = setup();
+      seedFullTester(fake);
+      const response = await handleOwnerTestersRequest(call('DELETE', { uid: KID, erase: true, confirm: 'noa' }), ENV, deps);
+      expect(response.status).toBe(200);
+      for (const [collection, id] of REMOVED) expect(fake.get(collection, id), `${collection}/${id}`).toBeUndefined();
+      expect(fake.get('friendships', 'f2')).toBeDefined();
+      expect(fake.get('feedback', 'n1')).toEqual({ uid: '', text: 'fun', testerLabel: 'noa' });
+      expect(auth.deleteUser).toHaveBeenCalledWith(KID);
+    });
+
+    it('keeps a paid entitlement', async () => {
+      const { fake, deps } = setup();
+      seedFullTester(fake);
+      fake.seed('entitlements', KID, { source: 'subscription' });
+      await handleOwnerTestersRequest(call('DELETE', { uid: KID, erase: true, confirm: 'noa' }), ENV, deps);
+      expect(fake.get('entitlements', KID)).toBeDefined();
+    });
+
+    it('deletes the sign-in only after the data, so a failed run can be repeated', async () => {
+      const { fake, deps, auth } = setup();
+      seedFullTester(fake);
+      let dataGoneWhenAuthDeleted = false;
+      auth.deleteUser.mockImplementation(async () => {
+        dataGoneWhenAuthDeleted = fake.get('learners', KID) === undefined && fake.get('allowed', KID) === undefined;
+      });
+      await handleOwnerTestersRequest(call('DELETE', { uid: KID, erase: true, confirm: 'noa' }), ENV, deps);
+      expect(dataGoneWhenAuthDeleted).toBe(true);
+    });
+
+    it('answers 502 and leaves the sign-in when the Auth delete fails', async () => {
+      const { fake, deps, auth } = setup();
+      seedFullTester(fake);
+      auth.deleteUser.mockRejectedValue(new Error('boom'));
+      expect((await handleOwnerTestersRequest(call('DELETE', { uid: KID, erase: true, confirm: 'noa' }), ENV, deps)).status).toBe(502);
+    });
+
+    it('deletes nothing without a confirmation that matches the alias', async () => {
+      const { fake, deps, auth } = setup();
+      seedFullTester(fake);
+      for (const body of [{ uid: KID, erase: true }, { uid: KID, erase: true, confirm: '' }, { uid: KID, erase: true, confirm: 'dana' }]) {
+        expect((await handleOwnerTestersRequest(call('DELETE', body), ENV, deps)).status).toBe(400);
+      }
+      for (const [collection, id] of REMOVED) expect(fake.get(collection, id), `${collection}/${id}`).toBeDefined();
+      expect(auth.deleteUser).not.toHaveBeenCalled();
+    });
+
+    it('refuses an unknown tester and the owner\'s own account', async () => {
+      const { fake, deps, auth } = setup();
+      expect((await handleOwnerTestersRequest(call('DELETE', { uid: KID, erase: true, confirm: 'noa' }), ENV, deps)).status).toBe(404);
+      const ownerUid = { ...ENV, OWNER_UID: KID };
+      fake.seed('allowed', KID, { label: 'noa' });
+      expect((await handleOwnerTestersRequest(call('DELETE', { uid: KID, erase: true, confirm: 'noa' }, KID), ownerUid, deps)).status).toBe(400);
+      expect(auth.deleteUser).not.toHaveBeenCalled();
+    });
+
+    it('removes a locked-out account by its username, which must be typed exactly', async () => {
+      const { fake, deps, auth } = setup();
+      seedFullTester(fake);
+      fake.docs.delete(`allowed/${KID}`);
+      expect((await handleOwnerTestersRequest(call('DELETE', { username: 'noa12', erase: true, confirm: 'noa1' }), ENV, deps)).status).toBe(400);
+      expect((await handleOwnerTestersRequest(call('DELETE', { username: 'ghost', erase: true, confirm: 'ghost' }), ENV, deps)).status).toBe(404);
+      expect(auth.deleteUser).not.toHaveBeenCalled();
+
+      expect((await handleOwnerTestersRequest(call('DELETE', { username: 'Noa12', erase: true, confirm: 'noa12' }), ENV, deps)).status).toBe(200);
+      expect(fake.get('learners', KID)).toBeUndefined();
+      expect(auth.deleteUser).toHaveBeenCalledWith(KID);
+    });
   });
 
   it('archives used and expired invites, keeps open ones visible and counts the archived', async () => {

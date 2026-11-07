@@ -15,7 +15,7 @@
 - [ ] **Parent consent text and Hebrew WhatsApp invite message** - Must say: what the test is and what is collected, write down the username and PIN, link a parent Google account (PIN reset), how to opt out and delete the account, a contact address.
 - [ ] **Lawyer review of the privacy text** - Including the new wording: tester notes and the used-invite record are kept after account deletion, without an account link.
 - [ ] **Delete the 2 test accounts** - New invite, sign in, Settings > delete (deleting only in the Firebase console leaves rows behind).
-- [ ] **"Remove tester completely" dashboard button** (optional) - Deletes the Auth account and all data, also for locked-out accounts.
+- [x] **"Remove tester completely" dashboard button** - Built (type-the-alias confirmation, username field for locked-out accounts); API verified against the Auth + Firestore emulators; uncommitted.
 - [ ] **Public launch** - Follow "Public launch: full deployment checklist" in `docs/early-testers.md` (`setAccess.mjs --open`, remove `noindex` and the robots `Disallow`, App Check enforce, decide comp Pro, legal).
 - [ ] **E2E upkeep** - `onboarding.spec` has a stale `כיתה א׳` selector (fails on older commits too); `account-deletion` can time out on its first `page.goto` under load.
 

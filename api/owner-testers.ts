@@ -5,12 +5,15 @@
  *   POST   { archiveFinished: true }    archives every used or expired invite (hidden from the list, kept in the database)
  *   DELETE { code }                     withdraws an unused invite; answers like GET
  *   DELETE { uid }                      locks a tester out (deletes allowed/{uid} and a comp entitlement)
+ *   DELETE { uid|username, erase: true, confirm }  removes the tester completely: all data and the sign-in
  * Reads and writes `invites`, `allowed`, `config/access` and `entitlements` (admin only). The
  * redeeming side is /api/redeem-invite. Labels are aliases, never full names.
  */
 import { randomInt } from 'node:crypto';
 import { ConflictError, createFirestoreAdmin, type FirestoreAdmin } from './_lib/firestoreAdmin.js';
-import { AdminError } from './_lib/googleAdmin.js';
+import { eraseLearnerData, eraseServerRecords } from './_lib/eraseAccount.js';
+import { AdminError, createAuthAdmin } from './_lib/googleAdmin.js';
+import { USERNAME_EMAIL_DOMAIN, toUsernameSlug } from '../src/utils/username.js';
 import { authenticateOwner } from './_lib/ownerRequest.js';
 import { errorResponse, jsonResponse, readJsonBody, type ParentRequestDeps } from './_lib/parentRequest.js';
 
@@ -61,6 +64,7 @@ export interface OwnerTestersDeps extends ParentRequestDeps {
   nowMs?: () => number;
   createAdmin?: (...args: Parameters<typeof createFirestoreAdmin>) => FirestoreAdmin;
   randomIndex?: (limit: number) => number;
+  createAuth?: (...args: Parameters<typeof createAuthAdmin>) => AuthEraser;
 }
 
 const str = (value: unknown, fallback: string): string => (typeof value === 'string' && value ? value : fallback);
@@ -135,6 +139,42 @@ async function createInvite(
   }
 }
 
+type AuthEraser = Pick<ReturnType<typeof createAuthAdmin>, 'deleteUser' | 'lookupUidByEmail'>;
+
+/**
+ * Removes a tester completely: all data, then the sign-in. Nothing is deleted unless `confirm`
+ * repeats the alias (by uid) or the username (by username), so a stray request can't erase anyone.
+ */
+async function eraseTester(
+  body: Record<string, unknown>,
+  { admin, auth, ownerUid }: { admin: FirestoreAdmin; auth: AuthEraser; ownerUid: string | undefined },
+  view: () => Promise<Response>
+): Promise<Response> {
+  const confirm = typeof body.confirm === 'string' ? body.confirm.trim() : '';
+  let uid: string;
+  if (typeof body.username === 'string') {
+    const slug = toUsernameSlug(body.username);
+    if (!slug || confirm !== slug) return errorResponse(400, 'Type the username to confirm');
+    const found = await auth.lookupUidByEmail(`${slug}@${USERNAME_EMAIL_DOMAIN}`);
+    if (!found) return errorResponse(404, 'No account with that username');
+    uid = found;
+  } else if (typeof body.uid === 'string' && UID_PATTERN.test(body.uid)) {
+    const tester = await admin.getDocument('allowed', body.uid);
+    if (!tester) return errorResponse(404, 'That tester is not on the list');
+    if (!confirm || confirm !== tester.fields.label) return errorResponse(400, 'Type the alias to confirm');
+    uid = body.uid;
+  } else {
+    return errorResponse(400, 'Bad request');
+  }
+  if (ownerUid && uid === ownerUid) return errorResponse(400, 'The owner account cannot be removed here');
+
+  // The sign-in goes last: if anything above fails, the whole removal can simply be repeated
+  await eraseLearnerData(admin, uid);
+  await eraseServerRecords(admin, uid);
+  await auth.deleteUser(uid);
+  return await view();
+}
+
 export async function handleOwnerTestersRequest(
   request: Request,
   env: Record<string, string | undefined>,
@@ -154,6 +194,10 @@ export async function handleOwnerTestersRequest(
     if (!body) return errorResponse(400, 'Bad request');
 
     if (request.method === 'DELETE') {
+      if (body.erase === true) {
+        const auth = (deps.createAuth ?? createAuthAdmin)(account, projectId, { fetchImpl });
+        return await eraseTester(body, { admin, auth, ownerUid: env.OWNER_UID }, view);
+      }
       if (typeof body.code === 'string' && CODE_PATTERN.test(body.code)) {
         const invite = await admin.getDocument('invites', body.code);
         if (invite && typeof invite.fields.usedByUid === 'string' && invite.fields.usedByUid) {

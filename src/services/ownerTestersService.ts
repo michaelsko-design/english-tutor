@@ -34,5 +34,12 @@ export const withdrawInvite = (code: string): Promise<TestersResult> => call('DE
 export const archiveFinishedInvites = (): Promise<TestersResult> => call('POST', { archiveFinished: true });
 export const lockOutTester = (uid: string): Promise<TestersResult> => call('DELETE', { uid });
 
+/** Deletes the tester's sign-in and all data. `confirm` must repeat the alias, or the server refuses. */
+export const removeTesterCompletely = (uid: string, confirm: string): Promise<TestersResult> =>
+  call('DELETE', { uid, erase: true, confirm });
+/** Same for an account that is no longer listed (locked out earlier); `confirm` repeats the username. */
+export const removeTesterByUsername = (username: string, confirm: string): Promise<TestersResult> =>
+  call('DELETE', { username, erase: true, confirm });
+
 /** The link a parent opens on the child's device */
 export const inviteLink = (origin: string, code: string): string => `${origin.replace(/\/$/, '')}/?access=${code}`;

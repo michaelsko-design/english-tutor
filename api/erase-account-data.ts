@@ -6,6 +6,7 @@
  * sign-in itself is deleted. A paid subscription's entitlement is kept (billing records).
  *   POST → 200 { ok: true } | 401 | 503
  */
+import { eraseServerRecords } from './_lib/eraseAccount.js';
 import { createFirestoreAdmin, type FirestoreAdmin } from './_lib/firestoreAdmin.js';
 import { AdminError, parseServiceAccount } from './_lib/googleAdmin.js';
 import { readFirebaseClaims, verifyFirebaseIdToken } from './_lib/firebaseToken.js';
@@ -36,34 +37,7 @@ export async function handleEraseAccountDataRequest(
   if (!account) return errorResponse(503, 'Not configured');
 
   try {
-    const admin = createAdmin(account, projectId, { fetchImpl });
-    const { uid } = claims;
-    const [counters, notes, entitlement, allowed] = await Promise.all([
-      admin.queryDocuments('analyticsDaily', 'uid', uid),
-      admin.queryDocuments('feedback', 'uid', uid),
-      admin.getDocument('entitlements', uid),
-      admin.getDocument('allowed', uid),
-    ]);
-    const alias = typeof allowed?.fields.label === 'string' && allowed.fields.label ? allowed.fields.label : 'former tester';
-    const isPaid = entitlement?.fields.source === 'subscription';
-    await Promise.all([
-      ...counters.map((row) => admin.deleteDocument('analyticsDaily', row.id)),
-      // The note stays, without any link to the deleted account
-      ...(notes.length > 0
-        ? [
-            admin.commit(
-              notes.map((row) => ({
-                collection: 'feedback',
-                id: row.id,
-                fields: { uid: '', testerLabel: alias },
-                mergeFields: ['uid', 'testerLabel'],
-              }))
-            ),
-          ]
-        : []),
-      admin.deleteDocument('allowed', uid),
-      ...(isPaid ? [] : [admin.deleteDocument('entitlements', uid)]),
-    ]);
+    await eraseServerRecords(createAdmin(account, projectId, { fetchImpl }), claims.uid);
     return jsonResponse(200, { ok: true });
   } catch (error) {
     // Only a status is logged: never ids, tokens or keys
