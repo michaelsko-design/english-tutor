@@ -14,7 +14,7 @@ $env:APP_ORIGIN = "https://<production-domain>"
 ```
 
 ## Go-live order (do not swap steps 1-3)
-1. `node scripts/allowExisting.mjs` lists every account. Then `node scripts/allowExisting.mjs --apply <username> <username> --cohort family` for your daughters (and any other account that must keep working). Unnamed accounts will be locked out.
+1. `node scripts/allowExisting.mjs` lists every account. Then either `node scripts/allowExisting.mjs --all --cohort existing` (allows every account that exists now, guests included) or name just some: `node scripts/allowExisting.mjs --apply <username> <username> --cohort family`. Unnamed accounts are locked out.
 2. `node scripts/setAccess.mjs --closed` (writes `config/access { open: false }`).
 3. Deploy the rules (`firebase deploy --only firestore:rules`), then push the app and `api/redeem-invite`.
 4. Check: a fresh private-window sign-up sees only the invite screen; your daughters still sign in.

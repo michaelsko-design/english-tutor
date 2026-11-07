@@ -7,6 +7,7 @@
 //   node scripts/allowExisting.mjs                                  # list accounts, change nothing
 //   node scripts/allowExisting.mjs --apply noa12 dana7              # allow these (username or uid)
 //   node scripts/allowExisting.mjs --apply noa12 --cohort family
+//   node scripts/allowExisting.mjs --all --cohort existing          # allow EVERY account that exists now (guests too)
 import { initializeApp, applicationDefault } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -19,6 +20,7 @@ const args = process.argv.slice(2);
 const applyIndex = args.indexOf('--apply');
 const cohortIndex = args.indexOf('--cohort');
 const cohort = cohortIndex === -1 ? 'family' : args[cohortIndex + 1];
+const isAll = args.includes('--all');
 const targets = applyIndex === -1 ? [] : args.slice(applyIndex + 1).filter((arg, i, rest) => !arg.startsWith('--') && rest[i - 1] !== '--cohort');
 
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
@@ -50,7 +52,7 @@ async function findUser(usernameOrUid) {
 
 const allowedIds = new Set((await db.collection('allowed').get()).docs.map((doc) => doc.id));
 
-if (applyIndex === -1) {
+if (applyIndex === -1 && !isAll) {
   const users = (await listAllUsers()).sort((a, b) => (a.metadata.creationTime < b.metadata.creationTime ? -1 : 1));
   console.log(`${users.length} account(s). "allowed" = can use the app once the allowlist rules are live.\n`);
   for (const user of users) {
@@ -62,14 +64,28 @@ if (applyIndex === -1) {
   process.exit(0);
 }
 
-if (targets.length === 0) {
-  console.error('Name at least one username or uid after --apply.');
+if (!isAll && targets.length === 0) {
+  console.error('Name at least one username or uid after --apply, or use --all.');
   process.exit(1);
 }
 
-for (const target of targets) {
+/** One entry per account to allow: {user, target}. --all takes every account not yet allowed (never relabels an invited one). */
+async function resolveTargets() {
+  if (!isAll) return Promise.all(targets.map(async (target) => ({ target, user: await findUser(target).catch((err) => ({ error: err })) })));
+  const emailSuffix = `@${USERNAME_EMAIL_DOMAIN}`;
+  return (await listAllUsers())
+    .filter((user) => !allowedIds.has(user.uid))
+    .map((user) => ({
+      user,
+      target: user.email?.endsWith(emailSuffix) ? user.email.slice(0, -emailSuffix.length) : (user.email ?? user.uid),
+    }));
+}
+
+let allowedCount = 0;
+for (const { target, user: found } of await resolveTargets()) {
   try {
-    const user = await findUser(target);
+    if (found.error) throw found.error;
+    const user = found;
     const entitlementRef = db.collection('entitlements').doc(user.uid);
     const existing = await entitlementRef.get();
     await db.collection('allowed').doc(user.uid).set({ cohort, label: target, invitedAt: Date.now(), grandfathered: true });
@@ -85,8 +101,11 @@ for (const target of targets) {
       });
     }
     console.log(`allowed: ${user.email ?? user.uid} (cohort ${cohort})`);
+    allowedCount += 1;
   } catch (err) {
     console.error(`FAILED ${target}: ${err.message}`);
     process.exitCode = 1;
   }
 }
+console.log(`
+Done: ${allowedCount} account(s) allowed.`);
