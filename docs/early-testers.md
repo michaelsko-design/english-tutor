@@ -30,9 +30,10 @@ Delete `allowed/{uid}` in the Firebase console: the child is locked out at once.
 
 ## Public launch
 `node scripts/setAccess.mjs --open` (instant, no deploy), then remove the `noindex` meta in `index.html` and the
-`Disallow` in `public/robots.txt`, enforce App Check, rate-limit `/api/tts`, and review the privacy text.
+`Disallow` in `public/robots.txt`, enforce App Check, and review the privacy text.
 `node scripts/setAccess.mjs --closed` closes it again.
 
 ## Known limits
-- `/api/tts` only checks for a signed-in account, not an allowed one, so a stranger with a throwaway account could use the online voice fallback until it is rate-limited or App Check is enforced.
+- `/api/tts` already requires a signed-in account and applies per-uid and per-IP rate limits, but it does not check `allowed/{uid}`: a stranger with a throwaway account could use the online voice fallback within those limits. Enforce App Check (`APPCHECK_ENFORCE`) before the public launch to tighten this.
 - Parent accounts (Google sign-in) are outside the gate; they can only link to a child that has data.
+- Account deletion calls `/api/erase-account-data`, which removes the learner's `analyticsDaily`, `feedback`, `allowed` and comp `entitlements` documents (a paid subscription's entitlement is kept). It is best effort: if the call fails, the leftover rows are pseudonymous and can be removed by hand.

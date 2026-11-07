@@ -25,7 +25,7 @@ export const AnalyticsOptOutCard: React.FC<AnalyticsOptOutCardProps> = ({ profil
       >
         <span className="flex items-center gap-1.5">
           <BarChart3 className="w-4 h-4" aria-hidden="true" />
-          סטטיסטיקות שימוש אנונימיות
+          סטטיסטיקות שימוש
         </span>
         <span>{isOn ? 'פועל' : 'כבוי'}</span>
       </button>

@@ -13,6 +13,7 @@ import {
 import { collection, deleteDoc, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { auth, db, googleProvider } from './firebase';
 import { readEntitlementOnce } from './entitlementService';
+import { eraseServerAccountData } from './accessService';
 import { deleteLearnerParentData } from './parentService';
 import { deleteAllStickerImages, loadAllStickerImages } from './stickerImages';
 import { LearnerProfile } from '../types/learner';
@@ -118,6 +119,8 @@ export async function deleteAccount(friendCode: string | undefined, pin: string)
   try {
     await reauthenticate(user, pin);
     await deleteLearnerData(user, friendCode);
+    // Needs the sign-in, so it runs before the account itself is deleted
+    await eraseServerAccountData();
     await deleteUser(user);
     return { ok: true };
   } catch (error) {

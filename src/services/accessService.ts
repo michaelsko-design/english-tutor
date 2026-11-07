@@ -88,3 +88,22 @@ export async function redeemAccessCode(code: string): Promise<RedeemResult> {
     return { ok: false, errorHe: OFFLINE_ERROR_HE };
   }
 }
+
+/**
+ * Account deletion, server part: usage counters, feedback notes and the access record can only be
+ * removed with the service account. Best effort: a failure must not stop the learner's own deletion.
+ */
+export async function eraseServerAccountData(): Promise<boolean> {
+  const user = auth?.currentUser;
+  if (!user) return false;
+  try {
+    const [idToken, appCheckToken] = await Promise.all([user.getIdToken(), getAppCheckToken()]);
+    const response = await fetch('/api/erase-account-data', {
+      method: 'POST',
+      headers: { [TTS_TOKEN_HEADER]: idToken, ...(appCheckToken ? { [APP_CHECK_HEADER]: appCheckToken } : {}) },
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
