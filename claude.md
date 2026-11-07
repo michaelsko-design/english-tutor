@@ -47,7 +47,7 @@ Emulator testing: never sign in or create accounts against the live Firebase pro
 - Every local change goes through `App.handleUpdateProfile` (activity log + diamond ledger recorded there).
 - **A new `LearnerProfile` field must be added to `mergeLearnerProfiles`** (`services/cloudSync.ts`) or a sync drops it. Dates are local calendar days (`utils/dates.ts`), never UTC.
 - Never save before the cloud profile loaded (`isCloudLoadedRef`). Diamonds merge via `diamondLedger`; streaks via `mergeStreakStats`.
-- New Firestore access → update `firestore.rules` and run the rules smoke test.
+- New Firestore access → update `firestore.rules` and run the rules smoke test. While the app is in the closed early-tester phase (`config/access.open` false), new learner-facing paths must also require `isAllowed()`; the gate, tester tools and the public-launch checklist are in `docs/early-testers.md` and `docs/architecture.md` §4.31.
 
 **Hebrew RTL & inflection**:
 - `<html lang="he" dir="rtl">`. English text gets `dir="ltr"` + `lang="en"`, or `dir="auto"`, or `<bdi>`; English inside Hebrew strings uses `isolateLtr` / `isolateEnglishRuns` (`utils/bidi.ts`).
