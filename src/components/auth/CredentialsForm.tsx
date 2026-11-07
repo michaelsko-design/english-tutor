@@ -31,7 +31,6 @@ export function CredentialsForm({
 }: CredentialsFormProps) {
   const [isPasswordShown, setIsPasswordShown] = useState(false);
   const usernameId = useId();
-  const usernameHintId = useId();
   const passwordId = useId();
   const isNew = mode === 'new';
 
@@ -46,7 +45,7 @@ export function CredentialsForm({
 
       <div>
         <label htmlFor={usernameId} className="block text-xs font-bold mb-1">
-          שם משתמש (באותיות באנגלית)
+          {isNew ? 'בחר שם משתמש (אותיות באנגלית בלבד ומספרים)' : 'שם משתמש'}
         </label>
         <input
           id={usernameId}
@@ -56,20 +55,16 @@ export function CredentialsForm({
           autoComplete="username"
           autoCapitalize="none"
           spellCheck={false}
-          aria-describedby={usernameHintId}
           value={username}
           onChange={(e) => onUsernameChange(e.target.value)}
           placeholder="noa12"
           className={`w-full px-3.5 py-2.5 rounded-xl text-base font-bold outline-none ${theme.inputBgClass}`}
         />
-        <p id={usernameHintId} className={`mt-1 text-xs ${theme.mutedTextClass}`}>
-          אותיות באנגלית ומספרים, בלי רווחים
-        </p>
       </div>
 
       <div>
         <label htmlFor={passwordId} className="block text-xs font-bold mb-1">
-          סיסמה (לפחות {MIN_PIN_LENGTH} תווים)
+          {isNew ? `בחר קוד סודי (${MIN_PIN_LENGTH} תווים לפחות)` : 'קוד סודי'}
         </label>
         <div className="relative">
           <input

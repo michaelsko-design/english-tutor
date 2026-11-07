@@ -71,7 +71,7 @@ async function fillAndSubmit(
 ) {
   await user.click(screen.getByRole('button', { name: mode === 'new' ? /חדש\/ה כאן/ : /כבר רשום\/ה/ }));
   if (username) await user.type(screen.getByLabelText(/שם משתמש/), username);
-  await user.type(screen.getByLabelText(/^סיסמה/), pin);
+  await user.type(screen.getByLabelText(/^(בחר )?קוד סודי/), pin);
   await user.click(screen.getByRole('button', { name: mode === 'new' ? /יצירת חשבון/ : /^כניסה$/ }));
 }
 

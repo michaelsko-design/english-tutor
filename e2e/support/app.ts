@@ -27,7 +27,7 @@ async function submitAuthForm(page: Page, learner: TestLearner, mode: 'login' | 
   const gate = page.getByRole('dialog', { name: 'התחברות' });
   await gate.getByRole('button', { name: mode === 'register' ? /חדש\/ה כאן/ : /כבר רשום\/ה/ }).click();
   await gate.getByLabel(/שם משתמש/).fill(learner.username);
-  await gate.getByLabel(/^סיסמה/).fill(learner.pin);
+  await gate.getByLabel(/^(בחר )?קוד סודי/).fill(learner.pin);
   await gate.getByRole('button', { name: mode === 'register' ? /יצירת חשבון/ : /^כניסה$/ }).click();
 }
 
