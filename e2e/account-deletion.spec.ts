@@ -23,7 +23,7 @@ test.describe('account deletion', () => {
     expect(await listDocumentIds(`learners/${uid}/stickers`)).toEqual([]);
 
     await signIn(page, learner);
-    await expect(page.getByText(/שם המשתמש או הקוד הסודי אינם נכונים/)).toBeVisible();
+    await expect(page.getByText(/שם המשתמש או הסיסמה לא נכונים/)).toBeVisible();
   });
 
   test('a wrong PIN keeps the account', async ({ page, learner }) => {

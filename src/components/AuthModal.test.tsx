@@ -45,10 +45,17 @@ function renderGate(props: { isMandatory?: boolean; onClose?: () => void } = {})
   );
 }
 
-async function fillAndSubmit(user: ReturnType<typeof userEvent.setup>, username: string, pin: string) {
-  await user.type(screen.getByLabelText(/Username or Email/), username);
-  await user.type(screen.getByLabelText(/קוד סודי \/ סיסמה/), pin);
-  await user.click(screen.getByRole('button', { name: /התחברות וסנכרון|יצירת חשבון/ }));
+/** Opens the new-account or sign-in form ("חדש/ה כאן" / "כבר רשום/ה"), fills it and submits */
+async function fillAndSubmit(
+  user: ReturnType<typeof userEvent.setup>,
+  username: string,
+  pin: string,
+  mode: 'new' | 'existing' = 'existing'
+) {
+  await user.click(screen.getByRole('button', { name: mode === 'new' ? /חדש\/ה כאן/ : /כבר רשום\/ה/ }));
+  if (username) await user.type(screen.getByLabelText(/שם משתמש/), username);
+  await user.type(screen.getByLabelText(/^סיסמה/), pin);
+  await user.click(screen.getByRole('button', { name: mode === 'new' ? /יצירת חשבון/ : /^כניסה$/ }));
 }
 
 describe('AuthModal', () => {
@@ -77,8 +84,7 @@ describe('AuthModal', () => {
     vi.mocked(createUserWithEmailAndPassword).mockResolvedValue({ user: {} } as never);
     renderGate();
 
-    await user.click(screen.getByRole('button', { name: 'פתיחת חשבון חדש' }));
-    await fillAndSubmit(user, 'noa12', PIN);
+    await fillAndSubmit(user, 'noa12', PIN, 'new');
 
     expect(createUserWithEmailAndPassword).toHaveBeenCalledWith(
       expect.anything(),
@@ -94,8 +100,18 @@ describe('AuthModal', () => {
 
     await fillAndSubmit(user, 'noa12', '123');
 
-    expect(screen.getByText(/חייבים להכיל לפחות 6 תווים/)).toBeInTheDocument();
+    expect(screen.getByText(/לפחות 6 תווים\./)).toBeInTheDocument();
     expect(signInWithEmailAndPassword).not.toHaveBeenCalled();
+  });
+
+  it('refuses a Hebrew username without calling Firebase', async () => {
+    const user = userEvent.setup();
+    renderGate();
+
+    await fillAndSubmit(user, 'נועה', PIN, 'new');
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/באותיות באנגלית ובמספרים בלבד/);
+    expect(createUserWithEmailAndPassword).not.toHaveBeenCalled();
   });
 
   it('shows a wrong-PIN message when Firebase rejects the credentials', async () => {
@@ -105,7 +121,7 @@ describe('AuthModal', () => {
 
     await fillAndSubmit(user, 'noa12', PIN);
 
-    expect(await screen.findByText(/הקוד הסודי אינם נכונים/)).toBeInTheDocument();
+    expect(await screen.findByText(/שם המשתמש או הסיסמה לא נכונים/)).toBeInTheDocument();
   });
 
   it('the mandatory sign-in gate cannot be closed', async () => {

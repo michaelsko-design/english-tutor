@@ -1,4 +1,4 @@
-import React, { useId, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ModalPortal } from './ModalPortal';
 import { useDialog } from '../hooks/useDialog';
 import {
@@ -18,6 +18,8 @@ import {
 import { ThemeDefinition } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
 import { normalizeIdentifierToEmail, usernameFromEmail } from '../utils/username';
+import { SignInPanel } from './auth/SignInPanel';
+import { CredentialMode, validateCredentials } from './auth/credentialValidation';
 import { APP_NAME } from '../config/appInfo';
 import { AppLogo } from './AppLogo';
 import { saveGuestWithGoogle, saveGuestWithUsername } from '../services/accountService';
@@ -27,9 +29,7 @@ import {
   Cloud,
   CheckCircle2,
   LogOut,
-  UserPlus,
   LogIn,
-  KeyRound,
   AlertCircle,
 } from 'lucide-react';
 import { Button } from './ui/Button';
@@ -59,12 +59,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const isGirl = gender === 'girl';
   const heb = getHebrewCopy(gender, learnerName);
 
-  const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [identifier, setIdentifier] = useState('');
-  const [secretPin, setSecretPin] = useState('');
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
   const [successHe, setSuccessHe] = useState<string | null>(null);
+  const [isUsernameTaken, setIsUsernameTaken] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   // A guest signing out loses the account for good, so it asks first
   const [isConfirmingGuestSignOut, setIsConfirmingGuestSignOut] = useState(false);
@@ -73,9 +71,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   // Linking doesn't fire a sign-in change, so the saved state is kept here until the next load
   const [isGuestSaved, setIsGuestSaved] = useState(false);
   const isGuest = Boolean(authUser?.isAnonymous) && !isGuestSaved;
-
-  const identifierInputId = useId();
-  const pinInputId = useId();
 
   const dialogRef = useRef<HTMLDivElement>(null);
   // The sign-in gate can't be dismissed; the cloud panel closes with Escape
@@ -118,69 +113,47 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  const handleUsernameOrEmailAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const clearMessages = () => {
+    setErrorHe(null);
+    setSuccessHe(null);
+    setIsUsernameTaken(false);
+  };
+
+  const handleCredentials = async (mode: CredentialMode, username: string, password: string) => {
     if (!auth) return;
-
-    if (!identifier.trim()) {
-      setErrorHe(
-        isGirl
-          ? 'אנא הקלידי שם משתמש באנגלית או כתובת אימייל.'
-          : 'אנא הקלד שם משתמש באנגלית או כתובת אימייל.'
-      );
-      return;
-    }
-
-    if (secretPin.trim().length < 6) {
-      setErrorHe('הקוד הסודי / סיסמה חייבים להכיל לפחות 6 תווים או ספרות.');
+    clearMessages();
+    const invalidHe = validateCredentials(mode, username, password);
+    if (invalidHe) {
+      setErrorHe(invalidHe);
       return;
     }
 
     setIsBusy(true);
-    setErrorHe(null);
-    setSuccessHe(null);
-
-    const emailToUse = normalizeIdentifierToEmail(identifier);
-
+    const emailToUse = normalizeIdentifierToEmail(username);
     try {
-      if (mode === 'register') {
-        const cred = await createUserWithEmailAndPassword(
-          auth,
-          emailToUse,
-          secretPin.trim()
-        );
+      if (mode === 'new') {
+        const cred = await createUserWithEmailAndPassword(auth, emailToUse, password.trim());
         if (learnerName.trim()) {
           await updateProfile(cred.user, { displayName: learnerName.trim() });
         }
-        setSuccessHe(
-          isGirl
-            ? 'החשבון נוצר והכוכבים והיהלומים שלך סונכרנו לענן! 🎉'
-            : 'החשבון נוצר והכוכבים והיהלומים שלך סונכרנו לענן! 🎉'
-        );
+        setSuccessHe('החשבון נוצר! 🎉');
       } else {
-        await signInWithEmailAndPassword(auth, emailToUse, secretPin.trim());
-        setSuccessHe(
-          isGirl
-            ? 'ברוכה השבה! הפרופיל שלך סונכרן מהענן בהצלחה ☁️'
-            : 'ברוך השב! הפרופיל שלך סונכרן מהענן בהצלחה ☁️'
-        );
+        await signInWithEmailAndPassword(auth, emailToUse, password.trim());
+        setSuccessHe(isGirl ? 'ברוכה השבה! ☁️' : 'ברוך השב! ☁️');
       }
     } catch (err: unknown) {
       const code = (err as { code?: string })?.code || '';
       if (code === 'auth/email-already-in-use') {
-        setErrorHe(
-          isGirl
-            ? 'שם המשתמש או האימייל הזה כבר קיימים — עברי ללשונית "התחברות"!'
-            : 'שם המשתמש או האימייל הזה כבר קיימים — עבור ללשונית "התחברות"!'
-        );
+        setIsUsernameTaken(true);
+        setErrorHe('השם הזה כבר תפוס. אם זה החשבון שלך, אפשר להיכנס איתו. אם לא, בחרו שם אחר.');
       } else if (
         code === 'auth/invalid-credential' ||
         code === 'auth/wrong-password' ||
         code === 'auth/user-not-found'
       ) {
-        setErrorHe('שם המשתמש או הקוד הסודי אינם נכונים, או שהחשבון טרם נוצר.');
+        setErrorHe('שם המשתמש או הסיסמה לא נכונים. בדקו ונסו שוב.');
       } else {
-        setErrorHe('אירעה שגיאה בהתחברות. ודאו שחיבור האינטרנט תקין.');
+        setErrorHe('משהו השתבש בכניסה. בדקו שיש אינטרנט ונסו שוב.');
       }
     } finally {
       setIsBusy(false);
@@ -242,6 +215,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     return u.displayName || u.email || learnerName || 'Learner';
   };
 
+  // The sign-in gate: no account yet, and the app can't be used without one
+  const isGate = isMandatory && !authUser;
+
+  const statusMessages = (
+    <>
+      {errorHe && (
+        <div role="alert" className="p-3.5 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-xs sm:text-sm font-extrabold flex items-center gap-2 text-rose-600 dark:text-rose-300">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{errorHe}</span>
+        </div>
+      )}
+
+      {successHe && (
+        <div role="status" className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-xs sm:text-sm font-extrabold flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
+          <span>{successHe}</span>
+        </div>
+      )}
+    </>
+  );
+
   return (
     <ModalPortal>
     <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-3 md:p-6 overflow-y-auto">
@@ -250,7 +244,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
-        aria-label={isMandatory && !authUser ? 'התחברות' : 'חשבון וסנכרון'}
+        aria-label={isGate ? 'התחברות' : 'חשבון וסנכרון'}
         className={`outline-none w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-current/15 ${theme.pageBgClass}`}
       >
         {/* Top Modal Header */}
@@ -261,7 +255,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div
               className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl ${theme.primaryBtnClass}`}
             >
-              {isMandatory && !authUser ? (
+              {isGate ? (
                 <AppLogo size={36} />
               ) : syncStatus === 'synced' ? (
                 <Cloud className="w-5 h-5" />
@@ -270,18 +264,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               )}
             </div>
             <div>
-              <h2 className="text-base md:text-lg font-extrabold">
-                {isMandatory && !authUser ? <>🔐 התחברות ל־<bdi>{APP_NAME}</bdi></> :'☁️ סנכרון ענן וחשבון רב-מכשירים'}
-                {/* English on its own isolated line, so it can't flip or wrap into the Hebrew title */}
-                <bdi className="block text-xs font-bold opacity-70 text-right">
-                  {isMandatory && !authUser ? 'Sign In Required' : 'Cloud Sync'}
-                </bdi>
-              </h2>
-              <p className={`text-xs ${theme.mutedTextClass}`}>
-                {authUser
-                  ? heb.loggedInAs(formatUserLabel(authUser))
-                  : 'יש להתחבר לחשבון או לפתוח חשבון חדש כדי להמשיך'}
-              </p>
+              {isGate ? (
+                <h2 className="text-lg md:text-xl font-extrabold">
+                  ברוכים הבאים ל־<bdi>{APP_NAME}</bdi>!
+                </h2>
+              ) : (
+                <>
+                  <h2 className="text-base md:text-lg font-extrabold">
+                    ☁️ סנכרון ענן וחשבון רב-מכשירים
+                    {/* English on its own isolated line, so it can't flip or wrap into the Hebrew title */}
+                    <bdi className="block text-xs font-bold opacity-70 text-right">Cloud Sync</bdi>
+                  </h2>
+                  <p className={`text-xs ${theme.mutedTextClass}`}>
+                    {authUser ? heb.loggedInAs(formatUserLabel(authUser)) : 'אפשר להתחבר או לפתוח חשבון חדש'}
+                  </p>
+                </>
+              )}
             </div>
           </div>
 
@@ -300,26 +298,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Modal Content */}
         <div className="p-6 space-y-5">
-          <p className={`text-xs md:text-sm ${theme.mutedTextClass}`}>
-            {isMandatory && !authUser
-              ? 'ברוכים הבאים! התחברו עם חשבון Google או עם שם משתמש וקוד סודי כדי לשמור ולסנכרן את כל הכוכבים, היהלומים וההתקדמות שלכם.'
-              : heb.cloudSyncModalSubtitle}
-          </p>
+          {!isGate && <p className={`text-xs md:text-sm ${theme.mutedTextClass}`}>{heb.cloudSyncModalSubtitle}</p>}
 
-          {/* Status Messages */}
-          {errorHe && (
-            <div className="p-3.5 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-xs font-extrabold flex items-center gap-2 text-rose-600 dark:text-rose-300">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{errorHe}</span>
-            </div>
-          )}
-
-          {successHe && (
-            <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-xs font-extrabold flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              <span>{successHe}</span>
-            </div>
-          )}
+          {authUser && statusMessages}
 
           {/* Authenticated User View */}
           {authUser && (
@@ -413,98 +394,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           )}
 
-          {/* Not Logged In (Sign In / Create Account Options) */}
+          {/* Not signed in: a child signs in or opens an account; a parent is sent to the parent area */}
           {!authUser && (
             <div className="space-y-4">
-              {/* Option 1: 1-Tap Google Sign-In */}
-              <Button theme={theme} size="lg" className="w-full" disabled={isBusy} onClick={handleGoogleSignIn}>
-                <span>🌐</span>
-                <span>התחברות מהירה בלחיצה אחת עם Google</span>
-              </Button>
-
-              <div className="flex items-center gap-3 text-xs opacity-60">
-                <div className="h-px flex-1 bg-current" />
-                <span>או עם שם משתמש וקוד סודי</span>
-                <div className="h-px flex-1 bg-current" />
-              </div>
-
-              {/* Mode Switcher: Login vs Register */}
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode('login');
-                    setErrorHe(null);
-                  }}
-                  className={`py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 ${
-                    mode === 'login' ? theme.primaryBtnClass : theme.secondaryBtnClass
-                  }`}
-                >
-                  <LogIn className="w-3.5 h-3.5" />
-                  <span>התחברות לחשבון קיים</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode('register');
-                    setErrorHe(null);
-                  }}
-                  className={`py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 ${
-                    mode === 'register'
-                      ? theme.primaryBtnClass
-                      : theme.secondaryBtnClass
-                  }`}
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  <span>פתיחת חשבון חדש</span>
-                </button>
-              </div>
-
-              {/* Option 2: Kid-Friendly Username/Email + PIN/Password Form */}
-              <form onSubmit={handleUsernameOrEmailAuth} className="space-y-3">
-                <div>
-                  <label htmlFor={identifierInputId} className="block text-xs font-bold mb-1">
-                    שם משתמש באנגלית או אימייל <bdi>(Username or Email)</bdi>:
-                  </label>
-                  <input
-                    id={identifierInputId}
-                    type="text"
-                    dir="ltr" lang="en"
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="e.g. noa12 or noa@example.com"
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm font-bold outline-none ${theme.inputBgClass}`}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor={pinInputId} className="block text-xs font-bold mb-1 flex items-center gap-1">
-                    <KeyRound className="w-3.5 h-3.5" />
-                    <span>קוד סודי / סיסמה (לפחות 6 ספרות או אותיות):</span>
-                  </label>
-                  <input
-                    id={pinInputId}
-                    type="password"
-                    dir="ltr" lang="en"
-                    value={secretPin}
-                    onChange={(e) => setSecretPin(e.target.value)}
-                    placeholder="••••••"
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm font-bold outline-none ${theme.inputBgClass}`}
-                  />
-                </div>
-
-                <Button theme={theme} size="lg" className="w-full" type="submit" disabled={isBusy}>
-                  {mode === 'register'
-                    ? 'יצירת חשבון וסנכרון ההתקדמות לענן 🚀'
-                    : 'התחברות וסנכרון מהענן ☁️'}
-                </Button>
-              </form>
-
-              {mode === 'login' && (
-                <p className="text-xs text-center opacity-80">
-                  שכחתם את הקוד? אם חיברתם חשבון Google לחשבון, אפשר להיכנס איתו למעלה ואז להחליף קוד בהגדרות. הורה שמחובר לחשבון יכול להחליף את הקוד באזור ההורים.
-                </p>
-              )}
+              <SignInPanel
+                theme={theme}
+                isBusy={isBusy}
+                showAudienceSwitch={isMandatory}
+                isUsernameTaken={isUsernameTaken}
+                messages={statusMessages}
+                onGoogle={() => void handleGoogleSignIn()}
+                onSubmitCredentials={(mode, username, password) => void handleCredentials(mode, username, password)}
+                onClearMessages={clearMessages}
+              />
 
               <div className="text-center">
                 <button
@@ -515,13 +417,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   🔒 פרטיות ומידע להורים
                 </button>
               </div>
-              {isMandatory && (
-                <div className="text-center">
-                  <a href="/?parent" className="text-xs underline opacity-75 hover:opacity-100">
-                    אני הורה: לדוח ההתקדמות
-                  </a>
-                </div>
-              )}
 
               {!isMandatory && (
                 <div className="pt-1 text-center">

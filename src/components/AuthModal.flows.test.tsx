@@ -62,10 +62,17 @@ function renderGate({ isMandatory = true, authUser = null, onSignOut = async () 
   );
 }
 
-async function fillAndSubmit(user: ReturnType<typeof userEvent.setup>, username: string, pin: string) {
-  await user.type(screen.getByLabelText(/Username or Email/), username);
-  await user.type(screen.getByLabelText(/קוד סודי \/ סיסמה/), pin);
-  await user.click(screen.getByRole('button', { name: /התחברות וסנכרון|יצירת חשבון/ }));
+/** Opens the new-account or sign-in form ("חדש/ה כאן" / "כבר רשום/ה"), fills it and submits */
+async function fillAndSubmit(
+  user: ReturnType<typeof userEvent.setup>,
+  username: string,
+  pin: string,
+  mode: 'new' | 'existing' = 'existing'
+) {
+  await user.click(screen.getByRole('button', { name: mode === 'new' ? /חדש\/ה כאן/ : /כבר רשום\/ה/ }));
+  if (username) await user.type(screen.getByLabelText(/שם משתמש/), username);
+  await user.type(screen.getByLabelText(/^סיסמה/), pin);
+  await user.click(screen.getByRole('button', { name: mode === 'new' ? /יצירת חשבון/ : /^כניסה$/ }));
 }
 
 beforeEach(() => {
@@ -80,10 +87,9 @@ describe('AuthModal username form', () => {
     const user = userEvent.setup();
     renderGate();
 
-    await user.type(screen.getByLabelText(/קוד סודי \/ סיסמה/), PIN);
-    await user.click(screen.getByRole('button', { name: /התחברות וסנכרון/ }));
+    await fillAndSubmit(user, '', PIN);
 
-    expect(screen.getByText(/אנא הקלידי שם משתמש/)).toBeInTheDocument();
+    expect(screen.getByText(/צריך לכתוב שם משתמש/)).toBeInTheDocument();
     expect(signInWithEmailAndPassword).not.toHaveBeenCalled();
   });
 
@@ -93,22 +99,25 @@ describe('AuthModal username form', () => {
     vi.mocked(createUserWithEmailAndPassword).mockResolvedValue(created as never);
     renderGate();
 
-    await user.click(screen.getByRole('button', { name: 'פתיחת חשבון חדש' }));
-    await fillAndSubmit(user, 'noa12', PIN);
+    await fillAndSubmit(user, 'noa12', PIN, 'new');
 
     expect(updateProfile).toHaveBeenCalledWith(created.user, { displayName: 'נועה' });
     expect(await screen.findByText(/החשבון נוצר/)).toBeInTheDocument();
   });
 
-  it('sends a taken username to the sign-in tab', async () => {
+  it('offers to sign in with a taken username, keeping what was typed', async () => {
     const user = userEvent.setup();
     vi.mocked(createUserWithEmailAndPassword).mockRejectedValue({ code: 'auth/email-already-in-use' });
+    vi.mocked(signInWithEmailAndPassword).mockResolvedValue({} as never);
     renderGate();
 
-    await user.click(screen.getByRole('button', { name: 'פתיחת חשבון חדש' }));
-    await fillAndSubmit(user, 'noa12', PIN);
+    await fillAndSubmit(user, 'noa12', PIN, 'new');
+    expect(await screen.findByText(/השם הזה כבר תפוס/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'לכניסה עם השם הזה' }));
 
-    expect(await screen.findByText(/כבר קיימים/)).toBeInTheDocument();
+    expect(screen.queryByText(/השם הזה כבר תפוס/)).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^כניסה$/ }));
+    expect(signInWithEmailAndPassword).toHaveBeenCalledWith(expect.anything(), 'noa12@peachnote.tutor.local', PIN);
   });
 
   it('shows a general message for any other sign-in failure', async () => {
@@ -118,26 +127,26 @@ describe('AuthModal username form', () => {
 
     await fillAndSubmit(user, 'noa12', PIN);
 
-    expect(await screen.findByText(/אירעה שגיאה בהתחברות/)).toBeInTheDocument();
+    expect(await screen.findByText(/משהו השתבש בכניסה/)).toBeInTheDocument();
   });
 
-  it('clears an old error when the learner switches tabs', async () => {
+  it('clears an old error when the learner goes back', async () => {
     const user = userEvent.setup();
     vi.mocked(signInWithEmailAndPassword).mockRejectedValue({ code: 'auth/wrong-password' });
     renderGate();
     await fillAndSubmit(user, 'noa12', PIN);
-    expect(await screen.findByText(/אינם נכונים/)).toBeInTheDocument();
+    expect(await screen.findByText(/לא נכונים/)).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'פתיחת חשבון חדש' }));
+    await user.click(screen.getByRole('button', { name: 'חזרה' }));
 
-    expect(screen.queryByText(/אינם נכונים/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/שכחתם את הקוד/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/לא נכונים/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /חדש\/ה כאן/ })).toBeInTheDocument();
   });
 });
 
 describe('AuthModal Google sign-in', () => {
   const clickGoogle = (user: ReturnType<typeof userEvent.setup>) =>
-    user.click(screen.getByRole('button', { name: /התחברות מהירה בלחיצה אחת עם Google/ }));
+    user.click(screen.getByRole('button', { name: /כניסה עם Google/ }));
 
   it('confirms a successful sign-in', async () => {
     const user = userEvent.setup();
@@ -189,11 +198,30 @@ describe('AuthModal Google sign-in', () => {
 });
 
 describe('AuthModal around the form', () => {
-  it('offers the parent report link on the mandatory gate only', () => {
+  it('starts on the child tab, with the ways for a child to sign in', () => {
     renderGate({ isMandatory: true });
 
-    expect(screen.getByRole('link', { name: /אני הורה/ })).toHaveAttribute('href', '/?parent');
+    expect(screen.getByRole('tab', { name: /ילד\/ה/ })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('button', { name: /כניסה עם Google/ })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Guest Cloud/ })).not.toBeInTheDocument();
+  });
+
+  it('sends a parent to the parent area, with no way to sign in here', async () => {
+    const user = userEvent.setup();
+    renderGate({ isMandatory: true });
+
+    await user.click(screen.getByRole('tab', { name: /הורה/ }));
+
+    expect(screen.getByRole('link', { name: 'לאזור ההורים' })).toHaveAttribute('href', '/?parent');
+    expect(screen.queryByRole('button', { name: /כניסה עם Google/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /חדש\/ה כאן/ })).not.toBeInTheDocument();
+  });
+
+  it('the cloud panel has no child / parent switch', () => {
+    renderGate({ isMandatory: false });
+
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /כניסה עם Google/ })).toBeInTheDocument();
   });
 
   it('opens the privacy notice', async () => {

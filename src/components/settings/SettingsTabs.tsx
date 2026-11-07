@@ -13,6 +13,10 @@ interface SettingsTabsProps<Id extends string> {
   theme: ThemeDefinition;
   idPrefix: string;
   onChange: (id: Id) => void;
+  /** The tab bar's name for screen readers */
+  ariaLabel?: string;
+  /** Taller tabs with a bigger icon, for a screen's main choice (the sign-in gate) */
+  isLarge?: boolean;
 }
 
 export const tabButtonId = (idPrefix: string, id: string) => `${idPrefix}-tab-${id}`;
@@ -25,6 +29,8 @@ export function SettingsTabs<Id extends string>({
   theme,
   idPrefix,
   onChange,
+  ariaLabel = 'קטגוריות הגדרות',
+  isLarge = false,
 }: SettingsTabsProps<Id>) {
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -47,7 +53,7 @@ export function SettingsTabs<Id extends string>({
     <div
       ref={listRef}
       role="tablist"
-      aria-label="קטגוריות הגדרות"
+      aria-label={ariaLabel}
       onKeyDown={handleKeyDown}
       className="flex gap-1.5"
     >
@@ -63,11 +69,11 @@ export function SettingsTabs<Id extends string>({
             aria-controls={tabPanelId(idPrefix, tab.id)}
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(tab.id)}
-            className={`min-h-14 min-w-0 flex-1 px-0.5 py-1.5 rounded-xl font-extrabold text-xs flex flex-col items-center justify-center gap-0.5 transition-colors ${
+            className={`${isLarge ? 'min-h-20 rounded-2xl text-sm gap-1' : 'min-h-14 rounded-xl text-xs gap-0.5'} min-w-0 flex-1 px-0.5 py-1.5 font-extrabold flex flex-col items-center justify-center transition-colors ${
               isActive ? theme.primaryBtnClass : theme.secondaryBtnClass
             }`}
           >
-            <span aria-hidden="true" className="text-base leading-none">{tab.icon}</span>
+            <span aria-hidden="true" className={`${isLarge ? 'text-3xl' : 'text-base'} leading-none`}>{tab.icon}</span>
             <span className="leading-tight">{tab.labelHe}</span>
           </button>
         );

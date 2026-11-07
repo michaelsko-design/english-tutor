@@ -22,7 +22,7 @@ test.describe('sign-in', () => {
 
     await signIn(page, { ...learner, pin: `${learner.pin}9` });
 
-    await expect(page.getByText(/שם המשתמש או הקוד הסודי אינם נכונים/)).toBeVisible();
+    await expect(page.getByText(/שם המשתמש או הסיסמה לא נכונים/)).toBeVisible();
     await expect(page.getByRole('dialog', { name: 'התחברות' })).toBeVisible();
   });
 });

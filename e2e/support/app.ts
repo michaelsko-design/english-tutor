@@ -12,10 +12,10 @@ export interface OnboardingChoices {
 
 async function submitAuthForm(page: Page, learner: TestLearner, mode: 'login' | 'register') {
   const gate = page.getByRole('dialog', { name: 'התחברות' });
-  await gate.getByRole('button', { name: mode === 'register' ? 'פתיחת חשבון חדש' : 'התחברות לחשבון קיים' }).click();
-  await gate.getByLabel(/Username or Email/).fill(learner.username);
-  await gate.getByLabel(/קוד סודי \/ סיסמה/).fill(learner.pin);
-  await gate.getByRole('button', { name: mode === 'register' ? /יצירת חשבון/ : /התחברות וסנכרון/ }).click();
+  await gate.getByRole('button', { name: mode === 'register' ? /חדש\/ה כאן/ : /כבר רשום\/ה/ }).click();
+  await gate.getByLabel(/שם משתמש/).fill(learner.username);
+  await gate.getByLabel(/^סיסמה/).fill(learner.pin);
+  await gate.getByRole('button', { name: mode === 'register' ? /יצירת חשבון/ : /^כניסה$/ }).click();
 }
 
 /** Opens a new account from the sign-in gate (`url` is where the page starts, e.g. an invite link). */
