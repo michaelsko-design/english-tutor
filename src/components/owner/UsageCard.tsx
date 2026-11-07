@@ -27,6 +27,17 @@ const FEATURE_LABELS: Record<string, string> = {
 
 const percent =(share: number | null): string => (share === null ? '–' : `${Math.round(share * 100)}%`);
 
+const OS_LABELS: Record<string, string> = { ios: 'iOS', android: 'Android', windows: 'Windows', mac: 'Mac', linux: 'Linux', other: 'Other OS' };
+const BROWSER_LABELS: Record<string, string> = { safari: 'Safari', chrome: 'Chrome', firefox: 'Firefox', edge: 'Edge', samsung: 'Samsung Internet', other: 'Other browser' };
+
+/** `ios-safari-phone-pwa` -> "iPhone/iOS Safari phone (app)" style label, from fixed words only */
+export function deviceLabel(device: string): string {
+  const [os = 'other', browser = 'other', form = 'desktop', pwa] = device.split('-');
+  return `${OS_LABELS[os] ?? os} ${BROWSER_LABELS[browser] ?? browser} ${form}${pwa ? ' (installed)' : ''}`;
+}
+
+const deviceList = (devices: readonly string[] | undefined): string => (devices && devices.length > 0 ? devices.map(deviceLabel).join(', ') : '–');
+
 /** Funnel, return rate, tier mix and client errors, from the anonymous first-party counters */
 export const UsageCard: React.FC<{ usage: OwnerStats['usage'] }> = ({ usage }) => {
   if (!usage || !usage.hasData) {
@@ -86,6 +97,52 @@ export const UsageCard: React.FC<{ usage: OwnerStats['usage'] }> = ({ usage }) =
         </p>
       )}
 
+      {usage.stuckMissions && usage.stuckMissions.length > 0 && (
+        <>
+          <h3 className="mt-4 text-xs font-bold text-slate-900 dark:text-white">Where learners get stuck</h3>
+          <div className="overflow-x-auto">
+            <table className="mt-1 w-full text-left text-xs text-slate-700 dark:text-slate-300">
+              <thead className={MUTED}>
+                <tr>
+                  <th className="pr-2 font-medium">Mission</th>
+                  <th className="pr-2 font-medium">Started</th>
+                  <th className="pr-2 font-medium">Left unfinished</th>
+                  <th className="pr-2 font-medium">Rate</th>
+                  <th className="pr-2 font-medium">Learners</th>
+                  <th className="font-medium">Tier (E / C / M)</th>
+                </tr>
+              </thead>
+              <tbody className="tabular-nums">
+                {usage.stuckMissions.map((mission) => (
+                  <tr key={mission.missionId}>
+                    <td className="pr-2 font-bold" dir="ltr">{mission.missionId}</td>
+                    <td className="pr-2">{mission.starts}</td>
+                    <td className="pr-2">{mission.abandons}</td>
+                    <td className="pr-2">{mission.starts > 0 ? `${Math.round((mission.abandons / mission.starts) * 100)}%` : '–'}</td>
+                    <td className="pr-2">{mission.learners}</td>
+                    <td dir="ltr">{mission.tiers.explorer} / {mission.tiers.challenger} / {mission.tiers.master}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {usage.devices && usage.devices.length > 0 && (
+        <>
+          <h3 className="mt-4 text-xs font-bold text-slate-900 dark:text-white">Devices (learners)</h3>
+          <ul className="mt-1 space-y-1">
+            {usage.devices.map(({ device, learners }) => (
+              <li key={device} className="flex justify-between text-xs text-slate-700 dark:text-slate-300">
+                <span dir="ltr">{deviceLabel(device)}</span>
+                <span className="font-bold tabular-nums">{learners}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
       {usage.testers && usage.testers.length > 0 && (
         <>
           <h3 className="mt-4 text-xs font-bold text-slate-900 dark:text-white">Early testers</h3>
@@ -99,7 +156,8 @@ export const UsageCard: React.FC<{ usage: OwnerStats['usage'] }> = ({ usage }) =
                   <th className="pr-2 font-medium">Missions</th>
                   <th className="pr-2 font-medium">Abandoned</th>
                   <th className="pr-2 font-medium">Hints</th>
-                  <th className="font-medium">Audio errors</th>
+                  <th className="pr-2 font-medium">Audio errors</th>
+                  <th className="font-medium">Device</th>
                 </tr>
               </thead>
               <tbody className="tabular-nums">
@@ -111,7 +169,8 @@ export const UsageCard: React.FC<{ usage: OwnerStats['usage'] }> = ({ usage }) =
                     <td className="pr-2">{tester.missions}</td>
                     <td className="pr-2">{tester.missionAbandons}</td>
                     <td className="pr-2">{tester.hintsUsed}</td>
-                    <td>{tester.ttsErrors}</td>
+                    <td className="pr-2">{tester.ttsErrors}</td>
+                    <td dir="ltr">{deviceList(tester.devices)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -159,6 +218,7 @@ export const UsageCard: React.FC<{ usage: OwnerStats['usage'] }> = ({ usage }) =
             <li key={`${error.source}|${error.message}`} className="flex justify-between gap-3 text-xs text-slate-700 dark:text-slate-300">
               <span className="min-w-0 break-words" dir="ltr">
                 [{error.source}] {error.message}
+                {error.devices && error.devices.length > 0 && <span className={`ms-1 ${MUTED}`}>({deviceList(error.devices)})</span>}
               </span>
               <span className="shrink-0 font-bold tabular-nums">
                 ×{error.count} · {error.days}d

@@ -1,6 +1,7 @@
 import { db, isFirebaseConfigured } from '../firebase';
 import { toLocalDateStr } from '../../utils/dates';
-import { createAnalytics, type AnalyticsContext } from './analyticsService';
+import { createAnalytics, type AnalyticsContext, type MissionSignal } from './analyticsService';
+import { detectDevice } from './deviceInfo';
 import { createErrorReporter } from './errorReporter';
 import type { ProficiencyTier } from '../../types/learner';
 import type { AnalyticsEvent } from './events';
@@ -17,15 +18,22 @@ const analytics = createAnalytics({
 });
 
 let currentUid: string | null = null;
+/** Detected once: a device doesn't change during a session */
+const device: string | undefined = detectDevice();
 
 const reportError = createErrorReporter({
   getDb: () => (isEnabled() ? db : null),
   getUid: () => currentUid,
   today: () => toLocalDateStr(new Date()),
   appVersion: APP_VERSION,
+  getDevice: () => device,
 });
 
 export const trackEvent = (name: AnalyticsEvent): void => analytics.track(name);
+
+/** A mission opened (`start`) or closed unfinished (`abandon`), with the tier at that moment */
+export const trackMissionSignal = (missionId: string, tier: ProficiencyTier, signal: MissionSignal): void =>
+  analytics.trackMission(missionId, tier, signal);
 const TIER_EVENTS = {
   explorer: 'mission_finish_tier_explorer',
   challenger: 'mission_finish_tier_challenger',
@@ -44,7 +52,7 @@ export const reportRenderError = (error: unknown): void => void reportError(erro
 /** Called when the signed-in learner (or their grade) changes; `null` on sign-out */
 export function setAnalyticsContext(context: AnalyticsContext | null): void {
   currentUid = context?.uid ?? null;
-  analytics.setContext(context);
+  analytics.setContext(context ? { ...context, ...(device ? { device } : {}) } : null);
 }
 
 if (typeof window !== 'undefined' && !import.meta.env.VITEST) {

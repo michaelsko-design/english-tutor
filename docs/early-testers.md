@@ -144,12 +144,13 @@ Later app-only changes (API and client, no rules change) need just the push. A c
 
 ## Data and privacy of the test
 - Collected per child: the normal learner profile, per-day usage counters (`analyticsDaily/{day}_{uid}`,
-  pseudonymous: keyed by uid, no names or learner text), error reports, and notes the child chooses to send
+  pseudonymous: keyed by uid, no names or learner text; they include a coarse device bucket such as
+  `ios-safari-phone`, and per-mission "left unfinished" counts in `missionStruggle`), error reports, and notes the child chooses to send
   (`feedback`, max 500 characters, with an "no personal details" warning). The privacy notice
   (`PrivacyNoticeDialog`) says this honestly ("pseudonymous", not "anonymous").
 - Opt-out: *AnalyticsOptOutCard*; with it on, no counters or errors are sent.
 - **Account deletion** (Settings, with the PIN) calls `/api/erase-account-data` before deleting the Auth user. It
-  removes the learner's `analyticsDaily`, `allowed` and comp `entitlements` (a paid subscription is kept).
+  removes the learner's `analyticsDaily`, `missionStruggle`, `allowed` and comp `entitlements` (a paid subscription is kept).
   **Feedback notes are deliberately kept**, because they are valuable: the uid is blanked and the invite alias
   stays (`testerLabel`), so they show in the dashboard as "<alias> (account deleted)". The used invite record
   (`invites/{code}`, with its alias) is kept too, without an account link. This is a privacy decision to put in

@@ -28,6 +28,8 @@ interface ErrorReporterDeps {
   getUid: () => string | null;
   today: () => string;
   appVersion: string;
+  /** A coarse device bucket (deviceInfo.ts), when known: tells a Safari-only crash from a general one */
+  getDevice?: () => string | undefined;
 }
 
 export function createErrorReporter(deps: ErrorReporterDeps) {
@@ -43,10 +45,20 @@ export function createErrorReporter(deps: ErrorReporterDeps) {
     const key = errorKey(message, raw.stack ?? '');
     if (seen.has(key) || seen.size >= MAX_REPORTS_PER_SESSION) return;
     seen.add(key);
+    const device = deps.getDevice?.();
     try {
       await setDoc(
         doc(db, CLIENT_ERRORS_COLLECTION, `${deps.today()}_${key}`),
-        { day: deps.today(), message, stack, source, appVersion: deps.appVersion, count: increment(1), lastSeen: serverTimestamp() },
+        {
+          day: deps.today(),
+          message,
+          stack,
+          source,
+          appVersion: deps.appVersion,
+          ...(device ? { device } : {}),
+          count: increment(1),
+          lastSeen: serverTimestamp(),
+        },
         { merge: true }
       );
     } catch {

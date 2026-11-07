@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeUsageStats, readAllowedRows, readAnalyticsRows, readFeedbackRows } from './usageStats.js';
+import { computeUsageStats, readAllowedRows, readAnalyticsRows, readFeedbackRows, readMissionStruggleRows } from './usageStats.js';
 
 const row = (uid: string, day: string, counts: Record<string, number>) => ({ uid, day, counts });
 
@@ -57,8 +57,8 @@ describe('computeUsageStats', () => {
     );
     expect(stats.hasData).toBe(false);
     expect(stats.errors).toEqual([
-      { message: 'x', source: 'render', count: 5, days: 2 },
-      { message: 'y', source: 'window', count: 1, days: 1 },
+      { message: 'x', source: 'render', count: 5, days: 2, devices: [] },
+      { message: 'y', source: 'window', count: 1, days: 1, devices: [] },
     ]);
   });
 
@@ -84,8 +84,66 @@ describe('computeUsageStats', () => {
     );
     expect(stats.struggle).toEqual({ missionStarts: 4, missionAbandons: 2, hintsUsed: 4, ttsErrors: 1 });
     expect(stats.testers).toEqual([
-      { label: 'noa', cohort: 'tester', daysActive: 2, lastSeen: '2026-11-06', sessions: 2, missions: 1, missionAbandons: 2, hintsUsed: 4, ttsErrors: 1 },
-      { label: 'dana', cohort: 'tester', daysActive: 0, lastSeen: null, sessions: 0, missions: 0, missionAbandons: 0, hintsUsed: 0, ttsErrors: 0 },
+      { label: 'noa', cohort: 'tester', daysActive: 2, lastSeen: '2026-11-06', sessions: 2, missions: 1, missionAbandons: 2, hintsUsed: 4, ttsErrors: 1, devices: [] },
+      { label: 'dana', cohort: 'tester', daysActive: 0, lastSeen: null, sessions: 0, missions: 0, missionAbandons: 0, hintsUsed: 0, ttsErrors: 0, devices: [] },
+    ]);
+  });
+
+  it('lists each tester\'s devices (latest first) and counts learners per device', () => {
+    const stats = computeUsageStats(
+      [
+        { ...row('a', '2026-11-05', { session_start: 1 }), device: 'ios-safari-phone' },
+        { ...row('a', '2026-11-06', { session_start: 1 }), device: 'windows-chrome-desktop' },
+        { ...row('b', '2026-11-06', { session_start: 1 }), device: 'ios-safari-phone' },
+        row('c', '2026-11-06', { session_start: 1 }),
+      ],
+      [],
+      '2026-11-06',
+      readAllowedRows([{ id: 'a', fields: { label: 'noa', cohort: 'tester' } }])
+    );
+    expect(stats.testers[0].devices).toEqual(['windows-chrome-desktop', 'ios-safari-phone']);
+    expect(stats.devices).toEqual([
+      { device: 'ios-safari-phone', learners: 2 },
+      { device: 'windows-chrome-desktop', learners: 1 },
+    ]);
+  });
+
+  it('only accepts device buckets of the expected shape', () => {
+    const rows = readAnalyticsRows([
+      { fields: { uid: 'a', day: '2026-11-06', counts: {}, device: 'Mozilla/5.0 (iPhone)' } },
+      { fields: { uid: 'b', day: '2026-11-06', counts: {}, device: 'android-chrome-phone-pwa' } },
+    ]);
+    expect(rows.map((r) => r.device)).toEqual([undefined, 'android-chrome-phone-pwa']);
+  });
+
+  it('shows the devices an error came from, most affected first', () => {
+    const stats = computeUsageStats(
+      [row('a', '2026-11-06', { session_start: 1 })],
+      [
+        { day: '2026-11-06', message: 'chunk', source: 'render', count: 1, device: 'ios-safari-phone' },
+        { day: '2026-11-06', message: 'chunk', source: 'render', count: 3, device: 'ios-safari-tablet' },
+        { day: '2026-11-06', message: 'old', source: 'window', count: 1 },
+      ],
+      '2026-11-06'
+    );
+    expect(stats.errors.find((e) => e.message === 'chunk')?.devices).toEqual(['ios-safari-tablet', 'ios-safari-phone']);
+    expect(stats.errors.find((e) => e.message === 'old')?.devices).toEqual([]);
+  });
+
+  it('ranks missions by how often they were left unfinished, with the tier split', () => {
+    const missions = readMissionStruggleRows([
+      { fields: { uid: 'a', day: '2026-11-06', missionId: 'g3-u1-m1', tier: 'challenger', starts: 2, abandons: 2 } },
+      { fields: { uid: 'b', day: '2026-11-06', missionId: 'g3-u1-m1', tier: 'explorer', starts: 1, abandons: 1 } },
+      { fields: { uid: 'a', day: '2026-11-06', missionId: 'g3-u1-m2', tier: 'explorer', starts: 3, abandons: 0 } },
+      { fields: { uid: 'a', day: '2026-11-06', missionId: 'g3-u2-m1', tier: 'master', starts: 1, abandons: 1 } },
+      { fields: { uid: 'a', day: '2026-10-01', missionId: 'old-one', tier: 'master', starts: 9, abandons: 9 } },
+      { fields: { uid: 'a', day: '2026-11-06', missionId: 'bad id!', tier: 'master', starts: 1, abandons: 1 } },
+      { fields: { uid: 'a', day: '2026-11-06', missionId: 'g3-u3-m1', tier: 'wizard', starts: 1, abandons: 1 } },
+    ]);
+    const stats = computeUsageStats([row('a', '2026-11-06', { session_start: 1 })], [], '2026-11-06', [], [], missions);
+    expect(stats.stuckMissions).toEqual([
+      { missionId: 'g3-u1-m1', starts: 3, abandons: 3, learners: 2, tiers: { explorer: 1, challenger: 2, master: 0 } },
+      { missionId: 'g3-u2-m1', starts: 1, abandons: 1, learners: 1, tiers: { explorer: 0, challenger: 0, master: 1 } },
     ]);
   });
 

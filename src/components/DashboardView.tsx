@@ -66,7 +66,7 @@ import { ProUpsellContext, type ProUpsellFocus } from './pro/proUpsellContext';
 import { ProUpsellSheet } from './pro/ProUpsellSheet';
 import { FreeMissionsDoneCard } from './pro/FreeMissionsDoneCard';
 import { ScreenLoading } from './ScreenLoading';
-import { trackEvent, trackMissionFinish } from '../services/analytics';
+import { trackEvent, trackMissionFinish, trackMissionSignal } from '../services/analytics';
 import { useTrackFeature } from '../hooks/useTrackFeature';
 import { FIRST_TIER_CLEAR_DIAMONDS, getMissionLadder, recordTierStars } from '../data/tierProgress';
 
@@ -227,11 +227,15 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     setActivePracticeMission(mission);
     isMissionFinishedRef.current = false;
     trackEvent('mission_start');
+    trackMissionSignal(mission.id, profile.preferredTier, 'start');
   };
   // Closing a mission before it finished counts as an abandon (where learners get stuck)
   const isMissionFinishedRef = useRef(false);
   const handleCloseMission = () => {
-    if (!isMissionFinishedRef.current) trackEvent('mission_abandon');
+    if (!isMissionFinishedRef.current) {
+      trackEvent('mission_abandon');
+      if (activePracticeMission) trackMissionSignal(activePracticeMission.id, profile.preferredTier, 'abandon');
+    }
     isMissionFinishedRef.current = true;
     setActivePracticeMission(null);
   };

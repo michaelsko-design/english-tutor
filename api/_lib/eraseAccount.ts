@@ -18,8 +18,9 @@ async function deleteAll(admin: FirestoreAdmin, collection: string, ids: string[
 }
 
 export async function eraseServerRecords(admin: FirestoreAdmin, uid: string): Promise<void> {
-  const [counters, notes, entitlement, allowed] = await Promise.all([
+  const [counters, struggles, notes, entitlement, allowed] = await Promise.all([
     admin.queryDocuments('analyticsDaily', 'uid', uid),
+    admin.queryDocuments('missionStruggle', 'uid', uid),
     admin.queryDocuments('feedback', 'uid', uid),
     admin.getDocument('entitlements', uid),
     admin.getDocument('allowed', uid),
@@ -28,6 +29,7 @@ export async function eraseServerRecords(admin: FirestoreAdmin, uid: string): Pr
   const isPaid = entitlement?.fields.source === 'subscription';
   await Promise.all([
     deleteAll(admin, 'analyticsDaily', idsOf(counters)),
+    deleteAll(admin, 'missionStruggle', idsOf(struggles)),
     // The note stays, without any link to the deleted account
     ...(notes.length > 0
       ? [

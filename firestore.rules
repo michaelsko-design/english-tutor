@@ -38,6 +38,15 @@ service cloud.firestore {
       return value is int && value >= 0 && value <= 1000000;
     }
 
+    // The optional coarse device bucket on analytics documents, e.g. "ios-safari-phone-pwa"
+    // (src/services/analytics/deviceInfo.ts builds it from fixed words only)
+    function isDeviceBucket(data) {
+      return !('device' in data)
+        || (data.device is string
+          && data.device.size() <= 40
+          && data.device.matches('^(ios|android|windows|mac|linux|other)-(safari|chrome|firefox|edge|samsung|other)-(phone|tablet|desktop)(-pwa)?$'));
+    }
+
     function docPath(collectionName, id) {
       return /databases/$(database)/documents/$(collectionName)/$(id);
     }
@@ -547,7 +556,8 @@ service cloud.firestore {
         && isAllowed()
         && docId == request.resource.data.day + '_' + request.auth.uid
         && request.resource.data.uid == request.auth.uid
-        && request.resource.data.keys().hasOnly(['uid', 'day', 'gradeId', 'counts'])
+        && request.resource.data.keys().hasOnly(['uid', 'day', 'gradeId', 'counts', 'device'])
+        && isDeviceBucket(request.resource.data)
         && isShortString(request.resource.data.day, 10)
         && isNearToday(request.resource.data.day)
         && isShortString(request.resource.data.gradeId, 20)
@@ -561,6 +571,24 @@ service cloud.firestore {
           'feature_room', 'feature_shop', 'feature_settings'])
         && request.resource.data.counts.get('session_start', 0) <= 1000000
         && request.resource.data.counts.get('mission_finish', 0) <= 1000000;
+    }
+
+    // Where learners get stuck: one document per learner, day, mission and tier, counting how often
+    // the mission was opened and left unfinished. Write-only for clients, like analyticsDaily; the
+    // mission id is a curriculum id (shape-checked here, not allow-listed) and `uid` is erased with the account.
+    match /missionStruggle/{docId} {
+      allow read, delete: if false;
+      allow create, update: if request.auth != null
+        && isAllowed()
+        && request.resource.data.keys().hasOnly(['uid', 'day', 'missionId', 'tier', 'starts', 'abandons'])
+        && request.resource.data.uid == request.auth.uid
+        && isNearToday(request.resource.data.day)
+        && request.resource.data.missionId is string
+        && request.resource.data.missionId.matches('^[A-Za-z0-9_.-]{1,60}$')
+        && request.resource.data.tier in ['explorer', 'challenger', 'master']
+        && docId == request.resource.data.day + '_' + request.auth.uid + '_' + request.resource.data.missionId + '_' + request.resource.data.tier
+        && isCount(request.resource.data.starts)
+        && isCount(request.resource.data.abandons);
     }
 
     // Early testers' "report a problem / idea" notes: written by the app, read only by the owner API
@@ -584,7 +612,8 @@ service cloud.firestore {
       allow read, delete: if false;
       allow create, update: if request.auth != null
         && isAllowed()
-        && request.resource.data.keys().hasOnly(['day', 'message', 'stack', 'source', 'appVersion', 'count', 'lastSeen'])
+        && request.resource.data.keys().hasOnly(['day', 'message', 'stack', 'source', 'appVersion', 'device', 'count', 'lastSeen'])
+        && isDeviceBucket(request.resource.data)
         && isShortString(request.resource.data.message, 200)
         && request.resource.data.stack.size() <= 600
         && request.resource.data.source in ['render', 'window', 'promise']

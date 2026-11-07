@@ -64,6 +64,44 @@ describe('analytics service', () => {
     expect(setDocMock.mock.calls[0][0]).toBe('analyticsDaily/2026-11-06_u1');
   });
 
+  it('adds the device bucket to the day document when it is known', async () => {
+    const { analytics } = makeAnalytics();
+    analytics.setContext({ uid: 'u1', gradeId: 'grade-3', device: 'ios-safari-phone-pwa' });
+    analytics.track('session_start');
+    await analytics.flush();
+    expect(setDocMock.mock.calls[0][1]).toMatchObject({ device: 'ios-safari-phone-pwa' });
+  });
+
+  it('writes one struggle document per mission and tier with batched increments', async () => {
+    const { analytics } = makeAnalytics();
+    analytics.setContext({ uid: 'u1', gradeId: 'grade-3' });
+    analytics.trackMission('g3-u1-m1', 'challenger', 'start');
+    analytics.trackMission('g3-u1-m1', 'challenger', 'start');
+    analytics.trackMission('g3-u1-m1', 'challenger', 'abandon');
+    analytics.trackMission('g3-u1-m1', 'master', 'abandon');
+    await analytics.flush();
+    const writes = new Map(setDocMock.mock.calls.map(([path, data]) => [path as string, data]));
+    expect(writes.get('missionStruggle/2026-11-06_u1_g3-u1-m1_challenger')).toEqual({
+      uid: 'u1',
+      day: '2026-11-06',
+      missionId: 'g3-u1-m1',
+      tier: 'challenger',
+      starts: { inc: 2 },
+      abandons: { inc: 1 },
+    });
+    expect(writes.get('missionStruggle/2026-11-06_u1_g3-u1-m1_master')).toMatchObject({ starts: { inc: 0 }, abandons: { inc: 1 } });
+  });
+
+  it('drops mission signals with an odd id or tier, or before a learner is set', async () => {
+    const { analytics } = makeAnalytics();
+    analytics.trackMission('g3-u1-m1', 'explorer', 'start');
+    analytics.setContext({ uid: 'u1', gradeId: 'grade-3' });
+    analytics.trackMission('has space', 'explorer', 'start');
+    analytics.trackMission('g3-u1-m1', 'wizard', 'start');
+    await analytics.flush();
+    expect(setDocMock).not.toHaveBeenCalled();
+  });
+
   it('survives a failed write', async () => {
     setDocMock.mockRejectedValueOnce(new Error('offline'));
     const { analytics } = makeAnalytics();
@@ -92,5 +130,17 @@ describe('error reporter', () => {
     await report(error, 'render');
     expect(setDocMock).toHaveBeenCalledTimes(1);
     expect(setDocMock.mock.calls[0][0]).toBe(`clientErrors/2026-11-06_${errorKey('boom', error.stack ?? '')}`);
+  });
+
+  it('attaches the device bucket to a reported error', async () => {
+    const report = createErrorReporter({
+      getDb: () => fakeDb,
+      getUid: () => 'u1',
+      today: () => '2026-11-06',
+      appVersion: 'test',
+      getDevice: () => 'ios-safari-phone',
+    });
+    await report(new Error('chunk failed'), 'render');
+    expect(setDocMock.mock.calls[0][1]).toMatchObject({ device: 'ios-safari-phone' });
   });
 });

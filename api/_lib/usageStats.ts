@@ -8,6 +8,8 @@ export interface AnalyticsDayRow {
   uid: string;
   day: string;
   counts: Record<string, number>;
+  /** Coarse device bucket, e.g. `ios-safari-phone-pwa`; missing on rows written before devices were tracked */
+  device?: string;
 }
 
 export interface ClientErrorRow {
@@ -15,6 +17,27 @@ export interface ClientErrorRow {
   message: string;
   source: string;
   count: number;
+  device?: string;
+}
+
+/** One learner's day on one mission and tier (collection `missionStruggle`) */
+export interface MissionStruggleRow {
+  uid: string;
+  day: string;
+  missionId: string;
+  tier: 'explorer' | 'challenger' | 'master';
+  starts: number;
+  abandons: number;
+}
+
+export interface StuckMission {
+  missionId: string;
+  starts: number;
+  abandons: number;
+  /** Distinct learners who left it unfinished */
+  learners: number;
+  /** Abandons by the tier being played at the time */
+  tiers: { explorer: number; challenger: number; master: number };
 }
 
 export interface UsageStats {
@@ -29,9 +52,13 @@ export interface UsageStats {
   retention: { day1: number | null; day7: number | null };
   /** Distinct learners who opened each feature in the window, most used first */
   features: Array<{ key: string; learners: number }>;
-  errors: Array<{ message: string; source: string; count: number; days: number }>;
+  errors: Array<{ message: string; source: string; count: number; days: number; devices: string[] }>;
   /** Where learners get stuck, summed over the window */
   struggle: { missionStarts: number; missionAbandons: number; hintsUsed: number; ttsErrors: number };
+  /** Missions left unfinished most often in the window (only those abandoned at least once) */
+  stuckMissions: StuckMission[];
+  /** Distinct learners per device bucket in the window, most used first */
+  devices: Array<{ device: string; learners: number }>;
   /** One row per invited early tester (label = the invite alias), most recently seen first */
   testers: TesterRow[];
   /** Newest tester notes first (text is capped at 500 characters by the rules) */
@@ -64,10 +91,19 @@ export interface TesterRow {
   missionAbandons: number;
   hintsUsed: number;
   ttsErrors: number;
+  /** Device buckets seen in the window, most recent first (a child may use more than one) */
+  devices: string[];
 }
 
 const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+/** The shape of a device bucket (see src/services/analytics/deviceInfo.ts); anything else is ignored */
+const DEVICE_RE = /^[a-z]{3,7}-[a-z]{3,7}-(phone|tablet|desktop)(-pwa)?$/;
+const MISSION_ID_RE = /^[A-Za-z0-9_.-]{1,60}$/;
+const TIERS = ['explorer', 'challenger', 'master'] as const;
 const TOP_ERRORS = 8;
+const TOP_STUCK_MISSIONS = 10;
+const MAX_ERROR_DEVICES = 3;
+const deviceOf = (value: unknown): string | undefined => (typeof value === 'string' && value.length <= 40 && DEVICE_RE.test(value) ? value : undefined);
 /** Counter names that mean "opened a feature" (the feature_* events in src/services/analytics/events.ts) */
 const FEATURE_PREFIX = 'feature_';
 const count = (value: unknown): number => (typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 0);
@@ -76,8 +112,40 @@ export function readAnalyticsRows(rows: ReadonlyArray<{ fields: Record<string, u
   return rows.flatMap(({ fields }) => {
     const { uid, day, counts } = fields;
     if (typeof uid !== 'string' || typeof day !== 'string' || !DAY_RE.test(day) || !counts || typeof counts !== 'object') return [];
-    return [{ uid, day, counts: Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, count(v)])) }];
+    const device = deviceOf(fields.device);
+    return [{ uid, day, counts: Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, count(v)])), ...(device ? { device } : {}) }];
   });
+}
+
+export function readMissionStruggleRows(rows: ReadonlyArray<{ fields: Record<string, unknown> }>): MissionStruggleRow[] {
+  return rows.flatMap(({ fields }) => {
+    const { uid, day, missionId, tier } = fields;
+    if (typeof uid !== 'string' || typeof day !== 'string' || !DAY_RE.test(day)) return [];
+    if (typeof missionId !== 'string' || !MISSION_ID_RE.test(missionId)) return [];
+    if (typeof tier !== 'string' || !(TIERS as readonly string[]).includes(tier)) return [];
+    return [{ uid, day, missionId, tier: tier as MissionStruggleRow['tier'], starts: count(fields.starts), abandons: count(fields.abandons) }];
+  });
+}
+
+/** Missions abandoned at least once in the window, most abandoned first (ties: lower completion rate) */
+function stuckMissionsFrom(rows: readonly MissionStruggleRow[], windowStart: string, todayStr: string): StuckMission[] {
+  const byMission = new Map<string, StuckMission & { who: Set<string> }>();
+  for (const row of rows) {
+    if (row.day < windowStart || row.day > todayStr) continue;
+    const entry = byMission.get(row.missionId) ?? {
+      missionId: row.missionId, starts: 0, abandons: 0, learners: 0, tiers: { explorer: 0, challenger: 0, master: 0 }, who: new Set<string>(),
+    };
+    entry.starts += row.starts;
+    entry.abandons += row.abandons;
+    entry.tiers = { ...entry.tiers, [row.tier]: entry.tiers[row.tier] + row.abandons };
+    if (row.abandons > 0) entry.who.add(row.uid);
+    byMission.set(row.missionId, entry);
+  }
+  return [...byMission.values()]
+    .filter((entry) => entry.abandons > 0)
+    .map(({ who, ...entry }): StuckMission => ({ ...entry, learners: who.size }))
+    .sort((a, b) => b.abandons - a.abandons || b.abandons / Math.max(1, b.starts) - a.abandons / Math.max(1, a.starts) || a.missionId.localeCompare(b.missionId))
+    .slice(0, TOP_STUCK_MISSIONS);
 }
 
 export function readAllowedRows(rows: ReadonlyArray<{ id: string; fields: Record<string, unknown> }>): AllowedRow[] {
@@ -119,7 +187,8 @@ export function readClientErrorRows(rows: ReadonlyArray<{ fields: Record<string,
   return rows.flatMap(({ fields }) => {
     const { day, message, source, count: n } = fields;
     if (typeof day !== 'string' || !DAY_RE.test(day) || typeof message !== 'string') return [];
-    return [{ day, message, source: typeof source === 'string' ? source : 'unknown', count: count(n) }];
+    const device = deviceOf(fields.device);
+    return [{ day, message, source: typeof source === 'string' ? source : 'unknown', count: count(n), ...(device ? { device } : {}) }];
   });
 }
 
@@ -140,7 +209,8 @@ export function computeUsageStats(
   errorRows: readonly ClientErrorRow[],
   todayStr: string,
   allowed: readonly AllowedRow[] = [],
-  feedback: readonly FeedbackRow[] = []
+  feedback: readonly FeedbackRow[] = [],
+  missionRows: readonly MissionStruggleRow[] = []
 ): UsageStats {
   const windowStart = addDaysToDateStr(todayStr, -(OWNER_STATS_DAYS - 1));
   const reached = { sessions: new Set<string>(), onboarded: new Set<string>(), placed: new Set<string>(), firstMission: new Set<string>(), threeStars: new Set<string>() };
@@ -150,14 +220,23 @@ export function computeUsageStats(
   const featureLearners = new Map<string, Set<string>>();
   const struggle = { missionStarts: 0, missionAbandons: 0, hintsUsed: 0, ttsErrors: 0 };
   const testerByUid = new Map(allowed.map((row) => [row.uid, row]));
-  const testerTotals = new Map<string, Omit<TesterRow, 'label' | 'cohort' | 'daysActive'> & { days: Set<string> }>();
+  const testerTotals = new Map<string, Omit<TesterRow, 'label' | 'cohort' | 'daysActive' | 'devices'> & { days: Set<string> }>();
+  const deviceLearners = new Map<string, Set<string>>();
+  /** uid -> device -> latest day seen on it */
+  const deviceLastSeen = new Map<string, Map<string, string>>();
 
-  for (const { uid, day, counts } of analyticsRows) {
+  for (const { uid, day, counts, device } of analyticsRows) {
     if (day > todayStr) continue;
     const first = firstSeen.get(uid);
     if (!first || day < first) firstSeen.set(uid, day);
     seenDays.set(uid, (seenDays.get(uid) ?? new Set<string>()).add(day));
     if (day < windowStart) continue;
+    if (device) {
+      deviceLearners.set(device, (deviceLearners.get(device) ?? new Set<string>()).add(uid));
+      const seen = deviceLastSeen.get(uid) ?? new Map<string, string>();
+      const last = seen.get(device);
+      deviceLastSeen.set(uid, new Map(seen).set(device, !last || day > last ? day : last));
+    }
     if (counts.session_start) reached.sessions.add(uid);
     if (counts.onboarding_done) reached.onboarded.add(uid);
     if (counts.placement_done) reached.placed.add(uid);
@@ -187,13 +266,14 @@ export function computeUsageStats(
     }
   }
 
-  const errorMap = new Map<string, { message: string; source: string; count: number; days: Set<string> }>();
+  const errorMap = new Map<string, { message: string; source: string; count: number; days: Set<string>; devices: Map<string, number> }>();
   for (const row of errorRows) {
     if (row.day < windowStart || row.day > todayStr) continue;
     const key = `${row.source}|${row.message}`;
-    const entry = errorMap.get(key) ?? { message: row.message, source: row.source, count: 0, days: new Set<string>() };
+    const entry = errorMap.get(key) ?? { message: row.message, source: row.source, count: 0, days: new Set<string>(), devices: new Map<string, number>() };
     entry.count += row.count;
     entry.days.add(row.day);
+    if (row.device) entry.devices.set(row.device, (entry.devices.get(row.device) ?? 0) + row.count);
     errorMap.set(key, entry);
   }
 
@@ -213,17 +293,30 @@ export function computeUsageStats(
       .map(([key, learners]) => ({ key, learners: learners.size }))
       .sort((a, b) => b.learners - a.learners || a.key.localeCompare(b.key)),
     struggle,
+    stuckMissions: stuckMissionsFrom(missionRows, windowStart, todayStr),
+    devices: [...deviceLearners.entries()]
+      .map(([device, learners]) => ({ device, learners: learners.size }))
+      .sort((a, b) => b.learners - a.learners || a.device.localeCompare(b.device)),
     feedback: [...feedback],
     // Testers who never opened the app still get a row, so "invited but silent" is visible
     testers: allowed
       .map(({ uid, label, cohort }): TesterRow => {
         const { days, ...t } = testerTotals.get(uid) ?? { days: new Set<string>(), lastSeen: null, sessions: 0, missions: 0, missionAbandons: 0, hintsUsed: 0, ttsErrors: 0 };
-        return { label, cohort, daysActive: days.size, ...t };
+        const devices = [...(deviceLastSeen.get(uid) ?? new Map<string, string>()).entries()]
+          .sort((a, b) => b[1].localeCompare(a[1]) || a[0].localeCompare(b[0]))
+          .map(([device]) => device);
+        return { label, cohort, daysActive: days.size, ...t, devices };
       })
       .sort((a, b) => (b.lastSeen ?? '').localeCompare(a.lastSeen ?? '') || a.label.localeCompare(b.label)),
     errors: [...errorMap.values()]
       .sort((a, b) => b.count - a.count)
       .slice(0, TOP_ERRORS)
-      .map(({ message, source, count: n, days }) => ({ message, source, count: n, days: days.size })),
+      .map(({ message, source, count: n, days, devices }) => ({
+        message,
+        source,
+        count: n,
+        days: days.size,
+        devices: [...devices.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, MAX_ERROR_DEVICES).map(([device]) => device),
+      })),
   };
 }

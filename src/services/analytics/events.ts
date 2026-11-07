@@ -49,6 +49,17 @@ export function isAnalyticsEvent(name: string): name is AnalyticsEvent {
 /** Collection names, shared with firestore.rules and the owner API */
 export const ANALYTICS_DAILY_COLLECTION = 'analyticsDaily';
 export const CLIENT_ERRORS_COLLECTION = 'clientErrors';
+/** One document per learner, day, mission and tier: how often it was opened and left unfinished */
+export const MISSION_STRUGGLE_COLLECTION = 'missionStruggle';
+
+export const MISSION_TIERS = ['explorer', 'challenger', 'master'] as const;
+export type MissionTier = (typeof MISSION_TIERS)[number];
+
+export const isMissionTier = (value: string): value is MissionTier => (MISSION_TIERS as readonly string[]).includes(value);
+
+/** Curriculum ids only (letters, digits, `_`, `.`, `-`); the same shape firestore.rules accepts */
+export const MISSION_ID_PATTERN = /^[A-Za-z0-9_.-]{1,60}$/;
+export const isMissionId = (value: string): boolean => MISSION_ID_PATTERN.test(value);
 
 /** Largest counter a single day document may hold (matches firestore.rules `isCount`) */
 export const MAX_DAILY_COUNT = 1_000_000;

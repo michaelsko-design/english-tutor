@@ -325,6 +325,35 @@ await expect('an analytics counter outside the allow-list is rejected', false, (
 await expect('an analytics document with an extra field is rejected', false, () =>
   setDoc(dayDoc(ua.uid), { ...dayData(ua.uid, { session_start: increment(1) }), name: 'Dana' }, { merge: true }));
 await expect('a learner cannot read analytics counters', false, () => getDoc(dayDoc(ua.uid)));
+await expect('analytics counters may carry a coarse device bucket', true, () =>
+  setDoc(dayDoc(ua.uid), { ...dayData(ua.uid, { session_start: increment(1) }), device: 'ios-safari-phone-pwa' }, { merge: true }));
+await expect('a raw user-agent as the device is rejected', false, () =>
+  setDoc(dayDoc(ua.uid), { ...dayData(ua.uid, { session_start: increment(1) }), device: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5)' }, { merge: true }));
+await expect('a device bucket outside the fixed words is rejected', false, () =>
+  setDoc(dayDoc(ua.uid), { ...dayData(ua.uid, { session_start: increment(1) }), device: 'ios-safari-phone-dana' }, { merge: true }));
+// Where learners get stuck: write-only per mission and tier
+const struggleId = (uid, mission, tier) => `${today}_${uid}_${mission}_${tier}`;
+const struggleData = (uid, mission, tier, extra = {}) => ({ uid, day: today, missionId: mission, tier, starts: increment(1), abandons: increment(1), ...extra });
+await expect('a learner can record a mission they left unfinished', true, () =>
+  setDoc(doc(a.db, 'missionStruggle', struggleId(ua.uid, 'g3-u1-m1', 'challenger')), struggleData(ua.uid, 'g3-u1-m1', 'challenger'), { merge: true }));
+await expect('a mission record under another uid is rejected', false, () =>
+  setDoc(doc(a.db, 'missionStruggle', struggleId(ub.uid, 'g3-u1-m1', 'challenger')), struggleData(ub.uid, 'g3-u1-m1', 'challenger'), { merge: true }));
+await expect('a mission record with a mismatched document id is rejected', false, () =>
+  setDoc(doc(a.db, 'missionStruggle', struggleId(ua.uid, 'g3-u1-m2', 'challenger')), struggleData(ua.uid, 'g3-u1-m1', 'challenger'), { merge: true }));
+await expect('a mission record with an unknown tier is rejected', false, () =>
+  setDoc(doc(a.db, 'missionStruggle', struggleId(ua.uid, 'g3-u1-m1', 'wizard')), struggleData(ua.uid, 'g3-u1-m1', 'wizard'), { merge: true }));
+await expect('a mission record with a free-text mission id is rejected', false, () =>
+  setDoc(doc(a.db, 'missionStruggle', struggleId(ua.uid, 'Dana was here', 'master')), struggleData(ua.uid, 'Dana was here', 'master'), { merge: true }));
+await expect('a mission record with an extra field is rejected', false, () =>
+  setDoc(doc(a.db, 'missionStruggle', struggleId(ua.uid, 'g3-u1-m1', 'master')), struggleData(ua.uid, 'g3-u1-m1', 'master', { name: 'Dana' }), { merge: true }));
+await expect('a learner cannot read mission records', false, () =>
+  getDoc(doc(a.db, 'missionStruggle', struggleId(ua.uid, 'g3-u1-m1', 'challenger'))));
+await expect('a client error may carry a coarse device bucket', true, () =>
+  setDoc(doc(a.db, 'clientErrors', `${today}_abe`),
+    { day: today, message: 'boom', stack: '', source: 'render', appVersion: 'test', device: 'ios-safari-phone', count: increment(1), lastSeen: serverTimestamp() }, { merge: true }));
+await expect('a client error with a free-text device is rejected', false, () =>
+  setDoc(doc(a.db, 'clientErrors', `${today}_abf`),
+    { day: today, message: 'boom', stack: '', source: 'render', appVersion: 'test', device: 'Pixel 8 of Dana', count: increment(1), lastSeen: serverTimestamp() }, { merge: true }));
 await expect('a learner can report a scrubbed client error', true, () =>
   setDoc(doc(a.db, 'clientErrors', `${today}_abc`),
     { day: today, message: 'boom', stack: '', source: 'render', appVersion: 'test', count: increment(1), lastSeen: serverTimestamp() }, { merge: true }));
@@ -563,6 +592,9 @@ await expect('an uninvited account cannot send feedback', false, () =>
   setDoc(doc(e.db, 'feedback', 'note-e1'), { uid: ue.uid, day: today, kind: 'idea', text: 'hi', gradeId: 'grade-3', screen: 'settings', appVersion: 'abc' }));
 await expect('an uninvited account cannot write analytics', false, () =>
   setDoc(doc(e.db, 'analyticsDaily', `${today}_${ue.uid}`), { uid: ue.uid, day: today, gradeId: 'grade-3', counts: { session_start: 1 } }));
+await expect('an uninvited account cannot record mission struggle', false, () =>
+  setDoc(doc(e.db, 'missionStruggle', `${today}_${ue.uid}_g3-u1-m1_explorer`),
+    { uid: ue.uid, day: today, missionId: 'g3-u1-m1', tier: 'explorer', starts: 1, abandons: 1 }));
 await expect('an uninvited account cannot report client errors', false, () =>
   setDoc(doc(e.db, 'clientErrors', `${today}_zzz`),
     { day: today, message: 'boom', stack: '', source: 'render', appVersion: 'test', count: 1, lastSeen: serverTimestamp() }));
