@@ -52,6 +52,23 @@ first invites go out; it is still an open item, see `backlog.md`.)
 ## Invite message drafts (Hebrew WhatsApp, to the parent)
 Placeholders in square brackets. Aliases only, never a full name.
 
+### Teaser (sent first, together with the video ad; no link, no legal text)
+```
+היי [שם]! 👋
+בניתי אפליקציה ללימוד אנגלית לילדים, ורציתי להראות לך אותה קודם (הסרטון למטה 🎬).
+
+EnglishVibe בנויה בעברית לכיתות א׳–י״ב:
+• משימות קצרות ומשחקיות, עם כוכבים, מטבעות ופינה אישית שמתעצבת לפי ההתקדמות
+• הקראה בקול של המילים והמשפטים
+• מותאמת לרמה ולכיתה של הילד/ה, עם רמות קושי שונות בכל משימה
+• הילדים רוצים לחזור אליה, וזה העיקר
+
+כרגע היא בבדיקה סגורה, רק לכמה ילדים של חברים קרובים, לפני שפותחים לכולם.
+אשמח שתרשו ל[שם הילד/ה] להשתתף. זה חינם, ואין שום התחייבות. אני רק רוצה לראות איך ילד אמיתי משתמש בה ולשמוע מה עובד ומה לא.
+
+אם מתאים לך, תכתוב/י לי "כן" ואשלח קישור אישי עם כל ההסבר. 🙏
+```
+
 ### Short version (close friends, current phase)
 ```
 היי [שם]! 👋
