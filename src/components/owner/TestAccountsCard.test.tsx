@@ -77,4 +77,10 @@ describe('TestAccountsCard', () => {
     await waitFor(() => expect(screen.getByText(/No test accounts yet/)).toBeInTheDocument());
     expect(onChanged).toHaveBeenCalledTimes(1);
   });
+
+  it('shows how many test accounts there are', async () => {
+    service.fetchTestUsers.mockResolvedValue({ ok: true, users: [entry('u1', 'a'), entry('u2', 'b'), entry('u3', 'c')] });
+    render(<TestAccountsCard onChanged={() => {}} />);
+    expect(await screen.findByRole('heading', { name: 'Test accounts 3' })).toBeInTheDocument();
+  });
 });

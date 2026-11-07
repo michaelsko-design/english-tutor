@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Copy, RefreshCw, UserPlus, X } from 'lucide-react';
+import { Archive, Copy, RefreshCw, UserPlus, X } from 'lucide-react';
 import {
+  archiveFinishedInvites,
   createInvites,
   fetchTesters,
   inviteLink,
@@ -72,6 +73,9 @@ export const EarlyTestersCard: React.FC = () => {
     return isOk;
   };
 
+  const openCount = view?.invites.filter((invite) => invite.status === 'open').length ?? 0;
+  const finishedCount = view ? view.invites.length - openCount : 0;
+
   const handleCreate = async (event: React.FormEvent) => {
     event.preventDefault();
     const labels = parseAliases(aliases);
@@ -101,7 +105,7 @@ export const EarlyTestersCard: React.FC = () => {
         </div>
         <div>
           <h2 id="early-testers-title" className="text-base font-extrabold text-slate-900 dark:text-white">
-            Early testers
+            Early testers{view && <> <span className="ms-1 text-sm font-bold text-teal-600 dark:text-teal-400">{view.testers.length} {view.testers.length === 1 ? 'account' : 'accounts'}</span></>}
           </h2>
           <p className={`mt-0.5 ${MUTED}`}>
             One single-use link per child. Send it to the parent only. Use aliases (first name or &quot;kid-3&quot;), never full names.
@@ -164,9 +168,19 @@ export const EarlyTestersCard: React.FC = () => {
         <p className={`mt-4 ${MUTED}`}>Loading…</p>
       ) : (
         <>
-          <h3 className="mt-5 text-xs font-bold text-slate-900 dark:text-white">Invites</h3>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-xs font-bold text-slate-900 dark:text-white">
+              Invites <span className={MUTED}>· {openCount} open{view.archivedInvites > 0 ? ` · ${view.archivedInvites} archived` : ''}</span>
+            </h3>
+            {finishedCount > 0 && (
+              <button type="button" disabled={isBusy} className={SMALL_BTN} onClick={() => void run(archiveFinishedInvites)}>
+                <Archive className="h-3 w-3" />
+                <span>Archive {finishedCount} used or expired</span>
+              </button>
+            )}
+          </div>
           {view.invites.length === 0 ? (
-            <p className={MUTED}>No invites yet.</p>
+            <p className={MUTED}>No invites to show.</p>
           ) : (
             <ul className="mt-1 divide-y divide-slate-100 dark:divide-slate-800">
               {view.invites.map((invite) => (

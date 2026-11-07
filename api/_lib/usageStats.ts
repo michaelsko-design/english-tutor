@@ -97,13 +97,16 @@ export function readFeedbackRows(
   const labelOf = new Map(allowed.map((row) => [row.uid, row.label]));
   return rows
     .flatMap(({ fields }) => {
-      const { uid, day, kind, text, gradeId, appVersion } = fields;
+      const { uid, day, kind, text, gradeId, appVersion, testerLabel } = fields;
       if (typeof day !== 'string' || !DAY_RE.test(day) || typeof text !== 'string') return [];
       return [{
         day,
         kind: kind === 'idea' ? 'idea' : 'problem',
         text: text.slice(0, 500),
-        tester: typeof uid === 'string' ? (labelOf.get(uid) ?? 'unknown') : 'unknown',
+        // A note kept after its account was deleted has no uid, only the alias saved with it
+        tester:
+          (typeof uid === 'string' && labelOf.get(uid)) ||
+          (typeof testerLabel === 'string' && testerLabel ? `${testerLabel} (account deleted)` : 'unknown'),
         gradeId: typeof gradeId === 'string' ? gradeId : '',
         appVersion: typeof appVersion === 'string' ? appVersion : '',
       }];

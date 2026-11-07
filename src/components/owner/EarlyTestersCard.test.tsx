@@ -6,6 +6,7 @@ import type { OwnerTestersView } from '../../services/ownerTestersService';
 const service = vi.hoisted(() => ({
   fetchTesters: vi.fn(),
   createInvites: vi.fn(),
+  archiveFinishedInvites: vi.fn(),
   withdrawInvite: vi.fn(),
   lockOutTester: vi.fn(),
   inviteLink: (origin: string, code: string) => `${origin}/?access=${code}`,
@@ -14,11 +15,12 @@ vi.mock('../../services/ownerTestersService', () => service);
 
 import { EarlyTestersCard, parseAliases } from './EarlyTestersCard';
 
-const view = (overrides: Partial<OwnerTestersView> = {}): OwnerTestersView => ({ accessOpen: false, testers: [], invites: [], ...overrides });
+const view = (overrides: Partial<OwnerTestersView> = {}): OwnerTestersView => ({ accessOpen: false, archivedInvites: 0, testers: [], invites: [], ...overrides });
 
 beforeEach(() => {
   service.fetchTesters.mockReset().mockResolvedValue({ ok: true, view: view() });
   service.createInvites.mockReset();
+  service.archiveFinishedInvites.mockReset();
   service.withdrawInvite.mockReset();
   service.lockOutTester.mockReset();
 });
@@ -33,7 +35,7 @@ describe('EarlyTestersCard', () => {
   it('says access is closed and nothing is invited yet', async () => {
     render(<EarlyTestersCard />);
     expect(await screen.findByText(/Access is closed/)).toBeInTheDocument();
-    expect(screen.getByText('No invites yet.')).toBeInTheDocument();
+    expect(screen.getByText('No invites to show.')).toBeInTheDocument();
   });
 
   it('warns loudly when access is open', async () => {
@@ -89,5 +91,30 @@ describe('EarlyTestersCard', () => {
     render(<EarlyTestersCard />);
     expect(await screen.findByText('used')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Copy link/ })).toBeNull();
+  });
+
+  it('shows the account count, open and archived invites, and archives the finished ones', async () => {
+    const user = userEvent.setup();
+    const invite = (code: string, status: 'open' | 'used' | 'expired') => ({ code, label: code, cohort: 'tester', createdAt: 1, expiresAt: 2, status });
+    service.fetchTesters.mockResolvedValue({
+      ok: true,
+      view: view({
+        archivedInvites: 4,
+        testers: [
+          { uid: 'u1', label: 'noa', cohort: 'tester', invitedAt: 1, isGrandfathered: false },
+          { uid: 'u2', label: 'dana', cohort: 'tester', invitedAt: 2, isGrandfathered: false },
+        ],
+        invites: [invite('AAAAAAAAA2', 'open'), invite('BBBBBBBBB2', 'used'), invite('CCCCCCCCC2', 'expired')],
+      }),
+    });
+    service.archiveFinishedInvites.mockResolvedValue({ ok: true, view: view({ archivedInvites: 6, invites: [invite('AAAAAAAAA2', 'open')] }) });
+    render(<EarlyTestersCard />);
+    expect(await screen.findByText('2 accounts')).toBeInTheDocument();
+    expect(screen.getByText(/1 open · 4 archived/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Archive 2 used or expired/ }));
+    expect(service.archiveFinishedInvites).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText(/1 open · 6 archived/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Archive/ })).toBeNull();
   });
 });

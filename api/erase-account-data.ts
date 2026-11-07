@@ -1,7 +1,8 @@
 /**
  * /api/erase-account-data: the server-only part of "delete my account". The app deletes the
- * learner's own documents itself; the usage counters, feedback notes, access record and comp
- * entitlement can only be removed with the service account. The app calls this just before the
+ * learner's own documents itself; the usage counters, access record and comp entitlement can only
+ * be removed with the service account. Feedback notes are KEPT (valuable to the owner) but cut loose
+ * from the account: the uid is blanked and the tester's invite alias stays. The app calls this just before the
  * sign-in itself is deleted. A paid subscription's entitlement is kept (billing records).
  *   POST → 200 { ok: true } | 401 | 503
  */
@@ -37,15 +38,29 @@ export async function handleEraseAccountDataRequest(
   try {
     const admin = createAdmin(account, projectId, { fetchImpl });
     const { uid } = claims;
-    const [counters, notes, entitlement] = await Promise.all([
+    const [counters, notes, entitlement, allowed] = await Promise.all([
       admin.queryDocuments('analyticsDaily', 'uid', uid),
       admin.queryDocuments('feedback', 'uid', uid),
       admin.getDocument('entitlements', uid),
+      admin.getDocument('allowed', uid),
     ]);
+    const alias = typeof allowed?.fields.label === 'string' && allowed.fields.label ? allowed.fields.label : 'former tester';
     const isPaid = entitlement?.fields.source === 'subscription';
     await Promise.all([
       ...counters.map((row) => admin.deleteDocument('analyticsDaily', row.id)),
-      ...notes.map((row) => admin.deleteDocument('feedback', row.id)),
+      // The note stays, without any link to the deleted account
+      ...(notes.length > 0
+        ? [
+            admin.commit(
+              notes.map((row) => ({
+                collection: 'feedback',
+                id: row.id,
+                fields: { uid: '', testerLabel: alias },
+                mergeFields: ['uid', 'testerLabel'],
+              }))
+            ),
+          ]
+        : []),
       admin.deleteDocument('allowed', uid),
       ...(isPaid ? [] : [admin.deleteDocument('entitlements', uid)]),
     ]);

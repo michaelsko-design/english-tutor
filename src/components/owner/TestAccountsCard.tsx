@@ -66,6 +66,12 @@ export const TestAccountsCard: React.FC<TestAccountsCardProps> = ({ onChanged })
         <div>
           <h2 id="test-accounts-title" className="text-base font-extrabold text-slate-900 dark:text-white">
             Test accounts
+            {users !== null && (
+              <>
+                {' '}
+                <span className="ms-1 text-sm font-bold text-amber-600 dark:text-amber-400">{users.length}</span>
+              </>
+            )}
           </h2>
           <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
             Left out of every number on this page, so it shows real users only. Add a learner by username, a parent or learner by

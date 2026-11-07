@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeUsageStats, readAllowedRows, readAnalyticsRows } from './usageStats.js';
+import { computeUsageStats, readAllowedRows, readAnalyticsRows, readFeedbackRows } from './usageStats.js';
 
 const row = (uid: string, day: string, counts: Record<string, number>) => ({ uid, day, counts });
 
@@ -87,5 +87,18 @@ describe('computeUsageStats', () => {
       { label: 'noa', cohort: 'tester', daysActive: 2, lastSeen: '2026-11-06', sessions: 2, missions: 1, missionAbandons: 2, hintsUsed: 4, ttsErrors: 1 },
       { label: 'dana', cohort: 'tester', daysActive: 0, lastSeen: null, sessions: 0, missions: 0, missionAbandons: 0, hintsUsed: 0, ttsErrors: 0 },
     ]);
+  });
+
+  it('names a note by the live tester, or by the alias saved with a note whose account was deleted', () => {
+    const allowed = readAllowedRows([{ id: 'a', fields: { label: 'noa', cohort: 't' } }]);
+    const notes = readFeedbackRows(
+      [
+        { fields: { uid: 'a', day: '2026-11-06', text: 'live', kind: 'idea' } },
+        { fields: { uid: '', testerLabel: 'dana', day: '2026-11-05', text: 'kept', kind: 'problem' } },
+        { fields: { uid: '', day: '2026-11-04', text: 'orphan' } },
+      ],
+      allowed
+    );
+    expect(notes.map((n) => n.tester)).toEqual(['noa', 'dana (account deleted)', 'unknown']);
   });
 });

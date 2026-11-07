@@ -46,7 +46,7 @@ export async function handleOwnerStatsRequest(
       admin.listFieldsOf('analyticsDaily', ['uid', 'day', 'counts']),
       admin.listFieldsOf('clientErrors', ['day', 'message', 'source', 'count']),
       admin.listFieldsOf('allowed', ['label', 'cohort']),
-      admin.listFieldsOf('feedback', ['uid', 'day', 'kind', 'text', 'gradeId', 'appVersion']),
+      admin.listFieldsOf('feedback', ['uid', 'day', 'kind', 'text', 'gradeId', 'appVersion', 'testerLabel']),
     ]);
     const todayStr = israelDateStr(now);
     const allowedRows = readAllowedRows(withoutTestUsers(allowedDocs, testUids, uidOf));

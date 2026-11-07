@@ -137,7 +137,7 @@ test.describe('early testers (closed access)', () => {
     expect(await readDocument(`allowed/${uid}`)).toMatchObject({ label: 'kid-3-again' });
   });
 
-  test('a tester sends a note to the team; deleting the account erases every tester record', async ({ page, learner }) => {
+  test('a tester sends a note to the team; deleting the account erases the tester records but keeps the note', async ({ page, learner }) => {
     const uid = await joinWithLink(page, learner, await createInviteCode('kid-4'));
     await finishOnboarding(page);
 
@@ -165,7 +165,8 @@ test.describe('early testers (closed access)', () => {
     expect(await readDocument(`learners/${uid}`)).toBeNull();
     expect(await readDocument(`allowed/${uid}`)).toBeNull();
     expect(await readDocument(`entitlements/${uid}`)).toBeNull();
-    expect(await listDocumentIds('feedback')).toEqual([]);
+    // The note stays for the owner, cut loose from the deleted account
+    expect(await readDocument(`feedback/${noteIds[0]}`)).toMatchObject({ uid: '', testerLabel: 'kid-4', text: 'אפשר עוד משחקים?' });
     expect(await readDocument(`analyticsDaily/${today}_${uid}`)).toBeNull();
   });
 

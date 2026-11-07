@@ -93,6 +93,23 @@ describe('owner-testers', () => {
     expect(fake.get('entitlements', KID)).toBeDefined();
   });
 
+  it('archives used and expired invites, keeps open ones visible and counts the archived', async () => {
+    const { fake, deps } = setup();
+    fake.seed('invites', 'ABCDEFGH23', { label: 'a', cohort: 'x', createdAt: NOW, expiresAt: NOW + DAY, usedByUid: null });
+    fake.seed('invites', 'BCDEFGHJ23', { label: 'b', cohort: 'x', createdAt: NOW, expiresAt: NOW + DAY, usedByUid: KID });
+    fake.seed('invites', 'OLDCODE234', { label: 'c', cohort: 'x', createdAt: NOW, expiresAt: NOW - 1, usedByUid: null });
+    fake.seed('invites', 'CDEFGHJK23', { label: 'd', cohort: 'x', createdAt: NOW, expiresAt: NOW + DAY, usedByUid: KID, archived: true });
+    const before = await viewOf(await handleOwnerTestersRequest(call('GET'), ENV, deps));
+    expect(before.invites).toHaveLength(3);
+    expect(before.archivedInvites).toBe(1);
+
+    const after = await viewOf(await handleOwnerTestersRequest(call('POST', { archiveFinished: true }), ENV, deps));
+    expect(after.invites.map((i) => i.code)).toEqual(['ABCDEFGH23']);
+    expect(after.archivedInvites).toBe(3);
+    // Archived, not deleted: the record of who redeemed it stays
+    expect(fake.get('invites', 'BCDEFGHJ23')).toMatchObject({ usedByUid: KID, archived: true });
+  });
+
   it('rejects a malformed code or uid on delete', async () => {
     const { deps } = setup();
     expect((await handleOwnerTestersRequest(call('DELETE', { code: 'nope' }), ENV, deps)).status).toBe(400);

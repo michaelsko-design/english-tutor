@@ -30,6 +30,8 @@ export const fetchTesters = (): Promise<TestersResult> => call('GET');
 export const createInvites = (labels: string[], cohort: string, days: number): Promise<TestersResult> =>
   call('POST', { labels, cohort, days });
 export const withdrawInvite = (code: string): Promise<TestersResult> => call('DELETE', { code });
+/** Hides used and expired invites from the list (they stay in the database) */
+export const archiveFinishedInvites = (): Promise<TestersResult> => call('POST', { archiveFinished: true });
 export const lockOutTester = (uid: string): Promise<TestersResult> => call('DELETE', { uid });
 
 /** The link a parent opens on the child's device */

@@ -198,7 +198,7 @@ describe('OwnerDashboard', () => {
     expect(screen.getByText('1.39')).toBeInTheDocument(); // avgKidsPerParent
 
     // Test accounts are listed apart and the footer says how many were left out
-    expect(screen.getByRole('heading', { name: 'Test accounts' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /^Test accounts/ })).toBeInTheDocument();
     expect(screen.getByText(/2 test accounts excluded/)).toBeInTheDocument();
   });
 
