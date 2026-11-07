@@ -15,6 +15,7 @@ const fns = {
   onOpenVault: vi.fn(),
   onOpenAuth: vi.fn(),
   onOpenTour: vi.fn(),
+  onOpenFeedback: vi.fn(),
   onEditProfile: vi.fn(),
 };
 
@@ -65,6 +66,12 @@ describe('HomeHud', () => {
     expect(fns.onOpenVault).toHaveBeenCalledTimes(1);
     expect(fns.onOpenShop).toHaveBeenCalledTimes(1);
     expect(fns.onEditProfile).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the feedback sheet from the always-visible feedback button', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('button', { name: /שליחת משוב/ }));
+    expect(fns.onOpenFeedback).toHaveBeenCalledTimes(1);
   });
 
   it('shows the learner’s name, or the app name without one', () => {

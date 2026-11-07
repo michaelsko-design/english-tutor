@@ -48,8 +48,8 @@ describe('StatsSheet', () => {
     expect(fns.onChangeGrade).toHaveBeenCalledWith('grade-5');
   });
 
-  it('shows the Shabbat shield unless the learner turned it off', () => {
-    setup();
+  it('shows the Shabbat shield for a learner who observes Shabbat', () => {
+    setup(makeProfile({ isShabbatObserver: true }));
     expect(screen.getByText(/מגן שבת פעיל/)).toBeInTheDocument();
   });
 

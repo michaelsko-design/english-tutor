@@ -6,6 +6,8 @@ import { MAX_FEEDBACK_LENGTH, sendFeedback, type FeedbackKind } from '../../serv
 interface FeedbackCardProps {
   gradeId: string;
   theme: ThemeDefinition;
+  /** Where the note was written (stored with it); defaults to the settings screen. */
+  screen?: string;
 }
 
 const KINDS: Array<{ kind: FeedbackKind; label: string }> = [
@@ -14,7 +16,7 @@ const KINDS: Array<{ kind: FeedbackKind; label: string }> = [
 ];
 
 /** Settings: a short note to the team (closed testing). The text is stored with the grade and app version only. */
-export const FeedbackCard: React.FC<FeedbackCardProps> = ({ gradeId, theme }) => {
+export const FeedbackCard: React.FC<FeedbackCardProps> = ({ gradeId, theme, screen = 'settings' }) => {
   const [kind, setKind] = useState<FeedbackKind>('problem');
   const [text, setText] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
@@ -23,7 +25,7 @@ export const FeedbackCard: React.FC<FeedbackCardProps> = ({ gradeId, theme }) =>
   const handleSend = async () => {
     setStatus('sending');
     setError(null);
-    const result = await sendFeedback({ kind, text, gradeId, screen: 'settings' });
+    const result = await sendFeedback({ kind, text, gradeId, screen });
     if (result.ok) {
       setText('');
       setStatus('sent');

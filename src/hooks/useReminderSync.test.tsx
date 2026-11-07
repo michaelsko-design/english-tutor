@@ -34,8 +34,8 @@ afterEach(() => {
 });
 
 describe('getReminderFacts', () => {
-  it('takes the streak facts from the profile and defaults Shabbat observance to on', () => {
-    expect(getReminderFacts(ONBOARDED)).toEqual({
+  it('takes the streak facts from the profile and treats a missing Shabbat setting as on', () => {
+    expect(getReminderFacts({ ...ONBOARDED, isShabbatObserver: undefined })).toEqual({
       streakDays: 3,
       streakLastDateStr: '2026-03-03',
       isShabbatObserver: true,

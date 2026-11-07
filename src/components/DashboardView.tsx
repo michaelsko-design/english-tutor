@@ -57,6 +57,7 @@ import { ReminderNudgeCard } from './home/ReminderNudgeCard';
 import { readSeenPacks, rememberSeenPack } from './home/seenPacks';
 import { getNewPackOffer } from '../data/contentPacks';
 import { StatsSheet } from './home/StatsSheet';
+import { FeedbackCard } from './settings/FeedbackCard';
 import { BookOpen, Home, Map as MapIcon, Settings, ShoppingBag } from 'lucide-react';
 import { lazyNamed } from '../utils/lazyNamed';
 import { useProAccess } from '../hooks/useProAccess';
@@ -88,7 +89,7 @@ interface DashboardViewProps {
   onInviteHandled: () => void;
 }
 
-type HomeSheet = 'stats' | 'quests';
+type HomeSheet = 'stats' | 'quests' | 'feedback';
 
 const ROOM_TOAST_MS = 6000;
 /** The size the mission runner first shows the companion at (the peek over the question card) */
@@ -432,6 +433,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         onOpenShop={() => setIsRewardShopOpen(true)}
         onOpenVault={() => setIsVocabVaultOpen(true)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
+        onOpenFeedback={() => setOpenSheet('feedback')}
         onOpenTour={() => setIsTourOpen(true)}
         onEditProfile={onEditOnboarding}
       />
@@ -628,6 +630,19 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
       )}
 
       {/* FEATURE 5: DAILY QUESTS & SHABBAT-SAFE WEEKLY STREAK (opened from the rings or the flame) */}
+      {openSheet === 'feedback' && (
+        <ExamModalShell
+          theme={theme}
+          labelHe="שליחת משוב"
+          onClose={() => setOpenSheet(null)}
+          header={<h2 className="font-extrabold text-base sm:text-lg">💬 משוב</h2>}
+        >
+          <div className="p-3 sm:p-4">
+            <FeedbackCard gradeId={profile.gradeId ?? 'unknown'} theme={theme} screen="home" />
+          </div>
+        </ExamModalShell>
+      )}
+
       {openSheet === 'quests' && (
         <ExamModalShell
           theme={theme}

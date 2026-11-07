@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Cloud, CloudOff, RefreshCw, Settings, ShoppingBag } from 'lucide-react';
+import { BookOpen, Cloud, CloudOff, MessageSquarePlus, RefreshCw, Settings, ShoppingBag } from 'lucide-react';
 import { AuthUserSummary, CloudSyncStatus, LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { getLevelProgress } from '../../utils/rewardFeedback';
@@ -26,6 +26,7 @@ interface HomeHudProps {
   onOpenVault: () => void;
   onOpenAuth: () => void;
   onOpenTour: () => void;
+  onOpenFeedback: () => void;
   onEditProfile: () => void;
 }
 
@@ -69,6 +70,7 @@ export const HomeHud: React.FC<HomeHudProps> = ({
   onOpenVault,
   onOpenAuth,
   onOpenTour,
+  onOpenFeedback,
   onEditProfile,
 }) => {
   const diamondsShown = useCountUp(profile.stats.diamonds);
@@ -145,6 +147,16 @@ export const HomeHud: React.FC<HomeHudProps> = ({
           title="סיור באפליקציה"
         >
           <span aria-hidden="true">❓</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenFeedback}
+          className={`h-9 w-9 rounded-xl flex items-center justify-center ${theme.secondaryBtnClass}`}
+          aria-label="שליחת משוב: יש משהו לספר לנו?"
+          title="יש משהו לספר לנו?"
+        >
+          <MessageSquarePlus className="w-4 h-4" aria-hidden="true" />
         </button>
 
         <SoundToggle className={`h-9 w-9 flex items-center justify-center ${theme.secondaryBtnClass}`} />

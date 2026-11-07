@@ -41,7 +41,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, 
   // Onboarding offers only the themes the learner can keep (all of them with Pro)
   const proAccess = useProAccess();
   const [isShabbatObserver, setIsShabbatObserver] = useState<boolean>(
-    initialProfile.isShabbatObserver !== undefined ? initialProfile.isShabbatObserver : true
+    initialProfile.isShabbatObserver !== undefined ? initialProfile.isShabbatObserver : false
   );
   // A parent agrees to the privacy notice when a learner under 13 starts
   const [hasParentConsent, setHasParentConsent] = useState(Boolean(initialProfile.parentalConsentAt));
