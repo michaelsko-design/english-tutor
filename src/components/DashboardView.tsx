@@ -55,6 +55,8 @@ import { ParentNoticeCard } from './home/ParentNoticeCard';
 import { ParentNudgeCard } from './home/ParentNudgeCard';
 import { ReminderNudgeCard } from './home/ReminderNudgeCard';
 import { WelcomeBackCard } from './home/WelcomeBackCard';
+import { HomeTipCard } from './home/HomeTipCard';
+import { dismissHomeTip } from '../data/homeTips';
 import { readSeenPacks, rememberSeenPack } from './home/seenPacks';
 import { getNewPackOffer } from '../data/contentPacks';
 import { StatsSheet } from './home/StatsSheet';
@@ -148,6 +150,11 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   const [isVocabVaultOpen, setIsVocabVaultOpen] = useState(false);
   const [isRewardShopOpen, setIsRewardShopOpen] = useState(false);
   useTrackFeature('feature_shop', isRewardShopOpen);
+  // Opening the shop answers the "you have gems to spend" tip
+  const tipUid = authUser?.uid ?? null;
+  useEffect(() => {
+    if (isRewardShopOpen && tipUid) dismissHomeTip(tipUid, 'shop');
+  }, [isRewardShopOpen, tipUid]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isPlacementOpen, setIsPlacementOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
@@ -424,6 +431,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
   const handleFinishPlacement = (result: PlacementResult, applyRecommendation: boolean) => {
     onUpdateProfile(applyPlacementToProfile(profile, result, applyRecommendation));
+    trackEvent('placement_done');
     setIsPlacementOpen(false);
   };
 
@@ -547,6 +555,9 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
         {/* A ONE-TIME GIFT FOR A NEW LEARNER COMING BACK AFTER THEIR FIRST DAY */}
         <WelcomeBackCard profile={profile} theme={theme} todayStr={todayStr} onUpdateProfile={onUpdateProfile} />
+
+        {/* ONE FIRST-USE TIP AT A TIME (replaces the app tour at first launch) */}
+        <HomeTipCard profile={profile} uid={authUser?.uid ?? null} theme={theme} onOpenPlacement={() => setIsPlacementOpen(true)} />
 
         {/* A PARENT JOINED, OR RESET THE PIN: THE LEARNER IS TOLD */}
         <ParentNoticeCard profile={profile} theme={theme} />

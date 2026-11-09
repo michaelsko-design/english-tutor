@@ -1,6 +1,6 @@
 import { Page } from '@playwright/test';
 import { expect, test } from './support/test';
-import { completeOnboarding, register, startAsNewLearner } from './support/app';
+import { startAsNewLearner } from './support/app';
 
 /** Dev-server module URLs of the grade curriculum files (not the lessons or exam banks) */
 const CURRICULUM_MODULE = /\/data\/curriculum\/(?:elementary|middleSchool|highSchool)\/grade(\d+)\.ts/;
@@ -25,7 +25,7 @@ test.describe('curriculum loading', () => {
   }) => {
     const gradesLoaded = trackCurriculumGrades(page);
 
-    // Age 6: grade 1. The first launch (welcome chest, tour, placement offer) is skipped.
+    // Age 6: grade 1. The first launch (welcome chest, first lesson) is skipped.
     await startAsNewLearner(page, learner, { name: 'נועה', age: 6 });
 
     expect(gradesLoaded()).toEqual([1]);
@@ -34,16 +34,15 @@ test.describe('curriculum loading', () => {
 
   test('the placement test loads every grade only once the learner says they can read', async ({ page, learner }) => {
     const gradesLoaded = trackCurriculumGrades(page);
-    await register(page, learner);
-    await completeOnboarding(page, { name: 'נועה', age: 9 });
-    await page.getByRole('button', { name: 'פתיחת תיבת המתנה' }).click();
-    await page.getByRole('button', { name: /סיור קצר/ }).click();
-    await page.getByRole('dialog', { name: 'סיור באפליקציה' }).getByRole('button', { name: 'דילוג' }).click();
+    await startAsNewLearner(page, learner, { name: 'נועה', age: 9 });
+    // The placement test is a home-screen offer now: open it from the learner's stats
+    await page.getByRole('button', { name: /פתיחת הנתונים שלי/ }).click();
+    await page.getByRole('button', { name: /מבחן רמה/ }).click();
 
     const test = page.getByRole('dialog', { name: 'מבחן רמה' });
     await expect(test).toBeVisible();
-    // Still on "can you read English?": no grade has been fetched for the test yet
-    expect(gradesLoaded()).toEqual([]);
+    // Still on "can you read English?": only the learner's own grade (4) is loaded, none for the test yet
+    expect(gradesLoaded()).toEqual([4]);
 
     await test.getByRole('button').filter({ hasText: 'כן, אני יודעת לקרוא' }).click();
     const start = test.getByRole('button', { name: /בואי נתחיל/ });

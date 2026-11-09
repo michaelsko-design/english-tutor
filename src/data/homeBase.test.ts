@@ -132,48 +132,38 @@ describe('getMapPeek', () => {
 });
 
 describe('getFirstLaunchSteps', () => {
-  const steps = (hasSeenWelcomeGift: boolean, isOfferingTour: boolean, isOfferingPlacement: boolean) =>
-    getFirstLaunchSteps({ hasSeenWelcomeGift, isOfferingTour, isOfferingPlacement });
+  const idle = { hasSeenWelcomeGift: true };
 
-  it('runs the greeting first, then the app tour, then the placement offer', () => {
-    expect(steps(false, false, true)).toEqual(['greeting', 'tour', 'placement']);
+  it('is just the greeting for a learner who has not seen the chest', () => {
+    expect(getFirstLaunchSteps({ hasSeenWelcomeGift: false })).toEqual(['greeting']);
   });
 
-  it('always follows the greeting with the tour', () => {
-    expect(steps(false, false, false)).toEqual(['greeting', 'tour']);
+  it('has no app tour and no placement test: those are tips on the home screen now', () => {
+    const everything = getFirstLaunchSteps({
+      hasSeenWelcomeGift: false,
+      isOfferingFirstLesson: true,
+      isOfferingFirstMission: true,
+      isOfferingFirstWin: true,
+    });
+    expect(everything).not.toContain('tour');
+    expect(everything).not.toContain('placement');
   });
 
-  it('puts the first lesson between the greeting and the tour', () => {
-    expect(
-      getFirstLaunchSteps({ hasSeenWelcomeGift: false, isOfferingFirstLesson: true, isOfferingTour: false, isOfferingPlacement: true })
-    ).toEqual(['greeting', 'firstLesson', 'tour', 'placement']);
+  it('puts the first lesson (grades 1-2) right after the greeting', () => {
+    expect(getFirstLaunchSteps({ hasSeenWelcomeGift: false, isOfferingFirstLesson: true })).toEqual(['greeting', 'firstLesson']);
   });
 
-  it('starts the first mission right after the greeting, then the first win, then the tour', () => {
-    expect(
-      getFirstLaunchSteps({ hasSeenWelcomeGift: false, isOfferingFirstMission: true, isOfferingTour: false, isOfferingPlacement: false })
-    ).toEqual(['greeting', 'firstMission', 'tour']);
-    expect(
-      getFirstLaunchSteps({ hasSeenWelcomeGift: true, isOfferingFirstWin: true, isOfferingTour: true, isOfferingPlacement: true })
-    ).toEqual(['firstWin', 'tour', 'placement']);
+  it('starts the first mission (grade 3+) right after the greeting', () => {
+    expect(getFirstLaunchSteps({ hasSeenWelcomeGift: false, isOfferingFirstMission: true })).toEqual(['greeting', 'firstMission']);
   });
 
-  it('shows the first win after the lesson and before the tour', () => {
-    expect(
-      getFirstLaunchSteps({ hasSeenWelcomeGift: true, isOfferingFirstWin: true, isOfferingTour: true, isOfferingPlacement: true })
-    ).toEqual(['firstWin', 'tour', 'placement']);
+  it('shows the first win after the lesson or the mission', () => {
+    expect(getFirstLaunchSteps({ ...idle, isOfferingFirstWin: true })).toEqual(['firstWin']);
+    expect(getFirstLaunchSteps({ ...idle, isOfferingFirstLesson: true, isOfferingFirstWin: true })).toEqual(['firstLesson', 'firstWin']);
   });
 
-  it('keeps the first lesson while the tour is not yet offered, then goes on to the tour', () => {
-    expect(
-      getFirstLaunchSteps({ hasSeenWelcomeGift: true, isOfferingFirstLesson: true, isOfferingTour: true, isOfferingPlacement: false })
-    ).toEqual(['firstLesson', 'tour']);
-  });
-
-  it('skips the steps already done', () => {
-    expect(steps(true, true, true)).toEqual(['tour', 'placement']);
-    expect(steps(true, false, true)).toEqual(['placement']);
-    expect(steps(true, true, false)).toEqual(['tour']);
-    expect(steps(true, false, false)).toEqual([]);
+  it('is empty once everything was done', () => {
+    expect(getFirstLaunchSteps(idle)).toEqual([]);
   });
 });
+

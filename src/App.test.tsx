@@ -149,18 +149,6 @@ vi.mock('./components/FirstLesson', () => ({
   ),
 }));
 vi.mock('./components/home/FirstWinScreen', () => ({ FirstWinScreen: (p: { onContinue: () => void }) => btn('first-win-continue', p.onContinue) }));
-vi.mock('./components/tutorial/ProfileTour', () => ({
-  ProfileTour: (p: { finishLabelHe: string; onDone: () => void }) => <div>{btn('tour-done', p.onDone)}<span>{p.finishLabelHe}</span></div>,
-}));
-vi.mock('./components/PlacementTest', () => ({
-  PlacementTest: (p: { mode: string; onFinish: (r: unknown, apply: boolean) => void; onClose: () => void }) => (
-    <div>
-      <span>{`placement:${p.mode}`}</span>
-      {btn('placement-finish', () => p.onFinish({ recommendedGradeId: 'grade-1', recommendedTier: 'explorer', correctCount: 5, totalCount: 10, completedAt: '2026-11-05T10:00:00.000Z' }, false))}
-      {btn('placement-skip', p.onClose)}
-    </div>
-  ),
-}));
 
 const USER = { uid: 'u1', displayName: 'נועה כהן', email: 'n@x.test', isAnonymous: false };
 const ONBOARDED = () => makeProfile({ name: 'נועה', hasSeenWelcomeGiftModal: true });
@@ -414,7 +402,7 @@ describe('App screens', () => {
 });
 
 describe('App first launch', () => {
-  it('walks a new learner through onboarding, the welcome chest, the first lesson, the tour and the placement test', async () => {
+  it('walks a new grade 1-2 learner through onboarding, the welcome chest, the first lesson and the first win', async () => {
     const user = userEvent.setup();
     cloud.migrate.mockResolvedValue(makeProfile({ isOnboarded: false, name: '' }));
     render(<App />);
@@ -422,34 +410,29 @@ describe('App first launch', () => {
     await user.click(await screen.findByRole('button', { name: 'finish-onboarding' }));
     await user.click(await screen.findByRole('button', { name: 'greeting-done' }));
     expect(queue.schedule.mock.calls.some(([, p]) => (p as LearnerProfile).hasSeenWelcomeGiftModal)).toBe(true);
-    // Grade 1: the letters lesson comes before the tour, and finishing it starts the streak
+    // Grade 1: the letters lesson comes next, and finishing it starts the streak
     await user.click(await screen.findByRole('button', { name: 'lesson-done' }));
     expect(queue.schedule.mock.calls.some(([, p]) => (p as LearnerProfile).stats.streakDays === 1)).toBe(true);
-    // The first win (celebration and the reminder ask) comes before the tour
+    // The first win (celebration and the reminder ask), then the home screen: no tour, no placement test
     await user.click(await screen.findByRole('button', { name: 'first-win-continue' }));
-    expect(await screen.findByText(/המשך למבחן רמה קצר|המשיכי למבחן רמה קצר/)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'tour-done' }));
-    expect(await screen.findByText('placement:onboarding')).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'placement-finish' }));
     expect(await screen.findByText(/^dashboard:/)).toBeInTheDocument();
+    expect(screen.queryByText(/placement:/)).not.toBeInTheDocument();
   });
 
-  it('lets the learner skip the placement test', async () => {
+  it('leaving the lesson early earns no streak day and no first win', async () => {
     const user = userEvent.setup();
     cloud.migrate.mockResolvedValue(makeProfile({ isOnboarded: false, name: '' }));
     render(<App />);
     await signIn();
     await user.click(await screen.findByRole('button', { name: 'finish-onboarding' }));
     await user.click(await screen.findByRole('button', { name: 'greeting-done' }));
-    // Leaving the lesson early earns no streak day
     await user.click(await screen.findByRole('button', { name: 'lesson-exit' }));
     expect(queue.schedule.mock.calls.some(([, p]) => (p as LearnerProfile).stats.streakDays === 1)).toBe(false);
-    await user.click(await screen.findByRole('button', { name: 'tour-done' }));
-    await user.click(await screen.findByRole('button', { name: 'placement-skip' }));
+    expect(screen.queryByRole('button', { name: 'first-win-continue' })).not.toBeInTheDocument();
     expect(await screen.findByText(/^dashboard:/)).toBeInTheDocument();
   });
 
-  it('shows only the greeting and a short tour for a learner who has not seen the chest', async () => {
+  it('goes straight home after the chest for a learner who already played (no lesson, no mission, no tour)', async () => {
     const user = userEvent.setup();
     cloud.migrate.mockResolvedValue(
       makeProfile({ name: 'נועה', gradeId: 'grade-4', hasSeenWelcomeGiftModal: false, missionProgress: { 'g4-u1-m1': 2 } })
@@ -457,16 +440,12 @@ describe('App first launch', () => {
     render(<App />);
     await signIn();
     await user.click(await screen.findByRole('button', { name: 'greeting-done' }));
-    // From grade 3 there is no letters lesson, and a learner who already played has no first mission:
-    // the tour follows the chest at once
     expect(screen.queryByRole('button', { name: 'lesson-done' })).not.toBeInTheDocument();
     expect(screen.queryByText('first-mission-mode')).not.toBeInTheDocument();
-    expect(await screen.findByText(/בואי נשחק|בוא נשחק/)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'tour-done' }));
     expect(await screen.findByText(/^dashboard:/)).toBeInTheDocument();
   });
 
-  it('starts a new grade 3+ learner on their first mission, then the first win, then the tour', async () => {
+  it('starts a new grade 3+ learner on their first mission, then the first win, then home', async () => {
     const user = userEvent.setup();
     cloud.migrate.mockResolvedValue(makeProfile({ name: 'נועה', gradeId: 'grade-4', hasSeenWelcomeGiftModal: false, missionProgress: {} }));
     render(<App />);
@@ -475,12 +454,11 @@ describe('App first launch', () => {
     expect(await screen.findByText('first-mission-mode')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'first-mission-finished' }));
     await user.click(await screen.findByRole('button', { name: 'first-win-continue' }));
-    await user.click(await screen.findByRole('button', { name: 'tour-done' }));
     expect(await screen.findByText(/^dashboard:/)).toBeInTheDocument();
     expect(screen.queryByText('first-mission-mode')).not.toBeInTheDocument();
   });
 
-  it('goes to the tour without a first win when the first mission was left', async () => {
+  it('goes home without a first win when the first mission was left', async () => {
     const user = userEvent.setup();
     cloud.migrate.mockResolvedValue(makeProfile({ name: 'נועה', gradeId: 'grade-4', hasSeenWelcomeGiftModal: false, missionProgress: {} }));
     render(<App />);
@@ -488,8 +466,8 @@ describe('App first launch', () => {
     await user.click(await screen.findByRole('button', { name: 'greeting-done' }));
     await user.click(await screen.findByRole('button', { name: 'first-mission-abandoned' }));
     expect(screen.queryByRole('button', { name: 'first-win-continue' })).not.toBeInTheDocument();
-    await user.click(await screen.findByRole('button', { name: 'tour-done' }));
     expect(await screen.findByText(/^dashboard:/)).toBeInTheDocument();
+    expect(screen.queryByText('first-mission-mode')).not.toBeInTheDocument();
   });
 });
 

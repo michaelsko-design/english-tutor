@@ -19,7 +19,6 @@ import { getDeviceId } from './utils/deviceId';
 import { DashboardView } from './components/DashboardView';
 import { AuthModal } from './components/AuthModal';
 import { AppLogo } from './components/AppLogo';
-import { applyPlacementToProfile } from './data/placementTest';
 import { addActiveSeconds, recordActivityLog } from './data/activityLog';
 import { useActiveTimeTracker } from './hooks/useActiveTimeTracker';
 import { getFirstLaunchSteps } from './data/homeBase';
@@ -49,11 +48,9 @@ import { isUnreadableProfile, parseStoredProfile } from './services/localProfile
 // Screens most visits never open load in their own chunks
 const OnboardingView = lazyNamed(() => import('./components/OnboardingView'), 'OnboardingView');
 const SettingsView = lazyNamed(() => import('./components/settings/SettingsView'), 'SettingsView');
-const PlacementTest = lazyNamed(() => import('./components/PlacementTest'), 'PlacementTest');
 const FirstLaunchGreeting = lazyNamed(() => import('./components/home/FirstLaunchGreeting'), 'FirstLaunchGreeting');
 const FirstLesson = lazyNamed(() => import('./components/FirstLesson'), 'FirstLesson');
 const FirstWinScreen = lazyNamed(() => import('./components/home/FirstWinScreen'), 'FirstWinScreen');
-const ProfileTour = lazyNamed(() => import('./components/tutorial/ProfileTour'), 'ProfileTour');
 
 const STORAGE_KEY = 'english_tutor_learner_profile_v2';
 /** Where unreadable saved text is kept before the next save replaces it */
@@ -78,10 +75,7 @@ export function App() {
 
   const [isEditingOnboarding, setIsEditingOnboarding] = useState<boolean>(false);
   /** True right after first-time onboarding, while the placement test is being offered */
-  const [isOfferingPlacement, setIsOfferingPlacement] = useState<boolean>(false);
-  // The app tour right after the welcome chest (Feature 45)
-  const [isOfferingTour, setIsOfferingTour] = useState<boolean>(false);
-  /** Grades 1–2: the letters lesson that follows the welcome chest (this session only, like the tour) */
+  /** Grades 1–2: the letters lesson that follows the welcome chest (this session only) */
   const [isOfferingFirstLesson, setIsOfferingFirstLesson] = useState<boolean>(false);
   /** Grade 3 and up: the first mission that opens by itself after the welcome chest (this session only) */
   const [isOfferingFirstMission, setIsOfferingFirstMission] = useState<boolean>(false);
@@ -166,7 +160,6 @@ export function App() {
       if (!firebaseUser) {
         setAuthUser(null);
         setProfile(DEFAULT_PROFILE);
-        setIsOfferingPlacement(false);
         try {
           localStorage.removeItem(STORAGE_KEY);
         } catch {
@@ -352,7 +345,6 @@ export function App() {
     handleUpdateProfile(applyBasicsToProfile(profileRef.current, draft, new Date()));
     trackEvent('onboarding_view');
     trackEvent('onboarding_done');
-    setIsOfferingPlacement(true);
     // handleUpdateProfile only reads refs and state setters, so it never needs to re-run this effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProfileReady, profile.isOnboarded]);
@@ -460,8 +452,7 @@ export function App() {
         onComplete={(updated) => {
           handleUpdateProfile(updated);
           trackEvent('onboarding_done');
-          setIsOfferingPlacement(true);
-        }}
+              }}
       />
       </Suspense>
       </ProAccessContext.Provider>
@@ -484,15 +475,14 @@ export function App() {
     );
   }
 
-  // First launch, one screen after another: the companion's greeting with the welcome chest,
-  // the app tour (Feature 45), then the placement test offer (Feature 27)
+  // First launch, one screen after another: the companion's greeting with the welcome chest, then the
+  // first lesson (grades 1–2) or first mission (grade 3+), then the first win. The app tour and the
+  // placement test are home-screen tips now (data/homeTips.ts).
   const firstLaunchSteps = getFirstLaunchSteps({
     hasSeenWelcomeGift: Boolean(profile.hasSeenWelcomeGiftModal),
     isOfferingFirstLesson,
     isOfferingFirstMission,
     isOfferingFirstWin,
-    isOfferingTour,
-    isOfferingPlacement,
   });
 
   if (firstLaunchSteps[0] === 'greeting') {
@@ -508,7 +498,7 @@ export function App() {
             ? 'lesson'
             : Object.keys(profile.missionProgress ?? {}).length === 0
             ? 'mission'
-            : 'tour'
+            : 'start'
         }
         onDone={() => {
           handleUpdateProfile({ ...profileRef.current, hasSeenWelcomeGiftModal: true });
@@ -519,7 +509,6 @@ export function App() {
           const isEarlyGrade = playsHebrewAloud(profileRef.current.gradeId);
           setIsOfferingFirstLesson(isEarlyGrade);
           setIsOfferingFirstMission(!isEarlyGrade && isNewPlayer);
-          setIsOfferingTour(true);
         }}
       />
       </Suspense>
@@ -559,56 +548,6 @@ export function App() {
           onContinue={() => setIsOfferingFirstWin(false)}
         />
       </Suspense>
-    );
-  }
-
-  if (firstLaunchSteps[0] === 'tour') {
-    const isGirl = profile.gender === 'girl';
-    return (
-      <div className={`min-h-screen w-full ${activeTheme.pageBgClass}`}>
-        <Suspense fallback={<ScreenLoading />}>
-        <ProfileTour
-          profile={profile}
-          theme={activeTheme}
-          authUser={authUser}
-          finishLabelHe={
-            firstLaunchSteps.includes('placement')
-              ? `${isGirl ? 'המשיכי' : 'המשך'} למבחן רמה קצר 🎯`
-              : isGirl
-              ? 'בואי נשחק! 🚀'
-              : 'בוא נשחק! 🚀'
-          }
-          onDone={() => {
-            trackEvent('tour_done');
-            setIsOfferingTour(false);
-          }}
-        />
-        </Suspense>
-      </div>
-    );
-  }
-
-  if (firstLaunchSteps[0] === 'placement') {
-    return (
-      <HebrewAudioContext.Provider value={playsHebrewAloud(profile.gradeId)}>
-      <div className={`min-h-screen w-full ${activeTheme.pageBgClass}`}>
-        <Suspense fallback={<ScreenLoading />}>
-        <PlacementTest
-          profile={profile}
-          theme={activeTheme}
-          mode="onboarding"
-          onFinish={(result, applyRecommendation) => {
-            handleUpdateProfile(
-              applyPlacementToProfile(profile, result, applyRecommendation)
-            );
-            trackEvent('placement_done');
-            setIsOfferingPlacement(false);
-          }}
-          onClose={() => setIsOfferingPlacement(false)}
-        />
-        </Suspense>
-      </div>
-      </HebrewAudioContext.Provider>
     );
   }
 

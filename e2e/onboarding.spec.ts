@@ -10,7 +10,7 @@ import {
 } from './support/app';
 
 test.describe('onboarding, grade 3 and up', () => {
-  test('a new grade 4 learner starts on their first mission, and leaving it goes on to the tour', async ({ page, learner }) => {
+  test('a new grade 4 learner starts on their first mission, and leaving it goes home', async ({ page, learner }) => {
     await register(page, learner, '/', { name: 'נועה', age: 9 });
     await completeOnboarding(page, { name: 'נועה', age: 9 });
 
@@ -22,10 +22,8 @@ test.describe('onboarding, grade 3 and up', () => {
     await expect(firstLessonDialog(page)).toHaveCount(0);
     await exitMissionButton(page).click();
 
-    // Left unfinished: no first win, straight on to the tour and the placement offer
+    // Left unfinished: no first win, no tour: straight to the home screen
     await expect(page.getByRole('heading', { name: /כל הכבוד/ })).toHaveCount(0);
-    await page.getByRole('dialog', { name: 'סיור באפליקציה' }).getByRole('button', { name: 'דילוג' }).click();
-    await page.getByRole('button', { name: 'דילוג על מבחן הרמה' }).click();
     await expectDashboard(page);
   });
 });
@@ -66,8 +64,6 @@ test.describe('onboarding', () => {
     // The first win: a celebration with the first streak day, and (where the browser can) the reminder ask
     await expect(page.getByRole('heading', { name: /כל הכבוד/ })).toBeVisible();
     await expect(page.getByText(/יום 1 ברצף/)).toBeVisible();    await page.getByRole('button', { name: /^(ממשיכים|לא עכשיו)$/ }).click();
-    await page.getByRole('dialog', { name: 'סיור באפליקציה' }).getByRole('button', { name: 'דילוג' }).click();
-    await page.getByRole('button', { name: 'דילוג על מבחן הרמה' }).click();
     await expectDashboard(page);
     // The grade label sits in the map peek, which wide screens hide; the map itself is always there
     await expect(page.locator('#mission-map')).toBeVisible();

@@ -104,20 +104,19 @@ export const firstLessonDialog = (page: Page): Locator => page.getByRole('dialog
 /** The exit button of a mission that opened by itself (grades 3 and up start on their first mission). */
 export const exitMissionButton = (page: Page): Locator => page.getByRole('button', { name: 'יציאה מהמשימה' });
 
-/** The welcome chest, the first lesson or first mission, the app tour and the placement-test offer, skipped. */
+/** The welcome chest, then the first lesson or first mission (left early): a learner on the home screen. */
 export async function skipFirstLaunch(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'פתיחת תיבת המתנה' }).click();
-  // The chest's last button leads to the first lesson (grades 1–2), the first mission or the tour
-  await page.getByRole('button', { name: /סיור קצר|נלמד אותיות|משימה ראשונה/ }).click();
-  const tourDialog = page.getByRole('dialog', { name: 'סיור באפליקציה' });
-  await expect(firstLessonDialog(page).or(tourDialog).or(exitMissionButton(page))).toBeVisible();
-  if (await firstLessonDialog(page).isVisible()) {
+  // The chest's last button says what comes next: the first lesson (grades 1–2), the first mission, or home
+  const next = page.getByRole('button', { name: /בואי נתחיל|בוא נתחיל|נלמד אותיות|משימה ראשונה/ });
+  const label = (await next.textContent()) ?? '';
+  await next.click();
+  // Wait for the thing the label promised: the home screen is already behind a mission that is still loading
+  if (/אותיות/.test(label)) {
     await firstLessonDialog(page).getByRole('button', { name: 'יציאה מהשיעור' }).click();
-  } else if (await exitMissionButton(page).isVisible()) {
+  } else if (/משימה ראשונה/.test(label)) {
     await exitMissionButton(page).click();
   }
-  await tourDialog.getByRole('button', { name: 'דילוג' }).click();
-  await page.getByRole('button', { name: 'דילוג על מבחן הרמה' }).click();
   await expectDashboard(page);
 }
 

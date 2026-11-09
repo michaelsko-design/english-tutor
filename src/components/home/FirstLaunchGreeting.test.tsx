@@ -8,8 +8,8 @@ vi.mock('../companion/Companion', () => ({ Companion: () => <span>companion</spa
 
 const onDone = vi.fn();
 
-function setup(props: { gender?: 'girl' | 'boy'; name?: string } = {}) {
-  render(<FirstLaunchGreeting theme={TEST_THEME} gender={props.gender ?? 'girl'} name={props.name ?? 'מיה'} welcomeGems={25} onDone={onDone} />);
+function setup(props: { gender?: 'girl' | 'boy'; name?: string; nextStep?: 'start' | 'lesson' | 'mission' } = {}) {
+  render(<FirstLaunchGreeting theme={TEST_THEME} gender={props.gender ?? 'girl'} name={props.name ?? 'מיה'} welcomeGems={25} nextStep={props.nextStep} onDone={onDone} />);
   return userEvent.setup();
 }
 
@@ -30,12 +30,23 @@ describe('FirstLaunchGreeting', () => {
     expect(screen.getByText(/הקש על התיבה/)).toBeInTheDocument();
   });
 
-  it('opens the chest once and reveals the gems and the tour button', async () => {
+  it('opens the chest once and reveals the gems and the start button', async () => {
     const user = setup();
     await user.click(screen.getByRole('button', { name: 'פתיחת תיבת המתנה' }));
     expect(screen.getByRole('button', { name: 'התיבה נפתחה: 25 יהלומים' })).toBeDisabled();
     expect(screen.getByRole('heading', { name: /קיבלת 25/ })).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: /בואי נעשה סיור קצר/ }));
+    await user.click(screen.getByRole('button', { name: /בואי נתחיל/ }));
     expect(onDone).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('FirstLaunchGreeting next step', () => {
+  it.each([
+    ['lesson', /נלמד אותיות/],
+    ['mission', /משימה ראשונה/],
+  ] as const)('leads into the %s', async (nextStep, label) => {
+    const user = setup({ nextStep });
+    await user.click(screen.getByRole('button', { name: 'פתיחת תיבת המתנה' }));
+    expect(screen.getByRole('button', { name: label })).toBeInTheDocument();
   });
 });

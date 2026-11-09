@@ -15,13 +15,13 @@ interface FirstLaunchGreetingProps {
   name: string;
   /** The welcome gems already in the new profile */
   welcomeGems: number;
-  /** What follows the chest: the app tour (default), the first letters lesson (grades 1–2) or the first mission */
-  nextStep?: 'tour' | 'lesson' | 'mission';
+  /** What follows the chest: the first letters lesson (grades 1–2), the first mission, or just the home screen */
+  nextStep?: 'start' | 'lesson' | 'mission';
   onDone: () => void;
 }
 
 const NEXT_STEP_LABEL_HE: Record<NonNullable<FirstLaunchGreetingProps['nextStep']>, Record<'girl' | 'boy', string>> = {
-  tour: { girl: 'איזה כיף! בואי נעשה סיור קצר 🧭', boy: 'איזה כיף! בוא נעשה סיור קצר 🧭' },
+  start: { girl: 'איזה כיף! בואי נתחיל 🚀', boy: 'איזה כיף! בוא נתחיל 🚀' },
   lesson: { girl: 'איזה כיף! בואי נלמד אותיות 🔤', boy: 'איזה כיף! בוא נלמד אותיות 🔤' },
   mission: { girl: 'איזה כיף! בואי נתחיל במשימה ראשונה 🚀', boy: 'איזה כיף! בוא נתחיל במשימה ראשונה 🚀' },
 };
@@ -32,15 +32,15 @@ const GEM_COUNT_MS = 900;
 
 /**
  * Feature 27: the first screen after onboarding. The companion says hello and hands over the
- * welcome chest; tapping it opens it and counts up the welcome gems. The app tour (Feature 45)
- * and the placement test offer follow as the next steps of the same sequence.
+ * welcome chest; tapping it opens it and counts up the welcome gems. The first lesson or mission
+ * follows as the next step of the same sequence.
  */
 export const FirstLaunchGreeting: React.FC<FirstLaunchGreetingProps> = ({
   theme,
   gender,
   name,
   welcomeGems,
-  nextStep = 'tour',
+  nextStep = 'start',
   onDone,
 }) => {
   const [isOpen, setIsOpen] = useState(false);

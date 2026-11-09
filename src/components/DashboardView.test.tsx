@@ -300,6 +300,22 @@ describe('DashboardView missions', () => {
   });
 });
 
+describe('DashboardView first-use tips', () => {
+  it('shows a tip once the learner has finished a mission, and the placement tip opens the test', async () => {
+    localStorage.setItem('english_tutor_home_tip_stars_me', '1');
+    const base = makeProfile({});
+    const user = setup(makeProfile({ stats: { ...base.stats, missionsCompleted: 1, streakDays: 1 } }));
+    await user.click(screen.getByRole('button', { name: 'למבחן קצר' }));
+    expect(screen.getByRole('button', { name: 'finish-placement' })).toBeInTheDocument();
+  });
+
+  it('shows no tip to a learner who has done nothing yet', () => {
+    const base = makeProfile({});
+    setup(makeProfile({ stats: { ...base.stats, missionsCompleted: 0, streakDays: 0 } }));
+    expect(screen.queryByRole('region', { name: 'טיפ' })).not.toBeInTheDocument();
+  });
+});
+
 describe('DashboardView welcome-back gift', () => {
   it('offers the one-time gift to a new learner coming back, and claims it into the profile', async () => {
     const base = makeProfile({});

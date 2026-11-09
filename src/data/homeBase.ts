@@ -137,30 +137,27 @@ export function getMapPeek(units: CurriculumUnit[], progress: Record<string, num
   };
 }
 
-export type FirstLaunchStep = 'greeting' | 'firstLesson' | 'firstMission' | 'firstWin' | 'tour' | 'placement';
+export type FirstLaunchStep = 'greeting' | 'firstLesson' | 'firstMission' | 'firstWin';
 
 /**
- * The first-launch sequence, one screen after another: the companion's greeting with the
- * welcome chest (once per profile), the first lesson (grades 1–2: the first letters, nothing to
- * answer), the app tour (Feature 45: right after, and while it is open), then the placement test
- * offer (right after first-time onboarding only).
+ * The first-launch sequence, one screen after another: the companion's greeting with the welcome
+ * chest (once per profile), then the first lesson (grades 1–2: the first letters, nothing to answer)
+ * or the first mission (grade 3 and up), then the first win with the reminder ask. The app tour and
+ * the placement test are no longer part of it: first-use tips on the home screen (`data/homeTips.ts`)
+ * and the ❓ button take their place.
  */
 export function getFirstLaunchSteps(input: {
   hasSeenWelcomeGift: boolean;
   isOfferingFirstLesson?: boolean;
   /** Grades 3 and up: the first mission starts by itself after the greeting */
   isOfferingFirstMission?: boolean;
-  /** The celebration and the reminder ask after a finished first lesson */
+  /** The celebration and the reminder ask after a finished first lesson or mission */
   isOfferingFirstWin?: boolean;
-  isOfferingTour: boolean;
-  isOfferingPlacement: boolean;
 }): FirstLaunchStep[] {
   const steps: FirstLaunchStep[] = [];
   if (!input.hasSeenWelcomeGift) steps.push('greeting');
   if (input.isOfferingFirstLesson) steps.push('firstLesson');
   if (input.isOfferingFirstMission) steps.push('firstMission');
   if (input.isOfferingFirstWin) steps.push('firstWin');
-  if (!input.hasSeenWelcomeGift || input.isOfferingTour) steps.push('tour');
-  if (input.isOfferingPlacement) steps.push('placement');
   return steps;
 }
