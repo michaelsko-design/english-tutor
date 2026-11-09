@@ -41,7 +41,7 @@ import { AccountResult, deleteAccount } from './services/accountService';
 import { DEFAULT_PROFILE, WELCOME_GIFT_DIAMONDS } from './data/defaultProfile';
 import { setAnalyticsContext, trackEvent } from './services/analytics';
 import { clearSignupDraft, takeSignupDraft } from './data/signupDraft';
-import { advanceStreak } from './data/streak';
+import { advanceStreak, getCurrentStreak } from './data/streak';
 import { toLocalDateStr } from './utils/dates';
 import { applyBasicsToProfile } from './utils/applyBasicsToProfile';
 import { isUnreadableProfile, parseStoredProfile } from './services/localProfile';
@@ -52,6 +52,7 @@ const SettingsView = lazyNamed(() => import('./components/settings/SettingsView'
 const PlacementTest = lazyNamed(() => import('./components/PlacementTest'), 'PlacementTest');
 const FirstLaunchGreeting = lazyNamed(() => import('./components/home/FirstLaunchGreeting'), 'FirstLaunchGreeting');
 const FirstLesson = lazyNamed(() => import('./components/FirstLesson'), 'FirstLesson');
+const FirstWinScreen = lazyNamed(() => import('./components/home/FirstWinScreen'), 'FirstWinScreen');
 const ProfileTour = lazyNamed(() => import('./components/tutorial/ProfileTour'), 'ProfileTour');
 
 const STORAGE_KEY = 'english_tutor_learner_profile_v2';
@@ -82,6 +83,8 @@ export function App() {
   const [isOfferingTour, setIsOfferingTour] = useState<boolean>(false);
   /** Grades 1–2: the letters lesson that follows the welcome chest (this session only, like the tour) */
   const [isOfferingFirstLesson, setIsOfferingFirstLesson] = useState<boolean>(false);
+  /** After that lesson is finished: the celebration and the reminder ask (this session only) */
+  const [isOfferingFirstWin, setIsOfferingFirstWin] = useState<boolean>(false);
   const [authUser, setAuthUser] = useState<AuthUserSummary | null>(null);
   const [isAuthInitializing, setIsAuthInitializing] = useState<boolean>(isFirebaseConfigured);
   const [syncStatus, setSyncStatus] = useState<CloudSyncStatus>('local-only');
@@ -484,6 +487,7 @@ export function App() {
   const firstLaunchSteps = getFirstLaunchSteps({
     hasSeenWelcomeGift: Boolean(profile.hasSeenWelcomeGiftModal),
     isOfferingFirstLesson,
+    isOfferingFirstWin,
     isOfferingTour,
     isOfferingPlacement,
   });
@@ -521,12 +525,27 @@ export function App() {
                 const current = profileRef.current;
                 handleUpdateProfile({ ...current, stats: advanceStreak(current, toLocalDateStr(new Date())) });
                 trackEvent('first_lesson_done');
+                setIsOfferingFirstWin(true);
               }
               setIsOfferingFirstLesson(false);
             }}
           />
         </Suspense>
       </HebrewAudioContext.Provider>
+    );
+  }
+
+  if (firstLaunchSteps[0] === 'firstWin') {
+    return (
+      <Suspense fallback={<ScreenLoading />}>
+        <FirstWinScreen
+          profile={profile}
+          theme={activeTheme}
+          streakDays={getCurrentStreak(profile, toLocalDateStr(new Date()))}
+          onUpdateProfile={handleUpdateProfile}
+          onContinue={() => setIsOfferingFirstWin(false)}
+        />
+      </Suspense>
     );
   }
 

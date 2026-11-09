@@ -52,6 +52,7 @@ export interface UsageStats {
     greeted: number;
     firstLesson: number;
     toured: number;
+    reminderOn: number;
     placed: number;
     firstMission: number;
     threeStars: number;
@@ -230,6 +231,7 @@ export function computeUsageStats(
     greeted: new Set<string>(),
     firstLesson: new Set<string>(),
     toured: new Set<string>(),
+    reminderOn: new Set<string>(),
     placed: new Set<string>(),
     firstMission: new Set<string>(),
     threeStars: new Set<string>(),
@@ -263,6 +265,7 @@ export function computeUsageStats(
     if (counts.greeting_done) reached.greeted.add(uid);
     if (counts.first_lesson_done) reached.firstLesson.add(uid);
     if (counts.tour_done) reached.toured.add(uid);
+    if (counts.reminder_opt_in) reached.reminderOn.add(uid);
     if (counts.placement_done) reached.placed.add(uid);
     if (counts.mission_finish) reached.firstMission.add(uid);
     if (counts.mission_three_stars) reached.threeStars.add(uid);
@@ -311,6 +314,7 @@ export function computeUsageStats(
       greeted: reached.greeted.size,
       firstLesson: reached.firstLesson.size,
       toured: reached.toured.size,
+      reminderOn: reached.reminderOn.size,
       placed: reached.placed.size,
       firstMission: reached.firstMission.size,
       threeStars: reached.threeStars.size,

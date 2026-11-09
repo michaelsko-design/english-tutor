@@ -137,7 +137,7 @@ export function getMapPeek(units: CurriculumUnit[], progress: Record<string, num
   };
 }
 
-export type FirstLaunchStep = 'greeting' | 'firstLesson' | 'tour' | 'placement';
+export type FirstLaunchStep = 'greeting' | 'firstLesson' | 'firstWin' | 'tour' | 'placement';
 
 /**
  * The first-launch sequence, one screen after another: the companion's greeting with the
@@ -148,12 +148,15 @@ export type FirstLaunchStep = 'greeting' | 'firstLesson' | 'tour' | 'placement';
 export function getFirstLaunchSteps(input: {
   hasSeenWelcomeGift: boolean;
   isOfferingFirstLesson?: boolean;
+  /** The celebration and the reminder ask after a finished first lesson */
+  isOfferingFirstWin?: boolean;
   isOfferingTour: boolean;
   isOfferingPlacement: boolean;
 }): FirstLaunchStep[] {
   const steps: FirstLaunchStep[] = [];
   if (!input.hasSeenWelcomeGift) steps.push('greeting');
   if (input.isOfferingFirstLesson) steps.push('firstLesson');
+  if (input.isOfferingFirstWin) steps.push('firstWin');
   if (!input.hasSeenWelcomeGift || input.isOfferingTour) steps.push('tour');
   if (input.isOfferingPlacement) steps.push('placement');
   return steps;

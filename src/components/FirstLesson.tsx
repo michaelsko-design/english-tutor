@@ -15,7 +15,7 @@ interface FirstLessonProps {
 /**
  * The first thing a grade 1–2 learner does after the welcome chest: the letters lesson (A, B, C),
  * with each letter and its picture words read aloud and nothing to answer. Finishing it is the
- * learner's first win (App starts the streak).
+ * learner's first win (App starts the streak and shows the first-win screen).
  */
 export const FirstLesson: React.FC<FirstLessonProps> = ({ theme, onDone }) => {
   useStopSpeechOnLeave();

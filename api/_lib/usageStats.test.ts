@@ -14,7 +14,7 @@ describe('computeUsageStats', () => {
       [],
       '2026-11-06'
     );
-    expect(stats.funnel).toEqual({ sessions: 2, onboardingViewed: 0, onboarded: 1, greeted: 0, firstLesson: 0, toured: 0, placed: 0, firstMission: 1, threeStars: 1 });
+    expect(stats.funnel).toEqual({ sessions: 2, onboardingViewed: 0, onboarded: 1, greeted: 0, firstLesson: 0, toured: 0, reminderOn: 0, placed: 0, firstMission: 1, threeStars: 1 });
     expect(stats.missionsByTier).toEqual({ explorer: 2, challenger: 0, master: 1 });
   });
 

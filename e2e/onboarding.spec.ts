@@ -35,6 +35,9 @@ test.describe('onboarding', () => {
     await expect(lesson).toBeVisible();
     await lesson.getByRole('button', { name: 'הבא' }).click();
     await lesson.getByRole('button', { name: /סיימנו/ }).click();
+    // The first win: a celebration with the first streak day, and (where the browser can) the reminder ask
+    await expect(page.getByRole('heading', { name: /כל הכבוד/ })).toBeVisible();
+    await expect(page.getByText(/יום 1 ברצף/)).toBeVisible();    await page.getByRole('button', { name: /^(ממשיכים|לא עכשיו)$/ }).click();
     await page.getByRole('dialog', { name: 'סיור באפליקציה' }).getByRole('button', { name: 'דילוג' }).click();
     await page.getByRole('button', { name: 'דילוג על מבחן הרמה' }).click();
     await expectDashboard(page);

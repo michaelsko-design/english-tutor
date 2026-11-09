@@ -4,6 +4,7 @@ import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { auth } from '../../services/firebase';
 import { enableReminder, getReminderSupport, isReminderOn } from '../../services/push/pushSubscription';
+import { trackEvent } from '../../services/analytics';
 import { getReminderFacts } from '../../hooks/useReminderSync';
 import { applyReminderReward, REMINDER_REWARD_DIAMONDS } from '../../data/reminderReward';
 import { Button } from '../ui/Button';
@@ -57,6 +58,7 @@ export const ReminderNudgeCard: React.FC<ReminderNudgeCardProps> = ({ profile, t
     const result = await enableReminder(uid, getReminderFacts(profile));
     setIsBusy(false);
     if (result.ok) {
+      trackEvent('reminder_opt_in');
       setIsVisible(false);
       if (!profile.hasEarnedReminderReward) onUpdateProfile(applyReminderReward(profile));
     } else {

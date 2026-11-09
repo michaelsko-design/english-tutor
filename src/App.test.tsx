@@ -144,6 +144,7 @@ vi.mock('./components/FirstLesson', () => ({
     </div>
   ),
 }));
+vi.mock('./components/home/FirstWinScreen', () => ({ FirstWinScreen: (p: { onContinue: () => void }) => btn('first-win-continue', p.onContinue) }));
 vi.mock('./components/tutorial/ProfileTour', () => ({
   ProfileTour: (p: { finishLabelHe: string; onDone: () => void }) => <div>{btn('tour-done', p.onDone)}<span>{p.finishLabelHe}</span></div>,
 }));
@@ -420,6 +421,8 @@ describe('App first launch', () => {
     // Grade 1: the letters lesson comes before the tour, and finishing it starts the streak
     await user.click(await screen.findByRole('button', { name: 'lesson-done' }));
     expect(queue.schedule.mock.calls.some(([, p]) => (p as LearnerProfile).stats.streakDays === 1)).toBe(true);
+    // The first win (celebration and the reminder ask) comes before the tour
+    await user.click(await screen.findByRole('button', { name: 'first-win-continue' }));
     expect(await screen.findByText(/המשך למבחן רמה קצר|המשיכי למבחן רמה קצר/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'tour-done' }));
     expect(await screen.findByText('placement:onboarding')).toBeInTheDocument();

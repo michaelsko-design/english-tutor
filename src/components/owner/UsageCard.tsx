@@ -14,6 +14,7 @@ const FUNNEL_STEPS: Array<{ key: keyof Usage['funnel']; label: string }> = [
   { key: 'greeted', label: 'Opened the welcome chest' },
   { key: 'firstLesson', label: 'Finished the first letters lesson (grades 1-2)' },
   { key: 'toured', label: 'Finished the app tour' },
+  { key: 'reminderOn', label: 'Turned on the daily reminder' },
   { key: 'placed', label: 'Took the placement test' },
   { key: 'firstMission', label: 'Finished a mission' },
   { key: 'threeStars', label: 'Earned 3 stars' },
