@@ -497,6 +497,14 @@ export const SUPPORTED_GRADES: GradeMetadata[] = [
   },
 ];
 
+/**
+ * The age stored for a learner who only tells us their grade (grade 1 -> 6 ... grade 7 -> 12,
+ * grade 8 -> 13). It feeds the parent-approval rules, so grades 1-7 count as under 13.
+ */
+export function getAgeForGrade(gradeId: GradeId): number {
+  return SUPPORTED_GRADES.find((grade) => grade.id === gradeId)?.recommendedAge ?? 12;
+}
+
 export function getRecommendedGradeForAge(age: number): GradeId {
   if (age <= 6) return 'grade-1';
   if (age === 7) return 'grade-2';

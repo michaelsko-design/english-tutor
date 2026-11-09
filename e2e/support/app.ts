@@ -10,6 +10,14 @@ export interface OnboardingChoices {
   age: number;
 }
 
+/** The chip labels of the onboarding form, grade 1 to 12 */
+export const GRADE_LABELS = [
+  'כיתה א׳', 'כיתה ב׳', 'כיתה ג׳', 'כיתה ד׳', 'כיתה ה׳', 'כיתה ו׳',
+  'כיתה ז׳', 'כיתה ח׳', 'כיתה ט׳', 'כיתה י׳', 'כיתה י״א', 'כיתה י״ב',
+];
+const FIRST_GRADE_AGE = 6;
+export const ONBOARDING_SUBMIT = /יאללה/;
+
 const NAVIGATION_TIMEOUT_MS = 60_000;
 
 /** Opens a page; the first load can time out while the dev server compiles under load, so it retries once. */
@@ -48,11 +56,12 @@ export async function completeOnboarding(page: Page, choices: OnboardingChoices)
   const nameInput = page.getByLabel('איך קוראים לך?');
   await expect(nameInput).toBeVisible({ timeout: CLOUD_TIMEOUT_MS });
   await nameInput.fill(choices.name);
-  await page.getByLabel('גיל', { exact: true }).selectOption(String(choices.age));
+  // The form asks for the grade (age = grade + 5); the chip's accessible name is the full grade label
+  await page.getByRole('button', { name: GRADE_LABELS[choices.age - FIRST_GRADE_AGE] }).click();
   // Only a learner under the parent-approval age is asked for a parent's consent
   const consent = page.getByRole('checkbox', { name: /אני הורה וקראתי/ });
   if (await consent.isVisible()) await consent.check();
-  await page.getByRole('button', { name: /שמירה וכניסה לדשבורד/ }).click();
+  await page.getByRole('button', { name: ONBOARDING_SUBMIT }).click();
 }
 
 /** The welcome chest, the app tour and the placement-test offer, skipped. */

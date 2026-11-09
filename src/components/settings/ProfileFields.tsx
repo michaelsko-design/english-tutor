@@ -61,6 +61,39 @@ interface GenderAgeFieldsProps extends ThemedProps {
   onAgeChange: (age: number) => void;
 }
 
+interface GenderFieldProps extends ThemedProps {
+  gender: LearnerGender;
+  onGenderChange: (gender: LearnerGender) => void;
+}
+
+const GENDER_OPTIONS: { id: LearnerGender; emoji: string; labelHe: string }[] = [
+  { id: 'girl', emoji: '👧', labelHe: 'בת' },
+  { id: 'boy', emoji: '👦', labelHe: 'בן' },
+];
+
+/** Girl / boy as two big buttons; the Hebrew copy is inflected from this choice */
+export const GenderField: React.FC<GenderFieldProps> = ({ gender, theme, onGenderChange }) => (
+  <div className="space-y-1.5">
+    <span className="block text-xs sm:text-sm font-bold">מגדר</span>
+    <div className="grid grid-cols-2 gap-2">
+      {GENDER_OPTIONS.map((option) => (
+        <button
+          key={option.id}
+          type="button"
+          onClick={() => onGenderChange(option.id)}
+          aria-pressed={gender === option.id}
+          className={`min-h-11 py-2.5 px-2 rounded-2xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all ${
+            gender === option.id ? theme.primaryBtnClass : theme.secondaryBtnClass
+          }`}
+        >
+          <span>{option.emoji}</span>
+          <span>{option.labelHe}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
 export const GenderAgeFields: React.FC<GenderAgeFieldsProps> = ({
   gender,
   age,
@@ -69,31 +102,9 @@ export const GenderAgeFields: React.FC<GenderAgeFieldsProps> = ({
   onAgeChange,
 }) => {
   const ageId = useId();
-  const options: { id: LearnerGender; emoji: string; labelHe: string }[] = [
-    { id: 'girl', emoji: '👧', labelHe: 'בת' },
-    { id: 'boy', emoji: '👦', labelHe: 'בן' },
-  ];
   return (
     <div className="grid grid-cols-2 gap-3">
-      <div className="space-y-1.5">
-        <span className="block text-xs sm:text-sm font-bold">מגדר</span>
-        <div className="grid grid-cols-2 gap-2">
-          {options.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              onClick={() => onGenderChange(option.id)}
-              aria-pressed={gender === option.id}
-              className={`min-h-11 py-2.5 px-2 rounded-2xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all ${
-                gender === option.id ? theme.primaryBtnClass : theme.secondaryBtnClass
-              }`}
-            >
-              <span>{option.emoji}</span>
-              <span>{option.labelHe}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      <GenderField gender={gender} theme={theme} onGenderChange={onGenderChange} />
       <div className="space-y-1.5">
         <label htmlFor={ageId} className="block text-xs sm:text-sm font-bold">גיל</label>
         <select

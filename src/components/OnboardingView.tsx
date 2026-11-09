@@ -4,6 +4,7 @@ import {
   LearnerGender,
   LearnerProfile,
   ThemeId,
+  getAgeForGrade,
   getRecommendedGradeForAge,
 } from '../types/learner';
 import { resolveTheme, THEME_IDS } from '../themes/themeRegistry';
@@ -19,10 +20,8 @@ import { Button } from './ui/Button';
 import { preloadCompanion } from './companion/Companion';
 import { COMPANION_POSES } from '../themes/themeArt';
 import { TOUR_COMPANION_PX } from '../data/appTutorial';
-import { GradeSelect } from './settings/GradeSelect';
-import { GenderAgeFields, NameField, ShabbatToggle, ThemePicker } from './settings/ProfileFields';
-import { canUseTheme } from '../data/proGate';
-import { useProAccess } from '../hooks/useProAccess';
+import { GradeChips } from './settings/GradeChips';
+import { GenderField, NameField } from './settings/ProfileFields';
 import { trackEvent } from '../services/analytics';
 
 interface OnboardingViewProps {
@@ -33,17 +32,15 @@ interface OnboardingViewProps {
 /** The first-run screen. Later changes are made in the settings (`SettingsView`). */
 export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, onComplete }) => {
   const [name, setName] = useState(initialProfile.name || '');
-  const [age, setAge] = useState<number>(initialProfile.age || 12);
   const [gender, setGender] = useState<LearnerGender>(initialProfile.gender || 'girl');
   const [gradeId, setGradeId] = useState<GradeId>(
     initialProfile.gradeId || getRecommendedGradeForAge(12)
   );
-  const [themeId, setThemeId] = useState<ThemeId>(initialProfile.themeId || 'cozy-studio');
-  // Onboarding offers only the themes the learner can keep (all of them with Pro)
-  const proAccess = useProAccess();
-  const [isShabbatObserver, setIsShabbatObserver] = useState<boolean>(
-    initialProfile.isShabbatObserver !== undefined ? initialProfile.isShabbatObserver : false
-  );
+  // The grade is what we ask; the age (parent-approval rules) follows from it
+  const age = getAgeForGrade(gradeId);
+  // Theme and Shabbat are not asked here: the saved or default choice stays, settings change it later
+  const themeId: ThemeId = initialProfile.themeId || 'cozy-studio';
+  const isShabbatObserver = initialProfile.isShabbatObserver ?? false;
   // A parent agrees to the privacy notice when a learner under 13 starts
   const [hasParentConsent, setHasParentConsent] = useState(Boolean(initialProfile.parentalConsentAt));
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
@@ -63,11 +60,6 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, 
 
   const activeTheme = resolveTheme(themeId, initialProfile.companionId);
   const heb = getHebrewCopy(gender, name || (gender === 'girl' ? 'נועה' : 'עידו'));
-
-  const handleAgeChange = (newAge: number) => {
-    setAge(newAge);
-    setGradeId(getRecommendedGradeForAge(newAge));
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,21 +129,8 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, 
               setErrorMsg('');
             }}
           />
-          <GenderAgeFields
-            gender={gender}
-            age={age}
-            theme={activeTheme}
-            onGenderChange={setGender}
-            onAgeChange={handleAgeChange}
-          />
-          <GradeSelect gradeId={gradeId} theme={activeTheme} onChange={setGradeId} />
-          <ThemePicker themeId={themeId} onChange={setThemeId} isProOnly={(id) => !canUseTheme(id, proAccess)} isProOnlyHidden />
-          <ShabbatToggle
-            gender={gender}
-            isOn={isShabbatObserver}
-            theme={activeTheme}
-            onToggle={() => setIsShabbatObserver(!isShabbatObserver)}
-          />
+          <GenderField gender={gender} theme={activeTheme} onGenderChange={setGender} />
+          <GradeChips gradeId={gradeId} theme={activeTheme} onChange={setGradeId} />
 
           {/* A parent's consent when a learner under 13 starts */}
           {isChild && (
@@ -175,7 +154,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, 
           <div className="lg:col-span-2 flex items-center gap-2.5 pt-1">
             <Button theme={activeTheme} size="lg" className="flex-1" type="submit">
               <UserCheck className="w-5 h-5" />
-              <span>שמירה וכניסה לדשבורד 🚀</span>
+              <span>יאללה 🚀</span>
             </Button>
           </div>
         </form>
