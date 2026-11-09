@@ -8,6 +8,7 @@ export const ANALYTICS_EVENTS = [
   'onboarding_view',
   'onboarding_done',
   'greeting_done',
+  'first_lesson_done',
   'tour_done',
   'placement_done',
   'mission_finish',

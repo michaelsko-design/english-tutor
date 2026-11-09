@@ -50,6 +50,7 @@ export interface UsageStats {
     onboardingViewed: number;
     onboarded: number;
     greeted: number;
+    firstLesson: number;
     toured: number;
     placed: number;
     firstMission: number;
@@ -227,6 +228,7 @@ export function computeUsageStats(
     onboardingViewed: new Set<string>(),
     onboarded: new Set<string>(),
     greeted: new Set<string>(),
+    firstLesson: new Set<string>(),
     toured: new Set<string>(),
     placed: new Set<string>(),
     firstMission: new Set<string>(),
@@ -259,6 +261,7 @@ export function computeUsageStats(
     if (counts.onboarding_view) reached.onboardingViewed.add(uid);
     if (counts.onboarding_done) reached.onboarded.add(uid);
     if (counts.greeting_done) reached.greeted.add(uid);
+    if (counts.first_lesson_done) reached.firstLesson.add(uid);
     if (counts.tour_done) reached.toured.add(uid);
     if (counts.placement_done) reached.placed.add(uid);
     if (counts.mission_finish) reached.firstMission.add(uid);
@@ -306,6 +309,7 @@ export function computeUsageStats(
       onboardingViewed: reached.onboardingViewed.size,
       onboarded: reached.onboarded.size,
       greeted: reached.greeted.size,
+      firstLesson: reached.firstLesson.size,
       toured: reached.toured.size,
       placed: reached.placed.size,
       firstMission: reached.firstMission.size,

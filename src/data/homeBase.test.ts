@@ -143,6 +143,18 @@ describe('getFirstLaunchSteps', () => {
     expect(steps(false, false, false)).toEqual(['greeting', 'tour']);
   });
 
+  it('puts the first lesson between the greeting and the tour', () => {
+    expect(
+      getFirstLaunchSteps({ hasSeenWelcomeGift: false, isOfferingFirstLesson: true, isOfferingTour: false, isOfferingPlacement: true })
+    ).toEqual(['greeting', 'firstLesson', 'tour', 'placement']);
+  });
+
+  it('keeps the first lesson while the tour is not yet offered, then goes on to the tour', () => {
+    expect(
+      getFirstLaunchSteps({ hasSeenWelcomeGift: true, isOfferingFirstLesson: true, isOfferingTour: true, isOfferingPlacement: false })
+    ).toEqual(['firstLesson', 'tour']);
+  });
+
   it('skips the steps already done', () => {
     expect(steps(true, true, true)).toEqual(['tour', 'placement']);
     expect(steps(true, false, true)).toEqual(['placement']);

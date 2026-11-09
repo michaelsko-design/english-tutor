@@ -136,6 +136,14 @@ vi.mock('./components/settings/SettingsView', () => ({
   },
 }));
 vi.mock('./components/home/FirstLaunchGreeting', () => ({ FirstLaunchGreeting: (p: { onDone: () => void }) => btn('greeting-done', p.onDone) }));
+vi.mock('./components/FirstLesson', () => ({
+  FirstLesson: (p: { onDone: (isFinished: boolean) => void }) => (
+    <div>
+      {btn('lesson-done', () => p.onDone(true))}
+      {btn('lesson-exit', () => p.onDone(false))}
+    </div>
+  ),
+}));
 vi.mock('./components/tutorial/ProfileTour', () => ({
   ProfileTour: (p: { finishLabelHe: string; onDone: () => void }) => <div>{btn('tour-done', p.onDone)}<span>{p.finishLabelHe}</span></div>,
 }));
@@ -401,7 +409,7 @@ describe('App screens', () => {
 });
 
 describe('App first launch', () => {
-  it('walks a new learner through onboarding, the welcome chest, the tour and the placement test', async () => {
+  it('walks a new learner through onboarding, the welcome chest, the first lesson, the tour and the placement test', async () => {
     const user = userEvent.setup();
     cloud.migrate.mockResolvedValue(makeProfile({ isOnboarded: false, name: '' }));
     render(<App />);
@@ -409,6 +417,9 @@ describe('App first launch', () => {
     await user.click(await screen.findByRole('button', { name: 'finish-onboarding' }));
     await user.click(await screen.findByRole('button', { name: 'greeting-done' }));
     expect(queue.schedule.mock.calls.some(([, p]) => (p as LearnerProfile).hasSeenWelcomeGiftModal)).toBe(true);
+    // Grade 1: the letters lesson comes before the tour, and finishing it starts the streak
+    await user.click(await screen.findByRole('button', { name: 'lesson-done' }));
+    expect(queue.schedule.mock.calls.some(([, p]) => (p as LearnerProfile).stats.streakDays === 1)).toBe(true);
     expect(await screen.findByText(/המשך למבחן רמה קצר|המשיכי למבחן רמה קצר/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'tour-done' }));
     expect(await screen.findByText('placement:onboarding')).toBeInTheDocument();
@@ -423,6 +434,9 @@ describe('App first launch', () => {
     await signIn();
     await user.click(await screen.findByRole('button', { name: 'finish-onboarding' }));
     await user.click(await screen.findByRole('button', { name: 'greeting-done' }));
+    // Leaving the lesson early earns no streak day
+    await user.click(await screen.findByRole('button', { name: 'lesson-exit' }));
+    expect(queue.schedule.mock.calls.some(([, p]) => (p as LearnerProfile).stats.streakDays === 1)).toBe(false);
     await user.click(await screen.findByRole('button', { name: 'tour-done' }));
     await user.click(await screen.findByRole('button', { name: 'placement-skip' }));
     expect(await screen.findByText(/^dashboard:/)).toBeInTheDocument();
@@ -430,10 +444,12 @@ describe('App first launch', () => {
 
   it('shows only the greeting and a short tour for a learner who has not seen the chest', async () => {
     const user = userEvent.setup();
-    cloud.migrate.mockResolvedValue(makeProfile({ name: 'נועה', hasSeenWelcomeGiftModal: false }));
+    cloud.migrate.mockResolvedValue(makeProfile({ name: 'נועה', gradeId: 'grade-4', hasSeenWelcomeGiftModal: false }));
     render(<App />);
     await signIn();
     await user.click(await screen.findByRole('button', { name: 'greeting-done' }));
+    // From grade 3 there is no letters lesson: the tour follows the chest at once
+    expect(screen.queryByRole('button', { name: 'lesson-done' })).not.toBeInTheDocument();
     expect(await screen.findByText(/בואי נשחק|בוא נשחק/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'tour-done' }));
     expect(await screen.findByText(/^dashboard:/)).toBeInTheDocument();

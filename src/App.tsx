@@ -41,6 +41,8 @@ import { AccountResult, deleteAccount } from './services/accountService';
 import { DEFAULT_PROFILE, WELCOME_GIFT_DIAMONDS } from './data/defaultProfile';
 import { setAnalyticsContext, trackEvent } from './services/analytics';
 import { clearSignupDraft, takeSignupDraft } from './data/signupDraft';
+import { advanceStreak } from './data/streak';
+import { toLocalDateStr } from './utils/dates';
 import { applyBasicsToProfile } from './utils/applyBasicsToProfile';
 import { isUnreadableProfile, parseStoredProfile } from './services/localProfile';
 
@@ -49,6 +51,7 @@ const OnboardingView = lazyNamed(() => import('./components/OnboardingView'), 'O
 const SettingsView = lazyNamed(() => import('./components/settings/SettingsView'), 'SettingsView');
 const PlacementTest = lazyNamed(() => import('./components/PlacementTest'), 'PlacementTest');
 const FirstLaunchGreeting = lazyNamed(() => import('./components/home/FirstLaunchGreeting'), 'FirstLaunchGreeting');
+const FirstLesson = lazyNamed(() => import('./components/FirstLesson'), 'FirstLesson');
 const ProfileTour = lazyNamed(() => import('./components/tutorial/ProfileTour'), 'ProfileTour');
 
 const STORAGE_KEY = 'english_tutor_learner_profile_v2';
@@ -77,6 +80,8 @@ export function App() {
   const [isOfferingPlacement, setIsOfferingPlacement] = useState<boolean>(false);
   // The app tour right after the welcome chest (Feature 45)
   const [isOfferingTour, setIsOfferingTour] = useState<boolean>(false);
+  /** Grades 1–2: the letters lesson that follows the welcome chest (this session only, like the tour) */
+  const [isOfferingFirstLesson, setIsOfferingFirstLesson] = useState<boolean>(false);
   const [authUser, setAuthUser] = useState<AuthUserSummary | null>(null);
   const [isAuthInitializing, setIsAuthInitializing] = useState<boolean>(isFirebaseConfigured);
   const [syncStatus, setSyncStatus] = useState<CloudSyncStatus>('local-only');
@@ -478,6 +483,7 @@ export function App() {
   // the app tour (Feature 45), then the placement test offer (Feature 27)
   const firstLaunchSteps = getFirstLaunchSteps({
     hasSeenWelcomeGift: Boolean(profile.hasSeenWelcomeGiftModal),
+    isOfferingFirstLesson,
     isOfferingTour,
     isOfferingPlacement,
   });
@@ -490,13 +496,37 @@ export function App() {
         gender={profile.gender}
         name={profile.name}
         welcomeGems={WELCOME_GIFT_DIAMONDS}
+        isLessonNext={playsHebrewAloud(profile.gradeId)}
         onDone={() => {
           handleUpdateProfile({ ...profileRef.current, hasSeenWelcomeGiftModal: true });
           trackEvent('greeting_done');
+          // Grades 1–2 are not expected to know the English letters: they start with a letters lesson
+          setIsOfferingFirstLesson(playsHebrewAloud(profileRef.current.gradeId));
           setIsOfferingTour(true);
         }}
       />
       </Suspense>
+    );
+  }
+
+  if (firstLaunchSteps[0] === 'firstLesson') {
+    return (
+      <HebrewAudioContext.Provider value={playsHebrewAloud(profile.gradeId)}>
+        <Suspense fallback={<ScreenLoading />}>
+          <FirstLesson
+            theme={activeTheme}
+            onDone={(isFinished) => {
+              if (isFinished) {
+                // Finishing the lesson is the first win: it starts the streak
+                const current = profileRef.current;
+                handleUpdateProfile({ ...current, stats: advanceStreak(current, toLocalDateStr(new Date())) });
+                trackEvent('first_lesson_done');
+              }
+              setIsOfferingFirstLesson(false);
+            }}
+          />
+        </Suspense>
+      </HebrewAudioContext.Provider>
     );
   }
 

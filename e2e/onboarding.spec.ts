@@ -1,6 +1,6 @@
 import { findUid, readDocument } from './support/emulator';
 import { expect, test } from './support/test';
-import { expectDashboard, GRADE_LABELS, skipFirstLaunch } from './support/app';
+import { expectDashboard, firstLessonDialog, GRADE_LABELS } from './support/app';
 
 test.describe('onboarding', () => {
   test('a new learner says who they are on the sign-in screen, and it is saved to the cloud', async ({ page, learner }) => {
@@ -27,7 +27,16 @@ test.describe('onboarding', () => {
 
     // No first-run form: the first launch speaks to a boy, then the home screen shows his grade
     await expect(page.getByText(/ברוך הבא/)).toBeVisible({ timeout: 20_000 });
-    await skipFirstLaunch(page);
+
+    // Grade 1: the chest, then the first letters lesson (nothing to answer); finishing it starts the streak
+    await page.getByRole('button', { name: 'פתיחת תיבת המתנה' }).click();
+    await page.getByRole('button', { name: /נלמד אותיות/ }).click();
+    const lesson = firstLessonDialog(page);
+    await expect(lesson).toBeVisible();
+    await lesson.getByRole('button', { name: 'הבא' }).click();
+    await lesson.getByRole('button', { name: /סיימנו/ }).click();
+    await page.getByRole('dialog', { name: 'סיור באפליקציה' }).getByRole('button', { name: 'דילוג' }).click();
+    await page.getByRole('button', { name: 'דילוג על מבחן הרמה' }).click();
     await expectDashboard(page);
     // The grade label sits in the map peek, which wide screens hide; the map itself is always there
     await expect(page.locator('#mission-map')).toBeVisible();
@@ -44,6 +53,7 @@ test.describe('onboarding', () => {
         themeId: 'cozy-studio',
         isShabbatObserver: false,
         hasSeenWelcomeGiftModal: true,
+        stats: { streakDays: 1 },
       });
   });
 });

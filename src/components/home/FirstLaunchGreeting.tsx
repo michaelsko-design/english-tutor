@@ -15,6 +15,8 @@ interface FirstLaunchGreetingProps {
   name: string;
   /** The welcome gems already in the new profile */
   welcomeGems: number;
+  /** Grades 1–2: the first letters lesson comes next, not the app tour */
+  isLessonNext?: boolean;
   onDone: () => void;
 }
 
@@ -32,6 +34,7 @@ export const FirstLaunchGreeting: React.FC<FirstLaunchGreetingProps> = ({
   gender,
   name,
   welcomeGems,
+  isLessonNext = false,
   onDone,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -128,7 +131,13 @@ export const FirstLaunchGreeting: React.FC<FirstLaunchGreetingProps> = ({
               onClick={onDone}
               className={`btn-chunky w-full py-3.5 rounded-2xl font-black text-lg ${theme.primaryBtnClass}`}
             >
-              {isGirl ? 'איזה כיף! בואי נעשה סיור קצר 🧭' : 'איזה כיף! בוא נעשה סיור קצר 🧭'}
+              {isLessonNext
+                ? isGirl
+                  ? 'איזה כיף! בואי נלמד אותיות 🔤'
+                  : 'איזה כיף! בוא נלמד אותיות 🔤'
+                : isGirl
+                ? 'איזה כיף! בואי נעשה סיור קצר 🧭'
+                : 'איזה כיף! בוא נעשה סיור קצר 🧭'}
             </button>
           </div>
         )}
