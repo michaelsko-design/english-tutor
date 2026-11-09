@@ -40,6 +40,8 @@ import { HebrewAudioContext, playsHebrewAloud } from './data/hebrewAudio';
 import { AccountResult, deleteAccount } from './services/accountService';
 import { DEFAULT_PROFILE, WELCOME_GIFT_DIAMONDS } from './data/defaultProfile';
 import { setAnalyticsContext, trackEvent } from './services/analytics';
+import { clearSignupDraft, takeSignupDraft } from './data/signupDraft';
+import { applyBasicsToProfile } from './utils/applyBasicsToProfile';
 import { isUnreadableProfile, parseStoredProfile } from './services/localProfile';
 
 // Screens most visits never open load in their own chunks
@@ -324,6 +326,26 @@ export function App() {
   useEffect(() => {
     if (isAnalyticsAllowed) trackEvent('session_start');
   }, [isAnalyticsAllowed, analyticsUid]);
+
+  // A new learner who told the sign-in screen who they are (name, gender, grade) skips the first-run
+  // form: once their cloud profile loaded, those answers become the onboarded profile. An account
+  // that is already onboarded just drops them.
+  const isProfileReady = Boolean(authUser) && !isAuthInitializing && !isCloudLoadFailed && !isAccessDenied;
+  useEffect(() => {
+    if (!isProfileReady || !isCloudLoadedRef.current) return;
+    if (profileRef.current.isOnboarded) {
+      clearSignupDraft();
+      return;
+    }
+    const draft = takeSignupDraft();
+    if (!draft) return;
+    handleUpdateProfile(applyBasicsToProfile(profileRef.current, draft, new Date()));
+    trackEvent('onboarding_view');
+    trackEvent('onboarding_done');
+    setIsOfferingPlacement(true);
+    // handleUpdateProfile only reads refs and state setters, so it never needs to re-run this effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isProfileReady, profile.isOnboarded]);
 
   const proAccess = useLearnerProAccess(authUser?.uid);
   const activeTheme = resolveLearnerTheme(profile.themeId, profile.companionId, proAccess);

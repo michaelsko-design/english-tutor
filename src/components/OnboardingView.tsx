@@ -1,28 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import {
-  GradeId,
-  LearnerGender,
-  LearnerProfile,
-  ThemeId,
-  getAgeForGrade,
-  getRecommendedGradeForAge,
-} from '../types/learner';
+import { GradeId, LearnerGender, LearnerProfile, getRecommendedGradeForAge } from '../types/learner';
 import { resolveTheme, THEME_IDS } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
-import { UserCheck } from 'lucide-react';
-import { PARENT_APPROVAL_AGE } from '../data/friends';
-import { buildSavedProfile } from '../utils/buildSavedProfile';
-import { DEFAULT_VOICE_PREFERENCE } from '../utils/ttsVoice';
-import { PrivacyNoticeDialog } from './privacy/PrivacyNoticeDialog';
+import { applyBasicsToProfile } from '../utils/applyBasicsToProfile';
 import { APP_NAME } from '../config/appInfo';
 import { AppLogo } from './AppLogo';
-import { Button } from './ui/Button';
 import { preloadCompanion } from './companion/Companion';
 import { COMPANION_POSES } from '../themes/themeArt';
 import { TOUR_COMPANION_PX } from '../data/appTutorial';
-import { GradeChips } from './settings/GradeChips';
-import { GenderField, NameField } from './settings/ProfileFields';
 import { trackEvent } from '../services/analytics';
+import type { SignupDraft } from '../data/signupDraft';
+import { LearnerBasicsForm } from './LearnerBasicsForm';
 
 interface OnboardingViewProps {
   initialProfile: LearnerProfile;
@@ -31,21 +19,16 @@ interface OnboardingViewProps {
 
 /** The first-run screen. Later changes are made in the settings (`SettingsView`). */
 export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, onComplete }) => {
-  const [name, setName] = useState(initialProfile.name || '');
-  const [gender, setGender] = useState<LearnerGender>(initialProfile.gender || 'girl');
-  const [gradeId, setGradeId] = useState<GradeId>(
-    initialProfile.gradeId || getRecommendedGradeForAge(12)
-  );
-  // The grade is what we ask; the age (parent-approval rules) follows from it
-  const age = getAgeForGrade(gradeId);
-  // Theme and Shabbat are not asked here: the saved or default choice stays, settings change it later
-  const themeId: ThemeId = initialProfile.themeId || 'cozy-studio';
-  const isShabbatObserver = initialProfile.isShabbatObserver ?? false;
-  // A parent agrees to the privacy notice when a learner under 13 starts
-  const [hasParentConsent, setHasParentConsent] = useState(Boolean(initialProfile.parentalConsentAt));
-  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const isChild = age < PARENT_APPROVAL_AGE;
+  const [preview, setPreview] = useState<{ name: string; gender: LearnerGender }>({
+    name: initialProfile.name || '',
+    gender: initialProfile.gender || 'girl',
+  });
+  const initialBasics: SignupDraft = {
+    name: initialProfile.name || '',
+    gender: initialProfile.gender || 'girl',
+    gradeId: (initialProfile.gradeId || getRecommendedGradeForAge(12)) as GradeId,
+    hasParentConsent: Boolean(initialProfile.parentalConsentAt),
+  };
 
   useEffect(() => {
     trackEvent('onboarding_view');
@@ -58,42 +41,8 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, 
     );
   }, [initialProfile.companionId]);
 
-  const activeTheme = resolveTheme(themeId, initialProfile.companionId);
-  const heb = getHebrewCopy(gender, name || (gender === 'girl' ? 'נועה' : 'עידו'));
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) {
-      setErrorMsg(
-        gender === 'girl'
-          ? 'כתבי את השם שלך כדי שנוכל להתחיל 😊'
-          : 'כתוב את השם שלך כדי שנוכל להתחיל 😊'
-      );
-      return;
-    }
-    if (isChild && !hasParentConsent) {
-      setErrorMsg('מתחת לגיל 13 צריך שהורה יאשר את מדיניות הפרטיות (סמנו את התיבה למטה).');
-      return;
-    }
-    onComplete(
-      buildSavedProfile(
-        initialProfile,
-        {
-          name,
-          age,
-          gender,
-          gradeId,
-          themeId,
-          isShabbatObserver,
-          isFriendsHubOn: false,
-          isUsernameSearchOn: false,
-          voicePreference: initialProfile.voicePreference ?? DEFAULT_VOICE_PREFERENCE,
-          hasParentConsent,
-        },
-        new Date()
-      )
-    );
-  };
+  const activeTheme = resolveTheme(initialProfile.themeId || 'cozy-studio', initialProfile.companionId);
+  const heb = getHebrewCopy(preview.gender, preview.name || (preview.gender === 'girl' ? 'נועה' : 'עידו'));
 
   return (
     <div
@@ -108,58 +57,24 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, 
             <span>{APP_NAME}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
-            {name.trim()
+            {preview.name.trim()
               ? heb.welcomeTitle
-              : gender === 'girl'
+              : preview.gender === 'girl'
               ? <>ברוכה הבאה ל־<bdi>{APP_NAME}</bdi>! ✨</>
               : <>ברוך הבא ל־<bdi>{APP_NAME}</bdi>! ✨</>}
           </h1>
           <p className={`text-xs sm:text-sm ${activeTheme.mutedTextClass}`}>{heb.onboardingSubtitle}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:gap-y-5 lg:items-start">
-          <NameField
-            value={name}
-            gender={gender}
-            errorMsg={errorMsg}
-            theme={activeTheme}
-            autoFocus
-            onChange={(value) => {
-              setName(value);
-              setErrorMsg('');
-            }}
-          />
-          <GenderField gender={gender} theme={activeTheme} onGenderChange={setGender} />
-          <GradeChips gradeId={gradeId} theme={activeTheme} onChange={setGradeId} />
-
-          {/* A parent's consent when a learner under 13 starts */}
-          {isChild && (
-            <label className="lg:col-span-2 flex items-start gap-2 p-3 rounded-2xl border border-current/15 text-xs sm:text-sm font-bold">
-              <input
-                type="checkbox"
-                checked={hasParentConsent}
-                onChange={(e) => setHasParentConsent(e.target.checked)}
-                className="mt-0.5 w-5 h-5 shrink-0"
-              />
-              <span>
-                אני הורה וקראתי את{' '}
-                <button type="button" onClick={() => setIsPrivacyOpen(true)} className="underline font-extrabold">
-                  מדיניות הפרטיות
-                </button>
-                . אני מסכים/ה שההתקדמות תישמר בענן.
-              </span>
-            </label>
-          )}
-
-          <div className="lg:col-span-2 flex items-center gap-2.5 pt-1">
-            <Button theme={activeTheme} size="lg" className="flex-1" type="submit">
-              <UserCheck className="w-5 h-5" />
-              <span>יאללה 🚀</span>
-            </Button>
-          </div>
-        </form>
+        <LearnerBasicsForm
+          theme={activeTheme}
+          initial={initialBasics}
+          submitLabel="יאללה 🚀"
+          layoutClassName="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:gap-y-5 lg:items-start"
+          onPreviewChange={setPreview}
+          onSubmit={(basics) => onComplete(applyBasicsToProfile(initialProfile, basics, new Date()))}
+        />
       </div>
-      {isPrivacyOpen && <PrivacyNoticeDialog theme={activeTheme} onClose={() => setIsPrivacyOpen(false)} />}
     </div>
   );
 };

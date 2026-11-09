@@ -31,18 +31,47 @@ async function openPage(page: Page, url: string): Promise<void> {
   }
 }
 
-async function submitAuthForm(page: Page, learner: TestLearner, mode: 'login' | 'register') {
+const DEFAULT_CHOICES: OnboardingChoices = { name: 'נועה', age: 9 };
+
+/** The grade chip's accessible name for a learner of this age (age = grade + 5) */
+const gradeLabelForAge = (age: number): string => GRADE_LABELS[age - FIRST_GRADE_AGE];
+
+/** A new learner says who they are on the sign-in screen, before the account exists. */
+async function fillWhoAreYou(gate: Locator, choices: OnboardingChoices): Promise<void> {
+  await gate.getByLabel('איך קוראים לך?').fill(choices.name);
+  await gate.getByRole('button', { name: gradeLabelForAge(choices.age) }).click();
+  // Only a learner under the parent-approval age is asked for a parent's consent
+  const consent = gate.getByRole('checkbox', { name: /אני הורה וקראתי/ });
+  if (await consent.isVisible()) await consent.check();
+  await gate.getByRole('button', { name: 'המשך' }).click();
+}
+
+async function submitAuthForm(
+  page: Page,
+  learner: TestLearner,
+  mode: 'login' | 'register',
+  choices: OnboardingChoices = DEFAULT_CHOICES
+) {
   const gate = page.getByRole('dialog', { name: 'התחברות' });
   await gate.getByRole('button', { name: mode === 'register' ? /חדש\/ה כאן/ : /כבר רשום\/ה/ }).click();
+  if (mode === 'register') await fillWhoAreYou(gate, choices);
   await gate.getByLabel(/שם משתמש/).fill(learner.username);
   await gate.getByLabel(/^(בחר )?קוד סודי/).fill(learner.pin);
   await gate.getByRole('button', { name: mode === 'register' ? /יצירת חשבון/ : /^כניסה$/ }).click();
 }
 
-/** Opens a new account from the sign-in gate (`url` is where the page starts, e.g. an invite link). */
-export async function register(page: Page, learner: TestLearner, url = '/'): Promise<void> {
+/**
+ * Opens a new account from the sign-in gate (`url` is where the page starts, e.g. an invite link).
+ * The learner answers "who are you" there, so the first-run form is skipped.
+ */
+export async function register(
+  page: Page,
+  learner: TestLearner,
+  url = '/',
+  choices: OnboardingChoices = DEFAULT_CHOICES
+): Promise<void> {
   await openPage(page, url);
-  await submitAuthForm(page, learner, 'register');
+  await submitAuthForm(page, learner, 'register', choices);
 }
 
 /** Signs an existing account in from the sign-in gate. */
@@ -51,13 +80,18 @@ export async function signIn(page: Page, learner: TestLearner, url = '/'): Promi
   await submitAuthForm(page, learner, 'login');
 }
 
-/** Fills the first-run profile form (a learner under 13, so a parent consents). */
+/**
+ * Gets past the first-run profile: nothing to do when the learner already answered on the sign-in
+ * screen (the welcome chest is up); otherwise (a guest or Google account) fills the first-run form.
+ */
 export async function completeOnboarding(page: Page, choices: OnboardingChoices): Promise<void> {
   const nameInput = page.getByLabel('איך קוראים לך?');
-  await expect(nameInput).toBeVisible({ timeout: CLOUD_TIMEOUT_MS });
+  const welcomeChest = page.getByRole('button', { name: 'פתיחת תיבת המתנה' });
+  await expect(nameInput.or(welcomeChest)).toBeVisible({ timeout: CLOUD_TIMEOUT_MS });
+  if (await welcomeChest.isVisible()) return;
   await nameInput.fill(choices.name);
   // The form asks for the grade (age = grade + 5); the chip's accessible name is the full grade label
-  await page.getByRole('button', { name: GRADE_LABELS[choices.age - FIRST_GRADE_AGE] }).click();
+  await page.getByRole('button', { name: gradeLabelForAge(choices.age) }).click();
   // Only a learner under the parent-approval age is asked for a parent's consent
   const consent = page.getByRole('checkbox', { name: /אני הורה וקראתי/ });
   if (await consent.isVisible()) await consent.check();
@@ -75,7 +109,7 @@ export async function skipFirstLaunch(page: Page): Promise<void> {
 
 /** Register, onboard and skip the first-launch steps: a learner on the home screen. */
 export async function startAsNewLearner(page: Page, learner: TestLearner, choices: OnboardingChoices): Promise<void> {
-  await register(page, learner);
+  await register(page, learner, '/', choices);
   await completeOnboarding(page, choices);
   await skipFirstLaunch(page);
 }

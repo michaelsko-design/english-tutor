@@ -1,25 +1,31 @@
 import { findUid, readDocument } from './support/emulator';
 import { expect, test } from './support/test';
-import { expectDashboard, GRADE_LABELS, ONBOARDING_SUBMIT, register, skipFirstLaunch } from './support/app';
+import { expectDashboard, GRADE_LABELS, skipFirstLaunch } from './support/app';
 
 test.describe('onboarding', () => {
-  test('a new learner sets up the profile, and it is saved to the cloud', async ({ page, learner }) => {
-    await register(page, learner);
-    const nameInput = page.getByLabel('איך קוראים לך?');
-    await expect(nameInput).toBeVisible({ timeout: 20_000 });
+  test('a new learner says who they are on the sign-in screen, and it is saved to the cloud', async ({ page, learner }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    const gate = page.getByRole('dialog', { name: 'התחברות' });
+    await gate.getByRole('button', { name: /חדש\/ה כאן/ }).click();
 
     // Under 13: the form waits for the name, then for a parent's consent
-    await page.getByRole('button', { name: ONBOARDING_SUBMIT }).click();
-    await expect(page.getByText(/כתבי את השם שלך/)).toBeVisible();
-    await nameInput.fill('עידו');
-    await page.getByRole('button', { name: /בן/ }).click();
-    await page.getByRole('button', { name: GRADE_LABELS[0] }).click();
-    await page.getByRole('button', { name: ONBOARDING_SUBMIT }).click();
-    await expect(page.getByText(/צריך שהורה יאשר/)).toBeVisible();
-    await page.getByRole('checkbox', { name: /אני הורה וקראתי/ }).check();
-    await page.getByRole('button', { name: ONBOARDING_SUBMIT }).click();
+    await gate.getByRole('button', { name: 'המשך' }).click();
+    await expect(gate.getByText(/כתבי את השם שלך/)).toBeVisible();
+    await gate.getByLabel('איך קוראים לך?').fill('עידו');
+    await gate.getByRole('button', { name: /בן/ }).click();
+    await gate.getByRole('button', { name: GRADE_LABELS[0] }).click();
+    await gate.getByRole('button', { name: 'המשך' }).click();
+    await expect(gate.getByText(/צריך שהורה יאשר/)).toBeVisible();
+    await gate.getByRole('checkbox', { name: /אני הורה וקראתי/ }).check();
+    await gate.getByRole('button', { name: 'המשך' }).click();
 
-    // The first launch speaks to a boy, then the home screen shows his grade
+    // A username made from the name is offered; the learner picks the secret code
+    await expect(gate.getByLabel(/שם משתמש/)).toHaveValue(/^[a-z]+\d{2}$/);
+    await gate.getByLabel(/שם משתמש/).fill(learner.username);
+    await gate.getByLabel(/^(בחר )?קוד סודי/).fill(learner.pin);
+    await gate.getByRole('button', { name: /יצירת חשבון/ }).click();
+
+    // No first-run form: the first launch speaks to a boy, then the home screen shows his grade
     await expect(page.getByText(/ברוך הבא/)).toBeVisible({ timeout: 20_000 });
     await skipFirstLaunch(page);
     await expectDashboard(page);

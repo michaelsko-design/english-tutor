@@ -1,5 +1,5 @@
 import React, { useId, useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, RefreshCw } from 'lucide-react';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 import { MIN_PIN_LENGTH } from '../../utils/username';
 import { Button } from '../ui/Button';
@@ -14,6 +14,8 @@ interface CredentialsFormProps {
   onUsernameChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
   onSubmit: () => void;
+  /** A new account only: offers another username made from the learner's name */
+  onSuggestUsername?: () => void;
   onBack: () => void;
 }
 
@@ -27,6 +29,7 @@ export function CredentialsForm({
   onUsernameChange,
   onPasswordChange,
   onSubmit,
+  onSuggestUsername,
   onBack,
 }: CredentialsFormProps) {
   const [isPasswordShown, setIsPasswordShown] = useState(false);
@@ -60,6 +63,16 @@ export function CredentialsForm({
           placeholder="noa12"
           className={`w-full px-3.5 py-2.5 rounded-xl text-base font-bold outline-none ${theme.inputBgClass}`}
         />
+        {onSuggestUsername && (
+          <button
+            type="button"
+            onClick={onSuggestUsername}
+            className="mt-1.5 inline-flex items-center gap-1 text-xs font-bold underline opacity-80 hover:opacity-100"
+          >
+            <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
+            שם אחר
+          </button>
+        )}
       </div>
 
       <div>

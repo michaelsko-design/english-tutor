@@ -53,6 +53,13 @@ async function fillAndSubmit(
   mode: 'new' | 'existing' = 'existing'
 ) {
   await user.click(screen.getByRole('button', { name: mode === 'new' ? /חדש\/ה כאן/ : /כבר רשום\/ה/ }));
+  if (mode === 'new') {
+    // A new learner first says who they are (grade 10: no parent consent), then picks the username
+    await user.type(screen.getByPlaceholderText('למשל: נועה'), 'נועה');
+    await user.click(screen.getByRole('button', { name: 'כיתה י׳' }));
+    await user.click(screen.getByRole('button', { name: 'המשך' }));
+    await user.clear(screen.getByLabelText(/שם משתמש/));
+  }
   if (username) await user.type(screen.getByLabelText(/שם משתמש/), username);
   await user.type(screen.getByLabelText(/^(בחר )?קוד סודי/), pin);
   await user.click(screen.getByRole('button', { name: mode === 'new' ? /יצירת חשבון/ : /^כניסה$/ }));

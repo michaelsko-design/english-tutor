@@ -4,6 +4,11 @@ import { Button } from '../ui/Button';
 import { SettingsTabs, tabButtonId, tabPanelId } from '../settings/SettingsTabs';
 import { CredentialsForm } from './CredentialsForm';
 import type { CredentialMode } from './credentialValidation';
+import { LearnerBasicsForm } from '../LearnerBasicsForm';
+import { clearSignupDraft, setSignupDraft, type SignupDraft } from '../../data/signupDraft';
+import { suggestUsername } from '../../utils/username';
+
+const NEW_LEARNER_DEFAULTS: SignupDraft = { name: '', gender: 'girl', gradeId: 'grade-4', hasParentConsent: false };
 
 type Audience = 'child' | 'parent';
 
@@ -82,10 +87,22 @@ export function SignInPanel({
   const [form, setForm] = useState<CredentialMode | null>(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  // A new learner first says who they are (before the account exists); the answer waits in memory
+  const [basics, setBasics] = useState<SignupDraft | null>(null);
 
   const openForm = (next: CredentialMode | null) => {
     onClearMessages();
+    if (next !== 'new') {
+      setBasics(null);
+      clearSignupDraft();
+    }
     setForm(next);
+  };
+
+  const finishBasics = (answered: SignupDraft) => {
+    setSignupDraft(answered);
+    setBasics(answered);
+    setUsername(suggestUsername(answered.name));
   };
 
   const changeAudience = (next: Audience) => {
@@ -103,7 +120,20 @@ export function SignInPanel({
         <div className="h-px flex-1 bg-current" />
       </div>
 
-      {form ? (
+      {form === 'new' && !basics ? (
+        <div className={`p-4 rounded-2xl space-y-3 ${theme.cardBgClass}`}>
+          <h3 className="text-sm font-extrabold">🆕 קודם נכיר: מי לומד?</h3>
+          <LearnerBasicsForm
+            theme={theme}
+            initial={NEW_LEARNER_DEFAULTS}
+            submitLabel="המשך"
+            onSubmit={finishBasics}
+          />
+          <button type="button" onClick={() => openForm(null)} className="text-xs font-bold underline opacity-80 hover:opacity-100">
+            חזרה
+          </button>
+        </div>
+      ) : form ? (
         <CredentialsForm
           mode={form}
           theme={theme}
@@ -113,7 +143,8 @@ export function SignInPanel({
           onUsernameChange={setUsername}
           onPasswordChange={setPassword}
           onSubmit={() => onSubmitCredentials(form, username, password)}
-          onBack={() => openForm(null)}
+          onSuggestUsername={form === 'new' && basics ? () => setUsername(suggestUsername(basics.name)) : undefined}
+          onBack={() => (form === 'new' ? setBasics(null) : openForm(null))}
         />
       ) : (
         <div className="grid grid-cols-2 gap-2">
