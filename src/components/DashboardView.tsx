@@ -20,7 +20,7 @@ import { useGradeCurricula } from '../hooks/useGradeCurricula';
 import { countCompletedMissions, getSuggestedMission } from '../data/milestones';
 import { DailyQuestDefinition, REWARD_SHOP_ITEMS, RewardShopItem, getDailyQuests } from '../data/rewardShop';
 import { MYSTERY_BOX_TIER_BY_ID, rollMysteryBox } from '../data/mysteryBox';
-import { getHomeGreetingHe, getMapPeek, getQuestRings } from '../data/homeBase';
+import { getHomeGreetingHe, getMapPeek, getQuestRings, getReadyQuestCount } from '../data/homeBase';
 import { MissionMap } from './MissionMap';
 
 import { DailyQuestsCard } from './DailyQuestsCard';
@@ -101,6 +101,12 @@ interface DashboardViewProps {
 type HomeSheet = 'stats' | 'quests' | 'feedback';
 
 const ROOM_TOAST_MS = 6000;
+
+/** Completed daily quests whose reward is not yet claimed (today's counters only). */
+function readyQuestCountForNudge(profile: LearnerProfile, todayStr: string): number {
+  const { counters, claimedQuestIds } = getTodayCounters(profile, todayStr);
+  return getReadyQuestCount(getQuestRings(getDailyQuests(profile.gender), counters, claimedQuestIds));
+}
 /** The size the mission runner first shows the companion at (the peek over the question card) */
 const COMPANION_PRELOAD_SIZE = 64;
 
@@ -171,6 +177,21 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     const timer = window.setTimeout(() => setRoomRewardToast(null), ROOM_TOAST_MS);
     return () => window.clearTimeout(timer);
   }, [roomRewardToast]);
+
+  // Nudge: a daily-quest reward is waiting (shown on arrival and whenever the count rises)
+  const [isQuestNudgeOpen, setIsQuestNudgeOpen] = useState(false);
+  const lastNudgedReadyCountRef = useRef(0);
+  const nudgeReadyCount = readyQuestCountForNudge(profile, toLocalDateStr(new Date()));
+  useEffect(() => {
+    if (nudgeReadyCount > lastNudgedReadyCountRef.current) setIsQuestNudgeOpen(true);
+    lastNudgedReadyCountRef.current = nudgeReadyCount;
+    if (nudgeReadyCount === 0) setIsQuestNudgeOpen(false);
+  }, [nudgeReadyCount]);
+  useEffect(() => {
+    if (!isQuestNudgeOpen) return;
+    const timer = window.setTimeout(() => setIsQuestNudgeOpen(false), ROOM_TOAST_MS);
+    return () => window.clearTimeout(timer);
+  }, [isQuestNudgeOpen]);
 
   const proAccess = useProAccess();
   const [upsellFocus, setUpsellFocus] = useState<ProUpsellFocus | null>(null);
@@ -808,6 +829,26 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             onClose={() => setIsRewardShopOpen(false)}
           />
         </Suspense>
+      )}
+
+      {/* DAILY QUEST REWARD WAITING: NUDGE TOAST */}
+      {isQuestNudgeOpen && !roomRewardToast && openSheet !== 'quests' && (
+        <div className="fixed inset-x-0 bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6 z-40 flex justify-center px-4 pointer-events-none">
+          <button
+            type="button"
+            onClick={() => {
+              setIsQuestNudgeOpen(false);
+              setOpenSheet('quests');
+            }}
+            className={`pointer-events-auto px-4 py-3 rounded-2xl shadow-2xl border-2 border-amber-400 flex items-center gap-3 font-extrabold text-sm ${theme.cardBgClass} ${theme.pageBgClass}`}
+            role="status"
+          >
+            <span aria-hidden="true">🎁</span>
+            <span>
+              {nudgeReadyCount === 1 ? 'השלמתם אתגר יומי! הפרס מחכה לכם' : 'השלמתם כמה אתגרים! הפרסים מחכים לכם'} — לאיסוף ←
+            </span>
+          </button>
+        </div>
       )}
 
       {/* FEATURE 12: NEW ROOM ITEM TOAST */}

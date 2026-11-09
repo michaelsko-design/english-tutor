@@ -5,6 +5,7 @@ import {
   getMapPeek,
   getPlayLabelHe,
   getQuestRings,
+  getReadyQuestCount,
   getRingDash,
 } from './homeBase';
 import { DAILY_QUESTS } from './rewardShop';
@@ -48,6 +49,21 @@ describe('getQuestRings', () => {
     const rings = getQuestRings(DAILY_QUESTS, counters(), ['quest-three-stars']);
 
     expect(rings.find((r) => r.id === 'quest-three-stars')!.state).toBe('claimed');
+  });
+});
+
+describe('getReadyQuestCount', () => {
+  it('counts only completed, unclaimed quests', () => {
+    const counts = counters({ voiceWordsPracticedToday: 1, missionsCompletedToday: 4 });
+    const rings = getQuestRings(DAILY_QUESTS, counts, []);
+    expect(getReadyQuestCount(rings)).toBe(rings.filter((r) => r.state === 'ready').length);
+    expect(getReadyQuestCount(rings)).toBeGreaterThan(0);
+    const claimed = getQuestRings(DAILY_QUESTS, counts, DAILY_QUESTS.map((q) => q.id));
+    expect(getReadyQuestCount(claimed)).toBe(0);
+  });
+
+  it('is zero when nothing is done', () => {
+    expect(getReadyQuestCount(getQuestRings(DAILY_QUESTS, counters(), []))).toBe(0);
   });
 });
 

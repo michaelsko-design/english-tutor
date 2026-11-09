@@ -45,6 +45,11 @@ export function getQuestRings(
   });
 }
 
+/** How many quests are complete with their reward still waiting to be claimed. */
+export function getReadyQuestCount(rings: QuestRing[]): number {
+  return rings.filter((ring) => ring.state === 'ready').length;
+}
+
 export interface RingDash {
   circumference: number;
   /** stroke-dashoffset that leaves `ratio` of the ring drawn */
