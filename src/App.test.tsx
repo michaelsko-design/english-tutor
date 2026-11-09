@@ -97,9 +97,13 @@ vi.mock('./components/DashboardView', () => ({
     onEditOnboarding: () => void;
     onSignOut: () => Promise<void>;
     onInviteHandled: () => void;
+    onFirstMissionDone?: (isFinished: boolean) => void;
   }) => (
     <div>
       <span>{`dashboard:${p.profile.name}:${p.syncStatus}:${p.pendingInviteCode}`}</span>
+      {p.onFirstMissionDone && <span>first-mission-mode</span>}
+      {p.onFirstMissionDone && btn('first-mission-finished', () => p.onFirstMissionDone?.(true))}
+      {p.onFirstMissionDone && btn('first-mission-abandoned', () => p.onFirstMissionDone?.(false))}
       {btn('update-profile', () => p.onUpdateProfile({ ...p.profile, name: 'שינוי' }))}
       {btn('edit-profile', p.onEditOnboarding)}
       {btn('dash-sign-out', () => void p.onSignOut())}
@@ -447,14 +451,44 @@ describe('App first launch', () => {
 
   it('shows only the greeting and a short tour for a learner who has not seen the chest', async () => {
     const user = userEvent.setup();
-    cloud.migrate.mockResolvedValue(makeProfile({ name: 'נועה', gradeId: 'grade-4', hasSeenWelcomeGiftModal: false }));
+    cloud.migrate.mockResolvedValue(
+      makeProfile({ name: 'נועה', gradeId: 'grade-4', hasSeenWelcomeGiftModal: false, missionProgress: { 'g4-u1-m1': 2 } })
+    );
     render(<App />);
     await signIn();
     await user.click(await screen.findByRole('button', { name: 'greeting-done' }));
-    // From grade 3 there is no letters lesson: the tour follows the chest at once
+    // From grade 3 there is no letters lesson, and a learner who already played has no first mission:
+    // the tour follows the chest at once
     expect(screen.queryByRole('button', { name: 'lesson-done' })).not.toBeInTheDocument();
+    expect(screen.queryByText('first-mission-mode')).not.toBeInTheDocument();
     expect(await screen.findByText(/בואי נשחק|בוא נשחק/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'tour-done' }));
+    expect(await screen.findByText(/^dashboard:/)).toBeInTheDocument();
+  });
+
+  it('starts a new grade 3+ learner on their first mission, then the first win, then the tour', async () => {
+    const user = userEvent.setup();
+    cloud.migrate.mockResolvedValue(makeProfile({ name: 'נועה', gradeId: 'grade-4', hasSeenWelcomeGiftModal: false, missionProgress: {} }));
+    render(<App />);
+    await signIn();
+    await user.click(await screen.findByRole('button', { name: 'greeting-done' }));
+    expect(await screen.findByText('first-mission-mode')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'first-mission-finished' }));
+    await user.click(await screen.findByRole('button', { name: 'first-win-continue' }));
+    await user.click(await screen.findByRole('button', { name: 'tour-done' }));
+    expect(await screen.findByText(/^dashboard:/)).toBeInTheDocument();
+    expect(screen.queryByText('first-mission-mode')).not.toBeInTheDocument();
+  });
+
+  it('goes to the tour without a first win when the first mission was left', async () => {
+    const user = userEvent.setup();
+    cloud.migrate.mockResolvedValue(makeProfile({ name: 'נועה', gradeId: 'grade-4', hasSeenWelcomeGiftModal: false, missionProgress: {} }));
+    render(<App />);
+    await signIn();
+    await user.click(await screen.findByRole('button', { name: 'greeting-done' }));
+    await user.click(await screen.findByRole('button', { name: 'first-mission-abandoned' }));
+    expect(screen.queryByRole('button', { name: 'first-win-continue' })).not.toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'tour-done' }));
     expect(await screen.findByText(/^dashboard:/)).toBeInTheDocument();
   });
 });

@@ -149,6 +149,15 @@ describe('getFirstLaunchSteps', () => {
     ).toEqual(['greeting', 'firstLesson', 'tour', 'placement']);
   });
 
+  it('starts the first mission right after the greeting, then the first win, then the tour', () => {
+    expect(
+      getFirstLaunchSteps({ hasSeenWelcomeGift: false, isOfferingFirstMission: true, isOfferingTour: false, isOfferingPlacement: false })
+    ).toEqual(['greeting', 'firstMission', 'tour']);
+    expect(
+      getFirstLaunchSteps({ hasSeenWelcomeGift: true, isOfferingFirstWin: true, isOfferingTour: true, isOfferingPlacement: true })
+    ).toEqual(['firstWin', 'tour', 'placement']);
+  });
+
   it('shows the first win after the lesson and before the tour', () => {
     expect(
       getFirstLaunchSteps({ hasSeenWelcomeGift: true, isOfferingFirstWin: true, isOfferingTour: true, isOfferingPlacement: true })

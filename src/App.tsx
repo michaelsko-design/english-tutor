@@ -83,7 +83,9 @@ export function App() {
   const [isOfferingTour, setIsOfferingTour] = useState<boolean>(false);
   /** Grades 1–2: the letters lesson that follows the welcome chest (this session only, like the tour) */
   const [isOfferingFirstLesson, setIsOfferingFirstLesson] = useState<boolean>(false);
-  /** After that lesson is finished: the celebration and the reminder ask (this session only) */
+  /** Grade 3 and up: the first mission that opens by itself after the welcome chest (this session only) */
+  const [isOfferingFirstMission, setIsOfferingFirstMission] = useState<boolean>(false);
+  /** After that lesson or mission is finished: the celebration and the reminder ask (this session only) */
   const [isOfferingFirstWin, setIsOfferingFirstWin] = useState<boolean>(false);
   const [authUser, setAuthUser] = useState<AuthUserSummary | null>(null);
   const [isAuthInitializing, setIsAuthInitializing] = useState<boolean>(isFirebaseConfigured);
@@ -487,6 +489,7 @@ export function App() {
   const firstLaunchSteps = getFirstLaunchSteps({
     hasSeenWelcomeGift: Boolean(profile.hasSeenWelcomeGiftModal),
     isOfferingFirstLesson,
+    isOfferingFirstMission,
     isOfferingFirstWin,
     isOfferingTour,
     isOfferingPlacement,
@@ -500,12 +503,22 @@ export function App() {
         gender={profile.gender}
         name={profile.name}
         welcomeGems={WELCOME_GIFT_DIAMONDS}
-        isLessonNext={playsHebrewAloud(profile.gradeId)}
+        nextStep={
+          playsHebrewAloud(profile.gradeId)
+            ? 'lesson'
+            : Object.keys(profile.missionProgress ?? {}).length === 0
+            ? 'mission'
+            : 'tour'
+        }
         onDone={() => {
           handleUpdateProfile({ ...profileRef.current, hasSeenWelcomeGiftModal: true });
           trackEvent('greeting_done');
-          // Grades 1–2 are not expected to know the English letters: they start with a letters lesson
-          setIsOfferingFirstLesson(playsHebrewAloud(profileRef.current.gradeId));
+          // Grades 1–2 are not expected to know the English letters: they start with a letters lesson.
+          // Everyone else who has not played yet starts on their first mission.
+          const isNewPlayer = Object.keys(profileRef.current.missionProgress ?? {}).length === 0;
+          const isEarlyGrade = playsHebrewAloud(profileRef.current.gradeId);
+          setIsOfferingFirstLesson(isEarlyGrade);
+          setIsOfferingFirstMission(!isEarlyGrade && isNewPlayer);
           setIsOfferingTour(true);
         }}
       />
@@ -611,6 +624,14 @@ export function App() {
       onSignOut={signOutAfterSaving}
       pendingInviteCode={pendingInviteCode}
       onInviteHandled={clearPendingInvite}
+      onFirstMissionDone={
+        firstLaunchSteps[0] === 'firstMission'
+          ? (isFinished) => {
+              setIsOfferingFirstMission(false);
+              if (isFinished) setIsOfferingFirstWin(true);
+            }
+          : undefined
+      }
     />
     </HebrewAudioContext.Provider>
     </ProAccessContext.Provider>

@@ -137,7 +137,7 @@ export function getMapPeek(units: CurriculumUnit[], progress: Record<string, num
   };
 }
 
-export type FirstLaunchStep = 'greeting' | 'firstLesson' | 'firstWin' | 'tour' | 'placement';
+export type FirstLaunchStep = 'greeting' | 'firstLesson' | 'firstMission' | 'firstWin' | 'tour' | 'placement';
 
 /**
  * The first-launch sequence, one screen after another: the companion's greeting with the
@@ -148,6 +148,8 @@ export type FirstLaunchStep = 'greeting' | 'firstLesson' | 'firstWin' | 'tour' |
 export function getFirstLaunchSteps(input: {
   hasSeenWelcomeGift: boolean;
   isOfferingFirstLesson?: boolean;
+  /** Grades 3 and up: the first mission starts by itself after the greeting */
+  isOfferingFirstMission?: boolean;
   /** The celebration and the reminder ask after a finished first lesson */
   isOfferingFirstWin?: boolean;
   isOfferingTour: boolean;
@@ -156,6 +158,7 @@ export function getFirstLaunchSteps(input: {
   const steps: FirstLaunchStep[] = [];
   if (!input.hasSeenWelcomeGift) steps.push('greeting');
   if (input.isOfferingFirstLesson) steps.push('firstLesson');
+  if (input.isOfferingFirstMission) steps.push('firstMission');
   if (input.isOfferingFirstWin) steps.push('firstWin');
   if (!input.hasSeenWelcomeGift || input.isOfferingTour) steps.push('tour');
   if (input.isOfferingPlacement) steps.push('placement');

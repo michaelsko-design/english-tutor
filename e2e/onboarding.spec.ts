@@ -1,6 +1,34 @@
 import { findUid, readDocument } from './support/emulator';
 import { expect, test } from './support/test';
-import { expectDashboard, firstLessonDialog, GRADE_LABELS } from './support/app';
+import {
+  completeOnboarding,
+  exitMissionButton,
+  expectDashboard,
+  firstLessonDialog,
+  GRADE_LABELS,
+  register,
+} from './support/app';
+
+test.describe('onboarding, grade 3 and up', () => {
+  test('a new grade 4 learner starts on their first mission, and leaving it goes on to the tour', async ({ page, learner }) => {
+    await register(page, learner, '/', { name: 'נועה', age: 9 });
+    await completeOnboarding(page, { name: 'נועה', age: 9 });
+
+    await page.getByRole('button', { name: 'פתיחת תיבת המתנה' }).click();
+    await page.getByRole('button', { name: /משימה ראשונה/ }).click();
+
+    // The mission opened by itself (no lesson screen for the letters, no tour yet)
+    await expect(exitMissionButton(page)).toBeVisible({ timeout: 20_000 });
+    await expect(firstLessonDialog(page)).toHaveCount(0);
+    await exitMissionButton(page).click();
+
+    // Left unfinished: no first win, straight on to the tour and the placement offer
+    await expect(page.getByRole('heading', { name: /כל הכבוד/ })).toHaveCount(0);
+    await page.getByRole('dialog', { name: 'סיור באפליקציה' }).getByRole('button', { name: 'דילוג' }).click();
+    await page.getByRole('button', { name: 'דילוג על מבחן הרמה' }).click();
+    await expectDashboard(page);
+  });
+});
 
 test.describe('onboarding', () => {
   test('a new learner says who they are on the sign-in screen, and it is saved to the cloud', async ({ page, learner }) => {

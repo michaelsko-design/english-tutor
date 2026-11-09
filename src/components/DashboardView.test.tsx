@@ -197,9 +197,13 @@ beforeEach(() => {
   Element.prototype.scrollIntoView = vi.fn();
 });
 
-function setup(profile: LearnerProfile = makeProfile({}), extra: { authUser?: typeof AUTH_USER | null; invite?: string | null } = {}) {
+function setup(
+  profile: LearnerProfile = makeProfile({}),
+  extra: { authUser?: typeof AUTH_USER | null; invite?: string | null; onFirstMissionDone?: (isFinished: boolean) => void } = {}
+) {
   render(
     <DashboardView
+      onFirstMissionDone={extra.onFirstMissionDone}
       profile={profile}
       authUser={extra.authUser === undefined ? AUTH_USER : extra.authUser}
       syncStatus="synced"
@@ -293,6 +297,44 @@ describe('DashboardView missions', () => {
     await click(user, 'play');
     await click(user, 'speak');
     expect(screen.getByText(/^runner:/)).toBeInTheDocument();
+  });
+});
+
+describe('DashboardView first mission (grades 3 and up)', () => {
+  it('opens the suggested mission at once, with its tier already chosen', () => {
+    setup(makeProfile({}), { onFirstMissionDone: vi.fn() });
+    expect(screen.getByText(`runner:${firstMission.id}:from-map`)).toBeInTheDocument();
+  });
+
+  it('reports a finished mission once it is completed, so the first win can follow', async () => {
+    const onFirstMissionDone = vi.fn();
+    const user = setup(makeProfile({}), { onFirstMissionDone });
+    expect(onFirstMissionDone).not.toHaveBeenCalled();
+    await click(user, 'complete-mission');
+    expect(onFirstMissionDone).toHaveBeenCalledWith(true);
+    expect(onFirstMissionDone).toHaveBeenCalledTimes(1);
+    expect(lastUpdate().missionProgress[firstMission.id]).toBe(3);
+  });
+
+  it('reports an abandoned mission as not finished', async () => {
+    const onFirstMissionDone = vi.fn();
+    const user = setup(makeProfile({}), { onFirstMissionDone });
+    await click(user, 'close-runner');
+    expect(onFirstMissionDone).toHaveBeenCalledWith(false);
+  });
+
+  it('opens nothing by itself on an ordinary visit', () => {
+    setup();
+    expect(screen.queryByText(/^runner:/)).not.toBeInTheDocument();
+  });
+
+  it('only reports the first mission once: later missions are ordinary', async () => {
+    const onFirstMissionDone = vi.fn();
+    const user = setup(makeProfile({}), { onFirstMissionDone });
+    await click(user, 'close-runner');
+    await click(user, 'map-start');
+    await click(user, 'close-runner');
+    expect(onFirstMissionDone).toHaveBeenCalledTimes(1);
   });
 });
 

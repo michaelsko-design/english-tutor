@@ -101,15 +101,20 @@ export async function completeOnboarding(page: Page, choices: OnboardingChoices)
 /** The first letters lesson of grades 1–2 (a dialog); finishing it is the learner's first win. */
 export const firstLessonDialog = (page: Page): Locator => page.getByRole('dialog', { name: 'השיעור הראשון' });
 
-/** The welcome chest, the first lesson (grades 1–2), the app tour and the placement-test offer, skipped. */
+/** The exit button of a mission that opened by itself (grades 3 and up start on their first mission). */
+export const exitMissionButton = (page: Page): Locator => page.getByRole('button', { name: 'יציאה מהמשימה' });
+
+/** The welcome chest, the first lesson or first mission, the app tour and the placement-test offer, skipped. */
 export async function skipFirstLaunch(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'פתיחת תיבת המתנה' }).click();
-  // The chest's last button leads to the first lesson (grades 1–2) or to the tour
-  await page.getByRole('button', { name: /סיור קצר|נלמד אותיות/ }).click();
+  // The chest's last button leads to the first lesson (grades 1–2), the first mission or the tour
+  await page.getByRole('button', { name: /סיור קצר|נלמד אותיות|משימה ראשונה/ }).click();
   const tourDialog = page.getByRole('dialog', { name: 'סיור באפליקציה' });
-  await expect(firstLessonDialog(page).or(tourDialog)).toBeVisible();
+  await expect(firstLessonDialog(page).or(tourDialog).or(exitMissionButton(page))).toBeVisible();
   if (await firstLessonDialog(page).isVisible()) {
     await firstLessonDialog(page).getByRole('button', { name: 'יציאה מהשיעור' }).click();
+  } else if (await exitMissionButton(page).isVisible()) {
+    await exitMissionButton(page).click();
   }
   await tourDialog.getByRole('button', { name: 'דילוג' }).click();
   await page.getByRole('button', { name: 'דילוג על מבחן הרמה' }).click();

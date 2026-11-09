@@ -15,10 +15,16 @@ interface FirstLaunchGreetingProps {
   name: string;
   /** The welcome gems already in the new profile */
   welcomeGems: number;
-  /** Grades 1–2: the first letters lesson comes next, not the app tour */
-  isLessonNext?: boolean;
+  /** What follows the chest: the app tour (default), the first letters lesson (grades 1–2) or the first mission */
+  nextStep?: 'tour' | 'lesson' | 'mission';
   onDone: () => void;
 }
+
+const NEXT_STEP_LABEL_HE: Record<NonNullable<FirstLaunchGreetingProps['nextStep']>, Record<'girl' | 'boy', string>> = {
+  tour: { girl: 'איזה כיף! בואי נעשה סיור קצר 🧭', boy: 'איזה כיף! בוא נעשה סיור קצר 🧭' },
+  lesson: { girl: 'איזה כיף! בואי נלמד אותיות 🔤', boy: 'איזה כיף! בוא נלמד אותיות 🔤' },
+  mission: { girl: 'איזה כיף! בואי נתחיל במשימה ראשונה 🚀', boy: 'איזה כיף! בוא נתחיל במשימה ראשונה 🚀' },
+};
 
 const CHEST_PX = 176;
 const COMPANION_PX = 140;
@@ -34,7 +40,7 @@ export const FirstLaunchGreeting: React.FC<FirstLaunchGreetingProps> = ({
   gender,
   name,
   welcomeGems,
-  isLessonNext = false,
+  nextStep = 'tour',
   onDone,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -131,13 +137,7 @@ export const FirstLaunchGreeting: React.FC<FirstLaunchGreetingProps> = ({
               onClick={onDone}
               className={`btn-chunky w-full py-3.5 rounded-2xl font-black text-lg ${theme.primaryBtnClass}`}
             >
-              {isLessonNext
-                ? isGirl
-                  ? 'איזה כיף! בואי נלמד אותיות 🔤'
-                  : 'איזה כיף! בוא נלמד אותיות 🔤'
-                : isGirl
-                ? 'איזה כיף! בואי נעשה סיור קצר 🧭'
-                : 'איזה כיף! בוא נעשה סיור קצר 🧭'}
+              {NEXT_STEP_LABEL_HE[nextStep][isGirl ? 'girl' : 'boy']}
             </button>
           </div>
         )}

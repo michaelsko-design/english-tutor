@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { EmojiIcon } from './art/EmojiIcon';
 import {
   AuthUserSummary,
@@ -87,6 +87,11 @@ interface DashboardViewProps {
   /** A friend code from an invite link, waiting for the Friends Hub */
   pendingInviteCode: string | null;
   onInviteHandled: () => void;
+  /**
+   * First launch, grades 3 and up: given, the learner's suggested mission opens by itself (tier
+   * already chosen), and this is called once when they close it (`isFinished`: it was completed).
+   */
+  onFirstMissionDone?: (isFinished: boolean) => void;
 }
 
 type HomeSheet = 'stats' | 'quests' | 'feedback';
@@ -135,6 +140,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   onSignOut,
   pendingInviteCode,
   onInviteHandled,
+  onFirstMissionDone,
 }) => {
   const [activePracticeMission, setActivePracticeMission] =
     useState<MissionNode | null>(null);
@@ -232,13 +238,33 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   // Closing a mission before it finished counts as an abandon (where learners get stuck)
   const isMissionFinishedRef = useRef(false);
   const handleCloseMission = () => {
-    if (!isMissionFinishedRef.current) {
+    const wasFinished = isMissionFinishedRef.current;
+    if (!wasFinished) {
       trackEvent('mission_abandon');
       if (activePracticeMission) trackMissionSignal(activePracticeMission.id, profile.preferredTier, 'abandon');
     }
     isMissionFinishedRef.current = true;
     setActivePracticeMission(null);
+    reportFirstMission(wasFinished);
   };
+
+  // The first mission of a new learner (grades 3+) reports once, so App can show the first win
+  const reportFirstMission = (isFinished: boolean) => {
+    if (!isFirstMissionPendingRef.current) return;
+    isFirstMissionPendingRef.current = false;
+    onFirstMissionDone?.(isFinished);
+  };
+
+  // First launch: the suggested mission opens before the first paint, so the home screen never flashes
+  const isFirstMissionPendingRef = useRef(Boolean(onFirstMissionDone));
+  const hasAutoLaunchedRef = useRef(false);
+  useLayoutEffect(() => {
+    if (!isFirstMissionPendingRef.current || hasAutoLaunchedRef.current) return;
+    hasAutoLaunchedRef.current = true;
+    handleLaunchMission(todaysMission, true);
+    // Once, on the first render of this screen
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCompleteMission = (result: {
     missionId: string;
@@ -309,6 +335,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
     setActivePracticeMission(null);
     if (roomReward) setRoomRewardToast(roomReward);
+    reportFirstMission(true);
   };
 
   /** Rewards a word said in the Vault, once per word per day; false when it earned nothing. */
