@@ -4,15 +4,17 @@
 *Grouped by type (UI, technical, features). Within each group, highest priority first. Completed features keep their numbers as stable IDs.*
 
 ### Business
-- [ ] **Approve business registration** - Osek Patur.
 - [ ] **Open a business bank account** - Otsar Hahayal - app.
-- [ ] **Reply to GROW** - using the Osek Patur number and follow the link they sent on whatsapp.
+- [x] **Approve business registration** - Osek Patur.
+- [x] **Reply to GROW** - using the Osek Patur number and follow the link they sent on whatsapp.
 - [x] **Create a new Google account for EnglishVibe** - In order to send and receive emails and to set the email logo.
 
 ### UI
+- [ ] **Sprots Theme** - Create a new theme - sports.
+- [ ] **Another Theme** - Create a new theme - suggest something.
 
 ### Early-tester phase (closed access is live; runbook and public-launch checklist: `docs/early-testers.md`)
-- [ ] **Lawyer review of the privacy text** - Including the new wording: tester notes and the used-invite record are kept after account deletion, without an account link.
+
 - [ ] **Public launch** - Follow "Public launch: full deployment checklist" in `docs/early-testers.md` (`setAccess.mjs --open`, remove `noindex` and the robots `Disallow`, App Check enforce, decide comp Pro, legal).
 - [x] **E2E upkeep** - `onboarding.spec` now checks `#mission-map` (the `כיתה א׳` label is in the map peek, hidden on wide screens); `register`/`signIn` retry a timed-out first `goto` once, and global setup warms the dev server.
 - [x] **Delete the 2 test accounts** - New invite, sign in, Settings > delete (deleting only in the Firebase console leaves rows behind).

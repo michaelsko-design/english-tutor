@@ -46,6 +46,7 @@ import { getBackgroundSticker } from '../data/stickers';
 import { useStickerImages } from '../hooks/useStickerImages';
 import { RoomRewardItem, getNextRoomReward, getRoomRewardForMission } from '../data/roomRewards';
 import { preloadCompanion } from './companion/Companion';
+import { DiamondFlightLayer } from './hud/DiamondFlightLayer';
 import { HomeHud } from './home/HomeHud';
 import { HomeHero } from './home/HomeHero';
 import { QuestRings } from './home/QuestRings';
@@ -499,6 +500,8 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         onOpenTour={() => setIsTourOpen(true)}
         onEditProfile={onEditOnboarding}
       />
+      {/* Earned diamonds fly from the reward into the HUD gem counter */}
+      <DiamondFlightLayer />
 
       {/* Phones: one column. Wide screens: the home panel at the start (right), the map beside it */}
       <main

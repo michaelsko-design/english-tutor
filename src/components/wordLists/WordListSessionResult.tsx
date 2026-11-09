@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { getElementCenter, launchDiamondFlight } from '../../services/diamondFlight';
 import {
   WORD_LIST_DAILY_REWARD_LIMIT,
   WORD_LIST_HIGH_SCORE,
@@ -44,6 +45,13 @@ export const WordListSessionResult: React.FC<WordListSessionResultProps> = ({
     ? 'עוד סיבוב אחד ואת שם 💪'
     : 'עוד סיבוב אחד ואתה שם 💪';
 
+  const gemAmountRef = useRef<HTMLSpanElement>(null);
+  // The diamonds fly from the reward line to the HUD as the result is saved
+  const saveWithFlight = (save: () => void) => {
+    launchDiamondFlight(reward.diamonds, getElementCenter(gemAmountRef.current));
+    save();
+  };
+
   return (
     <div className="p-5 sm:p-7 space-y-5">
       <div className="text-center space-y-2">
@@ -65,7 +73,7 @@ export const WordListSessionResult: React.FC<WordListSessionResultProps> = ({
         {reward.diamonds > 0 && (
           <>
             {' · '}
-            <span dir="ltr" lang="en">+{reward.diamonds} 💎</span>
+            <span ref={gemAmountRef} dir="ltr" lang="en">+{reward.diamonds} 💎</span>
           </>
         )}
         {!reward.isFullReward &&
@@ -73,10 +81,10 @@ export const WordListSessionResult: React.FC<WordListSessionResultProps> = ({
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2.5">
-        <Button theme={theme} size="lg" className="flex-1" onClick={onSave}>
+        <Button theme={theme} size="lg" className="flex-1" onClick={() => saveWithFlight(onSave)}>
           שמירה וחזרה לדשבורד
         </Button>
-        <Button theme={theme} variant="secondary" size="lg" onClick={onSaveAndRetry}>
+        <Button theme={theme} variant="secondary" size="lg" onClick={() => saveWithFlight(onSaveAndRetry)}>
           {isGirl ? 'תרגלי שוב 🔄' : 'תרגל שוב 🔄'}
         </Button>
       </div>

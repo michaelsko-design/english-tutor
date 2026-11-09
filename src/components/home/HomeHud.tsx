@@ -7,6 +7,7 @@ import { getCurrentStreak } from '../../data/streak';
 import { toLocalDateStr } from '../../utils/dates';
 import { usernameFromEmail } from '../../utils/username';
 import { useCountUp } from '../../hooks/useCountUp';
+import { useShownDiamonds } from '../../hooks/useDiamondFlight';
 import { EmojiIcon } from '../art/EmojiIcon';
 import { HudIcon } from '../hud/HudIcon';
 import { SoundToggle } from '../hud/SoundToggle';
@@ -31,6 +32,7 @@ interface HomeHudProps {
 }
 
 const LEVEL_RING_PX = 44;
+const GEM_COUNT_UP_MS = 350;
 const LEVEL_RING_STROKE = 4;
 
 const SYNC_CLASS: Record<CloudSyncStatus, string> = {
@@ -73,7 +75,9 @@ export const HomeHud: React.FC<HomeHudProps> = ({
   onOpenFeedback,
   onEditProfile,
 }) => {
-  const diamondsShown = useCountUp(profile.stats.diamonds);
+  // Diamonds still flying to the counter are added as each gem lands
+  const diamondsLanded = useShownDiamonds(profile.stats.diamonds);
+  const diamondsShown = useCountUp(diamondsLanded, GEM_COUNT_UP_MS);
   const streakDays = getCurrentStreak(profile, toLocalDateStr(new Date()));
   const level = getLevelProgress(profile.stats.xp, profile.stats.level);
   const levelLabel = `רמה ${level.level}: עוד ${level.xpToNextLevel} Vibe לרמה ${level.level + 1}. פתיחת הנתונים שלי`;
@@ -132,6 +136,7 @@ export const HomeHud: React.FC<HomeHudProps> = ({
           type="button"
           onClick={onOpenShop}
           className={pillClass}
+          data-diamond-target
           aria-label={`${profile.stats.diamonds} ${theme.currencyNameHe}. פתיחת החנות`}
           title="חנות הפרסים"
         >

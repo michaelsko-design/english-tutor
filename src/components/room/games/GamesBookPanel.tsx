@@ -20,6 +20,7 @@ import {
 import { LearnerProfile } from '../../../types/learner';
 import { ThemeDefinition } from '../../../themes/themeRegistry';
 import { ActivityRewardSummary } from '../ActivityRewardSummary';
+import { holdDiamonds } from '../../../services/diamondFlight';
 import { RoomPanelFrame } from '../RoomPanelFrame';
 import { CrosswordGame } from './CrosswordGame';
 import { ScrambleGame } from './ScrambleGame';
@@ -73,6 +74,8 @@ export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, 
     const isBelowRewardScore =
       score < GAME_FULL_REWARD_MIN_SCORE && !isActivityRewardedToday(profile, getWordGame(gameId).activityId, now);
     const reward = recordGameResult(profile, gameId, score, now);
+    // The diamonds fly to the HUD once the result screen shows
+    if (reward) holdDiamonds(reward.diamondsEarned);
     if (reward) onUpdateProfile(reward.profile);
     if (reward?.isFullReward) celebrate('medium');
     setView({ kind: 'result', gameId, score, reward, isBelowRewardScore });

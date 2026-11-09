@@ -12,6 +12,7 @@ import { useAnimationClock } from '../../hooks/useAnimationClock';
 import { celebrate } from '../../utils/celebrate';
 import { getVictoryDurationMs, getVictoryFrame, VictoryFrame } from '../../utils/rewardFeedback';
 import { playSfx } from '../../utils/sfx';
+import { getElementCenter, launchDiamondFlight } from '../../services/diamondFlight';
 import { HudIcon } from '../hud/HudIcon';
 import { LevelBadge } from '../hud/LevelBadge';
 import { Companion } from '../companion/Companion';
@@ -122,8 +123,11 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
   const dialogRef = useRef<HTMLDivElement>(null);
   useDialog(dialogRef);
 
+  const gemTileRef = useRef<HTMLDivElement>(null);
   const handleCollect = (event: React.MouseEvent) => {
     event.stopPropagation();
+    // Launched before the profile update, so the HUD counts the gems up as they land
+    launchDiamondFlight(diamondsEarned, getElementCenter(gemTileRef.current));
     onCollect();
   };
 
@@ -238,7 +242,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
               כולל בונוס {maxCombo}x רצף
             </div>
           </div>
-          <div className="p-3.5 short:p-2 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
+          <div ref={gemTileRef} className="p-3.5 short:p-2 rounded-2xl bg-black/5 dark:bg-white/5 border border-current/10">
             <HudIcon name="gem" className="w-6 h-6 mx-auto mb-1" />
             <div className="text-base sm:text-lg font-extrabold tabular-nums whitespace-nowrap" dir="ltr" lang="en">
               +{frame.diamondsShown}

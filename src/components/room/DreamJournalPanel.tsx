@@ -20,6 +20,7 @@ import { VoiceSpeakDrill } from '../drills';
 import { useSpeechToggle } from '../../hooks/useSpeech';
 import { SpeakIcon } from '../SpeakIcon';
 import { ActivityRewardSummary } from './ActivityRewardSummary';
+import { holdDiamonds } from '../../services/diamondFlight';
 import { DreamJournalList } from './DreamJournalList';
 import { RoomPanelFrame } from './RoomPanelFrame';
 import { Button } from '../ui/Button';
@@ -109,6 +110,8 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
   const handleSave = () => {
     speech.cancel();
     const result = saveDreamEntry(profile, { textEn: dreamEn, textHe: dreamHe, noteHe }, wasReadAloud, new Date());
+    // The diamonds fly to the HUD once the result screen shows
+    holdDiamonds(result.diamondsEarned);
     onUpdateProfile(result.profile);
     if (result.isFullReward) celebrate('medium');
     setReward(result);

@@ -6,6 +6,7 @@ import { ThemeDefinition } from '../themes/themeRegistry';
 import { Flame, CheckCircle2, Gift, ShieldCheck } from 'lucide-react';
 import { addDays, toLocalDateStr } from '../utils/dates';
 import { Button } from './ui/Button';
+import { getElementCenter, launchDiamondFlight } from '../services/diamondFlight';
 
 interface DailyQuestsCardProps {
   streakDays: number;
@@ -47,8 +48,10 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
     { label: 'ש׳', dayIndex: 6, isShabbatSafe: isShabbatObserver },
   ];
 
-  const handleClaim = (quest: DailyQuestDefinition) => {
+  const handleClaim = (quest: DailyQuestDefinition, event: React.MouseEvent<HTMLElement>) => {
     celebrate('small');
+    // Launched before the claim updates the profile, so the HUD counts the gems up as they land
+    launchDiamondFlight(quest.rewardDiamonds, getElementCenter(event.currentTarget));
     onClaimQuest(quest);
   };
 
@@ -112,7 +115,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
                       <span>נאסף</span>
                     </span>
                   ) : isCompleted ? (
-                    <Button theme={theme} size="sm" className="animate-pulse" onClick={() => handleClaim(quest)}>
+                    <Button theme={theme} size="sm" className="animate-pulse" onClick={(event) => handleClaim(quest, event)}>
                       <Gift className="w-3.5 h-3.5" />
                       <span dir="ltr" lang="en">+{quest.rewardDiamonds} 💎</span>
                     </Button>

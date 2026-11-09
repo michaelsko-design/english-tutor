@@ -8,6 +8,7 @@ import { SpeechEvaluationResult } from '../../utils/speechSimilarity';
 import { getSpeechErrorTextHe, useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { FeedbackBanner, VoiceSpeakDrill } from '../drills';
 import { ActivityRewardSummary } from './ActivityRewardSummary';
+import { holdDiamonds } from '../../services/diamondFlight';
 import { RoomPanelFrame } from './RoomPanelFrame';
 import { useSpeechToggle } from '../../hooks/useSpeech';
 import { SpeakIcon, STOP_SPEECH_LABEL } from '../SpeakIcon';
@@ -88,6 +89,8 @@ export const PhonePanel: React.FC<PhonePanelProps> = ({ profile, theme, onUpdate
     }
     const result = applyPhoneSessionResult(profile, sentCount, new Date());
     if (result) {
+      // The diamonds fly to the HUD once the result screen shows
+      holdDiamonds(result.diamondsEarned);
       onUpdateProfile(result.profile);
       if (result.isFullReward) celebrate('medium');
     }

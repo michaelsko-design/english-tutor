@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { getElementCenter, releaseHeldDiamonds } from '../../services/diamondFlight';
 import { RoomActivityReward } from '../../data/roomActivities';
 import { LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
@@ -33,6 +34,11 @@ export const ActivityRewardSummary: React.FC<ActivityRewardSummaryProps> = ({
   onClose,
 }) => {
   const isGirl = gender === 'girl';
+  const rewardTextRef = useRef<HTMLParagraphElement>(null);
+  // The activity held its diamonds; they fly to the HUD from this line
+  useEffect(() => {
+    releaseHeldDiamonds(getElementCenter(rewardTextRef.current));
+  }, []);
   const rewardText = !reward
     ? emptyHe
     : reward.isFullReward
@@ -42,7 +48,7 @@ export const ActivityRewardSummary: React.FC<ActivityRewardSummaryProps> = ({
   return (
     <div className="space-y-3 text-center py-2" role="status">
       <p className="text-base font-extrabold">{headlineHe}</p>
-      <p className={`text-xs sm:text-sm font-bold ${reward?.isFullReward ? 'text-emerald-600 dark:text-emerald-300' : theme.mutedTextClass}`}>
+      <p ref={rewardTextRef} className={`text-xs sm:text-sm font-bold ${reward?.isFullReward ? 'text-emerald-600 dark:text-emerald-300' : theme.mutedTextClass}`}>
         {rewardText}
       </p>
       <div className="flex flex-wrap justify-center gap-2 pt-1">
