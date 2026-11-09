@@ -11,10 +11,11 @@ interface ProfileTourProps {
   authUser: AuthUserSummary | null;
   finishLabelHe: string;
   onDone: () => void;
+  onOutcome?: (outcome: 'done' | 'skipped') => void;
 }
 
 /** The app tour (Feature 45) for this learner: their avatar, diamonds name, Friends tile and Shabbat shield. */
-export const ProfileTour: React.FC<ProfileTourProps> = ({ profile, theme, authUser, finishLabelHe, onDone }) => {
+export const ProfileTour: React.FC<ProfileTourProps> = ({ profile, theme, authUser, finishLabelHe, onDone, onOutcome }) => {
   const hasFriends = isFriendsHubEnabled(profile) && Boolean(authUser && !authUser.isAnonymous);
   const isShabbatObserver = profile.isShabbatObserver !== false;
   const slides = useMemo(
@@ -30,6 +31,7 @@ export const ProfileTour: React.FC<ProfileTourProps> = ({ profile, theme, authUs
       isShabbatObserver={isShabbatObserver}
       finishLabelHe={finishLabelHe}
       onDone={onDone}
+      onOutcome={onOutcome}
     />
   );
 };

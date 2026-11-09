@@ -129,7 +129,7 @@ describe('AuthModal username form', () => {
 
   it('shows a general message for any other sign-in failure', async () => {
     const user = userEvent.setup();
-    vi.mocked(signInWithEmailAndPassword).mockRejectedValue({ code: 'auth/network-request-failed' });
+    vi.mocked(signInWithEmailAndPassword).mockRejectedValue({ code: 'auth/internal-error' });
     renderGate();
 
     await fillAndSubmit(user, 'noa12', PIN);

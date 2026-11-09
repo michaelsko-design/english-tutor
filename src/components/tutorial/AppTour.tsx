@@ -17,6 +17,8 @@ interface AppTourProps {
   finishLabelHe: string;
   /** Finished, skipped or closed */
   onDone: () => void;
+  /** Said once as the tour closes: finished on the last slide, or left before it */
+  onOutcome?: (outcome: 'done' | 'skipped') => void;
 }
 
 const COMPANION_PX = TOUR_COMPANION_PX;
@@ -28,7 +30,7 @@ const SWIPE_MIN_PX = 50;
  * animated scene (a small mock of that part of the app) and the companion's speech card. Swipe,
  * the arrow keys or the buttons move between slides; "דילוג" or Escape closes it at any time.
  */
-export const AppTour: React.FC<AppTourProps> = ({ theme, slides, avatarEmoji, isShabbatObserver, finishLabelHe, onDone }) => {
+export const AppTour: React.FC<AppTourProps> = ({ theme, slides, avatarEmoji, isShabbatObserver, finishLabelHe, onDone, onOutcome }) => {
   const [slideIdx, setSlideIdx] = useState(0);
   const dialogRef = useRef<HTMLDivElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
@@ -36,14 +38,17 @@ export const AppTour: React.FC<AppTourProps> = ({ theme, slides, avatarEmoji, is
   const swipeStartX = useRef<number | null>(null);
   const hasCelebrated = useRef(false);
   const isFirstSlide = useRef(true);
-  useDialog(dialogRef, { onClose: onDone, initialFocusRef: nextRef });
-
   const slide = slides[slideIdx];
   const isLast = slideIdx === slides.length - 1;
+  const handleDone = () => {
+    onOutcome?.(isLast ? 'done' : 'skipped');
+    onDone();
+  };
+  useDialog(dialogRef, { onClose: handleDone, initialFocusRef: nextRef });
   const accent = TOUR_ACCENTS[slide.id];
 
   const goTo = (idx: number) => setSlideIdx(Math.max(0, Math.min(slides.length - 1, idx)));
-  const goNext = () => (isLast ? onDone() : goTo(slideIdx + 1));
+  const goNext = () => (isLast ? handleDone() : goTo(slideIdx + 1));
 
   useEffect(() => {
     preloadCompanion(theme, [...new Set(slides.map((s) => s.pose))], COMPANION_PX);
@@ -108,7 +113,7 @@ export const AppTour: React.FC<AppTourProps> = ({ theme, slides, avatarEmoji, is
         <div className="flex items-center justify-between gap-3">
           <button
             type="button"
-            onClick={onDone}
+            onClick={handleDone}
             className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl ${theme.secondaryBtnClass}`}
             aria-label="סגירת הסיור"
           >
@@ -135,7 +140,7 @@ export const AppTour: React.FC<AppTourProps> = ({ theme, slides, avatarEmoji, is
           {isLast ? (
             <span className="min-w-11" aria-hidden="true" />
           ) : (
-            <button type="button" onClick={onDone} className={`min-h-11 px-2 rounded-xl text-sm font-extrabold ${theme.mutedTextClass} hover:underline`}>
+            <button type="button" onClick={handleDone} className={`min-h-11 px-2 rounded-xl text-sm font-extrabold ${theme.mutedTextClass} hover:underline`}>
               דילוג
             </button>
           )}

@@ -35,6 +35,12 @@ beforeEach(() => {
   analytics.trackEvent.mockReset();
 });
 
+function renderScreenWith(profile: ReturnType<typeof makeProfile>) {
+  return render(
+    <FirstWinScreen profile={profile} theme={TEST_THEME} streakDays={1} onUpdateProfile={onUpdateProfile} onContinue={onContinue} />
+  );
+}
+
 function renderScreen(profile = makeProfile({ name: 'נועה' })) {
   render(
     <FirstWinScreen profile={profile} theme={TEST_THEME} streakDays={1} onUpdateProfile={onUpdateProfile} onContinue={onContinue} />
@@ -43,6 +49,14 @@ function renderScreen(profile = makeProfile({ name: 'נועה' })) {
 }
 
 describe('FirstWinScreen', () => {
+  it("tells a new learner about tomorrow's gift, and not one who already claimed it", async () => {
+    const { unmount } = renderScreenWith(makeProfile({ name: 'נועה' }));
+    expect(screen.getByText(/מחר מחכה לכם מתנה: 20/)).toBeInTheDocument();
+    unmount();
+    renderScreenWith(makeProfile({ name: 'נועה', hasClaimedWelcomeBack: true }));
+    expect(screen.queryByText(/מחר מחכה לכם מתנה/)).not.toBeInTheDocument();
+  });
+
   it('celebrates the first lesson and the first streak day', async () => {
     renderScreen();
     expect(screen.getByRole('heading', { name: /כל הכבוד/ })).toBeInTheDocument();

@@ -20,3 +20,19 @@ export function validateCredentials(mode: CredentialMode, username: string, pass
   if (password.trim().length < MIN_PIN_LENGTH) return PASSWORD_TOO_SHORT_HE;
   return null;
 }
+
+const ERROR_BY_CODE_HE: Readonly<Record<string, string>> = {
+  'auth/invalid-credential': 'שם המשתמש או הסיסמה לא נכונים. בדקו ונסו שוב.',
+  'auth/wrong-password': 'שם המשתמש או הסיסמה לא נכונים. בדקו ונסו שוב.',
+  'auth/user-not-found': 'שם המשתמש או הסיסמה לא נכונים. בדקו ונסו שוב.',
+  'auth/weak-password': PASSWORD_TOO_SHORT_HE,
+  'auth/invalid-email': USERNAME_ENGLISH_ONLY_HE,
+  'auth/network-request-failed': 'אין חיבור לאינטרנט. בדקו את החיבור ונסו שוב.',
+  'auth/too-many-requests': 'היו יותר מדי ניסיונות. חכו כמה דקות ונסו שוב.',
+};
+const GENERIC_ERROR_HE = 'משהו השתבש בכניסה. נסו שוב בעוד רגע.';
+
+/** What to tell the learner for a failed sign-in or sign-up, by the Firebase error code */
+export function credentialErrorHe(code: string): string {
+  return ERROR_BY_CODE_HE[code] ?? GENERIC_ERROR_HE;
+}

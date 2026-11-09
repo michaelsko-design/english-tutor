@@ -56,6 +56,7 @@ import { ParentNudgeCard } from './home/ParentNudgeCard';
 import { ReminderNudgeCard } from './home/ReminderNudgeCard';
 import { WelcomeBackCard } from './home/WelcomeBackCard';
 import { HomeTipCard } from './home/HomeTipCard';
+import { WeekOneCard } from './home/WeekOneCard';
 import { dismissHomeTip } from '../data/homeTips';
 import { readSeenPacks, rememberSeenPack } from './home/seenPacks';
 import { getNewPackOffer } from '../data/contentPacks';
@@ -556,6 +557,9 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         {/* A ONE-TIME GIFT FOR A NEW LEARNER COMING BACK AFTER THEIR FIRST DAY */}
         <WelcomeBackCard profile={profile} theme={theme} todayStr={todayStr} onUpdateProfile={onUpdateProfile} />
 
+        {/* A ONE-TIME LOOK BACK AT THE FIRST WEEK */}
+        <WeekOneCard profile={profile} theme={theme} todayStr={todayStr} onUpdateProfile={onUpdateProfile} />
+
         {/* ONE FIRST-USE TIP AT A TIME (replaces the app tour at first launch) */}
         <HomeTipCard profile={profile} uid={authUser?.uid ?? null} theme={theme} onOpenPlacement={() => setIsPlacementOpen(true)} />
 
@@ -752,6 +756,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             authUser={authUser}
             finishLabelHe={profile.gender === 'girl' ? 'סיימתי, בואי נשחק! 🚀' : 'סיימתי, בוא נשחק! 🚀'}
             onDone={() => setIsTourOpen(false)}
+            onOutcome={(outcome) => trackEvent(outcome === 'done' ? 'tour_done' : 'tour_skipped')}
           />
         </Suspense>
       )}

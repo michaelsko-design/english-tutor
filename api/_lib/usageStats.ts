@@ -3,6 +3,7 @@
  * and the scrubbed `clientErrors` documents (src/services/analytics). Aggregates only.
  */
 import { OWNER_STATS_DAYS, addDaysToDateStr } from './ownerStats.js';
+import { FUNNEL_EVENTS, type FunnelEvent } from '../../src/services/analytics/events.js';
 
 export interface AnalyticsDayRow {
   uid: string;
@@ -40,6 +41,12 @@ export interface StuckMission {
   tiers: { explorer: number; challenger: number; master: number };
 }
 
+/** One day of the anonymous sign-up counters (collection `funnelDaily`, written by api/funnel.ts) */
+export interface FunnelDayRow {
+  day: string;
+  counts: Partial<Record<FunnelEvent, number>>;
+}
+
 export interface UsageStats {
   windowDays: number;
   /** False until the first counter arrives, so the dashboard can say "collecting" instead of 0% */
@@ -52,12 +59,16 @@ export interface UsageStats {
     greeted: number;
     firstLesson: number;
     toured: number;
+    tourSkipped: number;
     reminderOn: number;
     welcomeBack: number;
+    weekOne: number;
     placed: number;
     firstMission: number;
     threeStars: number;
   };
+  /** Steps before an account exists, summed over the window (visits, not distinct people: there is no id yet) */
+  preAuth: Array<{ event: FunnelEvent; count: number }>;
   /** Missions finished in the window, by tier */
   missionsByTier: { explorer: number; challenger: number; master: number };
   /** Share of learners (first seen at least N days ago) who came back exactly N days later; null with no cohort yet */
@@ -204,6 +215,26 @@ export function readClientErrorRows(rows: ReadonlyArray<{ fields: Record<string,
   });
 }
 
+/** Every sign-up step in funnel order, summed over the window (a step nobody reached is 0) */
+function preAuthCounts(rows: readonly FunnelDayRow[], windowStart: string, todayStr: string): UsageStats['preAuth'] {
+  const totals = new Map<FunnelEvent, number>();
+  for (const { day, counts } of rows) {
+    if (day < windowStart || day > todayStr) continue;
+    for (const event of FUNNEL_EVENTS) totals.set(event, (totals.get(event) ?? 0) + (counts[event] ?? 0));
+  }
+  return FUNNEL_EVENTS.map((event) => ({ event, count: totals.get(event) ?? 0 }));
+}
+
+/** The `funnelDaily` documents as rows; the document id is the day, anything else is ignored */
+export function readFunnelRows(docs: ReadonlyArray<{ id: string; fields: Record<string, unknown> }>): FunnelDayRow[] {
+  return docs.flatMap(({ id, fields }) => {
+    if (!DAY_RE.test(id)) return [];
+    const counts: Partial<Record<FunnelEvent, number>> = {};
+    for (const event of FUNNEL_EVENTS) counts[event] = count(fields[event]);
+    return [{ day: id, counts }];
+  });
+}
+
 function retentionFor(firstSeen: ReadonlyMap<string, string>, seenDays: ReadonlyMap<string, ReadonlySet<string>>, offset: number, todayStr: string): number | null {
   let eligible = 0;
   let returned = 0;
@@ -222,7 +253,8 @@ export function computeUsageStats(
   todayStr: string,
   allowed: readonly AllowedRow[] = [],
   feedback: readonly FeedbackRow[] = [],
-  missionRows: readonly MissionStruggleRow[] = []
+  missionRows: readonly MissionStruggleRow[] = [],
+  funnelRows: readonly FunnelDayRow[] = []
 ): UsageStats {
   const windowStart = addDaysToDateStr(todayStr, -(OWNER_STATS_DAYS - 1));
   const reached = {
@@ -232,8 +264,10 @@ export function computeUsageStats(
     greeted: new Set<string>(),
     firstLesson: new Set<string>(),
     toured: new Set<string>(),
+    tourSkipped: new Set<string>(),
     reminderOn: new Set<string>(),
     welcomeBack: new Set<string>(),
+    weekOne: new Set<string>(),
     placed: new Set<string>(),
     firstMission: new Set<string>(),
     threeStars: new Set<string>(),
@@ -267,8 +301,10 @@ export function computeUsageStats(
     if (counts.greeting_done) reached.greeted.add(uid);
     if (counts.first_lesson_done) reached.firstLesson.add(uid);
     if (counts.tour_done) reached.toured.add(uid);
+    if (counts.tour_skipped) reached.tourSkipped.add(uid);
     if (counts.reminder_opt_in) reached.reminderOn.add(uid);
     if (counts.welcome_back_claimed) reached.welcomeBack.add(uid);
+    if (counts.week_one_seen) reached.weekOne.add(uid);
     if (counts.placement_done) reached.placed.add(uid);
     if (counts.mission_finish) reached.firstMission.add(uid);
     if (counts.mission_three_stars) reached.threeStars.add(uid);
@@ -317,12 +353,15 @@ export function computeUsageStats(
       greeted: reached.greeted.size,
       firstLesson: reached.firstLesson.size,
       toured: reached.toured.size,
+      tourSkipped: reached.tourSkipped.size,
       reminderOn: reached.reminderOn.size,
       welcomeBack: reached.welcomeBack.size,
+      weekOne: reached.weekOne.size,
       placed: reached.placed.size,
       firstMission: reached.firstMission.size,
       threeStars: reached.threeStars.size,
     },
+    preAuth: preAuthCounts(funnelRows, windowStart, todayStr),
     missionsByTier: tiers,
     retention: { day1: retentionFor(firstSeen, seenDays, 1, todayStr), day7: retentionFor(firstSeen, seenDays, 7, todayStr) },
     features: [...featureLearners.entries()]

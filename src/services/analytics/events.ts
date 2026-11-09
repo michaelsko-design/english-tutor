@@ -11,7 +11,9 @@ export const ANALYTICS_EVENTS = [
   'first_lesson_done',
   'reminder_opt_in',
   'welcome_back_claimed',
+  'week_one_seen',
   'tour_done',
+  'tour_skipped',
   'placement_done',
   'mission_finish',
   'mission_finish_tier_explorer',
@@ -69,3 +71,25 @@ export const isMissionId = (value: string): boolean => MISSION_ID_PATTERN.test(v
 
 /** Largest counter a single day document may hold (matches firestore.rules `isCount`) */
 export const MAX_DAILY_COUNT = 1_000_000;
+
+/**
+ * The steps before an account exists. They can't be tied to a learner (there is no uid yet), so they
+ * are counted by the anonymous `/api/funnel` function into one document per day, not per learner.
+ */
+export const FUNNEL_EVENTS = [
+  'gate_view',
+  'signup_started',
+  'signup_basics_done',
+  'consent_ticked',
+  'signup_done',
+  'signup_name_taken',
+  'signup_error',
+] as const;
+
+export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];
+
+const FUNNEL_EVENT_SET: ReadonlySet<string> = new Set(FUNNEL_EVENTS);
+
+export const isFunnelEvent = (name: unknown): name is FunnelEvent => typeof name === 'string' && FUNNEL_EVENT_SET.has(name);
+
+export const FUNNEL_DAILY_COLLECTION = 'funnelDaily';

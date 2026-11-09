@@ -58,6 +58,11 @@ export function createFakeFirestore(): FakeFirestore {
         store(write.collection, write.id, fields);
       }
     },
+    async incrementCounters(collection: string, id: string, fieldNames: readonly string[]) {
+      const fields = { ...(docs.get(key(collection, id))?.fields ?? {}) };
+      for (const name of fieldNames) fields[name] = (typeof fields[name] === 'number' ? fields[name] : 0) + 1;
+      store(collection, id, fields);
+    },
     async deleteDocument(collection: string, id: string) {
       docs.delete(key(collection, id));
     },

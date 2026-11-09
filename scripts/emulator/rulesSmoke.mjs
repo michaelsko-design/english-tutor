@@ -320,6 +320,11 @@ await expect('a learner can count a feature open', true, () =>
   setDoc(dayDoc(ua.uid), dayData(ua.uid, { feature_room: increment(1) }), { merge: true }));
 await expect('a learner can count struggle signals', true, () =>
   setDoc(dayDoc(ua.uid), dayData(ua.uid, { mission_start: increment(1), mission_abandon: increment(1), hint_used: increment(1), tts_error: increment(1) }), { merge: true }));
+await expect('a learner can count the onboarding and first-week steps', true, () =>
+  setDoc(dayDoc(ua.uid), dayData(ua.uid, { onboarding_view: increment(1), greeting_done: increment(1), week_one_seen: increment(1), tour_skipped: increment(1) }), { merge: true }));
+await expect('a client cannot write or read the anonymous sign-up counters', false, () =>
+  setDoc(doc(a.db, 'funnelDaily', today), { gate_view: increment(1) }, { merge: true }));
+await expect('a client cannot read the anonymous sign-up counters', false, () => getDoc(doc(a.db, 'funnelDaily', today)));
 await expect('an analytics counter outside the allow-list is rejected', false, () =>
   setDoc(dayDoc(ua.uid), dayData(ua.uid, { typed_text: increment(1) }), { merge: true }));
 await expect('an analytics document with an extra field is rejected', false, () =>

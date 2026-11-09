@@ -205,6 +205,24 @@ export function createFirestoreAdmin(account: ServiceAccount, projectId: string,
       if (!response.ok) throw new AdminError('Firestore commit failed', response.status);
     },
 
+    /**
+     * Adds 1 to integer counters of a document, creating it (and the counters) when missing. The
+     * increment is done by Firestore, so two calls at once never lose a count.
+     */
+    async incrementCounters(collection: string, id: string, fieldNames: readonly string[]): Promise<void> {
+      const response = await request(`${base}:commit`, 'POST', {
+        writes: [
+          {
+            transform: {
+              document: documentName(collection, id),
+              fieldTransforms: fieldNames.map((fieldPath) => ({ fieldPath, increment: { integerValue: '1' } })),
+            },
+          },
+        ],
+      });
+      if (!response.ok) throw new AdminError('Firestore increment failed', response.status);
+    },
+
     async deleteDocument(collection: string, id: string): Promise<void> {
       const response = await request(`${base}/${collection}/${encodeURIComponent(id)}`, 'DELETE');
       if (!response.ok && response.status !== 404) throw new AdminError('Firestore delete failed', response.status);

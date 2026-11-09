@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   PASSWORD_TOO_SHORT_HE,
+  credentialErrorHe,
   USERNAME_ENGLISH_ONLY_HE,
   USERNAME_REQUIRED_HE,
   validateCredentials,
@@ -33,5 +34,18 @@ describe('validateCredentials', () => {
   it('refuses a password shorter than six characters', () => {
     expect(validateCredentials('new', 'noa12', '123')).toBe(PASSWORD_TOO_SHORT_HE);
     expect(validateCredentials('existing', 'noa12', '  12345  ')).toBe(PASSWORD_TOO_SHORT_HE);
+  });
+});
+
+describe('credentialErrorHe', () => {
+  it.each([
+    ['auth/wrong-password', /לא נכונים/],
+    ['auth/user-not-found', /לא נכונים/],
+    ['auth/weak-password', /לפחות/],
+    ['auth/network-request-failed', /אינטרנט/],
+    ['auth/too-many-requests', /יותר מדי ניסיונות/],
+    ['auth/something-new', /משהו השתבש/],
+  ])('explains %s', (code, expected) => {
+    expect(credentialErrorHe(code)).toMatch(expected);
   });
 });

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ModalPortal } from './ModalPortal';
 import { useDialog } from '../hooks/useDialog';
 import {
@@ -19,7 +19,7 @@ import { ThemeDefinition } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
 import { normalizeIdentifierToEmail, usernameFromEmail } from '../utils/username';
 import { SignInPanel } from './auth/SignInPanel';
-import { CredentialMode, validateCredentials } from './auth/credentialValidation';
+import { CredentialMode, credentialErrorHe, validateCredentials } from './auth/credentialValidation';
 import { APP_NAME } from '../config/appInfo';
 import { AppLogo } from './AppLogo';
 import { saveGuestWithGoogle, saveGuestWithUsername } from '../services/accountService';
@@ -33,6 +33,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { Button } from './ui/Button';
+import { trackFunnel } from '../services/analytics/funnel';
 
 interface AuthModalProps {
   authUser: AuthUserSummary | null;
@@ -136,6 +137,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         if (learnerName.trim()) {
           await updateProfile(cred.user, { displayName: learnerName.trim() });
         }
+        trackFunnel('signup_done');
         setSuccessHe('החשבון נוצר! 🎉');
       } else {
         await signInWithEmailAndPassword(auth, emailToUse, password.trim());
@@ -145,15 +147,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       const code = (err as { code?: string })?.code || '';
       if (code === 'auth/email-already-in-use') {
         setIsUsernameTaken(true);
+        trackFunnel('signup_name_taken');
         setErrorHe('השם הזה כבר תפוס. אם זה החשבון שלך, אפשר להיכנס איתו. אם לא, בחרו שם אחר.');
-      } else if (
-        code === 'auth/invalid-credential' ||
-        code === 'auth/wrong-password' ||
-        code === 'auth/user-not-found'
-      ) {
-        setErrorHe('שם המשתמש או הסיסמה לא נכונים. בדקו ונסו שוב.');
       } else {
-        setErrorHe('משהו השתבש בכניסה. בדקו שיש אינטרנט ונסו שוב.');
+        if (mode === 'new') trackFunnel('signup_error');
+        setErrorHe(credentialErrorHe(code));
       }
     } finally {
       setIsBusy(false);
@@ -217,6 +215,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   // The sign-in gate: no account yet, and the app can't be used without one
   const isGate = isMandatory && !authUser;
+  useEffect(() => {
+    if (isGate) trackFunnel('gate_view');
+  }, [isGate]);
 
   const statusMessages = (
     <>

@@ -13,13 +13,25 @@ const FUNNEL_STEPS: Array<{ key: keyof Usage['funnel']; label: string }> = [
   { key: 'onboarded', label: 'Finished onboarding' },
   { key: 'greeted', label: 'Opened the welcome chest' },
   { key: 'firstLesson', label: 'Finished the first letters lesson (grades 1-2)' },
-  { key: 'toured', label: 'Finished the app tour' },
+  { key: 'toured', label: 'Finished the app tour (opened later from the ? button)' },
+  { key: 'tourSkipped', label: 'Left the app tour early' },
   { key: 'reminderOn', label: 'Turned on the daily reminder' },
   { key: 'welcomeBack', label: 'Came back and claimed the day-2 gift' },
+  { key: 'weekOne', label: 'Saw the first-week summary (day 7+)' },
   { key: 'placed', label: 'Took the placement test' },
   { key: 'firstMission', label: 'Finished a mission' },
   { key: 'threeStars', label: 'Earned 3 stars' },
 ];
+
+const PRE_AUTH_LABELS: Record<string, string> = {
+  gate_view: 'Saw the sign-in screen',
+  signup_started: 'Chose "new here"',
+  signup_basics_done: 'Answered name, gender and grade',
+  consent_ticked: "Parent's consent ticked",
+  signup_done: 'Account created',
+  signup_name_taken: 'Username was taken',
+  signup_error: 'Sign-up failed',
+};
 
 const FEATURE_LABELS: Record<string, string> = {
   feature_exam_prep: 'Exam prep',
@@ -79,6 +91,21 @@ export const UsageCard: React.FC<{ usage: OwnerStats['usage'] }> = ({ usage }) =
           </li>
         ))}
       </ul>
+
+      {usage.preAuth && usage.preAuth.some(({ count }) => count > 0) && (
+        <>
+          <h3 className="mt-4 text-xs font-bold text-slate-900 dark:text-white">Before the account exists</h3>
+          <p className={MUTED}>Page loads that reached each step, not distinct people. Each step counts once per page load.</p>
+          <ul className="mt-1 space-y-0.5 text-xs text-slate-700 dark:text-slate-300">
+            {usage.preAuth.map(({ event, count }) => (
+              <li key={event} className="flex justify-between">
+                <span>{PRE_AUTH_LABELS[event] ?? event}</span>
+                <span className="font-bold tabular-nums">{count}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
 
       <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
         <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800/60">

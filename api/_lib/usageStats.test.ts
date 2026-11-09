@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeUsageStats, readAllowedRows, readAnalyticsRows, readFeedbackRows, readMissionStruggleRows } from './usageStats.js';
+import { readFunnelRows, computeUsageStats, readAllowedRows, readAnalyticsRows, readFeedbackRows, readMissionStruggleRows } from './usageStats.js';
 
 const row = (uid: string, day: string, counts: Record<string, number>) => ({ uid, day, counts });
 
@@ -14,7 +14,7 @@ describe('computeUsageStats', () => {
       [],
       '2026-11-06'
     );
-    expect(stats.funnel).toEqual({ sessions: 2, onboardingViewed: 0, onboarded: 1, greeted: 0, firstLesson: 0, toured: 0, reminderOn: 0, welcomeBack: 0, placed: 0, firstMission: 1, threeStars: 1 });
+    expect(stats.funnel).toEqual({ sessions: 2, onboardingViewed: 0, onboarded: 1, greeted: 0, firstLesson: 0, toured: 0, tourSkipped: 0, reminderOn: 0, welcomeBack: 0, weekOne: 0, placed: 0, firstMission: 1, threeStars: 1 });
     expect(stats.missionsByTier).toEqual({ explorer: 2, challenger: 0, master: 1 });
   });
 
@@ -158,5 +158,23 @@ describe('computeUsageStats', () => {
       allowed
     );
     expect(notes.map((n) => n.tester)).toEqual(['noa', 'dana (account deleted)', 'unknown']);
+  });
+});
+
+describe('sign-up steps before an account exists', () => {
+  it('sums the window per step in funnel order, ignoring days outside it and other documents', () => {
+    const rows = readFunnelRows([
+      { id: '2026-11-06', fields: { gate_view: 10, signup_started: 6, signup_done: 3 } },
+      { id: '2026-11-05', fields: { gate_view: 5, signup_done: 1, signup_error: 2 } },
+      { id: '2026-01-01', fields: { gate_view: 99 } },
+      { id: 'not-a-day', fields: { gate_view: 99 } },
+    ]);
+    const { preAuth } = computeUsageStats([], [], '2026-11-06', [], [], [], rows);
+    expect(preAuth.map(({ event }) => event)).toEqual([
+      'gate_view', 'signup_started', 'signup_basics_done', 'consent_ticked', 'signup_done', 'signup_name_taken', 'signup_error',
+    ]);
+    expect(Object.fromEntries(preAuth.map(({ event, count }) => [event, count]))).toMatchObject({
+      gate_view: 15, signup_started: 6, signup_done: 4, signup_error: 2, consent_ticked: 0,
+    });
   });
 });

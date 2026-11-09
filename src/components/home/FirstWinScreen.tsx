@@ -7,6 +7,7 @@ import { enableReminder, getReminderSupport, isReminderOn } from '../../services
 import { trackEvent } from '../../services/analytics';
 import { getReminderFacts } from '../../hooks/useReminderSync';
 import { applyReminderReward, REMINDER_REWARD_DIAMONDS } from '../../data/reminderReward';
+import { WELCOME_BACK_DIAMONDS } from '../../data/welcomeBack';
 import { Companion } from '../companion/Companion';
 import { Button } from '../ui/Button';
 
@@ -80,6 +81,11 @@ export const FirstWinScreen: React.FC<FirstWinScreenProps> = ({ profile, theme, 
         <p className="text-sm sm:text-base font-bold">
           יום {streakDays} ברצף 🔥 חוזרים מחר ללמוד עוד
         </p>
+        {!profile.hasClaimedWelcomeBack && (
+          <p className="text-sm font-extrabold">
+            מחר מחכה לכם מתנה: {WELCOME_BACK_DIAMONDS} {theme.currencyNameHe} 🎁
+          </p>
+        )}
 
         {support === 'needs-install' && (
           <p className={`text-xs sm:text-sm font-bold ${theme.mutedTextClass}`}>

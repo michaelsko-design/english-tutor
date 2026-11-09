@@ -13,8 +13,10 @@ import {
   readAnalyticsRows,
   readClientErrorRows,
   readFeedbackRows,
+  readFunnelRows,
   readMissionStruggleRows,
 } from './_lib/usageStats.js';
+import { FUNNEL_EVENTS } from '../src/services/analytics/events.js';
 import { computeOwnerStats, israelDateStr, proChildUidsFrom, withoutTestUsers, type LearnerRow } from './_lib/ownerStats.js';
 
 const LEARNER_FIELDS = ['gradeId', 'isOnboarded', 'activityLog'] as const;
@@ -46,7 +48,7 @@ export async function handleOwnerStatsRequest(
     const learners: LearnerRow[] = withoutTestUsers(await admin.listFieldsOf('learners', LEARNER_FIELDS), testUids, uidOf);
     const entitlements = withoutTestUsers(await admin.listFieldsOf('entitlements', ['status', 'periodEnd']), testUids, uidOf);
     const anonymousUids = await findAnonymousUids(learners.map((row) => row.id));
-    const [links, sends, subscriptions, analyticsDocs, errorDocs, allowedDocs, feedbackDocs, missionDocs] = await Promise.all([
+    const [links, sends, subscriptions, analyticsDocs, errorDocs, allowedDocs, feedbackDocs, missionDocs, funnelDocs] = await Promise.all([
       admin.listFieldsOf('parentLinks', ['parentUid', 'childUid']),
       admin.listFieldsOf('reminderSends', ['uid', 'dateStr', 'kind']),
       admin.listFieldsOf('pushSubscriptions', ['streakDays']),
@@ -55,6 +57,7 @@ export async function handleOwnerStatsRequest(
       admin.listFieldsOf('allowed', ['label', 'cohort']),
       admin.listFieldsOf('feedback', ['uid', 'day', 'kind', 'text', 'gradeId', 'appVersion', 'testerLabel']),
       admin.listFieldsOf('missionStruggle', ['uid', 'day', 'missionId', 'tier', 'starts', 'abandons']),
+      admin.listFieldsOf('funnelDaily', [...FUNNEL_EVENTS]),
     ]);
     const todayStr = israelDateStr(now);
     const allowedRows = readAllowedRows(withoutTestUsers(allowedDocs, testUids, uidOf));
@@ -64,7 +67,8 @@ export async function handleOwnerStatsRequest(
       todayStr,
       allowedRows,
       readFeedbackRows(feedbackDocs, allowedRows),
-      readMissionStruggleRows(withoutTestUsers(missionDocs, testUids, ({ fields }) => [String(fields.uid)]))
+      readMissionStruggleRows(withoutTestUsers(missionDocs, testUids, ({ fields }) => [String(fields.uid)])),
+      readFunnelRows(funnelDocs)
     );
     const stats = computeOwnerStats({
       excludedTestUsers: testUids.size,

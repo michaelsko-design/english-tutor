@@ -669,6 +669,14 @@ describe('mergeLearnerProfiles missionTierStars', () => {
   });
 });
 
+describe('mergeLearnerProfiles hasSeenWeekOneSummary', () => {
+  it('keeps the flag from either side, so the card is not shown again after a sync', () => {
+    expect(mergeLearnerProfiles({ ...baseProfile, hasSeenWeekOneSummary: true }, baseProfile).hasSeenWeekOneSummary).toBe(true);
+    expect(mergeLearnerProfiles(baseProfile, { ...baseProfile, hasSeenWeekOneSummary: true }).hasSeenWeekOneSummary).toBe(true);
+    expect('hasSeenWeekOneSummary' in mergeLearnerProfiles(baseProfile, baseProfile)).toBe(false);
+  });
+});
+
 describe('mergeLearnerProfiles hasClaimedWelcomeBack', () => {
   it('keeps the claim from either side, so the gift is never paid twice after a sync', () => {
     expect(mergeLearnerProfiles({ ...baseProfile, hasClaimedWelcomeBack: true }, baseProfile).hasClaimedWelcomeBack).toBe(true);

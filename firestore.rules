@@ -563,7 +563,7 @@ service cloud.firestore {
         && isShortString(request.resource.data.gradeId, 20)
         && request.resource.data.counts is map
         && request.resource.data.counts.keys().hasOnly([
-          'session_start', 'onboarding_view', 'onboarding_done', 'greeting_done', 'first_lesson_done', 'reminder_opt_in', 'welcome_back_claimed', 'tour_done',
+          'session_start', 'onboarding_view', 'onboarding_done', 'greeting_done', 'first_lesson_done', 'reminder_opt_in', 'welcome_back_claimed', 'week_one_seen', 'tour_done', 'tour_skipped',
           'placement_done', 'mission_finish',
           'mission_finish_tier_explorer', 'mission_finish_tier_challenger',
           'mission_finish_tier_master', 'mission_three_stars',
@@ -572,6 +572,12 @@ service cloud.firestore {
           'feature_room', 'feature_shop', 'feature_settings'])
         && request.resource.data.counts.get('session_start', 0) <= 1000000
         && request.resource.data.counts.get('mission_finish', 0) <= 1000000;
+    }
+
+    // Steps before an account exists (src/services/analytics/events.ts FUNNEL_EVENTS): one counter
+    // document per day, written only by the /api/funnel function (service account), never by clients.
+    match /funnelDaily/{day} {
+      allow read, write: if false;
     }
 
     // Where learners get stuck: one document per learner, day, mission and tier, counting how often

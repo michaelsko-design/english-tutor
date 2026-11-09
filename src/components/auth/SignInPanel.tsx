@@ -7,6 +7,7 @@ import type { CredentialMode } from './credentialValidation';
 import { LearnerBasicsForm } from '../LearnerBasicsForm';
 import { clearSignupDraft, setSignupDraft, type SignupDraft } from '../../data/signupDraft';
 import { suggestUsername } from '../../utils/username';
+import { trackFunnel } from '../../services/analytics/funnel';
 
 const NEW_LEARNER_DEFAULTS: SignupDraft = { name: '', gender: 'girl', gradeId: 'grade-4', hasParentConsent: false };
 
@@ -96,10 +97,13 @@ export function SignInPanel({
       setBasics(null);
       clearSignupDraft();
     }
+    if (next === 'new') trackFunnel('signup_started');
     setForm(next);
   };
 
   const finishBasics = (answered: SignupDraft) => {
+    trackFunnel('signup_basics_done');
+    if (answered.hasParentConsent) trackFunnel('consent_ticked');
     setSignupDraft(answered);
     setBasics(answered);
     setUsername(suggestUsername(answered.name));

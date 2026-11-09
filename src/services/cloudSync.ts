@@ -257,6 +257,7 @@ export function mergeLearnerProfiles(
     ),
     ...(local.hasEarnedReminderReward || cloud.hasEarnedReminderReward ? { hasEarnedReminderReward: true } : {}),
     ...(local.hasClaimedWelcomeBack || cloud.hasClaimedWelcomeBack ? { hasClaimedWelcomeBack: true } : {}),
+    ...(local.hasSeenWeekOneSummary || cloud.hasSeenWeekOneSummary ? { hasSeenWeekOneSummary: true } : {}),
     createdAt: cloud.createdAt || local.createdAt || new Date().toISOString(),
     // The later of the two, so a stale cloud copy can't make a newer local save look older
     updatedAt: (localTime > cloudTime ? local.updatedAt : cloud.updatedAt) || local.updatedAt || new Date().toISOString(),

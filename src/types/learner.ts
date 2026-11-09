@@ -372,6 +372,8 @@ export interface LearnerProfile {
   hasEarnedReminderReward?: boolean;
   /** Whether the one-time day-2 "welcome back" gift was claimed (data/welcomeBack.ts) */
   hasClaimedWelcomeBack?: boolean;
+  /** Whether the first-week summary card was shown and closed (data/weekOne.ts) */
+  hasSeenWeekOneSummary?: boolean;
   /** Latest diagnostic placement test result, if the learner has taken it */
   placementResult?: PlacementResult;
   /** Active exam preparation plan, if the learner created one */
