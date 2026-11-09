@@ -22,7 +22,7 @@ import {
 } from '../drills';
 import { ExamModalShell } from './ExamModalShell';
 import { ExamSessionResult } from './ExamSessionResult';
-import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
+import { useStopSpeechOnChange, useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { useExamBank } from '../../hooks/useExamBank';
 import { useGradeCurriculum } from '../../hooks/useGradeCurricula';
 import { ScreenLoading } from '../ScreenLoading';
@@ -80,6 +80,7 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
   const step = steps[stepIdx];
   const isLast = stepIdx === steps.length - 1;
 
+  useStopSpeechOnChange(stepIdx);
   useEffect(() => {
     setShowHint(false);
   }, [stepIdx]);

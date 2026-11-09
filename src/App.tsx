@@ -25,6 +25,7 @@ import { getFirstLaunchSteps } from './data/homeBase';
 import { resolveLearnerTheme } from './data/proGate';
 import { ProAccessContext, useLearnerProAccess } from './hooks/useProAccess';
 import { useFriendPresence } from './hooks/useFriendPresence';
+import { useStopSpeechOnButtonPress } from './hooks/useSpeech';
 import { useReportSnapshotPublisher } from './hooks/useReportSnapshotPublisher';
 import { useReminderSync } from './hooks/useReminderSync';
 import { useStickerImageSync } from './hooks/useStickerImageSync';
@@ -108,6 +109,9 @@ export function App() {
     };
   }, []);
   profileRef.current = profile;
+
+  // Pressing any button (e.g. "next") cuts off the reading in progress
+  useStopSpeechOnButtonPress();
 
   // The Hebrew voice says words like "בנית" in the learner's form (banit / banita)
   useEffect(() => setListenerGender(profile.gender), [profile.gender]);

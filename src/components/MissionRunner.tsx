@@ -52,7 +52,7 @@ import {
   getPeekCompanionPose,
   getStepXpGain,
 } from '../utils/missionFeedback';
-import { useStopSpeechOnLeave } from '../hooks/useSpeech';
+import { useStopSpeechOnChange, useStopSpeechOnLeave } from '../hooks/useSpeech';
 import { DrillFeedback, normalizeSentence, useDrillSession } from '../hooks/useDrillSession';
 import { COMMA_CHIP, hasCommaChip, joinSentenceChips, normalizeSentenceWithCommas } from '../utils/sentenceChips';
 import type { SpokenPart } from '../data/hebrewAudio';
@@ -223,6 +223,9 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
     preloadCompanion(theme, ['think', 'idle', 'wave', 'cheer', 'oops'], LESSON_COMPANION_SIZE);
     preloadArt(getStoryArt(mission.id));
   }, [theme, mission.id]);
+
+  // The previous question's reading stops first (declared before the effect that reads the new one)
+  useStopSpeechOnChange(currentStepIdx);
 
   // Early readers hear each question as it opens (the start tap already unlocked the audio)
   useEffect(() => {

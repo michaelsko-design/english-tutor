@@ -27,7 +27,7 @@ import {
 } from '../drills';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { WordListSessionResult } from './WordListSessionResult';
-import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
+import { useStopSpeechOnChange, useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { useDrillSession } from '../../hooks/useDrillSession';
 
 export type WordListSessionNext = 'lists' | 'retry';
@@ -80,6 +80,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   const step = steps[stepIdx];
   const isLast = stepIdx === steps.length - 1;
 
+  useStopSpeechOnChange(stepIdx);
   useEffect(() => {
     setLetterSlots([]);
     setSpeechEval(null);

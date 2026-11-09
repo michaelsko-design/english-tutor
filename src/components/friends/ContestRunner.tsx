@@ -14,7 +14,7 @@ import {
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { isolateLtr } from '../../utils/bidi';
 import { MagnetChange } from '../../utils/magnetOrder';
-import { useStopSpeechOnLeave } from '../../hooks/useSpeech';
+import { useStopSpeechOnChange, useStopSpeechOnLeave } from '../../hooks/useSpeech';
 import { useGradeCurriculum } from '../../hooks/useGradeCurricula';
 import { normalizeSentence, useDrillSession } from '../../hooks/useDrillSession';
 import { Button } from '../ui/Button';
@@ -70,6 +70,7 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
   const step = steps[stepIdx];
   const isLast = stepIdx === steps.length - 1;
 
+  useStopSpeechOnChange(stepIdx);
   useEffect(() => {
     if (finishedMs !== null) return;
     const timer = window.setInterval(() => setElapsedMs(Date.now() - startedAtRef.current), TICK_MS);
