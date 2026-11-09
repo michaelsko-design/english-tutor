@@ -1,16 +1,17 @@
 /**
- * POST /api/funnel { event }: counts one step of the sign-up funnel before an account exists
+ * POST /api/owner-stats { event } (the same function file as the owner stats: Vercel Hobby allows 12
+ * functions, so the counter is a method of that file): counts one step of the sign-up funnel before an account exists
  * (src/services/analytics/events.ts FUNNEL_EVENTS). There is no learner to tie it to, so it adds 1
  * to a counter in one document per day (`funnelDaily/{day}`) and stores nothing else: no address,
  * no device, no id. Only allow-listed event names count; an address is limited per hour so a script
  * can't swamp the numbers. The count is a brake, not a quota (see _lib/rateLimit.ts).
  */
-import { createFirestoreAdmin, type FirestoreAdmin } from './_lib/firestoreAdmin.js';
-import { parseServiceAccount } from './_lib/googleAdmin.js';
-import { israelDateStr } from './_lib/ownerStats.js';
-import { errorResponse, firebaseProjectId, readJsonBody } from './_lib/parentRequest.js';
-import { createRateLimiter } from './_lib/rateLimit.js';
-import { FUNNEL_DAILY_COLLECTION, isFunnelEvent } from '../src/services/analytics/events.js';
+import { createFirestoreAdmin, type FirestoreAdmin } from './firestoreAdmin.js';
+import { parseServiceAccount } from './googleAdmin.js';
+import { israelDateStr } from './ownerStats.js';
+import { errorResponse, firebaseProjectId, readJsonBody } from './parentRequest.js';
+import { createRateLimiter } from './rateLimit.js';
+import { FUNNEL_DAILY_COLLECTION, isFunnelEvent } from '../../src/services/analytics/events.js';
 
 const MAX_BODY_BYTES = 128;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
@@ -51,8 +52,4 @@ export async function handleFunnelRequest(
     // Counting is best effort: the caller never needs to know
     return errorResponse(502, 'Could not count');
   }
-}
-
-export function POST(request: Request): Promise<Response> {
-  return handleFunnelRequest(request, process.env);
 }

@@ -74,7 +74,7 @@ export const MAX_DAILY_COUNT = 1_000_000;
 
 /**
  * The steps before an account exists. They can't be tied to a learner (there is no uid yet), so they
- * are counted by the anonymous `/api/funnel` function into one document per day, not per learner.
+ * are counted by the anonymous funnel counter (a method of the owner-stats function) into one document per day, not per learner.
  */
 export const FUNNEL_EVENTS = [
   'gate_view',

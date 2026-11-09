@@ -1,7 +1,8 @@
 import { isFirebaseConfigured } from '../firebase';
 import { isFunnelEvent, type FunnelEvent } from './events';
 
-const FUNNEL_URL = '/api/funnel';
+/** A method of the owner-stats function file (see api/_lib/funnelCounter.ts): Vercel Hobby allows 12 functions */
+const FUNNEL_URL = '/api/owner-stats';
 
 /** Off in unit tests, and when Firebase is not configured (the local no-cloud mode has no API) */
 const isEnabled = (): boolean => isFirebaseConfigured && !import.meta.env.VITEST;

@@ -27,9 +27,6 @@
     "api/pro-reconcile.ts": {
       "maxDuration": 60
     },
-    "api/funnel.ts": {
-      "maxDuration": 10
-    },
     "api/owner-stats.ts": {
       "maxDuration": 60
     },

@@ -9,7 +9,7 @@ describe('trackFunnel', () => {
     trackFunnel('gate_view', send, true);
     trackFunnel('gate_view', send, true);
     expect(send).toHaveBeenCalledTimes(1);
-    expect(send).toHaveBeenCalledWith('/api/funnel', expect.objectContaining({ method: 'POST', body: JSON.stringify({ event: 'gate_view' }) }));
+    expect(send).toHaveBeenCalledWith('/api/owner-stats', expect.objectContaining({ method: 'POST', body: JSON.stringify({ event: 'gate_view' }) }));
   });
 
   it('does nothing when analytics are off', () => {

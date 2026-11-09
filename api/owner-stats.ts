@@ -3,6 +3,7 @@
  * account may call it (`OWNER_UID`, the uid of that account); the answer holds aggregates only.
  * The same account can still be a parent: this adds a second route, it changes nothing for parents.
  */
+import { handleFunnelRequest } from './_lib/funnelCounter.js';
 import { createFirestoreAdmin } from './_lib/firestoreAdmin.js';
 import { AdminError, createAuthAdmin } from './_lib/googleAdmin.js';
 import { authenticateOwner } from './_lib/ownerRequest.js';
@@ -99,4 +100,9 @@ export async function handleOwnerStatsRequest(
 
 export function GET(request: Request): Promise<Response> {
   return handleOwnerStatsRequest(request, process.env);
+}
+
+/** The anonymous sign-up counter (src/services/analytics/funnel.ts); it shares this file to stay within the function limit */
+export function POST(request: Request): Promise<Response> {
+  return handleFunnelRequest(request, process.env);
 }

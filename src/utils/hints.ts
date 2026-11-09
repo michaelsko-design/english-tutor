@@ -206,7 +206,7 @@ const PRONUNCIATION_RULES: PronunciationRule[] = [
   },
 ];
 
-const PRONUNCIATION_FALLBACK_HE = 'טיפ: כדאי להאזין קודם ב-🐢 ואז להקיש על מילה קשה כדי לשמוע אותה לבד.';
+const PRONUNCIATION_FALLBACK_HE = 'טיפ: כדאי להאזין קודם בהשמעה האיטית 🐢 ואז להקיש על מילה קשה כדי לשמוע אותה לבד.';
 
 /**
  * A pronunciation tip for the first tricky sound in the sentence, looking at content words

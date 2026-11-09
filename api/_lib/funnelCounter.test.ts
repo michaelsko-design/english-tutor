@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
-import { handleFunnelRequest } from './funnel';
-import { createFakeFirestore } from './_lib/testing/fakeFirestoreAdmin';
-import { SERVICE_ACCOUNT_JSON } from './_lib/testing/parentRequestFixtures';
+import { handleFunnelRequest } from './funnelCounter';
+import { createFakeFirestore } from './testing/fakeFirestoreAdmin';
+import { SERVICE_ACCOUNT_JSON } from './testing/parentRequestFixtures';
 
 const NOW = Date.UTC(2026, 9, 29, 10);
 const ENV = { FIREBASE_SERVICE_ACCOUNT_JSON: SERVICE_ACCOUNT_JSON };
 
 const post = (body: unknown, method = 'POST') =>
-  new Request('https://app.test/api/funnel', { method, ...(method === 'POST' ? { body: JSON.stringify(body) } : {}) });
+  new Request('https://app.test/api/owner-stats', { method, ...(method === 'POST' ? { body: JSON.stringify(body) } : {}) });
 
 function setup(extra: Partial<Parameters<typeof handleFunnelRequest>[2]> = {}) {
   const fake = createFakeFirestore();
@@ -34,7 +34,7 @@ describe('handleFunnelRequest', () => {
   it('refuses other methods, bad bodies and an unconfigured server', async () => {
     const { deps } = setup();
     expect((await handleFunnelRequest(post(null, 'GET'), ENV, deps)).status).toBe(405);
-    expect((await handleFunnelRequest(new Request('https://app.test/api/funnel', { method: 'POST', body: 'nope' }), ENV, deps)).status).toBe(400);
+    expect((await handleFunnelRequest(new Request('https://app.test/api/owner-stats', { method: 'POST', body: 'nope' }), ENV, deps)).status).toBe(400);
     expect((await handleFunnelRequest(post({ event: 'gate_view' }), {}, deps)).status).toBe(503);
   });
 

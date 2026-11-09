@@ -41,7 +41,7 @@ export interface StuckMission {
   tiers: { explorer: number; challenger: number; master: number };
 }
 
-/** One day of the anonymous sign-up counters (collection `funnelDaily`, written by api/funnel.ts) */
+/** One day of the anonymous sign-up counters (collection `funnelDaily`, written by api/_lib/funnelCounter.ts) */
 export interface FunnelDayRow {
   day: string;
   counts: Partial<Record<FunnelEvent, number>>;
