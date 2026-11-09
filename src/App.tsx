@@ -74,7 +74,6 @@ export function App() {
   });
 
   const [isEditingOnboarding, setIsEditingOnboarding] = useState<boolean>(false);
-  /** True right after first-time onboarding, while the placement test is being offered */
   /** Grades 1–2: the letters lesson that follows the welcome chest (this session only) */
   const [isOfferingFirstLesson, setIsOfferingFirstLesson] = useState<boolean>(false);
   /** Grade 3 and up: the first mission that opens by itself after the welcome chest (this session only) */
@@ -452,7 +451,7 @@ export function App() {
         onComplete={(updated) => {
           handleUpdateProfile(updated);
           trackEvent('onboarding_done');
-              }}
+        }}
       />
       </Suspense>
       </ProAccessContext.Provider>
