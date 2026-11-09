@@ -23,6 +23,7 @@ import { GradeSelect } from './settings/GradeSelect';
 import { GenderAgeFields, NameField, ShabbatToggle, ThemePicker } from './settings/ProfileFields';
 import { canUseTheme } from '../data/proGate';
 import { useProAccess } from '../hooks/useProAccess';
+import { trackEvent } from '../services/analytics';
 
 interface OnboardingViewProps {
   initialProfile: LearnerProfile;
@@ -48,6 +49,10 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, 
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const isChild = age < PARENT_APPROVAL_AGE;
+
+  useEffect(() => {
+    trackEvent('onboarding_view');
+  }, []);
 
   // Warm every pose of each theme's mascot now, so the tour (which follows) never waits on art
   useEffect(() => {

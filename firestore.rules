@@ -563,7 +563,8 @@ service cloud.firestore {
         && isShortString(request.resource.data.gradeId, 20)
         && request.resource.data.counts is map
         && request.resource.data.counts.keys().hasOnly([
-          'session_start', 'onboarding_done', 'placement_done', 'mission_finish',
+          'session_start', 'onboarding_view', 'onboarding_done', 'greeting_done', 'tour_done',
+          'placement_done', 'mission_finish',
           'mission_finish_tier_explorer', 'mission_finish_tier_challenger',
           'mission_finish_tier_master', 'mission_three_stars',
           'mission_start', 'mission_abandon', 'hint_used', 'tts_error',

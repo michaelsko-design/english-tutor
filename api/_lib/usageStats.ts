@@ -45,7 +45,16 @@ export interface UsageStats {
   /** False until the first counter arrives, so the dashboard can say "collecting" instead of 0% */
   hasData: boolean;
   /** Distinct learners who reached each step in the window */
-  funnel: { sessions: number; onboarded: number; placed: number; firstMission: number; threeStars: number };
+  funnel: {
+    sessions: number;
+    onboardingViewed: number;
+    onboarded: number;
+    greeted: number;
+    toured: number;
+    placed: number;
+    firstMission: number;
+    threeStars: number;
+  };
   /** Missions finished in the window, by tier */
   missionsByTier: { explorer: number; challenger: number; master: number };
   /** Share of learners (first seen at least N days ago) who came back exactly N days later; null with no cohort yet */
@@ -213,7 +222,16 @@ export function computeUsageStats(
   missionRows: readonly MissionStruggleRow[] = []
 ): UsageStats {
   const windowStart = addDaysToDateStr(todayStr, -(OWNER_STATS_DAYS - 1));
-  const reached = { sessions: new Set<string>(), onboarded: new Set<string>(), placed: new Set<string>(), firstMission: new Set<string>(), threeStars: new Set<string>() };
+  const reached = {
+    sessions: new Set<string>(),
+    onboardingViewed: new Set<string>(),
+    onboarded: new Set<string>(),
+    greeted: new Set<string>(),
+    toured: new Set<string>(),
+    placed: new Set<string>(),
+    firstMission: new Set<string>(),
+    threeStars: new Set<string>(),
+  };
   const tiers = { explorer: 0, challenger: 0, master: 0 };
   const firstSeen = new Map<string, string>();
   const seenDays = new Map<string, Set<string>>();
@@ -238,7 +256,10 @@ export function computeUsageStats(
       deviceLastSeen.set(uid, new Map(seen).set(device, !last || day > last ? day : last));
     }
     if (counts.session_start) reached.sessions.add(uid);
+    if (counts.onboarding_view) reached.onboardingViewed.add(uid);
     if (counts.onboarding_done) reached.onboarded.add(uid);
+    if (counts.greeting_done) reached.greeted.add(uid);
+    if (counts.tour_done) reached.toured.add(uid);
     if (counts.placement_done) reached.placed.add(uid);
     if (counts.mission_finish) reached.firstMission.add(uid);
     if (counts.mission_three_stars) reached.threeStars.add(uid);
@@ -282,7 +303,10 @@ export function computeUsageStats(
     hasData: analyticsRows.length > 0,
     funnel: {
       sessions: reached.sessions.size,
+      onboardingViewed: reached.onboardingViewed.size,
       onboarded: reached.onboarded.size,
+      greeted: reached.greeted.size,
+      toured: reached.toured.size,
       placed: reached.placed.size,
       firstMission: reached.firstMission.size,
       threeStars: reached.threeStars.size,

@@ -470,6 +470,7 @@ export function App() {
         welcomeGems={WELCOME_GIFT_DIAMONDS}
         onDone={() => {
           handleUpdateProfile({ ...profileRef.current, hasSeenWelcomeGiftModal: true });
+          trackEvent('greeting_done');
           setIsOfferingTour(true);
         }}
       />
@@ -493,7 +494,10 @@ export function App() {
               ? 'בואי נשחק! 🚀'
               : 'בוא נשחק! 🚀'
           }
-          onDone={() => setIsOfferingTour(false)}
+          onDone={() => {
+            trackEvent('tour_done');
+            setIsOfferingTour(false);
+          }}
         />
         </Suspense>
       </div>

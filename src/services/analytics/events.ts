@@ -5,7 +5,10 @@
 
 export const ANALYTICS_EVENTS = [
   'session_start',
+  'onboarding_view',
   'onboarding_done',
+  'greeting_done',
+  'tour_done',
   'placement_done',
   'mission_finish',
   'mission_finish_tier_explorer',

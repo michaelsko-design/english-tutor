@@ -9,7 +9,10 @@ type Usage = NonNullable<OwnerStats['usage']>;
 
 const FUNNEL_STEPS: Array<{ key: keyof Usage['funnel']; label: string }> = [
   { key: 'sessions', label: 'Opened the app' },
+  { key: 'onboardingViewed', label: 'Saw the onboarding form' },
   { key: 'onboarded', label: 'Finished onboarding' },
+  { key: 'greeted', label: 'Opened the welcome chest' },
+  { key: 'toured', label: 'Finished the app tour' },
   { key: 'placed', label: 'Took the placement test' },
   { key: 'firstMission', label: 'Finished a mission' },
   { key: 'threeStars', label: 'Earned 3 stars' },
