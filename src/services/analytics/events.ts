@@ -10,6 +10,7 @@ export const ANALYTICS_EVENTS = [
   'greeting_done',
   'first_lesson_done',
   'reminder_opt_in',
+  'welcome_back_claimed',
   'tour_done',
   'placement_done',
   'mission_finish',

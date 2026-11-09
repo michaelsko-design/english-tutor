@@ -54,6 +54,7 @@ import { NewPackCard } from './home/NewPackCard';
 import { ParentNoticeCard } from './home/ParentNoticeCard';
 import { ParentNudgeCard } from './home/ParentNudgeCard';
 import { ReminderNudgeCard } from './home/ReminderNudgeCard';
+import { WelcomeBackCard } from './home/WelcomeBackCard';
 import { readSeenPacks, rememberSeenPack } from './home/seenPacks';
 import { getNewPackOffer } from '../data/contentPacks';
 import { StatsSheet } from './home/StatsSheet';
@@ -543,6 +544,9 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             onClose={() => dismissPackOffer(newPackOffer.pack.id)}
           />
         )}
+
+        {/* A ONE-TIME GIFT FOR A NEW LEARNER COMING BACK AFTER THEIR FIRST DAY */}
+        <WelcomeBackCard profile={profile} theme={theme} todayStr={todayStr} onUpdateProfile={onUpdateProfile} />
 
         {/* A PARENT JOINED, OR RESET THE PIN: THE LEARNER IS TOLD */}
         <ParentNoticeCard profile={profile} theme={theme} />

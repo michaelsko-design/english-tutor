@@ -370,6 +370,8 @@ export interface LearnerProfile {
   hasSeenWelcomeGiftModal?: boolean;
   /** Whether the one-time diamonds for turning on the daily reminder were paid (data/reminderReward.ts) */
   hasEarnedReminderReward?: boolean;
+  /** Whether the one-time day-2 "welcome back" gift was claimed (data/welcomeBack.ts) */
+  hasClaimedWelcomeBack?: boolean;
   /** Latest diagnostic placement test result, if the learner has taken it */
   placementResult?: PlacementResult;
   /** Active exam preparation plan, if the learner created one */

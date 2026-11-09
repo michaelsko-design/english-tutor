@@ -300,6 +300,22 @@ describe('DashboardView missions', () => {
   });
 });
 
+describe('DashboardView welcome-back gift', () => {
+  it('offers the one-time gift to a new learner coming back, and claims it into the profile', async () => {
+    const base = makeProfile({});
+    const user = setup(
+      makeProfile({ stats: { ...base.stats, totalActiveDays: 1, streakLastDateStr: '2000-01-01', diamonds: 50 } })
+    );
+    await user.click(screen.getByRole('button', { name: 'לוקחים את המתנה' }));
+    expect(lastUpdate()).toMatchObject({ hasClaimedWelcomeBack: true, stats: { diamonds: 70 } });
+  });
+
+  it('shows no gift on an ordinary visit', () => {
+    setup();
+    expect(screen.queryByRole('region', { name: 'מתנת ברוכים השבים' })).not.toBeInTheDocument();
+  });
+});
+
 describe('DashboardView first mission (grades 3 and up)', () => {
   it('opens the suggested mission at once, with its tier already chosen', () => {
     setup(makeProfile({}), { onFirstMissionDone: vi.fn() });

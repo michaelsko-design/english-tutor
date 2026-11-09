@@ -668,3 +668,14 @@ describe('mergeLearnerProfiles missionTierStars', () => {
     expect(mergeLearnerProfiles(baseProfile, {}).missionTierStars).toBeUndefined();
   });
 });
+
+describe('mergeLearnerProfiles hasClaimedWelcomeBack', () => {
+  it('keeps the claim from either side, so the gift is never paid twice after a sync', () => {
+    expect(mergeLearnerProfiles({ ...baseProfile, hasClaimedWelcomeBack: true }, baseProfile).hasClaimedWelcomeBack).toBe(true);
+    expect(mergeLearnerProfiles(baseProfile, { ...baseProfile, hasClaimedWelcomeBack: true }).hasClaimedWelcomeBack).toBe(true);
+  });
+
+  it('leaves the field out when neither side claimed', () => {
+    expect('hasClaimedWelcomeBack' in mergeLearnerProfiles(baseProfile, baseProfile)).toBe(false);
+  });
+});
