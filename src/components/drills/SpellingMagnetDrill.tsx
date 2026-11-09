@@ -39,7 +39,12 @@ interface SpellingMagnetDrillProps {
 const SPELLED_CHAR = /[A-Za-z0-9]/;
 /** Six w-11 tiles with their gaps fit a 360px phone; more are split into even rows */
 const MAX_TILES_PER_ROW = 6;
+/** A single word up to this many slots stays on one line; longer ones split into even rows */
+const MAX_ONE_LINE_SLOTS = 9;
+/** Phrases wrap on their word gaps, so their slots keep a fixed size */
 const SLOT_CLASS = 'w-9 h-11 rounded-xl flex transition-shadow';
+/** Single-word slots share the row and shrink (never below min-w-0) instead of wrapping */
+const FLEX_SLOT_CLASS = 'flex-1 basis-0 min-w-0 max-w-9 h-11 rounded-xl flex transition-shadow';
 const OPEN_SLOT_CLASS = 'border-2 border-dashed border-purple-400/50 bg-black/5 dark:bg-white/5';
 const SLOT_OVER_CLASS = 'ring-2 ring-purple-400/80';
 const ZONE_OVER_CLASS = 'ring-2 ring-purple-400/70';
@@ -95,6 +100,8 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
   };
 
   // Lay out the word's letter slots, keeping spaces and punctuation fixed.
+  const isSingleWord = !targetEn.includes(' ');
+  const slotClass = isSingleWord ? FLEX_SLOT_CLASS : SLOT_CLASS;
   let letterPos = 0;
   const slotElements = targetEn.split('').map((ch, charIdx) => {
     if (!SPELLED_CHAR.test(ch)) {
@@ -113,7 +120,7 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
       <LetterSlot
         key={`slot-${pos}`}
         pos={pos}
-        className={`${SLOT_CLASS} ${tileIdx === null || tileIdx === undefined ? OPEN_SLOT_CLASS : ''}`}
+        className={`${slotClass} ${tileIdx === null || tileIdx === undefined ? OPEN_SLOT_CLASS : ''}`}
         overClassName={SLOT_OVER_CLASS}
       >
         {tileIdx !== null && tileIdx !== undefined && (
@@ -155,11 +162,19 @@ export const SpellingMagnetDrill: React.FC<SpellingMagnetDrillProps> = ({
         {/* Letter slots */}
         <div
           aria-label="המילה"
-          className="min-h-[56px] sm:min-h-[68px] p-3 rounded-2xl bg-black/5 dark:bg-white/5 flex flex-wrap items-center justify-center gap-1.5"
+          className={`min-h-[56px] sm:min-h-[68px] p-3 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center ${
+            isSingleWord ? 'flex-col gap-1.5' : 'flex-wrap gap-1.5'
+          }`}
           dir="ltr"
           lang="en"
         >
-          {slotElements}
+          {isSingleWord
+            ? splitIntoBalancedRows(slotElements, MAX_ONE_LINE_SLOTS).map((row, rowIdx) => (
+                <div key={`slot-row-${rowIdx}`} className="flex w-full flex-nowrap items-center justify-center gap-1">
+                  {row}
+                </div>
+              ))
+            : slotElements}
         </div>
 
         {/* Letter tiles */}

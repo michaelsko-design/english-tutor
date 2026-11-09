@@ -28,6 +28,28 @@ function renderDrill(props: Partial<React.ComponentProps<typeof SpellingMagnetDr
   return { onSpeakEnglish, onChangeSlots };
 }
 
+function slotRowSizes(): number[] {
+  const word = screen.getByLabelText('המילה');
+  return Array.from(word.children).map((row) => row.children.length);
+}
+
+describe('SpellingMagnetDrill slot layout', () => {
+  it('keeps a 7-letter word on one row', () => {
+    renderDrill({ targetEn: 'monster', letterTiles: [...'monster'] });
+    expect(slotRowSizes()).toEqual([7]);
+  });
+
+  it('splits a 12-letter word into even rows', () => {
+    renderDrill({ targetEn: 'refrigerator'.slice(0, 12), letterTiles: [...'refrigerator'.slice(0, 12)] });
+    expect(slotRowSizes()).toEqual([6, 6]);
+  });
+
+  it('lets a phrase wrap on its own, without row containers', () => {
+    renderDrill({ targetEn: 'ice cream', letterTiles: [...'icecream'] });
+    expect(screen.getByLabelText('המילה').className).toContain('flex-wrap');
+  });
+});
+
 describe('SpellingMagnetDrill letter audio', () => {
   it('says the letter name when a tile is tapped, and still places it', async () => {
     const user = userEvent.setup();
