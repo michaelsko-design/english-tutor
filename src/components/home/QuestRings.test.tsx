@@ -35,7 +35,7 @@ describe('QuestRings', () => {
 
   it('announces one waiting reward', () => {
     setup([ring({ id: 'a', state: 'ready', ratio: 1, current: 3 })]);
-    expect(screen.getByText(/פרס אחד מחכה/)).toBeInTheDocument();
+    expect(screen.getByText(/פרס מחכה לכם – לחצו לאיסוף/)).toBeInTheDocument();
   });
 
   it('announces several waiting rewards', () => {
