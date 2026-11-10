@@ -33,7 +33,7 @@ That is **57 words = 7 sheets of 9** (6 slots spare).
 
 **Optional, grades 7–12** (no test needs these): café, purse, croissant, furniture, package, goods, metal, device, vehicle, tool, engineer, selfie, date of birth, nationality, resort, cab, laser, tube, pump, powder, liquid, layer, spy, barrier. That is 24 more words, or 3 sheets.
 
-## 3. Hebrew to approve
+## 3. Hebrew: all approved by the owner (2026-11-10)
 
 ### Season 2 word decks
 - **Grade 1:**
@@ -142,6 +142,6 @@ That is **57 words = 7 sheets of 9** (6 slots spare).
 ## 5. Content choices to confirm
 - **Grade 5 core-3 words taught a year early:** try, computer, study, problem, understand, difficult, different and parent are taught in a base grade 6 mission, and core-3 now teaches them a year earlier. The roadmap's word-choice rule 2 allows this. Keep them, or swap them for words that are never in the app.
 - **"would prefer" in grade 7** is kept, although base grade 7 teaches "prefer". It is a separate Ministry entry.
-- **Spelling:** the grades 10–12 texts mix US forms (neighbor, center, jewelry) with UK forms (colour, mould, travelling). Pick one.
+- [x] **Spelling:** US everywhere (owner, 2026-11-10).
 - **Grammar later than the Ministry's grade:** the past perfect continuous (grade 11) and adverbs of sequencing (grade 12) have missions after the Ministry's grade 10.
 - **Small decks:** grade 5 Weather has 13 words and grade 4 Body & Health has 15, because Band I has few untaught words on those topics.
