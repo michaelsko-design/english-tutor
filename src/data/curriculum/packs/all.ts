@@ -5,10 +5,11 @@ import type { ExamBankPack } from '../examBank/types';
 import { ALL_LESSON_PACKS } from '../lessons';
 import type { LessonPack } from '../lessons/types';
 import type { GradeCurriculumPack } from '../types';
+import { CORE_3_EXAM_BANKS, CORE_3_LESSONS } from './core3/all';
 import { HOLIDAYS_EXAM_BANKS, HOLIDAYS_LESSONS } from './holidays/all';
 import { SEASON2_EXAM_BANKS, SEASON2_LESSONS } from './season2/all';
 import { ALL_PACK_CURRICULA } from './index';
-import { mergeExamBank, mergeLessonPacks, withPacks } from './merge';
+import { mergeExamBank, mergeLessonPacks, packsInGrade, withPacks } from './merge';
 import { CONTENT_PACK_IDS, CONTENT_PACKS } from './registry';
 import type { ContentPackId, PackContent } from './types';
 
@@ -16,6 +17,7 @@ import type { ContentPackId, PackContent } from './types';
 const PACK_SOURCE_CONTENT: Record<ContentPackId, Pick<PackContent, 'lessons' | 'examBanks'>> = {
   'season2-1': { lessons: SEASON2_LESSONS, examBanks: SEASON2_EXAM_BANKS },
   'season2-2': { lessons: SEASON2_LESSONS, examBanks: SEASON2_EXAM_BANKS },
+  'core-3': { lessons: CORE_3_LESSONS, examBanks: CORE_3_EXAM_BANKS },
   'holidays-autumn': { lessons: HOLIDAYS_LESSONS, examBanks: HOLIDAYS_EXAM_BANKS },
   'holidays-spring': { lessons: HOLIDAYS_LESSONS, examBanks: HOLIDAYS_EXAM_BANKS },
 };
@@ -47,7 +49,7 @@ export function getContentWithPacks(packIds: readonly ContentPackId[]): ContentW
   const lessons: Record<number, LessonPack> = Object.fromEntries(
     Object.entries(ALL_LESSON_PACKS).map(([grade, base]) => [
       grade,
-      mergeLessonPacks(base, contents.flatMap((content) => listed(content.lessons[Number(grade)]))),
+      mergeLessonPacks(base, packsInGrade(contents, Number(grade)).flatMap((content) => listed(content.lessons[Number(grade)]))),
     ])
   );
   const examBanks: Partial<Record<number, ExamBankPack>> = Object.fromEntries(
@@ -55,7 +57,7 @@ export function getContentWithPacks(packIds: readonly ContentPackId[]): ContentW
       grade,
       mergeExamBank(
         bank ?? {},
-        contents.flatMap((content) => listed(content.examBanks[Number(grade)])),
+        packsInGrade(contents, Number(grade)).flatMap((content) => listed(content.examBanks[Number(grade)])),
         curriculum[`grade-${grade}` as GradeId].units
       ),
     ])

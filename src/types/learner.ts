@@ -89,6 +89,18 @@ export interface VaultPracticeDay {
   words: string[];
 }
 
+/**
+ * One Ministry deck word on its way to mastery (src/data/wordDecks): the local days (`YYYY-MM-DD`)
+ * it was answered right on the first try in a deck session, the earliest two at most, and the day
+ * it counted as mastered (the second such day).
+ */
+export interface DeckWordMastery {
+  wordEn: string;
+  translationHe: string;
+  firstTryDays: string[];
+  masteredOn?: string;
+}
+
 /** One local day of learning activity, kept for the weekly parent report (Feature 9). */
 export interface ActivityLogEntry {
   /** Local date, YYYY-MM-DD */
@@ -392,6 +404,10 @@ export interface LearnerProfile {
   missionRewardDates?: Record<string, string>;
   /** Vault words rewarded today */
   vaultPractice?: VaultPracticeDay;
+  /** Ministry deck words by `deckWordKey`: first-try days and mastery (data/wordDecks/deckMastery.ts) */
+  deckWordMastery?: Record<string, DeckWordMastery>;
+  /** Deck id -> local date of its last full reward, so a deck pays in full once a day */
+  deckRewardDates?: Record<string, string>;
   createdAt: string;
   /** ISO timestamp of the latest profile update for conflict resolution */
   updatedAt?: string;

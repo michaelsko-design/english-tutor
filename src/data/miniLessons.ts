@@ -8,7 +8,7 @@
 import type { MissionNode } from './curriculum';
 import type { LessonPack, MiniLesson } from './curriculum/lessons/types';
 import { ALL_PACK_LESSON_LOADERS } from './curriculum/packs';
-import { mergeLessonPacks } from './curriculum/packs/merge';
+import { mergeLessonPacks, packLoadersInGrade } from './curriculum/packs/merge';
 import { IS_PACK_PREVIEW } from './curriculum/packs/registry';
 import type { ContentPackId, PackLessonLoaders } from './curriculum/packs/types';
 
@@ -42,7 +42,7 @@ const PACK_LESSON_LOADERS: Partial<Record<ContentPackId, PackLessonLoaders>> = I
 
 /** The grade's lessons with the released packs' lessons; a pack's lessons load with its grade's. */
 async function loadGradeLessons(grade: number, loadPack: () => Promise<LessonPack>): Promise<LessonPack> {
-  const packLoads = Object.values(PACK_LESSON_LOADERS).flatMap((loaders) => loaders?.[grade] ?? []);
+  const packLoads = packLoadersInGrade(PACK_LESSON_LOADERS, grade);
   const [base, ...packLessons] = await Promise.all([loadPack(), ...packLoads.map((load) => load())]);
   return packLessons.length === 0 ? base : mergeLessonPacks(base, packLessons);
 }

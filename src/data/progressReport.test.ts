@@ -194,6 +194,19 @@ describe('buildWeeklyReport', () => {
     expect(words).toEqual(['fluffy', 'friendly', 'favorite']);
   });
 
+  it('adds the Ministry deck words mastered this week, a word already listed once', () => {
+    const deckWordMastery = {
+      fluffy: { wordEn: 'fluffy', translationHe: 'רך', firstTryDays: ['2026-10-12', '2026-10-13'], masteredOn: '2026-10-13' },
+      apple: { wordEn: 'apple', translationHe: 'תפוח', firstTryDays: ['2026-10-12', '2026-10-14'], masteredOn: '2026-10-14' },
+      bread: { wordEn: 'bread', translationHe: 'לחם', firstTryDays: ['2026-10-12'] },
+    };
+    const report = buildWeeklyReport({ ...profile, deckWordMastery }, WEEK, TODAY);
+
+    expect(report.newMasteredWords.map((word) => word.wordEn)).toEqual(['fluffy', 'friendly', 'favorite', 'apple']);
+    expect(report.overall.masteredWordCount).toBe(getOverallProgress(profile, TODAY).masteredWordCount + 1);
+    expect(buildWeeklyReport({ ...profile, deckWordMastery }, '2026-10-18', TODAY).newMasteredWords).toEqual([]);
+  });
+
   it('reports an empty past week as all missed', () => {
     const report = buildWeeklyReport(profile, '2026-09-27', TODAY);
 
@@ -242,6 +255,17 @@ describe('countMasteredWords', () => {
 
     expect(both).toBe(collectMissionWords(['g1-u4-m2', 'g2-u1-m1']).length);
     expect(both).toBeLessThan(separate);
+  });
+
+  it('adds the mastered Ministry deck words, a word already in a mission counted once', () => {
+    const deckMastery = {
+      fluffy: { wordEn: 'fluffy', translationHe: 'רך', firstTryDays: ['2026-10-12', '2026-10-13'], masteredOn: '2026-10-13' },
+      apple: { wordEn: 'apple', translationHe: 'תפוח', firstTryDays: ['2026-10-12', '2026-10-14'], masteredOn: '2026-10-14' },
+      bread: { wordEn: 'bread', translationHe: 'לחם', firstTryDays: ['2026-10-12'] },
+    };
+
+    expect(countMasteredWords({ 'g5-u1-m1': 3 }, deckMastery)).toBe(countMasteredWords({ 'g5-u1-m1': 3 }) + 1);
+    expect(countMasteredWords({}, deckMastery)).toBe(2);
   });
 
   it('is zero before any mission has 3 stars', () => {

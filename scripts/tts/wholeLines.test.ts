@@ -19,10 +19,13 @@ describe('partsOfLine', () => {
   });
 });
 
+const CORPUS_TIMEOUT_MS = 60_000;
+
 describe('buildWholeLines', () => {
   it('finds the lines of the corpus that start with an opener', () => {
     const lines = buildWholeLines();
     expect(lines.length).toBeGreaterThan(100);
     expect(lines.every((line) => line.parts.length === 2)).toBe(true);
-  });
+    // Builds the whole Hebrew corpus: about 2 s alone, much longer while the full suite runs
+  }, CORPUS_TIMEOUT_MS);
 });

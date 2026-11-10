@@ -1,0 +1,68 @@
+import type { GradeDecks } from './types';
+
+/**
+ * Grade 8's Ministry word decks (docs/content-packs-roadmap.md §3). Each deck is written with the
+ * core pack it ships with and stays hidden until that pack is released.
+ */
+export const GRADE_8_DECKS: GradeDecks = [
+  {
+    id: 'g8-season2-1-crime',
+    packId: 'season2-1',
+    topicEn: 'Mystery & Crime',
+    topicHe: 'תעלומות ופשע',
+    items: [
+      { wordEn: 'murder', translationHe: 'רצח', partOfSpeech: 'n', exampleEn: 'The detective is trying to solve the murder.', exampleHe: 'הבלש מנסה לפענח את הרצח.', ministryList: 'band-2-core-1', recProd: 'prod' },
+      { wordEn: 'jail', translationHe: 'כלא', partOfSpeech: 'n', exampleEn: 'The thief spent two years in jail.', exampleHe: 'הגנב ישב שנתיים בכלא.', ministryList: 'band-2-core-1', recProd: 'prod' },
+      { wordEn: 'arrest', translationHe: 'לעצור (חשוד)', partOfSpeech: 'v', exampleEn: 'The police arrested the man at the airport.', exampleHe: 'המשטרה עצרה את האיש בשדה התעופה.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'violence', translationHe: 'אלימות', partOfSpeech: 'n', exampleEn: 'There is no place for violence at school.', exampleHe: 'אין מקום לאלימות בבית הספר.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'fault', translationHe: 'אשמה', partOfSpeech: 'n', exampleEn: 'It was not my fault.', exampleHe: 'זו לא הייתה אשמתי.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'illegal', translationHe: 'לא חוקי', partOfSpeech: 'adj', exampleEn: 'It is illegal to drive without a license.', exampleHe: 'אסור על פי חוק לנהוג בלי רישיון.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'legal', translationHe: 'חוקי', partOfSpeech: 'adj', exampleEn: 'Is it legal to fly a drone here?', exampleHe: 'האם חוקי להטיס כאן רחפן?', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'blame', translationHe: 'להאשים', partOfSpeech: 'v', exampleEn: 'Everyone blamed the new student.', exampleHe: 'כולם האשימו את התלמיד החדש.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'scream', translationHe: 'לצרוח', partOfSpeech: 'v', exampleEn: 'We heard someone scream in the night.', exampleHe: 'שמענו מישהו צורח בלילה.', ministryList: 'band-2-core-1', recProd: 'prod' },
+      { wordEn: 'prison', translationHe: 'בית סוהר', partOfSpeech: 'n', exampleEn: 'He escaped from prison.', exampleHe: 'הוא ברח מבית הסוהר.', ministryList: 'band-2-core-1', recProd: 'prod' },
+      { wordEn: 'lawyer', translationHe: 'עורך דין', partOfSpeech: 'n', exampleEn: 'She wants to speak to her lawyer.', exampleHe: 'היא רוצה לדבר עם עורך הדין שלה.', ministryList: 'band-2-core-1', recProd: 'prod' },
+      { wordEn: 'court', translationHe: 'בית משפט', partOfSpeech: 'n', exampleEn: 'The case is now in court.', exampleHe: 'התיק נמצא עכשיו בבית המשפט.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'trial', translationHe: 'משפט (בבית משפט)', partOfSpeech: 'n', exampleEn: 'The trial starts next week.', exampleHe: 'המשפט מתחיל בשבוע הבא.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'commit', translationHe: 'לבצע (עבירה)', partOfSpeech: 'v', exampleEn: 'Who committed the crime?', exampleHe: 'מי ביצע את הפשע?', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'deny', translationHe: 'להכחיש', partOfSpeech: 'v', exampleEn: 'He denied taking the money.', exampleHe: 'הוא הכחיש שלקח את הכסף.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'on purpose', translationHe: 'בכוונה', partOfSpeech: 'phrase', exampleEn: 'She broke the window on purpose.', exampleHe: 'היא שברה את החלון בכוונה.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'stranger', translationHe: 'אדם זר', partOfSpeech: 'n', exampleEn: 'A stranger was waiting outside the house.', exampleHe: 'אדם זר חיכה מחוץ לבית.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'wallet', translationHe: 'ארנק', partOfSpeech: 'n', exampleEn: 'Someone stole my wallet on the bus.', exampleHe: 'מישהו גנב לי את הארנק באוטובוס.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'crime', translationHe: 'פשע', partOfSpeech: 'n', exampleEn: 'Crime in the city is going down.', exampleHe: 'הפשיעה בעיר יורדת.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'escape', translationHe: 'להימלט; לברוח', partOfSpeech: 'v', exampleEn: 'The thief escaped through the back door.', exampleHe: 'הגנב נמלט דרך הדלת האחורית.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'missing', translationHe: 'נעדר; חסר', partOfSpeech: 'adj', exampleEn: 'The painting has been missing for a week.', exampleHe: 'הציור נעדר כבר שבוע.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'guard', translationHe: 'שומר', partOfSpeech: 'n', exampleEn: 'The guard did not see anyone come in.', exampleHe: 'השומר לא ראה אף אחד נכנס.', ministryList: 'band-2-core-1', recProd: 'prod' },
+    ],
+  },
+  {
+    id: 'g8-season2-2-food',
+    packId: 'season2-2',
+    topicEn: 'Food & Culture',
+    topicHe: 'אוכל ותרבות',
+    items: [
+      { wordEn: 'culture', translationHe: 'תרבות', partOfSpeech: 'n', exampleEn: 'Food is an important part of every culture.', exampleHe: 'אוכל הוא חלק חשוב מכל תרבות.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'sausage', translationHe: 'נקניקייה', partOfSpeech: 'n', exampleEn: 'We grilled sausages in the park.', exampleHe: 'צלינו נקניקיות על האש בפארק.', ministryList: 'band-2-core-1', recProd: 'prod' },
+      { wordEn: 'toast', translationHe: 'טוסט; לחם קלוי', partOfSpeech: 'n', exampleEn: 'I had toast with butter for breakfast.', exampleHe: 'אכלתי לחם קלוי עם חמאה לארוחת בוקר.', ministryList: 'band-2-core-1', recProd: 'prod' },
+      { wordEn: 'soft drink', translationHe: 'משקה קל', partOfSpeech: 'n', exampleEn: 'Soft drinks have a lot of sugar.', exampleHe: 'במשקאות קלים יש הרבה סוכר.', ministryList: 'band-2-core-1', recProd: 'prod' },
+      { wordEn: 'fry', translationHe: 'לטגן', partOfSpeech: 'v', exampleEn: 'My grandmother fries the fish in oil.', exampleHe: 'סבתא שלי מטגנת את הדג בשמן.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'pie', translationHe: 'פשטידה; פאי', partOfSpeech: 'n', exampleEn: 'She baked an apple pie for the holiday.', exampleHe: 'היא אפתה פאי תפוחים לחג.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'roast', translationHe: 'לצלות', partOfSpeech: 'v', exampleEn: 'They roast a chicken every Friday.', exampleHe: 'הם צולים עוף כל יום שישי.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'turkey', translationHe: 'הודו (עוף)', partOfSpeech: 'n', exampleEn: 'Americans eat turkey on Thanksgiving.', exampleHe: 'האמריקאים אוכלים הודו בחג ההודיה.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'vegetarian', translationHe: 'צמחוני', partOfSpeech: 'adj', exampleEn: 'My sister is vegetarian, so she does not eat meat.', exampleHe: 'אחותי צמחונית, אז היא לא אוכלת בשר.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'set the table', translationHe: 'לערוך את השולחן', partOfSpeech: 'phrase', exampleEn: 'Before dinner, I help my mom set the table.', exampleHe: 'לפני ארוחת הערב אני עוזר לאמא שלי לערוך את השולחן.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'help yourself', translationHe: 'תתכבדו', partOfSpeech: 'phrase', exampleEn: 'There is plenty of food, so help yourself!', exampleHe: 'יש הרבה אוכל, אז תתכבדו!', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'beef', translationHe: 'בשר בקר', partOfSpeech: 'n', exampleEn: 'This burger is made of beef.', exampleHe: 'ההמבורגר הזה עשוי מבשר בקר.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'burger', translationHe: 'המבורגר', partOfSpeech: 'n', exampleEn: 'I ordered a burger and a salad.', exampleHe: 'הזמנתי המבורגר וסלט.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'cabbage', translationHe: 'כרוב', partOfSpeech: 'n', exampleEn: 'Cabbage salad is popular in Israel.', exampleHe: 'סלט כרוב פופולרי בישראל.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'flavor', translationHe: 'טעם', partOfSpeech: 'n', exampleEn: 'Chocolate is the most popular ice cream flavor.', exampleHe: 'שוקולד הוא טעם הגלידה הפופולרי ביותר.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'stir', translationHe: 'לערבב', partOfSpeech: 'v', exampleEn: 'Stir the soup slowly.', exampleHe: 'מערבבים את המרק לאט.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'teaspoon', translationHe: 'כפית', partOfSpeech: 'n', exampleEn: 'Add a teaspoon of salt.', exampleHe: 'מוסיפים כפית מלח.', ministryList: 'band-2-core-1', recProd: 'rec' },
+      { wordEn: 'diet', translationHe: 'תזונה; דיאטה', partOfSpeech: 'n', exampleEn: 'A healthy diet has a lot of vegetables.', exampleHe: 'בתזונה בריאה יש הרבה ירקות.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'crisp', translationHe: 'פריך', partOfSpeech: 'adj', exampleEn: 'The apples are fresh and crisp.', exampleHe: 'התפוחים טריים ופריכים.', ministryList: 'band-2-core-1', recProd: 'prod' },
+      { wordEn: 'boil', translationHe: 'להרתיח; לבשל במים', partOfSpeech: 'v', exampleEn: 'Boil the eggs for ten minutes.', exampleHe: 'מבשלים את הביצים עשר דקות.', ministryList: 'band-2-core-1', recProd: 'rec' },
+      { wordEn: 'dessert', translationHe: 'קינוח', partOfSpeech: 'n', exampleEn: 'We had chocolate cake for dessert.', exampleHe: 'אכלנו עוגת שוקולד לקינוח.', ministryList: 'band-2-core-1', recProd: 'prod' },
+      { wordEn: 'festival', translationHe: 'פסטיבל', partOfSpeech: 'n', exampleEn: 'The town has a food festival every summer.', exampleHe: 'בעיר יש פסטיבל אוכל בכל קיץ.', ministryList: 'band-2-core-2', recProd: 'prod' },
+    ],
+  },
+];

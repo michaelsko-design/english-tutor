@@ -1,0 +1,68 @@
+import type { GradeDecks } from './types';
+
+/**
+ * Grade 9's Ministry word decks (docs/content-packs-roadmap.md §3). Each deck is written with the
+ * core pack it ships with and stays hidden until that pack is released.
+ */
+export const GRADE_9_DECKS: GradeDecks = [
+  {
+    id: 'g9-season2-1-education',
+    packId: 'season2-1',
+    topicEn: 'Education',
+    topicHe: 'חינוך ולימודים',
+    items: [
+      { wordEn: 'pronounce', translationHe: 'לבטא', partOfSpeech: 'v', exampleEn: 'How do you pronounce this word?', exampleHe: 'איך מבטאים את המילה הזאת?', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'dialogue', translationHe: 'דו־שיח', partOfSpeech: 'n', exampleEn: 'We read the dialogue in pairs.', exampleHe: 'קראנו את הדו־שיח בזוגות.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'define', translationHe: 'להגדיר', partOfSpeech: 'v', exampleEn: 'Can you define the word "freedom"?', exampleHe: 'אפשר להגדיר את המילה "חופש"?', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'singular', translationHe: 'יחיד (בדקדוק)', partOfSpeech: 'adj', exampleEn: '"Child" is singular and "children" is plural.', exampleHe: '"ילד" הוא יחיד ו"ילדים" הוא רבים.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'plural', translationHe: 'רבים (בדקדוק)', partOfSpeech: 'n', exampleEn: 'What is the plural of "mouse"?', exampleHe: 'מה צורת הרבים של "mouse"?', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'college', translationHe: 'מכללה', partOfSpeech: 'n', exampleEn: 'My cousin studies art at college.', exampleHe: 'בן הדוד שלי לומד אמנות במכללה.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'by heart', translationHe: 'בעל פה', partOfSpeech: 'phrase', exampleEn: 'We learned the poem by heart.', exampleHe: 'למדנו את השיר בעל פה.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'hand in', translationHe: 'להגיש', partOfSpeech: 'phrasal v', exampleEn: 'Please hand in your projects on Sunday.', exampleHe: 'בבקשה להגיש את העבודות ביום ראשון.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'in detail', translationHe: 'בפירוט', partOfSpeech: 'phrase', exampleEn: 'The teacher explained the rule in detail.', exampleHe: 'המורה הסבירה את הכלל בפירוט.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'pay attention', translationHe: 'לשים לב', partOfSpeech: 'phrase', exampleEn: 'Pay attention to the instructions.', exampleHe: 'שימו לב להוראות.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'absent', translationHe: 'נעדר', partOfSpeech: 'adj', exampleEn: 'Three students were absent today.', exampleHe: 'שלושה תלמידים נעדרו היום.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'chapter', translationHe: 'פרק', partOfSpeech: 'n', exampleEn: 'Read the first chapter for homework.', exampleHe: 'בשיעורי הבית קוראים את הפרק הראשון.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'elementary', translationHe: 'יסודי', partOfSpeech: 'adj', exampleEn: 'My little brother goes to elementary school.', exampleHe: 'אחי הקטן לומד בבית ספר יסודי.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'underline', translationHe: 'לסמן בקו', partOfSpeech: 'v', exampleEn: 'Underline the verbs in the text.', exampleHe: 'מסמנים בקו את הפעלים בטקסט.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'translate', translationHe: 'לתרגם', partOfSpeech: 'v', exampleEn: 'Translate the sentences into Hebrew.', exampleHe: 'מתרגמים את המשפטים לעברית.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'phrase', translationHe: 'צירוף; ביטוי', partOfSpeech: 'n', exampleEn: 'Learn these useful phrases for the trip.', exampleHe: 'כדאי ללמוד את הביטויים השימושיים האלה לטיול.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'concentrate', translationHe: 'להתרכז', partOfSpeech: 'v', exampleEn: 'It is hard to concentrate when it is noisy.', exampleHe: 'קשה להתרכז כשרועש.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'encourage', translationHe: 'לעודד', partOfSpeech: 'v', exampleEn: 'Our teacher encourages us to ask questions.', exampleHe: 'המורה שלנו מעודדת אותנו לשאול שאלות.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'attend', translationHe: 'להשתתף; ללמוד ב־', partOfSpeech: 'v', exampleEn: 'All students must attend the meeting.', exampleHe: 'כל התלמידים חייבים להשתתף באסיפה.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'literature', translationHe: 'ספרות', partOfSpeech: 'n', exampleEn: 'We are reading a short story in literature class.', exampleHe: 'אנחנו קוראים סיפור קצר בשיעור ספרות.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'chemistry', translationHe: 'כימיה', partOfSpeech: 'n', exampleEn: 'We did an experiment in chemistry.', exampleHe: 'עשינו ניסוי בכימיה.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'paragraph', translationHe: 'פסקה', partOfSpeech: 'n', exampleEn: 'Write a paragraph about your hobby.', exampleHe: 'כותבים פסקה על תחביב.', ministryList: 'band-2-core-2', recProd: 'prod' },
+    ],
+  },
+  {
+    id: 'g9-season2-2-sport-society',
+    packId: 'season2-2',
+    topicEn: 'Sport & Society',
+    topicHe: 'ספורט וחברה',
+    items: [
+      { wordEn: 'league', translationHe: 'ליגה', partOfSpeech: 'n', exampleEn: 'Our team is first in the league.', exampleHe: 'הקבוצה שלנו במקום הראשון בליגה.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'ability', translationHe: 'יכולת', partOfSpeech: 'n', exampleEn: 'She has the ability to lead a team.', exampleHe: 'יש לה יכולת להוביל קבוצה.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'equal', translationHe: 'שווה', partOfSpeech: 'adj', exampleEn: 'Girls and boys should get equal chances in sport.', exampleHe: 'בנות ובנים צריכים לקבל הזדמנויות שוות בספורט.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'celebrity', translationHe: 'סלבריטי; ידוען', partOfSpeech: 'n', exampleEn: 'The football player became a celebrity.', exampleHe: 'שחקן הכדורגל הפך לסלבריטי.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'conflict', translationHe: 'סכסוך', partOfSpeech: 'n', exampleEn: 'Sport can help people end a conflict.', exampleHe: 'ספורט יכול לעזור לאנשים לסיים סכסוך.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'politics', translationHe: 'פוליטיקה', partOfSpeech: 'n', exampleEn: 'Some players talk about politics.', exampleHe: 'יש שחקנים שמדברים על פוליטיקה.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'tax', translationHe: 'מס', partOfSpeech: 'n', exampleEn: 'The city uses tax money to build parks.', exampleHe: 'העירייה משתמשת בכספי מסים כדי לבנות פארקים.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'do your best', translationHe: 'להשתדל כמה שאפשר', partOfSpeech: 'phrase', exampleEn: 'Winning is not everything. Just do your best.', exampleHe: 'הניצחון הוא לא הכול. העיקר להשתדל כמה שאפשר.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'break a record', translationHe: 'לשבור שיא', partOfSpeech: 'phrase', exampleEn: 'She broke a record in the 100 meters.', exampleHe: 'היא שברה שיא בריצת 100 מטר.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'democracy', translationHe: 'דמוקרטיה', partOfSpeech: 'n', exampleEn: 'In a democracy, people choose their leaders.', exampleHe: 'בדמוקרטיה העם בוחר את המנהיגים שלו.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'majority', translationHe: 'רוב', partOfSpeech: 'n', exampleEn: 'The majority of students voted for her.', exampleHe: 'רוב התלמידים הצביעו בעדה.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'candidate', translationHe: 'מועמד', partOfSpeech: 'n', exampleEn: 'There are three candidates for the student council.', exampleHe: 'יש שלושה מועמדים למועצת התלמידים.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'minister', translationHe: 'שר', partOfSpeech: 'n', exampleEn: 'The sports minister came to the game.', exampleHe: 'שרת הספורט הגיעה למשחק.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'oppose', translationHe: 'להתנגד', partOfSpeech: 'v', exampleEn: 'Many fans oppose the new rule.', exampleHe: 'אוהדים רבים מתנגדים לכלל החדש.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'defend', translationHe: 'להגן', partOfSpeech: 'v', exampleEn: 'He plays at the back and defends the goal.', exampleHe: 'הוא משחק בהגנה ומגן על השער.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'reward', translationHe: 'פרס; תגמול', partOfSpeech: 'n', exampleEn: 'The medal is a reward for years of hard work.', exampleHe: 'המדליה היא פרס על שנים של עבודה קשה.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'strategy', translationHe: 'אסטרטגיה', partOfSpeech: 'n', exampleEn: 'The coach has a new strategy for the final.', exampleHe: 'למאמן יש אסטרטגיה חדשה לגמר.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'average', translationHe: 'ממוצע', partOfSpeech: 'n', exampleEn: 'He scores an average of twenty points a game.', exampleHe: 'הוא קולע בממוצע עשרים נקודות למשחק.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'marathon', translationHe: 'מרתון', partOfSpeech: 'n', exampleEn: 'Thousands of people ran the Jerusalem Marathon.', exampleHe: 'אלפי אנשים רצו במרתון ירושלים.', ministryList: 'band-2-core-2', recProd: 'prod' },
+      { wordEn: 'stadium', translationHe: 'אצטדיון', partOfSpeech: 'n', exampleEn: 'The stadium was full of fans.', exampleHe: 'האצטדיון היה מלא אוהדים.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'victory', translationHe: 'ניצחון', partOfSpeech: 'n', exampleEn: 'The fans celebrated the victory all night.', exampleHe: 'האוהדים חגגו את הניצחון כל הלילה.', ministryList: 'band-2-core-2', recProd: 'rec' },
+      { wordEn: 'citizen', translationHe: 'אזרח', partOfSpeech: 'n', exampleEn: 'Every citizen has the right to vote.', exampleHe: 'לכל אזרח יש זכות להצביע.', ministryList: 'band-2-core-2', recProd: 'rec' },
+    ],
+  },
+];

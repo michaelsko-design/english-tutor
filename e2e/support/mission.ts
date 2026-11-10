@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { CURRICULUM_BY_GRADE } from '../../src/test/curriculum';
+import { ALL_PACK_CURRICULA } from '../../src/data/curriculum/packs';
 import { expect } from './test';
 
 /** The step's done button, or the last step's finish button */
@@ -85,9 +86,15 @@ function collectStrings(value: unknown, found: string[] = []): string[] {
   return found;
 }
 
+/**
+ * The app's curriculum, then every unreleased pack's (the packs preview plays them; a pack string
+ * never replaces an app string with the same words)
+ */
+const CURRICULUM_STRINGS = [...collectStrings(ALL_PACK_CURRICULA), ...collectStrings(CURRICULUM_BY_GRADE)];
+
 /** Sorted word list → the curriculum sentence with exactly those words */
 const SENTENCE_BY_WORDS = new Map(
-  collectStrings(CURRICULUM_BY_GRADE).map((text) => {
+  CURRICULUM_STRINGS.map((text) => {
     const words = toSentenceWords(text);
     return [[...words].sort().join(' '), words] as const;
   })
@@ -95,7 +102,7 @@ const SENTENCE_BY_WORDS = new Map(
 
 /** Sorted letters → the curriculum words spelled with exactly those letters */
 const WORDS_BY_LETTERS = new Map<string, string[]>();
-for (const text of collectStrings(CURRICULUM_BY_GRADE)) {
+for (const text of CURRICULUM_STRINGS) {
   if (!/^[A-Za-z]{2,}$/.test(text)) continue;
   const key = text.toLowerCase().split('').sort().join('');
   const known = WORDS_BY_LETTERS.get(key) ?? [];
@@ -165,7 +172,8 @@ function isSubMultiset(part: string[], whole: string[]): boolean {
 export async function buildSentence(mission: Locator): Promise<void> {
   const bank = mission.getByLabel('בנק המילים');
   const chips = await bank.getByRole('button').allTextContents();
-  const chipKey = chips.map((word) => word.trim()).sort().join(' ');
+  // Grades 1–2 give each chip an icon-only listen button (no text): skip those
+  const chipKey = chips.map((word) => word.trim()).filter(Boolean).sort().join(' ');
   const answer = SENTENCE_BY_WORDS.get(chipKey);
   if (!answer) throw new Error(`no curriculum sentence has the words: ${chipKey}`);
   for (const word of answer) {

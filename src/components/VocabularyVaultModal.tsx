@@ -21,6 +21,9 @@ import { toggleSpeech, useCurrentSpeech, useStopSpeechOnLeave } from '../hooks/u
 import { SpeakIcon, STOP_SPEECH_LABEL, STOP_SPEECH_TEXT } from './SpeakIcon';
 import { Button } from './ui/Button';
 import { VibeAmount } from './ui/VibeAmount';
+import { VaultWordDecks } from './wordDecks/VaultWordDecks';
+import type { WordDeck } from '../data/wordDecks/types';
+import type { DeckWordMasteryMap } from '../data/wordDecks/deckMastery';
 
 /** The reward inside a Hebrew sentence, isolated so "+10 XP" doesn't flip */
 const VAULT_REWARD_LABEL = `${formatVibeGain(10)} · ${isolateLtr('+2 💎')}`;
@@ -39,6 +42,11 @@ interface VocabularyVaultModalProps {
   /** Rewards a word once per word per day; false when it earned nothing */
   onEarnPracticeReward: (wordEn: string, xp: number, diamonds: number) => boolean;
   onClose: () => void;
+  /** The Ministry word decks (§4.26.1): the learner's grade (1–12) and their deck word mastery */
+  deckGrade?: number;
+  deckWordMastery?: DeckWordMasteryMap;
+  /** Starts a deck session; without it the Vault lists no decks */
+  onStartDeck?: (deck: WordDeck) => void;
 }
 
 export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
@@ -51,6 +59,9 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
   onSpeakEnglish,
   onEarnPracticeReward,
   onClose,
+  deckGrade,
+  deckWordMastery,
+  onStartDeck,
 }) => {
   const isGirl = gender === 'girl';
   const [selectedUnitNum, setSelectedUnitNum] = useState<number | 'all'>('all');
@@ -287,8 +298,23 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
           )}
         </div>
 
-        {/* Scrollable Vocabulary Cards Grid */}
-        <div className="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 wide:grid-cols-3 gap-3.5">
+        <div className="overflow-y-auto">
+        {/* The Ministry word decks of the grade, next to the mission words */}
+        {deckGrade !== undefined && onStartDeck && (
+          <div className="px-6 pt-4">
+            <VaultWordDecks
+              grade={deckGrade}
+              gender={gender}
+              mastery={deckWordMastery}
+              theme={theme}
+              onStart={onStartDeck}
+              onSpeakEnglish={onSpeakEnglish}
+            />
+          </div>
+        )}
+
+        {/* Vocabulary Cards Grid */}
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 wide:grid-cols-3 gap-3.5">
           {filteredVocab.map((item) => {
             const isMastered = masteredWordsSession[item.wordEn];
             const isRecordingThis = practicingWord === item.wordEn;
@@ -376,6 +402,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
               </div>
             );
           })}
+        </div>
         </div>
       </div>
     </div>

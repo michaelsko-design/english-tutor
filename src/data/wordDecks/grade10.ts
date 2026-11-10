@@ -1,0 +1,65 @@
+import type { GradeDecks } from './types';
+
+/**
+ * Grade 10's Ministry word decks (docs/content-packs-roadmap.md §3): the 5-point words the units
+ * don't hold. Each deck is written with the core pack it ships with and stays hidden until that
+ * pack is released.
+ */
+export const GRADE_10_DECKS: GradeDecks = [
+  {
+    id: 'g10-season2-1-medicine',
+    packId: 'season2-1',
+    topicEn: 'Health & Medicine',
+    topicHe: 'בריאות ורפואה',
+    items: [
+      { wordEn: 'eyesight', translationHe: 'ראייה (חוש)', partOfSpeech: 'n', exampleEn: 'Reading in the dark will not ruin your eyesight.', exampleHe: 'קריאה בחושך לא תהרוס את הראייה.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'hip', translationHe: 'אגן; מפרק הירך', partOfSpeech: 'n', exampleEn: 'My grandmother broke her hip last winter.', exampleHe: 'סבתא שלי שברה את האגן בחורף שעבר.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'liver', translationHe: 'כבד (איבר)', partOfSpeech: 'n', exampleEn: 'The liver cleans the blood.', exampleHe: 'הכבד מנקה את הדם.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'lung', translationHe: 'ריאה', partOfSpeech: 'n', exampleEn: 'Smoking damages the lungs.', exampleHe: 'עישון פוגע בריאות.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'thigh', translationHe: 'ירך', partOfSpeech: 'n', exampleEn: 'Cycling builds the muscles in your thighs.', exampleHe: 'רכיבה על אופניים בונה את שרירי הירכיים.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'waist', translationHe: 'מותן; מותניים', partOfSpeech: 'n', exampleEn: 'The belt is too big for my waist.', exampleHe: 'החגורה גדולה מדי על המותניים שלי.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'sneeze', translationHe: 'להתעטש', partOfSpeech: 'v', exampleEn: 'Cover your mouth when you sneeze.', exampleHe: 'מכסים את הפה כשמתעטשים.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'prescription', translationHe: 'מרשם', partOfSpeech: 'n', exampleEn: 'You need a prescription to buy this medicine.', exampleHe: 'צריך מרשם כדי לקנות את התרופה הזאת.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'surgery', translationHe: 'ניתוח', partOfSpeech: 'n', exampleEn: 'After the surgery, he stayed in hospital for a week.', exampleHe: 'אחרי הניתוח הוא נשאר בבית החולים שבוע.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'therapy', translationHe: 'טיפול; תרפיה', partOfSpeech: 'n', exampleEn: 'Music therapy helps children who are anxious.', exampleHe: 'טיפול במוזיקה עוזר לילדים חרדים.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'remedy', translationHe: 'תרופה; פתרון', partOfSpeech: 'n', exampleEn: 'Honey and lemon is an old remedy for a sore throat.', exampleHe: 'דבש ולימון הם תרופה ותיקה לכאב גרון.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'vitamin', translationHe: 'ויטמין', partOfSpeech: 'n', exampleEn: 'Oranges are full of vitamin C.', exampleHe: 'תפוזים מלאים בוויטמין C.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'wound', translationHe: 'פצע', partOfSpeech: 'n', exampleEn: 'The nurse cleaned the wound and put on a bandage.', exampleHe: 'האחות ניקתה את הפצע ושמה תחבושת.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'poison', translationHe: 'רעל', partOfSpeech: 'n', exampleEn: 'Some mushrooms contain a deadly poison.', exampleHe: 'יש פטריות שמכילות רעל קטלני.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'ward', translationHe: 'מחלקה (בבית חולים)', partOfSpeech: 'n', exampleEn: 'She works in the children\'s ward.', exampleHe: 'היא עובדת במחלקת ילדים.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'chew', translationHe: 'ללעוס', partOfSpeech: 'v', exampleEn: 'Chew your food well before you swallow.', exampleHe: 'כדאי ללעוס היטב את האוכל לפני הבליעה.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'relief', translationHe: 'הקלה', partOfSpeech: 'n', exampleEn: 'This cream gives quick relief from pain.', exampleHe: 'המשחה הזאת נותנת הקלה מהירה בכאב.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'strain', translationHe: 'מאמץ; עומס', partOfSpeech: 'n', exampleEn: 'Long hours at a screen put a strain on the eyes.', exampleHe: 'שעות ארוכות מול מסך יוצרות עומס על העיניים.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'needle', translationHe: 'מחט', partOfSpeech: 'n', exampleEn: 'Some people are afraid of needles.', exampleHe: 'יש אנשים שפוחדים ממחטים.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'vegan', translationHe: 'טבעוני', partOfSpeech: 'n', exampleEn: 'As a vegan, she does not eat eggs or cheese.', exampleHe: 'כטבעונית, היא לא אוכלת ביצים או גבינה.', ministryList: 'band-3-core-2', recProd: 'prod' },
+    ],
+  },
+  {
+    id: 'g10-season2-2-rights',
+    packId: 'season2-2',
+    topicEn: 'Rights & Society',
+    topicHe: 'זכויות וחברה',
+    items: [
+      { wordEn: 'human rights', translationHe: 'זכויות אדם', partOfSpeech: 'n', exampleEn: 'The organization fights for human rights around the world.', exampleHe: 'הארגון נאבק למען זכויות אדם ברחבי העולם.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'civil rights', translationHe: 'זכויות האזרח', partOfSpeech: 'n', exampleEn: 'Martin Luther King led the civil rights movement.', exampleHe: 'מרטין לותר קינג הוביל את התנועה לזכויות האזרח.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'liberty', translationHe: 'חירות', partOfSpeech: 'n', exampleEn: 'Passover celebrates the liberty of the Jewish people.', exampleHe: 'פסח חוגג את החירות של העם היהודי.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'homeless', translationHe: 'חסר בית', partOfSpeech: 'adj', exampleEn: 'Volunteers cook meals for homeless people.', exampleHe: 'מתנדבים מבשלים ארוחות לחסרי בית.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'ethnic', translationHe: 'אתני', partOfSpeech: 'adj', exampleEn: 'Israel has many ethnic groups.', exampleHe: 'בישראל יש קבוצות אתניות רבות.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'revolution', translationHe: 'מהפכה', partOfSpeech: 'n', exampleEn: 'The Internet started a revolution in communication.', exampleHe: 'האינטרנט חולל מהפכה בתקשורת.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'govern', translationHe: 'למשול', partOfSpeech: 'v', exampleEn: 'It is not easy to govern a divided country.', exampleHe: 'לא קל למשול במדינה מפולגת.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'presidential', translationHe: 'נשיאותי', partOfSpeech: 'adj', exampleEn: 'The presidential election is next month.', exampleHe: 'הבחירות לנשיאות יתקיימו בחודש הבא.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'donation', translationHe: 'תרומה', partOfSpeech: 'n', exampleEn: 'The school collected donations for families in need.', exampleHe: 'בית הספר אסף תרומות למשפחות נזקקות.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'distribute', translationHe: 'לחלק', partOfSpeech: 'v', exampleEn: 'Volunteers distribute food before the holidays.', exampleHe: 'מתנדבים מחלקים מזון לפני החגים.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'obligation', translationHe: 'חובה; מחויבות', partOfSpeech: 'n', exampleEn: 'Citizens have rights, but they also have obligations.', exampleHe: 'לאזרחים יש זכויות, אבל יש להם גם חובות.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'compulsory', translationHe: 'של חובה; מחייב', partOfSpeech: 'adj', exampleEn: 'In Israel, school is compulsory until the age of eighteen.', exampleHe: 'בישראל הלימודים הם חובה עד גיל שמונה־עשרה.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'exclude', translationHe: 'להוציא; להדיר', partOfSpeech: 'v', exampleEn: 'No child should be excluded from the class trip.', exampleHe: 'אסור להדיר אף ילד מהטיול השנתי.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'exploit', translationHe: 'לנצל', partOfSpeech: 'v', exampleEn: 'Some factories exploit young workers.', exampleHe: 'יש מפעלים שמנצלים עובדים צעירים.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'theft', translationHe: 'גנבה', partOfSpeech: 'n', exampleEn: 'Car theft is a serious crime.', exampleHe: 'גנבת רכב היא פשע חמור.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'gang', translationHe: 'כנופיה', partOfSpeech: 'n', exampleEn: 'The police arrested members of a criminal gang.', exampleHe: 'המשטרה עצרה חברי כנופיה עבריינית.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'against the law', translationHe: 'בניגוד לחוק', partOfSpeech: 'phrase', exampleEn: 'Selling alcohol to minors is against the law.', exampleHe: 'מכירת אלכוהול לקטינים היא בניגוד לחוק.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'break the law', translationHe: 'לעבור על החוק', partOfSpeech: 'phrase', exampleEn: 'Anyone who breaks the law must pay a fine.', exampleHe: 'מי שעובר על החוק חייב לשלם קנס.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'evil', translationHe: 'רוע; רשע', partOfSpeech: 'n', exampleEn: 'The story is about the fight between good and evil.', exampleHe: 'הסיפור עוסק במאבק בין הטוב לרע.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'dominate', translationHe: 'לשלוט; להיות דומיננטי', partOfSpeech: 'v', exampleEn: 'A few big companies dominate the market.', exampleHe: 'כמה חברות גדולות שולטות בשוק.', ministryList: 'band-3-core-2', recProd: 'prod' },
+    ],
+  },
+];

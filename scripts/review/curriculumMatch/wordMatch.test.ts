@@ -23,6 +23,12 @@ describe('entryVariants', () => {
     expect(entryVariants('look after sb')).toEqual(['look after']);
     expect(entryVariants('too small / hard / much, etc.')).toEqual(['too small', 'hard', 'much']);
   });
+
+  it('keeps one phrase for a phrasal verb listed in both word orders, but not for "more or less"', () => {
+    expect(entryVariants('sum up (sth/sb) or sum (sth/sb) up')).toEqual(['sum up']);
+    expect(entryVariants('give away sth or give sth away')).toEqual(['give away']);
+    expect(entryVariants('more or less')).toEqual(['more or less']);
+  });
 });
 
 describe('inflect', () => {

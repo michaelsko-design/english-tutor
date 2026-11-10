@@ -114,6 +114,21 @@ describe('report snapshot', () => {
     );
   });
 
+  it('carries only the mastered deck words, and the report counts them the same', () => {
+    const withDecks = {
+      ...profile,
+      deckWordMastery: {
+        apple: { wordEn: 'apple', translationHe: 'תפוח', firstTryDays: ['2026-03-02', '2026-03-03'], masteredOn: '2026-03-03' },
+        bread: { wordEn: 'bread', translationHe: 'לחם', firstTryDays: ['2026-03-03'] },
+      },
+    };
+    const snapshot = buildReportSnapshot(withDecks, NOW);
+    expect(Object.keys(snapshot.deckWordMastery ?? {})).toEqual(['apple']);
+    expect(buildWeeklyReport(snapshotToProfile(snapshot), '2026-03-01', '2026-03-04')).toEqual(
+      buildWeeklyReport(withDecks, '2026-03-01', '2026-03-04')
+    );
+  });
+
   it('ignores the publish time when comparing content', () => {
     const first = buildReportSnapshot(profile, NOW);
     const later = buildReportSnapshot(profile, new Date('2026-03-05T10:00:00.000Z'));

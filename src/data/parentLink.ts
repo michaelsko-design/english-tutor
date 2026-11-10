@@ -1,7 +1,7 @@
 import { DEFAULT_PROFILE } from './defaultProfile';
 import { addDays, daysBetween, parseDateStr } from '../utils/dates';
 import { stripOwnerFields } from './activityLog';
-import { ActivityLogEntry, GradeId, LearnerGender, LearnerProfile, LearnerStats, ProficiencyTier } from '../types/learner';
+import { ActivityLogEntry, DeckWordMastery, GradeId, LearnerGender, LearnerProfile, LearnerStats, ProficiencyTier } from '../types/learner';
 
 /**
  * Pairing a parent with a learner. The learner makes a one-time parent code (`parentInvites/{code}`);
@@ -39,8 +39,16 @@ export interface ReportSnapshot {
   >;
   missionProgress: Record<string, number>;
   activityLog: ActivityLogEntry[];
+  /** The mastered Ministry deck words only (they count in the report); left out when there are none */
+  deckWordMastery?: Record<string, DeckWordMastery>;
   /** ISO time of the last publish */
   updatedAt: string;
+}
+
+/** The mastered deck words of the profile, keyed as on the profile; undefined when there are none */
+function masteredDeckWordsOf(profile: LearnerProfile): Record<string, DeckWordMastery> | undefined {
+  const mastered = Object.entries(profile.deckWordMastery ?? {}).filter(([, record]) => Boolean(record.masteredOn));
+  return mastered.length > 0 ? Object.fromEntries(mastered) : undefined;
 }
 
 export interface ParentInvite {
@@ -128,6 +136,7 @@ export function parentLinkId(parentUid: string, childUid: string): string {
 }
 
 export function buildReportSnapshot(profile: LearnerProfile, now: Date): ReportSnapshot {
+  const deckWordMastery = masteredDeckWordsOf(profile);
   const { level, streakDays, streakLastDateStr, streakShieldsBought, streakShieldsUsed, totalActiveDays } = profile.stats;
   return {
     name: profile.name,
@@ -146,6 +155,7 @@ export function buildReportSnapshot(profile: LearnerProfile, now: Date): ReportS
     },
     missionProgress: profile.missionProgress,
     activityLog: stripOwnerFields(profile.activityLog ?? []),
+    ...(deckWordMastery ? { deckWordMastery } : {}),
     updatedAt: now.toISOString(),
   };
 }
@@ -163,6 +173,7 @@ export function snapshotToProfile(snapshot: ReportSnapshot): LearnerProfile {
     stats: { ...DEFAULT_PROFILE.stats, ...snapshot.stats },
     missionProgress: snapshot.missionProgress,
     activityLog: snapshot.activityLog,
+    ...(snapshot.deckWordMastery ? { deckWordMastery: snapshot.deckWordMastery } : {}),
   };
 }
 

@@ -13,6 +13,7 @@ import {
   buildWordSearch,
   getBestGameScore,
   getEntryCells,
+  getDeckGameWords,
   getGameWords,
   getLineCells,
   getSearchDirections,
@@ -24,6 +25,7 @@ import {
 } from './wordGames';
 import { ROOM_ACTIVITY_REPEAT_XP, ROOM_ACTIVITY_XP, isActivityRewardedToday } from './roomActivities';
 import { LearnerProfile } from '../types/learner';
+import { FIXTURE_DECK } from './wordDecks/fixtures';
 
 const NOW = new Date(2026, 9, 17, 10, 0);
 
@@ -96,6 +98,13 @@ describe('getGameWords', () => {
     const words = getGameWords(withList, CURRICULUM_BY_GRADE);
     expect(words[0]).toMatchObject({ word: 'ZEBRA', he: 'זברה' });
     expect(words.map((w) => w.word)).not.toContain('ICE CREAM');
+  });
+
+  it('takes the Ministry deck words as a word source, after the word lists', () => {
+    const deckWords = getDeckGameWords([FIXTURE_DECK]);
+    const words = getGameWords(baseProfile, CURRICULUM_BY_GRADE, deckWords).map((w) => w.word);
+    expect(words.slice(0, 4)).toEqual(['APPLE', 'BREAD', 'MILK', 'HUNGRY']);
+    expect(words).not.toContain('ICE CREAM');
   });
 });
 

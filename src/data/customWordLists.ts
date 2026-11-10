@@ -396,6 +396,8 @@ export function normalizeForCompare(text: string): string {
 
 export interface WordListAnswer {
   type: WordListStepType;
+  /** The practised item (`WordListStep.itemId`), so a deck session can credit each word */
+  itemId?: string;
   /** Correct on the first try */
   isCorrect: boolean;
   /** Voice step skipped ("quiet place"); not counted in the score */
@@ -471,31 +473,47 @@ export function applyWordListResultToProfile(
     lastPracticedAt: nowIso,
     ...(reward.isFullReward ? { lastRewardedDateStr: todayStr } : {}),
   };
-
-  const withActivity = recordDailyActivity(
-    profile,
-    {
-      missions: 1,
-      // Voice and 3-star quest credit only from rewarded sessions, so a tiny list can't farm quests.
-      voiceWords: reward.isFullReward ? answers.filter((a) => a.type === 'voice-speak' && !a.isSkipped).length : 0,
-      threeStarMissions: reward.isFullReward && score.scorePercent >= WORD_LIST_HIGH_SCORE ? 1 : 0,
-    },
-    toLocalDateStr(now)
-  );
-  const xp = withActivity.stats.xp + reward.xp;
+  const rewarded = applyPracticeSessionReward(profile, answers, reward, score, todayStr);
 
   return {
     reward,
     score,
     profile: {
-      ...withActivity,
+      ...rewarded,
       customWordLists: (profile.customWordLists || []).map((l) => (l.id === listId ? updatedList : l)),
-      stats: {
-        ...withActivity.stats,
-        xp,
-        level: levelForXp(xp, withActivity.stats.level),
-        diamonds: withActivity.stats.diamonds + reward.diamonds,
-      },
+    },
+  };
+}
+
+/**
+ * The reward path of a word-list engine session (school lists and Ministry decks): a session for
+ * today's quests and the streak, plus the XP and diamonds. Voice and 3-star quest credit only come
+ * from rewarded sessions, so a repeated session can't farm quests.
+ */
+export function applyPracticeSessionReward(
+  profile: LearnerProfile,
+  answers: readonly WordListAnswer[],
+  reward: WordListReward,
+  score: WordListScore,
+  todayStr: string
+): LearnerProfile {
+  const withActivity = recordDailyActivity(
+    profile,
+    {
+      missions: 1,
+      voiceWords: reward.isFullReward ? answers.filter((a) => a.type === 'voice-speak' && !a.isSkipped).length : 0,
+      threeStarMissions: reward.isFullReward && score.scorePercent >= WORD_LIST_HIGH_SCORE ? 1 : 0,
+    },
+    todayStr
+  );
+  const xp = withActivity.stats.xp + reward.xp;
+  return {
+    ...withActivity,
+    stats: {
+      ...withActivity.stats,
+      xp,
+      level: levelForXp(xp, withActivity.stats.level),
+      diamonds: withActivity.stats.diamonds + reward.diamonds,
     },
   };
 }

@@ -209,6 +209,11 @@ await expect('the learner can save a report snapshot', true, () =>
   setDoc(doc(a.db, 'reportSnapshots', ua.uid), snapshot()));
 await expect('a snapshot with extra fields is denied', false, () =>
   setDoc(doc(a.db, 'reportSnapshots', ua.uid), snapshot({ age: 9 })));
+const masteredWord = { wordEn: 'apple', translationHe: 'תפוח', firstTryDays: ['2026-11-01', '2026-11-02'], masteredOn: '2026-11-02' };
+await expect('a snapshot with mastered deck words is allowed', true, () =>
+  setDoc(doc(a.db, 'reportSnapshots', ua.uid), snapshot({ deckWordMastery: { apple: masteredWord } })));
+await expect('a snapshot with deck words that are not a map is denied', false, () =>
+  setDoc(doc(a.db, 'reportSnapshots', ua.uid), snapshot({ deckWordMastery: ['apple'] })));
 await expect('a parent cannot write a snapshot', false, () => setDoc(doc(b.db, 'reportSnapshots', ua.uid), snapshot()));
 await expect('the linked parent can read the snapshot', true, () => getDoc(doc(b.db, 'reportSnapshots', ua.uid)));
 await expect('the learner profile stays unreadable by the parent', false, () => getDoc(doc(b.db, 'learners', ua.uid)));

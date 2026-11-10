@@ -4,6 +4,7 @@ import { getLoadedGrade, gradeIdFromMissionId, gradesInMissionIds } from './curr
 import { addDays, parseDateStr } from './examPrep';
 import { countCompletedMissions } from './milestones';
 import { getCurrentStreak } from './streak';
+import { getMasteredDeckWords, type DeckWordMasteryMap } from './wordDecks/deckMastery';
 
 /**
  * Weekly progress report for parents and teachers (Feature 9).
@@ -136,9 +137,22 @@ function getMasteredMissionIds(progress: Record<string, number>): string[] {
     .map(([missionId]) => missionId);
 }
 
-/** Words of the missions with 3 stars, across all grades; the dashboard and the report both show it. */
-export function countMasteredWords(progress: Record<string, number>): number {
-  return collectMissionWords(getMasteredMissionIds(progress)).length;
+/** The mission words followed by the deck words not among them (the same word counts once) */
+function withDeckWords(missionWords: readonly MasteredWord[], deckWords: readonly MasteredWord[]): MasteredWord[] {
+  const seen = new Set(missionWords.map((word) => word.wordEn.trim().toLowerCase()));
+  return [...missionWords, ...deckWords.filter((word) => !seen.has(word.wordEn.trim().toLowerCase()))];
+}
+
+function toMasteredWords(mastery: DeckWordMasteryMap | undefined, fromDay?: string, toDay?: string): MasteredWord[] {
+  return getMasteredDeckWords(mastery, fromDay, toDay).map(({ wordEn, translationHe }) => ({ wordEn, translationHe }));
+}
+
+/**
+ * Words of the missions with 3 stars, across all grades, plus the mastered Ministry deck words;
+ * the dashboard and the report both show it.
+ */
+export function countMasteredWords(progress: Record<string, number>, deckMastery?: DeckWordMasteryMap): number {
+  return withDeckWords(collectMissionWords(getMasteredMissionIds(progress)), toMasteredWords(deckMastery)).length;
 }
 
 export function getOverallProgress(profile: LearnerProfile, todayStr: string): OverallProgress {
@@ -157,7 +171,7 @@ export function getOverallProgress(profile: LearnerProfile, todayStr: string): O
     gradeStarsEarned,
     gradeStarsPossible,
     gradeStarPercent: gradeStarsPossible > 0 ? Math.round((gradeStarsEarned / gradeStarsPossible) * 100) : 0,
-    masteredWordCount: countMasteredWords(progress),
+    masteredWordCount: countMasteredWords(progress, profile.deckWordMastery),
   };
 }
 
@@ -212,7 +226,10 @@ export function buildWeeklyReport(profile: LearnerProfile, weekStart: string, to
     threeStarSessions: sum((entry) => entry.threeStarSessions),
     starsGained: sum((entry) => entry.starsGained),
     newMissionsCompleted: newMissionIds.size,
-    newMasteredWords: collectMissionWords(masteredThisWeek),
+    newMasteredWords: withDeckWords(
+      collectMissionWords(masteredThisWeek),
+      toMasteredWords(profile.deckWordMastery, weekStart, weekEnd)
+    ),
     trackingStartDateStr: log[0]?.dateStr,
     overall: getOverallProgress(profile, todayStr),
   };

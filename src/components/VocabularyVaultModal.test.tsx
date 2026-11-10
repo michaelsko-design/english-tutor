@@ -4,6 +4,13 @@ import { describe, expect, it, vi } from 'vitest';
 import { CURRICULUM_BY_GRADE } from '../test/curriculum';
 import { TEST_THEME } from '../test/fixtures';
 import { VocabularyVaultModal } from './VocabularyVaultModal';
+import { FIXTURE_DECK } from '../data/wordDecks/fixtures';
+
+// The grade's released decks: one fixture deck (no real deck is released yet)
+vi.mock('../data/wordDecks', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../data/wordDecks')>()),
+  loadGradeDecks: vi.fn(async () => [FIXTURE_DECK]),
+}));
 
 const units = CURRICULUM_BY_GRADE['grade-1'].units;
 const words = units.flatMap((u) => u.missions.flatMap((m) => m.vocabulary));
@@ -91,5 +98,33 @@ describe('VocabularyVaultModal', () => {
     await user.keyboard('{Escape}');
 
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('lists the grade’s Ministry decks next to the mission words and starts one', async () => {
+    const onStartDeck = vi.fn();
+    render(
+      <VocabularyVaultModal
+        units={units}
+        gender="girl"
+        learnerName="נועה"
+        theme={TEST_THEME}
+        onSpeakEnglish={() => {}}
+        onEarnPracticeReward={() => true}
+        onClose={vi.fn()}
+        deckGrade={1}
+        deckWordMastery={undefined}
+        onStartDeck={onStartDeck}
+      />
+    );
+
+    const deck = await screen.findByRole('article', { name: FIXTURE_DECK.topicHe });
+    expect(screen.getByText(target.translationHe)).toBeInTheDocument();
+    await userEvent.click(within(deck).getByRole('button', { name: 'תרגלי את הערכה' }));
+    expect(onStartDeck).toHaveBeenCalledWith(FIXTURE_DECK);
+  });
+
+  it('lists no decks without a deck session to start', () => {
+    renderVault();
+    expect(screen.queryByRole('heading', { name: /ערכות המילים/ })).toBeNull();
   });
 });

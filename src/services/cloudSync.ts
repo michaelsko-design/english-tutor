@@ -1,4 +1,5 @@
 import { mergeTierStars } from '../data/tierProgress';
+import { mergeDeckWordMastery } from '../data/wordDecks/deckMastery';
 import {
   deleteField,
   doc,
@@ -169,6 +170,8 @@ export function mergeLearnerProfiles(
   const resolvedTierStars = mergeTierStars(local.missionTierStars, cloud.missionTierStars);
   const resolvedRewardDates = mergeLatestDates(local.missionRewardDates, cloud.missionRewardDates);
   const resolvedVaultPractice = mergeVaultPractice(local.vaultPractice, cloud.vaultPractice);
+  const resolvedDeckMastery = mergeDeckWordMastery(local.deckWordMastery, cloud.deckWordMastery);
+  const resolvedDeckRewardDates = mergeLatestDates(local.deckRewardDates, cloud.deckRewardDates);
 
   const resolvedAvatar = preferCloudPrefs
     ? cloud.equippedAvatarEmoji || local.equippedAvatarEmoji
@@ -226,6 +229,8 @@ export function mergeLearnerProfiles(
     ...(Object.keys(resolvedTierStars).length > 0 ? { missionTierStars: resolvedTierStars } : {}),
     ...(resolvedRewardDates ? { missionRewardDates: resolvedRewardDates } : {}),
     ...(resolvedVaultPractice ? { vaultPractice: resolvedVaultPractice } : {}),
+    ...(resolvedDeckMastery ? { deckWordMastery: resolvedDeckMastery } : {}),
+    ...(resolvedDeckRewardDates ? { deckRewardDates: resolvedDeckRewardDates } : {}),
     stats: {
       xp: mergedXp,
       level: mergedLevel,

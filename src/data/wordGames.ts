@@ -3,6 +3,9 @@ import { seededShuffle, seededShuffleNotIdentity } from '../utils/shuffle';
 import type { GradeCurriculumPack } from './curriculum';
 import { loadGradeCurriculum } from './curriculum/loader';
 import { getActiveLists } from './customWordLists';
+import { canPlayDeck, loadGradeDecks } from './wordDecks';
+import type { WordDeck } from './wordDecks/types';
+import type { ProAccess } from './proGate';
 import { ROOM_ITEMS, getRoom } from './room';
 import {
   RoomActivityId,
@@ -82,11 +85,19 @@ function gradesByDistance(gradeId: GradeId): GradeId[] {
     .map((g) => `grade-${g}` as GradeId);
 }
 
+/** The words of the grade's Ministry decks (a word source like the word lists) */
+export function getDeckGameWords(decks: readonly WordDeck[]): GameWord[] {
+  return decks.flatMap((deck) =>
+    deck.items.map((item) => ({ word: item.wordEn.toUpperCase(), he: item.translationHe, emoji: item.emoji }))
+  );
+}
+
 /**
- * Single words of 3–8 letters with a Hebrew meaning: the learner's word lists and grade vocabulary,
- * then nearby grades and the room's item names until there are enough.
+ * Single words of 3–8 letters with a Hebrew meaning: the learner's word lists, the grade's
+ * Ministry deck words and grade vocabulary, then nearby grades and the room's item names until
+ * there are enough.
  */
-export function getGameWords(profile: LearnerProfile, packs: GradePacks): GameWord[] {
+export function getGameWords(profile: LearnerProfile, packs: GradePacks, deckWords: readonly GameWord[] = []): GameWord[] {
   const fromLists: GameWord[] = getActiveLists(profile).flatMap((list) =>
     list.items
       .filter((item) => item.kind === 'word' && item.translationHe)
@@ -104,6 +115,7 @@ export function getGameWords(profile: LearnerProfile, packs: GradePacks): GameWo
     });
 
   add(fromLists);
+  add([...deckWords]);
   for (const gradeId of gradesByDistance(profile.gradeId)) {
     if (result.length >= MIN_WORDS && gradeId !== profile.gradeId) break;
     add(gradeWords(packs, gradeId));
@@ -112,17 +124,30 @@ export function getGameWords(profile: LearnerProfile, packs: GradePacks): GameWo
   return result;
 }
 
+/** The released decks of the learner's grade that they can practise; none if they can't load (offline) */
+async function loadPlayableDeckWords(profile: LearnerProfile, access: ProAccess): Promise<GameWord[]> {
+  const grade = Number(profile.gradeId.replace('grade-', ''));
+  try {
+    const decks = await loadGradeDecks(grade);
+    return getDeckGameWords(decks.filter((deck) => canPlayDeck(deck, access)));
+  } catch {
+    // The games still have the lists and the curriculum words
+    return [];
+  }
+}
+
 /**
  * `getGameWords` with the curriculum it needs: the learner's grade first, then nearby grades only
  * while there are too few words, so most learners download just their own grade.
  */
-export async function loadGameWords(profile: LearnerProfile): Promise<GameWord[]> {
+export async function loadGameWords(profile: LearnerProfile, access: ProAccess): Promise<GameWord[]> {
+  const deckWords = await loadPlayableDeckWords(profile, access);
   const packs: GradePacks = {};
   for (const gradeId of gradesByDistance(profile.gradeId)) {
     packs[gradeId] = await loadGradeCurriculum(gradeId);
-    if (getGameWords(profile, packs).length >= MIN_WORDS) break;
+    if (getGameWords(profile, packs, deckWords).length >= MIN_WORDS) break;
   }
-  return getGameWords(profile, packs);
+  return getGameWords(profile, packs, deckWords);
 }
 
 export function pickWords(words: GameWord[], count: number, seed: string | number): GameWord[] {

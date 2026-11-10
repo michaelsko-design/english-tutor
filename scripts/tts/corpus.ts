@@ -32,6 +32,8 @@ import { ALPHABET } from '../../src/data/alphabet';
 import { BLEND_WORDS, FIRST_SENTENCES } from '../../src/data/blendingWords';
 import { CorpusBuilder, type CorpusPhrase } from './corpusBuilder';
 import { buildHebrewCorpus } from './hebrewCorpus';
+import { addDeckEnglish } from './deckCorpus';
+import { ALL_WORD_DECKS } from '../../src/data/wordDecks/all';
 
 export type { CorpusPhrase } from './corpusBuilder';
 import type { ProficiencyTier } from '../../src/types/learner';
@@ -158,6 +160,8 @@ function buildEnglishCorpus(): CorpusBuilder {
   addExamBanks(corpus);
   addRoom(corpus);
   addPhonics(corpus);
+  // The Ministry word decks of every grade, released or not
+  addDeckEnglish(corpus, Object.values(ALL_WORD_DECKS).flat());
   corpus.add(DEMO_SENTENCE, DEMO_SENTENCE_RATE);
   addEnglishOpenerRests(corpus);
   return corpus;

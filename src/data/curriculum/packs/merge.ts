@@ -2,7 +2,7 @@ import type { ExamBankPack } from '../examBank/types';
 import type { LessonPack } from '../lessons/types';
 import type { GradeId } from '../../../types/learner';
 import type { CurriculumUnit, GradeCurriculumPack } from '../types';
-import { CONTENT_PACKS } from './registry';
+import { CONTENT_PACKS, packHasGrade } from './registry';
 import type { ContentPack, ContentPackId, PackCurriculum } from './types';
 
 /** A pack's units of one grade, ready to be added to the grade's map */
@@ -69,25 +69,63 @@ export function mergeExamBank(
     }, base);
 }
 
-/** The given packs' units of one grade, in the given order, for `mergeCurriculum`. */
+const GRADE_ID_NUMBER = /^grade-(\d+)$/;
+
+function gradeNumberOf(gradeId: GradeId): number {
+  return Number(GRADE_ID_NUMBER.exec(gradeId)?.[1] ?? Number.NaN);
+}
+
+/** The items whose pack adds a unit to this grade (1–12): a pack may skip a complete grade */
+export function packsInGrade<T extends { pack: ContentPack }>(items: readonly T[], grade: number): T[] {
+  return items.filter((item) => packHasGrade(item.pack, grade));
+}
+
+/**
+ * The grade's loaders of the given packs (lessons or exam banks), leaving out a pack that skips the
+ * grade: its source folder may still hold that grade's file for a sibling pack.
+ */
+export function packLoadersInGrade<L>(
+  loadersByPack: Partial<Record<ContentPackId, Partial<Record<number, L>>>>,
+  grade: number,
+  registry: Record<ContentPackId, ContentPack> = CONTENT_PACKS
+): L[] {
+  return (Object.entries(loadersByPack) as [ContentPackId, Partial<Record<number, L>> | undefined][])
+    .filter(([id]) => packHasGrade(registry[id], grade))
+    .flatMap(([, loaders]) => {
+      const load = loaders?.[grade];
+      return load === undefined ? [] : [load];
+    });
+}
+
+/**
+ * The given packs' units of one grade, in the given order, for `mergeCurriculum`. A pack that
+ * doesn't list the grade (`packGrades`) adds nothing to it, so that grade stays as it was and the
+ * next pack's unit comes straight after the last unit the grade has.
+ */
 export function getPackUnits(
   gradeId: GradeId,
   packIds: readonly ContentPackId[],
-  curricula: Partial<Record<ContentPackId, PackCurriculum>>
+  curricula: Partial<Record<ContentPackId, PackCurriculum>>,
+  registry: Record<ContentPackId, ContentPack> = CONTENT_PACKS
 ): PackUnits[] {
-  return packIds.map((id) => ({ pack: CONTENT_PACKS[id], units: curricula[id]?.[gradeId]?.units ?? [] }));
+  const packs = packIds.map((id) => ({ pack: registry[id] }));
+  return packsInGrade(packs, gradeNumberOf(gradeId)).map(({ pack }) => ({
+    pack,
+    units: curricula[pack.id]?.[gradeId]?.units ?? [],
+  }));
 }
 
 /** Every grade with the given packs' units added, in the given order. */
 export function withPacks(
   base: Record<GradeId, GradeCurriculumPack>,
   packIds: readonly ContentPackId[],
-  curricula: Partial<Record<ContentPackId, PackCurriculum>>
+  curricula: Partial<Record<ContentPackId, PackCurriculum>>,
+  registry: Record<ContentPackId, ContentPack> = CONTENT_PACKS
 ): Record<GradeId, GradeCurriculumPack> {
   return Object.fromEntries(
     Object.entries(base).map(([gradeId, pack]) => [
       gradeId,
-      mergeCurriculum(pack, getPackUnits(gradeId as GradeId, packIds, curricula)),
+      mergeCurriculum(pack, getPackUnits(gradeId as GradeId, packIds, curricula, registry)),
     ])
   ) as Record<GradeId, GradeCurriculumPack>;
 }

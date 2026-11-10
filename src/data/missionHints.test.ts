@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { MissionNode } from './curriculum';
 import { CURRICULUM_WITH_ALL_PACKS } from './curriculum/packs/all';
+import { CONTENT_PACKS, packGrades } from './curriculum/packs/registry';
 import { getExercisesForMission } from './missionExercises';
 import { LearnerGender, ProficiencyTier } from '../types/learner';
 import { decidingWords, toTokens } from './testing/answerWords';
@@ -22,8 +23,8 @@ function hasWholeWord(text: string, word: string): boolean {
 describe('mission hints (Feature 20)', () => {
   it('covers every mission of grades 1–12', () => {
     // 12 grades × 12 missions, plus grade 1's 18 letters and blending missions, plus the content
-    // packs' 12 missions per grade
-    expect(ALL_MISSIONS).toHaveLength(162 + 12 * 12);
+    // packs' 12 missions per grade, plus core-3's 3 missions in each grade it lists
+    expect(ALL_MISSIONS).toHaveLength(162 + 12 * 12 + 3 * packGrades(CONTENT_PACKS['core-3']).length);
     expect(ALL_MISSIONS.every((m) => m.drillSeed || m.phonics)).toBe(true);
   });
 

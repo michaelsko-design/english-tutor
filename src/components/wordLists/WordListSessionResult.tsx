@@ -4,6 +4,7 @@ import {
   WORD_LIST_DAILY_REWARD_LIMIT,
   WORD_LIST_HIGH_SCORE,
   WordListAnswer,
+  WordListReward,
   getWordListReward,
   scoreWordListAnswers,
 } from '../../data/customWordLists';
@@ -20,6 +21,9 @@ interface WordListSessionResultProps {
   theme: ThemeDefinition;
   onSave: () => void;
   onSaveAndRetry: () => void;
+  /** Another reward rule than a school list's (a Ministry deck's) */
+  getReward?: (scorePercent: number) => WordListReward;
+  repeatRewardNoteHe?: string;
 }
 
 /** Score and rewards at the end of a word-list session; saving applies them. */
@@ -30,10 +34,14 @@ export const WordListSessionResult: React.FC<WordListSessionResultProps> = ({
   theme,
   onSave,
   onSaveAndRetry,
+  getReward,
+  repeatRewardNoteHe = `הפרס המלא ניתן פעם ביום לכל רשימה (עד ${WORD_LIST_DAILY_REWARD_LIMIT} רשימות ביום)`,
 }) => {
   const isGirl = profile.gender === 'girl';
   const score = scoreWordListAnswers(answers);
-  const reward = getWordListReward(profile, list.id, score.scorePercent, toLocalDateStr(new Date()));
+  const reward = getReward
+    ? getReward(score.scorePercent)
+    : getWordListReward(profile, list.id, score.scorePercent, toLocalDateStr(new Date()));
   const isGreat = score.scorePercent >= WORD_LIST_HIGH_SCORE;
   const skippedCount = answers.filter((a) => a.isSkipped).length;
 
@@ -76,8 +84,7 @@ export const WordListSessionResult: React.FC<WordListSessionResultProps> = ({
             <span ref={gemAmountRef} dir="ltr" lang="en">+{reward.diamonds} 💎</span>
           </>
         )}
-        {!reward.isFullReward &&
-          ` · הפרס המלא ניתן פעם ביום לכל רשימה (עד ${WORD_LIST_DAILY_REWARD_LIMIT} רשימות ביום)`}
+        {!reward.isFullReward && ` · ${repeatRewardNoteHe}`}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2.5">

@@ -1,4 +1,6 @@
-# Content packs roadmap: 12 units per grade + a Ministry word track (2026-11-06)
+# Content packs roadmap: 12 units per grade + a Ministry word track (2026-11-06, status 2026-11-09)
+
+> **Status 2026-11-09:** the pack-system changes (§4), the word-track engine, the Season 2 decks and `core-3` (grades 2–12) are written and tested, but not committed, uploaded or released. Writing stops here until the owner asks for `core-4`. Owner decisions and approvals: `docs/content-packs-open-items.md`. Progress log: §8; next steps: §9.
 
 ## Goal
 Every grade covers the Ministry of Education curriculum (English Curriculum 2020: Grammar Bands and Lexical Bands) with **12 units in total**. The rest of the Ministry words come from a **word track** in the Vocabulary Vault. New content comes out **one unit per grade every 2–3 weeks**, so the full curriculum is in the app by the end of the 2026–27 school year.
@@ -15,19 +17,31 @@ Measured with `npm run review:coverage` (sources: `docs/ministry-sources/coverag
 ### Live in the app now (base content)
 There are 162 missions. Every grade has mini-lessons and an exam bank. Grade 1 has 10 units (letters A–Z, blending, then topics). Grades 2–12 have 4 units each.
 
-### Written but not released: four 1-unit packs
+### Written but not released: five 1-unit packs + word decks
 | Pack | Ids | Unlock | Ministry gaps it closes |
 |---|---|---|---|
 | `season2-1` "עונה 2: פרק 1" | u21 | sequence | possessives (g5), used to (g8), past perfect (g9), reported questions/commands (g10), wish (g11), mixed conditionals (g12) |
 | `season2-2` "עונה 2: פרק 2" | u22 | sequence, after `season2-1` | some/any (g5), superlatives (g6), too/enough (g7), reported statements (g9), present perfect continuous (g10), causative (g11) |
 | `holidays-autumn` "חגי הסתיו והחורף" | u31 | open, its own track | seasonal |
 | `holidays-spring` "חגי האביב והקיץ" | u32 | open, its own track | seasonal |
+| `core-3` "עונה 3: פרק 1" | u23 | sequence, after `season2-2`; grades 2–12 | conjunctions + because (g4), will (g5), adverbs of manner (g6), would like + reflexives (g7), present simple passive (g8), present continuous for the future + future continuous (g10), past perfect continuous (g11), sequencing in writing (g12); 6–8 Ministry words per mission |
 
+- **Word decks:** 19 Season 2 decks (372 words) in `src/data/wordDecks/`, released with `season2-1` / `season2-2` (§8). `core-3` has no decks yet.
 - All four packs have lessons, exam banks, icons and tier questions. Their English clips are rendered, and the 12 Hebrew pack-card clips were rendered on 2026-11-06.
 - They still need: `tts:upload`, committing the manifest, a decision on free or Pro for each, and a check in `dev:packs` on desktop and phone.
 - Season 2 uses 4 words per mission.
 
-### Still missing after Season 2
+### Coverage with `core-3` (2026-11-09, `review:coverage -- --packs core-3`: base + core-3 only)
+| List | Taught (productive) | Grammar headings with a mission |
+|---|---|---|
+| Pre-Band I | 40% (41%) | – |
+| Band I Core I / II | 32% (36%) / 20% (21%) | 29 / 33 |
+| Band II Core I / II | 17% (23%) / 13% (15%) | 43 / 50 |
+| Band III 4-point / 5-point | 19% (26%) / 9% (10%) | 36 / 43 |
+
+Season 2 and its decks add more on top (run `--with-packs` for everything written).
+
+### Still missing after Season 2 (2026-11-06, before core-3)
 | | Grammar headings with no mission | Taught later than the Ministry | Productive words not yet taught |
 |---|---|---|---|
 | Pre-Band I (g3) | – | – | 139 |
@@ -209,7 +223,7 @@ Each grade gets built-in **decks of Ministry words** in the Vocabulary Vault. Le
 - **Size:** decks are about 12–30 words per grade per release. Six releases cover the track (126 words in grade 7 = 6 decks of about 21).
 - **Receptive words** don't need decks. They go into unit stories, lesson examples and deck example sentences, and count as "seen".
 
-## 4. Pack-system changes needed (before core-3)
+## 4. Pack-system changes needed (before core-3): items 1–3 done 2026-11-09 (§8)
 1. **Words per mission per pack and grade.** Season 2 and the holiday packs keep 4. Core-3 onward use 6 in grades 1–3 and 8 in grades 4–12 (`contentPacks.test.ts`).
 2. **A core pack may skip a grade that is complete.** Grade 1 has no core-3 to core-8.
    - The merge already handles a missing grade, and the new-pack card only appears for grades that have the pack's unit.
@@ -221,9 +235,9 @@ Each grade gets built-in **decks of Ministry words** in the Vocabulary Vault. Le
 | When | Release |
 |---|---|
 | ~25 Nov 2026 | `holidays-autumn` (Hanukkah starts about 4 Dec) |
-| ~6 Jan 2027 | `season2-1` |
+| ~6 Jan 2027 | `season2-1` (the word track ships here, with its first decks: grades 4–12) |
 | ~13 Jan 2027 | `holidays-spring` (Tu BiShvat ~23 Jan, Purim in March) |
-| ~27 Jan 2027 | `season2-2` (the word track ships here, with its first decks) |
+| ~27 Jan 2027 | `season2-2` + decks (grade 1's Pre-Band I phrases, and grades 4–12's second decks) |
 | ~17 Feb 2027 | `core-3` + decks |
 | ~10 Mar 2027 | `core-4` + decks |
 | ~31 Mar 2027 | `core-5` + decks (Passover ~22 Apr) |
@@ -271,7 +285,37 @@ They have 4–6 words per mission and use review-level grammar.
   - `dev:packs` on desktop and phone
   - a Playwright play-test of one mission in grades 2, 8 and 12
 
-## 8. Done so far (2026-11-06)
+## 8. Done so far (2026-11-06 – 2026-11-09)
 - The packs were split into one unit each: `season2-1`, `season2-2`, `holidays-autumn` and `holidays-spring` (`packs/registry.ts`). Their sequence order is checked (`registry.test.ts`).
 - `review:coverage -- --packs <ids>` measures coverage as if only those packs had shipped. The reported-speech matcher now recognises "Reported Statements / Questions / Commands".
 - The 12 new Hebrew pack-card clips are rendered. They are not uploaded to R2 yet.
+- [x] §4 item 1: words per mission is per pack and grade. Each registry entry sets `wordsPerMission`, read with `packWordsPerMission(pack, grade)`: Season 2 and the holiday packs 4; core-3 onward `ENRICHMENT_WORDS_PER_MISSION` (6 in grades 1–3, 8 in 4–12). `contentPacks.test.ts` checks every mission against it.
+- [x] §4 item 2: a core pack may skip a complete grade. A registry entry may list `grades` (all 12 when left out), read with `packGrades(pack)`. A skipped grade gets no unit, lessons, bank or new-pack card from the pack; in that grade the next core pack follows straight after the last unit it has (`after` is the app-wide release order and never blocks a grade). `contentPacks.test.ts` checks 1 unit in every listed grade and none in the others; `packs/gradeSkip.test.ts` covers a synthetic pack without grade 1.
+- [x] §4 item 3: the word-track engine (`src/data/wordDecks/`, docs/architecture.md §4.26.1). Per-grade lazy deck registries (empty: the real decks are written with each pack), released and Pro-gated with their pack, listed in the Vocabulary Vault with read-aloud, practised on the word-list engine, mastered on two different days (`deckWordMastery`, synced), counted in the mastered-words tile and the weekly report, rewarded like a word list, a Games Book word source, voiced by both corpora and counted by `review:coverage`. Before the first deck ships, deploy `firestore.rules` (the report snapshot's `deckWordMastery`).
+- [x] Season 2 decks: the first real word decks, 19 decks / 372 words (`src/data/wordDecks/grade<N>.ts`). `season2-1`: grades 4–9 take the first "Deck topics" of §2, grades 10–12 a 5-point cluster (Health & Medicine, Science & Technology, Linking Ideas). `season2-2`: grade 1's Pre-Band I phrases (18), grades 4–9 the second topic, grades 10–12 Rights & Society, Feelings & Character, Media & Culture. Grades 2–3 have none. Words picked by §2's order (productive never in the app → only after the band → seen) from the band's lists; `wordDecks.test.ts` checks no deck word repeats another deck's or any mission's. English clips rendered; the grade 1 deck's 76 Hebrew clips rendered too (Gemini). Not uploaded. The deck word-order step says "סדרי / סדר את המילים למשפט." (no "from the teacher's page", `buildDeckSteps`).
+- [x] `core-3` fully written (grades 2–12, all 4 parts; unreleased, clips not uploaded). Registry entry (`after: 'season2-2'`, ids `u23`, rewards like unit 9, `ENRICHMENT_WORDS_PER_MISSION`), source folder `packs/core3/` (curriculum, lessons, exam banks, loaders). `grades` is `[2, 3, …, 12]` (`CORE_3_GRADES`; grade 1 skipped). Every unit: 2 missions + Boss, full tiers, glosses, lessons, exam bank 23.
+  - Part 1: grade 2 "Polite Words" and grade 3 "Do You Like…? Do You Have…?", 6 Pre-Band I words per mission. Pre-Band I taught 16% → 40%. Grade 2 Hebrew clips submitted to Gemini.
+  - Part 2: grade 4 "Friends & Feelings" (and / but / or, because), grade 5 "Future Me" (will, Will you…?), grade 6 "Sports & Competitions" (adverbs of manner), 8 Band I words per mission (never in the app first, then taught only later, then seen; none in a mission or deck). Band I Core I taught 22% → 32% (productive 23% → 36%), Core II 13% → 20%; Band I grammar 24/33 → 29/33 headings with a mission, and Coordinated, Subordinated, will + verb (and questions) and Adverbs: Manner now have one at the Ministry's grade.
+  - Part 3: grade 7 "Café & Ordering" (would like, reflexive pronouns), grade 8 "Made in Israel" (present simple passive, brought forward from grade 9), grade 9 "Identity" (relative clauses recycled; Boss with Band II review), 8 Band II words per mission (never in the app or seen only; none taught only later). Band II Core I taught 12% → 17% (productive 14% → 23%), Core II 9% → 13% (productive 8% → 15%); Band II grammar 41/50 → 43/50 headings with a mission: would like and reflexive pronouns now have one in grade 7, and the present simple passive in grade 8 (the Ministry's grades). Mission icons and badges reuse drawn icons (grades 7–9 word emoji need none).
+  - English clips rendered (`review:coverage -- --packs core-3` for the figures). Vocabulary emoji reuse existing drawn icons; a few want their own pictures. Not uploaded.
+  - Part 4: grade 10 "Gap Year Plans" (present continuous for the future, future continuous), grade 11 "Investigations" (past perfect continuous; Boss against the past perfect simple), grade 12 "Essay Skills" (sequencing and coordinating in Bagrut writing), 8 Band III Core I (4-point) words per mission, all never in the app before. Band III Core I taught 11% → 19% (productive 11% → 26%, 99 → 172 entries); Core II unchanged in kind (9%, a few incidental matches). Band III grammar 31/43 → 36/43 headings with a mission: present continuous for the future and future continuous now in grade 10 (the Ministry's grade), past perfect continuous in grade 11 and adverbs of sequencing in grade 12 (later than the Ministry's 10). The coverage matcher now reads a phrasal verb listed in both word orders ("sum up sth or sum sth up") as one phrase. `e2e/packs-core3.spec.ts` (`playwright.packs.config.ts`, the packs preview) plays core-3's first mission in grades 2, 8 and 12.
+
+## 9. Status and next steps (2026-11-09)
+**Done (uncommitted, unreleased):** §4 items 1–3, the Season 2 decks, `core-3` in grades 2–12 (33 missions with tiers, lessons and banks; about 2,700 English and 209 Hebrew clips rendered).
+
+**Stopped on purpose:** no `core-4`…`core-8`, no core-3 decks, no seasonal packs until the owner asks.
+
+**Before anything ships** (details in `docs/content-packs-open-items.md`):
+1. The owner reviews the Hebrew, the facts and the content choices; the fixes are applied, then `review:he-tiers` and `tts:review:he` by ear.
+2. Commit the work (own files only), `tts:upload`, then commit the manifest.
+3. Deploy `firestore.rules` (deck mastery in the parent snapshot).
+4. Decide free/Pro per pack; check `dev:packs` on desktop and phone, including the Vault decks.
+5. Approve and generate the word pictures (57 words, 7 sheets, grades 2–6), then swap them in.
+6. Release on the §5 calendar: `holidays-autumn` ~25 Nov 2026 first.
+
+**When writing resumes:** `core-3` decks (§3: one deck per grade 4–12, topics from §2), then `core-4` in the same 4 parts (grades 2–3, 4–6, 7–9, 10–12), one sub-agent per part. §5 needs `core-4` by ~10 Mar 2027.
+
+**Lessons from core-3:**
+- One pack is too big for one agent: write it in four grade bands, run one after another.
+- Every brief must say: plural "אתם" for learner-addressed sentences (no "את/ה"), one spelling standard, no words taught by any mission or deck (`wordDecks.test.ts` catches deck clashes), and list the pictures instead of generating them.
+- `npm run review:coverage -- --packs <id>` before and after each band; record the figures here.

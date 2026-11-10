@@ -29,6 +29,8 @@ import { CONTENT_PACKS, PACK_UNIT_COUNT } from '../../src/data/curriculum/packs/
 import { getNewPackCopy } from '../../src/data/contentPacks';
 import { getProSheetSpokenHe } from '../../src/data/proAsk';
 import { CorpusBuilder } from './corpusBuilder';
+import { addDeckHebrew } from './deckCorpus';
+import { ALL_WORD_DECKS } from '../../src/data/wordDecks/all';
 
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
 const GENDERS: LearnerGender[] = ['girl', 'boy'];
@@ -165,6 +167,13 @@ function addFixedFeedback(corpus: CorpusBuilder): void {
   BLEND_WORDS.forEach((word) => corpus.add(getWordBuiltHe(word.word)));
 }
 
+/** The Ministry word decks of grades 1–2 (released or not): their titles and their sessions' Hebrew */
+function addWordDecks(corpus: CorpusBuilder): void {
+  for (const gradeId of HEBREW_AUDIO_GRADES) {
+    addDeckHebrew(corpus, ALL_WORD_DECKS[gradeIdToNumber(gradeId)] ?? []);
+  }
+}
+
 /** Hebrew clips exist for grades 1–2 only (Feature 47): refuse to build for any other grade. */
 function assertYoungGradesOnly(): void {
   const grades = HEBREW_AUDIO_GRADES.map((gradeId) => gradeIdToNumber(gradeId));
@@ -180,6 +189,7 @@ export function buildHebrewCorpus(isSplittingOpeners = true): CorpusBuilder {
   addMissions(corpus);
   addLessons(corpus);
   addExamBanks(corpus);
+  addWordDecks(corpus);
   return corpus;
 }
 
@@ -192,10 +202,11 @@ export function buildUnitHebrewCorpus(scope: UnitScope): CorpusBuilder {
   return corpus;
 }
 
-/** The lines every learner meets whatever the unit: feedback, read-gate, pack and Pro cards. */
+/** The lines every learner meets whatever the unit: feedback, read-gate, pack and Pro cards, word decks. */
 export function buildGeneralHebrewCorpus(): CorpusBuilder {
   const corpus = new CorpusBuilder(isHebrewSpeakable, true);
   addFixedFeedback(corpus);
+  addWordDecks(corpus);
   for (const gradeId of HEBREW_AUDIO_GRADES) {
     const bossRecap = buildBossRecap(Object.values(ALL_LESSON_PACKS[gradeIdToNumber(gradeId)] ?? {}).slice(0, 1));
     addHebrew(corpus, bossRecap?.titleHe);

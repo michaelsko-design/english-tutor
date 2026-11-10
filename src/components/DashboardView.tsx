@@ -27,7 +27,8 @@ import { DailyQuestsCard } from './DailyQuestsCard';
 
 import { AuthModal } from './AuthModal';
 
-import { applyPlacementToProfile } from '../data/placementTest';
+import { applyPlacementToProfile, gradeIdToNumber } from '../data/placementTest';
+import type { WordDeck } from '../data/wordDecks/types';
 import { applyVocabPracticeReward, getTodayCounters, levelForXp, recordDailyActivity } from '../data/progressRewards';
 import { STREAK_SHIELD_ITEM_ID, addStreakShield, getCurrentStreak, getStreakShieldsLeft } from '../data/streak';
 import { toLocalDateStr } from '../utils/dates';
@@ -77,6 +78,7 @@ import { FIRST_TIER_CLEAR_DIAMONDS, getMissionLadder, recordTierStars } from '..
 
 const MissionRunner = lazyNamed(() => import('./MissionRunner'), 'MissionRunner');
 const VocabularyVaultModal = lazyNamed(() => import('./VocabularyVaultModal'), 'VocabularyVaultModal');
+const WordDeckSession = lazyNamed(() => import('./wordDecks/WordDeckSession'), 'WordDeckSession');
 const RewardShopModal = lazyNamed(() => import('./RewardShopModal'), 'RewardShopModal');
 const PlacementTest = lazyNamed(() => import('./PlacementTest'), 'PlacementTest');
 const ProfileTour = lazyNamed(() => import('./tutorial/ProfileTour'), 'ProfileTour');
@@ -156,6 +158,8 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   const [activePracticeMission, setActivePracticeMission] =
     useState<MissionNode | null>(null);
   const [isVocabVaultOpen, setIsVocabVaultOpen] = useState(false);
+  // A Ministry deck session replaces the Vault while it runs, and goes back to it when it ends
+  const [deckRun, setDeckRun] = useState<{ deck: WordDeck; runId: number } | null>(null);
   const [isRewardShopOpen, setIsRewardShopOpen] = useState(false);
   useTrackFeature('feature_shop', isRewardShopOpen);
   // Opening the shop answers the "you have gems to spend" tip
@@ -217,7 +221,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   );
   const isFreeMissionsDone = hasFinishedFreeMissions(gradeCurriculum.units, profile.missionProgress || {}, proAccess);
   const missionsCompletedCount = countCompletedMissions(profile.missionProgress || {});
-  const masteredWordCount = countMasteredWords(profile.missionProgress || {});
+  const masteredWordCount = countMasteredWords(profile.missionProgress || {}, profile.deckWordMastery);
   const activeTier = TIER_CONFIG[profile.preferredTier];
 
   const calculatedXp = Math.round(todaysMission.baseXp * activeTier.xpMultiplier);
@@ -370,6 +374,16 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   };
 
   /** Rewards a word said in the Vault, once per word per day; false when it earned nothing. */
+  const startDeckSession = (deck: WordDeck) => {
+    setIsVocabVaultOpen(false);
+    setDeckRun({ deck, runId: Date.now() });
+  };
+
+  const closeDeckSession = () => {
+    setDeckRun(null);
+    setIsVocabVaultOpen(true);
+  };
+
   const handleEarnVocabReward = (wordEn: string, xpBonus: number, diamondBonus: number): boolean => {
     const result = applyVocabPracticeReward(profile, wordEn, xpBonus, diamondBonus, toLocalDateStr(new Date()));
     if (result.isRewarded) onUpdateProfile(result.profile);
@@ -811,6 +825,24 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             onSpeakEnglish={speakEnglish}
             onEarnPracticeReward={handleEarnVocabReward}
             onClose={() => setIsVocabVaultOpen(false)}
+            deckGrade={gradeIdToNumber(profile.gradeId)}
+            deckWordMastery={profile.deckWordMastery}
+            onStartDeck={startDeckSession}
+          />
+        </Suspense>
+      )}
+
+      {deckRun && (
+        <Suspense fallback={<ScreenLoading />}>
+          <WordDeckSession
+            key={deckRun.runId}
+            deck={deckRun.deck}
+            profile={profile}
+            theme={theme}
+            onSpeakEnglish={speakEnglish}
+            onUpdateProfile={onUpdateProfile}
+            onRetry={() => startDeckSession(deckRun.deck)}
+            onClose={closeDeckSession}
           />
         </Suspense>
       )}

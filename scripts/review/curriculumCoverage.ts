@@ -8,7 +8,7 @@
  *   npm run review:coverage -- --packs season2-1,season2-2   (as if these packs had shipped, in this order)
  *
  * Writes review-out/curriculum-coverage.html and .json. Matching is approximate (curriculumMatch/wordMatch.ts).
- * "Taught" = a mission vocabulary word. "Seen" = appears in any English the grade shows
+ * "Taught" = a mission vocabulary word or a word of a counted pack's Ministry word deck. "Seen" = appears in any English the grade shows
  * (missions, mini-lessons, exam bank).
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -16,7 +16,9 @@ import { BASE_CURRICULUM_BY_GRADE } from '../../src/data/curriculum/base';
 import { ALL_EXAM_BANKS } from '../../src/data/curriculum/examBank';
 import { ALL_LESSON_PACKS } from '../../src/data/curriculum/lessons';
 import { getContentWithPacks } from '../../src/data/curriculum/packs/all';
-import { CONTENT_PACK_IDS } from '../../src/data/curriculum/packs/registry';
+import { CONTENT_PACK_IDS, RELEASED_CONTENT_PACKS } from '../../src/data/curriculum/packs/registry';
+import { getPackDecks } from '../../src/data/wordDecks/all';
+import { getDeckPackIds } from '../../src/data/wordDecks/release';
 import type { ContentPackId } from '../../src/data/curriculum/packs/types';
 import { checkHeading, type GrammarHeading, type GrammarResult } from './curriculumMatch/grammarRules';
 import { buildIndex, entryFoundIn, entryVariants, normalizeText, variantForms, type TextIndex } from './curriculumMatch/wordMatch';
@@ -105,9 +107,15 @@ function gradeTexts(packIds: readonly ContentPackId[]): Map<number, GradeTexts> 
     const pack = curriculum[`grade-${grade}` as keyof typeof curriculum];
     if (pack === undefined) throw new Error(`No curriculum for grade ${grade}`);
     const missions = pack.units.flatMap((unit) => unit.missions);
-    const taught = missions.flatMap((mission) => mission.vocabulary.map((item) => item.wordEn));
+    // The Ministry word decks of the counted packs (the released ones by default) teach their words too
+    const decks = getPackDecks(grade, packIds.length > 0 ? packIds : getDeckPackIds(RELEASED_CONTENT_PACKS, false));
+    const taught = [
+      ...missions.flatMap((mission) => mission.vocabulary.map((item) => item.wordEn)),
+      ...decks.flatMap((deck) => deck.items.map((item) => item.wordEn)),
+    ];
     const seen: string[] = [...taught];
     collectEnglish(missions, '', seen);
+    collectEnglish(decks, '', seen);
     collectEnglish(lessons[grade] ?? {}, '', seen);
     collectEnglish(exams[grade] ?? {}, '', seen);
     const topics = missions.flatMap((mission) => [mission.grammarTopic, mission.titleEn]);
@@ -299,7 +307,7 @@ function renderHtml(results: readonly ListResult[], beyond: Map<number, BeyondWo
   return `<!doctype html><html lang="en"><meta charset="utf-8"><title>Curriculum coverage</title>
 <style>body{font:14px system-ui;margin:24px;max-width:1100px}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:4px 8px;text-align:left}p{line-height:1.6}</style>
 <h1>Ministry word lists vs. EnglishVibe (${packLabel})</h1>
-<p>Approximate matching (regular inflections + common irregulars). "Taught" = a mission vocabulary word in grades 1 to the band's last grade. "Seen" = taught or appears in any English the app shows in those grades. * = productive word in the official list.</p>
+<p>Approximate matching (regular inflections + common irregulars). "Taught" = a mission vocabulary word or a Ministry word-deck word in grades 1 to the band's last grade. "Seen" = taught or appears in any English the app shows in those grades. * = productive word in the official list.</p>
 <table><tr><th>Official list</th><th>Grades</th><th>Entries</th><th>Taught</th><th>Taught + seen</th><th>Productive taught</th><th>Only later</th><th>Never</th></tr>${rows}</table>
 <h2>Gaps per list</h2>${details}
 <h2>App vocabulary outside the official lists for its grade</h2>

@@ -61,6 +61,16 @@ export async function writeDocument(path: string, fields: Record<string, PlainFi
   });
 }
 
+/** Sets a learner's `missionProgress` (stars per mission id), leaving the rest of the profile as it is. */
+export async function setMissionProgress(uid: string, stars: Record<string, number>): Promise<void> {
+  const fields = Object.fromEntries(Object.entries(stars).map(([id, value]) => [id, toFirestore(value)]));
+  await request(`${DOCUMENTS}/learners/${uid}?updateMask.fieldPaths=missionProgress`, {
+    method: 'PATCH',
+    headers: OWNER_HEADERS,
+    body: JSON.stringify({ fields: { missionProgress: { mapValue: { fields } } } }),
+  });
+}
+
 export async function deleteDocument(path: string): Promise<void> {
   await request(`${DOCUMENTS}/${path}`, { method: 'DELETE', headers: OWNER_HEADERS });
 }

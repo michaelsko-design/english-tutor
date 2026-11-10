@@ -26,6 +26,7 @@ import { CrosswordGame } from './CrosswordGame';
 import { ScrambleGame } from './ScrambleGame';
 import { WordHuntGame } from './WordHuntGame';
 import { formatVibeGain } from '../../../utils/bidi';
+import { useProAccess } from '../../../hooks/useProAccess';
 
 interface GamesBookPanelProps {
   profile: LearnerProfile;
@@ -54,9 +55,10 @@ export const GamesBookPanel: React.FC<GamesBookPanelProps> = ({ profile, theme, 
   const [view, setView] = useState<BookView>({ kind: 'menu' });
   // The grade's vocabulary loads when the book opens (a few KB; nearby grades only if it is thin)
   const [words, setWords] = useState<GameWord[] | null>(null);
+  const proAccess = useProAccess();
   useEffect(() => {
     let isActive = true;
-    loadGameWords(profile).then((loaded) => isActive && setWords(loaded));
+    loadGameWords(profile, proAccess).then((loaded) => isActive && setWords(loaded));
     return () => {
       isActive = false;
     };

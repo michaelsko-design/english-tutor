@@ -455,12 +455,14 @@ service cloud.firestore {
     }
 
     // Only what the weekly report reads (src/data/parentLink.ts buildReportSnapshot): no age,
-    // school, journal, voice messages or friends.
+    // school, journal, voice messages or friends. `deckWordMastery` (the mastered Ministry deck
+    // words) is there only once a deck word is mastered.
     function isReportSnapshot(data) {
       let keys = ['name', 'gender', 'gradeId', 'preferredTier', 'isShabbatObserver', 'stats',
                   'missionProgress', 'activityLog', 'updatedAt'];
-      return data.keys().hasOnly(keys)
+      return data.keys().hasOnly(keys.concat(['deckWordMastery']))
         && data.keys().hasAll(keys)
+        && (!('deckWordMastery' in data) || (data.deckWordMastery is map && data.deckWordMastery.size() <= 3000))
         && data.name is string
         && data.name.size() <= 40
         && data.gender in ['girl', 'boy']

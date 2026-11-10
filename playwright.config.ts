@@ -10,6 +10,8 @@ const E2E_BASE_URL = `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: 'e2e',
+  // Pack previews need the packs-mode server: playwright.packs.config.ts
+  testIgnore: /packs-.*\.spec\.ts/,
   globalSetup: './e2e/global-setup.ts',
   // One shared emulator: tests run one at a time and each makes its own learner
   workers: 1,

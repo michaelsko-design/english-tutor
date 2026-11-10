@@ -78,7 +78,7 @@ describe('clip coverage', () => {
     const listed = new Set(manifest?.voices[voice] ?? []);
     const missing = collectCorpus(voice).filter((phrase) => !listed.has(phrase.key));
     expect(missing.map((phrase) => phrase.text.slice(0, 60))).toEqual([]);
-  });
+  }, ALL_LINES_TIMEOUT_MS);
 
   it(
     'plays every Hebrew line from clips, whichever way it is split, for a girl and a boy',

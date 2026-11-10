@@ -8,7 +8,7 @@ import type { GradeCurriculumPack } from '../types';
  * and switched on later as an update or a seasonal special (`registry.ts`). One unit per pack, so
  * new content can ship a little at a time.
  */
-export type ContentPackId = 'season2-1' | 'season2-2' | 'holidays-autumn' | 'holidays-spring';
+export type ContentPackId = 'season2-1' | 'season2-2' | 'core-3' | 'holidays-autumn' | 'holidays-spring';
 
 /**
  * `core` packs continue the grade's path and enrich it toward the Ministry curriculum, one after
@@ -22,6 +22,9 @@ export type PackKind = 'core' | 'seasonal';
  */
 export type PackUnlock = 'sequence' | 'open';
 
+/** New words each mission teaches: the same in every grade, or one number for grades 1–3 and one for 4–12 */
+export type WordsPerMission = number | { readonly upToGrade3: number; readonly fromGrade4: number };
+
 export interface ContentPack {
   id: ContentPackId;
   titleHe: string;
@@ -34,6 +37,13 @@ export interface ContentPack {
   idUnitNumber: number;
   /** The unit number its rewards are scaled by, so a pack pays like units 5–8 */
   xpUnitNumber: number;
+  /** New words per mission (`packWordsPerMission`); core-3 onward use `ENRICHMENT_WORDS_PER_MISSION` */
+  wordsPerMission: WordsPerMission;
+  /**
+   * The grades (1–12) that get the pack's unit, read with `packGrades`; all 12 when left out. A core
+   * pack may skip a grade that is already complete (grade 1 has no core-3 to core-8).
+   */
+  grades?: readonly number[];
 }
 
 /**

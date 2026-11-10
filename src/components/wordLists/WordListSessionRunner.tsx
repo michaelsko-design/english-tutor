@@ -4,6 +4,7 @@ import { spellSlots } from '../../utils/letterSlots';
 import { MagnetChange } from '../../utils/magnetOrder';
 import {
   WordListAnswer,
+  WordListReward,
   WordListStep,
   buildWordListSteps,
   getSpellingLetters,
@@ -39,6 +40,12 @@ interface WordListSessionRunnerProps {
   onSpeakEnglish: (text: string, rate?: number) => void;
   onFinish: (answers: WordListAnswer[], next: WordListSessionNext) => void;
   onClose: () => void;
+  /** A fixed session (a Ministry deck's bounded salt); a random one when left out */
+  salt?: number;
+  /** The session's reward for the result screen, when it isn't a school list's (a deck's) */
+  getReward?: (scorePercent: number) => WordListReward;
+  /** The note shown when only the repeat reward is given */
+  repeatRewardNoteHe?: string;
 }
 
 /** The question card: the Hebrew meaning to match, or the sentence's translation. Spelling and voice have their own. */
@@ -60,12 +67,15 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   onSpeakEnglish,
   onFinish,
   onClose,
+  salt: fixedSalt,
+  getReward,
+  repeatRewardNoteHe,
 }) => {
   useStopSpeechOnLeave();
   const gender = profile.gender;
   const isGirl = gender === 'girl';
   // A new salt per run picks other items and a new tile order, stable across re-renders.
-  const [salt] = useState(() => Math.floor(Math.random() * 1_000_000_000));
+  const [salt] = useState(() => fixedSalt ?? Math.floor(Math.random() * 1_000_000_000));
   const steps = useMemo(() => buildWordListSteps(list, gender, salt), [list, gender, salt]);
 
   const session = useDrillSession<WordListAnswer>();
@@ -96,7 +106,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
 
   /** Records the step once; only a first-try answer counts as correct. */
   const resolveStep = (isCorrect: boolean, text: string, isSkipped = false) => {
-    const answer: WordListAnswer = { type: step.type, isCorrect: isCorrect && !hasMissed, isSkipped };
+    const answer: WordListAnswer = { type: step.type, itemId: step.itemId, isCorrect: isCorrect && !hasMissed, isSkipped };
     // A late speech result must not overwrite the recorded answer.
     cancelListening();
     session.resolve(answer, { isCorrect, text });
@@ -181,6 +191,8 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
           profile={profile}
           answers={answers}
           theme={theme}
+          getReward={getReward}
+          repeatRewardNoteHe={repeatRewardNoteHe}
           onSave={() => onFinish(answers, 'lists')}
           onSaveAndRetry={() => onFinish(answers, 'retry')}
         />

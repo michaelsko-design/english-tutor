@@ -21,7 +21,7 @@ import { getSentenceOrderHintHe, isolateLtr } from '../utils/hints';
 import { hebrewTemplate } from '../utils/hebrewGender';
 import { loadGradeCurriculum } from './curriculum/loader';
 import { ALL_PACK_EXAM_BANK_LOADERS } from './curriculum/packs';
-import { mergeExamBank } from './curriculum/packs/merge';
+import { mergeExamBank, packLoadersInGrade } from './curriculum/packs/merge';
 import { IS_PACK_PREVIEW } from './curriculum/packs/registry';
 import type { ContentPackId, PackExamBankLoaders } from './curriculum/packs/types';
 
@@ -73,7 +73,7 @@ export async function loadExamBank(gradeId: GradeId): Promise<ExamBankPack | nul
   const grade = getGradeNumber(gradeId);
   const load = EXAM_BANK_LOADERS[grade];
   if (!load) return null;
-  const packLoads = Object.values(PACK_EXAM_BANK_LOADERS).flatMap((loaders) => loaders?.[grade] ?? []);
+  const packLoads = packLoadersInGrade(PACK_EXAM_BANK_LOADERS, grade);
   try {
     const [base, ...packBanks] = await Promise.all([load(), ...packLoads.map((loadPack) => loadPack())]);
     if (packBanks.length === 0) return base;

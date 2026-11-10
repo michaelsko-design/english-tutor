@@ -577,6 +577,39 @@ describe('mergeLearnerProfiles streak and replay rewards', () => {
   });
 });
 
+describe('mergeLearnerProfiles Ministry word decks', () => {
+  it('unites the deck words, keeping the earliest mastery date', () => {
+    const merged = mergeLearnerProfiles(
+      {
+        ...baseProfile,
+        deckWordMastery: {
+          apple: { wordEn: 'apple', translationHe: 'תפוח', firstTryDays: ['2026-11-01', '2026-11-04'], masteredOn: '2026-11-04' },
+        },
+      },
+      {
+        ...baseProfile,
+        deckWordMastery: {
+          apple: { wordEn: 'apple', translationHe: 'תפוח', firstTryDays: ['2026-11-02', '2026-11-03'], masteredOn: '2026-11-03' },
+          bread: { wordEn: 'bread', translationHe: 'לחם', firstTryDays: ['2026-11-05'] },
+        },
+      }
+    );
+    expect(merged.deckWordMastery?.apple.masteredOn).toBe('2026-11-02');
+    expect(merged.deckWordMastery?.bread.firstTryDays).toEqual(['2026-11-05']);
+  });
+
+  it('keeps each deck’s latest full-reward day, and a profile without decks stays without them', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, deckRewardDates: { food: '2026-11-08' } },
+      { ...baseProfile, deckRewardDates: { food: '2026-11-09', home: '2026-11-01' } }
+    );
+    expect(merged.deckRewardDates).toEqual({ food: '2026-11-09', home: '2026-11-01' });
+    const plain = mergeLearnerProfiles(baseProfile, baseProfile);
+    expect(plain).not.toHaveProperty('deckWordMastery');
+    expect(plain).not.toHaveProperty('deckRewardDates');
+  });
+});
+
 describe('mergeLearnerProfiles fields added by the audit', () => {
   it('keeps the parent’s first consent and the school grade', () => {
     const merged = mergeLearnerProfiles(

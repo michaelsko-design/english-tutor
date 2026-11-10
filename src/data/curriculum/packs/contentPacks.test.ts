@@ -7,18 +7,16 @@ import { isPhonicsUnit } from '../types';
 import { ALL_PACK_CONTENT, CURRICULUM_WITH_ALL_PACKS } from './all';
 import { ALL_PACK_EXAM_BANK_LOADERS, ALL_PACK_LESSON_LOADERS } from './index';
 import { getIdUnitNumber } from './merge';
-import { CONTENT_PACK_IDS } from './registry';
-import type { ContentPack, ContentPackId } from './types';
+import { ALL_GRADES, CONTENT_PACK_IDS, packGrades, packHasGrade, packWordsPerMission } from './registry';
 
-const GRADES = Array.from({ length: 12 }, (_, i) => i + 1);
-const CASES = ALL_PACK_CONTENT.flatMap((content) => GRADES.map((grade) => ({ content, grade, packId: content.pack.id })));
+const GRADES = ALL_GRADES;
+/** Every grade each pack lists (`packGrades`): a core pack may skip a grade that is complete */
+const CASES = ALL_PACK_CONTENT.flatMap((content) =>
+  packGrades(content.pack).map((grade) => ({ content, grade, packId: content.pack.id }))
+);
 const gradeIdOf = (grade: number) => `grade-${grade}` as GradeId;
 const UNITS_PER_PACK = 1;
 const MISSIONS_PER_UNIT = 3;
-/** Packs written before the enrichment rule teach 4 words per mission */
-const FOUR_WORD_PACKS: readonly ContentPackId[] = ['season2-1', 'season2-2', 'holidays-autumn', 'holidays-spring'];
-/** Core (enrichment) packs teach 6 new words per mission, from the Ministry word lists; seasonal packs 4 */
-const wordsPerMission = (pack: ContentPack): number => (pack.kind === 'core' && !FOUR_WORD_PACKS.includes(pack.id) ? 6 : 4);
 /** Grades whose words are shown as pictures */
 const PICTURE_GRADES = 6;
 
@@ -39,9 +37,19 @@ describe('content packs', () => {
       expect(unit.missions.map((m) => Boolean(m.isBoss))).toEqual([false, false, true]);
       unit.missions.forEach((m) => {
         expect(m.drillSeed, m.id).toBeDefined();
-        expect(m.vocabulary, m.id).toHaveLength(wordsPerMission(content.pack));
+        expect(m.vocabulary, m.id).toHaveLength(packWordsPerMission(content.pack, grade));
       });
     });
+  });
+
+  it('adds no unit to a grade the pack does not list', () => {
+    const skipped = ALL_PACK_CONTENT.flatMap((content) =>
+      GRADES.filter((grade) => !packHasGrade(content.pack, grade)).map((grade) => ({ content, grade }))
+    );
+    const withUnits = skipped.filter(({ content, grade }) =>
+      CURRICULUM_WITH_ALL_PACKS[gradeIdOf(grade)].units.some((u) => u.packId === content.pack.id)
+    );
+    expect(withUnits.map(({ content, grade }) => `${content.pack.id} g${grade}`)).toEqual([]);
   });
 
   it.each(CASES)('$packId grade $grade has a lesson for each regular mission and a full bank per unit', ({ content, grade }) => {
@@ -77,7 +85,7 @@ describe('content packs', () => {
   });
 
   it('adds nothing to the app while no pack is released', () => {
-    expect(CONTENT_PACK_IDS).toEqual(['season2-1', 'season2-2', 'holidays-autumn', 'holidays-spring']);
+    expect(CONTENT_PACK_IDS).toEqual(['season2-1', 'season2-2', 'core-3', 'holidays-autumn', 'holidays-spring']);
     expect(BASE_CURRICULUM_BY_GRADE['grade-5'].units).toHaveLength(4);
   });
 });

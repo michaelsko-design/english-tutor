@@ -88,8 +88,21 @@ export function entryVariants(entry: string): string[] {
   const variants = withoutNotes
     .split(/\/|[?!]|…|\.\.\./)
     .map((part) => normalizeText(part).trim().split(' ').filter((w) => w && !PLACEHOLDERS.has(w)).join(' '))
+    .flatMap(splitWordOrders)
     .filter((part) => part.length > 0);
   return [...new Set(variants)];
+}
+
+/**
+ * A phrasal verb listed in both word orders ("give up sth or give sth up" → "give up or give up")
+ * is one phrase, not a phrase with "or" in it. Only split when both sides start with the same
+ * word, so "more or less" and "sooner or later" stay whole.
+ */
+function splitWordOrders(variant: string): string[] {
+  const sides = variant.split(' or ');
+  if (sides.length !== 2) return [variant];
+  const [left, right] = sides;
+  return left.split(' ')[0] === right.split(' ')[0] ? [left, right] : [variant];
 }
 
 /** Every searchable form of one variant: single words inflected, phrases with the first word inflected */
