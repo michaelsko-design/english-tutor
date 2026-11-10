@@ -1,5 +1,5 @@
 import type { MissionExerciseStep } from '../missionExercises';
-import { isolateLtr, toClozeSentence } from '../../utils/hints';
+import { isolateLtr, toExactClozeSentence } from '../../utils/hints';
 import {
   buildSentenceStep,
   buildVoiceStep,
@@ -13,11 +13,26 @@ import {
  * Challenger ⚡ (use in context): a fill-in-the-blank with the mission's second word, the full key
  * sentence to build and say, the grade's rule question and its story with the Hebrew translation.
  */
+/**
+ * The fill-in offers the headword itself, so it needs an example that has the word as written
+ * ("Dogs smell…" can't take "smell"): from the salt's word on, the first word whose example does.
+ * The tier lint checks every mission has one.
+ */
+function pickExactClozeIndex(ctx: TierContext, startIndex: number): number {
+  const count = ctx.vocab.length;
+  for (let step = 0; step < count; step++) {
+    const index = (startIndex + step) % count;
+    const word = ctx.vocab[index];
+    if (toExactClozeSentence(word.exampleEn, word.wordEn)) return index;
+  }
+  return startIndex;
+}
+
 export function buildChallengerSteps(ctx: TierContext): MissionExerciseStep[] {
   const { he, mission, seed, tiers } = ctx;
-  const wordIndex = pickVocabIndex(ctx, 1);
+  const wordIndex = pickExactClozeIndex(ctx, pickVocabIndex(ctx, 1));
   const word = ctx.vocab[wordIndex];
-  const cloze = toClozeSentence(word.exampleEn, word.wordEn);
+  const cloze = toExactClozeSentence(word.exampleEn, word.wordEn);
   const [wrongA, wrongB] = tiers.challenger.clozeWrong[wordIndex];
 
   const step1: MissionExerciseStep = {

@@ -217,8 +217,8 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
       sentenceEn: 'Do you know my best friend?',
       sentenceHe: 'אתם מכירים את החבר הכי טוב שלי?',
       vocab: [
-        ['know', 'verb', 'לדעת / להכיר', '🤓', 'Do you know my teacher?', 'אתם מכירים את המורה שלי?'],
-        ['color', 'noun', 'צבע', '🟧', 'What color is your bag?', 'באיזה צבע התיק שלך?'],
+        ['Do you know', 'phrase', 'אתם מכירים…? / אתם יודעים…?', '🤓', 'Do you know my teacher?', 'אתם מכירים את המורה שלי?'],
+        ['What color is your', 'phrase', 'באיזה צבע ה… שלכם?', '🟧', 'What color is your bag?', 'באיזה צבע התיק שלכם?'],
         ['best', 'adjective', 'הכי טוב', '🏆', 'Ron is my best friend.', 'רון הוא החבר הכי טוב שלי.'],
         ['fan', 'noun', 'אוהד / מעריץ', '🎽', 'My dad is a big fan of football.', 'אבא שלי אוהד גדול של כדורגל.'],
         ['end', 'noun', 'סוף', '🔚', 'This is the end of the game.', 'זה סוף המשחק.'],
@@ -233,8 +233,8 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         shortSentenceHe: 'אתם מכירים את דן?',
         rule: {
           questionEn: 'You have no dog. Someone asks, Do you have a dog? Which answer is correct?',
-          correct: 'No, I don\'t have a dog.',
-          wrong: ['No, I doesn\'t have a dog.', 'No, I not have a dog.'],
+          correct: 'No, I don\'t. I have a cat.',
+          wrong: ['No, I doesn\'t. I have a cat.', 'No, I am not. I have a cat.'],
           explainHe: 'על שאלה עם Do you…? עונים בקצרה: Yes, I do או No, I don\'t.',
           hintHe: 'השאלה מתחילה ב-Do. מה חוזר בתשובה?',
         },
@@ -278,20 +278,20 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
           },
           master: {
             sentenceEn: 'What color is your new bike?',
-            sentenceHe: 'באיזה צבע האופניים החדשים שלך?',
+            sentenceHe: 'באיזה צבע האופניים החדשים שלכם?',
             decoys: ['are', 'colors'],
             voiceEn: 'Do you know the end of the story?',
             voiceHe: 'אתם יודעים את סוף הסיפור?',
             errorFix: {
               questionEn: 'Which question has no mistake?',
-              correct: 'Where are you from?',
-              wrong: ['Where you are from?', 'Where is you from?', 'From where you are?'],
-              explainHe: 'בשאלה עם Where בא קודם are ואחר כך you: Where are you from?',
-              hintEn: 'Check the order of are and you.',
+              correct: 'Do you have a big bag?',
+              wrong: ['Do you has a big bag?', 'You do have a big bag?', 'Does you have a big bag?'],
+              explainHe: 'שאלה עם you מתחילה ב-Do, ואחרי Do you בא have: Do you have…?',
+              hintEn: 'Check do or does, and have or has.',
             },
             story: {
               passageEn:
-                'A new girl comes to our class. Her name is Emma, and she is from England. She does not know Hebrew well. I ask her, Do you like football? She says, Yes, I do! At the end of the day, Emma and I play football. Now she is my friend.',
+                'A new girl comes to our class. Her name is Emma, and she is from England. I ask her, Do you like football? She says, Yes, I do! At the end of the day, Emma and I play football. Now she is my friend.',
               passageHe: '',
               questionEn: 'Why do Emma and I play football?',
               questionHe: '',

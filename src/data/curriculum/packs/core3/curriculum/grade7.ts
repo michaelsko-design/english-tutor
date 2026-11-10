@@ -110,14 +110,14 @@ const UNIT_CORE_3: MiddleSchoolUnitSpec = {
             },
             story: {
               passageEn:
-                'Every Saturday, Yael works at her aunt\'s café. One morning, an old man came in and sat by the window. Yael asked, "What would you like?" He looked at the menu for a long time, but he did not order anything. Then he said quietly, "I would like a cup of tea, but I left my purse at home." Yael smiled and brought him tea and a fresh roll. "Today it\'s on the café," she said. The next week, the man came back with flowers for her.',
+                'Every Saturday, Yael works at her aunt\'s café. One morning, an old woman came in and sat by the window. Yael asked, "What would you like?" The woman looked at the menu for a long time, but she did not order anything. Then she said quietly, "I would like a cup of tea, but I left my purse at home." Yael smiled and brought her tea and a fresh roll. "Today it\'s on the café," Yael said. The next week, the woman came back with flowers for Yael.',
               passageHe: '',
-              questionEn: 'Why did the man bring flowers the next week?',
+              questionEn: 'Why did the woman bring flowers the next week?',
               questionHe: '',
               correct: 'To thank Yael for her help.',
               wrong: ['To pay for a new cup of tea.', "Because it was Yael's birthday.", 'Because the café sold flowers.'],
             },
-            storyHintEn: 'Think about what Yael did for the man.',
+            storyHintEn: 'Think about what Yael did for the woman.',
           },
         },
       },

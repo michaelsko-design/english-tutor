@@ -91,7 +91,7 @@ export const CORE_3_GRADE_5_EXAM_BANK: ExamBankPack = {
     ],
     sentences: [
       { en: 'One day I will travel around the world.', he: 'יום אחד אטייל מסביב לעולם.' },
-      { en: 'Will you be a doctor or a singer?', he: 'אתם תהיו רופאים או זמרים?' },
+      { en: 'Will you study music or computers?', he: 'אתם תלמדו מוזיקה או מחשבים?' },
       { en: 'In the future, cars will drive everywhere.', he: 'בעתיד מכוניות ייסעו בכל מקום.' },
       { en: "No, I won't play in the band.", he: 'לא, אני לא אנגן בלהקה.' },
       { en: 'Next year I will study a new language.', he: 'בשנה הבאה אלמד שפה חדשה.' },

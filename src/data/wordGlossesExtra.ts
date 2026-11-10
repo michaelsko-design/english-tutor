@@ -4,7 +4,7 @@
  * straight apostrophe. Names of people are left out on purpose.
  */
 export const EXTRA_WORD_TRANSLATIONS_HE: Readonly<Record<string, string>> = {
-  see: 'לראות', had: 'היה לו / היו לו', by: 'ליד / על ידי', if: 'אם', every: 'כל', red: 'אדום', will: 'עתיד (מילת עזר)',
+  see: 'לראות', know: 'לדעת / להכיר', sing: 'לשיר', had: 'היה לו / היו לו', by: 'ליד / על ידי', if: 'אם', every: 'כל', red: 'אדום', will: 'עתיד (מילת עזר)',
   would: 'היה (מצב אפשרי)', two: 'שתיים / שניים', year: 'שנה', today: 'היום', going: 'הולך', play: 'לשחק',
   school: 'בית ספר', before: 'לפני', more: 'יותר', now: 'עכשיו', should: 'צריך', apples: 'תפוחים', big: 'גדול',
   last: 'אחרון / שעבר', new: 'חדש', candles: 'נרות', so: 'אז / כל כך', day: 'יום', summer: 'קיץ', eat: 'לאכול',

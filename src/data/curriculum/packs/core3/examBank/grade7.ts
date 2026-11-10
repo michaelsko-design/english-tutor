@@ -100,26 +100,26 @@ export const CORE_3_GRADE_7_EXAM_BANK: ExamBankPack = {
     passages: [
       {
         passageEn:
-          'Lia and her dad go to their favorite café every Saturday. Today, the waiter says, "Fresh orange juice is on offer." Lia would like a big glass, but her dad would prefer a medium coffee. When the bill comes, Dad looks for his purse. "Never mind," says the waiter, "you can pay next time."',
+          'Lia and her mom go to their favorite café every Saturday. Today, the waiter says, "Fresh orange juice is on offer." Lia would like a big glass, but her mom would prefer a medium coffee. When the bill comes, Mom looks for her purse. "Never mind," says the waiter, "you can pay next time."',
         passageHe:
-          'ליה ואבא שלה הולכים לבית הקפה האהוב עליהם בכל שבת. היום המלצר אומר: "יש מבצע על מיץ תפוזים טרי." ליה רוצה כוס גדולה, אבל אבא שלה מעדיף קפה בינוני. כשהחשבון מגיע, אבא מחפש את הארנק שלו. "לא נורא," אומר המלצר, "אפשר לשלם בפעם הבאה."',
+          'ליה ואמא שלה הולכות לבית הקפה האהוב עליהן בכל שבת. היום המלצר אומר: "יש מבצע על מיץ תפוזים טרי." ליה רוצה כוס גדולה, אבל אמא שלה מעדיפה קפה בינוני. כשהחשבון מגיע, אמא מחפשת את הארנק שלה. "לא נורא," אומר המלצר, "אפשר לשלם בפעם הבאה."',
         questions: [
           {
-            questionEn: 'When do Lia and her dad go to the café?',
-            questionHe: 'מתי ליה ואבא שלה הולכים לבית הקפה?',
+            questionEn: 'When do Lia and her mom go to the café?',
+            questionHe: 'מתי ליה ואמא שלה הולכות לבית הקפה?',
             correct: 'Every Saturday.',
             wrong: ['Every evening.', 'Once a month.'],
           },
           {
-            questionEn: 'What would Dad prefer?',
-            questionHe: 'מה אבא מעדיף?',
+            questionEn: 'What would Mom prefer?',
+            questionHe: 'מה אמא מעדיפה?',
             correct: 'A medium coffee.',
             wrong: ['A big glass of juice.', 'A cup of tea.'],
           },
           {
             questionEn: 'Why does the waiter say "Never mind"?',
             questionHe: 'למה המלצר אומר "לא נורא"?',
-            correct: 'Dad cannot find his purse.',
+            correct: 'Mom cannot find her purse.',
             wrong: ['The juice is finished.', 'The café is closing.'],
           },
         ],

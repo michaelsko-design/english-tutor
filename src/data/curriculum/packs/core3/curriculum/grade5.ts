@@ -122,8 +122,8 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
       storyHookHe: 'שואלים חברים על העתיד! נלמד לשאול Will you…? ולענות Yes, I will או No, I won\'t.',
       grammarTopic: "will questions: Will you …? Yes, I will. / No, I won't.",
       skills: ['Will you…?', 'Short Answers', 'Future'],
-      sentenceEn: 'Will you be a singer in a band?',
-      sentenceHe: 'אתם תהיו זמרים בלהקה?',
+      sentenceEn: 'Will you sing in a band?',
+      sentenceHe: 'אתם תשירו בלהקה?',
       vocab: [
         ['begin', 'verb', 'להתחיל', '🏁', 'When will the show begin?', 'מתי ההופעה תתחיל?'],
         ['boat', 'noun', 'סירה', '🚢', 'Will we go on a boat tomorrow?', 'ניסע מחר בסירה?'],

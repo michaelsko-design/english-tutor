@@ -90,7 +90,27 @@ export function entryVariants(entry: string): string[] {
     .map((part) => normalizeText(part).trim().split(' ').filter((w) => w && !PLACEHOLDERS.has(w)).join(' '))
     .flatMap(splitWordOrders)
     .filter((part) => part.length > 0);
-  return [...new Set(variants)];
+  return [...new Set([...variants, ...slashPhrases(withoutNotes)])];
+}
+
+/**
+ * A slash between single words inside a phrase picks one word: "by this/that time" → "by this time",
+ * "by that time". Not when an alternative restarts the phrase ("a quarter to/a quarter past").
+ */
+function slashPhrases(entry: string): string[] {
+  const words = normalizeSlashPhrase(entry).split(' ').filter(Boolean);
+  const groupIndex = words.findIndex((w) => /^[a-z']+(\/[a-z']+)+$/.test(w));
+  if (groupIndex < 0 || words.length < 2) return [];
+  const choices = words[groupIndex].split('/');
+  if (choices.includes(words[0])) return [];
+  return choices
+    .map((choice) => [...words.slice(0, groupIndex), choice, ...words.slice(groupIndex + 1)].join(' '))
+    .map((phrase) => normalizeText(phrase).trim().split(' ').filter((w) => w && !PLACEHOLDERS.has(w)).join(' '));
+}
+
+/** Lower-cased words with the slashes kept (normalizeText would split "this/that" apart). */
+function normalizeSlashPhrase(entry: string): string {
+  return entry.toLowerCase().replace(/[^a-z'/\s]/g, ' ').replace(/\s*\/\s*/g, (m) => (m.trim() === m ? '/' : ' / ')).replace(/\s+/g, ' ').trim();
 }
 
 /**

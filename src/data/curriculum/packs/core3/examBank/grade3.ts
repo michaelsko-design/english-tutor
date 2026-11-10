@@ -18,7 +18,7 @@ export const CORE_3_GRADE_3_EXAM_BANK: ExamBankPack = {
         clozeEn: 'The kitten is very ____.',
         clozeHe: 'החתלתול רך מאוד.',
         answer: 'soft',
-        wrong: ['from', 'know'],
+        wrong: ['from', 'end'],
       },
       {
         clozeEn: 'Kick the ball into the ____!',
@@ -27,9 +27,9 @@ export const CORE_3_GRADE_3_EXAM_BANK: ExamBankPack = {
         wrong: ['soft', 'today'],
       },
       {
-        clozeEn: 'My favorite ____ is green.',
-        clozeHe: 'הצבע האהוב עליי הוא ירוק.',
-        answer: 'color',
+        clozeEn: 'Dan loves basketball. He is a big ____.',
+        clozeHe: 'דן אוהב כדורסל. הוא אוהד גדול.',
+        answer: 'fan',
         wrong: ['hot', 'both'],
       },
       {
@@ -76,17 +76,17 @@ export const CORE_3_GRADE_3_EXAM_BANK: ExamBankPack = {
       },
       {
         questionEn: 'Which question is correct?',
-        correct: 'Where is your teacher from?',
-        wrong: ['Where your teacher is from?', 'Where are your teacher from?'],
-        explainHe: 'בשאלה עם Where בא קודם is ואחר כך your teacher.',
-        hintHe: 'מה בא מיד אחרי Where? ומה מתאים ל-teacher אחד?',
+        correct: 'Do you know my sister?',
+        wrong: ['Do you knows my sister?', 'Know you my sister?'],
+        explainHe: 'שאלה עם you מתחילה ב-Do, ואחרי Do you הפועל בא בלי s.',
+        hintHe: 'במה מתחילה השאלה? ומה קורה לפועל שאחריה?',
       },
       {
-        questionEn: 'Which sentence is correct?',
-        correct: 'We both have a little dog.',
-        wrong: ['We have both a little dog.', 'We both has a little dog.'],
-        explainHe: 'both בא לפני have, ועם we אומרים have.',
-        hintHe: 'איפה עומד both? ומה מתאים ל-we: have או has?',
+        questionEn: 'Do you have a pet? (You have a cat.) Which answer is correct?',
+        correct: 'Yes, I do. I have two fish.',
+        wrong: ['Yes, I have. I have two fish.', 'Yes, I does. I have two fish.'],
+        explainHe: 'על שאלה עם Do you…? עונים בקצרה: Yes, I do. עם I אומרים do.',
+        hintHe: 'איזו מילה מהשאלה חוזרת בתשובה?',
       },
     ],
     sentences: [
@@ -95,7 +95,7 @@ export const CORE_3_GRADE_3_EXAM_BANK: ExamBankPack = {
       { en: 'Yes, I do. I have a cat.', he: 'כן. יש לי חתול.' },
       { en: 'No, I don\'t like hot soup.', he: 'לא, אני לא אוהב/ת מרק חם.' },
       { en: 'Do you know the new girl?', he: 'אתם מכירים את הילדה החדשה?' },
-      { en: 'What color is your pet?', he: 'באיזה צבע חיית המחמד שלך?' },
+      { en: 'What color is your pet?', he: 'באיזה צבע חיית המחמד שלכם?' },
     ],
     passages: [
       {

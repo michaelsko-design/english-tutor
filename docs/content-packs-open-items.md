@@ -135,6 +135,19 @@ That is **57 words = 7 sheets of 9** (6 slots spare).
 - **`npm run review:he-tiers`:** about 940 tier items are waiting for review, core-3 among them.
 - **`npm run tts:review:he`:** check the new Hebrew clips by ear (grade 1 deck and core-3 grade 2).
 
+## Independent content audit (2026-11-10): `docs/core-3-content-audit.md`
+78 findings: 27 must fix, 46 should fix, 5 consider. Facts all checked as correct; nothing unsuitable.
+- [x] **Must fix, all 27 handled:**
+  - **Challenger fill-in (17 items, grades 7–11):** the blank took an inflected form ("smells", "educating") while the answer offered the headword. Fixed in the engine (`challengerSteps.ts`): the fill-in now moves on to the next word whose example has the word as written, so the same bug is also gone from 77 items elsewhere (43 in the live base grades). `tierSeedLint.test.ts` checks every mission and every replay salt.
+  - **Grade 3:** "know"/"color" became the Pre-Band I chunks "Do you know" / "What color is your"; the Boss rule answer is the short answer; "Where are you from?" and "We both have" were replaced by `Do you…?` items; Emma's "She does not know Hebrew well" dropped.
+  - **Grade 4:** "because I have no breakfast" → "because I have no food".
+  - **Grade 5:** "Will you be a singer…?" → "Will you sing in a band?" (and lesson / exam), so the plural Hebrew matches.
+  - **Grade 6 deck:** "add" and "mix" (Pre-Band I) removed; a new deck test keeps every deck word in its grade's band.
+  - **Grade 7:** "purse" now belongs to an old woman (story) and to Mom (exam passage). "Why not?" needs no change: the blank and the answer both include the question mark.
+  - **Grade 10 deck:** "paid holidays" → "paid vacation"; entitle's gloss leads with "להיות זכאי ל־".
+  - **Grade 12 deck:** `review:coverage` now expands "by this/that time", "in the short/long term" and "the day/week/year before last", so the three deck phrases count.
+- [ ] **Should fix (46) and consider (5):** waiting for the owner. Main groups: example sentences that don't show the unit's grammar (g4, g6–g12), singular "you" Hebrew left in g3–g5, gloss order vs. example meaning (about 12), receptive words in decks (23), lesson sentences reused in drills, UK words (football, biscuit, film, cinema, holiday, shop), the g10 Master story's dates, and the roadmap still saying core-3 has no decks.
+
 ## 4. Facts in the texts to confirm
 The owner wants an independent agent to check all of core-3, facts included: the prompt is `docs/core-3-content-audit-prompt.md`, and its report goes to `docs/core-3-content-audit.md`.
 - Drip irrigation is used in more than 100 countries (grade 8).

@@ -21,6 +21,13 @@ const MINISTRY_LISTS: readonly MinistryListId[] = [
   'band-3-core-1',
   'band-3-core-2',
 ];
+/** The Ministry lists a grade's decks draw from: its own band only (roadmap: no word from outside the band's lists) */
+function bandListsOfGrade(grade: number): readonly MinistryListId[] {
+  if (grade <= 3) return ['pre-band-1'];
+  if (grade <= 6) return ['band-1-core-1', 'band-1-core-2'];
+  if (grade <= 9) return ['band-2-core-1', 'band-2-core-2'];
+  return ['band-3-core-1', 'band-3-core-2'];
+}
 const LAST_EMOJI_GRADE = 6;
 const MIN_DECK_WORDS = 12;
 const MAX_DECK_WORDS = 30;
@@ -108,6 +115,7 @@ describe('deck data (every grade registry)', () => {
     deck.items.forEach((item) => {
       expect(item.wordEn && item.translationHe && item.exampleEn && item.exampleHe && item.partOfSpeech).toBeTruthy();
       expect(MINISTRY_LISTS).toContain(item.ministryList);
+      expect(bandListsOfGrade(grade), `${item.wordEn} is from ${item.ministryList}`).toContain(item.ministryList);
       expect(['rec', 'prod']).toContain(item.recProd);
       if (grade <= LAST_EMOJI_GRADE) expect(item.emoji).toBeTruthy();
     });

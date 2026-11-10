@@ -21,8 +21,8 @@ export const CORE_3_GRADE_4_EXAM_BANK: ExamBankPack = {
         wrong: ['hungry', 'once'],
       },
       {
-        clozeEn: 'I am ____ because I have no breakfast.',
-        clozeHe: 'אני רעב/ה כי אין לי ארוחת בוקר.',
+        clozeEn: 'I am ____ because I have no food.',
+        clozeHe: 'אני רעב/ה כי אין לי אוכל.',
         answer: 'hungry',
         wrong: ['young', 'often'],
       },

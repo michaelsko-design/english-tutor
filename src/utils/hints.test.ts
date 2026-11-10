@@ -9,6 +9,7 @@ import {
   getWordRevealLimit,
   getWordShapeHintHe,
   toClozeSentence,
+  toExactClozeSentence,
 } from './hints';
 
 describe('getWordShapeHintHe', () => {
@@ -54,6 +55,20 @@ describe('toClozeSentence', () => {
 
   it('returns null when the word is not in the sentence', () => {
     expect(toClozeSentence('Yesterday I went home.', 'go')).toBeNull();
+  });
+});
+
+describe('toExactClozeSentence', () => {
+  it('blanks the word only where the sentence has it as written', () => {
+    expect(toExactClozeSentence('I have a red apple.', 'apple')).toBe('I have a red ____.');
+    expect(toExactClozeSentence('Ask "Why not?" and smile.', 'Why not?')).toBe('Ask "____" and smile.');
+    expect(toExactClozeSentence('The bank is next to the park.', 'next to')).toBe('The bank is ____ the park.');
+  });
+
+  it('returns null when the sentence only has an inflected form', () => {
+    expect(toExactClozeSentence('The soup smells good.', 'smell')).toBeNull();
+    expect(toExactClozeSentence('Maya will be educating children.', 'educate')).toBeNull();
+    expect(toExactClozeSentence('I see with my eyes.', 'eye')).toBeNull();
   });
 });
 

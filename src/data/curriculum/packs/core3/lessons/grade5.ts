@@ -27,7 +27,7 @@ export const CORE_3_GRADE_5_LESSONS: LessonPack = {
       'כדי לשאול על העתיד מתחילים ב-Will: Will you bake a cake? עונים בקצרה: Yes, I will או No, I won\'t.',
     pattern: 'Will + you + פועל…? → Yes, I will. / No, I won\'t.',
     examples: [
-      { en: 'Will you be a singer?', he: 'אתם תהיו זמרים?', highlight: 'Will you', emoji: '🎤' },
+      { en: 'Will you sing in the show?', he: 'אתם תשירו בהופעה?', highlight: 'Will you', emoji: '🎤' },
       { en: 'When will the show begin?', he: 'מתי ההופעה תתחיל?', highlight: 'will the show begin', emoji: '🏁' },
       { en: "No, I won't swim in the river.", he: 'לא, אני לא אשחה בנהר.', highlight: "won't", emoji: '🌊' },
     ],

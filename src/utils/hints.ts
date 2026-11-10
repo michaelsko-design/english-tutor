@@ -89,6 +89,22 @@ export function toClozeSentence(sentenceEn: string, wordEn: string): string | nu
   return null;
 }
 
+/**
+ * Blanks the word out of the sentence only where it stands exactly as written (no inflected
+ * forms), so the word itself fills the blank. Returns null when the sentence doesn't have it so.
+ */
+export function toExactClozeSentence(sentenceEn: string, wordEn: string): string | null {
+  const word = wordEn.trim();
+  if (!word) return null;
+  const startsWithLetter = /^\w/.test(word);
+  const endsWithLetter = /\w$/.test(word);
+  const regex = new RegExp(
+    `${startsWithLetter ? '\\b' : ''}${escapeRegExp(word)}${endsWithLetter ? "(?![\\w'’-])" : ''}`,
+    'gi',
+  );
+  return regex.test(sentenceEn) ? sentenceEn.replace(regex, BLANK) : null;
+}
+
 function stripEdgePunctuation(word: string): string {
   return word.replace(/^[^A-Za-z0-9']+|[^A-Za-z0-9']+$/g, '');
 }

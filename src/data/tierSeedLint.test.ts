@@ -9,6 +9,7 @@ import type { ProficiencyTier } from '../types/learner';
 const REQUIRE_ALL_TIER_SEEDS = true;
 
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
+const CLOZE_BLANK = '____';
 const HEBREW_LETTER = /[\u0590-\u05FF]/;
 
 const ALL_MISSIONS: MissionNode[] = Object.values(CURRICULUM_WITH_ALL_PACKS).flatMap((pack) =>
@@ -52,6 +53,16 @@ describe.each(AUTHORED.map((m) => [m.id, m] as const))('tier seeds: %s', (_id, m
         expect(words(word.exampleEn), `${word.wordEn} distractor in sentence`).not.toContain(wrong.toLowerCase());
       }
     });
+  });
+
+  it('Challenger: the fill-in blanks out the offered answer exactly as the sentence has it, for every salt', () => {
+    const examples = mission.vocabulary.map((w) => w.exampleEn.toLowerCase());
+    for (let salt = 0; salt < mission.vocabulary.length; salt++) {
+      const step1 = getExercisesForMission(mission, 'challenger', 'girl', salt)[0];
+      const filled = (step1.questionEn ?? '').split(CLOZE_BLANK).join(correctAnswer(step1));
+      expect(step1.questionEn, `salt ${salt} blank`).toContain(CLOZE_BLANK);
+      expect(examples, `salt ${salt}: "${step1.questionEn}" + "${correctAnswer(step1)}"`).toContain(filled.toLowerCase());
+    }
   });
 
   it('keeps the three tiers apart for every replay salt', () => {

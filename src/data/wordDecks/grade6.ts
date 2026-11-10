@@ -68,8 +68,6 @@ export const GRADE_6_DECKS: GradeDecks = [
     topicHe: 'בישול',
     items: [
       { wordEn: 'grill', translationHe: 'לצלות על האש', partOfSpeech: 'v', exampleEn: 'On Independence Day, many families grill meat in the park.', exampleHe: 'ביום העצמאות הרבה משפחות צולות בשר על האש בפארק.', ministryList: 'band-1-core-2', recProd: 'prod', emoji: '🍢' },
-      { wordEn: 'add', translationHe: 'להוסיף', partOfSpeech: 'v', exampleEn: 'Add a little salt to the soup.', exampleHe: 'מוסיפים קצת מלח למרק.', ministryList: 'pre-band-1', recProd: 'prod', emoji: '➕' },
-      { wordEn: 'mix', translationHe: 'לערבב', partOfSpeech: 'v', exampleEn: 'Mix the eggs and the sugar.', exampleHe: 'מערבבים את הביצים ואת הסוכר.', ministryList: 'pre-band-1', recProd: 'rec', emoji: '🥣' },
       { wordEn: 'pour', translationHe: 'למזוג; לשפוך', partOfSpeech: 'v', exampleEn: 'Pour the milk into the bowl.', exampleHe: 'מוזגים את החלב לקערה.', ministryList: 'band-1-core-2', recProd: 'rec', emoji: '🫗' },
       { wordEn: 'fill', translationHe: 'למלא', partOfSpeech: 'v', exampleEn: 'Fill the pot with water.', exampleHe: 'ממלאים את הסיר במים.', ministryList: 'band-1-core-2', recProd: 'prod', emoji: '🚰' },
       { wordEn: 'cover', translationHe: 'לכסות', partOfSpeech: 'v', exampleEn: 'Cover the pot and wait ten minutes.', exampleHe: 'מכסים את הסיר ומחכים עשר דקות.', ministryList: 'band-1-core-2', recProd: 'rec', emoji: '🍲' },

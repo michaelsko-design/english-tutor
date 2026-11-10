@@ -14,6 +14,19 @@ describe('entryVariants', () => {
     expect(entryVariants('a quarter to/a quarter past ')).toEqual(['a quarter to', 'a quarter past']);
   });
 
+  it('expands a slash between single words inside a phrase into whole phrases', () => {
+    expect(entryVariants('by this/that time')).toEqual(expect.arrayContaining(['by this time', 'by that time']));
+    expect(entryVariants('in the short/long term')).toEqual(expect.arrayContaining(['in the short term', 'in the long term']));
+    expect(entryVariants('the day/week/year, etc. before last')).toEqual(
+      expect.arrayContaining(['the day before last', 'the week before last', 'the year before last']),
+    );
+  });
+
+  it('finds a phrase written with one of its slash alternatives', () => {
+    expect(entryFoundIn('by this/that time', buildIndex(['by this time']))).toBe(true);
+    expect(entryFoundIn('the day/week/year, etc. before last', buildIndex(['the day before last']))).toBe(true);
+  });
+
   it('splits sentence chunks on question marks and ellipses', () => {
     expect(entryVariants('What is this? What’s this?')).toEqual(['what is this']);
     expect(entryVariants('Where is the …? Where’s the …')).toEqual(['where is the']);
