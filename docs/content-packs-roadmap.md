@@ -26,7 +26,7 @@ There are 162 missions. Every grade has mini-lessons and an exam bank. Grade 1 h
 | `holidays-spring` "חגי האביב והקיץ" | u32 | open, its own track | seasonal |
 | `core-3` "עונה 3" | u23 | sequence, after `season2-2`; grades 2–12 | conjunctions + because (g4), will (g5), adverbs of manner (g6), would like + reflexives (g7), present simple passive (g8), present continuous for the future + future continuous (g10), past perfect continuous (g11), sequencing in writing (g12); 6–8 Ministry words per mission |
 
-- **Word decks:** 19 Season 2 decks (372 words) in `src/data/wordDecks/`, released with `season2-1` / `season2-2` (§8). `core-3` has no decks yet.
+- **Word decks:** 19 Season 2 decks (372 words) in `src/data/wordDecks/`, released with `season2-1` / `season2-2` (§8). `core-3` has 9 decks (grades 4–12, 180 words).
 - All four packs have lessons, exam banks, icons and tier questions. Their English clips are rendered, and the 12 Hebrew pack-card clips were rendered on 2026-11-06.
 - Clips uploaded and committed (2026-11-10); every pack is Pro by default (`DEFAULT_PACK_ACCESS`). They still need a check in `dev:packs` on desktop and phone.
 - Season 2 uses 4 words per mission.
@@ -221,7 +221,7 @@ Each grade gets built-in **decks of Ministry words** in the Vocabulary Vault. Le
 - **Read-aloud:** every word and example sentence goes into `scripts/tts/corpus.ts`. Grades 1–2 deck titles go into the Hebrew corpus.
 - **Coverage:** `review:coverage` counts deck words as taught (`--packs` includes their decks).
 - **Size:** decks are about 12–30 words per grade per release. Six releases cover the track (126 words in grade 7 = 6 decks of about 21).
-- **Receptive words** don't need decks. They go into unit stories, lesson examples and deck example sentences, and count as "seen".
+- **Receptive words** don't need decks of their own. They go into unit stories, lesson examples and deck example sentences, and count as "seen". A topic deck may still include a receptive word the topic needs (the Season 2 decks have about 100, `core-3` 21); productive words come first.
 
 ## 4. Pack-system changes needed (before core-3): items 1–3 done 2026-11-09 (§8)
 1. **Words per mission per pack and grade.** Season 2 and the holiday packs keep 4. Core-3 onward use 6 in grades 1–3 and 8 in grades 4–12 (`contentPacks.test.ts`).
@@ -303,7 +303,7 @@ They have 4–6 words per mission and use review-level grammar.
 ## 9. Status and next steps (2026-11-09)
 **Done (uncommitted, unreleased):** §4 items 1–3, the Season 2 decks, `core-3` in grades 2–12 (33 missions with tiers, lessons and banks; about 2,700 English and 209 Hebrew clips rendered).
 
-**Stopped on purpose:** no `core-4`…`core-8`, no core-3 decks, no seasonal packs until the owner asks.
+**Stopped on purpose:** no `core-4`…`core-8`, no seasonal packs until the owner asks.
 
 **Before anything ships** (details in `docs/content-packs-open-items.md`):
 1. The owner reviews the Hebrew, the facts and the content choices; the fixes are applied, then `review:he-tiers` and `tts:review:he` by ear.

@@ -9,8 +9,8 @@ export const CORE_3_GRADE_4_LESSONS: LessonPack = {
     pattern: '… , and … · … , but … · … or …?',
     examples: [
       { en: 'Ben is clever, and he is funny.', he: 'בן חכם, והוא מצחיק.', highlight: 'and', emoji: '🧠' },
-      { en: 'I fell, but I am all right.', he: 'נפלתי, אבל אני בסדר.', highlight: 'but', emoji: '🙂' },
-      { en: 'Do you want tea or milk?', he: 'אתם רוצים תה או חלב?', highlight: 'or', emoji: '☕' },
+      { en: 'I am tired, but I am happy.', he: 'אני עייף/ה, אבל אני שמח/ה.', highlight: 'but', emoji: '🙂' },
+      { en: 'Do you want juice or water?', he: 'אתם רוצים מיץ או מים?', highlight: 'or', emoji: '🧃' },
     ],
     tipHe: 'לפני but שמים פסיק כשהוא מחבר שני משפטים שלמים: I like cats, but I don\'t like dogs.',
     quickTry: {
@@ -27,9 +27,9 @@ export const CORE_3_GRADE_4_LESSONS: LessonPack = {
       'because (כי) נותן סיבה. הוא עונה על השאלה Why? (למה?). אחרי because בא משפט שלם עם נושא ופועל.',
     pattern: '… because + משפט שלם',
     examples: [
-      { en: 'I am hungry because it is lunch time.', he: 'אני רעב/ה כי זה זמן ארוחת צהריים.', highlight: 'because', emoji: '🍽️' },
+      { en: 'I am thirsty because it is hot.', he: 'אני צמא/ה כי חם.', highlight: 'because', emoji: '🥤' },
       { en: 'We laugh because the clown is funny.', he: 'אנחנו צוחקים כי הליצן מצחיק.', highlight: 'because', emoji: '😂' },
-      { en: "Don't forget your hat, because it is hot.", he: 'אל תשכחו את הכובע, כי חם.', highlight: 'because', emoji: '📌' },
+      { en: 'Take an umbrella because it is raining.', he: 'קחו מטרייה כי יורד גשם.', highlight: 'because', emoji: '☔' },
     ],
     tipHe: 'לא משאירים את because בלי משפט אחריו: because it is hot, ולא because hot.',
     quickTry: {

@@ -29,10 +29,10 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         ['clever', 'adjective', 'חכם / נבון', '🧠', 'Ben is clever, and he helps me with math.', 'בן חכם, והוא עוזר לי בחשבון.'],
         ['young', 'adjective', 'צעיר', '🧒', 'My cousin is young, but he can read.', 'בן הדוד שלי צעיר, אבל הוא כבר יודע לקרוא.'],
         ['all right', 'phrase', 'בסדר', '🆗', 'I fell, but I am all right.', 'נפלתי, אבל אני בסדר.'],
-        ['anybody', 'pronoun', 'מישהו (בשאלה)', '🫥', 'Is anybody in the classroom?', 'יש מישהו בכיתה?'],
+        ['anybody', 'pronoun', 'מישהו (בשאלה)', '🫥', 'Is anybody in the classroom, or is it empty?', 'יש מישהו בכיתה, או שהיא ריקה?'],
         ['as well', 'phrase', 'גם', '👭', 'Noa has a dog, and she has a cat as well.', 'לנועה יש כלב, ויש לה גם חתול.'],
-        ['hey', 'interjection', 'היי', '👋', 'Hey, Dan! Do you want to play?', 'היי, דן! אתה רוצה לשחק?'],
-        ['conversation', 'noun', 'שיחה', '💬', 'We have a long conversation on the phone.', 'יש לנו שיחה ארוכה בטלפון.'],
+        ['hey', 'interjection', 'היי', '👋', 'Hey, Dan! Do you want to play, or are you busy?', 'היי, דן! אתה רוצה לשחק, או שאתה עסוק?'],
+        ['conversation', 'noun', 'שיחה', '💬', 'We have a long conversation, and then we say goodbye.', 'יש לנו שיחה ארוכה, ואז אנחנו נפרדים.'],
       ],
       seed: {
         wrongWords: [
@@ -42,9 +42,9 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         shortSentenceEn: 'Dan is young and clever.',
         shortSentenceHe: 'דן צעיר וחכם.',
         rule: {
-          questionEn: 'Gal likes football. He does not like tennis. Which sentence is correct?',
-          correct: 'Gal likes football, but he does not like tennis.',
-          wrong: ['Gal likes football, or he does not like tennis.', 'Gal likes football, and but he does not like tennis.'],
+          questionEn: 'Gal likes soccer. He does not like tennis. Which sentence is correct?',
+          correct: 'Gal likes soccer, but he does not like tennis.',
+          wrong: ['Gal likes soccer, or he does not like tennis.', 'Gal likes soccer, and but he does not like tennis.'],
           explainHe: 'but (אבל) מחבר שני רעיונות הפוכים: אחד "כן" ואחד "לא". לפני but שמים פסיק.',
           hintHe: 'הרעיון השני הפוך מהראשון. איזו מילה מחברת רעיונות הפוכים?',
         },
@@ -107,11 +107,11 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
             },
             story: {
               passageEn:
-                'Ido and Ben are best friends, but they are very different. Ido likes football and loud music. Ben likes books, and he is very clever at chess. On Friday, Ido asks, "Do you want to play football or chess?" Ben smiles. "How about both? Football first, and then chess!"',
+                'Ido and Ben are best friends, but they are very different. Ido likes soccer and loud music. Ben likes books, and he is very clever at chess. On Friday, Ido asks, "Do you want to play soccer or chess?" Ben smiles. "How about both? Soccer first, and then chess!"',
               passageHe: '',
               questionEn: 'What do the boys do on Friday?',
               questionHe: '',
-              correct: 'Football, then chess.',
+              correct: 'Soccer, then chess.',
               wrong: ['Only chess at home.', 'They read new books.', 'They listen to music.'],
             },
             storyHintEn: 'Read what Ben says at the end.',
@@ -130,13 +130,13 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
       sentenceHe: 'אנחנו צוחקים כי הסרט מצחיק.',
       vocab: [
         ['hungry', 'adjective', 'רעב', '🍽️', 'I am hungry because it is lunch time.', 'אני רעב/ה כי זה זמן ארוחת צהריים.'],
-        ['laugh', 'verb', 'לצחוק', '😂', "We laugh at Dad's funny jokes.", 'אנחנו צוחקים מהבדיחות המצחיקות של אבא.'],
+        ['laugh', 'verb', 'לצחוק', '😂', "We laugh because Dad's jokes are funny.", 'אנחנו צוחקים כי הבדיחות של אבא מצחיקות.'],
         ['enjoy', 'verb', 'ליהנות', '🥳', 'I enjoy the party because my friends are here.', 'אני נהנה/ית מהמסיבה כי החברים שלי כאן.'],
-        ['lie', 'verb', 'לשקר', '🤥', 'It is not nice to lie to a friend.', 'זה לא יפה לשקר לחבר.'],
-        ['once', 'adverb', 'פעם אחת', '☝️', 'I see my grandma once a week.', 'אני רואה את סבתא פעם בשבוע.'],
-        ['how about', 'phrase', 'מה דעתך על…?', '🫴', 'I am bored. How about a game?', 'משעמם לי. מה דעתך על משחק?'],
-        ["don't forget", 'phrase', 'אל תשכחו', '🎗️', "Don't forget your hat, because it is hot.", 'אל תשכחו את הכובע, כי חם.'],
-        ['anywhere', 'adverb', 'בשום מקום / בכל מקום', '🔍', "I can't find my pen anywhere.", 'אני לא מוצא/ת את העט שלי בשום מקום.'],
+        ['lie', 'verb', 'לשקר', '🤥', 'It is not nice to lie to a friend, and it is not fair.', 'זה לא יפה לשקר לחבר, וזה גם לא הוגן.'],
+        ['once', 'adverb', 'פעם אחת', '☝️', 'I see my grandma once a week, but I call her every day.', 'אני רואה את סבתא פעם בשבוע, אבל מתקשר/ת אליה כל יום.'],
+        ['how about', 'phrase', 'מה דעתכם על…?', '🫴', 'I am bored. How about a game or a movie?', 'משעמם לי. מה דעתכם על משחק או סרט?'],
+        ["don't forget", 'phrase', 'אל תשכחו', '🎗️', "Don't forget your hat because it is hot.", 'אל תשכחו את הכובע, כי חם.'],
+        ['anywhere', 'adverb', 'בשום מקום / בכל מקום', '🔍', "I can't find my pen anywhere, but I have a pencil.", 'אני לא מוצא/ת את העט שלי בשום מקום, אבל יש לי עיפרון.'],
       ],
       seed: {
         wrongWords: [
@@ -196,7 +196,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
             sentenceEn: "We can't play outside because it is raining.",
             sentenceHe: 'אנחנו לא יכולים לשחק בחוץ כי יורד גשם.',
             decoys: ['but', 'rains'],
-            voiceEn: "Don't forget your coat, because it is cold.",
+            voiceEn: "Don't forget your coat because it is cold.",
             voiceHe: 'אל תשכחו את המעיל, כי קר.',
             errorFix: {
               questionEn: 'Which sentence has no mistake?',
@@ -211,7 +211,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
             },
             story: {
               passageEn:
-                'Shira does not enjoy her birthday party. Everybody is laughing and eating cake, but Shira sits alone. Her grandma asks her what is wrong. Shira says, "Tamar is not here, because she is sick." Grandma takes the phone, and they call Tamar together. Now Shira is smiling.',
+                'Shira does not enjoy her birthday party. Everybody is laughing and eating cake, but Shira sits alone. Her grandma asks her what is wrong. Shira says, "Tamar is not here because she is sick." Grandma takes the phone, and they call Tamar together. Now Shira is smiling.',
               passageHe: '',
               questionEn: 'Why is Shira smiling at the end?',
               questionHe: '',
@@ -234,22 +234,22 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
       sentenceEn: 'I often meet my friends, but today I am busy.',
       sentenceHe: 'אני נפגש/ת עם החברים שלי לעיתים קרובות, אבל היום אני עסוק/ה.',
       vocab: [
-        ['group', 'noun', 'קבוצה', '👥', 'We work in a group of four.', 'אנחנו עובדים בקבוצה של ארבעה.'],
-        ['often', 'adverb', 'לעיתים קרובות', '🔁', 'We often play together after school.', 'אנחנו משחקים יחד לעיתים קרובות אחרי בית הספר.'],
+        ['group', 'noun', 'קבוצה', '👥', 'We work in a group of four, and Dana writes the answers.', 'אנחנו עובדים בקבוצה של ארבעה, ודנה כותבת את התשובות.'],
+        ['often', 'adverb', 'לעיתים קרובות', '🔁', 'We often play together after school, but not on Fridays.', 'אנחנו משחקים יחד לעיתים קרובות אחרי בית הספר, אבל לא בימי שישי.'],
         ['the rest', 'noun', 'השאר', '🥧', 'I eat one piece, and you eat the rest.', 'אני אוכל/ת חתיכה אחת, ואתם אוכלים את השאר.'],
-        ['age', 'noun', 'גיל', '🎂', 'Ben and I are the same age.', 'בן ואני באותו גיל.'],
+        ['age', 'noun', 'גיל', '🎂', 'Ben and I are the same age, and we are in the same class.', 'בן ואני באותו גיל, ואנחנו באותה כיתה.'],
         ['busy', 'adjective', 'עסוק', '🐝', "I can't play now because I am busy.", 'אני לא יכול/ה לשחק עכשיו כי אני עסוק/ה.'],
-        ['meet', 'verb', 'לפגוש / להיפגש', '🤗', 'I meet my friends at the park.', 'אני נפגש/ת עם החברים שלי בפארק.'],
-        ['nice', 'adjective', 'נחמד', '😊', 'Our new teacher is very nice.', 'המורה החדשה שלנו נחמדה מאוד.'],
-        ['someone', 'pronoun', 'מישהו', '👤', 'Someone is at the door.', 'מישהו ליד הדלת.'],
+        ['meet', 'verb', 'להיפגש / לפגוש', '🤗', 'I meet my friends at the park, and we play ball.', 'אני נפגש/ת עם החברים שלי בפארק, ואנחנו משחקים בכדור.'],
+        ['nice', 'adjective', 'נחמד', '😊', 'Our new teacher is very nice, and she is funny.', 'המורה החדשה שלנו נחמדה מאוד, והיא מצחיקה.'],
+        ['someone', 'pronoun', 'מישהו', '👤', "Someone is at the door, but I can't see who.", 'מישהו ליד הדלת, אבל אני לא רואה מי.'],
       ],
       seed: {
         wrongWords: [
           { wordEn: 'onion', translationHe: 'בצל' },
           { wordEn: 'pillow', translationHe: 'כרית' },
         ],
-        shortSentenceEn: 'We are the same age.',
-        shortSentenceHe: 'אנחנו באותו גיל.',
+        shortSentenceEn: 'We are the same age, and we are friends.',
+        shortSentenceHe: 'אנחנו באותו גיל, ואנחנו חברים.',
         rule: {
           questionEn: 'Which sentence is correct?',
           correct: "I can't come because I am busy.",
@@ -316,12 +316,12 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
             },
             story: {
               passageEn:
-                'Noam is new in our class, and he does not know anybody. At break, he sits alone because he is shy. Then someone sits next to him. It is Yael, and she is his age. "Do you like football or basketball?" she asks. Noam smiles. "Both!" At the end of the day, they walk home together.',
+                'Noam is new in our class, and he does not know anybody. At break, he sits alone because he is shy. Then someone sits next to him. It is Yael, and she is his age. "Do you like soccer or basketball?" she asks. Noam smiles. "Both!" At the end of the day, they walk home together.',
               passageHe: '',
               questionEn: 'Why does Noam sit alone at first?',
               questionHe: '',
               correct: 'He is new and shy.',
-              wrong: ['He does not like Yael.', 'He is busy with homework.', 'He wants to play football.'],
+              wrong: ['He does not like Yael.', 'He is busy with homework.', 'He wants to play soccer.'],
             },
             storyHintEn: 'Read the first two sentences.',
           },

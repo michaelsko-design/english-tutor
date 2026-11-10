@@ -30,7 +30,7 @@ export const CORE_3_GRADE_3_LESSONS: LessonPack = {
       { en: 'No, I don\'t have a bike.', he: 'לא, אין לי אופניים.', highlight: 'don\'t have', emoji: '🚲' },
     ],
     quickTry: {
-      promptHe: 'איך שואלים "יש לך כדור?"',
+      promptHe: 'איך שואלים "יש לכם כדור?"',
       correct: 'Do you have a ball?',
       wrong: 'Do you has a ball?',
       explainHe: 'אחרי Do you בא have: Do you have a ball?',

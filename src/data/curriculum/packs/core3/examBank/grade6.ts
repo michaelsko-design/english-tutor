@@ -100,7 +100,7 @@ export const CORE_3_GRADE_6_EXAM_BANK: ExamBankPack = {
     passages: [
       {
         passageEn:
-          'Yoni loves football. He trains hard three times a week. In the big game on Friday, Yoni runs quickly and passes the ball well. In the last minute, he kicks the ball carefully into the net. His team wins 2 to 1, and his coach says, "Wonderful!"',
+          'Yoni loves soccer. He trains hard three times a week. In the big game on Friday, Yoni runs quickly and passes the ball well. In the last minute, he kicks the ball carefully into the net. His team wins 2 to 1, and his coach says, "Wonderful!"',
         passageHe:
           'יוני אוהב כדורגל. הוא מתאמן קשה שלוש פעמים בשבוע. במשחק הגדול ביום שישי, יוני רץ מהר ומוסר את הכדור טוב. בדקה האחרונה הוא בועט בכדור בזהירות לתוך השער. הקבוצה שלו מנצחת 2 ל-1, והמאמן שלו אומר: "נפלא!"',
         questions: [
@@ -134,7 +134,7 @@ export const CORE_3_GRADE_6_EXAM_BANK: ExamBankPack = {
             questionEn: 'What kind of competition is it?',
             questionHe: 'איזו תחרות זאת?',
             correct: 'Swimming.',
-            wrong: ['Running.', 'Football.'],
+            wrong: ['Running.', 'Soccer.'],
           },
           {
             questionEn: 'Why do the other swimmers slow down?',

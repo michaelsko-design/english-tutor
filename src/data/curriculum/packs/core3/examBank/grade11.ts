@@ -9,7 +9,7 @@ export const CORE_3_GRADE_11_EXAM_BANK: ExamBankPack = {
   23: {
     vocabulary: [
       {
-        clozeEn: 'The police found the ____ of the robbery lying on the floor of the shop.',
+        clozeEn: 'The police found the ____ of the robbery lying on the floor of the store.',
         clozeHe: 'המשטרה מצאה את קורבן השוד שוכב על רצפת החנות.',
         answer: 'victim',
         wrong: ['powder', 'justice'],
@@ -47,7 +47,7 @@ export const CORE_3_GRADE_11_EXAM_BANK: ExamBankPack = {
     ],
     grammar: [
       {
-        questionEn: 'Complete: "When we arrived at the cinema, the film ____ for ten minutes."',
+        questionEn: 'Complete: "When we arrived at the movie theater, the movie ____ for ten minutes."',
         correct: 'had been running',
         wrong: ['have been running', 'had been run'],
         explainHe: 'הסרט התחיל לפני שהגענו ונמשך עד אז, בעבר: had been + V-ing.',

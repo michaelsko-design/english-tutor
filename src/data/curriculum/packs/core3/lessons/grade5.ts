@@ -8,7 +8,7 @@ export const CORE_3_GRADE_5_LESSONS: LessonPack = {
       'כדי לומר מה יקרה בעתיד שמים will לפני הפועל: I will travel (אטייל). אחרי will הפועל בא בצורה הבסיסית, בלי s ובלי to.',
     pattern: 'will + פועל בסיסי',
     examples: [
-      { en: 'One day I will see the whole world.', he: 'יום אחד אראה את כל העולם.', highlight: 'will see', emoji: '🌍' },
+      { en: 'One day people will live on Mars.', he: 'יום אחד אנשים יגורו על מאדים.', highlight: 'will live', emoji: '🚀' },
       { en: 'Maybe I will be rich.', he: 'אולי אהיה עשיר/ה.', highlight: 'will be', emoji: '💰' },
       { en: 'It will not rain tomorrow.', he: 'מחר לא ירד גשם.', highlight: 'will not', emoji: '🌤️' },
     ],
@@ -28,7 +28,7 @@ export const CORE_3_GRADE_5_LESSONS: LessonPack = {
     pattern: 'Will + you + פועל…? → Yes, I will. / No, I won\'t.',
     examples: [
       { en: 'Will you sing in the show?', he: 'אתם תשירו בהופעה?', highlight: 'Will you', emoji: '🎤' },
-      { en: 'When will the show begin?', he: 'מתי ההופעה תתחיל?', highlight: 'will the show begin', emoji: '🏁' },
+      { en: 'When will the movie start?', he: 'מתי הסרט יתחיל?', highlight: 'will the movie start', emoji: '🎬' },
       { en: "No, I won't swim in the river.", he: 'לא, אני לא אשחה בנהר.', highlight: "won't", emoji: '🌊' },
     ],
     tipHe: 'לא מוסיפים do לשאלה עם will: Will you help me?, ולא Do you will help me?',

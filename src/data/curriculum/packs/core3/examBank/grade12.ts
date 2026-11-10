@@ -78,7 +78,7 @@ export const CORE_3_GRADE_12_EXAM_BANK: ExamBankPack = {
         hintHe: 'בדקו את מילות הפתיחה ואת הקשר בין שני החלקים.',
       },
       {
-        questionEn: 'Complete: "The bus was late, ____ we missed the start of the film."',
+        questionEn: 'Complete: "The bus was late, ____ we missed the start of the movie."',
         correct: 'so',
         wrong: ['but', 'or'],
         explainHe: 'האיחור גרם לתוצאה, ולכן so.',
@@ -94,7 +94,7 @@ export const CORE_3_GRADE_12_EXAM_BANK: ExamBankPack = {
     ],
     sentences: [
       { en: 'First of all, read the question carefully.', he: 'קודם כול, קראו את השאלה בעיון.' },
-      { en: 'The film was long, yet nobody left early.', he: 'הסרט היה ארוך, ובכל זאת אף אחד לא יצא מוקדם.' },
+      { en: 'The movie was long, yet nobody left early.', he: 'הסרט היה ארוך, ובכל זאת אף אחד לא יצא מוקדם.' },
       { en: 'We were hungry, so we stopped at a cafe.', he: 'היינו רעבים, אז עצרנו בבית קפה.' },
       { en: 'After that, give an example from your own life.', he: 'אחרי זה, תנו דוגמה מהחיים שלכם.' },
       { en: 'You can type your essay, or you can write it by hand.', he: 'אתם יכולים להקליד את החיבור, או לכתוב אותו בכתב יד.' },

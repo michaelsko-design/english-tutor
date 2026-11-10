@@ -36,8 +36,8 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
           { wordEn: 'bus', translationHe: 'אוטובוס' },
           { wordEn: 'chair', translationHe: 'כיסא' },
         ],
-        shortSentenceEn: 'I like my pet.',
-        shortSentenceHe: 'אני אוהב/ת את חיית המחמד שלי.',
+        shortSentenceEn: 'Do you like pets?',
+        shortSentenceHe: 'אתם אוהבים חיות מחמד?',
         rule: {
           questionEn: 'Which question is correct?',
           correct: 'Do you like cats?',
@@ -121,7 +121,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
       sentenceHe: 'יש לכם כדור בבית?',
       vocab: [
         ['net', 'noun', 'רשת', '🥅', 'The ball is in the net!', 'הכדור ברשת!'],
-        ['both', 'pronoun', 'שניהם / שנינו', '👯', 'We both have a red bike.', 'לשנינו יש אופניים אדומים.'],
+        ['both', 'pronoun', 'שנינו / שניהם', '👯', 'We both have a red bike.', 'לשנינו יש אופניים אדומים.'],
         ['cut', 'verb', 'לגזור / לחתוך', '✂️', 'I cut the paper with scissors.', 'אני גוזר/ת את הנייר במספריים.'],
         ['at home', 'phrase', 'בבית', '🫖', 'I have a cat at home.', 'יש לי חתול בבית.'],
         ['today', 'adverb', 'היום', '📆', 'Do you have English today?', 'יש לכם אנגלית היום?'],
@@ -132,8 +132,8 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
           { wordEn: 'tree', translationHe: 'עץ' },
           { wordEn: 'fish', translationHe: 'דג' },
         ],
-        shortSentenceEn: 'I have a net.',
-        shortSentenceHe: 'יש לי רשת.',
+        shortSentenceEn: 'Do you have a net?',
+        shortSentenceHe: 'יש לכם רשת?',
         rule: {
           questionEn: 'Which question is correct?',
           correct: 'Do you have a pencil?',
@@ -143,7 +143,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         },
         story: {
           passageEn:
-            'Tal and Ido play football. Tal asks, Do you have a ball? Ido says, Yes, I do. Ido asks, Do you have a net? Tal says, No, I don\'t. They play with the ball and two bags.',
+            'Tal and Ido play soccer. Tal asks, Do you have a ball? Ido says, Yes, I do. Ido asks, Do you have a net? Tal says, No, I don\'t. They play with the ball and two bags.',
           passageHe:
             'טל ועידו משחקים כדורגל. טל שואל: יש לך כדור? עידו אומר: כן. עידו שואל: יש לך רשת? טל אומר: לא. הם משחקים עם הכדור ושני תיקים.',
           questionEn: 'Who has a ball?',
@@ -220,7 +220,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         ['Do you know', 'phrase', 'אתם מכירים…? / אתם יודעים…?', '🤓', 'Do you know my teacher?', 'אתם מכירים את המורה שלי?'],
         ['What color is your', 'phrase', 'באיזה צבע ה… שלכם?', '🟧', 'What color is your bag?', 'באיזה צבע התיק שלכם?'],
         ['best', 'adjective', 'הכי טוב', '🏆', 'Ron is my best friend.', 'רון הוא החבר הכי טוב שלי.'],
-        ['fan', 'noun', 'אוהד / מעריץ', '🎽', 'My dad is a big fan of football.', 'אבא שלי אוהד גדול של כדורגל.'],
+        ['fan', 'noun', 'אוהד / מעריץ', '🎽', 'My dad is a big fan of soccer.', 'אבא שלי אוהד גדול של כדורגל.'],
         ['end', 'noun', 'סוף', '🔚', 'This is the end of the game.', 'זה סוף המשחק.'],
         ['from', 'preposition', 'מ...', '🛫', 'I am from Israel.', 'אני מישראל.'],
       ],
@@ -240,7 +240,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         },
         story: {
           passageEn:
-            'Our class plays a question game. Noa asks Ben, Do you like football? Ben says, Yes, I do. I am a big fan! Noa asks, Do you have a ball? Ben says, No, I don\'t.',
+            'Our class plays a question game. Noa asks Ben, Do you like soccer? Ben says, Yes, I do. I am a big fan! Noa asks, Do you have a ball? Ben says, No, I don\'t.',
           passageHe:
             'הכיתה שלנו משחקת משחק שאלות. נועה שואלת את בן: אתה אוהב כדורגל? בן אומר: כן. אני אוהד גדול! נועה שואלת: יש לך כדור? בן אומר: לא.',
           questionEn: 'Does Ben have a ball?',
@@ -291,14 +291,14 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
             },
             story: {
               passageEn:
-                'A new girl comes to our class. Her name is Emma, and she is from England. I ask her, Do you like football? She says, Yes, I do! At the end of the day, Emma and I play football. Now she is my friend.',
+                'A new girl comes to our class. Her name is Emma, and she is from England. I ask her, Do you like soccer? She says, Yes, I do! At the end of the day, Emma and I play soccer. Now she is my friend.',
               passageHe: '',
-              questionEn: 'Why do Emma and I play football?',
+              questionEn: 'Why do Emma and I play soccer?',
               questionHe: '',
-              correct: 'We both like football.',
-              wrong: ['Emma is from Israel.', 'Emma does not like football.', 'It is the end of the game.'],
+              correct: 'We both like soccer.',
+              wrong: ['Emma is from Israel.', 'Emma does not like soccer.', 'It is the end of the game.'],
             },
-            storyHintEn: 'What does Emma say about football?',
+            storyHintEn: 'What does Emma say about soccer?',
           },
         },
       },

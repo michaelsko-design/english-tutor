@@ -114,7 +114,7 @@ export const CORE_3_GRADE_9_EXAM_BANK: ExamBankPack = {
             questionEn: 'What does Yosef play?',
             questionHe: 'במה יוסף משחק?',
             correct: 'Basketball.',
-            wrong: ['Football.', 'Tennis.'],
+            wrong: ['Soccer.', 'Tennis.'],
           },
           {
             questionEn: 'What is the team like for Yosef?',

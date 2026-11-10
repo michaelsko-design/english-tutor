@@ -146,7 +146,15 @@ That is **57 words = 7 sheets of 9** (6 slots spare).
   - **Grade 7:** "purse" now belongs to an old woman (story) and to Mom (exam passage). "Why not?" needs no change: the blank and the answer both include the question mark.
   - **Grade 10 deck:** "paid holidays" → "paid vacation"; entitle's gloss leads with "להיות זכאי ל־".
   - **Grade 12 deck:** `review:coverage` now expands "by this/that time", "in the short/long term" and "the day/week/year before last", so the three deck phrases count.
-- [ ] **Should fix (46) and consider (5):** waiting for the owner. Main groups: example sentences that don't show the unit's grammar (g4, g6–g12), singular "you" Hebrew left in g3–g5, gloss order vs. example meaning (about 12), receptive words in decks (23), lesson sentences reused in drills, UK words (football, biscuit, film, cinema, holiday, shop), the g10 Master story's dates, and the roadmap still saying core-3 has no decks.
+- [x] **Should fix (46) and consider (5), applied 2026-11-10** (owner: "apply them"):
+  - Example sentences now show the unit's grammar: conjunctions (g4), will (g5), adverbs of manner (g6), would like / reflexives (g7), passive (g8), relative clauses (g9), future forms (g10), past perfect continuous (g11), sequencing and linking words (g12); the Boss short sentences and Master voice lines too.
+  - Plural "you" Hebrew where the English is general (g3–g5); singular "yourself" now has a named addressee (g7, "דן, … אל תיכווה").
+  - Glosses lead with the example's meaning (about 15, missions and decks).
+  - Lesson examples no longer repeat the drill sentences (g4–g6); g2–g3 grammar items test only what the unit teaches; g2 Master sentence shortened; g2 "I'm sorry" → "אני מצטער/ת".
+  - US words: soccer (not football) across core-3; vacation, movie theater, movie, store (g11–g12); biscuit example "dip my biscuit in tea" (g6).
+  - g8 exam distractors match the blank's form; g10 Master story "On the tenth".
+  - Receptive words in decks: kept, and the roadmap rule now says a topic deck may include them (Season 2 already had about 100); the roadmap no longer says core-3 has no decks.
+  - **Not changed:** "pass away" stays "למות" (owner's call earlier today; the audit suggested "להיפטר").
 
 ## 4. Facts in the texts to confirm
 The owner wants an independent agent to check all of core-3, facts included: the prompt is `docs/core-3-content-audit-prompt.md`, and its report goes to `docs/core-3-content-audit.md`.

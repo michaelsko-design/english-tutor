@@ -47,7 +47,7 @@ export const CORE_3_GRADE_4_EXAM_BANK: ExamBankPack = {
     ],
     grammar: [
       {
-        questionEn: 'Complete: "I like football, ____ I don\'t like tennis."',
+        questionEn: 'Complete: "I like soccer, ____ I don\'t like tennis."',
         correct: 'but',
         wrong: ['or', 'because'],
         explainHe: 'הרעיון השני הפוך מהראשון ("כן" ואז "לא"), ולכן but.',

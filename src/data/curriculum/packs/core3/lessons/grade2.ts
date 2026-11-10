@@ -25,7 +25,7 @@ export const CORE_3_GRADE_2_LESSONS: LessonPack = {
       'I\'m sorry פירושו "אני מצטער" או "אני מצטערת": אומרים את זה כשעושים טעות. Excuse me פירושו "סליחה": אומרים את זה כשפונים למישהו או רוצים לעבור.',
     pattern: 'I\'m sorry! · Excuse me, …',
     examples: [
-      { en: 'I\'m sorry, Dan!', he: 'סליחה, דן!', highlight: 'I\'m sorry', emoji: '😢' },
+      { en: 'I\'m sorry, Dan!', he: 'אני מצטער/ת, דן!', highlight: 'I\'m sorry', emoji: '😢' },
       { en: 'Excuse me, where is the door?', he: 'סליחה, איפה הדלת?', highlight: 'Excuse me', emoji: '🚪' },
       { en: 'Excuse me, can you help me?', he: 'סליחה, אפשר עזרה?', highlight: 'Excuse me', emoji: '✋' },
     ],

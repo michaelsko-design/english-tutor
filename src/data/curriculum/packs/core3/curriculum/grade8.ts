@@ -27,11 +27,11 @@ const UNIT_CORE_3: MiddleSchoolUnitSpec = {
       sentenceHe: 'הרהיטים האלה מיוצרים במפעל קטן בגליל.',
       vocab: [
         ['goods', 'noun', 'סחורה / מוצרים', '🏬', 'The goods are sent to shops all over the country.', 'הסחורה נשלחת לחנויות בכל הארץ.'],
-        ['well-made', 'adjective', 'עשוי היטב / איכותי', '👌', 'These shoes are expensive, but they are well-made.', 'הנעליים האלה יקרות, אבל הן עשויות היטב.'],
+        ['well-made', 'adjective', 'עשוי היטב / איכותי', '👌', 'These chairs are built by hand, so they are well-made.', 'הכיסאות האלה נבנים ביד, ולכן הם עשויים היטב.'],
         ['furniture', 'noun', 'רהיטים', '🗃️', 'Most of the furniture in our house is made of wood.', 'רוב הרהיטים בבית שלנו עשויים מעץ.'],
         ['metal', 'noun', 'מתכת', '🔩', 'The spoons are made of metal.', 'הכפות עשויות ממתכת.'],
         ['package', 'noun', 'חבילה', '📫', 'The package is delivered to your door in two days.', 'החבילה נמסרת עד הדלת שלכם תוך יומיים.'],
-        ['wrap up', 'verb', 'לעטוף', '🎁', 'At the shop, they wrap up every gift in blue paper.', 'בחנות עוטפים כל מתנה בנייר כחול.'],
+        ['wrap up', 'verb', 'לעטוף', '🎁', "Please wrap up the gift. It is collected at five o'clock.", 'בבקשה עטפו את המתנה. אוספים אותה בשעה חמש.'],
         ['mainly', 'adverb', 'בעיקר', '🎯', 'These dates are mainly grown in the Jordan Valley.', 'התמרים האלה גדלים בעיקר בבקעת הירדן.'],
         ['fashion', 'noun', 'אופנה', '👗', 'Israeli fashion is sold in shops all over the world.', 'אופנה ישראלית נמכרת בחנויות בכל העולם.'],
       ],
@@ -241,13 +241,13 @@ const UNIT_CORE_3: MiddleSchoolUnitSpec = {
       sentenceHe: 'בתערוכה, מהנדסים מכל הארץ מציגים כלים חדשים.',
       vocab: [
         ['engineer', 'noun', 'מהנדס / מהנדסת', '👷', 'The bridge is checked by an engineer every year.', 'מהנדס בודק את הגשר בכל שנה.'],
-        ['process', 'noun', 'תהליך', '🔄', 'Making paper is a long process.', 'ייצור נייר הוא תהליך ארוך.'],
+        ['process', 'noun', 'תהליך', '🔄', 'Paper is made in a long process.', 'נייר מיוצר בתהליך ארוך.'],
         ['model', 'noun', 'דגם', '🚘', 'Two new models are shown at the expo.', 'שני דגמים חדשים מוצגים בתערוכה.'],
         ['tool', 'noun', 'כלי (עבודה)', '🔧', 'This tool is used to fix bikes.', 'משתמשים בכלי הזה כדי לתקן אופניים.'],
-        ['extremely', 'adverb', 'מאוד / ביותר', '‼️', 'The new phone is extremely thin.', 'הטלפון החדש דק מאוד.'],
-        ['everyday', 'adjective', 'יומיומי', '📅', 'Cherry tomatoes are now an everyday food in many countries.', 'עגבניות שרי הן היום מזון יומיומי בהרבה מדינות.'],
-        ['practical', 'adjective', 'מעשי / שימושי', '👍', 'This bag is practical: it is used for school and for sport.', 'התיק הזה שימושי: משתמשים בו לבית הספר ולספורט.'],
-        ['success', 'noun', 'הצלחה', '🏆', 'The new game is a big success in Israel and abroad.', 'המשחק החדש הוא הצלחה גדולה בישראל ובחו״ל.'],
+        ['extremely', 'adverb', 'מאוד / ביותר', '‼️', 'The new phone is extremely thin, and it is made in Israel.', 'הטלפון החדש דק מאוד, והוא מיוצר בישראל.'],
+        ['everyday', 'adjective', 'יומיומי', '📅', 'Cherry tomatoes are now eaten as an everyday food in many countries.', 'עגבניות שרי נאכלות היום כמזון יומיומי בהרבה מדינות.'],
+        ['practical', 'adjective', 'שימושי / מעשי', '👍', 'This bag is practical: it is used for school and for sport.', 'התיק הזה שימושי: משתמשים בו לבית הספר ולספורט.'],
+        ['success', 'noun', 'הצלחה', '🏆', 'The new game is played all over the world. It is a big success.', 'במשחק החדש משחקים בכל העולם. הוא הצלחה גדולה.'],
       ],
       seed: {
         wrongWords: [
@@ -307,8 +307,8 @@ const UNIT_CORE_3: MiddleSchoolUnitSpec = {
             sentenceEn: 'Every year, the expo is visited by thousands of people from many countries.',
             sentenceHe: 'בכל שנה מבקרים בתערוכה אלפי אנשים מהרבה מדינות.',
             decoys: ['visits', 'are'],
-            voiceEn: 'This tool is extremely practical.',
-            voiceHe: 'הכלי הזה שימושי מאוד.',
+            voiceEn: 'This practical tool is made in Haifa.',
+            voiceHe: 'הכלי השימושי הזה מיוצר בחיפה.',
             errorFix: {
               questionEn: 'Which sentence has no mistake?',
               correct: 'Israeli cherry tomatoes are sold in many countries.',

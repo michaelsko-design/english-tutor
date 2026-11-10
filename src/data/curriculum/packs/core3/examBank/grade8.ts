@@ -18,7 +18,7 @@ export const CORE_3_GRADE_8_EXAM_BANK: ExamBankPack = {
         clozeEn: 'Only trained workers can ____ this big machine.',
         clozeHe: 'רק עובדים מיומנים יכולים להפעיל את המכונה הגדולה הזאת.',
         answer: 'operate',
-        wrong: ['wrapped up', 'designed'],
+        wrong: ['wrap up', 'design'],
       },
       {
         clozeEn: 'The ____ is sent by mail, and it arrives in three days.',
@@ -30,7 +30,7 @@ export const CORE_3_GRADE_8_EXAM_BANK: ExamBankPack = {
         clozeEn: 'A bus is a big ____ that carries many people.',
         clozeHe: 'אוטובוס הוא כלי רכב גדול שמסיע הרבה אנשים.',
         answer: 'vehicle',
-        wrong: ['tools', 'goods'],
+        wrong: ['tool', 'package'],
       },
       {
         clozeEn: 'Our phone is old. Dad wants to buy the ____ model.',

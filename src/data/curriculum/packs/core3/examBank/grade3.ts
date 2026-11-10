@@ -126,14 +126,14 @@ export const CORE_3_GRADE_3_EXAM_BANK: ExamBankPack = {
       },
       {
         passageEn:
-          'Today is game day. Ido and Omer both like football. Ido asks, Do you have a ball? Omer says, Yes, I do. Ido says, I have a net at home! At the end of the day, they are hot and happy.',
+          'Today is game day. Ido and Omer both like soccer. Ido asks, Do you have a ball? Omer says, Yes, I do. Ido says, I have a net at home! At the end of the day, they are hot and happy.',
         passageHe:
           'היום יום משחקים. עידו ועומר אוהבים שניהם כדורגל. עידו שואל: יש לך כדור? עומר אומר: כן. עידו אומר: יש לי רשת בבית! בסוף היום חם להם והם שמחים.',
         questions: [
           {
             questionEn: 'What do Ido and Omer like?',
             questionHe: 'מה עידו ועומר אוהבים?',
-            correct: 'Football.',
+            correct: 'Soccer.',
             wrong: ['Swimming.', 'Pets.'],
           },
           {

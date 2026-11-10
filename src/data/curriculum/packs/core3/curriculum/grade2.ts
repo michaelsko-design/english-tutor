@@ -140,8 +140,8 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
           { wordEn: 'eat', translationHe: 'לאכול' },
           { wordEn: 'swim', translationHe: 'לשחות' },
         ],
-        shortSentenceEn: 'My dog is lost.',
-        shortSentenceHe: 'הכלב שלי הלך לאיבוד.',
+        shortSentenceEn: 'Excuse me, please.',
+        shortSentenceHe: 'סליחה, בבקשה.',
         rule: {
           questionEn: 'Your ball hits a friend. What do you say?',
           correct: 'I\'m sorry!',
@@ -192,7 +192,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
             sentenceHe: 'סליחה, זה העט שלך?',
             decoys: ['are', 'his'],
             voiceEn: 'Sorry, I lost your pencil.',
-            voiceHe: 'סליחה, איבדתי את העיפרון שלך.',
+            voiceHe: 'אני מצטער/ת, איבדתי את העיפרון שלך.',
             errorFix: {
               questionEn: 'Which sentence has no mistake?',
               correct: 'I\'m sorry, my dog is in your garden.',
@@ -289,17 +289,17 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
             ],
           },
           master: {
-            sentenceEn: 'Excuse me, can I have some cake, please?',
-            sentenceHe: 'סליחה, אפשר לקבל קצת עוגה, בבקשה?',
+            sentenceEn: 'Can I have some cake, please?',
+            sentenceHe: 'אפשר לקבל קצת עוגה, בבקשה?',
             decoys: ['has', 'cakes'],
             voiceEn: 'Happy birthday, Grandpa!',
             voiceHe: 'יום הולדת שמח, סבא!',
             errorFix: {
               questionEn: 'Which sentence has no mistake?',
-              correct: 'We wait for our friends.',
-              wrong: ['We waits for our friends.', 'We wait to our friends.', 'We for wait our friends.'],
-              explainHe: 'עם we אומרים wait (בלי s), ואחרי wait באה המילה for: wait for.',
-              hintEn: 'Check wait and the little word after it.',
+              correct: 'Can I have some milk, please?',
+              wrong: ['Can I has some milk, please?', 'Can have I some milk, please?', 'I can have some milk, please?'],
+              explainHe: 'בקשה מנומסת: Can I have …, please? קודם Can, אחר כך I, ואז have.',
+              hintEn: 'Check the order of can, I and have.',
             },
             story: {
               passageEn:

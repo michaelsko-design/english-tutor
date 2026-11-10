@@ -10,7 +10,7 @@ export const CORE_3_GRADE_6_LESSONS: LessonPack = {
     examples: [
       { en: 'Noa runs quickly.', he: 'נועה רצה מהר.', highlight: 'quickly', emoji: '⚡' },
       { en: 'Throw the ball carefully.', he: 'זרקו את הכדור בזהירות.', highlight: 'carefully', emoji: '🏀' },
-      { en: 'Ron wins the race easily.', he: 'רון מנצח במרוץ בקלות.', highlight: 'easily', emoji: '😌' },
+      { en: 'The cat jumps easily onto the wall.', he: 'החתול קופץ בקלות על הקיר.', highlight: 'easily', emoji: '🐈' },
     ],
     tipHe: 'כשהתואר נגמר ב-y, ה-y הופך ל-i: easy → easily, happy → happily.',
     quickTry: {
@@ -27,8 +27,8 @@ export const CORE_3_GRADE_6_LESSONS: LessonPack = {
       'יש תוארי פועל בלי ly: התואר good הופך ל-well (She plays well), ו-hard ו-fast נשארים אותו דבר: work hard, run fast.',
     pattern: 'good → well · hard → hard · fast → fast',
     examples: [
-      { en: 'Maya sings very well.', he: 'מאיה שרה טוב מאוד.', highlight: 'well', emoji: '👏' },
-      { en: 'Dan works hard every day.', he: 'דן עובד קשה כל יום.', highlight: 'hard', emoji: '💪' },
+      { en: 'My brother draws very well.', he: 'אחי מצייר טוב מאוד.', highlight: 'well', emoji: '🎨' },
+      { en: 'Our coach trains hard every morning.', he: 'המאמן שלנו מתאמן קשה כל בוקר.', highlight: 'hard', emoji: '💪' },
       { en: 'The cheetah runs fast.', he: 'הברדלס רץ מהר.', highlight: 'fast', emoji: '🏃' },
     ],
     tipHe: 'לא אומרים plays good או runs fastly. ו-hardly היא מילה אחרת: כמעט לא.',

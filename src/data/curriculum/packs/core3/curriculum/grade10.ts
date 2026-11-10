@@ -240,14 +240,14 @@ const UNIT_CORE_3: HighSchoolUnitSpec = {
       sentenceEn: 'We are leaving in August, and in October we will be volunteering in Peru.',
       sentenceHe: 'אנחנו יוצאים באוגוסט, ובאוקטובר נתנדב בפרו.',
       vocab: [
-        ['worthwhile', 'adjective', 'שווה את המאמץ / כדאי', '✅', 'A year of volunteering is hard, but it is worthwhile.', 'שנת התנדבות היא קשה, אבל היא שווה את המאמץ.'],
-        ['in the meantime', 'phrase', 'בינתיים', '⌛', 'The army starts in March. In the meantime, Gil is working in a hotel.', 'הצבא מתחיל במרץ. בינתיים, גיל עובד במלון.'],
+        ['worthwhile', 'adjective', 'שווה את המאמץ / כדאי', '✅', 'Next year I am volunteering, and I am sure it will be worthwhile.', 'בשנה הבאה אני מתנדב/ת, ואני בטוח/ה שזה יהיה שווה את המאמץ.'],
+        ['in the meantime', 'phrase', 'בינתיים', '⌛', 'The army starts in March. In the meantime, Gil will be working in a hotel.', 'הצבא מתחיל במרץ. בינתיים, גיל יעבוד במלון.'],
         ['quit', 'verb', 'לעזוב (עבודה) / להפסיק / לפרוש', '🚪', 'Noam is quitting his job in May because he is traveling to India.', 'נועם עוזב את העבודה שלו במאי כי הוא נוסע להודו.'],
-        ['ideal', 'adjective', 'אידיאלי / מושלם', '🎯', 'For Dan, the ideal gap year is half work and half travel.', 'בשביל דן, שנת ההפסקה האידיאלית היא חצי עבודה וחצי טיולים.'],
-        ['cope', 'verb', 'להתמודד', '🧘', 'Living far from home is hard, but most volunteers cope with it well.', 'לגור רחוק מהבית זה קשה, אבל רוב המתנדבים מתמודדים עם זה טוב.'],
-        ['sooner or later', 'phrase', 'במוקדם או במאוחר', '🔜', 'Sooner or later, every traveler loses something important.', 'במוקדם או במאוחר, כל מטייל מאבד משהו חשוב.'],
-        ['nightmare', 'noun', 'סיוט', '😱', 'The flight was a nightmare: we waited nine hours at the airport.', 'הטיסה הייתה סיוט: חיכינו תשע שעות בשדה התעופה.'],
-        ['unlikely', 'adjective', 'לא סביר', '🤷', 'It is unlikely that we will be home before midnight.', 'לא סביר שנהיה בבית לפני חצות.'],
+        ['ideal', 'adjective', 'אידיאלי / מושלם', '🎯', 'For Dan, the ideal gap year is simple: he is working until May and traveling after that.', 'בשביל דן, שנת ההפסקה האידיאלית פשוטה: הוא עובד עד מאי ומטייל אחרי זה.'],
+        ['cope', 'verb', 'להתמודד', '🧘', 'Next month we will be living far from home, but we will cope.', 'בחודש הבא נגור רחוק מהבית, אבל נתמודד.'],
+        ['sooner or later', 'phrase', 'במוקדם או במאוחר', '🔜', 'Sooner or later, we will be traveling together again.', 'במוקדם או במאוחר, נטייל שוב יחד.'],
+        ['nightmare', 'noun', 'סיוט', '😱', 'Tomorrow we are flying with two stops. It will be a nightmare!', 'מחר אנחנו טסים עם שתי עצירות. זה יהיה סיוט!'],
+        ['unlikely', 'adjective', 'לא סביר', '🤷', 'It is unlikely that we will be sleeping before midnight.', 'לא סביר שנישן לפני חצות.'],
       ],
       seed: {
         wrongWords: [
@@ -326,7 +326,7 @@ const UNIT_CORE_3: HighSchoolUnitSpec = {
             },
             story: {
               passageEn:
-                'Ido and Lihi are planning a trip to South America after the army, and they agree on almost everything. The tickets are booked: they are flying to Lima on the third of March. The problem is the first week. Ido wants to spend it hiking in the mountains, while Lihi dreams of lying on a beach. Last night, they finally found a solution. During the first week, Ido will be climbing with a local guide, and Lihi will be learning to surf. On the eighth, they are meeting in Cusco.',
+                'Ido and Lihi are planning a trip to South America after the army, and they agree on almost everything. The tickets are booked: they are flying to Lima on the third of March. The problem is the first week. Ido wants to spend it hiking in the mountains, while Lihi dreams of lying on a beach. Last night, they finally found a solution. During the first week, Ido will be climbing with a local guide, and Lihi will be learning to surf. On the tenth, they are meeting in Cusco.',
               passageHe: '',
               questionEn: 'How did Ido and Lihi solve their problem?',
               questionHe: '',

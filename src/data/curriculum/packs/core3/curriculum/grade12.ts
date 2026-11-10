@@ -28,12 +28,12 @@ const UNIT_CORE_3: HighSchoolUnitSpec = {
       sentenceHe: 'קודם כול, אסביר את הבעיה, ואחר כך אציע פתרון.',
       vocab: [
         ['to start with', 'phrase', 'קודם כול / בתור התחלה', '🏁', 'To start with, school uniforms save families money.', 'קודם כול, תלבושת אחידה חוסכת למשפחות כסף.'],
-        ['sum up', 'phrase', 'לסכם', '🧾', 'In the last paragraph, sum up your main points in two sentences.', 'בפסקה האחרונה, סכמו את הנקודות העיקריות שלכם בשני משפטים.'],
+        ['sum up', 'phrase', 'לסכם', '🧾', 'Finally, sum up your main points in two sentences.', 'לבסוף, סכמו את הנקודות העיקריות שלכם בשני משפטים.'],
         ['particular', 'adjective', 'מסוים / מיוחד', '🔎', 'Each paragraph should focus on one particular idea.', 'כל פסקה צריכה להתמקד ברעיון מסוים אחד.'],
-        ['among other things', 'phrase', 'בין היתר', '📚', 'Sport teaches, among other things, patience and teamwork.', 'ספורט מלמד, בין היתר, סבלנות ועבודת צוות.'],
-        ['characteristic', 'noun', 'מאפיין / תכונה', '🧩', 'One characteristic of a good essay is a clear order of ideas.', 'אחד המאפיינים של חיבור טוב הוא סדר ברור של רעיונות.'],
-        ['appropriate', 'adjective', 'מתאים / הולם', '👔', 'Slang is not appropriate in a formal essay.', 'סלנג לא מתאים לחיבור רשמי.'],
-        ['more or less', 'phrase', 'פחות או יותר', '〰️', 'My first draft was more or less 200 words long.', 'הטיוטה הראשונה שלי הייתה באורך של פחות או יותר 200 מילים.'],
+        ['among other things', 'phrase', 'בין היתר', '📚', 'First, sport teaches, among other things, patience and teamwork.', 'ראשית, ספורט מלמד, בין היתר, סבלנות ועבודת צוות.'],
+        ['characteristic', 'noun', 'מאפיין / תכונה', '🧩', 'After that, describe one characteristic of the main character.', 'לאחר מכן, תארו מאפיין אחד של הדמות הראשית.'],
+        ['appropriate', 'adjective', 'מתאים / הולם', '👔', 'Then, check that every word is appropriate for a formal essay.', 'אחר כך, בדקו שכל מילה מתאימה לחיבור רשמי.'],
+        ['more or less', 'phrase', 'פחות או יותר', '〰️', 'First, I wrote a draft of more or less 200 words.', 'ראשית, כתבתי טיוטה של פחות או יותר 200 מילים.'],
         ['necessarily', 'adverb', 'בהכרח', '❓', 'A longer essay is not necessarily a better essay.', 'חיבור ארוך יותר הוא לא בהכרח חיבור טוב יותר.'],
       ],
       seed: {
@@ -134,14 +134,14 @@ const UNIT_CORE_3: HighSchoolUnitSpec = {
       sentenceEn: 'Phones help students learn, but they can also distract them in class.',
       sentenceHe: 'טלפונים עוזרים לתלמידים ללמוד, אבל הם גם יכולים להסיח את דעתם בכיתה.',
       vocab: [
-        ['even if', 'phrase', 'גם אם', '🤔', 'Even if homework is boring, it helps us remember the lesson.', 'גם אם שיעורי הבית משעממים, הם עוזרים לנו לזכור את השיעור.'],
-        ['except that', 'phrase', 'אלא ש... / חוץ מזה ש...', '➖', 'The plan is good, except that it costs too much.', 'התוכנית טובה, אלא שהיא עולה יותר מדי.'],
+        ['even if', 'phrase', 'גם אם', '🤔', 'Homework can be boring, yet it helps us even if we do not enjoy it.', 'שיעורי בית יכולים להיות משעממים, ובכל זאת הם עוזרים לנו גם אם אנחנו לא נהנים מהם.'],
+        ['except that', 'phrase', 'אלא ש... / חוץ מזה ש...', '➖', 'The plan is good, and the team likes it, except that it costs too much.', 'התוכנית טובה, והצוות אוהב אותה, אלא שהיא עולה יותר מדי.'],
         ['exception', 'noun', 'יוצא מן הכלל / חריג', '⚠️', 'Phones are not allowed in class, and there is no exception.', 'טלפונים אסורים בכיתה, ואין יוצא מן הכלל.'],
         ['in that case', 'phrase', 'במקרה כזה', '👉', 'Some students cannot afford a laptop, so in that case the school should lend one.', 'יש תלמידים שאין להם כסף למחשב נייד, ובמקרה כזה בית הספר צריך להשאיל להם אחד.'],
-        ['impression', 'noun', 'רושם', '✨', 'A clear first paragraph makes a good impression on the reader.', 'פסקה ראשונה ברורה עושה רושם טוב על הקורא.'],
+        ['impression', 'noun', 'רושם', '✨', 'A clear first paragraph makes a good impression, so write it carefully.', 'פסקה ראשונה ברורה עושה רושם טוב, אז כתבו אותה בזהירות.'],
         ['interaction', 'noun', 'קשר בין אנשים / אינטראקציה', '💬', 'Online classes are useful, yet they offer little real interaction.', 'שיעורים מקוונים שימושיים, ובכל זאת יש בהם מעט קשר אמיתי בין אנשים.'],
         ['limited', 'adjective', 'מוגבל', '⏱️', 'Time in the exam is limited, so plan your essay quickly.', 'הזמן במבחן מוגבל, אז תכננו את החיבור שלכם מהר.'],
-        ['seldom', 'adverb', 'לעיתים רחוקות', '🐌', 'Good writers seldom use the same linking word twice in a row.', 'כותבים טובים משתמשים לעיתים רחוקות באותה מילת קישור פעמיים ברצף.'],
+        ['seldom', 'adverb', 'לעיתים רחוקות', '🐌', 'Good writers seldom repeat a word, so their essays are easy to read.', 'כותבים טובים חוזרים על מילה לעיתים רחוקות, ולכן החיבורים שלהם קלים לקריאה.'],
       ],
       seed: {
         wrongWords: [
@@ -241,14 +241,14 @@ const UNIT_CORE_3: HighSchoolUnitSpec = {
       sentenceEn: 'To sum up, social media has many benefits, but we must use it wisely.',
       sentenceHe: 'לסיכום, לרשתות החברתיות יש הרבה יתרונות, אבל אנחנו חייבים להשתמש בהן בחוכמה.',
       vocab: [
-        ['the main thing', 'phrase', 'העיקר / הדבר החשוב ביותר', '⭐', 'The main thing in an essay is a clear opinion.', 'העיקר בחיבור הוא דעה ברורה.'],
+        ['the main thing', 'phrase', 'העיקר / הדבר החשוב ביותר', '⭐', 'The main thing in an essay is a clear opinion, so state it early.', 'העיקר בחיבור הוא דעה ברורה, אז הציגו אותה מוקדם.'],
         ['wealth', 'noun', 'עושר', '💎', 'Wealth does not always bring happiness, yet many people want it.', 'עושר לא תמיד מביא אושר, ובכל זאת הרבה אנשים רוצים אותו.'],
         ['barrier', 'noun', 'מחסום', '🚧', 'Language can be a barrier, but technology helps people understand each other.', 'שפה יכולה להיות מחסום, אבל הטכנולוגיה עוזרת לאנשים להבין זה את זה.'],
         ['sensitive', 'adjective', 'רגיש', '🫶', 'Teenagers are sensitive to comments, so online bullying can hurt them badly.', 'בני נוער רגישים להערות, ולכן בריונות ברשת יכולה לפגוע בהם מאוד.'],
         ['aggressive', 'adjective', 'תוקפני / אגרסיבי', '😠', 'Some online comments are aggressive, and many users simply stop reading.', 'חלק מהתגובות ברשת תוקפניות, והרבה משתמשים פשוט מפסיקים לקרוא.'],
-        ['acquire', 'verb', 'לרכוש (ידע, מיומנות)', '🎓', 'Students acquire new skills when they work on real projects.', 'תלמידים רוכשים מיומנויות חדשות כשהם עובדים על פרויקטים אמיתיים.'],
-        ['whatever', 'pronoun', 'מה ש... / לא משנה מה', '🤷', 'Whatever you decide, explain your reasons clearly.', 'מה שלא תחליטו, הסבירו את הסיבות שלכם בבירור.'],
-        ['thanks to', 'phrase', 'בזכות', '🙏', 'Thanks to the internet, students can learn almost anything.', 'בזכות האינטרנט, תלמידים יכולים ללמוד כמעט כל דבר.'],
+        ['acquire', 'verb', 'לרכוש (ידע, מיומנות)', '🎓', 'Students acquire new skills, and they enjoy real projects more.', 'תלמידים רוכשים מיומנויות חדשות, והם נהנים יותר מפרויקטים אמיתיים.'],
+        ['whatever', 'pronoun', 'מה ש... / לא משנה מה', '🤷', 'Whatever you decide, explain your reasons, and give an example.', 'מה שלא תחליטו, הסבירו את הסיבות שלכם ותנו דוגמה.'],
+        ['thanks to', 'phrase', 'בזכות', '🙏', 'Thanks to the internet, students can learn almost anything, yet they still need teachers.', 'בזכות האינטרנט, תלמידים יכולים ללמוד כמעט כל דבר, ובכל זאת הם עדיין צריכים מורים.'],
       ],
       seed: {
         wrongWords: [

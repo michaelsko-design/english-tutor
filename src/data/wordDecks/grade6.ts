@@ -78,7 +78,7 @@ export const GRADE_6_DECKS: GradeDecks = [
       { wordEn: 'butter', translationHe: 'חמאה', partOfSpeech: 'n', exampleEn: 'Put some butter in the hot pan.', exampleHe: 'שמים קצת חמאה במחבת החמה.', ministryList: 'band-1-core-1', recProd: 'prod', emoji: '🧈' },
       { wordEn: 'yogurt', translationHe: 'יוגורט', partOfSpeech: 'n', exampleEn: 'Mix the fruit with yogurt.', exampleHe: 'מערבבים את הפירות עם יוגורט.', ministryList: 'band-1-core-2', recProd: 'prod', emoji: '🫐' },
       { wordEn: 'jam', translationHe: 'ריבה', partOfSpeech: 'n', exampleEn: 'Grandma makes strawberry jam.', exampleHe: 'סבתא מכינה ריבת תותים.', ministryList: 'band-1-core-2', recProd: 'prod', emoji: '🥫' },
-      { wordEn: 'biscuit', translationHe: 'עוגייה; ביסקוויט', partOfSpeech: 'n', exampleEn: 'We bake biscuits for the class party.', exampleHe: 'אנחנו אופים עוגיות למסיבת הכיתה.', ministryList: 'band-1-core-1', recProd: 'prod', emoji: '🍪' },
+      { wordEn: 'biscuit', translationHe: 'ביסקוויט; עוגייה', partOfSpeech: 'n', exampleEn: 'I dip my biscuit in hot tea.', exampleHe: 'אני טובל/ת את הביסקוויט בתה חם.', ministryList: 'band-1-core-1', recProd: 'prod', emoji: '🍪' },
       { wordEn: 'lovely', translationHe: 'נהדר; מקסים', partOfSpeech: 'adj', exampleEn: 'What a lovely smell!', exampleHe: 'איזה ריח נהדר!', ministryList: 'band-1-core-2', recProd: 'prod', emoji: '🥰' },
       { wordEn: 'pleasant', translationHe: 'נעים', partOfSpeech: 'adj', exampleEn: 'The kitchen is warm and pleasant.', exampleHe: 'המטבח חמים ונעים.', ministryList: 'band-1-core-2', recProd: 'prod', emoji: '😊' },
     ],

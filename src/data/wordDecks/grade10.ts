@@ -69,10 +69,10 @@ export const GRADE_10_DECKS: GradeDecks = [
     topicHe: 'עבודה וכלכלה',
     items: [
       { wordEn: 'economics', translationHe: 'כלכלה (תחום לימוד)', partOfSpeech: 'n', exampleEn: 'She is studying economics at university.', exampleHe: 'היא לומדת כלכלה באוניברסיטה.', ministryList: 'band-3-core-2', recProd: 'prod' },
-      { wordEn: 'estate', translationHe: 'אחוזה; נכסים', partOfSpeech: 'n', exampleEn: 'Her uncle works in real estate.', exampleHe: 'הדוד שלה עובד בתחום הנדל״ן.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'estate', translationHe: 'נכסים (נדל״ן); אחוזה', partOfSpeech: 'n', exampleEn: 'Her uncle works in real estate.', exampleHe: 'הדוד שלה עובד בתחום הנדל״ן.', ministryList: 'band-3-core-2', recProd: 'prod' },
       { wordEn: 'guarantee', translationHe: 'אחריות (למוצר); ערבות', partOfSpeech: 'n', exampleEn: 'The phone comes with a two-year guarantee.', exampleHe: 'הטלפון מגיע עם אחריות לשנתיים.', ministryList: 'band-3-core-2', recProd: 'prod' },
       { wordEn: 'shortage', translationHe: 'מחסור', partOfSpeech: 'n', exampleEn: 'There is a shortage of nurses in many hospitals.', exampleHe: 'בהרבה בתי חולים יש מחסור באחיות.', ministryList: 'band-3-core-2', recProd: 'prod' },
-      { wordEn: 'reduction', translationHe: 'הפחתה; הנחה', partOfSpeech: 'n', exampleEn: 'Students get a reduction on bus tickets.', exampleHe: 'סטודנטים מקבלים הנחה על כרטיסי אוטובוס.', ministryList: 'band-3-core-2', recProd: 'prod' },
+      { wordEn: 'reduction', translationHe: 'הנחה; הפחתה', partOfSpeech: 'n', exampleEn: 'Students get a reduction on bus tickets.', exampleHe: 'סטודנטים מקבלים הנחה על כרטיסי אוטובוס.', ministryList: 'band-3-core-2', recProd: 'prod' },
       { wordEn: 'consume', translationHe: 'לצרוך', partOfSpeech: 'v', exampleEn: 'Old fridges consume a lot of electricity.', exampleHe: 'מקררים ישנים צורכים הרבה חשמל.', ministryList: 'band-3-core-2', recProd: 'prod' },
       { wordEn: 'qualify', translationHe: 'לקבל הסמכה; להיות זכאי', partOfSpeech: 'v', exampleEn: 'She qualified as a nurse last year.', exampleHe: 'היא הוסמכה לאחות בשנה שעברה.', ministryList: 'band-3-core-2', recProd: 'prod' },
       { wordEn: 'assignment', translationHe: 'מטלה', partOfSpeech: 'n', exampleEn: 'The assignment is due next Monday.', exampleHe: 'צריך להגיש את המטלה ביום שני הבא.', ministryList: 'band-3-core-2', recProd: 'prod' },

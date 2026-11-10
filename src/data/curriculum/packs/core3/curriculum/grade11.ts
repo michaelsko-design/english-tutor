@@ -27,7 +27,7 @@ const UNIT_CORE_3: HighSchoolUnitSpec = {
       sentenceEn: 'The guard had been sleeping for an hour when the thieves arrived.',
       sentenceHe: 'השומר ישן כבר שעה כשהגנבים הגיעו.',
       vocab: [
-        ['rob', 'verb', 'לשדוד', '💰', 'Two men robbed the jewelry shop after they had been watching it for days.', 'שני גברים שדדו את חנות התכשיטים אחרי שעקבו אחריה במשך ימים.'],
+        ['rob', 'verb', 'לשדוד', '💰', 'Two men robbed the jewelry store after they had been watching it for days.', 'שני גברים שדדו את חנות התכשיטים אחרי שעקבו אחריה במשך ימים.'],
         ['victim', 'noun', 'קורבן', '🙍', 'The victim had been walking home alone when a man took his phone.', 'הקורבן הלך הביתה לבד כשאדם לקח לו את הטלפון.'],
         ['incident', 'noun', 'תקרית / אירוע', '🚨', 'Before the incident, the two neighbors had been arguing for weeks.', 'לפני התקרית, שני השכנים התווכחו במשך שבועות.'],
         ['chase', 'verb', 'לרדוף אחרי', '🏃', 'The police officer had been chasing the thief for ten minutes when he finally caught him.', 'השוטר רדף אחרי הגנב עשר דקות כשסוף סוף תפס אותו.'],
@@ -53,7 +53,7 @@ const UNIT_CORE_3: HighSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'Last Friday, someone robbed a small jewelry shop on Herzl Street. The owner, Mr. Levi, had been working in the back room all morning, so he did not hear anything. When he came out, the shop was a mess and a gold necklace was missing. A neighbor told the police that a young man had been standing outside the shop for an hour. The police are now looking at the street cameras.',
+            'Last Friday, someone robbed a small jewelry store on Herzl Street. The owner, Mr. Levi, had been working in the back room all morning, so he did not hear anything. When he came out, the shop was a mess and a gold necklace was missing. A neighbor told the police that a young man had been standing outside the shop for an hour. The police are now looking at the street cameras.',
           passageHe:
             'ביום שישי שעבר, מישהו שדד חנות תכשיטים קטנה ברחוב הרצל. הבעלים, מר לוי, עבד כל הבוקר בחדר האחורי, ולכן לא שמע כלום. כשהוא יצא, החנות הייתה בבלגן ושרשרת זהב נעלמה. שכנה סיפרה למשטרה שבחור צעיר עמד מחוץ לחנות במשך שעה. המשטרה בודקת עכשיו את מצלמות הרחוב.',
           questionEn: 'Why did Mr. Levi not hear anything?',
@@ -216,14 +216,14 @@ const UNIT_CORE_3: HighSchoolUnitSpec = {
             },
             story: {
               passageEn:
-                'In 1928, Alexander Fleming came back from a holiday to his laboratory in London. Before he left, he had been growing bacteria in small glass dishes. He noticed that a blue-green mold had been growing on one of the dishes, and that around the mold, the bacteria had died. Instead of throwing the dish away, Fleming studied it carefully. His discovery led to penicillin, a medicine that has saved millions of lives.',
+                'In 1928, Alexander Fleming came back from a vacation to his laboratory in London. Before he left, he had been growing bacteria in small glass dishes. He noticed that a blue-green mold had been growing on one of the dishes, and that around the mold, the bacteria had died. Instead of throwing the dish away, Fleming studied it carefully. His discovery led to penicillin, a medicine that has saved millions of lives.',
               passageHe: '',
               questionEn: "What made Fleming's discovery possible?",
               questionHe: '',
               correct: 'He looked closely at a spoiled dish.',
               wrong: [
                 'He had been testing a new medicine on patients.',
-                'He had cleaned every dish before his holiday.',
+                'He had cleaned every dish before his vacation.',
                 'A friend sent him mold from another country.',
               ],
             },
@@ -248,10 +248,10 @@ const UNIT_CORE_3: HighSchoolUnitSpec = {
         ['justice', 'noun', 'צדק', '⚖️', 'The families had been waiting for justice for ten years.', 'המשפחות חיכו לצדק במשך עשר שנים.'],
         ['punish', 'verb', 'להעניש', '🚫', 'The court punished the company that had been polluting the river.', 'בית המשפט העניש את החברה שזיהמה את הנהר.'],
         ['as a matter of fact', 'phrase', 'למעשה / בעצם', '☝️', 'As a matter of fact, the mayor had known about the problem for years.', 'למעשה, ראש העיר ידע על הבעיה כבר שנים.'],
-        ['involvement', 'noun', 'מעורבות', '🤝', 'The police are checking his involvement in the robbery.', 'המשטרה בודקת את המעורבות שלו בשוד.'],
-        ['nonsense', 'noun', 'שטויות', '🙄', 'The manager said the story was nonsense, but the reporters had proof.', 'המנהל אמר שהסיפור הוא שטויות, אבל לכתבים היו הוכחות.'],
+        ['involvement', 'noun', 'מעורבות', '🤝', 'The police had been checking his involvement in the robbery for weeks.', 'המשטרה בדקה במשך שבועות את המעורבות שלו בשוד.'],
+        ['nonsense', 'noun', 'שטויות', '🙄', 'The manager said the story was nonsense, but the reporters had been collecting proof for months.', 'המנהל אמר שהסיפור הוא שטויות, אבל הכתבים אספו הוכחות במשך חודשים.'],
         ['weird', 'adjective', 'מוזר', '🤨', 'Something weird had been happening in the office every night.', 'משהו מוזר קרה במשרד בכל לילה.'],
-        ['urgent', 'adjective', 'דחוף', '❗', 'The editor sent us a very urgent message: the story was going online at six.', 'העורכת שלחה לנו הודעה דחופה מאוד: הכתבה עולה לרשת בשש.'],
+        ['urgent', 'adjective', 'דחוף', '❗', 'We had been waiting all day when the editor sent us an urgent message.', 'חיכינו כל היום, ואז העורכת שלחה לנו הודעה דחופה.'],
       ],
       seed: {
         wrongWords: [

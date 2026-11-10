@@ -34,7 +34,7 @@ export const CORE_3_GRADE_9_LESSONS: LessonPack = {
     tipHe: 'that מתאים גם לאנשים וגם לדברים, אבל who רק לאנשים, ו-where רק למקומות.',
     quickTry: {
       promptHe: 'מה מתאים למקום?',
-      questionEn: 'This is the park ____ we play football.',
+      questionEn: 'This is the park ____ we play soccer.',
       correct: 'where',
       wrong: 'who',
       explainHe: 'the park הוא מקום, ולכן where.',

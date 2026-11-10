@@ -87,7 +87,7 @@ export const EXTRA_WORD_TRANSLATIONS_HE: Readonly<Record<string, string>> = {
   chairs: 'כיסאות', mirrors: 'מראות', fresh: 'טרי', black: 'שחור', those: 'אלה / ההם', gloves: 'כפפות',
   shekels: 'שקלים', brush: 'מברשת / לצחצח', legs: 'רגליים', dog: 'כלב', sore: 'כואב', cards: 'קלפים / כרטיסים',
   cat: 'חתול', milk: 'חלב', tail: 'זנב', soft: 'רך', fur: 'פרווה', past: 'עבר', half: 'חצי', wake: 'להתעורר',
-  six: 'שש', eats: 'אוכל', fish: 'דג', football: 'כדורגל', cats: 'חתולים', haifa: 'חיפה', pancakes: 'פנקייקים',
+  six: 'שש', eats: 'אוכל', fish: 'דג', football: 'כדורגל', soccer: 'כדורגל', pets: 'חיות מחמד', cats: 'חתולים', haifa: 'חיפה', pancakes: 'פנקייקים',
   leaves: 'עלים / עוזב', dried: 'מיובש / ייבש', "o'clock": 'בשעה', street: 'רחוב', tuesdays: 'בימי שלישי',
   paint: 'לצבוע / צבע', club: 'מועדון', starts: 'מתחיל', fun: 'כיף', classmates: 'חברים לכיתה', video: 'סרטון',
   cousins: 'בני דודים', funny: 'מצחיק', north: 'צפון', took: 'לקח', about: 'על / בערך', giraffe: 'ג\'ירפה',
