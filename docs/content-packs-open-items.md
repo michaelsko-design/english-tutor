@@ -125,7 +125,7 @@ That is **57 words = 7 sheets of 9** (6 slots spare).
 - g8: route → "דרך; מסלול" (example repeats "דרך"); century → "מאה (מאה שנים)"; dates to confirm: 1948, 1979 peace treaty, 1949 election, Columbus 1492, Second Temple 70 CE, Western Wall ~2,000 years
 - g9: can afford → "להרשות לעצמו (מבחינת כסף)"; hire → "לקבל לעבודה; לשכור"; shop assistant → "מוכר בחנות"; sale → "מכירה; מבצע"
 - g10: estate → "אחוזה; נכסים" (example says real estate → נדל״ן); qualify → "לקבל הסמכה; להיות זכאי"; entitle; campaign → "קמפיין; מסע (פרסום)"
-- g11: pass away → "להיפטר (למות)" (clashes with "להיפטר מ־"; maybe "הלך לעולמו"); look up to; eldest → "הבכור"; darling → "מותק; יקירי"; have a word → "לדבר רגע"
+- g11: pass away → "למות" (owner, 2026-11-10); look up to; eldest → "הבכור"; darling → "מותק; יקירי"; have a word → "לדבר רגע"
 - g12: by this time; increasingly → "במידה הולכת וגוברת"; newly → "זה עתה; לא מזמן"; simultaneously → "בו־זמנית"
 
 ### Review tools
