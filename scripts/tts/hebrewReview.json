@@ -980,6 +980,11 @@
     "fp": "36576-fabc9f82d190bc5b",
     "at": "2026-10-31"
   },
+  "14r88ifu4rj": {
+    "status": "good",
+    "fp": "30188-84accb2b404e23ec",
+    "at": "2026-11-06"
+  },
   "14rcg3c5eeg": {
     "status": "good",
     "fp": "46944-037ecce6b479cb0e",
@@ -1322,6 +1327,11 @@
     "fp": "26928-d211cddfdcaac9fe",
     "at": "2026-11-05"
   },
+  "16qhnh9mav6": {
+    "status": "good",
+    "fp": "37008-95290ce23ba202eb",
+    "at": "2026-11-06"
+  },
   "16s92u6j12u": {
     "status": "good",
     "fp": "29088-c133c8c2af987f06",
@@ -1452,6 +1462,11 @@
     "fp": "35424-d094774eb2d07ef1",
     "at": "2026-10-31"
   },
+  "19ajyxyozay": {
+    "status": "good",
+    "fp": "37296-49884efc61054f94",
+    "at": "2026-11-06"
+  },
   "19d7dc1t0hq": {
     "status": "good",
     "fp": "27504-a3d6067c2bb3150d",
@@ -1469,6 +1484,11 @@
     "status": "good",
     "fp": "20016-14a0e78a988580fa",
     "at": "2026-11-05"
+  },
+  "19ipocreu77": {
+    "status": "good",
+    "fp": "17568-0813ca7167819847",
+    "at": "2026-11-06"
   },
   "19kz356ry1j": {
     "status": "good",
@@ -1504,6 +1524,11 @@
     "fp": "30384-c692b6baa1516470",
     "at": "2026-11-05"
   },
+  "1b0u1af6ekb": {
+    "status": "good",
+    "fp": "18576-20f46d9cf88bbb37",
+    "at": "2026-11-06"
+  },
   "1b2rrpiwiog": {
     "status": "good",
     "fp": "19584-a3669c770ea20281",
@@ -1537,6 +1562,11 @@
     "fp": "38448-9b6a0f00c4e50f6b",
     "at": "2026-11-05"
   },
+  "1de72o93g4v": {
+    "status": "good",
+    "fp": "36144-e114734a68c67b1f",
+    "at": "2026-11-06"
+  },
   "1dhmwman96": {
     "status": "regenerate",
     "reasons": [
@@ -1546,10 +1576,25 @@
     "fp": "19728-b5e0048c2b355585",
     "at": "2026-11-05"
   },
+  "1dp3lhfdmbz": {
+    "status": "good",
+    "fp": "34704-e66fff41101bcb9c",
+    "at": "2026-11-06"
+  },
   "1dzgc2qbgid": {
     "status": "good",
     "fp": "30096-f09d509762b25541",
     "at": "2026-11-05"
+  },
+  "1dzivbmsigg": {
+    "status": "good",
+    "fp": "11376-e89cca1ab9e504bb",
+    "at": "2026-11-06"
+  },
+  "1e1auy41fvj": {
+    "status": "good",
+    "fp": "19296-87e8ee8c1c5466f9",
+    "at": "2026-11-06"
   },
   "1e57dq7wncq": {
     "status": "good",
@@ -1571,6 +1616,14 @@
     "fp": "21024-93de4c06c45e2228",
     "at": "2026-11-05"
   },
+  "1ewezveehlj": {
+    "status": "regenerate",
+    "reasons": [
+      "mispronounced"
+    ],
+    "fp": "22608-675e1abc3287a518",
+    "at": "2026-11-06"
+  },
   "1f5gwmsc3fn": {
     "status": "good",
     "fp": "34416-99451c42fd35b545",
@@ -1585,6 +1638,11 @@
     "fp": "22608-601423fa8b0c2ebb",
     "at": "2026-11-05"
   },
+  "1fjq0mwafef": {
+    "status": "good",
+    "fp": "20736-c057e7044047003d",
+    "at": "2026-11-06"
+  },
   "1fn0bhat2b6": {
     "status": "good",
     "fp": "36144-831a23accfa505b9",
@@ -1594,6 +1652,11 @@
     "status": "good",
     "fp": "14976-ef2c59b451a7c90c",
     "at": "2026-11-05"
+  },
+  "1gf9p41eat8": {
+    "status": "good",
+    "fp": "12528-12b6df4d12d65de3",
+    "at": "2026-11-06"
   },
   "1glltc29dpz": {
     "status": "good",
@@ -1610,6 +1673,11 @@
     "fp": "36864-dfa2dff88bf24430",
     "at": "2026-10-31"
   },
+  "1h2v1aciwr2": {
+    "status": "good",
+    "fp": "22608-ae76e75e2af02197",
+    "at": "2026-11-06"
+  },
   "1hak8sc39hh": {
     "status": "regenerate",
     "reasons": [
@@ -1623,6 +1691,25 @@
     "fp": "37728-7e9b492961cd2be6",
     "at": "2026-10-31"
   },
+  "1hihex7h325": {
+    "status": "regenerate",
+    "reasons": [
+      "bad-wording"
+    ],
+    "note": "It was pronounced as \"Az\", I think it meant \"Ez\" (goat?)",
+    "fp": "9504-6a8822b80c6ab722",
+    "at": "2026-11-06"
+  },
+  "1hnfrmq9i7q": {
+    "status": "good",
+    "fp": "13248-947e89791cb1cbf8",
+    "at": "2026-11-06"
+  },
+  "1hqbytkjpr": {
+    "status": "good",
+    "fp": "8928-602bc267d5f70d63",
+    "at": "2026-11-06"
+  },
   "1hv9ivsuxjs": {
     "status": "good",
     "fp": "28656-ff6cec642d17ec3c",
@@ -1633,10 +1720,20 @@
     "fp": "15408-5de632711ff91079",
     "at": "2026-11-05"
   },
+  "1i2xtzg2bsa": {
+    "status": "good",
+    "fp": "16704-d42cf656aeb61217",
+    "at": "2026-11-06"
+  },
   "1i60oa1ani8": {
     "status": "good",
     "fp": "21168-0586f31cc49f7b1a",
     "at": "2026-11-05"
+  },
+  "1i6lu1diat6": {
+    "status": "good",
+    "fp": "31824-0f5888d7f6889f75",
+    "at": "2026-11-06"
   },
   "1i7tpnzdan": {
     "status": "good",
@@ -1653,10 +1750,20 @@
     "fp": "26784-af42568ad827adbf",
     "at": "2026-11-05"
   },
+  "1isx135j3q4": {
+    "status": "good",
+    "fp": "36288-5ccbdd1becf87812",
+    "at": "2026-11-06"
+  },
   "1j2mwafkogi": {
     "status": "good",
     "fp": "15264-c3e79d6091503e5b",
     "at": "2026-11-05"
+  },
+  "1j54dpfyc30": {
+    "status": "good",
+    "fp": "16416-62f050b94cb02d67",
+    "at": "2026-11-06"
   },
   "1j8mb2hqvr8": {
     "status": "good",
@@ -1668,6 +1775,16 @@
     "fp": "15264-394690b1ed0ebfbe",
     "at": "2026-11-05"
   },
+  "1jd0a05bcco": {
+    "status": "good",
+    "fp": "17424-83633222d08bc53d",
+    "at": "2026-11-06"
+  },
+  "1jm8pqp15sc": {
+    "status": "good",
+    "fp": "18288-2a67bcbd61945802",
+    "at": "2026-11-06"
+  },
   "1jrm5dw9u14": {
     "status": "regenerate",
     "reasons": [
@@ -1676,10 +1793,20 @@
     "fp": "20448-d8ffab3d73573c7a",
     "at": "2026-11-05"
   },
+  "1jwlfgez2l": {
+    "status": "good",
+    "fp": "12096-452ebb1e6d8998d4",
+    "at": "2026-11-06"
+  },
   "1k8ort1th12": {
     "status": "good",
     "fp": "73296-06c8d1c1f75bc0fd",
     "at": "2026-11-05"
+  },
+  "1kemboxxj13": {
+    "status": "good",
+    "fp": "20304-e0dc16bcd0a20d71",
+    "at": "2026-11-06"
   },
   "1kjtb1o7967": {
     "status": "regenerate",
@@ -1698,6 +1825,16 @@
     "fp": "23184-5ace9a2f3d0e2852",
     "at": "2026-11-05"
   },
+  "1lkieyj9q9j": {
+    "status": "good",
+    "fp": "11376-abb1ad408ab347d8",
+    "at": "2026-11-06"
+  },
+  "1llbd5eaubx": {
+    "status": "good",
+    "fp": "14688-ec672ec1a2a885f7",
+    "at": "2026-11-06"
+  },
   "1lnev9dlkjd": {
     "status": "good",
     "fp": "12528-bf98e6a427dc6caf",
@@ -1712,6 +1849,16 @@
     "status": "good",
     "fp": "35424-16e1b75ffff792cb",
     "at": "2026-10-31"
+  },
+  "1lzyax0qkgw": {
+    "status": "good",
+    "fp": "17568-ab151d2ca98147de",
+    "at": "2026-11-06"
+  },
+  "1m27moau9xv": {
+    "status": "good",
+    "fp": "22896-64a6504550388575",
+    "at": "2026-11-06"
   },
   "1m2pl7sjzqn": {
     "status": "good",
@@ -1738,20 +1885,60 @@
     "fp": "15984-98fdaadbb8c262bb",
     "at": "2026-11-05"
   },
+  "1mzuani9c4j": {
+    "status": "good",
+    "fp": "10224-fe9116470802a7f4",
+    "at": "2026-11-06"
+  },
+  "1nc5u1g3uqd": {
+    "status": "good",
+    "fp": "7488-873e8662530c79aa",
+    "at": "2026-11-06"
+  },
+  "1nh7svqbee2": {
+    "status": "good",
+    "fp": "45216-ed941c95d6e37549",
+    "at": "2026-11-06"
+  },
   "1njxvj9vn2h": {
     "status": "good",
     "fp": "24336-3d9a578fe22125b8",
     "at": "2026-11-05"
+  },
+  "1nvkh7ph9q1": {
+    "status": "good",
+    "fp": "18144-e662058652effba3",
+    "at": "2026-11-06"
+  },
+  "1o24ayh5nu2": {
+    "status": "good",
+    "fp": "33696-2a0e2ef2b13c8a40",
+    "at": "2026-11-06"
   },
   "1o5ipoxnb0f": {
     "status": "good",
     "fp": "14544-820f9ba46e991ef3",
     "at": "2026-11-05"
   },
+  "1ouyw2p8ckq": {
+    "status": "good",
+    "fp": "35136-a366d35b437cc95f",
+    "at": "2026-11-06"
+  },
+  "1owclqhnglb": {
+    "status": "good",
+    "fp": "10224-66f3510a7f80d356",
+    "at": "2026-11-06"
+  },
   "1oz8g1cn3nz": {
     "status": "good",
     "fp": "29088-1c4c3f4f9d30a5b8",
     "at": "2026-11-05"
+  },
+  "1p6smg168m6": {
+    "status": "good",
+    "fp": "8784-10c1a2b1d6e698fe",
+    "at": "2026-11-06"
   },
   "1paap5np1j1": {
     "status": "good",
@@ -1762,6 +1949,21 @@
     "status": "good",
     "fp": "54288-795fdec739245270",
     "at": "2026-11-05"
+  },
+  "1psh3mw0nwm": {
+    "status": "good",
+    "fp": "44208-dd492562b5693fee",
+    "at": "2026-11-06"
+  },
+  "1q2nwy0fsm8": {
+    "status": "good",
+    "fp": "37296-70e7363ce9e9204a",
+    "at": "2026-11-06"
+  },
+  "1q6s259wfbg": {
+    "status": "good",
+    "fp": "18144-06dbec9d4e4e724d",
+    "at": "2026-11-06"
   },
   "1q9zz8t2hvv": {
     "status": "good",
@@ -1794,20 +1996,64 @@
     "fp": "11664-078c461433f7810b",
     "at": "2026-11-05"
   },
+  "1rrmyrgc0ul": {
+    "status": "regenerate",
+    "reasons": [
+      "mispronounced"
+    ],
+    "fp": "16416-2f3eb38b8a26f727",
+    "at": "2026-11-06"
+  },
+  "1s3r8hmff1e": {
+    "status": "good",
+    "fp": "16848-66f612c4683af81a",
+    "at": "2026-11-06"
+  },
   "1s7w627zb0d": {
     "status": "good",
     "fp": "24768-f2a7b0b72e050cb9",
     "at": "2026-11-05"
+  },
+  "1s8lsg51trm": {
+    "status": "good",
+    "fp": "8208-907a671aeade92b7",
+    "at": "2026-11-06"
   },
   "1tbw9rlpzo": {
     "status": "good",
     "fp": "23328-64b2b257b9c0fb68",
     "at": "2026-11-05"
   },
+  "1tck4vscfo4": {
+    "status": "regenerate",
+    "note": "hebrew accent",
+    "fp": "17424-eb42d8a3065ab5fc",
+    "at": "2026-11-06"
+  },
   "1tsmh5l7zlv": {
     "status": "good",
     "fp": "15696-067fee8b98163f41",
     "at": "2026-11-05"
+  },
+  "1tw4hw0430w": {
+    "status": "good",
+    "fp": "42768-f9798eccb680cf17",
+    "at": "2026-11-06"
+  },
+  "1tz59g5bfpw": {
+    "status": "good",
+    "fp": "22896-44b1d9623e1eb92b",
+    "at": "2026-11-06"
+  },
+  "1ug995ofe5w": {
+    "status": "good",
+    "fp": "22608-c30cb39e0d7513e9",
+    "at": "2026-11-06"
+  },
+  "1ukl62wmqix": {
+    "status": "good",
+    "fp": "17136-d230394943db9c7e",
+    "at": "2026-11-06"
   },
   "1uo0kpk0s43": {
     "status": "good",
@@ -1818,6 +2064,11 @@
     "status": "good",
     "fp": "23616-446375e6046c95fa",
     "at": "2026-11-05"
+  },
+  "1v3wqm5ffpt": {
+    "status": "good",
+    "fp": "26784-eef68f5d62e35b0c",
+    "at": "2026-11-06"
   },
   "1vaajbufl5n": {
     "status": "regenerate",
@@ -1838,10 +2089,28 @@
     "fp": "28224-f918e4572ed9e7bb",
     "at": "2026-11-05"
   },
+  "1vma7kfk13d": {
+    "status": "good",
+    "fp": "8208-7880eedd51df3bb6",
+    "at": "2026-11-06"
+  },
   "1vthufd425": {
     "status": "good",
     "fp": "23328-3e4848d3ec1ddeff",
     "at": "2026-11-05"
+  },
+  "1w1twto453z": {
+    "status": "good",
+    "fp": "35136-3b3bd1d67ecf970b",
+    "at": "2026-11-06"
+  },
+  "1w52k9wdpk": {
+    "status": "regenerate",
+    "reasons": [
+      "english-accent"
+    ],
+    "fp": "11376-69213a7fc14666cf",
+    "at": "2026-11-06"
   },
   "1w61yl1fnme": {
     "status": "good",
@@ -1873,10 +2142,30 @@
     "fp": "28656-e3a82dcb230d7ad0",
     "at": "2026-11-05"
   },
+  "1wxcpkl7e15": {
+    "status": "good",
+    "fp": "16128-f6b9c71fb86433bb",
+    "at": "2026-11-06"
+  },
+  "1x2asxn08nz": {
+    "status": "good",
+    "fp": "31248-bea8b1ff95749363",
+    "at": "2026-11-06"
+  },
   "1x2owiwr7bv": {
     "status": "good",
     "fp": "15984-eee45ba76324bd0d",
     "at": "2026-11-05"
+  },
+  "1x56152yb9l": {
+    "status": "good",
+    "fp": "34416-138e80862b8faa44",
+    "at": "2026-11-06"
+  },
+  "1x5ynvgruzp": {
+    "status": "good",
+    "fp": "48528-896c2cba69c82941",
+    "at": "2026-11-06"
   },
   "1x6t1kc8zkw": {
     "status": "good",
@@ -1887,6 +2176,11 @@
     "status": "good",
     "fp": "20016-a39f3caac2487bb3",
     "at": "2026-11-05"
+  },
+  "1xhvcz2j6wr": {
+    "status": "good",
+    "fp": "14976-06c55ffb3dfecf63",
+    "at": "2026-11-06"
   },
   "1xjmu9s8kes": {
     "status": "good",
@@ -1902,6 +2196,16 @@
     "status": "good",
     "fp": "19008-989e066120e55bde",
     "at": "2026-11-05"
+  },
+  "1xwofkp86i0": {
+    "status": "good",
+    "fp": "27936-f04cfb26f49741c0",
+    "at": "2026-11-06"
+  },
+  "1y0gmarhoo": {
+    "status": "good",
+    "fp": "16848-0ae993afbf9df842",
+    "at": "2026-11-06"
   },
   "1y49vnhjn7i": {
     "status": "good",
@@ -1927,15 +2231,40 @@
     "fp": "14256-9b040f16d0359fb9",
     "at": "2026-11-05"
   },
+  "1yuw1ugs4dg": {
+    "status": "good",
+    "fp": "18864-71d84fa5ced06152",
+    "at": "2026-11-06"
+  },
+  "1z13yz39rmq": {
+    "status": "good",
+    "fp": "35568-582a25ce76535850",
+    "at": "2026-11-06"
+  },
   "1z20gelvq5n": {
     "status": "good",
     "fp": "5852-6d3eea8019aaec22",
     "at": "2026-11-05"
   },
+  "1z4fplcwav9": {
+    "status": "good",
+    "fp": "18576-6dc6021743570d9e",
+    "at": "2026-11-06"
+  },
   "1z78vzh1cuf": {
     "status": "good",
     "fp": "31968-32e4d21df22271c5",
     "at": "2026-11-05"
+  },
+  "1zdn1ohcgc4": {
+    "status": "good",
+    "fp": "21888-acb8f91fe60dbb80",
+    "at": "2026-11-06"
+  },
+  "1zhnhtfjigz": {
+    "status": "good",
+    "fp": "20304-3f434fd3507ff9c7",
+    "at": "2026-11-06"
   },
   "1zie9dwwopd": {
     "status": "good",
@@ -1952,6 +2281,11 @@
     "fp": "35424-0570d8b12be2bb11",
     "at": "2026-10-31"
   },
+  "1zsllxivz4s": {
+    "status": "good",
+    "fp": "56016-aaf9db2683e38ef3",
+    "at": "2026-11-06"
+  },
   "1zv0r1wcqlo": {
     "status": "regenerate",
     "reasons": [
@@ -1960,6 +2294,16 @@
     "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
     "fp": "20304-233312b27b10a6ae",
     "at": "2026-11-05"
+  },
+  "1zvgurgki73": {
+    "status": "good",
+    "fp": "25488-0359225d9aa317ae",
+    "at": "2026-11-06"
+  },
+  "200gfqsv5ay": {
+    "status": "good",
+    "fp": "14688-e32e22077358d501",
+    "at": "2026-11-06"
   },
   "20n9uc4h8s4": {
     "status": "good",
@@ -1970,6 +2314,11 @@
     "status": "good",
     "fp": "54288-ffef492be7d96e38",
     "at": "2026-10-31"
+  },
+  "218ka9fenff": {
+    "status": "good",
+    "fp": "25056-cc49f6c973bfcfc1",
+    "at": "2026-11-06"
   },
   "21bh7r09dc": {
     "status": "good",
@@ -2009,6 +2358,11 @@
     "fp": "33696-4ceae16df172ca91",
     "at": "2026-10-31"
   },
+  "22s6ak67o8f": {
+    "status": "good",
+    "fp": "24624-d1a47e71fc020b88",
+    "at": "2026-11-06"
+  },
   "23bz5kdwhd": {
     "status": "regenerate",
     "reasons": [
@@ -2017,6 +2371,11 @@
     "note": "the whole sentence is pronounced correctly for a male form. its tagged as female, so should be changed to the right female wording",
     "fp": "55584-e046b3b56788699b",
     "at": "2026-10-31"
+  },
+  "23jzsz8pfaa": {
+    "status": "good",
+    "fp": "19584-2ba7ded6554b4f41",
+    "at": "2026-11-06"
   },
   "23m22oioj9z": {
     "status": "good",
@@ -2033,10 +2392,25 @@
     "fp": "13968-547aa29ab238f3e7",
     "at": "2026-11-05"
   },
+  "251org7thfu": {
+    "status": "good",
+    "fp": "21456-4ec320408a401976",
+    "at": "2026-11-06"
+  },
+  "255b9dfh1ep": {
+    "status": "good",
+    "fp": "8928-40bf6d91121f0867",
+    "at": "2026-11-06"
+  },
   "25kv2o4kuz3": {
     "status": "good",
     "fp": "32256-3c51187d30ead666",
     "at": "2026-11-05"
+  },
+  "2632a1on716": {
+    "status": "good",
+    "fp": "35136-8cb896149ccf4cc3",
+    "at": "2026-11-06"
   },
   "264a16ujy42": {
     "status": "good",
@@ -2056,6 +2430,11 @@
     "status": "good",
     "fp": "7776-5f9322275a883e39",
     "at": "2026-11-05"
+  },
+  "26go39w100o": {
+    "status": "good",
+    "fp": "16416-c14a8a1e6500d241",
+    "at": "2026-11-06"
   },
   "26ms2m0kfcj": {
     "status": "good",
@@ -2077,10 +2456,28 @@
     "fp": "27216-d6b962b34c907331",
     "at": "2026-11-05"
   },
+  "288700p348j": {
+    "status": "good",
+    "fp": "7344-79ab16f27f97c60b",
+    "at": "2026-11-06"
+  },
   "289lohqc4rs": {
     "status": "good",
     "fp": "13248-a4b065bb385631c8",
     "at": "2026-11-05"
+  },
+  "28eab41h7ui": {
+    "status": "good",
+    "fp": "24048-b6e120a8449ab0a1",
+    "at": "2026-11-06"
+  },
+  "28tf7cz3ok4": {
+    "status": "regenerate",
+    "reasons": [
+      "english-accent"
+    ],
+    "fp": "14544-5b020ec930763739",
+    "at": "2026-11-06"
   },
   "293m82jhemg": {
     "status": "good",
@@ -2102,6 +2499,11 @@
     "fp": "32256-1ece9b16761f8547",
     "at": "2026-11-05"
   },
+  "29csx3tm9v9": {
+    "status": "good",
+    "fp": "39024-28b084895b0e167f",
+    "at": "2026-11-06"
+  },
   "29ed29df3vp": {
     "status": "good",
     "fp": "16416-d177ab098e8e1e6b",
@@ -2111,6 +2513,16 @@
     "status": "good",
     "fp": "29808-c9841611af93f19e",
     "at": "2026-11-05"
+  },
+  "29xfqf6ywrq": {
+    "status": "good",
+    "fp": "9216-ead73bdffed61189",
+    "at": "2026-11-06"
+  },
+  "2a6xblafgs3": {
+    "status": "good",
+    "fp": "25056-a5d5e758e4373957",
+    "at": "2026-11-06"
   },
   "2a97cc191pb": {
     "status": "regenerate",
@@ -2127,6 +2539,11 @@
     "status": "good",
     "fp": "23184-49e7839b09f253eb",
     "at": "2026-11-05"
+  },
+  "2aijccjy0du": {
+    "status": "good",
+    "fp": "7776-352b28d9c6725d18",
+    "at": "2026-11-06"
   },
   "2b288bxjl1k": {
     "status": "good",
@@ -2160,6 +2577,11 @@
     "note": "מעולה should have niqqud for the male form and should sound like \"Meule\"",
     "fp": "22464-16e09f478cb07860",
     "at": "2026-11-05"
+  },
+  "2buv2wzsxkk": {
+    "status": "good",
+    "fp": "16704-dca7e05366538185",
+    "at": "2026-11-06"
   },
   "2c0jue6o8eb": {
     "status": "good",
@@ -2203,6 +2625,11 @@
     "fp": "21456-20910ec040986aa4",
     "at": "2026-11-05"
   },
+  "2di3n3poj47": {
+    "status": "good",
+    "fp": "17136-682f670c95d38892",
+    "at": "2026-11-06"
+  },
   "2dihc48cmrh": {
     "status": "regenerate",
     "reasons": [
@@ -2221,6 +2648,11 @@
     "fp": "51696-520cd1df66531ae2",
     "at": "2026-10-31"
   },
+  "2dvxm6me62w": {
+    "status": "good",
+    "fp": "39024-47904cb6cd0190a7",
+    "at": "2026-11-06"
+  },
   "2ebybgc84gz": {
     "status": "good",
     "fp": "21024-1379b6a080481b91",
@@ -2235,10 +2667,20 @@
     "fp": "19008-f599f9b02e32527f",
     "at": "2026-11-05"
   },
+  "2eiisla10na": {
+    "status": "good",
+    "fp": "26496-5e999f92029a9509",
+    "at": "2026-11-06"
+  },
   "2ekkt7gwvdq": {
     "status": "good",
     "fp": "29808-d55fbfda38b201fb",
     "at": "2026-11-05"
+  },
+  "2emk0iozqaj": {
+    "status": "good",
+    "fp": "39168-c42fb32facf45f9f",
+    "at": "2026-11-06"
   },
   "2eo1mvw4l4g": {
     "status": "good",
@@ -2255,10 +2697,35 @@
     "fp": "39744-e2b2082f4c5b2e76",
     "at": "2026-10-31"
   },
+  "2f8uayq2903": {
+    "status": "good",
+    "fp": "16416-d15f99d3926bf257",
+    "at": "2026-11-06"
+  },
+  "2g6ghqlr30r": {
+    "status": "good",
+    "fp": "35856-5ae183bb9745b3f0",
+    "at": "2026-11-06"
+  },
   "2gmrmg7r9ca": {
     "status": "good",
     "fp": "16416-801ae3cd82e61032",
     "at": "2026-11-05"
+  },
+  "30m5tqmi5n": {
+    "status": "good",
+    "fp": "23328-6c4dc2e85b832bad",
+    "at": "2026-11-06"
+  },
+  "313kgxhpb7": {
+    "status": "good",
+    "fp": "9504-9b7298d87e96505e",
+    "at": "2026-11-06"
+  },
+  "33vnd2fau3": {
+    "status": "good",
+    "fp": "15984-314148f8b68c8901",
+    "at": "2026-11-06"
   },
   "3am9lefkw6": {
     "status": "good",
@@ -2269,6 +2736,11 @@
     "status": "good",
     "fp": "31536-45d02b6dc1012cbe",
     "at": "2026-11-05"
+  },
+  "3nayj4ulik": {
+    "status": "good",
+    "fp": "23184-de8876dfd8478227",
+    "at": "2026-11-06"
   },
   "3sryjq77tq": {
     "status": "good",
@@ -2284,25 +2756,60 @@
     "fp": "47808-28b81159f03c06c9",
     "at": "2026-10-31"
   },
+  "3x5npjpvlw": {
+    "status": "good",
+    "fp": "15408-cb926bacdcc98bc3",
+    "at": "2026-11-06"
+  },
   "3xsgxx5lba": {
     "status": "good",
     "fp": "10656-52a00d8757e87299",
     "at": "2026-11-05"
+  },
+  "43k8knyokr": {
+    "status": "good",
+    "fp": "15696-6eef40ec387e70df",
+    "at": "2026-11-06"
   },
   "49n79dkigs": {
     "status": "good",
     "fp": "35136-f4bacb419b86c4af",
     "at": "2026-10-31"
   },
+  "4ieftbohxk": {
+    "status": "good",
+    "fp": "16848-e7a486f2da7a17a4",
+    "at": "2026-11-06"
+  },
   "4lwghiuice": {
     "status": "good",
     "fp": "23184-5c3423d55e816e68",
     "at": "2026-11-05"
   },
+  "4mbsvtsdyl": {
+    "status": "good",
+    "fp": "45216-ea2f36033df441e1",
+    "at": "2026-11-06"
+  },
+  "4rhwpocb43": {
+    "status": "good",
+    "fp": "18288-17166cf7cb3a67c0",
+    "at": "2026-11-06"
+  },
   "5cu11hishm": {
     "status": "good",
     "fp": "15264-a4eaa65680b5f7f6",
     "at": "2026-11-05"
+  },
+  "5n5lm82y71": {
+    "status": "good",
+    "fp": "8928-f92f521d4dc3a27b",
+    "at": "2026-11-06"
+  },
+  "5p43oem9bl": {
+    "status": "good",
+    "fp": "22896-bd75caf93224e1e0",
+    "at": "2026-11-06"
   },
   "5rtglke9qf": {
     "status": "good",
@@ -2314,6 +2821,11 @@
     "fp": "15696-977460f94289ec83",
     "at": "2026-11-05"
   },
+  "63ereetgpt": {
+    "status": "good",
+    "fp": "52128-7b26e1f5e8c51300",
+    "at": "2026-11-06"
+  },
   "6ankvai7q9": {
     "status": "good",
     "fp": "14976-726a4f5cdffbb2c3",
@@ -2323,6 +2835,12 @@
     "status": "good",
     "fp": "15264-76905a8be9e09aa9",
     "at": "2026-11-05"
+  },
+  "6lkoshchkt": {
+    "status": "regenerate",
+    "note": "hebrew accent on the english words",
+    "fp": "26064-6bd6e1d9f74d36ba",
+    "at": "2026-11-06"
   },
   "6qui41hmrb": {
     "status": "good",
@@ -2349,10 +2867,35 @@
     "fp": "21168-a5a96827ef353fde",
     "at": "2026-11-05"
   },
+  "8u7bzw0tsb": {
+    "status": "good",
+    "fp": "12096-e87ed333cef8fa5f",
+    "at": "2026-11-06"
+  },
+  "8vo29lmgwu": {
+    "status": "good",
+    "fp": "26496-568a23da5ad269a9",
+    "at": "2026-11-06"
+  },
+  "9695tasjof": {
+    "status": "good",
+    "fp": "16128-6bbf4211e59675e6",
+    "at": "2026-11-06"
+  },
+  "96v9yhgzg0": {
+    "status": "good",
+    "fp": "9504-d90bee011078451d",
+    "at": "2026-11-06"
+  },
   "982un6htcm": {
     "status": "good",
     "fp": "14976-f776073ec809e3e4",
     "at": "2026-11-05"
+  },
+  "9ko4mqt1x4": {
+    "status": "good",
+    "fp": "35856-19ad7faf36fec6c0",
+    "at": "2026-11-06"
   },
   "9rwabhn0yy": {
     "status": "good",
@@ -2369,10 +2912,30 @@
     "fp": "31824-be47c9ae32dba27d",
     "at": "2026-11-05"
   },
+  "afu8qp2tfl": {
+    "status": "good",
+    "fp": "46368-c2a5dd45e7dc99d7",
+    "at": "2026-11-06"
+  },
+  "afzfp1i77a": {
+    "status": "good",
+    "fp": "8496-5d9b29e9912fce50",
+    "at": "2026-11-06"
+  },
+  "axgh87bfxk": {
+    "status": "good",
+    "fp": "40464-6a145b9961b40ad3",
+    "at": "2026-11-06"
+  },
   "b2hxy50dau": {
     "status": "good",
     "fp": "17568-49c1d462b8672f3f",
     "at": "2026-11-05"
+  },
+  "b5zk3syqt": {
+    "status": "good",
+    "fp": "17856-7e2a5fc592ff8297",
+    "at": "2026-11-06"
   },
   "bi3w0qvvxu": {
     "status": "good",
@@ -2384,10 +2947,25 @@
     "fp": "27936-7704f21b2296aff0",
     "at": "2026-11-05"
   },
+  "bjvrjy2lbl": {
+    "status": "good",
+    "fp": "18144-798f4a20d98b63a4",
+    "at": "2026-11-06"
+  },
+  "bp4rk7pmxj": {
+    "status": "good",
+    "fp": "10368-c337d12cb70f6a7e",
+    "at": "2026-11-06"
+  },
   "brf2u1zr12": {
     "status": "good",
     "fp": "6140-4a6bcc97e53b9752",
     "at": "2026-11-05"
+  },
+  "bsfa7i9s3o": {
+    "status": "good",
+    "fp": "20304-ca92c23537d448b3",
+    "at": "2026-11-06"
   },
   "bslxdyn9tb": {
     "status": "good",
@@ -2399,6 +2977,11 @@
     "fp": "28368-4218f90ff77cb31e",
     "at": "2026-11-05"
   },
+  "ca0ozm7n9u": {
+    "status": "good",
+    "fp": "29664-22a1a951c523446b",
+    "at": "2026-11-06"
+  },
   "cakhr5j7h8": {
     "status": "good",
     "fp": "34704-bd9a31efa76105df",
@@ -2408,6 +2991,25 @@
     "status": "good",
     "fp": "5564-9dc3014038fb486d",
     "at": "2026-11-05"
+  },
+  "chrpyi5wt2": {
+    "status": "good",
+    "fp": "38736-b8e093728e105aa1",
+    "at": "2026-11-06"
+  },
+  "ckibqh4x8f": {
+    "status": "good",
+    "fp": "16704-32b1608d256ff4c7",
+    "at": "2026-11-06"
+  },
+  "cytvoi018r": {
+    "status": "regenerate",
+    "reasons": [
+      "letter-name"
+    ],
+    "note": "I was pronounced as 'ee', should be 'Eye'",
+    "fp": "37584-8043da7908fc3164",
+    "at": "2026-11-06"
   },
   "dcg1s4c8b4": {
     "status": "good",
@@ -2423,6 +3025,11 @@
     "fp": "26496-a53b953e96f9839f",
     "at": "2026-11-05"
   },
+  "dm0rq6be85": {
+    "status": "good",
+    "fp": "39744-2a92e7da1a66a2a8",
+    "at": "2026-11-06"
+  },
   "duwq2pvldr": {
     "status": "good",
     "fp": "11900-49f37e46ddbe4fa1",
@@ -2432,6 +3039,11 @@
     "status": "good",
     "fp": "15984-c0c41e7d0380a159",
     "at": "2026-11-05"
+  },
+  "e962z9qgjh": {
+    "status": "good",
+    "fp": "11664-a943f4d8b57f54c1",
+    "at": "2026-11-06"
   },
   "eujach8zie": {
     "status": "good",
@@ -2471,6 +3083,11 @@
     "fp": "13248-6acc9ab594d2b49a",
     "at": "2026-11-05"
   },
+  "fj6uqospr1": {
+    "status": "good",
+    "fp": "29808-964bef3a47d70bf2",
+    "at": "2026-11-06"
+  },
   "fzpb97h1k4": {
     "status": "regenerate",
     "reasons": [
@@ -2485,10 +3102,20 @@
     "fp": "30096-e499ef7c6a90cb2b",
     "at": "2026-11-05"
   },
+  "h5s8bz15t7": {
+    "status": "good",
+    "fp": "14688-5abc92cea34197ba",
+    "at": "2026-11-06"
+  },
   "hfl7z1qcvc": {
     "status": "good",
     "fp": "19296-8d0f956e6fefc8ec",
     "at": "2026-11-05"
+  },
+  "hgu934o36l": {
+    "status": "good",
+    "fp": "14688-348ec282d0438de1",
+    "at": "2026-11-06"
   },
   "hnx7tww483": {
     "status": "good",
@@ -2515,20 +3142,45 @@
     "fp": "22896-71c16296df3f46fc",
     "at": "2026-11-05"
   },
+  "j3i4etsfp5": {
+    "status": "good",
+    "fp": "19728-0d1987c628ed2dcf",
+    "at": "2026-11-06"
+  },
+  "j3pk4v3rpz": {
+    "status": "good",
+    "fp": "10224-0d1bd926d9a2558d",
+    "at": "2026-11-06"
+  },
   "j74jrb8d8i": {
     "status": "good",
     "fp": "34704-451224e55a4cf714",
     "at": "2026-10-31"
+  },
+  "jdc3cvirn4": {
+    "status": "good",
+    "fp": "21744-7a1a9ce7f3988d60",
+    "at": "2026-11-06"
   },
   "jf4yvqmfqc": {
     "status": "good",
     "fp": "14688-a97295d9de0cddce",
     "at": "2026-11-05"
   },
+  "jp4mlbafqe": {
+    "status": "regenerate",
+    "fp": "21168-d4eeb80ec3930c30",
+    "at": "2026-11-06"
+  },
   "jqywlr8u07": {
     "status": "good",
     "fp": "26496-fb7f9b035c6b31cf",
     "at": "2026-11-05"
+  },
+  "jyd97uqijt": {
+    "status": "good",
+    "fp": "48816-d0a266dafd6f7b61",
+    "at": "2026-11-06"
   },
   "k0docza26b": {
     "status": "good",
@@ -2543,6 +3195,16 @@
     "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
     "fp": "18864-2c4e5e5f04263494",
     "at": "2026-11-05"
+  },
+  "k5z2ksh73e": {
+    "status": "good",
+    "fp": "8496-4baba16d975467a1",
+    "at": "2026-11-06"
+  },
+  "k702fnbadg": {
+    "status": "good",
+    "fp": "39024-ffad64051034a01a",
+    "at": "2026-11-06"
   },
   "kfupdf6hph": {
     "status": "good",
@@ -2563,6 +3225,26 @@
     "fp": "24336-082aff727955ba27",
     "at": "2026-11-05"
   },
+  "kr8v13hdr3": {
+    "status": "good",
+    "fp": "23904-32b15de6da69c0b5",
+    "at": "2026-11-06"
+  },
+  "kvz0jyqsee": {
+    "status": "good",
+    "fp": "30816-cd4d244b41e328e2",
+    "at": "2026-11-06"
+  },
+  "kzbgawmdpt": {
+    "status": "good",
+    "fp": "7488-4ec26a807db36bce",
+    "at": "2026-11-06"
+  },
+  "l1hpyayybi": {
+    "status": "good",
+    "fp": "26208-9fdf4aad7792f64b",
+    "at": "2026-11-06"
+  },
   "l238dbace": {
     "status": "good",
     "fp": "35568-b06417e23cb3980e",
@@ -2582,10 +3264,24 @@
     "fp": "19584-5aeacd30ab9cc5bc",
     "at": "2026-11-05"
   },
+  "lt3qmr46kb": {
+    "status": "regenerate",
+    "reasons": [
+      "mispronounced"
+    ],
+    "note": "בקול should sound like bekol, not behol",
+    "fp": "17568-549202ac7387cc73",
+    "at": "2026-11-06"
+  },
   "lv1w05hrmw": {
     "status": "good",
     "fp": "23328-e8d7c08d29522778",
     "at": "2026-11-05"
+  },
+  "m2c1yxaokd": {
+    "status": "good",
+    "fp": "7488-30fd59ff99d91f1f",
+    "at": "2026-11-06"
   },
   "m3gfcjrc3g": {
     "status": "good",
@@ -2597,10 +3293,29 @@
     "fp": "15984-2f4d806497b51be3",
     "at": "2026-11-05"
   },
+  "mcu9pb8xzq": {
+    "status": "good",
+    "fp": "35856-0c28244107ae912f",
+    "at": "2026-11-06"
+  },
+  "mi4f7bw2e0": {
+    "status": "regenerate",
+    "reasons": [
+      "mispronounced"
+    ],
+    "note": "the numbers should be spoken in english (they are currently spoken in hebrew - shesh, sheva...)",
+    "fp": "47664-ceac119c418b9da4",
+    "at": "2026-11-06"
+  },
   "mmko923dmz": {
     "status": "good",
     "fp": "37584-401d164a226dbe3e",
     "at": "2026-11-05"
+  },
+  "mrwxcvl4cn": {
+    "status": "good",
+    "fp": "17424-1cd70ba5624da587",
+    "at": "2026-11-06"
   },
   "mtye4s9t8": {
     "status": "good",
@@ -2622,6 +3337,16 @@
     "fp": "14256-618cad499692ac41",
     "at": "2026-11-05"
   },
+  "o6wpovbjbh": {
+    "status": "good",
+    "fp": "29376-cacddfc2d40bc5ca",
+    "at": "2026-11-06"
+  },
+  "odx5sfw8qv": {
+    "status": "good",
+    "fp": "34416-61dcea660e3830aa",
+    "at": "2026-11-06"
+  },
   "ooqfy477ki": {
     "status": "good",
     "fp": "33408-63bfdaf16803048e",
@@ -2632,10 +3357,25 @@
     "fp": "22608-99b379d6079e5e98",
     "at": "2026-11-05"
   },
+  "p0jlktytp3": {
+    "status": "good",
+    "fp": "36144-127422b4a5dccd44",
+    "at": "2026-11-06"
+  },
   "p1l197lntw": {
     "status": "good",
     "fp": "8300-518141f7ada82367",
     "at": "2026-11-05"
+  },
+  "p4qfq156fp": {
+    "status": "good",
+    "fp": "31968-207e34b7a009d39b",
+    "at": "2026-11-06"
+  },
+  "pfa54x6ojd": {
+    "status": "good",
+    "fp": "17568-62fdf47b104c717b",
+    "at": "2026-11-06"
   },
   "pphh3jwzuk": {
     "status": "good",
@@ -2650,6 +3390,11 @@
     "note": "every instance of the word בנית which is intended for a girl should have the \"Shva\" niqqud on the last ת",
     "fp": "22608-f77c97753611c023",
     "at": "2026-11-05"
+  },
+  "qfcda0fgn5": {
+    "status": "good",
+    "fp": "39024-5094929fae81f874",
+    "at": "2026-11-06"
   },
   "qqhldqosqn": {
     "status": "good",
@@ -2666,15 +3411,44 @@
     "fp": "24336-19f22d6a55bc0c6c",
     "at": "2026-11-05"
   },
+  "rr25tjgl8q": {
+    "status": "good",
+    "fp": "9504-7fadb8d49d695dff",
+    "at": "2026-11-06"
+  },
+  "rzhv3q646u": {
+    "status": "good",
+    "fp": "17424-c20974b0c835046a",
+    "at": "2026-11-06"
+  },
   "sfvatmaev": {
     "status": "good",
     "fp": "15984-5dd7eba9cc5b2c7e",
     "at": "2026-11-05"
   },
+  "si71yszpup": {
+    "status": "good",
+    "fp": "24048-77c9531ed56e41bd",
+    "at": "2026-11-06"
+  },
   "smzorz10uc": {
     "status": "good",
     "fp": "27936-431e1d219fe4a4c3",
     "at": "2026-11-05"
+  },
+  "spoa4bdo2i": {
+    "status": "good",
+    "fp": "16848-22f6d47b32be6202",
+    "at": "2026-11-06"
+  },
+  "sxkxoh8pmu": {
+    "status": "regenerate",
+    "reasons": [
+      "letter-name"
+    ],
+    "note": "Gee was read as Gimel",
+    "fp": "17568-2ddb06ce84db1aa8",
+    "at": "2026-11-06"
   },
   "thf6fbbun0": {
     "status": "good",
@@ -2690,6 +3464,19 @@
     "fp": "20016-9b0fa36fe2433315",
     "at": "2026-11-05"
   },
+  "trz30x3y19": {
+    "status": "regenerate",
+    "reasons": [
+      "mispronounced"
+    ],
+    "fp": "9504-6649ce54dcf76f39",
+    "at": "2026-11-06"
+  },
+  "ufwqjmlob5": {
+    "status": "good",
+    "fp": "23328-a604df3289dea288",
+    "at": "2026-11-06"
+  },
   "updzzef53a": {
     "status": "good",
     "fp": "28944-28a99fe73fb4d0c6",
@@ -2699,6 +3486,11 @@
     "status": "good",
     "fp": "36864-b4a6f17e9490cf57",
     "at": "2026-10-31"
+  },
+  "v5r8979z8": {
+    "status": "regenerate",
+    "fp": "11664-ec486220294e67ce",
+    "at": "2026-11-06"
   },
   "vbhzwmlmo0": {
     "status": "good",
@@ -2786,19 +3578,44 @@
     "fp": "26928-67b1b611a2124924",
     "at": "2026-11-05"
   },
+  "z3qmkrwd9m": {
+    "status": "good",
+    "fp": "38448-5933d275220a06c2",
+    "at": "2026-11-06"
+  },
+  "zasufje1f4": {
+    "status": "good",
+    "fp": "42336-44c79ec0327e385f",
+    "at": "2026-11-06"
+  },
   "zh8qd04ui5": {
     "status": "good",
     "fp": "15696-943b336f57ecab55",
     "at": "2026-11-05"
+  },
+  "zmcqf8tcxh": {
+    "status": "regenerate",
+    "fp": "18288-360cc70a541abb60",
+    "at": "2026-11-06"
   },
   "zmfnd1hcvm": {
     "status": "good",
     "fp": "36576-ae3fbe462ca86af9",
     "at": "2026-10-31"
   },
+  "zt5zzkcexk": {
+    "status": "good",
+    "fp": "9216-da7ae4e4ab22eb45",
+    "at": "2026-11-06"
+  },
   "zth6ihmqi4": {
     "status": "good",
     "fp": "28944-890bdce4768d6608",
     "at": "2026-11-05"
+  },
+  "zx77laemeg": {
+    "status": "good",
+    "fp": "16416-31ac8424708c980a",
+    "at": "2026-11-06"
   }
 }
