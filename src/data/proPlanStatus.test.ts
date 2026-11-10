@@ -65,7 +65,7 @@ describe('findOpenPlan', () => {
     expect(findOpenPlan('me', { a: yearly, b: plan({ billingPeriod: 'yearly' }) }, NOW)).toBeNull();
   });
 
-  it("ignores another parent's plan and a cancelled one", () => {
+  it("ignores another parent's plan and a canceled one", () => {
     expect(findOpenPlan('me', { a: plan({ payerParentUid: 'other' }) }, NOW)).toBeNull();
     expect(findOpenPlan('me', { a: plan({ status: 'canceled' }) }, NOW)).toBeNull();
   });

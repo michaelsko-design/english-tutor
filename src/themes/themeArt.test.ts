@@ -50,7 +50,7 @@ describe('mission art paths', () => {
     expect(getUnitLandmarkArt(FOCUS, 1, grade1Curriculum.units[0]).full).toBe('/art/landmarks/focus-desk/g1-u11.webp');
   });
 
-  it("draws the level number on each set's own badge centre", () => {
+  it("draws the level number on each set's own badge center", () => {
     expect(getLevelBadgeCentre(SHARED)).toEqual({ x: 0.495, y: 0.48 });
     expect(getLevelBadgeCentre(FOCUS)).toEqual({ x: 0.5, y: 0.414 });
     expect(getLevelBadgeCentre({ missionArtFolder: 'urban-night' })).toEqual({ x: 0.5, y: 0.5 });

@@ -290,7 +290,7 @@ const UNIT_SEASON2_1: MiddleSchoolUnitSpec = {
           master: {
             sentenceEn: 'People used to travel for weeks but now we fly in hours.',
             sentenceHe: 'אנשים נהגו לנסוע שבועות אבל עכשיו אנחנו טסים בתוך שעות.',
-            decoys: ['travelled', 'flew'],
+            decoys: ['traveled', 'flew'],
             voiceEn: 'Life used to be much slower.',
             voiceHe: 'פעם החיים היו איטיים הרבה יותר.',
             errorFix: {

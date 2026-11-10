@@ -26,11 +26,11 @@ const UNIT_CORE_3: MiddleSchoolUnitSpec = {
       sentenceEn: 'This furniture is made in a small factory in the Galilee.',
       sentenceHe: 'הרהיטים האלה מיוצרים במפעל קטן בגליל.',
       vocab: [
-        ['goods', 'noun', 'סחורה / מוצרים', '📦', 'The goods are sent to shops all over the country.', 'הסחורה נשלחת לחנויות בכל הארץ.'],
+        ['goods', 'noun', 'סחורה / מוצרים', '🏬', 'The goods are sent to shops all over the country.', 'הסחורה נשלחת לחנויות בכל הארץ.'],
         ['well-made', 'adjective', 'עשוי היטב / איכותי', '👌', 'These shoes are expensive, but they are well-made.', 'הנעליים האלה יקרות, אבל הן עשויות היטב.'],
-        ['furniture', 'noun', 'רהיטים', '🛋️', 'Most of the furniture in our house is made of wood.', 'רוב הרהיטים בבית שלנו עשויים מעץ.'],
+        ['furniture', 'noun', 'רהיטים', '🗃️', 'Most of the furniture in our house is made of wood.', 'רוב הרהיטים בבית שלנו עשויים מעץ.'],
         ['metal', 'noun', 'מתכת', '🔩', 'The spoons are made of metal.', 'הכפות עשויות ממתכת.'],
-        ['package', 'noun', 'חבילה', '📬', 'The package is delivered to your door in two days.', 'החבילה נמסרת עד הדלת שלכם תוך יומיים.'],
+        ['package', 'noun', 'חבילה', '📫', 'The package is delivered to your door in two days.', 'החבילה נמסרת עד הדלת שלכם תוך יומיים.'],
         ['wrap up', 'verb', 'לעטוף', '🎁', 'At the shop, they wrap up every gift in blue paper.', 'בחנות עוטפים כל מתנה בנייר כחול.'],
         ['mainly', 'adverb', 'בעיקר', '🎯', 'These dates are mainly grown in the Jordan Valley.', 'התמרים האלה גדלים בעיקר בבקעת הירדן.'],
         ['fashion', 'noun', 'אופנה', '👗', 'Israeli fashion is sold in shops all over the world.', 'אופנה ישראלית נמכרת בחנויות בכל העולם.'],
@@ -54,7 +54,7 @@ const UNIT_CORE_3: MiddleSchoolUnitSpec = {
           passageEn:
             'In a small village in the Galilee, there is a family factory. Beautiful wooden furniture is made there. The wood is cut by machines, but every table is finished by hand. The goods are mainly sold in Israel, and some are sent to Europe.',
           passageHe:
-            'בכפר קטן בגליל יש מפעל משפחתי. מייצרים שם רהיטי עץ יפים. את העץ חותכות מכונות, אבל את הגימור של כל שולחן עושים ביד. הסחורה נמכרת בעיקר בישראל, וחלק ממנה נשלח לאירופה.',
+            'בכפר קטן בגליל יש מפעל משפחתי. מייצרים שם רהיטי עץ יפים. את העץ חותכות מכונות, אבל את הגימור של כל שולחן עושים ידנית. הסחורה נמכרת בעיקר בישראל, וחלק ממנה נשלח לאירופה.',
           questionEn: 'How is every table finished?',
           questionHe: 'איך עושים את הגימור של כל שולחן?',
           correct: 'By hand.',
@@ -133,13 +133,13 @@ const UNIT_CORE_3: MiddleSchoolUnitSpec = {
       sentenceEn: 'This electronic device is used in hospitals all over the world.',
       sentenceHe: 'משתמשים במכשיר האלקטרוני הזה בבתי חולים בכל העולם.',
       vocab: [
-        ['device', 'noun', 'מכשיר', '📱', 'This small device is used by doctors to check your heart.', 'רופאים משתמשים במכשיר הקטן הזה כדי לבדוק את הלב.'],
+        ['device', 'noun', 'מכשיר', '📟', 'This small device is used by doctors to check your heart.', 'רופאים משתמשים במכשיר הקטן הזה כדי לבדוק את הלב.'],
         ['electronic', 'adjective', 'אלקטרוני', '🔌', 'Electronic parts are made in factories in the south.', 'חלקים אלקטרוניים מיוצרים במפעלים בדרום.'],
         ['operate', 'verb', 'להפעיל', '⚙️', 'The machine is operated by one worker.', 'עובד אחד מפעיל את המכונה.'],
         ['control', 'verb', 'לשלוט / לכוון', '🎮', 'The drone is controlled from a phone.', 'שולטים ברחפן מהטלפון.'],
         ['digital', 'adjective', 'דיגיטלי', '🗺️', 'Digital maps are used by millions of drivers.', 'מיליוני נהגים משתמשים במפות דיגיטליות.'],
         ['latest', 'adjective', 'החדש ביותר / האחרון', '🆕', 'The latest model is sold online only.', 'הדגם החדש ביותר נמכר רק ברשת.'],
-        ['vehicle', 'noun', 'כלי רכב', '🚗', 'Electric vehicles are charged at home or at work.', 'כלי רכב חשמליים נטענים בבית או בעבודה.'],
+        ['vehicle', 'noun', 'כלי רכב', '🚚', 'Electric vehicles are charged at home or at work.', 'כלי רכב חשמליים נטענים בבית או בעבודה.'],
         ['design', 'verb', 'לעצב / לתכנן', '✏️', 'New apps are designed by young engineers in Tel Aviv.', 'מהנדסים צעירים בתל אביב מעצבים אפליקציות חדשות.'],
       ],
       seed: {
@@ -240,7 +240,7 @@ const UNIT_CORE_3: MiddleSchoolUnitSpec = {
       sentenceEn: 'At the expo, new tools are shown by engineers from all over the country.',
       sentenceHe: 'בתערוכה, מהנדסים מכל הארץ מציגים כלים חדשים.',
       vocab: [
-        ['engineer', 'noun', 'מהנדס / מהנדסת', '🛠️', 'The bridge is checked by an engineer every year.', 'מהנדס בודק את הגשר בכל שנה.'],
+        ['engineer', 'noun', 'מהנדס / מהנדסת', '👷', 'The bridge is checked by an engineer every year.', 'מהנדס בודק את הגשר בכל שנה.'],
         ['process', 'noun', 'תהליך', '🔄', 'Making paper is a long process.', 'ייצור נייר הוא תהליך ארוך.'],
         ['model', 'noun', 'דגם', '🚘', 'Two new models are shown at the expo.', 'שני דגמים חדשים מוצגים בתערוכה.'],
         ['tool', 'noun', 'כלי (עבודה)', '🔧', 'This tool is used to fix bikes.', 'משתמשים בכלי הזה כדי לתקן אופניים.'],
@@ -251,7 +251,7 @@ const UNIT_CORE_3: MiddleSchoolUnitSpec = {
       ],
       seed: {
         wrongWords: [
-          { wordEn: 'pyjamas', translationHe: 'פיג׳מה' },
+          { wordEn: 'pajamas', translationHe: 'פיג׳מה' },
           { wordEn: 'snail', translationHe: 'חילזון' },
         ],
         shortSentenceEn: 'The tools are made here.',

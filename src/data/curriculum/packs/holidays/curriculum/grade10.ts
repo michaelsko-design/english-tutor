@@ -128,7 +128,7 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
         shortSentenceEn: 'This is the sukkah we built.',
         shortSentenceHe: 'זו הסוכה שבנינו.',
         rule: {
-          questionEn: 'Complete the sentence: "Our neighbour, _______ sukkah is the biggest on the street, invited us for dinner."',
+          questionEn: 'Complete the sentence: "Our neighbor, _______ sukkah is the biggest on the street, invited us for dinner."',
           correct: 'whose',
           wrong: ['who', 'which'],
           explainHe: 'whose מציין שייכות: הסוכה של השכן. who מתאים כשהאדם עצמו עושה את הפעולה, ו-which מתאים לדברים.',
@@ -136,12 +136,12 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'The Ben-David family, who live in a small apartment in Jaffa, build their sukkah on the roof every year. The walls are made of old sheets, which the children paint with fruit and stars. The roof is covered with foliage that a neighbour brings from his garden. Every evening of the holiday, students whose families live far away are invited to eat with them.',
+            'The Ben-David family, who live in a small apartment in Jaffa, build their sukkah on the roof every year. The walls are made of old sheets, which the children paint with fruit and stars. The roof is covered with foliage that a neighbor brings from his garden. Every evening of the holiday, students whose families live far away are invited to eat with them.',
           passageHe:
             'משפחת בן-דוד, שגרה בדירה קטנה ביפו, בונה את הסוכה שלה על הגג בכל שנה. הקירות עשויים מסדינים ישנים, שהילדים מציירים עליהם פירות וכוכבים. הגג מכוסה בעלווה ששכן מביא מהגינה שלו. בכל ערב של החג מוזמנים לאכול איתם סטודנטים שהמשפחות שלהם גרות רחוק.',
           questionEn: 'Who brings the foliage for the roof?',
           questionHe: 'מי מביא את העלווה לגג?',
-          correct: 'A neighbour brings it from his garden.',
+          correct: 'A neighbor brings it from his garden.',
           wrong: ['The children buy it at the market.', 'The grandparents bring it from the north.'],
         },
         tiers: {
@@ -169,7 +169,7 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
           },
           master: {
             sentenceEn:
-              'The family invites neighbours whose own sukkah is too small to hold all their guests.',
+              'The family invites neighbors whose own sukkah is too small to hold all their guests.',
             sentenceHe: 'המשפחה מזמינה שכנים שהסוכה שלהם קטנה מכדי להכיל את כל האורחים שלהם.',
             decoys: ['who', 'that'],
             voiceEn: 'The guests who arrived early helped us.',
@@ -334,7 +334,7 @@ const UNIT_HOLIDAYS_SPRING: HighSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'Every Purim, a big masquerade is organised by the students of a high school in Rishon LeZion. Tickets are sold for twenty shekels, and all the money is given to charity. Last year, the money was used to buy books for a children’s hospital. The prize for the best costume was chosen by a group of teachers. It was won by a student who came dressed as a walking tree.',
+            'Every Purim, a big masquerade is organized by the students of a high school in Rishon LeZion. Tickets are sold for twenty shekels, and all the money is given to charity. Last year, the money was used to buy books for a children’s hospital. The prize for the best costume was chosen by a group of teachers. It was won by a student who came dressed as a walking tree.',
           passageHe:
             'בכל פורים, תלמידי תיכון בראשון לציון מארגנים נשף מסכות גדול. הכרטיסים נמכרים בעשרים שקלים, וכל הכסף ניתן לצדקה. בשנה שעברה הכסף שימש לקניית ספרים לבית חולים לילדים. הזוכה בפרס התחפושת הטובה ביותר נבחר על ידי קבוצת מורים. בפרס זכה תלמיד שהגיע מחופש לעץ מהלך.',
           questionEn: 'What was the money used for last year?',
@@ -370,7 +370,7 @@ const UNIT_HOLIDAYS_SPRING: HighSchoolUnitSpec = {
               'Hundreds of costumes were collected by volunteers and donated to families in need.',
             sentenceHe: 'מאות תחפושות נאספו על ידי מתנדבים ונתרמו למשפחות נזקקות.',
             decoys: ['collect', 'was'],
-            voiceEn: 'A big parade was organised last spring.',
+            voiceEn: 'A big parade was organized last spring.',
             voiceHe: 'מצעד גדול אורגן באביב שעבר.',
             errorFix: {
               questionEn: 'Which sentence has no mistake?',
@@ -382,12 +382,12 @@ const UNIT_HOLIDAYS_SPRING: HighSchoolUnitSpec = {
             },
             story: {
               passageEn:
-                'The Purim carnival in our neighbourhood was almost cancelled this year. The hall where it is usually held had been closed after a leak in the roof, and the organisers could not find another place. At the last moment, the owner of a nearby supermarket offered his large car park. Tables were moved, lights were hung between the trees, and hundreds of children arrived in costumes. The organisers admitted that the evening was more colourful than any carnival held in the old hall.',
+                'The Purim carnival in our neighborhood was almost canceled this year. The hall where it is usually held had been closed after a leak in the roof, and the organizers could not find another place. At the last moment, the owner of a nearby supermarket offered his large car park. Tables were moved, lights were hung between the trees, and hundreds of children arrived in costumes. The organizers admitted that the evening was more colorful than any carnival held in the old hall.',
               passageHe: '',
               questionEn: 'Why was the carnival held in a car park?',
               questionHe: '',
               correct: 'The usual hall could not be used because of damage.',
-              wrong: ['The organisers wanted a smaller crowd.', 'The supermarket owner needed more customers.', 'The children refused to go inside the hall.'],
+              wrong: ['The organizers wanted a smaller crowd.', 'The supermarket owner needed more customers.', 'The children refused to go inside the hall.'],
             },
             storyHintEn: 'What had happened to the hall?',
           },
@@ -567,12 +567,12 @@ const UNIT_HOLIDAYS_SPRING: HighSchoolUnitSpec = {
             },
             story: {
               passageEn:
-                'Every summer, the Peled family drives north to spend a week at a field school. Last summer, a severe heatwave made hiking impossible after ten in the morning, so the instructors changed the programme: the group walked at dawn, rested during the hottest hours in the shade of an old carob tree, and then helped farmers pick tomatoes in the evening. Dan, the youngest child, complained at first, but on the last day he said that this had been his favourite holiday. His mother admitted that she was also surprised.',
+                'Every summer, the Peled family drives north to spend a week at a field school. Last summer, a severe heatwave made hiking impossible after ten in the morning, so the instructors changed the program: the group walked at dawn, rested during the hottest hours in the shade of an old carob tree, and then helped farmers pick tomatoes in the evening. Dan, the youngest child, complained at first, but on the last day he said that this had been his favorite holiday. His mother admitted that she was also surprised.',
               passageHe: '',
-              questionEn: 'What can we infer about the changed programme?',
+              questionEn: 'What can we infer about the changed program?',
               questionHe: '',
               correct: 'It turned out better than the family had expected.',
-              wrong: ['It was cancelled after two days.', 'It made the family leave early.', 'It only included hiking at noon.'],
+              wrong: ['It was canceled after two days.', 'It made the family leave early.', 'It only included hiking at noon.'],
             },
             storyHintEn: 'Compare how Dan felt at first and on the last day.',
           },

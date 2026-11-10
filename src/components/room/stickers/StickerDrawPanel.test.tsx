@@ -70,7 +70,7 @@ describe('StickerDrawPanel', () => {
     expect(nameBox()).toHaveValue('sun');
   });
 
-  it('changes colour, brush and eraser, and the colour turns the eraser off', async () => {
+  it('changes color, brush and eraser, and the color turns the eraser off', async () => {
     const user = setup();
     await user.click(screen.getByRole('button', { name: 'צבע כחול' }));
     await user.click(screen.getByRole('button', { name: /עבה/ }));

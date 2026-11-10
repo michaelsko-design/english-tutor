@@ -33,7 +33,7 @@ const UNIT_CORE_3: HighSchoolUnitSpec = {
         ['chase', 'verb', 'לרדוף אחרי', '🏃', 'The police officer had been chasing the thief for ten minutes when he finally caught him.', 'השוטר רדף אחרי הגנב עשר דקות כשסוף סוף תפס אותו.'],
         ['mess', 'noun', 'בלגן / אי-סדר', '🗑️', 'The room was a mess, so the detective knew someone had been searching it.', 'החדר היה בבלגן, אז הבלש ידע שמישהו חיפש בו.'],
         ['apparent', 'adjective', 'ברור / גלוי לעין', '👁️', 'It was apparent that the dog had been digging in the garden.', 'היה ברור שהכלב חפר בגינה.'],
-        ['spy', 'noun', 'מרגל / מרגלת', '🕶️', 'The spy had been working at the embassy for years before anyone noticed.', 'המרגל עבד בשגרירות במשך שנים לפני שמישהו שם לב.'],
+        ['spy', 'noun', 'מרגל / מרגלת', '🥸', 'The spy had been working at the embassy for years before anyone noticed.', 'המרגל עבד בשגרירות במשך שנים לפני שמישהו שם לב.'],
         ['frighten', 'verb', 'להפחיד', '😨', 'The strange noises frightened the children, who had been sleeping in the tent.', 'הרעשים המוזרים הפחידו את הילדים, שישנו באוהל.'],
       ],
       seed: {
@@ -134,12 +134,12 @@ const UNIT_CORE_3: HighSchoolUnitSpec = {
       sentenceHe: 'המים הפכו לירוקים כי המשאבה דלפה במשך ימים.',
       vocab: [
         ['calculate', 'verb', 'לחשב', '🧮', 'We calculated how long the experiment had been running.', 'חישבנו כמה זמן הניסוי כבר רץ.'],
-        ['layer', 'noun', 'שכבה', '🍰', 'A thin layer of dust showed that nobody had been using the machine.', 'שכבה דקה של אבק הראתה שאף אחד לא השתמש במכונה.'],
-        ['liquid', 'noun', 'נוזל', '💧', 'The green liquid had been dripping onto the floor all night.', 'הנוזל הירוק טפטף על הרצפה כל הלילה.'],
+        ['layer', 'noun', 'שכבה', '🪨', 'A thin layer of dust showed that nobody had been using the machine.', 'שכבה דקה של אבק הראתה שאף אחד לא השתמש במכונה.'],
+        ['liquid', 'noun', 'נוזל', '🫗', 'The green liquid had been dripping onto the floor all night.', 'הנוזל הירוק טפטף על הרצפה כל הלילה.'],
         ['powder', 'noun', 'אבקה', '🧂', 'The students had been mixing the white powder with water.', 'התלמידים ערבבו את האבקה הלבנה עם מים.'],
         ['mixture', 'noun', 'תערובת', '🧪', 'The mixture was hot because it had been sitting in the sun.', 'התערובת הייתה חמה כי היא עמדה בשמש.'],
         ['laser', 'noun', 'לייזר', '🔦', 'The laser had been working for hours, so it was very hot.', 'הלייזר פעל במשך שעות, אז הוא היה חם מאוד.'],
-        ['tube', 'noun', 'מבחנה / צינור', '🧫', 'There was a crack in the glass tube, and water had been leaking out.', 'היה סדק במבחנה, ומים דלפו ממנה החוצה.'],
+        ['tube', 'noun', 'מבחנה / צינור', '🧪', 'There was a crack in the glass tube, and water had been leaking out.', 'היה סדק במבחנה, ומים דלפו ממנה החוצה.'],
         ['pump', 'noun', 'משאבה', '⛽', 'The pump had been making a strange noise before it stopped.', 'המשאבה השמיעה רעש מוזר לפני שהיא הפסיקה לעבוד.'],
       ],
       seed: {
@@ -216,7 +216,7 @@ const UNIT_CORE_3: HighSchoolUnitSpec = {
             },
             story: {
               passageEn:
-                'In 1928, Alexander Fleming came back from a holiday to his laboratory in London. Before he left, he had been growing bacteria in small glass dishes. He noticed that a blue-green mould had been growing on one of the dishes, and that around the mould, the bacteria had died. Instead of throwing the dish away, Fleming studied it carefully. His discovery led to penicillin, a medicine that has saved millions of lives.',
+                'In 1928, Alexander Fleming came back from a holiday to his laboratory in London. Before he left, he had been growing bacteria in small glass dishes. He noticed that a blue-green mold had been growing on one of the dishes, and that around the mold, the bacteria had died. Instead of throwing the dish away, Fleming studied it carefully. His discovery led to penicillin, a medicine that has saved millions of lives.',
               passageHe: '',
               questionEn: "What made Fleming's discovery possible?",
               questionHe: '',
@@ -224,10 +224,10 @@ const UNIT_CORE_3: HighSchoolUnitSpec = {
               wrong: [
                 'He had been testing a new medicine on patients.',
                 'He had cleaned every dish before his holiday.',
-                'A friend sent him mould from another country.',
+                'A friend sent him mold from another country.',
               ],
             },
-            storyHintEn: 'What did Fleming do when he noticed the mould?',
+            storyHintEn: 'What did Fleming do when he noticed the mold?',
           },
         },
       },

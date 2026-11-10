@@ -9,14 +9,14 @@ import { buildMiddleSchoolGrade } from './builder';
  */
 export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
   {
-    titleEn: 'Unit 1: Global Travellers & Past Adventures',
+    titleEn: 'Unit 1: Global Travelers & Past Adventures',
     titleHe: 'פרק 1: הרפתקאות מסביב לעולם',
     subtitleHe: 'Past Simple מול Past Continuous, מילות הקישור While ו-When והבנת הנקרא',
     badgeEmoji: '✈️',
     missions: [
       {
         icon: '🧭',
-        titleEn: 'While We Were Travelling in Tokyo',
+        titleEn: 'While We Were Traveling in Tokyo',
         titleHe: 'בזמן שטיילנו בטוקיו',
         storyHookHe: 'שילוב של פעולה ארוכה בעבר (Past Continuous) עם פעולה קצרה שהפריעה לה בעזרת While ו-When!',
         grammarTopic: 'Past Simple vs. Past Continuous (While / When)',
@@ -25,7 +25,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
         sentenceHe: 'בזמן שחיכינו לרכבת, פגשנו את הזמרת האהובה עלינו.',
         vocab: [
           ['destination', 'noun', 'יעד (לטיול)', '📍', 'Tokyo was our favorite destination.', 'טוקיו הייתה היעד האהוב עלינו.'],
-          ['experience', 'noun', 'חוויה', '✨', 'Travelling in Japan was an amazing experience.', 'טיול ביפן היה חוויה מדהימה.'],
+          ['experience', 'noun', 'חוויה', '✨', 'Traveling in Japan was an amazing experience.', 'טיול ביפן היה חוויה מדהימה.'],
           ['suddenly', 'adverb', 'לפתע / פתאום', '⚡', 'Suddenly, the bullet train arrived.', 'לפתע, רכבת הקליע הגיעה.'],
           ['journey', 'noun', 'מסע / נסיעה', '🚆', 'Our long journey began early in the morning.', 'המסע הארוך שלנו התחיל מוקדם בבוקר.'],
         ],
@@ -162,7 +162,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
             questionHe: 'מה חברת התעופה עשתה בבוקר למחרת?',
             correct: 'Delivered the bags.',
             wrong: [
-              'Cancelled all tickets.',
+              'Canceled all tickets.',
               'Asked for more money.',
             ],
           },
@@ -264,7 +264,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
           },
           story: {
             passageEn:
-              'The Tokyo Express was travelling through the snowy mountains at high speed. A valuable diamond necklace suddenly disappeared from a private cabin. While the conductor was interviewing the passengers, Detective Ken saw a suspicious shadow near the door. He noticed wet footsteps leading to the dining cart, where the necklace was hidden under a napkin.',
+              'The Tokyo Express was traveling through the snowy mountains at high speed. A valuable diamond necklace suddenly disappeared from a private cabin. While the conductor was interviewing the passengers, Detective Ken saw a suspicious shadow near the door. He noticed wet footsteps leading to the dining cart, where the necklace was hidden under a napkin.',
             passageHe:
               'רכבת האקספרס של טוקיו נסעה דרך ההרים המושלגים במהירות גבוהה. ענק יהלומים יקר ערך נעלם לפתע מתא פרטי. בזמן שהכרטיסן ראיין את הנוסעים, הבלש קן ראה צל חשוד ליד הדלת. הוא הבחין בעקבות רטובות שהובילו לקרון המסעדה, שבו הענק הוחבא מתחת למפית.',
             questionEn: 'Where was the missing necklace finally discovered?',
@@ -354,7 +354,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
         grammarTopic: 'Future: Will vs. Be Going to & Past Questions (Did)',
         skills: ['Future Tenses', 'Past Questions', 'Mystery Vocabulary'],
         sentenceEn: 'Did you find the secret note, and what are you going to do next?',
-        sentenceHe: 'האם מצאת את הפתק הסודי, ומה את/ה מתכוונ/ת לעשות אחר כך?',
+        sentenceHe: 'האם מצאתם את הפתק הסודי, ומה אתם מתכוונים לעשות אחר כך?',
         vocab: [
           ['investigate', 'verb', 'לחקור / לברר', '🔎', 'The detectives will investigate the message.', 'הבלשים יחקרו את ההודעה.'],
           ['clue', 'noun', 'רמז', '🧩', 'Every clue brings us closer to the truth.', 'כל רמז מקרב אותנו לאמת.'],
@@ -380,7 +380,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
           },
           story: {
             passageEn:
-              'Maya found an old theatre ticket near Baker Street station. On the back, someone had written a time and an address. "Did someone drop this by accident?" asked her brother. They decided to investigate the clue together after lunch.',
+              'Maya found an old theater ticket near Baker Street station. On the back, someone had written a time and an address. "Did someone drop this by accident?" asked her brother. They decided to investigate the clue together after lunch.',
             passageHe:
               'מאיה מצאה כרטיס תיאטרון ישן ליד תחנת רחוב בייקר. מאחור, מישהו כתב שעה וכתובת. "האם מישהו הפיל את זה במקרה?" שאל אחיה. הם החליטו לחקור את הרמז יחד אחרי ארוחת הצהריים.',
             questionEn: 'What was written on the back of the ticket?',
@@ -465,7 +465,7 @@ export const grade8Curriculum = buildMiddleSchoolGrade('grade-8', [
           ['intention', 'noun', 'כוונה / תוכנית', '🎯', 'Her intention is to study architecture.', 'כוונתה ללמוד אדריכלות.'],
           ['witness', 'noun', 'עד / עדה', '👁️', 'The witness described the red coat.', 'העד תיאר את המעיל האדום.'],
           ['secretly', 'adverb', 'בסתר / בחשאי', '🤫', 'They met secretly in the quiet park.', 'הם נפגשו בחשאי בפארק השקט.'],
-          ['direction', 'noun', 'כיוון / הנחיה', '🧭', 'Can you give us directions to the museum?', 'תוכל/י לתת לנו הוראות הגעה למוזיאון?'],
+          ['direction', 'noun', 'כיוון / הנחיה', '🧭', 'Can you give us directions to the museum?', 'תוכלו לתת לנו הוראות הגעה למוזיאון?'],
         ],
         seed: {
           wrongWords: [

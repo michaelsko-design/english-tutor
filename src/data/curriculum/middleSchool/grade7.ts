@@ -155,7 +155,7 @@ const units: MiddleSchoolUnitSpec[] = [
             'להעדיף',
             '☕',
             'Do you prefer sweet or salty snacks?',
-            'האם את/ה מעדיף/ה חטיפים מתוקים או מלוחים?',
+            'האם אתם מעדיפים חטיפים מתוקים או מלוחים?',
           ],
           [
             'recommend',
@@ -163,7 +163,7 @@ const units: MiddleSchoolUnitSpec[] = [
             'להמליץ',
             '💡',
             'Which song do you recommend for our video?',
-            'על איזה שיר את/ה ממליץ/ה לסרטון שלנו?',
+            'על איזה שיר אתם ממליצים לסרטון שלנו?',
           ],
           [
             'delicious',
@@ -551,7 +551,7 @@ const units: MiddleSchoolUnitSpec[] = [
             'לזכור',
             '🧠',
             'Do you remember the password to the studio tablet?',
-            'האם את/ה זוכר/ת את הסיסמה לטאבלט של האולפן?',
+            'האם אתם זוכרים את הסיסמה לטאבלט של האולפן?',
           ],
           [
             'believe',
@@ -1201,7 +1201,7 @@ const units: MiddleSchoolUnitSpec[] = [
             'לתכנן / תוכנית',
             '📝',
             'What are you planning to do tomorrow afternoon?',
-            'מה את/ה מתכנן/ת לעשות מחר אחר הצהריים?',
+            'מה אתם מתכננים לעשות מחר אחר הצהריים?',
           ],
           [
             'succeed',
@@ -1209,7 +1209,7 @@ const units: MiddleSchoolUnitSpec[] = [
             'להצליח',
             '🏆',
             'I am sure you will succeed in the English test!',
-            'אני בטוח/ה שתצליח/י במבחן באנגלית!',
+            'אני בטוח/ה שתצליחו במבחן באנגלית!',
           ],
         ],
         seed: {
@@ -1307,7 +1307,7 @@ const units: MiddleSchoolUnitSpec[] = [
         grammarTopic: 'Modals & Semi-Modals (can, could, should, must, have to)',
         skills: ['Should vs. Must', 'Don’t have to vs. Mustn’t', 'Advice Chat'],
         sentenceEn: 'You should take a short break and drink water before you continue studying.',
-        sentenceHe: 'כדאי לך לקחת הפסקה קצרה ולשתות מים לפני שתמשיך/י ללמוד.',
+        sentenceHe: 'כדאי לכם לקחת הפסקה קצרה ולשתות מים לפני שתמשיכו ללמוד.',
         vocab: [
           [
             'advice',
@@ -1315,7 +1315,7 @@ const units: MiddleSchoolUnitSpec[] = [
             'עצה (שם עצם בלתי ספיר)',
             '💡',
             'Can you give me some good advice about my project?',
-            'את/ה יכול/ה לתת לי עצה טובה לגבי הפרויקט שלי?',
+            'אתם יכולים לתת לי עצה טובה לגבי הפרויקט שלי?',
           ],
           [
             'important',
@@ -1331,7 +1331,7 @@ const units: MiddleSchoolUnitSpec[] = [
             'לבחור',
             '🎯',
             'You can choose any topic that interests you.',
-            'את/ה יכול/ה לבחור כל נושא שמעניין אותך.',
+            'אתם יכולים לבחור כל נושא שמעניין אתכם.',
           ],
         ],
         seed: {
@@ -1438,7 +1438,7 @@ const units: MiddleSchoolUnitSpec[] = [
             'גאה',
             '👑',
             'You should feel very proud of your progress in English!',
-            'את/ה צריך/ה להרגיש גאה מאוד בהתקדמות שלך באנגלית!',
+            'אתם צריכים להרגיש גאים מאוד בהתקדמות שלכם באנגלית!',
           ],
           [
             'challenge',

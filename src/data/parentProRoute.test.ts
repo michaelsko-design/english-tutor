@@ -4,7 +4,7 @@ import { parseParentProRoute, paymentReturnUrl } from './parentProRoute';
 const ID = 'a'.repeat(32);
 
 describe('parseParentProRoute', () => {
-  it('reads the return from the payment page, paid or cancelled', () => {
+  it('reads the return from the payment page, paid or canceled', () => {
     expect(parseParentProRoute(`?parent&paid=${ID}`)).toMatchObject({ paidCheckoutId: ID, isPaymentCancelled: false });
     expect(parseParentProRoute(`?parent&paid=${ID}&status=cancel`)).toMatchObject({ paidCheckoutId: ID, isPaymentCancelled: true });
   });

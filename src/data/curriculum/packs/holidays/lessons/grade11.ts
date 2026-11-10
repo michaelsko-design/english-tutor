@@ -27,7 +27,7 @@ export const HOLIDAYS_GRADE_11_LESSONS: LessonPack = {
       'because ו-since באים לפני משפט שלם. because of ו-due to באים לפני שם עצם. as a result פותח את התוצאה, ואחריו פסיק.',
     pattern: 'because of + noun · As a result, + result',
     examples: [
-      { en: 'The trip was cancelled due to the storm.', he: 'הטיול בוטל בגלל הסערה.', highlight: 'due to' },
+      { en: 'The trip was canceled due to the storm.', he: 'הטיול בוטל בגלל הסערה.', highlight: 'due to' },
       { en: 'It rained all week. As a result, the river overflowed.', he: 'ירד גשם כל השבוע. כתוצאה מכך, הנחל עלה על גדותיו.', highlight: 'As a result,' },
       { en: 'We stayed inside because it was freezing.', he: 'נשארנו בפנים כי היה קפוא.', highlight: 'because it was' },
     ],

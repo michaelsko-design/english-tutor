@@ -2642,5 +2642,545 @@
     "emoji": "🇮🇱",
     "subject": "the flag of Israel, white with two blue stripes and a blue Star of David, waving on a short pole",
     "sheet": 51
+  },
+  {
+    "id": "word-ask",
+    "emoji": "🙋",
+    "subject": "a smiling child raising one hand high to ask a question",
+    "sheet": 52
+  },
+  {
+    "id": "word-glad",
+    "emoji": "😁",
+    "subject": "a beaming happy child's face with a big grin and rosy cheeks",
+    "sheet": 52
+  },
+  {
+    "id": "word-say-again",
+    "emoji": "🔂",
+    "subject": "a child cupping one hand behind an ear, leaning in to hear something again",
+    "sheet": 52
+  },
+  {
+    "id": "word-in-a-minute",
+    "emoji": "⏲",
+    "subject": "a round kitchen timer with the dial almost at the start",
+    "sheet": 52
+  },
+  {
+    "id": "word-doesnt-matter",
+    "emoji": "🫤",
+    "subject": "a relaxed child shrugging with both palms up and an easy smile",
+    "sheet": 52
+  },
+  {
+    "id": "word-hit",
+    "emoji": "⚾",
+    "subject": "a wooden bat hitting a baseball, with a small burst of motion lines",
+    "sheet": 52
+  },
+  {
+    "id": "word-lost",
+    "emoji": "🫨",
+    "subject": "a small worried puppy standing alone at a fork in a path",
+    "sheet": 52
+  },
+  {
+    "id": "word-come-back",
+    "emoji": "🪃",
+    "subject": "a wooden boomerang with a curved arrow showing it flying back",
+    "sheet": 52
+  },
+  {
+    "id": "word-how-are-you",
+    "emoji": "🙆",
+    "subject": "two smiling children greeting each other face to face, one waving",
+    "sheet": 52
+  },
+  {
+    "id": "word-fine",
+    "emoji": "👌",
+    "subject": "a hand making the OK sign",
+    "sheet": 53
+  },
+  {
+    "id": "word-ready",
+    "emoji": "🏃‍♀",
+    "subject": "a child in sneakers crouched at a starting line, ready to run",
+    "sheet": 53
+  },
+  {
+    "id": "word-wait-for",
+    "emoji": "🕓",
+    "subject": "a child sitting on a bench looking at a wristwatch, waiting",
+    "sheet": 53
+  },
+  {
+    "id": "word-film-star",
+    "emoji": "🎞",
+    "subject": "a glamorous movie star in sunglasses waving, with a small gold star beside them",
+    "sheet": 53
+  },
+  {
+    "id": "word-yes",
+    "emoji": "👍",
+    "subject": "a big thumbs-up hand",
+    "sheet": 53
+  },
+  {
+    "id": "word-no",
+    "emoji": "🙅",
+    "subject": "a child crossing both arms in an X in front of the chest, meaning no",
+    "sheet": 53
+  },
+  {
+    "id": "word-both",
+    "emoji": "👯",
+    "subject": "two identical twin children side by side, each holding an ice-cream cone",
+    "sheet": 53
+  },
+  {
+    "id": "word-at-home",
+    "emoji": "🫖",
+    "subject": "a cosy little house with a warm lit window and a teapot on the doorstep",
+    "sheet": 53
+  },
+  {
+    "id": "word-today",
+    "emoji": "📆",
+    "subject": "a tear-off daily calendar with a blank page",
+    "sheet": 53
+  },
+  {
+    "id": "word-know",
+    "emoji": "🤓",
+    "subject": "a clever child in round glasses with a glowing light bulb above the head",
+    "sheet": 54
+  },
+  {
+    "id": "word-color",
+    "emoji": "🟧",
+    "subject": "a fan of paint swatch cards in rainbow colours",
+    "sheet": 54
+  },
+  {
+    "id": "word-fan",
+    "emoji": "🎽",
+    "subject": "a cheering sports fan in a team shirt and scarf, waving a small flag",
+    "sheet": 54
+  },
+  {
+    "id": "word-end",
+    "emoji": "🔚",
+    "subject": "a closed storybook with a ribbon bookmark hanging out of the last page",
+    "sheet": 54
+  },
+  {
+    "id": "word-from",
+    "emoji": "🛫",
+    "subject": "an airplane taking off from a runway, rising to the right",
+    "sheet": 54
+  },
+  {
+    "id": "word-first-name",
+    "emoji": "📛",
+    "subject": "a blank name-tag sticker with a red top band",
+    "sheet": 54
+  },
+  {
+    "id": "word-all-right",
+    "emoji": "🆗",
+    "subject": "a relieved child nodding with a calm smile, one hand on the chest",
+    "sheet": 54
+  },
+  {
+    "id": "word-anybody",
+    "emoji": "🫥",
+    "subject": "a half-open door with a child peeking in, looking for someone",
+    "sheet": 54
+  },
+  {
+    "id": "word-as-well",
+    "emoji": "👭",
+    "subject": "two matching puppies sitting side by side",
+    "sheet": 54
+  },
+  {
+    "id": "word-lie",
+    "emoji": "🤥",
+    "subject": "a cartoon face with a long growing nose, telling a lie",
+    "sheet": 55
+  },
+  {
+    "id": "word-once",
+    "emoji": "☝",
+    "subject": "one raised index finger",
+    "sheet": 55
+  },
+  {
+    "id": "word-how-about",
+    "emoji": "🫴",
+    "subject": "an open palm held up offering a small glowing light bulb idea",
+    "sheet": 55
+  },
+  {
+    "id": "word-dont-forget",
+    "emoji": "🎗",
+    "subject": "a finger with a red string tied in a bow around it as a reminder",
+    "sheet": 55
+  },
+  {
+    "id": "word-the-rest",
+    "emoji": "🥧",
+    "subject": "a round pie with one slice taken out, the rest still in the dish",
+    "sheet": 55
+  },
+  {
+    "id": "word-busy",
+    "emoji": "🐝",
+    "subject": "a busy bee carrying a tiny stack of things, flying fast",
+    "sheet": 55
+  },
+  {
+    "id": "word-someone",
+    "emoji": "👤",
+    "subject": "a mysterious person in a hoodie seen from behind",
+    "sheet": 55
+  },
+  {
+    "id": "word-adult",
+    "emoji": "👨‍💼",
+    "subject": "a tall grown-up holding a coffee mug, standing next to a small child",
+    "sheet": 55
+  },
+  {
+    "id": "word-somewhere",
+    "emoji": "❔",
+    "subject": "a folded treasure map with a dotted path to a red X",
+    "sheet": 55
+  },
+  {
+    "id": "word-everywhere",
+    "emoji": "🌎",
+    "subject": "a globe covered in many small red location pins",
+    "sheet": 56
+  },
+  {
+    "id": "word-telephone",
+    "emoji": "☎",
+    "subject": "a classic desk telephone with a curly cord",
+    "sheet": 56
+  },
+  {
+    "id": "word-try",
+    "emoji": "🪜",
+    "subject": "a child on tiptoes stretching to reach a jar on a high shelf",
+    "sheet": 56
+  },
+  {
+    "id": "word-river",
+    "emoji": "🏞",
+    "subject": "a blue river winding between green hills",
+    "sheet": 56
+  },
+  {
+    "id": "word-different",
+    "emoji": "🍏",
+    "subject": "a row of three red apples and one green apple",
+    "sheet": 56
+  },
+  {
+    "id": "word-pupil",
+    "emoji": "🧑‍🎓",
+    "subject": "a schoolchild with a backpack sitting at a school desk with an open notebook",
+    "sheet": 56
+  },
+  {
+    "id": "word-parent",
+    "emoji": "🧑‍🍼",
+    "subject": "a parent holding a small child's hand, walking together",
+    "sheet": 56
+  },
+  {
+    "id": "word-careful",
+    "emoji": "🦺",
+    "subject": "a child tiptoeing while carrying a very full glass of water with both hands",
+    "sheet": 56
+  },
+  {
+    "id": "word-throw",
+    "emoji": "🥏",
+    "subject": "a child throwing a ball overhand",
+    "sheet": 56
+  },
+  {
+    "id": "word-follow",
+    "emoji": "👣",
+    "subject": "a trail of footprints leading forward",
+    "sheet": 57
+  },
+  {
+    "id": "word-the-middle",
+    "emoji": "🔘",
+    "subject": "three children standing in a row, the one in the middle wearing a bright yellow shirt",
+    "sheet": 57
+  },
+  {
+    "id": "word-not-bad",
+    "emoji": "😐",
+    "subject": "a child with a small satisfied smile tilting a flat hand side to side",
+    "sheet": 57
+  },
+  {
+    "id": "word-almost",
+    "emoji": "⛳",
+    "subject": "a golf ball resting right on the edge of the hole, almost in",
+    "sheet": 57
+  },
+  {
+    "id": "word-side",
+    "emoji": "🟨",
+    "subject": "a cardboard box with one side painted bright yellow",
+    "sheet": 57
+  },
+  {
+    "id": "word-exactly",
+    "emoji": "💯",
+    "subject": "a puzzle piece fitting exactly into its gap",
+    "sheet": 57
+  },
+  {
+    "id": "word-olympic-games",
+    "emoji": "🏟",
+    "subject": "a golden sports torch with a flame above a three-step winners' podium",
+    "sheet": 57
+  },
+  {
+    "id": "word-come-along",
+    "emoji": "🧑‍🤝‍🧑",
+    "subject": "two children walking together hand in hand",
+    "sheet": 57
+  },
+  {
+    "id": "word-hang-on",
+    "emoji": "🤚",
+    "subject": "a hand held up flat, palm out, meaning wait a second",
+    "sheet": 57
+  },
+  {
+    "id": "word-a-while",
+    "emoji": "🕥",
+    "subject": "a sun moving in an arc across the sky over a small bench",
+    "sheet": 58
+  },
+  {
+    "id": "word-push",
+    "emoji": "🫸",
+    "subject": "a child pushing a heavy box with both hands",
+    "sheet": 58
+  },
+  {
+    "id": "word-enough",
+    "emoji": "🛑",
+    "subject": "a glass filled right to the top with juice",
+    "sheet": 58
+  },
+  {
+    "id": "word-cafe",
+    "emoji": "🥯",
+    "subject": "a small street café front with a striped awning and a little round table",
+    "sheet": 58
+  },
+  {
+    "id": "word-purse",
+    "emoji": "👛",
+    "subject": "a small clasp coin purse",
+    "sheet": 58
+  },
+  {
+    "id": "word-goods",
+    "emoji": "🏬",
+    "subject": "a shop shelf full of boxes, jars and bottles",
+    "sheet": 58
+  },
+  {
+    "id": "word-furniture",
+    "emoji": "🗃",
+    "subject": "a chair, a small table and a wardrobe grouped together",
+    "sheet": 58
+  },
+  {
+    "id": "word-package",
+    "emoji": "📫",
+    "subject": "a brown cardboard parcel tied with string with a blank label",
+    "sheet": 58
+  },
+  {
+    "id": "word-metal",
+    "emoji": "🔩",
+    "subject": "a shiny metal bolt and nut",
+    "sheet": 58
+  },
+  {
+    "id": "word-device",
+    "emoji": "📟",
+    "subject": "a tablet, a smartwatch and earbuds grouped together",
+    "sheet": 59
+  },
+  {
+    "id": "word-vehicle",
+    "emoji": "🚚",
+    "subject": "a delivery truck",
+    "sheet": 59
+  },
+  {
+    "id": "word-engineer",
+    "emoji": "👷",
+    "subject": "a worker in a yellow hard hat holding rolled blueprints",
+    "sheet": 59
+  },
+  {
+    "id": "word-tool",
+    "emoji": "🔧",
+    "subject": "a wrench",
+    "sheet": 59
+  },
+  {
+    "id": "word-selfie",
+    "emoji": "🤳",
+    "subject": "a smiling teenager taking a selfie with a phone held at arm's length",
+    "sheet": 59
+  },
+  {
+    "id": "word-date-of-birth",
+    "emoji": "📇",
+    "subject": "a calendar page with a small birthday cake drawn on it",
+    "sheet": 59
+  },
+  {
+    "id": "word-nationality",
+    "emoji": "🛂",
+    "subject": "a closed passport booklet",
+    "sheet": 59
+  },
+  {
+    "id": "word-resort",
+    "emoji": "🏝",
+    "subject": "a holiday resort on an island with a palm tree, a pool and a sun lounger",
+    "sheet": 59
+  },
+  {
+    "id": "word-cab",
+    "emoji": "🚕",
+    "subject": "a yellow taxi cab with a roof light (no lettering)",
+    "sheet": 59
+  },
+  {
+    "id": "word-spy",
+    "emoji": "🥸",
+    "subject": "a spy in a trench coat, hat and dark glasses",
+    "sheet": 60
+  },
+  {
+    "id": "word-laser",
+    "emoji": "🔦",
+    "subject": "a laser pointer shining a thin red beam",
+    "sheet": 60
+  },
+  {
+    "id": "word-tube",
+    "emoji": "🧪",
+    "subject": "a glass test tube half full of green liquid",
+    "sheet": 60
+  },
+  {
+    "id": "word-pump",
+    "emoji": "⛽",
+    "subject": "a bicycle hand pump with a hose",
+    "sheet": 60
+  },
+  {
+    "id": "word-powder",
+    "emoji": "🧂",
+    "subject": "a small pile of white powder with a scoop beside it",
+    "sheet": 60
+  },
+  {
+    "id": "word-liquid",
+    "emoji": "🫗",
+    "subject": "blue liquid pouring from a bottle into a glass",
+    "sheet": 60
+  },
+  {
+    "id": "word-layer",
+    "emoji": "🪨",
+    "subject": "a cross-section of the ground showing coloured layers of soil and rock",
+    "sheet": 60
+  },
+  {
+    "id": "word-barrier",
+    "emoji": "🚧",
+    "subject": "a red-and-white striped road barrier",
+    "sheet": 60
+  },
+  {
+    "id": "word-noise",
+    "emoji": "📯",
+    "subject": "a child covering both ears next to a loud blaring horn",
+    "sheet": 60
+  },
+  {
+    "id": "word-ground",
+    "emoji": "🟫",
+    "subject": "a patch of brown earth with a small green sprout",
+    "sheet": 61
+  },
+  {
+    "id": "word-keep",
+    "emoji": "🪹",
+    "subject": "a child gently holding a pet rabbit next to its hutch",
+    "sheet": 61
+  },
+  {
+    "id": "word-bottle",
+    "emoji": "🍶",
+    "subject": "a plastic water bottle with a blue cap",
+    "sheet": 61
+  },
+  {
+    "id": "word-thirsty",
+    "emoji": "🏜",
+    "subject": "a hot tired child reaching for a glass of cold water",
+    "sheet": 61
+  },
+  {
+    "id": "word-full",
+    "emoji": "😮‍💨",
+    "subject": "a smiling child patting a round full tummy beside an empty plate",
+    "sheet": 61
+  },
+  {
+    "id": "word-yogurt",
+    "emoji": "🫐",
+    "subject": "a cup of white yogurt with blueberries on top and a spoon",
+    "sheet": 61
+  },
+  {
+    "id": "word-jam",
+    "emoji": "🥫",
+    "subject": "a glass jar of strawberry jam with a cloth lid",
+    "sheet": 61
+  },
+  {
+    "id": "word-grill",
+    "emoji": "🍢",
+    "subject": "a barbecue grill with skewers and a little smoke",
+    "sheet": 61
+  },
+  {
+    "id": "word-fill",
+    "emoji": "🚰",
+    "subject": "a glass being filled with water from a tap",
+    "sheet": 61
   }
 ]

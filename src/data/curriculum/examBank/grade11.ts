@@ -73,7 +73,7 @@ export const GRADE_11_EXAM_BANK: ExamBankPack = {
         hintHe: 'בדקו איזה חלק מתחיל ב-if, ואיזה מבנה מתאים לכל חלק בתנאי על העבר.',
       },
       {
-        questionEn: 'Choose the correct phrase: "The match was cancelled ____ the heavy storm."',
+        questionEn: 'Choose the correct phrase: "The match was canceled ____ the heavy storm."',
         correct: 'because of',
         wrong: ['because', 'although'],
         explainHe: 'אחרי because of בא שם עצם (the heavy storm), ואחרי because בא משפט שלם.',

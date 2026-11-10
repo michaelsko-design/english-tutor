@@ -52,7 +52,7 @@ const UNIT_SEASON2_1: HighSchoolUnitSpec = {
           questionEn: 'What else did the interviewer ask Noa?',
           questionHe: 'מה עוד שאלה המראיינת את נועה?',
           correct: 'Whether she could work on weekends.',
-          wrong: ['Whether she had a driving licence.', 'How much money she wanted.'],
+          wrong: ['Whether she had a driving license.', 'How much money she wanted.'],
         },
         tiers: {
           explorer: {
@@ -93,7 +93,7 @@ const UNIT_SEASON2_1: HighSchoolUnitSpec = {
             },
             story: {
               passageEn:
-                'Before her interview at the aquarium, Gal prepared a list of answers. She was sure that the interviewer would ask about her marks, so she practised every evening. In the end, the first question was whether she was afraid of sharks. Gal laughed and said that she had always been more afraid of exams. The interviewer smiled, wrote something on her form and asked when she could start working.',
+                'Before her interview at the aquarium, Gal prepared a list of answers. She was sure that the interviewer would ask about her marks, so she practiced every evening. In the end, the first question was whether she was afraid of sharks. Gal laughed and said that she had always been more afraid of exams. The interviewer smiled, wrote something on her form and asked when she could start working.',
               passageHe: '',
               questionEn: 'What can we infer from the end of the interview?',
               questionHe: '',
@@ -329,7 +329,7 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'Amir is sixteen, and he has been running with a local club for two years. At first, he could only run three kilometres without stopping. Since last autumn, he has been training five times a week. His coach says that his endurance has improved a lot. Next month, Amir is going to run his first half marathon in Tel Aviv.',
+            'Amir is sixteen, and he has been running with a local club for two years. At first, he could only run three kilometers without stopping. Since last autumn, he has been training five times a week. His coach says that his endurance has improved a lot. Next month, Amir is going to run his first half marathon in Tel Aviv.',
           passageHe:
             'אמיר בן שש עשרה, והוא רץ עם מועדון מקומי כבר שנתיים. בהתחלה הוא יכול היה לרוץ רק שלושה קילומטרים בלי לעצור. מאז הסתיו שעבר הוא מתאמן חמש פעמים בשבוע. המאמן שלו אומר שהסבולת שלו השתפרה מאוד. בחודש הבא אמיר ירוץ את חצי המרתון הראשון שלו בתל אביב.',
           questionEn: 'How often has Amir been training since last autumn?',
@@ -348,9 +348,9 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
             },
             story: {
               passageEn:
-                'Tom plays the guitar. He has been practising for a year. He plays every evening after dinner.',
+                'Tom plays the guitar. He has been practicing for a year. He plays every evening after dinner.',
               passageHe: 'תום מנגן בגיטרה. הוא מתאמן כבר שנה. הוא מנגן כל ערב אחרי ארוחת הערב.',
-              questionEn: 'How long has Tom been practising?',
+              questionEn: 'How long has Tom been practicing?',
               questionHe: 'כמה זמן תום מתאמן?',
               correct: 'For a year.',
               wrong: ['For a week.'],
@@ -406,7 +406,7 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
       seed: {
         wrongWords: [
           { wordEn: 'orchestra', translationHe: 'תזמורת' },
-          { wordEn: 'harbour', translationHe: 'נמל' },
+          { wordEn: 'harbor', translationHe: 'נמל' },
         ],
         shortSentenceEn: 'I have been writing all day.',
         shortSentenceHe: 'אני כותב/ת כל היום.',
@@ -517,7 +517,7 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'At the end-of-year showcase, Lia and Tom presented an app that helps elderly people remember their medicine. They have been developing it since October. So far, forty families in Modi’in have tested it. A visiting engineer asked them how they had found the families. Tom explained that they had worked with the local community centre.',
+            'At the end-of-year showcase, Lia and Tom presented an app that helps elderly people remember their medicine. They have been developing it since October. So far, forty families in Modi’in have tested it. A visiting engineer asked them how they had found the families. Tom explained that they had worked with the local community center.',
           passageHe:
             'בתערוכת סוף השנה, ליה ותום הציגו אפליקציה שעוזרת לאנשים מבוגרים לזכור את התרופות שלהם. הם מפתחים אותה מאז אוקטובר. עד עכשיו ארבעים משפחות במודיעין בדקו אותה. מהנדסת שביקרה בתערוכה שאלה אותם איך הם מצאו את המשפחות. תום הסביר שהם עבדו עם המתנ״ס המקומי.',
           questionEn: 'Since when have they been developing the app?',

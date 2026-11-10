@@ -111,8 +111,8 @@ const units: HighSchoolUnitSpec[] = [
                 passageHe: '',
                 questionEn: 'Why did more people volunteer for the next clean-up day?',
                 questionHe: '',
-                correct: 'The video made them realise how bad the beach looked.',
-                wrong: ['The mayor offered to pay every single volunteer.', 'The town square was closed for repairs and cleaning.', 'The previous event had been cancelled by the police.'],
+                correct: 'The video made them realize how bad the beach looked.',
+                wrong: ['The mayor offered to pay every single volunteer.', 'The town square was closed for repairs and cleaning.', 'The previous event had been canceled by the police.'],
               },
               storyHintEn: 'Look at what happened after the video was posted.',
             },
@@ -225,7 +225,7 @@ const units: HighSchoolUnitSpec[] = [
                 questionEn: 'What can we conclude about the decision to improve the old school?',
                 questionHe: '',
                 correct: 'It saved money without the cost of a new building.',
-                wrong: ['It proved that new buildings use more energy.', 'It made the electricity bills twice as high.', 'It was cancelled after the first cold winter.'],
+                wrong: ['It proved that new buildings use more energy.', 'It made the electricity bills twice as high.', 'It was canceled after the first cold winter.'],
               },
               storyHintEn: 'Think about why the council did not rebuild the school.',
             },
@@ -334,14 +334,14 @@ const units: HighSchoolUnitSpec[] = [
               },
               story: {
                 passageEn:
-                  'Maya had always believed that one person could not change a whole city. Then her class joined a project in which each student adopted a neglected public garden. Maya received a plot beside the bus station, where nothing but weeds and broken glass had been seen for years. She worked there every afternoon for a month. When a journalist visited, the garden was full of herbs, and neighbours had begun to leave their own gifts of plants at the gate.',
+                  'Maya had always believed that one person could not change a whole city. Then her class joined a project in which each student adopted a neglected public garden. Maya received a plot beside the bus station, where nothing but weeds and broken glass had been seen for years. She worked there every afternoon for a month. When a journalist visited, the garden was full of herbs, and neighbors had begun to leave their own gifts of plants at the gate.',
                 passageHe: '',
                 questionEn: 'What does the story suggest about Maya at the end?',
                 questionHe: '',
-                correct: 'Her work inspired other people in the neighbourhood.',
-                wrong: ['She became sure that one person cannot change anything.', 'She stopped working because the garden was too small.', 'She forced her neighbours to pay for the new plants.'],
+                correct: 'Her work inspired other people in the neighborhood.',
+                wrong: ['She became sure that one person cannot change anything.', 'She stopped working because the garden was too small.', 'She forced her neighbors to pay for the new plants.'],
               },
-              storyHintEn: 'Think about why neighbours left plants at the gate.',
+              storyHintEn: 'Think about why neighbors left plants at the gate.',
             },
           },
         },
@@ -446,8 +446,8 @@ const units: HighSchoolUnitSpec[] = [
               voiceHe: 'בדקו את המקור לפני שאתם משתפים אותו.',
               errorFix: {
                 questionEn: 'Which sentence has no mistake?',
-                correct: 'People who share rumours online can cause real harm.',
-                wrong: ['People which share rumours online can cause real harm.', 'People who shares rumours online can cause real harm.', 'People whose share rumours online can cause real harm.'],
+                correct: 'People who share rumors online can cause real harm.',
+                wrong: ['People which share rumors online can cause real harm.', 'People who shares rumors online can cause real harm.', 'People whose share rumors online can cause real harm.'],
                 explainHe:
                   'לבני אדם משתמשים ב-who, והפועל בפסוקית מתאים לנושא: people ... who share (רבים).',
                 hintEn: 'Check the pronoun for people and the verb after it.',
@@ -1153,7 +1153,7 @@ const units: HighSchoolUnitSpec[] = [
               },
               story: {
                 passageEn:
-                  'The city of Haifa is considering a ban on delivery robots on narrow pavements. Supporters say that if the robots stay, accidents will become more common, especially for elderly walkers. The companies disagree. They claim that if the city introduces a ban, hundreds of small shops will lose customers who depend on quick deliveries. The mayor has promised to decide only after a three-month trial in two neighbourhoods, in which both sides will present their data.',
+                  'The city of Haifa is considering a ban on delivery robots on narrow pavements. Supporters say that if the robots stay, accidents will become more common, especially for elderly walkers. The companies disagree. They claim that if the city introduces a ban, hundreds of small shops will lose customers who depend on quick deliveries. The mayor has promised to decide only after a three-month trial in two neighborhoods, in which both sides will present their data.',
                 passageHe: '',
                 questionEn: 'Why will the mayor wait before making a decision?',
                 questionHe: '',

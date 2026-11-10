@@ -219,7 +219,7 @@ export const HOLIDAYS_GRADE_9_EXAM_BANK: ExamBankPack = {
         hintHe: 'האם 2020 היא משך של זמן, או הנקודה שבה זה התחיל?',
       },
       {
-        questionEn: 'Complete the sentence: "My parents have known our neighbours ____ more than twenty years."',
+        questionEn: 'Complete the sentence: "My parents have known our neighbors ____ more than twenty years."',
         correct: 'for',
         wrong: ['since', 'during'],
         explainHe: 'more than twenty years הוא משך זמן, ולכן for.',

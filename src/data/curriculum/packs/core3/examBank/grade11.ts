@@ -129,12 +129,12 @@ export const CORE_3_GRADE_11_EXAM_BANK: ExamBankPack = {
       },
       {
         passageEn:
-          'A few years ago, the water in a small salt lake turned bright pink. Local people were worried, because they thought a factory had been putting chemicals into the lake. However, scientists tested the water and found that tiny living things were causing the colour. These living things grow well in very salty water, and the lake had been getting saltier because there had been no rain for months.',
+          'A few years ago, the water in a small salt lake turned bright pink. Local people were worried, because they thought a factory had been putting chemicals into the lake. However, scientists tested the water and found that tiny living things were causing the color. These living things grow well in very salty water, and the lake had been getting saltier because there had been no rain for months.',
         passageHe:
           'לפני כמה שנים, המים באגם מלח קטן הפכו לוורודים עזים. התושבים דאגו, כי הם חשבו שמפעל שפך כימיקלים לאגם. אבל מדענים בדקו את המים וגילו שיצורים חיים זעירים גרמו לצבע. היצורים האלה גדלים טוב במים מלוחים מאוד, והאגם נעשה מלוח יותר כי לא ירד גשם במשך חודשים.',
         questions: [
           {
-            questionEn: 'What colour did the lake turn?',
+            questionEn: 'What color did the lake turn?',
             questionHe: 'לאיזה צבע הפך האגם?',
             correct: 'Pink.',
             wrong: ['Green.', 'Brown.'],
@@ -143,7 +143,7 @@ export const CORE_3_GRADE_11_EXAM_BANK: ExamBankPack = {
             questionEn: 'What did local people think at first?',
             questionHe: 'מה התושבים חשבו בהתחלה?',
             correct: 'A factory had put chemicals in it.',
-            wrong: ['The rain had changed the colour.', 'Scientists had painted the water.'],
+            wrong: ['The rain had changed the color.', 'Scientists had painted the water.'],
           },
           {
             questionEn: 'Why had the lake been getting saltier?',

@@ -27,7 +27,7 @@ vi.mock('./FriendCard', () => ({
   FriendCard: ({ friend, onReact, onRemove, children }: { friend: FriendLink; onReact: (e: string) => void; onRemove: () => void; children?: React.ReactNode }) => (
     <li>
       <span>{friend.fallbackName}</span>
-      <button type="button" onClick={() => onReact('👍')}>react</button>
+      <button type="button" onClick={() => onReact('🤙')}>react</button>
       <button type="button" onClick={onRemove}>remove</button>
       {children}
     </li>
@@ -106,8 +106,8 @@ describe('FriendsScreen', () => {
     const user = setup({ friendships: { accepted: [link('f1', 'דנה')] } });
     expect(screen.getByText('extras')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'react' }));
-    expect(svc.sendReaction).toHaveBeenCalledWith('fs-f1', 'me', '👍');
-    expect(await screen.findByRole('status')).toHaveTextContent('העידוד 👍 נשלח');
+    expect(svc.sendReaction).toHaveBeenCalledWith('fs-f1', 'me', '🤙');
+    expect(await screen.findByRole('status')).toHaveTextContent('העידוד 🤙 נשלח');
     await user.click(screen.getByRole('button', { name: 'remove' }));
     expect(svc.deleteFriendship).toHaveBeenCalledWith('fs-f1');
   });

@@ -26,17 +26,17 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
       sentenceHe: 'אפשר לקבל את העיפרון האדום, בבקשה?',
       vocab: [
         ['thank you', 'phrase', 'תודה', '🙏', 'Thank you for the red ball.', 'תודה על הכדור האדום.'],
-        ['ask', 'verb', 'לבקש / לשאול', '✋', 'I ask Mom for an apple.', 'אני מבקש/ת מאמא תפוח.'],
-        ['glad', 'adjective', 'שמח', '😊', 'I am glad to see you.', 'אני שמח/ה לראות אותך.'],
+        ['ask', 'verb', 'לבקש / לשאול', '🙋', 'I ask Mom for an apple.', 'אני מבקש/ת מאמא תפוח.'],
+        ['glad', 'adjective', 'שמח', '😁', 'I am glad to see you.', 'אני שמח/ה לראות אותך.'],
         [
           'say it again, please',
           'phrase',
-          'אפשר להגיד שוב, בבקשה?',
-          '🔁',
+          'אפשר לחזור על זה בבקשה?',
+          '🔂',
           'I can\'t hear you. Say it again, please.',
           'אני לא שומע/ת. אפשר להגיד את זה שוב, בבקשה?',
         ],
-        ['in a minute', 'phrase', 'עוד רגע', '⏳', 'I can play with you in a minute.', 'אני יכול/ה לשחק איתך עוד רגע.'],
+        ['in a minute', 'phrase', 'עוד רגע', '⏲️', 'I can play with you in a minute.', 'אני יכול/ה לשחק איתך עוד רגע.'],
         ['sit down', 'verb', 'לשבת', '🪑', 'Please sit down on the chair.', 'שבו על הכיסא, בבקשה.'],
       ],
       seed: {
@@ -129,11 +129,11 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
       sentenceHe: 'סליחה, אפשר לשבת כאן?',
       vocab: [
         ['I\'m sorry', 'phrase', 'אני מצטער/ת', '😢', 'I\'m sorry, I am late.', 'אני מצטער/ת, אני מאחר/ת.'],
-        ['it doesn\'t matter', 'phrase', 'לא נורא', '🤷', 'It doesn\'t matter. We can play again.', 'לא נורא. אפשר לשחק שוב.'],
-        ['hit', 'verb', 'לפגוע / להכות', '💥', 'Oops! The ball hit the window.', 'אופס! הכדור פגע בחלון.'],
-        ['lost', 'adjective', 'אבוד', '🔍', 'My cat is lost.', 'החתול שלי הלך לאיבוד.'],
+        ['it doesn\'t matter', 'phrase', 'לא נורא', '🫤', 'It doesn\'t matter. We can play again.', 'לא נורא. אפשר לשחק שוב.'],
+        ['hit', 'verb', 'לפגוע / להכות', '⚾', 'Oops! The ball hit the window.', 'אופס! הכדור פגע בחלון.'],
+        ['lost', 'adjective', 'אבוד', '🫨', 'My cat is lost.', 'החתול שלי הלך לאיבוד.'],
         ['talk', 'verb', 'לדבר', '🗣️', 'I talk with my friend.', 'אני מדבר/ת עם החבר שלי.'],
-        ['come back', 'verb', 'לחזור', '🔄', 'Please come back soon!', 'תחזרו מהר, בבקשה!'],
+        ['come back', 'verb', 'לחזור', '🪃', 'Please come back soon!', 'תחזרו מהר, בבקשה!'],
       ],
       seed: {
         wrongWords: [
@@ -230,11 +230,11 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
       sentenceHe: 'תודה על העוגה, סבתא!',
       vocab: [
         ['happy birthday', 'phrase', 'יום הולדת שמח', '🎂', 'Happy birthday, Noa!', 'יום הולדת שמח, נועה!'],
-        ['how are you', 'phrase', 'מה שלומך?', '👋', 'Hi, Grandma! How are you today?', 'היי, סבתא! מה שלומך היום?'],
-        ['fine', 'adjective', 'בסדר / טוב', '🙂', 'I am fine, thank you.', 'אני בסדר, תודה.'],
+        ['how are you', 'phrase', 'מה שלומך?', '🙆', 'Hi, Grandma! How are you today?', 'היי, סבתא! מה שלומך היום?'],
+        ['fine', 'adjective', 'בסדר / טוב', '👌', 'I am fine, thank you.', 'אני בסדר, תודה.'],
         ['let\'s go', 'phrase', 'בואו נלך', '🏃', 'Let\'s go to the party!', 'בואו נלך למסיבה!'],
-        ['I\'m ready', 'phrase', 'אני מוכן/ה', '🙌', 'I\'m ready! Let\'s play.', 'אני מוכן/ה! בואו נשחק.'],
-        ['wait for', 'verb', 'לחכות ל...', '⏱️', 'We wait for the bus.', 'אנחנו מחכים לאוטובוס.'],
+        ['I\'m ready', 'phrase', 'אני מוכן/ה', '🏃‍♀️', 'I\'m ready! Let\'s play.', 'אני מוכן/ה! בואו נשחק.'],
+        ['wait for', 'verb', 'לחכות ל...', '🕓', 'We wait for the bus.', 'אנחנו מחכים לאוטובוס.'],
       ],
       seed: {
         wrongWords: [

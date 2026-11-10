@@ -26,7 +26,7 @@ const UNIT_CORE_3: MiddleSchoolUnitSpec = {
       sentenceEn: 'Would you like a fresh croissant with your coffee?',
       sentenceHe: 'תרצו קרואסון טרי עם הקפה?',
       vocab: [
-        ['café', 'noun', 'בית קפה', '☕', 'We meet at the café near the school every Friday.', 'אנחנו נפגשים בבית הקפה ליד בית הספר בכל יום שישי.'],
+        ['café', 'noun', 'בית קפה', '🥯', 'We meet at the café near the school every Friday.', 'אנחנו נפגשים בבית הקפה ליד בית הספר בכל יום שישי.'],
         ['would prefer', 'phrase', 'להעדיף (בנימוס)', '🤔', 'My sister would prefer tea, not coffee.', 'אחותי הייתה מעדיפה תה, לא קפה.'],
         ['medium', 'adjective', 'בינוני', '🥤', 'Can I have a medium orange juice, please?', 'אפשר לקבל מיץ תפוזים בינוני, בבקשה?'],
         ['discount', 'noun', 'הנחה', '🏷️', 'Students get a ten percent discount on Mondays.', 'תלמידים מקבלים הנחה של עשרה אחוזים בימי שני.'],
@@ -134,7 +134,7 @@ const UNIT_CORE_3: MiddleSchoolUnitSpec = {
       sentenceHe: 'אפינו את העוגיות האלה בעצמנו, אז בבקשה תיהנו!',
       vocab: [
         ['myself', 'pronoun', 'את עצמי / בעצמי', '🪞', 'I made this sandwich myself.', 'הכנתי את הכריך הזה בעצמי.'],
-        ['yourself', 'pronoun', 'את עצמך / בעצמך', '👉', "Be careful! Don't burn yourself on the hot cup.", 'זהירות! אל תכוו מהכוס החמה.'],
+        ['yourself', 'pronoun', 'את עצמך / בעצמך', '👉', "Be careful! Don't burn yourself on the hot cup.", 'זהירות! אל תיכוו מהכוס החמה.'],
         ['himself', 'pronoun', 'את עצמו / בעצמו', '🧍', 'Dan cut himself with the bread knife.', 'דן נחתך מסכין הלחם.'],
         ['itself', 'pronoun', 'את עצמו / את עצמה (דבר או חיה)', '🤖', 'The coffee machine turns itself off at night.', 'מכונת הקפה מכבה את עצמה בלילה.'],
         ['ourselves', 'pronoun', 'את עצמנו / בעצמנו', '👫', 'We painted the café sign ourselves.', 'צבענו את השלט של בית הקפה בעצמנו.'],
@@ -309,7 +309,7 @@ const UNIT_CORE_3: MiddleSchoolUnitSpec = {
           },
           master: {
             sentenceEn: 'It was quite busy, but we found a table and served ourselves.',
-            sentenceHe: 'היה די עמוס, אבל מצאנו שולחן ושירתנו את עצמנו.',
+            sentenceHe: 'היה די עמוס, אבל מצאנו שולחן והגשנו לעצמנו.',
             decoys: ['myself', 'quiet'],
             voiceEn: 'Too bad, the cake is finished.',
             voiceHe: 'חבל, העוגה נגמרה.',

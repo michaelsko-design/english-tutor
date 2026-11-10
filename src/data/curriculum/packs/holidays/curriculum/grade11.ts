@@ -130,9 +130,9 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'In the weeks before Sukkot, a village near Jerusalem gathers branches from the surrounding hills. Children are given the task of choosing the greenest palm leaves, while their grandparents tie the frame with rope. The families insist that the roof must be open enough to see the stars, yet thick enough to give shade at noon. When the work is finished, an old neighbour is invited to bless the sukkah. He usually says that a good sukkah teaches people to be thankful for very little.',
+                'In the weeks before Sukkot, a village near Jerusalem gathers branches from the surrounding hills. Children are given the task of choosing the greenest palm leaves, while their grandparents tie the frame with rope. The families insist that the roof must be open enough to see the stars, yet thick enough to give shade at noon. When the work is finished, an old neighbor is invited to bless the sukkah. He usually says that a good sukkah teaches people to be thankful for very little.',
               passageHe: '',
-              questionEn: 'What does the neighbour\'s comment mean?',
+              questionEn: 'What does the neighbor\'s comment mean?',
               questionHe: '',
               correct: 'Little things can bring gratitude.',
               wrong: [
@@ -244,18 +244,18 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
           },
           master: {
             sentenceEn: 
-              'As a result of the storm the Hanukkah festival was moved into the community centre.',
+              'As a result of the storm the Hanukkah festival was moved into the community center.',
             sentenceHe: 'כתוצאה מהסערה, חגיגת החנוכה הועברה אל המתנ״ס.',
             decoys: ['because', 'moving'],
             voiceEn: 'The candles were lit at sunset.',
             voiceHe: 'הנרות הודלקו בשקיעה.',
             errorFix: {
               questionEn: 'Which sentence has no mistake?',
-              correct: 'Due to the rain, the parade was cancelled.',
+              correct: 'Due to the rain, the parade was canceled.',
               wrong: [
-                'Due to it rained, the parade was cancelled.',
-                'Because of the rain, so the parade was cancelled.',
-                'As a result the rain, the parade was cancelled.',
+                'Due to it rained, the parade was canceled.',
+                'Because of the rain, so the parade was canceled.',
+                'As a result the rain, the parade was canceled.',
               ],
               explainHe: 
                 'Due to ו-Because of דורשים שם עצם, ואין צורך ב-so אחרי הביטוי. As a result דורש of לפני שם עצם.',
@@ -263,7 +263,7 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'During a week of heavy storms, a school in the north lost power on the first night of Hanukkah. The principal feared that the ceremony would be cancelled, but a parent proposed using the candles from the kitchen. Students sat in the dark corridor, and as each flame was lit, the singing grew louder. A teacher later remarked that the storm had made the lights seem brighter than any year before. Several families asked to repeat the evening next winter.',
+                'During a week of heavy storms, a school in the north lost power on the first night of Hanukkah. The principal feared that the ceremony would be canceled, but a parent proposed using the candles from the kitchen. Students sat in the dark corridor, and as each flame was lit, the singing grew louder. A teacher later remarked that the storm had made the lights seem brighter than any year before. Several families asked to repeat the evening next winter.',
               passageHe: '',
               questionEn: 'Why did the lights seem brighter?',
               questionHe: '',
@@ -333,10 +333,10 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
         shortSentenceHe: 'הגשם ממלא את האגם.',
         rule: {
           questionEn: 'Which sentence is correct?',
-          correct: 'As a result of the rain, the lake rose by two metres.',
+          correct: 'As a result of the rain, the lake rose by two meters.',
           wrong: [
-            'As a result the rain, the lake rose by two metres.',
-            'Because the rain, the lake rose by two metres.',
+            'As a result the rain, the lake rose by two meters.',
+            'Because the rain, the lake rose by two meters.',
           ],
           explainHe:
             'לפני שם עצם (the rain) צריך ביטוי שמסתיים ב-of: as a result of. אחרי because בלבד צריך לבוא משפט שלם.',
@@ -464,7 +464,7 @@ const UNIT_HOLIDAYS_SPRING: HighSchoolUnitSpec = {
           'noun',
           'תהלוכה / מצעד',
           '🎊',
-          'Thousands of people watched the colourful parade in Holon.',
+          'Thousands of people watched the colorful parade in Holon.',
           'אלפי אנשים צפו בתהלוכה הצבעונית בחולון.',
         ],
       ],
@@ -522,7 +522,7 @@ const UNIT_HOLIDAYS_SPRING: HighSchoolUnitSpec = {
           },
           master: {
             sentenceEn: 
-              'Unlike Tu BiShvat which is usually quiet Purim features loud parades and colourful street parties.',
+              'Unlike Tu BiShvat which is usually quiet Purim features loud parades and colorful street parties.',
             sentenceHe: 'בניגוד לט״ו בשבט שבדרך כלל שקט, בפורים יש מצעדים רועשים ומסיבות רחוב צבעוניות.',
             decoys: ['whereas', 'quieter'],
             voiceEn: 'Both holidays bring families together.',
@@ -541,7 +541,7 @@ const UNIT_HOLIDAYS_SPRING: HighSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'Neighbours in Haifa celebrate both holidays differently every year. In February, the children from Mr Levi\'s street march to a nearby hill with small trees, and each one writes a wish on a tag tied to a branch. A month later the same street is full of princesses, robots and clowns, while someone plays music from an open window. The oldest resident says she prefers the first holiday because she can hear the birds, but she admits that she has never missed the second.',
+                'Neighbors in Haifa celebrate both holidays differently every year. In February, the children from Mr Levi\'s street march to a nearby hill with small trees, and each one writes a wish on a tag tied to a branch. A month later the same street is full of princesses, robots and clowns, while someone plays music from an open window. The oldest resident says she prefers the first holiday because she can hear the birds, but she admits that she has never missed the second.',
               passageHe: '',
               questionEn: 'What does the oldest resident\'s attitude suggest?',
               questionHe: '',
@@ -624,7 +624,7 @@ const UNIT_HOLIDAYS_SPRING: HighSchoolUnitSpec = {
           questionEn: 'Why are the torch lighters chosen?',
           questionHe: 'למה נבחרים מדליקי המשואות?',
           correct: 'For their special contribution to society.',
-          wrong: ['For their success in a national quiz.', 'For organising picnics in the parks.'],
+          wrong: ['For their success in a national quiz.', 'For organizing picnics in the parks.'],
         },
         tiers: {
           explorer: {

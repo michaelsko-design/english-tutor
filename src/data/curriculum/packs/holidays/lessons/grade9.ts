@@ -8,7 +8,7 @@ export const HOLIDAYS_GRADE_9_LESSONS: LessonPack = {
       'Present Perfect (have / has + V3) מספר מה קרה מאז נקודה בעבר ועד היום. לתוכניות שכבר החלטנו עליהן משתמשים ב-be going to ופועל בסיס.',
     pattern: 'have + V3 since… · am going to + V1',
     examples: [
-      { en: 'I have grown five centimetres since last year.', he: 'גדלתי בחמישה סנטימטרים מאז השנה שעברה.', highlight: 'have grown' },
+      { en: 'I have grown five centimeters since last year.', he: 'גדלתי בחמישה סנטימטרים מאז השנה שעברה.', highlight: 'have grown' },
       { en: 'She has learned to bake challah since the summer.', he: 'מאז הקיץ היא למדה לאפות חלה.', highlight: 'has learned' },
       { en: 'We are going to visit Grandpa on the holiday.', he: 'אנחנו הולכים לבקר את סבא בחג.', highlight: 'are going to visit' },
     ],

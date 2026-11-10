@@ -28,7 +28,7 @@ export const HOLIDAYS_GRADE_6_EXAM_BANK: ExamBankPack = {
         wrong: ['cloudy', 'honey'],
       },
       {
-        clozeEn: 'Take an umbrella, because the sky is grey and ____.',
+        clozeEn: 'Take an umbrella, because the sky is gray and ____.',
         clozeHe: 'קחו מטרייה, כי השמיים אפורים ומעוננים.',
         answer: 'cloudy',
         wrong: ['tradition', 'roof'],

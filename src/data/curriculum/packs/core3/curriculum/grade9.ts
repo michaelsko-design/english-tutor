@@ -27,7 +27,7 @@ const UNIT_CORE_3: MiddleSchoolUnitSpec = {
       sentenceHe: 'בן הדוד שלי הוא נער ביישן שאוהב ציור ומוזיקה.',
       vocab: [
         ['nationality', 'noun', 'לאום / אזרחות', '🛂', 'People who live in Israel can have more than one nationality.', 'לאנשים שגרים בישראל יכולה להיות יותר מאזרחות אחת.'],
-        ['date of birth', 'noun', 'תאריך לידה', '🎂', 'The girl who sits next to me has the same date of birth as me.', 'לילדה שיושבת לידי יש אותו תאריך לידה כמו שלי.'],
+        ['date of birth', 'noun', 'תאריך לידה', '📇', 'The girl who sits next to me has the same date of birth as me.', 'לילדה שיושבת לידי יש אותו תאריך לידה כמו שלי.'],
         ['personal', 'adjective', 'אישי', '🔐', 'A diary is a personal book that you do not show to anyone.', 'יומן הוא ספר אישי שלא מראים לאף אחד.'],
         ['likes and dislikes', 'noun', 'מה שאוהבים ומה שלא אוהבים', '👍', 'On the first day, we wrote about our likes and dislikes.', 'ביום הראשון כתבנו על מה שאנחנו אוהבים ומה שאנחנו לא אוהבים.'],
         ['teenager', 'noun', 'נער / נערה (בגיל ההתבגרות)', '🧑', 'My brother is a teenager who spends hours on his phone.', 'אחי הוא נער שמבלה שעות בטלפון שלו.'],

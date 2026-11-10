@@ -70,7 +70,7 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'For many Israelis, the autumn holidays mark a new beginning. On Rosh Hashana, people make personal resolutions and wish each other a good year. Furthermore, Sukkot offers a chance to practise hospitality, as friends and neighbours are invited to eat in the sukkah. However, the busy holiday season can also be tiring, since schools and offices are closed for many days.',
+            'For many Israelis, the autumn holidays mark a new beginning. On Rosh Hashana, people make personal resolutions and wish each other a good year. Furthermore, Sukkot offers a chance to practice hospitality, as friends and neighbors are invited to eat in the sukkah. However, the busy holiday season can also be tiring, since schools and offices are closed for many days.',
           passageHe:
             'עבור ישראלים רבים, חגי הסתיו מסמנים התחלה חדשה. בראש השנה אנשים מקבלים החלטות אישיות ומאחלים זה לזה שנה טובה. יתרה מזאת, סוכות מזמן הזדמנות להכנסת אורחים, כשחברים ושכנים מוזמנים לאכול בסוכה. אולם עונת החגים העמוסה יכולה להיות גם מעייפת, מכיוון שבתי ספר ומשרדים סגורים ימים רבים.',
           questionEn: 'Why can the holiday season also be tiring?',
@@ -127,9 +127,9 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'Each year, the family of Hila invites a different guest to the sukkah. Last year the guest was an elderly neighbour who had recently moved to the city and knew nobody. The neighbour arrived with a plastic bag of dates and sat quietly at the end of the table. By the end of the evening, he was telling stories about his village and teaching the children a song, and the following week he brought them a handmade lamp.',
+                'Each year, the family of Hila invites a different guest to the sukkah. Last year the guest was an elderly neighbor who had recently moved to the city and knew nobody. The neighbor arrived with a plastic bag of dates and sat quietly at the end of the table. By the end of the evening, he was telling stories about his village and teaching the children a song, and the following week he brought them a handmade lamp.',
               passageHe: '',
-              questionEn: 'What can be inferred about the neighbour?',
+              questionEn: 'What can be inferred about the neighbor?',
               questionHe: '',
               correct: 'He felt welcomed and wanted to show his gratitude.',
               wrong: [
@@ -262,7 +262,7 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'The old man at number seven had not lit Hanukkah candles for years, since his wife passed away. This year, however, a girl from the third floor knocked on his door with a small menorah and a box of matches. She did not say anything about candles; she simply asked if she could use his window, because it faced the street. He hesitated, then opened the curtains. Neighbours who walked by that evening stopped to look at the two small flames.',
+                'The old man at number seven had not lit Hanukkah candles for years, since his wife passed away. This year, however, a girl from the third floor knocked on his door with a small menorah and a box of matches. She did not say anything about candles; she simply asked if she could use his window, because it faced the street. He hesitated, then opened the curtains. Neighbors who walked by that evening stopped to look at the two small flames.',
               passageHe: '',
               questionEn: 'Why did the girl visit the old man?',
               questionHe: '',
@@ -319,7 +319,7 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
           'noun',
           'סולידריות / ערבות הדדית',
           '🤝',
-          'Neighbours showed solidarity by sharing food after the storm.',
+          'Neighbors showed solidarity by sharing food after the storm.',
           'השכנים הפגינו ערבות הדדית כשחלקו אוכל אחרי הסערה.',
         ],
       ],
@@ -340,7 +340,7 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'In many Israeli neighbourhoods, the holiday season is a time of communal activity. During Sukkot, residents sometimes build one large sukkah in a shared courtyard. Moreover, in winter, volunteers collect warm clothes and food for families in need. Although these projects take time and effort, the writer believes that they strengthen solidarity and make the cold season warmer for everyone.',
+            'In many Israeli neighborhoods, the holiday season is a time of communal activity. During Sukkot, residents sometimes build one large sukkah in a shared courtyard. Moreover, in winter, volunteers collect warm clothes and food for families in need. Although these projects take time and effort, the writer believes that they strengthen solidarity and make the cold season warmer for everyone.',
           passageHe:
             'בשכונות רבות בישראל, עונת החגים היא זמן של פעילות קהילתית. בסוכות התושבים בונים לפעמים סוכה גדולה אחת בחצר משותפת. יתרה מזאת, בחורף מתנדבים אוספים בגדים חמים ומזון למשפחות נזקקות. למרות שהפרויקטים האלה דורשים זמן ומאמץ, הכותב מאמין שהם מחזקים את הערבות ההדדית והופכים את העונה הקרה לחמה יותר עבור כולם.',
           questionEn: 'What is the writer\'s opinion of these community projects?',
@@ -359,7 +359,7 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'The neighbours cooked a big meal. Everyone brought one dish. They ate together in the yard.',
+                'The neighbors cooked a big meal. Everyone brought one dish. They ate together in the yard.',
               passageHe: 'השכנים בישלו ארוחה גדולה. כל אחד הביא מנה אחת. הם אכלו יחד בחצר.',
               questionEn: 'Where did they eat?',
               questionHe: 'איפה הם אכלו?',
@@ -381,7 +381,7 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
             sentenceHe: 
               'למרות שהתנדבות דורשת זמן תושבים רבים מצטרפים לפרויקטים קהילתיים כי הם מעריכים סולידריות.',
             decoys: ['despite', 'therefore'],
-            voiceEn: 'Customs bring neighbours closer together every winter.',
+            voiceEn: 'Customs bring neighbors closer together every winter.',
             voiceHe: 'מנהגים מקרבים שכנים זה לזה בכל חורף.',
             errorFix: {
               questionEn: 'Which sentence has no mistake?',
@@ -397,9 +397,9 @@ const UNIT_HOLIDAYS_AUTUMN: HighSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'When the heavy storm of December flooded the lower streets of the neighbourhood, the community centre opened its doors at midnight. Volunteers arrived with blankets, soup and two large heaters, though nobody had organised them. By morning more than forty residents had slept on the floor of the main hall, and a teenager was already collecting names to arrange temporary housing. The mayor later said that the building had been designed for lectures, not for emergencies, yet that night it became the heart of the city.',
+                'When the heavy storm of December flooded the lower streets of the neighborhood, the community center opened its doors at midnight. Volunteers arrived with blankets, soup and two large heaters, though nobody had organized them. By morning more than forty residents had slept on the floor of the main hall, and a teenager was already collecting names to arrange temporary housing. The mayor later said that the building had been designed for lectures, not for emergencies, yet that night it became the heart of the city.',
               passageHe: '',
-              questionEn: 'What does the mayor suggest about the community centre?',
+              questionEn: 'What does the mayor suggest about the community center?',
               questionHe: '',
               correct: 'It served a purpose far beyond its original design.',
               wrong: [
@@ -476,10 +476,10 @@ const UNIT_HOLIDAYS_SPRING: HighSchoolUnitSpec = {
         shortSentenceHe: 'מישהו בוודאי שתל את אלה.',
         rule: {
           questionEn: 'Which sentence expresses CRITICISM of a past action?',
-          correct: 'The organisers should have prepared more costumes for the children.',
+          correct: 'The organizers should have prepared more costumes for the children.',
           wrong: [
-            'The organisers must have prepared more costumes for the children.',
-            'The organisers might have prepared more costumes for the children.',
+            'The organizers must have prepared more costumes for the children.',
+            'The organizers might have prepared more costumes for the children.',
           ],
           explainHe:
             'should have + V3 מבקר משהו שלא נעשה בעבר. must have מביע הסקה ודאית, ו-might have מביע אפשרות.',
@@ -622,7 +622,7 @@ const UNIT_HOLIDAYS_SPRING: HighSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'Shavuot began as an agricultural festival, when farmers brought the first fruits of their harvest to Jerusalem. In the twentieth century, the pioneers of the kibbutzim gave the festival new life. They celebrated the harvest with songs, dances and wagons full of produce. Consequently, Shavuot is still celebrated on many kibbutzim with colourful harvest parades.',
+            'Shavuot began as an agricultural festival, when farmers brought the first fruits of their harvest to Jerusalem. In the twentieth century, the pioneers of the kibbutzim gave the festival new life. They celebrated the harvest with songs, dances and wagons full of produce. Consequently, Shavuot is still celebrated on many kibbutzim with colorful harvest parades.',
           passageHe:
             'שבועות התחיל כחג חקלאי, שבו החקלאים הביאו לירושלים את הפירות הראשונים של הקציר שלהם. במאה העשרים, החלוצים של הקיבוצים העניקו לחג חיים חדשים. הם חגגו את הקציר בשירים, בריקודים ובעגלות מלאות תוצרת. כתוצאה מכך, שבועות עדיין נחגג בקיבוצים רבים עם תהלוכות ביכורים צבעוניות.',
           questionEn: 'How did the kibbutz pioneers celebrate the harvest?',
@@ -704,7 +704,7 @@ const UNIT_HOLIDAYS_SPRING: HighSchoolUnitSpec = {
         'משימת בוס חגיגית בסוף שנת התיכון: קטע Unseen על חגי האביב ועל הקיץ שבא אחריהם. עליכם לשלב מודלים בעבר, מילות תוצאה וויתור ולענות על שאלות ברמת בגרות!',
       grammarTopic: 'Past Modals & Result Connectors Synthesis',
       skills: ['Grammar Review', 'Seasonal Unseen', 'Bagrut Reading'],
-      sentenceEn: 'In retrospect, the graduates realised that every holiday had marked a milestone in their lives.',
+      sentenceEn: 'In retrospect, the graduates realized that every holiday had marked a milestone in their lives.',
       sentenceHe: 'במבט לאחור, הבוגרים הבינו שכל חג סימן אבן דרך בחייהם.',
       vocab: [
         [
@@ -779,7 +779,7 @@ const UNIT_HOLIDAYS_SPRING: HighSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'The graduates travelled to the sea. They swam and laughed. It was a great end to the year.',
+                'The graduates traveled to the sea. They swam and laughed. It was a great end to the year.',
               passageHe: 'הבוגרים נסעו לים. הם שחו וצחקו. זה היה סוף נהדר לשנה.',
               questionEn: 'Where did they travel?',
               questionHe: 'לאן הם נסעו?',

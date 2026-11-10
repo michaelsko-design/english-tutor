@@ -46,7 +46,7 @@ describe('getClipText', () => {
     expect(getClipText('"Hi,"')).toBe('hi');
   });
 
-  it('keeps the pronoun I capitalised', () => {
+  it('keeps the pronoun I capitalized', () => {
     expect(getClipText('I')).toBe('I');
   });
 

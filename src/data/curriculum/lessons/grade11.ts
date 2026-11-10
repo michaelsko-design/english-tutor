@@ -30,8 +30,8 @@ export const GRADE_11_LESSONS: LessonPack = {
       'בשאלות HOTS מחפשים למה דמות פעלה כך ומה קרה בעקבות זה. because ו-since באים לפני משפט שלם, ו-because of ו-due to לפני שם עצם.',
     pattern: 'because + sentence · because of + noun',
     examples: [
-      { en: 'The game was cancelled because of the storm.', he: 'המשחק בוטל בגלל הסערה.', highlight: 'because of the storm' },
-      { en: 'The game was cancelled because it was stormy.', he: 'המשחק בוטל כי היה סוער.', highlight: 'because it was stormy' },
+      { en: 'The game was canceled because of the storm.', he: 'המשחק בוטל בגלל הסערה.', highlight: 'because of the storm' },
+      { en: 'The game was canceled because it was stormy.', he: 'המשחק בוטל כי היה סוער.', highlight: 'because it was stormy' },
       { en: "He left home due to his father's anger.", he: 'הוא עזב את הבית בגלל הכעס של אביו.', highlight: 'due to' },
     ],
     tipHe: '"בגלל" לפני שם עצם הוא because of, ולא because.',

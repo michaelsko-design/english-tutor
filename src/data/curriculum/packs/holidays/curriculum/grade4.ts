@@ -302,8 +302,8 @@ const UNIT_HOLIDAYS_SPRING: ElementaryUnitSpec = {
       titleEn: 'Seeds, Trees and Crowns',
       titleHe: 'זרעים, עצים וכתרים',
       storyHookHe: 'בט"ו בשבט שותלים, ובפורים מתחפשים! מה אתם יכולים לעשות בחגים האלה?',
-      grammarTopic: 'Tu BiShvat & Purim Words, "can" & colours',
-      skills: ['Holiday Words', 'can', 'Colours'],
+      grammarTopic: 'Tu BiShvat & Purim Words, "can" & colors',
+      skills: ['Holiday Words', 'can', 'Colors'],
       sentenceEn: 'I can plant a seed, and I can make a gold crown.',
       sentenceHe: 'אני יכול/ה לשתול זרע, ואני יכול/ה להכין כתר זהב.',
       vocab: [

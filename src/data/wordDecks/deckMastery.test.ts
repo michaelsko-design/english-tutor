@@ -110,7 +110,7 @@ describe('mergeDeckWordMastery', () => {
     expect(merged?.[BREAD].firstTryDays).toEqual(['2026-11-04']);
   });
 
-  it('masters a word practised one day on each device', () => {
+  it('masters a word practiced one day on each device', () => {
     const local = { [APPLE]: { wordEn: 'apple', translationHe: 'תפוח', firstTryDays: ['2026-11-01'] } };
     const cloud = { [APPLE]: { wordEn: 'apple', translationHe: 'תפוח', firstTryDays: ['2026-11-02'] } };
     expect(mergeDeckWordMastery(local, cloud)?.[APPLE].masteredOn).toBe('2026-11-02');

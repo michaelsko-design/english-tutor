@@ -38,7 +38,7 @@ const UNIT_HOLIDAYS_AUTUMN: MiddleSchoolUnitSpec = {
         shortSentenceEn: 'I am going to read more.',
         shortSentenceHe: 'אני הולך/ת לקרוא יותר.',
         rule: {
-          questionEn: 'Complete the sentence: "We _______ in this neighbourhood since last Rosh Hashana."',
+          questionEn: 'Complete the sentence: "We _______ in this neighborhood since last Rosh Hashana."',
           correct: 'have lived',
           wrong: ['live', 'are living'],
           explainHe: 'כשמשהו התחיל בעבר ונמשך עד עכשיו (since last Rosh Hashana) משתמשים ב-Present Perfect: have lived.',
@@ -67,7 +67,7 @@ const UNIT_HOLIDAYS_AUTUMN: MiddleSchoolUnitSpec = {
               passageEn: 
                 'Rina ate a pomegranate. It was sweet and red. She has loved it since she was little.',
               passageHe: 'רינה אכלה רימון. הוא היה מתוק ואדום. היא אוהבת אותו מאז שהייתה קטנה.',
-              questionEn: 'What colour was the pomegranate?',
+              questionEn: 'What color was the pomegranate?',
               questionHe: 'באיזה צבע היה הרימון?',
               correct: 'Red.',
               wrong: ['Green.'],
@@ -128,7 +128,7 @@ const UNIT_HOLIDAYS_AUTUMN: MiddleSchoolUnitSpec = {
       sentenceEn: 'We were hanging decorations in the sukkah when the first rain of the year began.',
       sentenceHe: 'תלינו קישוטים בסוכה כשהגשם הראשון של השנה התחיל.',
       vocab: [
-        ['decorate', 'verb', 'לקשט', '🎨', 'The children decorate the sukkah with colourful paper chains.', 'הילדים מקשטים את הסוכה בשרשראות נייר צבעוניות.'],
+        ['decorate', 'verb', 'לקשט', '🎨', 'The children decorate the sukkah with colorful paper chains.', 'הילדים מקשטים את הסוכה בשרשראות נייר צבעוניות.'],
         ['harvest', 'noun / verb', 'אסיף / קציר; לקצור', '🌾', 'Sukkot marks the end of the harvest.', 'סוכות מציין את סוף האסיף.'],
         ['temporary', 'adjective', 'זמני / זמנית', '⏳', 'A sukkah is a temporary home for one week.', 'סוכה היא בית זמני לשבוע אחד.'],
         ['shelter', 'noun', 'מחסה', '⛺', 'The sukkah gave us shelter from the hot sun.', 'הסוכה נתנה לנו מחסה מהשמש החמה.'],
@@ -155,7 +155,7 @@ const UNIT_HOLIDAYS_AUTUMN: MiddleSchoolUnitSpec = {
           questionEn: 'Where did the family finish the meal?',
           questionHe: 'איפה המשפחה סיימה את הארוחה?',
           correct: 'In the living room.',
-          wrong: ['In the sukkah.', 'At the neighbours’ house.'],
+          wrong: ['In the sukkah.', 'At the neighbors’ house.'],
         },
         tiers: {
           explorer: {
@@ -254,10 +254,10 @@ const UNIT_HOLIDAYS_AUTUMN: MiddleSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'In December, the rain finally came to the Galilee. On the fourth night of Hanukkah, a storm knocked out the electricity in Hila’s village. However, the families did not sit in the dark. Neighbours gathered in the community hall, lit their candles together and sang holiday songs. If the rain continues tomorrow, they will meet there again.',
+            'In December, the rain finally came to the Galilee. On the fourth night of Hanukkah, a storm knocked out the electricity in Hila’s village. However, the families did not sit in the dark. Neighbors gathered in the community hall, lit their candles together and sang holiday songs. If the rain continues tomorrow, they will meet there again.',
           passageHe:
             'בדצמבר הגשם הגיע סוף סוף לגליל. בלילה הרביעי של חנוכה, סערה גרמה להפסקת חשמל בכפר של הילה. עם זאת, המשפחות לא ישבו בחושך. השכנים התאספו באולם הקהילתי, הדליקו יחד את הנרות ושרו שירי חג. אם הגשם יימשך מחר, הם ייפגשו שם שוב.',
-          questionEn: 'Where did the neighbours gather?',
+          questionEn: 'Where did the neighbors gather?',
           questionHe: 'איפה התאספו השכנים?',
           correct: 'In the community hall.',
           wrong: ['In the school gym.', 'At Hila’s house.'],
@@ -310,7 +310,7 @@ const UNIT_HOLIDAYS_AUTUMN: MiddleSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'During the downpour, the electricity in the village failed, and the families could not use their heaters. Instead of going home, the neighbours carried blankets and hot soup to the community hall. Children played board games by candlelight while the adults shared stories about older winters. Although the night was cold, nobody wanted to leave, and the mayor said that he had never felt so proud of his village.',
+                'During the downpour, the electricity in the village failed, and the families could not use their heaters. Instead of going home, the neighbors carried blankets and hot soup to the community hall. Children played board games by candlelight while the adults shared stories about older winters. Although the night was cold, nobody wanted to leave, and the mayor said that he had never felt so proud of his village.',
               passageHe: '',
               questionEn: 'Why was the mayor proud of the village?',
               questionHe: '',
@@ -321,7 +321,7 @@ const UNIT_HOLIDAYS_AUTUMN: MiddleSchoolUnitSpec = {
                 'The storm ended earlier than expected.',
               ],
             },
-            storyHintEn: 'Think about how the neighbours acted together.',
+            storyHintEn: 'Think about how the neighbors acted together.',
           },
         },
       },
@@ -348,7 +348,7 @@ const UNIT_HOLIDAYS_SPRING: MiddleSchoolUnitSpec = {
       sentenceHe: 'אילו יכולתי לבחור כל תחפושת בפורים הזה, הייתי מתחפש/ת לאסטרונאוט.',
       vocab: [
         ['costume', 'noun', 'תחפושת', '🎭', 'It took her two weeks to make the costume.', 'לקח לה שבועיים להכין את התחפושת.'],
-        ['disguise', 'noun / verb', 'תחפושת / להתחפש; הסוואה / להסוות', '🕶️', 'Nobody recognised him in his clever disguise.', 'אף אחד לא זיהה אותו בתחפושת המתוחכמת שלו.'],
+        ['disguise', 'noun / verb', 'תחפושת / להתחפש; הסוואה / להסוות', '🕶️', 'Nobody recognized him in his clever disguise.', 'אף אחד לא זיהה אותו בתחפושת המתוחכמת שלו.'],
         ['sapling', 'noun', 'שתיל', '🌱', 'Our class planted ten saplings on Tu BiShvat.', 'הכיתה שלנו שתלה עשרה שתילים בט״ו בשבט.'],
         ['donate', 'verb', 'לתרום', '🎁', 'Many families donate food baskets before Purim.', 'משפחות רבות תורמות סלי מזון לפני פורים.'],
       ],
@@ -371,7 +371,7 @@ const UNIT_HOLIDAYS_SPRING: MiddleSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'On Tu BiShvat, the eighth graders of Kiryat Gat planted fifty saplings near their school. A month later, the ninth graders organised a Purim party for younger children. They made costumes from recycled boxes. Although the party was simple, the children enjoyed every minute. If the students had more money, they would also hire a magician next year.',
+            'On Tu BiShvat, the eighth graders of Kiryat Gat planted fifty saplings near their school. A month later, the ninth graders organized a Purim party for younger children. They made costumes from recycled boxes. Although the party was simple, the children enjoyed every minute. If the students had more money, they would also hire a magician next year.',
           passageHe:
             'בט״ו בשבט, תלמידי כיתות ח׳ בקריית גת שתלו חמישים שתילים ליד בית הספר. חודש אחר כך, תלמידי כיתות ט׳ ארגנו מסיבת פורים לילדים צעירים. הם הכינו תחפושות מקופסאות ממוחזרות. למרות שהמסיבה הייתה פשוטה, הילדים נהנו מכל רגע. אילו היה לתלמידים יותר כסף, הם היו מזמינים גם קוסם בשנה הבאה.',
           questionEn: 'What did the ninth graders make the costumes from?',
@@ -393,7 +393,7 @@ const UNIT_HOLIDAYS_SPRING: MiddleSchoolUnitSpec = {
                 'Gal has a pirate costume. It has a red hat. If he had a parrot, he would put it on his shoulder.',
               passageHe: 
                 'לגל יש תחפושת פיראט. יש לה כובע אדום. אילו היה לו תוכי, הוא היה שם אותו על הכתף.',
-              questionEn: 'What colour is the hat?',
+              questionEn: 'What color is the hat?',
               questionHe: 'באיזה צבע הכובע?',
               correct: 'Red.',
               wrong: ['Blue.'],
@@ -467,7 +467,7 @@ const UNIT_HOLIDAYS_SPRING: MiddleSchoolUnitSpec = {
         shortSentenceEn: 'We have cleaned the house.',
         shortSentenceHe: 'ניקינו את הבית.',
         rule: {
-          questionEn: 'Complete the sentence: "Our neighbours have watched the fireworks from their roof _______ ten years."',
+          questionEn: 'Complete the sentence: "Our neighbors have watched the fireworks from their roof _______ ten years."',
           correct: 'for',
           wrong: ['since', 'ago'],
           explainHe: 'ten years הוא משך זמן, ולכן for. since בא לפני נקודת התחלה, ו-ago לא בא עם Present Perfect.',
@@ -475,7 +475,7 @@ const UNIT_HOLIDAYS_SPRING: MiddleSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'Every year, the Cohen family has a busy spring. Before Passover, they clean the whole house and buy new books for the Seder. Three weeks later, on Independence Day, they have a picnic in the park with their neighbours. They have kept this tradition since their oldest son was born. This year, he is going to bring his own guitar.',
+            'Every year, the Cohen family has a busy spring. Before Passover, they clean the whole house and buy new books for the Seder. Three weeks later, on Independence Day, they have a picnic in the park with their neighbors. They have kept this tradition since their oldest son was born. This year, he is going to bring his own guitar.',
           passageHe:
             'בכל שנה למשפחת כהן יש אביב עמוס. לפני פסח הם מנקים את כל הבית וקונים הגדות חדשות לליל הסדר. שלושה שבועות אחר כך, ביום העצמאות, הם עורכים פיקניק בפארק עם השכנים. הם שומרים על המסורת הזאת מאז שהבן הבכור שלהם נולד. השנה הוא הולך להביא את הגיטרה שלו.',
           questionEn: 'Since when have they kept this tradition?',
@@ -637,7 +637,7 @@ const UNIT_HOLIDAYS_SPRING: MiddleSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'Maya planned an exciting summer itinerary: a week in Eilat, two days at a dairy farm, and a hike in the Galilee. Then she checked the weather forecast. Temperatures in Eilat would reach forty-two degrees every day. Instead of cancelling the trip, she moved the hike to the early morning, packed extra sunscreen, and chose a hotel with a swimming pool.',
+                'Maya planned an exciting summer itinerary: a week in Eilat, two days at a dairy farm, and a hike in the Galilee. Then she checked the weather forecast. Temperatures in Eilat would reach forty-two degrees every day. Instead of canceling the trip, she moved the hike to the early morning, packed extra sunscreen, and chose a hotel with a swimming pool.',
               passageHe: '',
               questionEn: 'What does Maya do about the heat?',
               questionHe: '',
@@ -648,7 +648,7 @@ const UNIT_HOLIDAYS_SPRING: MiddleSchoolUnitSpec = {
                 'She ignores the forecast and packs less.',
               ],
             },
-            storyHintEn: 'Look at what she changed, not what she cancelled.',
+            storyHintEn: 'Look at what she changed, not what she canceled.',
           },
         },
       },

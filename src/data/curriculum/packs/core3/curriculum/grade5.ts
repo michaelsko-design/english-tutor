@@ -25,14 +25,14 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
       sentenceEn: 'When I am an adult, I will speak three languages.',
       sentenceHe: 'כשאהיה מבוגר/ת, אדבר שלוש שפות.',
       vocab: [
-        ['adult', 'noun', 'מבוגר', '🧑', 'When I am an adult, I will live in a big city.', 'כשאהיה מבוגר/ת, אגור בעיר גדולה.'],
+        ['adult', 'noun', 'מבוגר', '👨‍💼', 'When I am an adult, I will live in a big city.', 'כשאהיה מבוגר/ת, אגור בעיר גדולה.'],
         ['world', 'noun', 'עולם', '🌍', 'One day I will see the whole world.', 'יום אחד אראה את כל העולם.'],
         ['language', 'noun', 'שפה', '🗣️', 'Spanish is a beautiful language.', 'ספרדית היא שפה יפה.'],
         ['speak', 'verb', 'לדבר (שפה)', '💬', 'In the future, I will speak Chinese.', 'בעתיד אדבר סינית.'],
         ['rich', 'adjective', 'עשיר', '💰', 'Maybe I will be rich one day.', 'אולי אהיה עשיר/ה יום אחד.'],
         ['cellphone', 'noun', 'טלפון נייד', '📱', 'My cellphone will be very small in the future.', 'הטלפון הנייד שלי יהיה קטן מאוד בעתיד.'],
-        ['somewhere', 'adverb', 'למקום כלשהו / איפשהו', '🗺️', 'Next summer we will go somewhere hot.', 'בקיץ הבא ניסע למקום חם כלשהו.'],
-        ['everywhere', 'adverb', 'בכל מקום', '🌐', 'In the future, there will be robots everywhere.', 'בעתיד יהיו רובוטים בכל מקום.'],
+        ['somewhere', 'adverb', 'למקום כלשהו / איפשהו', '❔', 'Next summer we will go somewhere hot.', 'בקיץ הבא ניסע למקום חם כלשהו.'],
+        ['everywhere', 'adverb', 'בכל מקום', '🌎', 'In the future, there will be robots everywhere.', 'בעתיד יהיו רובוטים בכל מקום.'],
       ],
       seed: {
         wrongWords: [
@@ -129,10 +129,10 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         ['boat', 'noun', 'סירה', '🚢', 'Will we go on a boat tomorrow?', 'ניסע מחר בסירה?'],
         ['singer', 'noun', 'זמר', '🎤', 'My sister will be a famous singer.', 'אחותי תהיה זמרת מפורסמת.'],
         ['band', 'noun', 'להקה', '🎸', 'Will your band play at the party?', 'הלהקה שלך תנגן במסיבה?'],
-        ['telephone', 'noun', 'טלפון', '📱', 'Will people still have a telephone at home?', 'לאנשים עוד יהיה טלפון בבית?'],
+        ['telephone', 'noun', 'טלפון', '☎️', 'Will people still have a telephone at home?', 'לאנשים עוד יהיה טלפון בבית?'],
         ['bake', 'verb', 'לאפות', '🧁', 'Will you bake a cake for my birthday?', 'תאפו עוגה ליום ההולדת שלי?'],
-        ['river', 'noun', 'נהר', '🌊', 'Will we swim in the river?', 'נשחה בנהר?'],
-        ['try', 'verb', 'לנסות', '🎯', 'Will you try the new game with me?', 'תנסו איתי את המשחק החדש?'],
+        ['river', 'noun', 'נהר', '🏞️', 'Will we swim in the river?', 'נשחה בנהר?'],
+        ['try', 'verb', 'לנסות', '🪜', 'Will you try the new game with me?', 'תנסו איתי את המשחק החדש?'],
       ],
       seed: {
         wrongWords: [
@@ -231,9 +231,9 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         ['problem', 'noun', 'בעיה', '🧩', "Don't worry. We will fix the problem.", 'אל תדאגו. נתקן את הבעיה.'],
         ['understand', 'verb', 'להבין', '💡', 'Now I understand the question.', 'עכשיו אני מבין/ה את השאלה.'],
         ['difficult', 'adjective', 'קשה', '😬', 'This test will be difficult.', 'המבחן הזה יהיה קשה.'],
-        ['different', 'adjective', 'שונה', '🔀', 'Life will be different in the future.', 'החיים יהיו שונים בעתיד.'],
-        ['pupil', 'noun', 'תלמיד', '🎒', 'Every pupil will get a new book.', 'כל תלמיד יקבל ספר חדש.'],
-        ['parent', 'noun', 'הורה', '👪', 'One day I will be a parent, too.', 'יום אחד גם אני אהיה הורה.'],
+        ['different', 'adjective', 'שונה', '🍏', 'Life will be different in the future.', 'החיים יהיו שונים בעתיד.'],
+        ['pupil', 'noun', 'תלמיד', '🧑‍🎓', 'Every pupil will get a new book.', 'כל תלמיד יקבל ספר חדש.'],
+        ['parent', 'noun', 'הורה', '🧑‍🍼', 'One day I will be a parent, too.', 'יום אחד גם אני אהיה הורה.'],
       ],
       seed: {
         wrongWords: [

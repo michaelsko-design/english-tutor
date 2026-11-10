@@ -21,7 +21,7 @@ export const SEASON2_GRADE_9_EXAM_BANK: ExamBankPack = {
         wrong: ['confess', 'reveal'],
       },
       {
-        clozeEn: 'The fire ____ rang during the maths lesson, so we all went outside.',
+        clozeEn: 'The fire ____ rang during the math lesson, so we all went outside.',
         clozeHe: 'אזעקת האש צלצלה בשיעור מתמטיקה, אז כולנו יצאנו החוצה.',
         answer: 'alarm',
         wrong: ['clue', 'suspect'],
@@ -149,7 +149,7 @@ export const SEASON2_GRADE_9_EXAM_BANK: ExamBankPack = {
             questionEn: 'Who had made the mess?',
             questionHe: 'מי עשה את הבלגן?',
             correct: 'The family puppy.',
-            wrong: ['Ido’s sister.', 'A neighbour’s cat.'],
+            wrong: ['Ido’s sister.', 'A neighbor’s cat.'],
           },
         ],
       },
@@ -189,7 +189,7 @@ export const SEASON2_GRADE_9_EXAM_BANK: ExamBankPack = {
         wrong: ['promise', 'mention'],
       },
       {
-        clozeEn: 'Our neighbours often ____ about the noise from the park.',
+        clozeEn: 'Our neighbors often ____ about the noise from the park.',
         clozeHe: 'השכנים שלנו מתלוננים לעיתים קרובות על הרעש מהפארק.',
         answer: 'complain',
         wrong: ['interpret', 'announce'],
@@ -250,7 +250,7 @@ export const SEASON2_GRADE_9_EXAM_BANK: ExamBankPack = {
     passages: [
       {
         passageEn:
-          'In July, a group of students from Be’er Sheva joined a desert expedition in the Negev. Every night, they wrote messages to their families. Gal wrote that the stars were brighter than in the city. Her friend Omer said that he missed his own bed. On the last day, their guide told them that they had walked more than eighty kilometres.',
+          'In July, a group of students from Be’er Sheva joined a desert expedition in the Negev. Every night, they wrote messages to their families. Gal wrote that the stars were brighter than in the city. Her friend Omer said that he missed his own bed. On the last day, their guide told them that they had walked more than eighty kilometers.',
         passageHe:
           'ביולי, קבוצת תלמידים מבאר שבע הצטרפה למשלחת מדבר בנגב. בכל לילה הם כתבו הודעות למשפחות שלהם. גל כתבה שהכוכבים בהירים יותר מאשר בעיר. החבר שלה עומר אמר שהוא מתגעגע למיטה שלו. ביום האחרון, המדריך אמר להם שהם הלכו יותר משמונים קילומטרים.',
         questions: [
@@ -269,8 +269,8 @@ export const SEASON2_GRADE_9_EXAM_BANK: ExamBankPack = {
           {
             questionEn: 'How far had they walked?',
             questionHe: 'כמה הם הלכו?',
-            correct: 'More than eighty kilometres.',
-            wrong: ['About twenty kilometres.', 'More than two hundred kilometres.'],
+            correct: 'More than eighty kilometers.',
+            wrong: ['About twenty kilometers.', 'More than two hundred kilometers.'],
           },
         ],
       },

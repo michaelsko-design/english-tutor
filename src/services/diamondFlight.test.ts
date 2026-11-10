@@ -83,7 +83,7 @@ describe('diamond flights', () => {
     expect(getDiamondFlightState().flights[0]).toMatchObject({ status: 'flying', from: { x: 10, y: 20 } });
   });
 
-  it('flies a held flight from the centre when nothing releases it', () => {
+  it('flies a held flight from the center when nothing releases it', () => {
     holdDiamonds(5);
     vi.advanceTimersByTime(HOLD_TIMEOUT_MS);
     expect(getDiamondFlightState().flights[0]).toMatchObject({ status: 'flying', from: null });

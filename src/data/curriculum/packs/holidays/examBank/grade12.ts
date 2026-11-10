@@ -27,7 +27,7 @@ export const HOLIDAYS_GRADE_12_EXAM_BANK: ExamBankPack = {
         wrong: ['canopy', 'communal'],
       },
       {
-        clozeEn: 'Under the ____ sky, the city looked grey and quiet.',
+        clozeEn: 'Under the ____ sky, the city looked gray and quiet.',
         clozeHe: 'תחת השמיים המעוננים, העיר נראתה אפורה ושקטה.',
         answer: 'overcast',
         wrong: ['resolution', 'solidarity'],
@@ -238,11 +238,11 @@ export const HOLIDAYS_GRADE_12_EXAM_BANK: ExamBankPack = {
         hintHe: 'בדקו את הסימנים משני הצדדים של מילת התוצאה.',
       },
       {
-        questionEn: 'What does this sentence mean? "The organisers should have checked the weather forecast."',
-        correct: 'The organisers did not check the forecast, and that was a mistake.',
+        questionEn: 'What does this sentence mean? "The organizers should have checked the weather forecast."',
+        correct: 'The organizers did not check the forecast, and that was a mistake.',
         wrong: [
-          'The organisers checked the forecast very carefully.',
-          'The organisers will check the forecast tomorrow.',
+          'The organizers checked the forecast very carefully.',
+          'The organizers will check the forecast tomorrow.',
         ],
         explainHe: 'should have + V3 מתאר דבר שהיה צריך לקרות בעבר ולא קרה.',
         hintHe: 'המבנה מבקר פעולה בעבר. האם הפעולה נעשתה באמת?',
@@ -252,7 +252,7 @@ export const HOLIDAYS_GRADE_12_EXAM_BANK: ExamBankPack = {
       { en: 'Someone must have hidden the afikoman under the sofa.', he: 'מישהו בטח החביא את האפיקומן מתחת לספה.' },
       { en: 'We should have booked the campsite before the holiday.', he: 'היינו צריכים להזמין את מקום הקמפינג לפני החג.' },
       { en: 'The bakery sold out; therefore, we made cheesecake at home.', he: 'המאפייה מכרה הכול; לכן אפינו עוגת גבינה בבית.' },
-      { en: 'The fireworks might have frightened the dogs in the neighbourhood.', he: 'ייתכן שהזיקוקים הפחידו את הכלבים בשכונה.' },
+      { en: 'The fireworks might have frightened the dogs in the neighborhood.', he: 'ייתכן שהזיקוקים הפחידו את הכלבים בשכונה.' },
       { en: 'Schools closed for summer; as a result, the beaches filled up.', he: 'בתי הספר נסגרו לקיץ; כתוצאה מכך, החופים התמלאו.' },
       { en: 'The costume must have taken hours to sew.', he: 'התחפושת בטח לקחה שעות לתפור.' },
     ],

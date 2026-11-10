@@ -43,7 +43,7 @@ function cardOf(item: RewardShopItem): HTMLElement {
 }
 
 describe('RewardShopModal', () => {
-  it('opens as a labelled modal dialog with focus inside it', () => {
+  it('opens as a labeled modal dialog with focus inside it', () => {
     renderShop();
 
     const dialog = screen.getByRole('dialog', { name: 'חנות הפרסים' });

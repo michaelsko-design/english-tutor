@@ -271,7 +271,7 @@ describe('useParentPro after payment', () => {
     expect(screen.getByText('return:false:נועה|איתי')).toBeInTheDocument();
   });
 
-  it('shows a cancelled payment, and dismissing it clears the address', async () => {
+  it('shows a canceled payment, and dismissing it clears the address', async () => {
     const user = userEvent.setup();
     window.history.replaceState(null, '', paymentReturnUrl(CHECKOUT_ID, true));
     mocks.entitlements = { c1: null };

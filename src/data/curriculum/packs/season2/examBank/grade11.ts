@@ -39,7 +39,7 @@ export const SEASON2_GRADE_11_EXAM_BANK: ExamBankPack = {
         wrong: ['reconcile', 'aspiration'],
       },
       {
-        clozeEn: 'The mayor hopes the two neighbours will ____ and end their long dispute.',
+        clozeEn: 'The mayor hopes the two neighbors will ____ and end their long dispute.',
         clozeHe: 'ראש העיר מקווה ששני השכנים יתפייסו ויסיימו את הסכסוך הארוך שלהם.',
         answer: 'reconcile',
         wrong: ['hindsight', 'envious'],
@@ -100,12 +100,12 @@ export const SEASON2_GRADE_11_EXAM_BANK: ExamBankPack = {
     passages: [
       {
         passageEn:
-          'Ori has played the piano since he was six. Last year he stopped practising because he wanted more time for football. Now his band needs a keyboard player for a big concert in Tel Aviv. Ori wishes he had kept practising, because his fingers feel slow and stiff. His teacher says that with two hours a day he can still be ready in time.',
+          'Ori has played the piano since he was six. Last year he stopped practicing because he wanted more time for football. Now his band needs a keyboard player for a big concert in Tel Aviv. Ori wishes he had kept practicing, because his fingers feel slow and stiff. His teacher says that with two hours a day he can still be ready in time.',
         passageHe:
           'אורי מנגן בפסנתר מאז שהיה בן שש. בשנה שעברה הוא הפסיק להתאמן כי רצה יותר זמן לכדורגל. עכשיו הלהקה שלו צריכה נגן קלידים להופעה גדולה בתל אביב. אורי מצטער שלא המשיך להתאמן, כי האצבעות שלו מרגישות איטיות ונוקשות. המורה שלו אומרת שעם שעתיים ביום הוא עוד יכול להיות מוכן בזמן.',
         questions: [
           {
-            questionEn: 'Why did Ori stop practising last year?',
+            questionEn: 'Why did Ori stop practicing last year?',
             questionHe: 'למה אורי הפסיק להתאמן בשנה שעברה?',
             correct: 'He wanted more time for football.',
             wrong: ['His piano teacher moved away.', 'His band broke up after a concert.'],
@@ -119,8 +119,8 @@ export const SEASON2_GRADE_11_EXAM_BANK: ExamBankPack = {
           {
             questionEn: 'What does his teacher suggest?',
             questionHe: 'מה המורה שלו מציעה?',
-            correct: 'Practising two hours a day to be ready in time.',
-            wrong: ['Finding another keyboard player for the band.', 'Cancelling the concert in Tel Aviv.'],
+            correct: 'Practicing two hours a day to be ready in time.',
+            wrong: ['Finding another keyboard player for the band.', 'Canceling the concert in Tel Aviv.'],
           },
         ],
       },
@@ -241,8 +241,8 @@ export const SEASON2_GRADE_11_EXAM_BANK: ExamBankPack = {
       { en: 'My aunt gets her groceries delivered every Thursday.', he: 'הדודה שלי מקבלת את המצרכים במשלוח בכל יום חמישי.' },
       { en: 'Have you ever had your portrait drawn by a street artist?', he: 'האם צייר רחוב צייר אי פעם את הדיוקן שלכם?' },
       { en: 'The school is having new computers installed in the library.', he: 'בית הספר מתקין מחשבים חדשים בספרייה.' },
-      { en: 'Our neighbours got their garden redesigned by a professional.', he: 'השכנים שלנו דאגו שאיש מקצוע יעצב מחדש את הגינה שלהם.' },
-      { en: 'I need to get my bike tyres pumped before the race.', he: 'אני צריך שינפחו לי את צמיגי האופניים לפני המרוץ.' },
+      { en: 'Our neighbors got their garden redesigned by a professional.', he: 'השכנים שלנו דאגו שאיש מקצוע יעצב מחדש את הגינה שלהם.' },
+      { en: 'I need to get my bike tires pumped before the race.', he: 'אני צריך שינפחו לי את צמיגי האופניים לפני המרוץ.' },
     ],
     passages: [
       {
@@ -252,7 +252,7 @@ export const SEASON2_GRADE_11_EXAM_BANK: ExamBankPack = {
           'לפני שפתחה את בית הקפה הקטן שלה בבאר שבע, להיה הייתה צריכה לעשות הרבה עבודה. היא דאגה שירצפו את הרצפה ויצבעו את הקירות בצהוב בוהק. אחר כך טכנאי איטלקי התקין לה מכונת קפה. את כל העוגות היא אפתה בעצמה, כי רצתה שיהיה להן טעם כמו של העוגות של אמא שלה. בבוקר הראשון נכנסו יותר ממאה לקוחות.',
         questions: [
           {
-            questionEn: 'What colour were the café walls painted?',
+            questionEn: 'What color were the café walls painted?',
             questionHe: 'באיזה צבע נצבעו קירות בית הקפה?',
             correct: 'Bright yellow.',
             wrong: ['Pale blue.', 'Dark green.'],
@@ -273,7 +273,7 @@ export const SEASON2_GRADE_11_EXAM_BANK: ExamBankPack = {
       },
       {
         passageEn:
-          'Every two years, the city of Haifa gets its historic buildings inspected by engineers. This year, experts found cracks in an old school near the port. The city had the school closed for three months and had the walls strengthened with steel. Students studied in a nearby community centre during the repairs. When they returned, they found that their classrooms had also been repainted.',
+          'Every two years, the city of Haifa gets its historic buildings inspected by engineers. This year, experts found cracks in an old school near the port. The city had the school closed for three months and had the walls strengthened with steel. Students studied in a nearby community center during the repairs. When they returned, they found that their classrooms had also been repainted.',
         passageHe:
           'כל שנתיים העירייה של חיפה דואגת שמהנדסים יבדקו את המבנים ההיסטוריים שלה. השנה מצאו המומחים סדקים בבית ספר ישן ליד הנמל. העירייה סגרה את בית הספר לשלושה חודשים ודאגה שיחזקו את הקירות בפלדה. התלמידים למדו במתנ״ס קרוב בזמן התיקונים. כשחזרו, הם גילו שגם הכיתות שלהם נצבעו מחדש.',
         questions: [
@@ -281,12 +281,12 @@ export const SEASON2_GRADE_11_EXAM_BANK: ExamBankPack = {
             questionEn: 'What did the experts find this year?',
             questionHe: 'מה מצאו המומחים השנה?',
             correct: 'Cracks in an old school near the port.',
-            wrong: ['A fire in the community centre.', 'Water damage in the city hall.'],
+            wrong: ['A fire in the community center.', 'Water damage in the city hall.'],
           },
           {
             questionEn: 'Where did the students study during the repairs?',
             questionHe: 'איפה למדו התלמידים בזמן התיקונים?',
-            correct: 'In a nearby community centre.',
+            correct: 'In a nearby community center.',
             wrong: ['At home with online lessons.', 'In another school near the port.'],
           },
           {

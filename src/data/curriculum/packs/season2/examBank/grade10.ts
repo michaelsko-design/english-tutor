@@ -194,7 +194,7 @@ export const SEASON2_GRADE_10_EXAM_BANK: ExamBankPack = {
     ],
     grammar: [
       {
-        questionEn: 'Complete the sentence: "Our neighbours _______ their kitchen for three weeks, and it is still not finished."',
+        questionEn: 'Complete the sentence: "Our neighbors _______ their kitchen for three weeks, and it is still not finished."',
         correct: 'have been painting',
         wrong: ['has been painting', 'have been paint'],
         explainHe: 'פעולה שנמשכת שלושה שבועות ועדיין לא נגמרה, עם נושא ברבים: have been + V-ing.',
@@ -273,7 +273,7 @@ export const SEASON2_GRADE_10_EXAM_BANK: ExamBankPack = {
       },
       {
         passageEn:
-          'Rotem has been learning to play the oud for two years. At first, she practised for only ten minutes a day. Now she has been practising for an hour every evening. Last month, she reached an important milestone: she played in front of an audience for the first time. Her grandfather, who taught her the first songs, sat in the front row.',
+          'Rotem has been learning to play the oud for two years. At first, she practiced for only ten minutes a day. Now she has been practicing for an hour every evening. Last month, she reached an important milestone: she played in front of an audience for the first time. Her grandfather, who taught her the first songs, sat in the front row.',
         passageHe:
           'רותם לומדת לנגן בעוד כבר שנתיים. בהתחלה היא התאמנה רק עשר דקות ביום. עכשיו היא מתאמנת שעה בכל ערב. בחודש שעבר היא הגיעה לאבן דרך חשובה: היא ניגנה מול קהל בפעם הראשונה. סבא שלה, שלימד אותה את השירים הראשונים, ישב בשורה הראשונה.',
         questions: [

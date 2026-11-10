@@ -99,7 +99,7 @@ export const AppTour: React.FC<AppTourProps> = ({ theme, slides, avatarEmoji, is
       onPointerUp={handlePointerUp}
       className={`fixed inset-0 z-[70] overflow-y-auto overflow-x-hidden outline-none ${theme.pageBgClass}`}
     >
-      {/* Soft colour blobs in the slide's colours */}
+      {/* Soft colour blobs in the slide's colors */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
         <span className={`absolute -top-20 -right-16 w-72 h-72 rounded-full blur-3xl transition-colors duration-700 animate-tour-drift ${accent.blobClasses[0]}`} />
         <span

@@ -270,7 +270,7 @@ function isMockReserved(stepId: string): boolean {
 describe('sessions with the exam question bank (Feature 43)', () => {
   const allSkills: ExamSkill[] = ['grammar', 'vocabulary', 'unseen', 'sentences'];
 
-  it('practises only bank items that are not kept for the mock', () => {
+  it('practices only bank items that are not kept for the mock', () => {
     const plan = makePlan({ skills: allSkills, unitNumbers: [1, 2, 3, 4] });
     plan.days
       .filter((d) => d.kind === 'practice')

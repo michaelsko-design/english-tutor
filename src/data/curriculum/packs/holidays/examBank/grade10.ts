@@ -16,7 +16,7 @@ export const HOLIDAYS_GRADE_10_EXAM_BANK: ExamBankPack = {
         wrong: ['reservoir', 'foliage'],
       },
       {
-        clozeEn: 'In many cultures, the colour white is used to ____ peace.',
+        clozeEn: 'In many cultures, the color white is used to ____ peace.',
         clozeHe: 'בתרבויות רבות משתמשים בצבע הלבן כדי לסמל שלום.',
         answer: 'symbolize',
         wrong: ['hospitality', 'festive'],
@@ -63,10 +63,10 @@ export const HOLIDAYS_GRADE_10_EXAM_BANK: ExamBankPack = {
       },
       {
         questionEn: 'Choose the correct sentence:',
-        correct: 'The woman who organised the holiday dinner is my aunt.',
+        correct: 'The woman who organized the holiday dinner is my aunt.',
         wrong: [
-          'The woman which organised the holiday dinner is my aunt.',
-          'The woman whose organised the holiday dinner is my aunt.',
+          'The woman which organized the holiday dinner is my aunt.',
+          'The woman whose organized the holiday dinner is my aunt.',
         ],
         explainHe: 'who מתאר אנשים. which מתאים לדברים, ו-whose מראה שייכות ובא לפני שם עצם.',
         hintHe: 'הפסוקית מתארת אדם, ואחרי מילת הזיקה בא פועל. איזו מילה מתאימה?',
@@ -193,7 +193,7 @@ export const HOLIDAYS_GRADE_10_EXAM_BANK: ExamBankPack = {
         wrong: ['liberation', 'seedling'],
       },
       {
-        clozeEn: 'Our class organised a book sale for ____.',
+        clozeEn: 'Our class organized a book sale for ____.',
         clozeHe: 'הכיתה שלנו ארגנה מכירת ספרים למטרות צדקה.',
         answer: 'charity',
         wrong: ['exodus', 'parade'],
@@ -260,7 +260,7 @@ export const HOLIDAYS_GRADE_10_EXAM_BANK: ExamBankPack = {
     passages: [
       {
         passageEn:
-          'Every spring, a large Passover market is held in the old city of Akko. Matzah, spices and new dishes are sold at dozens of colourful stalls. Many of the sellers are families whose grandparents opened the same stalls decades ago. On the last day before the holiday, the market is so crowded that it is closed to cars. Visitors who arrive early usually find the best prices.',
+          'Every spring, a large Passover market is held in the old city of Akko. Matzah, spices and new dishes are sold at dozens of colorful stalls. Many of the sellers are families whose grandparents opened the same stalls decades ago. On the last day before the holiday, the market is so crowded that it is closed to cars. Visitors who arrive early usually find the best prices.',
         passageHe:
           'בכל אביב נערך שוק פסח גדול בעיר העתיקה של עכו. מצות, תבלינים וכלים חדשים נמכרים בעשרות דוכנים צבעוניים. רבים מהמוכרים הם משפחות שהסבים והסבתות שלהן פתחו את אותם דוכנים לפני עשרות שנים. ביום האחרון לפני החג השוק עמוס כל כך שהוא נסגר לרכבים. מבקרים שמגיעים מוקדם בדרך כלל מוצאים את המחירים הטובים ביותר.',
         questions: [
@@ -268,7 +268,7 @@ export const HOLIDAYS_GRADE_10_EXAM_BANK: ExamBankPack = {
             questionEn: 'Where is the Passover market held?',
             questionHe: 'איפה נערך שוק הפסח?',
             correct: 'In the old city of Akko.',
-            wrong: ['In the centre of Tel Aviv.', 'Near the beach in Netanya.'],
+            wrong: ['In the center of Tel Aviv.', 'Near the beach in Netanya.'],
           },
           {
             questionEn: 'Who opened many of the stalls decades ago?',

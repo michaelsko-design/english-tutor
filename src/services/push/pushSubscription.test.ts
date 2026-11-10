@@ -9,7 +9,7 @@ describe('urlBase64ToUint8Array', () => {
 });
 
 describe('isIosDevice', () => {
-  it('recognises iPhone and iPad but not Android or desktop', () => {
+  it('recognizes iPhone and iPad but not Android or desktop', () => {
     expect(isIosDevice('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)')).toBe(true);
     expect(isIosDevice('Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X)')).toBe(true);
     expect(isIosDevice('Mozilla/5.0 (Linux; Android 14)')).toBe(false);

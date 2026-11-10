@@ -50,7 +50,7 @@ describe('MockPaymentPage', () => {
     expect(onNavigate).not.toHaveBeenCalled();
   });
 
-  it('returns to the portal as cancelled without paying', async () => {
+  it('returns to the portal as canceled without paying', async () => {
     const user = userEvent.setup();
     const { onNavigate } = renderPage();
 

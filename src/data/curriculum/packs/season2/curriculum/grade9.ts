@@ -33,7 +33,7 @@ const UNIT_SEASON2_1: MiddleSchoolUnitSpec = {
       seed: {
         wrongWords: [
           { wordEn: 'invitation', translationHe: 'הזמנה' },
-          { wordEn: 'neighbourhood', translationHe: 'שכונה' },
+          { wordEn: 'neighborhood', translationHe: 'שכונה' },
         ],
         shortSentenceEn: 'The thief had escaped.',
         shortSentenceHe: 'הגנב ברח קודם לכן.',
@@ -50,7 +50,7 @@ const UNIT_SEASON2_1: MiddleSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'On Sunday morning, the cleaner at the city museum noticed an empty frame on the wall. Someone had removed a small painting during the night. The guard had locked every door at eight o’clock, so the thief had probably hidden inside the building. A visitor had noticed a man in a grey coat near the gift shop before closing time.',
+            'On Sunday morning, the cleaner at the city museum noticed an empty frame on the wall. Someone had removed a small painting during the night. The guard had locked every door at eight o’clock, so the thief had probably hidden inside the building. A visitor had noticed a man in a gray coat near the gift shop before closing time.',
           passageHe:
             'ביום ראשון בבוקר, המנקה במוזיאון העירוני הבחין במסגרת ריקה על הקיר. מישהו הוריד ציור קטן במהלך הלילה. השומר נעל את כל הדלתות בשעה שמונה, כך שהגנב כנראה הסתתר בתוך הבניין. מבקר הבחין באיש במעיל אפור ליד חנות המתנות לפני שעת הסגירה.',
           questionEn: 'When had the guard locked every door?',
@@ -113,7 +113,7 @@ const UNIT_SEASON2_1: MiddleSchoolUnitSpec = {
               wrong: [
                 'Through the locked front door.',
                 'By following the guard inside.',
-                'From the roof of the neighbouring building.',
+                'From the roof of the neighboring building.',
               ],
             },
             storyHintEn: 'Look for clues around the window.',
@@ -429,7 +429,7 @@ const UNIT_SEASON2_2: MiddleSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'During the radio call, the doctor said that the patient was feeling much better. However, she added that the helicopter could not land until the snow stopped. The leader told the team to stay calm and to pack only the essential equipment. Nobody complained, but several members looked at the grey sky nervously.',
+                'During the radio call, the doctor said that the patient was feeling much better. However, she added that the helicopter could not land until the snow stopped. The leader told the team to stay calm and to pack only the essential equipment. Nobody complained, but several members looked at the gray sky nervously.',
               passageHe: '',
               questionEn: 'What can we infer about the situation?',
               questionHe: '',
@@ -585,13 +585,13 @@ const UNIT_SEASON2_2: MiddleSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'After four months on the ice, the expedition finally returned to Tel Aviv. At the airport, reporters were waiting with cameras and microphones. The leader said that the glacier had lost almost two metres of ice since their last visit. She added that the team would publish a full summary in the spring.',
+            'After four months on the ice, the expedition finally returned to Tel Aviv. At the airport, reporters were waiting with cameras and microphones. The leader said that the glacier had lost almost two meters of ice since their last visit. She added that the team would publish a full summary in the spring.',
           passageHe:
             'אחרי ארבעה חודשים על הקרח, המשלחת חזרה סוף סוף לתל אביב. בשדה התעופה חיכו כתבים עם מצלמות ומיקרופונים. ראש המשלחת אמרה שהקרחון איבד כמעט שני מטרים של קרח מאז הביקור הקודם שלהם. היא הוסיפה שהצוות יפרסם סיכום מלא באביב.',
           questionEn: 'How much ice had the glacier lost?',
           questionHe: 'כמה קרח איבד הקרחון?',
-          correct: 'Almost two metres.',
-          wrong: ['Almost ten metres.', 'Nothing at all.'],
+          correct: 'Almost two meters.',
+          wrong: ['Almost ten meters.', 'Nothing at all.'],
         },
         tiers: {
           explorer: {
@@ -616,7 +616,7 @@ const UNIT_SEASON2_2: MiddleSchoolUnitSpec = {
             clozeWrong: [
               ['recipe', 'poster'],
               ['publish', 'print'],
-              ['colourful', 'cheerful'],
+              ['colorful', 'cheerful'],
               ['dissolve', 'boil'],
             ],
           },
@@ -641,7 +641,7 @@ const UNIT_SEASON2_2: MiddleSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'When the reporter read her notes, she realised that the quote sounded wrong. The scientist had said that the ice might melt completely in fifty years, but the reporter had written that it would melt next year. The editor called the scientist to check the facts. In the afternoon, the newspaper published a correction on its front page, and the reporter promised to record every interview in the future.',
+                'When the reporter read her notes, she realized that the quote sounded wrong. The scientist had said that the ice might melt completely in fifty years, but the reporter had written that it would melt next year. The editor called the scientist to check the facts. In the afternoon, the newspaper published a correction on its front page, and the reporter promised to record every interview in the future.',
               passageHe: '',
               questionEn: 'Why did the newspaper publish a correction?',
               questionHe: '',

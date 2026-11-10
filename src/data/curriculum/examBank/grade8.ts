@@ -107,7 +107,7 @@ export const GRADE_8_EXAM_BANK: ExamBankPack = {
     passages: [
       {
         passageEn:
-          'Last summer, Noa and her parents travelled to Iceland. On the second day, they were driving along the coast when they saw a group of whales. Her father stopped the car, and they watched the whales for almost an hour. While Noa was taking photos, her phone battery died. Luckily, her mother had a small camera in her bag, so they still have pictures of that amazing moment.',
+          'Last summer, Noa and her parents traveled to Iceland. On the second day, they were driving along the coast when they saw a group of whales. Her father stopped the car, and they watched the whales for almost an hour. While Noa was taking photos, her phone battery died. Luckily, her mother had a small camera in her bag, so they still have pictures of that amazing moment.',
         passageHe:
           'בקיץ שעבר נועה וההורים שלה נסעו לאיסלנד. ביום השני הם נסעו לאורך החוף כשראו להקה של לווייתנים. אבא שלה עצר את המכונית, והם צפו בלווייתנים כמעט שעה. בזמן שנועה צילמה, נגמרה הסוללה בטלפון שלה. למזלם, לאמא שלה הייתה מצלמה קטנה בתיק, ולכן עדיין יש להם תמונות של הרגע המדהים הזה.',
         questions: [

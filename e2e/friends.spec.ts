@@ -83,7 +83,7 @@ test.describe('friends', () => {
     await friendPage.context().close();
   });
 
-  test('cancelling a sent request removes it for both learners', async ({ page, browser, baseURL, learner }) => {
+  test('canceling a sent request removes it for both learners', async ({ page, browser, baseURL, learner }) => {
     const friend = newTestLearner();
     const friendPage = await openSecondLearner(browser, baseURL, () => page.viewportSize());
     await startAsNewLearner(page, learner, { name: 'נועה', age: 14 });

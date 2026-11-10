@@ -120,11 +120,11 @@ const units: HighSchoolUnitSpec[] = [
               },
               story: {
                 passageEn: 
-                  'Every spring Dana visits the small library near her school. Her friends prefer the new shopping mall, because it has a cinema and many cafes. Dana, in contrast, enjoys the silence of the reading hall. Last month she borrowed a thick book about ancient cities, and she finished it in three days. The next week her history teacher asked who could describe the old harbour of Caesarea. Dana raised her hand before anyone else, and her classmates turned to look at her in surprise.',
+                  'Every spring Dana visits the small library near her school. Her friends prefer the new shopping mall, because it has a cinema and many cafes. Dana, in contrast, enjoys the silence of the reading hall. Last month she borrowed a thick book about ancient cities, and she finished it in three days. The next week her history teacher asked who could describe the old harbor of Caesarea. Dana raised her hand before anyone else, and her classmates turned to look at her in surprise.',
                 passageHe: '',
                 questionEn: 'Why were her classmates surprised?',
                 questionHe: '',
-                correct: 'They did not expect her to know about the harbour.',
+                correct: 'They did not expect her to know about the harbor.',
                 wrong: [
                   'Her friends had already answered the question before her.',
                   'The teacher had asked about the shopping mall instead.',
@@ -246,7 +246,7 @@ const units: HighSchoolUnitSpec[] = [
               },
               story: {
                 passageEn: 
-                  'The small town of Neve Ilan relied on a single bakery. When the owner fell ill the shop closed for two months. Many residents began buying bread from a supermarket twenty kilometres away. Meanwhile, the local council received dozens of letters from worried families. In the end, three young bakers from the city offered to run the shop together, and the council agreed to lower their rent for the first year.',
+                  'The small town of Neve Ilan relied on a single bakery. When the owner fell ill the shop closed for two months. Many residents began buying bread from a supermarket twenty kilometers away. Meanwhile, the local council received dozens of letters from worried families. In the end, three young bakers from the city offered to run the shop together, and the council agreed to lower their rent for the first year.',
                 passageHe: '',
                 questionEn: 'Why did the council lower the rent?',
                 questionHe: '',
@@ -339,12 +339,12 @@ const units: HighSchoolUnitSpec[] = [
               },
               story: {
                 passageEn: 
-                  'Tom joined the school debate team. First, he felt nervous. Then he practised every day, and now he speaks well.',
+                  'Tom joined the school debate team. First, he felt nervous. Then he practiced every day, and now he speaks well.',
                 passageHe: 
                   'תום הצטרף לקבוצת הדיבייט של בית הספר. בהתחלה הוא היה לחוץ. אחר כך הוא התאמן כל יום, ועכשיו הוא מדבר היטב.',
                 questionEn: 'What did Tom do every day?',
                 questionHe: 'מה תום עשה כל יום?',
-                correct: 'He practised.',
+                correct: 'He practiced.',
                 wrong: ['He cooked dinner.'],
               },
             },
@@ -380,7 +380,7 @@ const units: HighSchoolUnitSpec[] = [
                 passageHe: '',
                 questionEn: 'Why did the judges give her the highest score for balance?',
                 questionHe: '',
-                correct: 'She recognised the other side before presenting her own view.',
+                correct: 'She recognized the other side before presenting her own view.',
                 wrong: [
                   'She agreed with the opposing team on every point.',
                   'She avoided mentioning phones during her speech.',
@@ -513,7 +513,7 @@ const units: HighSchoolUnitSpec[] = [
               },
               story: {
                 passageEn: 
-                  'Noga stared at the blank page for ten minutes. The exam question asked whether schools should ban sweet drinks, and her mind was full of ideas but none seemed organised. Then she remembered the advice of her teacher and wrote one sentence: schools should ban sweet drinks because they harm health, concentration and the budget. Suddenly, her three paragraphs almost wrote themselves, and she finished with five minutes to spare.',
+                  'Noga stared at the blank page for ten minutes. The exam question asked whether schools should ban sweet drinks, and her mind was full of ideas but none seemed organized. Then she remembered the advice of her teacher and wrote one sentence: schools should ban sweet drinks because they harm health, concentration and the budget. Suddenly, her three paragraphs almost wrote themselves, and she finished with five minutes to spare.',
                 passageHe: '',
                 questionEn: 'Why did the paragraphs almost write themselves?',
                 questionHe: '',
@@ -604,12 +604,12 @@ const units: HighSchoolUnitSpec[] = [
               },
               story: {
                 passageEn: 
-                  'Some students like uniforms. Others do not. Dina thinks uniforms are fine, although she wants more colours.',
+                  'Some students like uniforms. Others do not. Dina thinks uniforms are fine, although she wants more colors.',
                 passageHe: 
                   'חלק מהתלמידים אוהבים תלבושת אחידה. אחרים לא. דינה חושבת שתלבושת אחידה בסדר, אף על פי שהיא רוצה יותר צבעים.',
                 questionEn: 'What does Dina want?',
                 questionHe: 'מה דינה רוצה?',
-                correct: 'More colours.',
+                correct: 'More colors.',
                 wrong: ['No uniforms at all.'],
               },
             },
@@ -648,7 +648,7 @@ const units: HighSchoolUnitSpec[] = [
                 correct: 'Itay supported his reply with evidence from another school.',
                 wrong: [
                   'Itay refused to listen to any objection.',
-                  'The council had already cancelled the rule.',
+                  'The council had already canceled the rule.',
                   'The classmate wanted to sell sweets outside school.',
                 ],
               },
@@ -1032,7 +1032,7 @@ const units: HighSchoolUnitSpec[] = [
               },
               story: {
                 passageEn: 
-                  'When the city council closed the old canal to build a parking lot, nobody worried about the fish. A year later the herons that fed on those fish had moved to a park three kilometres away. Residents who used to photograph the birds from the bridge stopped visiting, and the small cafe beside the canal lost half of its customers. This spring, the owner started a petition asking the council to reopen the water.',
+                  'When the city council closed the old canal to build a parking lot, nobody worried about the fish. A year later the herons that fed on those fish had moved to a park three kilometers away. Residents who used to photograph the birds from the bridge stopped visiting, and the small cafe beside the canal lost half of its customers. This spring, the owner started a petition asking the council to reopen the water.',
                 passageHe: '',
                 questionEn: 'Why did the cafe owner start the petition?',
                 questionHe: '',
@@ -1118,7 +1118,7 @@ const units: HighSchoolUnitSpec[] = [
               rule: {
                 questionEn: 'What does "justify your answer" ask you to do?',
                 correct: 'Give a reason from the text.',
-                wrong: ['Give your favorite colour.'],
+                wrong: ['Give your favorite color.'],
                 explainHe: 'Justify your answer פירושו לנמק בעזרת הטקסט: לצטט או לנסח מחדש משפט רלוונטי.',
                 hintHe: 'נימוק בבגרות מגיע מתוך הטקסט.',
               },
@@ -1142,7 +1142,7 @@ const units: HighSchoolUnitSpec[] = [
             },
             master: {
               sentenceEn: 
-                'Careful investment in public parks can revitalize entire neighbourhoods and improve resident health.',
+                'Careful investment in public parks can revitalize entire neighborhoods and improve resident health.',
               sentenceHe: 
                 'השקעה זהירה בפארקים ציבוריים יכולה להפיח חיים בשכונות שלמות ולשפר את בריאות התושבים.',
               decoys: ['demolish', 'however'],
@@ -1261,9 +1261,9 @@ const units: HighSchoolUnitSpec[] = [
               },
               story: {
                 passageEn: 
-                  'Lia studies English and Spanish. She wants to work in other countries. She practises every evening.',
+                  'Lia studies English and Spanish. She wants to work in other countries. She practices every evening.',
                 passageHe: 'ליה לומדת אנגלית וספרדית. היא רוצה לעבוד במדינות אחרות. היא מתרגלת בכל ערב.',
-                questionEn: 'When does Lia practise?',
+                questionEn: 'When does Lia practice?',
                 questionHe: 'מתי ליה מתרגלת?',
                 correct: 'Every evening.',
                 wrong: ['Every morning.'],

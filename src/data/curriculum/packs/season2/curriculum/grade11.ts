@@ -70,12 +70,12 @@ const UNIT_SEASON2_1: HighSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'Noam is seventeen and lives in a small town in the Negev. He yearns to study film, but the nearest film school is three hours away. "If only there were a bus that left earlier," he often says. His aspiration keeps him busy: every weekend he edits short videos about his neighbours.',
+            'Noam is seventeen and lives in a small town in the Negev. He yearns to study film, but the nearest film school is three hours away. "If only there were a bus that left earlier," he often says. His aspiration keeps him busy: every weekend he edits short videos about his neighbors.',
           passageHe:
             'נועם בן שבע-עשרה וגר בעיירה קטנה בנגב. הוא משתוקק ללמוד קולנוע, אבל בית הספר לקולנוע הקרוב נמצא במרחק שלוש שעות. "הלוואי שהיה אוטובוס שיוצא מוקדם יותר," הוא אומר לעתים קרובות. השאיפה שלו מעסיקה אותו: בכל סוף שבוע הוא עורך סרטונים קצרים על השכנים שלו.',
           questionEn: 'What does Noam do every weekend?',
           questionHe: 'מה נועם עושה בכל סוף שבוע?',
-          correct: 'He edits short videos about his neighbours.',
+          correct: 'He edits short videos about his neighbors.',
           wrong: ['He travels to the film school by bus.', 'He works in a cinema in the Negev.'],
         },
         tiers: {
@@ -546,7 +546,7 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
               questionHe: '',
               correct: 'They saw that waiting was risky.',
               wrong: [
-                'A neighbour offered them a discount.',
+                'A neighbor offered them a discount.',
                 'They wanted to sell the house soon.',
                 'The extension cords were too short.',
               ],
@@ -772,9 +772,9 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'Mum has no time to cook. She orders dinner from a restaurant. Dinner arrives at the door.',
+                'Mom has no time to cook. She orders dinner from a restaurant. Dinner arrives at the door.',
               passageHe: 'לאמא אין זמן לבשל. היא מזמינה ארוחת ערב ממסעדה. הארוחה מגיעה עד הדלת.',
-              questionEn: 'Why does Mum order dinner?',
+              questionEn: 'Why does Mom order dinner?',
               questionHe: 'למה אמא מזמינה ארוחת ערב?',
               correct: 'She has no time to cook.',
               wrong: ['She loves washing dishes.'],

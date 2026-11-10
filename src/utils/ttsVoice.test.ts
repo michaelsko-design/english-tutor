@@ -54,7 +54,7 @@ describe('pickVoice', () => {
     expect(pickVoice(voices, 'other' as never)?.name).toContain('Zira');
   });
 
-  it('recognises Android Google TTS voices by their code', () => {
+  it('recognizes Android Google TTS voices by their code', () => {
     const list = [v('en-us-x-sfg-local'), v('en-us-x-iom-local'), v('en-us-x-tpc-network')];
     expect(pickVoice(list, 'male')?.name).toBe('en-us-x-iom-local');
     expect(pickVoice(list, 'female')?.name).not.toBe('en-us-x-iom-local');

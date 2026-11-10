@@ -30,7 +30,7 @@ export const GRADE_12_LESSONS: LessonPack = {
       'consequently ו-therefore מציגים תוצאה. כשהם מחברים שני משפטים שלמים, שמים לפניהם נקודה-פסיק (;) ואחריהם פסיק.',
     pattern: 'clause; therefore, clause.',
     examples: [
-      { en: 'The team practised daily; consequently, they won the cup.', he: 'הקבוצה התאמנה כל יום; כתוצאה מכך, היא זכתה בגביע.', highlight: 'consequently,' },
+      { en: 'The team practiced daily; consequently, they won the cup.', he: 'הקבוצה התאמנה כל יום; כתוצאה מכך, היא זכתה בגביע.', highlight: 'consequently,' },
       { en: 'It snowed heavily. Therefore, schools closed.', he: 'ירד שלג כבד. לכן בתי הספר נסגרו.', highlight: 'Therefore,' },
       { en: 'Prices rose; as a result, sales fell.', he: 'המחירים עלו; כתוצאה מכך, המכירות ירדו.', highlight: 'as a result,' },
     ],

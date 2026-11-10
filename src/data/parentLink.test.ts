@@ -31,7 +31,7 @@ describe('parent code', () => {
     expect(isParentCode(code)).toBe(true);
   });
 
-  it('skips random bytes that would favour some letters', () => {
+  it('skips random bytes that would favor some letters', () => {
     const limit = 256 - (256 % PARENT_CODE_ALPHABET.length);
     const bytes = [limit, 255, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
     const code = generateParentCode(() => Uint8Array.from(bytes));

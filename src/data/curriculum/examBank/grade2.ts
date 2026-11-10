@@ -116,8 +116,8 @@ export const GRADE_2_EXAM_BANK: ExamBankPack = {
             wrong: ['A cat.', 'A bat.'],
           },
           {
-            questionEn: 'What color is the hat?',
-            questionHe: 'באיזה צבע הכובע?',
+            questionEn: "What color is the doll's hat?",
+            questionHe: 'באיזה צבע הכובע של הבובה?',
             correct: 'Pink.',
             wrong: ['Blue.', 'Green.'],
           },

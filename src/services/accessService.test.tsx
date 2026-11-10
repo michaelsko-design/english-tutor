@@ -22,7 +22,7 @@ describe('access code helpers', () => {
     expect(isCompleteAccessCode('ABCDEFGH2')).toBe(false);
   });
 
-  it('recognises only Firestore permission-denied as "not invited yet"', () => {
+  it('recognizes only Firestore permission-denied as "not invited yet"', () => {
     expect(isAccessDeniedError({ code: 'permission-denied' })).toBe(true);
     expect(isAccessDeniedError({ code: 'unavailable' })).toBe(false);
     expect(isAccessDeniedError(new Error('offline'))).toBe(false);

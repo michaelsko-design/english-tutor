@@ -46,7 +46,7 @@ describe('WordListSessionRunner', () => {
     );
   });
 
-  it('practises the whole list and saves the result', async () => {
+  it('practices the whole list and saves the result', async () => {
     const user = userEvent.setup();
     const { onFinish } = renderSession();
 

@@ -27,9 +27,9 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         ['pet', 'noun', 'חיית מחמד', '🐾', 'My pet is a little white cat.', 'חיית המחמד שלי היא חתולה לבנה קטנה.'],
         ['soft', 'adjective', 'רך', '🧸', 'My teddy bear is very soft.', 'הדובי שלי רך מאוד.'],
         ['fun', 'noun', 'כיף', '🎉', 'Swimming is fun!', 'לשחות זה כיף!'],
-        ['yes', 'adverb', 'כן', '✅', 'Yes, I do. I like dogs.', 'כן. אני אוהב/ת כלבים.'],
-        ['no', 'adverb', 'לא', '❌', 'No, I don\'t. I like cats.', 'לא. אני אוהב/ת חתולים.'],
-        ['film star', 'noun', 'כוכב קולנוע', '🌟', 'My mom likes this film star.', 'אמא שלי אוהבת את כוכב הקולנוע הזה.'],
+        ['yes', 'adverb', 'כן', '👍', 'Yes, I do. I like dogs.', 'כן. אני אוהב/ת כלבים.'],
+        ['no', 'adverb', 'לא', '🙅', 'No, I don\'t. I like cats.', 'לא. אני אוהב/ת חתולים.'],
+        ['film star', 'noun', 'כוכב קולנוע', '🎞️', 'My mom likes this film star.', 'אמא שלי אוהבת את כוכב הקולנוע הזה.'],
       ],
       seed: {
         wrongWords: [
@@ -121,10 +121,10 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
       sentenceHe: 'יש לכם כדור בבית?',
       vocab: [
         ['net', 'noun', 'רשת', '🥅', 'The ball is in the net!', 'הכדור ברשת!'],
-        ['both', 'pronoun', 'שניהם / שנינו', '👫', 'We both have a red bike.', 'לשנינו יש אופניים אדומים.'],
+        ['both', 'pronoun', 'שניהם / שנינו', '👯', 'We both have a red bike.', 'לשנינו יש אופניים אדומים.'],
         ['cut', 'verb', 'לגזור / לחתוך', '✂️', 'I cut the paper with scissors.', 'אני גוזר/ת את הנייר במספריים.'],
-        ['at home', 'phrase', 'בבית', '🏠', 'I have a cat at home.', 'יש לי חתול בבית.'],
-        ['today', 'adverb', 'היום', '🗓️', 'Do you have English today?', 'יש לכם אנגלית היום?'],
+        ['at home', 'phrase', 'בבית', '🫖', 'I have a cat at home.', 'יש לי חתול בבית.'],
+        ['today', 'adverb', 'היום', '📆', 'Do you have English today?', 'יש לכם אנגלית היום?'],
         ['hot', 'adjective', 'חם', '🔥', 'The soup is very hot.', 'המרק חם מאוד.'],
       ],
       seed: {
@@ -217,12 +217,12 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
       sentenceEn: 'Do you know my best friend?',
       sentenceHe: 'אתם מכירים את החבר הכי טוב שלי?',
       vocab: [
-        ['know', 'verb', 'לדעת / להכיר', '🤔', 'Do you know my teacher?', 'אתם מכירים את המורה שלי?'],
-        ['color', 'noun', 'צבע', '🎨', 'What color is your bag?', 'באיזה צבע התיק שלך?'],
+        ['know', 'verb', 'לדעת / להכיר', '🤓', 'Do you know my teacher?', 'אתם מכירים את המורה שלי?'],
+        ['color', 'noun', 'צבע', '🟧', 'What color is your bag?', 'באיזה צבע התיק שלך?'],
         ['best', 'adjective', 'הכי טוב', '🏆', 'Ron is my best friend.', 'רון הוא החבר הכי טוב שלי.'],
-        ['fan', 'noun', 'אוהד / מעריץ', '📣', 'My dad is a big fan of football.', 'אבא שלי אוהד גדול של כדורגל.'],
-        ['end', 'noun', 'סוף', '🏁', 'This is the end of the game.', 'זה סוף המשחק.'],
-        ['from', 'preposition', 'מ...', '🇮🇱', 'I am from Israel.', 'אני מישראל.'],
+        ['fan', 'noun', 'אוהד / מעריץ', '🎽', 'My dad is a big fan of football.', 'אבא שלי אוהד גדול של כדורגל.'],
+        ['end', 'noun', 'סוף', '🔚', 'This is the end of the game.', 'זה סוף המשחק.'],
+        ['from', 'preposition', 'מ...', '🛫', 'I am from Israel.', 'אני מישראל.'],
       ],
       seed: {
         wrongWords: [

@@ -82,7 +82,7 @@ describe('ExamPrepPlanView', () => {
     expect(screen.getByText('אחרי התרגולים')).toBeInTheDocument();
   });
 
-  it('lets a finished day be practised again, showing its score', async () => {
+  it('lets a finished day be practiced again, showing its score', async () => {
     const plan = makePlan(4);
     const days = plan.days.map((d, i) => (i === 0 ? { ...d, completedAt: '2026-11-05T10:00:00.000Z', scorePercent: 80 } : d));
     const user = setup({ ...plan, days });

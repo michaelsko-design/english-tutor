@@ -551,13 +551,13 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               },
               story: {
                 passageEn: 
-                  'Grandfather refused to use a smartphone for years. He said that a paper map and a telephone were enough. Last winter, however, he got lost on the way to a clinic, and his neighbour helped him install a navigation app. Now he still prefers books to screens, although he checks the weather on his phone every morning with a proud smile.',
+                  'Grandfather refused to use a smartphone for years. He said that a paper map and a telephone were enough. Last winter, however, he got lost on the way to a clinic, and his neighbor helped him install a navigation app. Now he still prefers books to screens, although he checks the weather on his phone every morning with a proud smile.',
                 passageHe: '',
                 questionEn: 'Why did Grandfather start using a phone app?',
                 questionHe: '',
                 correct: 'Getting lost showed him a useful side of phones.',
                 wrong: [
-                  'His neighbour paid him to use one.',
+                  'His neighbor paid him to use one.',
                   'He decided that books are boring.',
                   'The doctor at the clinic forced him to buy a new phone.',
                 ],
@@ -610,7 +610,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
             correct: 'Modern laboratories in every high school.',
             wrong: [
               'Banning all computer usage in exams.',
-              'Cancelling foreign language classes.',
+              'Canceling foreign language classes.',
             ],
           },
           tiers: {
@@ -662,7 +662,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               },
               story: {
                 passageEn: 
-                  'Before the final round, Maya felt nervous because the other team had more experience. Her coach did not tell her to relax. Instead, he asked her to imagine the worst question the judges could ask, and to prepare one calm answer for it. When the round began, Maya recognised the first question at once and spoke clearly. The judges nodded and wrote notes.',
+                  'Before the final round, Maya felt nervous because the other team had more experience. Her coach did not tell her to relax. Instead, he asked her to imagine the worst question the judges could ask, and to prepare one calm answer for it. When the round began, Maya recognized the first question at once and spoke clearly. The judges nodded and wrote notes.',
                 passageHe: '',
                 questionEn: 'Why did the coach ask Maya to imagine the worst question?',
                 questionHe: '',
@@ -887,7 +887,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               },
               story: {
                 passageEn: 
-                  'For centuries, scribes copied books by hand, so only rich families could afford them. Then, in the fifteenth century, movable metal letters were used to print pages quickly. Within fifty years, millions of books were produced across Europe. Ordinary people began to learn to read, and new ideas travelled faster than ever before.',
+                  'For centuries, scribes copied books by hand, so only rich families could afford them. Then, in the fifteenth century, movable metal letters were used to print pages quickly. Within fifty years, millions of books were produced across Europe. Ordinary people began to learn to read, and new ideas traveled faster than ever before.',
                 passageHe: '',
                 questionEn: 'What was the most important result of the new printing method?',
                 questionHe: '',
@@ -973,7 +973,7 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
                 ['deadline', 'subscription'],
                 ['disaster', 'landscape'],
                 ['battle', 'election'],
-                ['rumour', 'profit'],
+                ['rumor', 'profit'],
               ],
             },
             master: {
@@ -1115,14 +1115,14 @@ export const grade9Curriculum = buildMiddleSchoolGrade('grade-9', [
               },
               story: {
                 passageEn: 
-                  'When Hana was twelve, her village had no library. She collected old books that her neighbours no longer needed and kept them in a spare room. Soon children who had never enjoyed reading came every afternoon. Today the room has three hundred books, and Hana, who is now a teacher, says that one small idea can change a whole community.',
+                  'When Hana was twelve, her village had no library. She collected old books that her neighbors no longer needed and kept them in a spare room. Soon children who had never enjoyed reading came every afternoon. Today the room has three hundred books, and Hana, who is now a teacher, says that one small idea can change a whole community.',
                 passageHe: '',
                 questionEn: 'What does the story suggest about Hana?',
                 questionHe: '',
                 correct: 'Her small action made a lasting difference.',
                 wrong: [
                   'She was paid by the village to open a library.',
-                  'Her neighbours disliked the old books.',
+                  'Her neighbors disliked the old books.',
                   'She stopped reading when she grew up.',
                 ],
               },

@@ -81,7 +81,7 @@ describe('getRegionFrames', () => {
     expect(height).toBeCloseTo(MAP_BANNER_HEIGHT / 2 + 6);
   });
 
-  it('centres each banner on the top edge of its region, covering the join', () => {
+  it('centers each banner on the top edge of its region, covering the join', () => {
     const { frames } = getRegionFrames(2, 2);
 
     expect(frames[0].bannerTop).toBe(0);

@@ -198,13 +198,13 @@ const UNIT_SEASON2_1: HighSchoolUnitSpec = {
         shortSentenceHe: 'היא נהגת זהירה.',
         rule: {
           questionEn: 'Which sentence connects a PRESENT trait to a PAST result?',
-          correct: 'If Lior were more organised, he would have finished the project yesterday.',
+          correct: 'If Lior were more organized, he would have finished the project yesterday.',
           wrong: [
-            'If Lior had been more organised, he would finish the project tomorrow.',
-            'If Lior is more organised, he will finish the project yesterday.',
+            'If Lior had been more organized, he would finish the project tomorrow.',
+            'If Lior is more organized, he will finish the project yesterday.',
           ],
           explainHe:
-            'תכונה קבועה בהווה מופיעה ב-Past Simple (were more organised), והתוצאה שכבר הייתה אמורה לקרות מופיעה ב-would have + V3.',
+            'תכונה קבועה בהווה מופיעה ב-Past Simple (were more organized), והתוצאה שכבר הייתה אמורה לקרות מופיעה ב-would have + V3.',
           hintHe: 'התכונה של ליאור נכונה גם היום, והפרויקט היה אמור להסתיים בעבר. התאימו את הזמן של כל חלק.',
         },
         story: {
@@ -407,7 +407,7 @@ const UNIT_SEASON2_1: HighSchoolUnitSpec = {
               questionHe: '',
               correct: 'It led to opportunities more valuable than the audition.',
               wrong: [
-                'She enjoys travelling by taxi more than by bus.',
+                'She enjoys traveling by taxi more than by bus.',
                 'She believes auditions are not important at all.',
                 'She passed the audition thanks to the stranger.',
               ],
@@ -422,7 +422,7 @@ const UNIT_SEASON2_1: HighSchoolUnitSpec = {
 
 const UNIT_SEASON2_2: HighSchoolUnitSpec = {
   ...packUnitNumbers('season2-2'),
-  titleEn: 'Paraphrasing & Summarising for the Bagrut',
+  titleEn: 'Paraphrasing & Summarizing for the Bagrut',
   titleHe: 'ניסוח מחדש וסיכום לבגרות',
   subtitleHe: 'עונה 2: לומר את אותו רעיון במילים אחרות, לזהות עיקר וטפל ולכתוב סיכום קצר',
   badgeEmoji: '📝',
@@ -459,7 +459,7 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
           'adjective',
           'שווה ערך / מקביל',
           '⚖️',
-          'One kilometre is equivalent to a thousand metres.',
+          'One kilometer is equivalent to a thousand meters.',
           'קילומטר אחד שווה ערך לאלף מטרים.',
         ],
         [
@@ -488,10 +488,10 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
         },
         story: {
           passageEn:
-            'In the Bagrut reading section, many students choose answers that repeat words from the passage. However, examiners often write the correct answer as a paraphrase. For example, if the text says that a city "grew rapidly", the right answer may say that it "expanded quickly". Students who learn synonyms can recognise these hidden answers much more easily.',
+            'In the Bagrut reading section, many students choose answers that repeat words from the passage. However, examiners often write the correct answer as a paraphrase. For example, if the text says that a city "grew rapidly", the right answer may say that it "expanded quickly". Students who learn synonyms can recognize these hidden answers much more easily.',
           passageHe:
             'בחלק הקריאה של הבגרות, תלמידים רבים בוחרים תשובות שחוזרות על מילים מהקטע. עם זאת, הבוחנים כותבים לעתים קרובות את התשובה הנכונה כפרפרזה. לדוגמה, אם בטקסט כתוב שעיר ״גדלה במהירות״, התשובה הנכונה עשויה לומר שהיא ״התרחבה מהר״. תלמידים שלומדים מילים נרדפות יכולים לזהות את התשובות המוסתרות האלה בקלות רבה יותר.',
-          questionEn: 'Who can recognise the hidden answers more easily?',
+          questionEn: 'Who can recognize the hidden answers more easily?',
           questionHe: 'מי יכולים לזהות את התשובות המוסתרות בקלות רבה יותר?',
           correct: 'Students who learn synonyms.',
           wrong: ['Students who copy words from the passage.', 'Students who read the questions first.'],
@@ -546,7 +546,7 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'In the Bagrut reading section, Eyal found the sentence: rapid urbanisation has placed enormous pressure on public services. One answer option said that fast growth of cities has made it hard for public services to cope. Another repeated the words rapid urbanisation and added that cities are always beautiful. Eyal chose the first, even though it shared almost no words with the original, and his teacher later confirmed that he was right.',
+                'In the Bagrut reading section, Eyal found the sentence: rapid urbanization has placed enormous pressure on public services. One answer option said that fast growth of cities has made it hard for public services to cope. Another repeated the words rapid urbanization and added that cities are always beautiful. Eyal chose the first, even though it shared almost no words with the original, and his teacher later confirmed that he was right.',
               passageHe: '',
               questionEn: 'Why did Eyal choose the first option?',
               questionHe: '',
@@ -564,12 +564,12 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
     },
     {
       icon: '📋',
-      titleEn: 'Main Idea or Detail? Summarising',
+      titleEn: 'Main Idea or Detail? Summarizing',
       titleHe: 'עיקר או טפל? סיכום',
       storyHookHe:
         'סיכום טוב שומר רק על הרעיונות המרכזיים, בלי דוגמאות, מספרים וחזרות. נלמד להפריד בין עיקר לטפל ולהשתמש בביטויים כמו The passage mainly discusses… ו-In short.',
-      grammarTopic: 'Summarising: main ideas vs. supporting details',
-      skills: ['Summarising', 'Main Idea', 'Module G Strategies'],
+      grammarTopic: 'Summarizing: main ideas vs. supporting details',
+      skills: ['Summarizing', 'Main Idea', 'Module G Strategies'],
       sentenceEn: 'In short, the article argues that green roofs make cities cooler and healthier.',
       sentenceHe: 'בקיצור, המאמר טוען שגגות ירוקים הופכים ערים לקרירות ולבריאות יותר.',
       vocab: [
@@ -639,7 +639,7 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
             rule: {
               questionEn: 'Which sentence is the main idea?',
               correct: 'Exercise keeps the body and mind healthy.',
-              wrong: ['Dan ran five kilometres on Tuesday.'],
+              wrong: ['Dan ran five kilometers on Tuesday.'],
               explainHe: 'הרעיון המרכזי הוא כללי וחשוב. פרט כמו מי רץ וכמה הוא רק דוגמה.',
               hintHe: 'איזה משפט כללי ואיזה פרט צדדי?',
             },
@@ -704,7 +704,7 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
       titleHe: 'בוס: גמר העונה — אתגר הסיכום לבגרות',
       storyHookHe:
         'גמר עונה 2 והפרידה מהתיכון! עליכם לקרוא קטע Unseen מלא, לזהות את הפרפרזה הנכונה, להשמיט את הטפל ולבחור את הסיכום המדויק ביותר. בהצלחה בבגרות!',
-      grammarTopic: 'Paraphrasing & Summarising Synthesis: Season Finale',
+      grammarTopic: 'Paraphrasing & Summarizing Synthesis: Season Finale',
       skills: ['Paraphrase Mastery', 'Summary Writing', 'Bagrut Unseen'],
       sentenceEn: 'A coherent summary conveys the gist of the text without copying it word for word.',
       sentenceHe: 'סיכום קוהרנטי מעביר את תמצית הטקסט בלי להעתיק אותו מילה במילה.',
@@ -774,7 +774,7 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
           explorer: {
             rule: {
               questionEn: 'Which sentence is the best summary of a story about a lost dog?',
-              correct: 'A boy finds his lost dog with the help of neighbours.',
+              correct: 'A boy finds his lost dog with the help of neighbors.',
               wrong: ['The dog was brown and had a red collar.'],
               explainHe: 'סיכום טוב מציג את העלילה המרכזית. תיאור של צבע ורצועה הוא פרט משני.',
               hintHe: 'סיכום מספר מה קרה בגדול.',
@@ -817,7 +817,7 @@ const UNIT_SEASON2_2: HighSchoolUnitSpec = {
             },
             story: {
               passageEn: 
-                'The final exam question asked students to summarise a passage about a school garden in two sentences. Most students copied the first two sentences of the passage, which described the soil and the size of the garden. Shira read the whole text, noticed that the last paragraph explained how the garden taught pupils responsibility and reduced waste in the canteen, and wrote that as her summary. The examiner later told the class that the first sentences had been only background.',
+                'The final exam question asked students to summarize a passage about a school garden in two sentences. Most students copied the first two sentences of the passage, which described the soil and the size of the garden. Shira read the whole text, noticed that the last paragraph explained how the garden taught pupils responsibility and reduced waste in the canteen, and wrote that as her summary. The examiner later told the class that the first sentences had been only background.',
               passageHe: '',
               questionEn: 'Why did the summary of Shira earn higher marks?',
               questionHe: '',

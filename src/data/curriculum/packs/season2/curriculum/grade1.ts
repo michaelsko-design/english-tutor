@@ -106,7 +106,7 @@ const UNIT_SEASON2_1: ElementaryUnitSpec = {
       grammarTopic: 'What do you see? & I see a...',
       skills: ['Questions', 'I see a...', 'Little Animals'],
       sentenceEn: 'What do you see? I see a butterfly.',
-      sentenceHe: 'מה את/ה רואה? אני רואה פרפר.',
+      sentenceHe: 'מה אתם רואים? אני רואה פרפר.',
       vocab: [
         ['butterfly', 'noun', 'פרפר', '🦋', 'The butterfly is on a flower.', 'הפרפר על פרח.'],
         ['caterpillar', 'noun', 'זחל', '🐛', 'The caterpillar eats a leaf.', 'הזחל אוכל עלה.'],

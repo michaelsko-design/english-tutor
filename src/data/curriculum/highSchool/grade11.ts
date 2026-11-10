@@ -196,8 +196,8 @@ const units: HighSchoolUnitSpec[] = [
             explorer: {
               rule: {
                 questionEn: 'Which sentence is correct?',
-                correct: 'Due to the rain, the match was cancelled.',
-                wrong: ['Due to it rained, the match was cancelled.'],
+                correct: 'Due to the rain, the match was canceled.',
+                wrong: ['Due to it rained, the match was canceled.'],
                 explainHe: 'אחרי Due to בא שם עצם (the rain), ולא משפט שלם עם נושא ופועל.',
                 hintHe: 'כדאי לבדוק: מה בא אחרי Due to, שם עצם או משפט שלם?',
               },
@@ -498,7 +498,7 @@ const units: HighSchoolUnitSpec[] = [
               },
               story: {
                 passageEn: 
-                  'The town council argued for weeks about a vacant lot. Mr Cohen, a retired teacher, wanted a library, noting that half the children in his neighbourhood had no quiet place to study. The coach of the youth team disagreed. In his view, teenagers needed a gym to release energy, and books could wait. A student named Lior finally proposed a building that offered both, with a reading room above the courts. Both men, surprisingly, nodded.',
+                  'The town council argued for weeks about a vacant lot. Mr Cohen, a retired teacher, wanted a library, noting that half the children in his neighborhood had no quiet place to study. The coach of the youth team disagreed. In his view, teenagers needed a gym to release energy, and books could wait. A student named Lior finally proposed a building that offered both, with a reading room above the courts. Both men, surprisingly, nodded.',
                 passageHe: '',
                 questionEn: 'Why did both men nod at Lior\'s idea?',
                 questionHe: '',
@@ -621,14 +621,14 @@ const units: HighSchoolUnitSpec[] = [
               },
               story: {
                 passageEn: 
-                  'Two memoirs describe growing up in the same city during the nineties. The first, written by a banker, remembers crowded markets and a sense of endless opportunity. The second, by a nurse, recalls long power cuts and her mother working two jobs. Readers often assume the authors are describing different places. In fact, both books mention the same street, and each author stresses how much the neighbours helped one another. Perhaps the contrast says more about the writers than about the city.',
+                  'Two memoirs describe growing up in the same city during the nineties. The first, written by a banker, remembers crowded markets and a sense of endless opportunity. The second, by a nurse, recalls long power cuts and her mother working two jobs. Readers often assume the authors are describing different places. In fact, both books mention the same street, and each author stresses how much the neighbors helped one another. Perhaps the contrast says more about the writers than about the city.',
                 passageHe: '',
                 questionEn: 'What can be inferred from the differences between the memoirs?',
                 questionHe: '',
                 correct: 'Background influences how a place is remembered.',
                 wrong: [
                   'The authors lived in completely different cities.',
-                  'The neighbours disliked helping each other.',
+                  'The neighbors disliked helping each other.',
                   'The banker made up his whole story.',
                 ],
               },
@@ -703,8 +703,8 @@ const units: HighSchoolUnitSpec[] = [
             explorer: {
               rule: {
                 questionEn: 'Which sentence is correct?',
-                correct: 'Because of the storm, the trip was cancelled.',
-                wrong: ['Because of the storm was strong, the trip was cancelled.'],
+                correct: 'Because of the storm, the trip was canceled.',
+                wrong: ['Because of the storm was strong, the trip was canceled.'],
                 explainHe: 'אחרי Because of בא שם עצם (the storm), לא משפט עם פועל.',
                 hintHe: 'כדאי לבדוק מה בא אחרי Because of.',
               },
@@ -1002,7 +1002,7 @@ const units: HighSchoolUnitSpec[] = [
               },
               story: {
                 passageEn: 
-                  'Archaeologists found a bronze bowl beside the ancient road, but no tools for making it were nearby. The clay beneath the bowl came from a region three hundred kilometres away. Scholars noticed that the bowl\'s decoration matched jewellery from distant ports. A few experts suggested that local craftsmen had simply invented the style. However, the shape of the handles was unknown in the area before that century. The debate continues.',
+                  'Archaeologists found a bronze bowl beside the ancient road, but no tools for making it were nearby. The clay beneath the bowl came from a region three hundred kilometers away. Scholars noticed that the bowl\'s decoration matched jewelry from distant ports. A few experts suggested that local craftsmen had simply invented the style. However, the shape of the handles was unknown in the area before that century. The debate continues.',
                 passageHe: '',
                 questionEn: 'What do the clay and the decoration most strongly suggest?',
                 questionHe: '',
@@ -1388,7 +1388,7 @@ const units: HighSchoolUnitSpec[] = [
               },
               story: {
                 passageEn: 
-                  'A city council published a chart showing that bicycle use had doubled since the opening of protected bike lanes, while car traffic in the centre dropped by only five percent. Supporters celebrated the result. A transport analyst, however, warned that the chart said nothing about why the drivers stayed: many commuters from distant suburbs had no safe alternative. She suggested that new bus routes might reveal a bigger change than lanes alone. The council promised to study the question.',
+                  'A city council published a chart showing that bicycle use had doubled since the opening of protected bike lanes, while car traffic in the center dropped by only five percent. Supporters celebrated the result. A transport analyst, however, warned that the chart said nothing about why the drivers stayed: many commuters from distant suburbs had no safe alternative. She suggested that new bus routes might reveal a bigger change than lanes alone. The council promised to study the question.',
                 passageHe: '',
                 questionEn: 'What is the analyst\'s main point?',
                 questionHe: '',
@@ -1497,7 +1497,7 @@ const units: HighSchoolUnitSpec[] = [
             },
             master: {
               sentenceEn: 
-                'Students who practise speaking daily become more confident and flexible in unfamiliar situations.',
+                'Students who practice speaking daily become more confident and flexible in unfamiliar situations.',
               sentenceHe: 'תלמידים שמתרגלים דיבור מדי יום נעשים בטוחים וגמישים יותר במצבים לא מוכרים.',
               decoys: ['confidence', 'flexibly'],
               voiceEn: 'Learning languages keeps the mind active.',

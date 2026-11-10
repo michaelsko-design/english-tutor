@@ -24,7 +24,7 @@ afterEach(() => {
 });
 
 describe('ProPaymentReturn', () => {
-  it('tells the parent a cancelled payment charged nothing, and can be dismissed', async () => {
+  it('tells the parent a canceled payment charged nothing, and can be dismissed', async () => {
     const user = userEvent.setup();
     const { onDismiss } = renderReturn({ isCancelled: true });
 

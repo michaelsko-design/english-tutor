@@ -301,7 +301,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
                 correct: 'Two activities are at the same time.',
                 wrong: [
                   'She is tired of playing chess.',
-                  'The swimming lesson is cancelled.',
+                  'The swimming lesson is canceled.',
                   'Thursday is a holiday and school is closed.',
                 ],
               },
@@ -711,7 +711,7 @@ export const grade6Curriculum = buildElementaryGrade('grade-6', [
               },
               story: {
                 passageEn: 
-                  'Last weekend Eli and his friends were at the beach. The morning was sunny, but at noon the sky became grey and the wind was strong. Nobody swam. They sat under a big umbrella and ate sandwiches. In the evening Eli said it was still a great day.',
+                  'Last weekend Eli and his friends were at the beach. The morning was sunny, but at noon the sky became gray and the wind was strong. Nobody swam. They sat under a big umbrella and ate sandwiches. In the evening Eli said it was still a great day.',
                 passageHe: '',
                 questionEn: 'Why did nobody swim at noon?',
                 questionHe: '',

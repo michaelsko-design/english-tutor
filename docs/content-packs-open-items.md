@@ -11,7 +11,17 @@ Everything below is written and passes the tests (4,142), typecheck and build. N
 - [ ] **Name core-3.** The pack card now reads "עונה 3: פרק 1" / "Season 3: Chapter 1". Keep it or rename it.
 - [ ] **Lint.** `npm run lint` fails with 7 old errors in `scripts/review/auditAllHebrew.ts`, which is unrelated to this work. Fix them or leave them.
 
-## 2. Pictures to approve (paid, 3×3 batch sheets)
+## Owner review applied (2026-11-10)
+- "How old are you?" → "בן כמה אתה?"; "say it again please" → "אפשר לחזור על זה בבקשה?"; "דנה היא רצה מהירה"; "אל תיכוו"; "הגשנו לעצמנו"; "…עושים ידנית"; quit → "לעזוב (עבודה) / להפסיק / לפרוש".
+- **"You" slash forms → plural everywhere** (core-3, Season 2, base grades 7–8, voice messages): no "את/ה", "תוכל/י", "בוא/י" left in `src/data`.
+- **US spelling everywhere** (color, neighbor, center, practice, canceled, organize…): 253 changes in learner-facing strings; ids, keys and code names untouched. The Ministry lists are US-spelled, so coverage matching improves. 218 English clips re-rendered.
+- [x] First-person slash forms ("אני אוהב/ת") stay as they are (owner, 2026-11-10).
+
+## 2. Pictures (paid, 3×3 batch sheets): 10 sheets drawn 2026-11-10 (sheets 52–61), wired in
+All 90 are in `public/art/icons` and mapped in `iconArt.ts`. **Redraw candidates (one more sheet, needs approval):** lost, keep, thirsty, full, fill (drawn on a coloured tile), once, don't forget (coloured circle behind), nationality (the passport shows the word "PASSPORT").
+Each word now has its own emoji key (pictures are looked up by emoji). 90 pictures: the 57 required (minus "across", which keeps its bridge picture), 23 optional grades 7–12 (croissant already had one), and 10 core-3 deck words (noise, ground, keep, bottle, thirsty, full, yogurt, jam, grill, fill). Other grade 4–6 deck words without a fitting picture: fat, brown, Do you mind?, would like, anything else, half-price, order, extra, cover, add, lovely, pleasant.
+
+The original list:
 Grades 2–6 need a drawn icon for every word. For now, core-3 reuses existing pictures, so these words show a stand-in.
 - **Grade 2 (12):** ask, glad, say it again please, in a minute, it doesn't matter, hit, lost, come back, how are you, fine, I'm ready, wait for
 - **Grade 3 (10):** film star, yes, no, both, at home, today, know, color, fan, end, from
@@ -106,6 +116,17 @@ That is **57 words = 7 sheets of 9** (6 slots spare).
   - whatever → "מה ש… / לא משנה מה"
   - except that → "אלא ש… / חוץ מזה ש…"
 - **Future continuous:** Hebrew has no such tense, so sentences like "This time next year, we will be working…" → "…אנחנו נעבוד בחווה" use the simple future.
+
+### core-3 decks (grades 4–12, 180 words)
+- g4: keep → "לגדל (חיה); לשמור"; ground → "קרקע; אדמה"
+- g5: "Do you mind?" → "אכפת לכם?" ("אכפת לכם שאשב כאן?"); would like → "הייתי רוצה (בנימוס)"; sandwich → "כריך; סנדוויץ׳"; full → "שבע (אחרי אוכל); מלא"
+- g6: grill → "לצלות על האש"; pour → "למזוג; לשפוך"; biscuit → "עוגייה; ביסקוויט"
+- g7: sight → "אתר תיירות; מראה"; I'm afraid → "לצערי (בנימוס)"; tram → "רכבת קלה"; explore example is a loose rendering
+- g8: route → "דרך; מסלול" (example repeats "דרך"); century → "מאה (מאה שנים)"; dates to confirm: 1948, 1979 peace treaty, 1949 election, Columbus 1492, Second Temple 70 CE, Western Wall ~2,000 years
+- g9: can afford → "להרשות לעצמו (מבחינת כסף)"; hire → "לקבל לעבודה; לשכור"; shop assistant → "מוכר בחנות"; sale → "מכירה; מבצע"
+- g10: estate → "אחוזה; נכסים" (example says real estate → נדל״ן); qualify → "לקבל הסמכה; להיות זכאי"; entitle; campaign → "קמפיין; מסע (פרסום)"
+- g11: pass away → "להיפטר (למות)" (clashes with "להיפטר מ־"; maybe "הלך לעולמו"); look up to; eldest → "הבכור"; darling → "מותק; יקירי"; have a word → "לדבר רגע"
+- g12: by this time; increasingly → "במידה הולכת וגוברת"; newly → "זה עתה; לא מזמן"; simultaneously → "בו־זמנית"
 
 ### Review tools
 - **`npm run review:he-tiers`:** about 940 tier items are waiting for review, core-3 among them.

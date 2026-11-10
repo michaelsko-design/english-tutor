@@ -14,7 +14,7 @@ export const GRADE_1_DECKS: GradeDecks = [
     items: [
       { wordEn: 'My name is Dan.', translationHe: 'קוראים לי דן.', partOfSpeech: 'phrase', exampleEn: 'Hello! My name is Dan.', exampleHe: 'שלום! קוראים לי דן.', ministryList: 'pre-band-1', recProd: 'rec', emoji: '📛' },
       { wordEn: "What's your name?", translationHe: 'איך קוראים לך?', partOfSpeech: 'phrase', exampleEn: "Hello! What's your name?", exampleHe: 'שלום! איך קוראים לך?', ministryList: 'pre-band-1', recProd: 'prod', emoji: '🙋' },
-      { wordEn: 'How old are you?', translationHe: 'מה הגיל שלך?', partOfSpeech: 'phrase', exampleEn: 'How old are you? I am six.', exampleHe: 'מה הגיל שלך? אני בן שש.', ministryList: 'pre-band-1', recProd: 'prod', emoji: '🎂' },
+      { wordEn: 'How old are you?', translationHe: 'בן כמה אתה?', partOfSpeech: 'phrase', exampleEn: 'How old are you? I am six.', exampleHe: 'בן כמה אתה? אני בן שש.', ministryList: 'pre-band-1', recProd: 'prod', emoji: '🎂' },
       { wordEn: "I'm a girl.", translationHe: 'אני ילדה.', partOfSpeech: 'phrase', exampleEn: "I'm Mia. I'm a girl.", exampleHe: 'אני מיה. אני ילדה.', ministryList: 'pre-band-1', recProd: 'prod', emoji: '👧' },
       { wordEn: "I'm a boy.", translationHe: 'אני ילד.', partOfSpeech: 'phrase', exampleEn: "I'm Dan. I'm a boy.", exampleHe: 'אני דן. אני ילד.', ministryList: 'pre-band-1', recProd: 'prod', emoji: '👦' },
       { wordEn: 'Excuse me, please.', translationHe: 'סליחה, בבקשה.', partOfSpeech: 'phrase', exampleEn: 'Excuse me, please. I have a question.', exampleHe: 'סליחה, בבקשה. יש לי שאלה.', ministryList: 'pre-band-1', recProd: 'prod', emoji: '✋' },

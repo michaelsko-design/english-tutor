@@ -21,7 +21,7 @@ export const HOLIDAYS_GRADE_11_EXAM_BANK: ExamBankPack = {
         wrong: ['revolt', 'abundance'],
       },
       {
-        clozeEn: 'Street lamps and coloured lights ____ the old city at night.',
+        clozeEn: 'Street lamps and colored lights ____ the old city at night.',
         clozeHe: 'פנסי רחוב ואורות צבעוניים מאירים את העיר העתיקה בלילה.',
         answer: 'illuminate',
         wrong: ['reflection', 'reservoir'],
@@ -180,7 +180,7 @@ export const HOLIDAYS_GRADE_11_EXAM_BANK: ExamBankPack = {
         wrong: ['blossom', 'heritage'],
       },
       {
-        clozeEn: 'Our town held a short ____ to honour its first teachers.',
+        clozeEn: 'Our town held a short ____ to honor its first teachers.',
         clozeHe: 'העיירה שלנו ערכה טקס קצר לכבוד המורים הראשונים שלה.',
         answer: 'ceremony',
         wrong: ['sapling', 'unleavened'],

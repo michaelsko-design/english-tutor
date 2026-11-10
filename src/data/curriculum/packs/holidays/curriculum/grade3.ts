@@ -273,7 +273,7 @@ const UNIT_HOLIDAYS_AUTUMN: ElementaryUnitSpec = {
               hintEn: 'The sentence needs a be word after It.',
             },
             story: {
-              passageEn: 'Dan walks to school in the morning. He does not take his umbrella. At noon, big grey clouds cover the sky and the rain starts. Dan comes home with wet shoes and a wet coat. His mom gives him a warm towel and says next time, look at the sky.',
+              passageEn: 'Dan walks to school in the morning. He does not take his umbrella. At noon, big gray clouds cover the sky and the rain starts. Dan comes home with wet shoes and a wet coat. His mom gives him a warm towel and says next time, look at the sky.',
               passageHe: '',
               questionEn: 'Why is Dan wet?',
               questionHe: '',
@@ -300,8 +300,8 @@ const UNIT_HOLIDAYS_SPRING: ElementaryUnitSpec = {
       titleEn: 'Trees and Costumes',
       titleHe: 'עצים ותחפושות',
       storyHookHe: 'בט"ו בשבט שותלים עצים, ובפורים מתחפשים! איזו תחפושת יש לכם השנה?',
-      grammarTopic: 'Tu BiShvat & Purim Words, "I have" & colours',
-      skills: ['Holiday Words', 'I have', 'Colours'],
+      grammarTopic: 'Tu BiShvat & Purim Words, "I have" & colors',
+      skills: ['Holiday Words', 'I have', 'Colors'],
       sentenceEn: 'I have a purple costume and a gold crown.',
       sentenceHe: 'יש לי תחפושת סגולה וכתר זהב.',
       vocab: [

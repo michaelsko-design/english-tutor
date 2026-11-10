@@ -254,12 +254,12 @@ export const SEASON2_GRADE_12_EXAM_BANK: ExamBankPack = {
       { en: 'Numbers and examples are usually left out of a summary.', he: 'מספרים ודוגמאות בדרך כלל לא נכנסים לסיכום.' },
       { en: 'The first sentence of a paragraph often states its main idea.', he: 'המשפט הראשון של פסקה מציג לעתים קרובות את הרעיון המרכזי שלה.' },
       { en: 'Try to explain the article to a friend in one minute.', he: 'נסו להסביר את המאמר לחבר בתוך דקה אחת.' },
-      { en: 'Copying whole sentences is not the same as summarising.', he: 'העתקה של משפטים שלמים איננה סיכום.' },
+      { en: 'Copying whole sentences is not the same as summarizing.', he: 'העתקה של משפטים שלמים איננה סיכום.' },
     ],
     passages: [
       {
         passageEn:
-          'Many teachers say that summarising is one of the most useful skills for the Bagrut. To write a summary, students first read the text to understand its general message. Then they underline the main idea of every paragraph and ignore the examples. Finally, they rewrite these ideas in their own words. Students who practise this method often read faster and remember more.',
+          'Many teachers say that summarizing is one of the most useful skills for the Bagrut. To write a summary, students first read the text to understand its general message. Then they underline the main idea of every paragraph and ignore the examples. Finally, they rewrite these ideas in their own words. Students who practice this method often read faster and remember more.',
         passageHe:
           'מורים רבים אומרים שסיכום הוא אחת המיומנויות השימושיות ביותר לבגרות. כדי לכתוב סיכום, התלמידים קוראים קודם את הטקסט כדי להבין את המסר הכללי שלו. אחר כך הם מסמנים את הרעיון המרכזי של כל פסקה ומתעלמים מהדוגמאות. לבסוף הם כותבים את הרעיונות האלה מחדש במילים שלהם. תלמידים שמתרגלים את השיטה הזו קוראים לעתים קרובות מהר יותר וזוכרים יותר.',
         questions: [
@@ -276,7 +276,7 @@ export const SEASON2_GRADE_12_EXAM_BANK: ExamBankPack = {
             wrong: ['They ignore the main ideas.', 'They ignore the first paragraph.'],
           },
           {
-            questionEn: 'What happens to students who practise this method?',
+            questionEn: 'What happens to students who practice this method?',
             questionHe: 'מה קורה לתלמידים שמתרגלים את השיטה הזו?',
             correct: 'They often read faster and remember more.',
             wrong: ['They often write longer essays.', 'They stop reading the examples.'],
