@@ -3182,5 +3182,61 @@
     "emoji": "🚰",
     "subject": "a glass being filled with water from a tap",
     "sheet": 61
+  },
+  {
+    "id": "word-lost-2",
+    "emoji": "🫨",
+    "subject": "a small worried puppy standing alone and looking around, drawn alone with no path, tile or background",
+    "sheet": 62,
+    "replaces": "word-lost"
+  },
+  {
+    "id": "word-keep-2",
+    "emoji": "🪹",
+    "subject": "a child gently hugging a pet rabbit in their arms, drawn alone with no hutch, tile or background",
+    "sheet": 62,
+    "replaces": "word-keep"
+  },
+  {
+    "id": "word-thirsty-2",
+    "emoji": "🏜",
+    "subject": "a hot tired child holding an empty glass and wiping their forehead, drawn alone with no tile or background",
+    "sheet": 62,
+    "replaces": "word-thirsty"
+  },
+  {
+    "id": "word-full-2",
+    "emoji": "😮‍💨",
+    "subject": "a smiling child patting a round full tummy, drawn alone with no plate, tile or background",
+    "sheet": 62,
+    "replaces": "word-full"
+  },
+  {
+    "id": "word-fill-2",
+    "emoji": "🚰",
+    "subject": "a small jug pouring water into a half-full glass, drawn alone with no tile or background",
+    "sheet": 62,
+    "replaces": "word-fill"
+  },
+  {
+    "id": "word-once-2",
+    "emoji": "☝",
+    "subject": "a hand with one raised index finger, drawn alone with no circle or background",
+    "sheet": 62,
+    "replaces": "word-once"
+  },
+  {
+    "id": "word-dont-forget-2",
+    "emoji": "🎗",
+    "subject": "a hand with a red string tied in a bow around one finger, drawn alone with no circle or background",
+    "sheet": 62,
+    "replaces": "word-dont-forget"
+  },
+  {
+    "id": "word-nationality-2",
+    "emoji": "🛂",
+    "subject": "a closed blue passport booklet with a simple gold globe emblem on the cover and no words or letters, drawn alone",
+    "sheet": 62,
+    "replaces": "word-nationality"
   }
 ]

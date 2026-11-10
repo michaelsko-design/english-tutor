@@ -8,7 +8,7 @@ Everything below is written and passes the tests (4,142), typecheck and build. N
 - [x] **Deploy `firestore.rules`** (deployed 2026-11-10). The parent report snapshot now carries `deckWordMastery`.
 - [x] **Free or Pro:** decided 2026-11-10: every new pack is **Pro** by default (`DEFAULT_PACK_ACCESS`; a released entry needs `access: 'free'` to open it to everyone). Decks follow their pack's access.
 - [ ] **Look at it in the app.** Run `dev:packs` on desktop and phone. The Vault deck list and the deck session have only been tested in component tests, never seen live. `e2e/packs-core3.spec.ts` already plays core-3 in grades 2, 8 and 12.
-- [ ] **Name core-3.** The pack card now reads "עונה 3: פרק 1" / "Season 3: Chapter 1". Keep it or rename it.
+- [x] **Name core-3:** "עונה 3" / "Season 3" (owner, 2026-11-10).
 - [ ] **Lint.** `npm run lint` fails with 7 old errors in `scripts/review/auditAllHebrew.ts`, which is unrelated to this work. Fix them or leave them.
 
 ## Owner review applied (2026-11-10)
@@ -18,7 +18,7 @@ Everything below is written and passes the tests (4,142), typecheck and build. N
 - [x] First-person slash forms ("אני אוהב/ת") stay as they are (owner, 2026-11-10).
 
 ## 2. Pictures (paid, 3×3 batch sheets): 10 sheets drawn 2026-11-10 (sheets 52–61), wired in
-All 90 are in `public/art/icons` and mapped in `iconArt.ts`. **Redraw candidates (one more sheet, needs approval):** lost, keep, thirsty, full, fill (drawn on a coloured tile), once, don't forget (coloured circle behind), nationality (the passport shows the word "PASSPORT").
+All 90 are in `public/art/icons` and mapped in `iconArt.ts`. **Redraws approved 2026-11-10 (sheet 62, `-2` ids):** lost, keep, thirsty, full, fill (drawn on a coloured tile), once, don't forget (coloured circle behind), nationality (the passport shows the word "PASSPORT"). Drawn and wired in (the old pictures are deleted). The new passport still had "PASSPORT" on it, so the word was painted out by hand in `art-src/icons/word-nationality-2.png`: re-slicing sheet 62 brings it back, so don't re-run `process_art.py` on that icon from a fresh slice.
 Each word now has its own emoji key (pictures are looked up by emoji). 90 pictures: the 57 required (minus "across", which keeps its bridge picture), 23 optional grades 7–12 (croissant already had one), and 10 core-3 deck words (noise, ground, keep, bottle, thirsty, full, yogurt, jam, grill, fill). Other grade 4–6 deck words without a fitting picture: fat, brown, Do you mind?, would like, anything else, half-price, order, extra, cover, add, lovely, pleasant.
 
 The original list:
@@ -133,13 +133,14 @@ That is **57 words = 7 sheets of 9** (6 slots spare).
 - **`npm run tts:review:he`:** check the new Hebrew clips by ear (grade 1 deck and core-3 grade 2).
 
 ## 4. Facts in the texts to confirm
+The owner wants an independent agent to check all of core-3, facts included: the prompt is `docs/core-3-content-audit-prompt.md`, and its report goes to `docs/core-3-content-audit.md`.
 - Drip irrigation is used in more than 100 countries (grade 8).
 - The pill camera is made by a company in the north (grade 8).
 - Dates are grown mainly in the Jordan Valley (grade 8). The Arava grows them too.
 - Fleming, 1928: he came back from holiday and found mould that had killed bacteria, which led to penicillin (grade 11).
 - These general claims are fine as written: "Teachers who mark Bagrut essays often see the same problems" and "Experts say the gap year can be worthwhile".
 
-## 5. Content choices to confirm
+## 5. Content choices: all confirmed by the owner (2026-11-10)
 - **Grade 5 core-3 words taught a year early:** try, computer, study, problem, understand, difficult, different and parent are taught in a base grade 6 mission, and core-3 now teaches them a year earlier. The roadmap's word-choice rule 2 allows this. Keep them, or swap them for words that are never in the app.
 - **"would prefer" in grade 7** is kept, although base grade 7 teaches "prefer". It is a separate Ministry entry.
 - [x] **Spelling:** US everywhere (owner, 2026-11-10).

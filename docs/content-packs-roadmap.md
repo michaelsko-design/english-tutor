@@ -24,7 +24,7 @@ There are 162 missions. Every grade has mini-lessons and an exam bank. Grade 1 h
 | `season2-2` "עונה 2: פרק 2" | u22 | sequence, after `season2-1` | some/any (g5), superlatives (g6), too/enough (g7), reported statements (g9), present perfect continuous (g10), causative (g11) |
 | `holidays-autumn` "חגי הסתיו והחורף" | u31 | open, its own track | seasonal |
 | `holidays-spring` "חגי האביב והקיץ" | u32 | open, its own track | seasonal |
-| `core-3` "עונה 3: פרק 1" | u23 | sequence, after `season2-2`; grades 2–12 | conjunctions + because (g4), will (g5), adverbs of manner (g6), would like + reflexives (g7), present simple passive (g8), present continuous for the future + future continuous (g10), past perfect continuous (g11), sequencing in writing (g12); 6–8 Ministry words per mission |
+| `core-3` "עונה 3" | u23 | sequence, after `season2-2`; grades 2–12 | conjunctions + because (g4), will (g5), adverbs of manner (g6), would like + reflexives (g7), present simple passive (g8), present continuous for the future + future continuous (g10), past perfect continuous (g11), sequencing in writing (g12); 6–8 Ministry words per mission |
 
 - **Word decks:** 19 Season 2 decks (372 words) in `src/data/wordDecks/`, released with `season2-1` / `season2-2` (§8). `core-3` has no decks yet.
 - All four packs have lessons, exam banks, icons and tier questions. Their English clips are rendered, and the 12 Hebrew pack-card clips were rendered on 2026-11-06.

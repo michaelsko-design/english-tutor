@@ -32,8 +32,8 @@ export const CONTENT_PACKS: Record<ContentPackId, ContentPack> = {
   },
   'core-3': {
     id: 'core-3',
-    titleHe: 'עונה 3: פרק 1',
-    titleEn: 'Season 3: Chapter 1',
+    titleHe: 'עונה 3',
+    titleEn: 'Season 3',
     unlock: 'sequence',
     kind: 'core',
     after: 'season2-2',
