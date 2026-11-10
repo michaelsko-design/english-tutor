@@ -14,7 +14,7 @@ import type { CompanionId, ExamPlanDay, ExamPrepPlan, ThemeId } from '../types/l
 import { THEME_BASES, isThemeId, resolveTheme, type ThemeDefinition } from '../themes/themeRegistry';
 import { getCompanion } from '../themes/companionRegistry';
 import { RELEASED_CONTENT_PACKS } from './curriculum/packs/registry';
-import type { PackAccess, ReleasedPack } from './curriculum/packs/types';
+import { DEFAULT_PACK_ACCESS, type PackAccess, type ReleasedPack } from './curriculum/packs/types';
 import type { CurriculumUnit } from './curriculum/types';
 import { MAX_ACTIVE_LISTS } from './customWordLists';
 
@@ -91,9 +91,14 @@ export function getFreeCoreUnits(gradeNumber: number): readonly number[] {
   return FREE_CORE_UNITS_BY_GRADE[gradeNumber] ?? DEFAULT_FREE_CORE_UNITS;
 }
 
-/** Who plays a pack. A pack shown before its release (the packs preview) counts as free. */
+/**
+ * Who plays a pack: a released pack is Pro only unless its entry says free (`DEFAULT_PACK_ACCESS`).
+ * A pack shown before its release (the packs preview) counts as free.
+ */
 export function getPackAccess(packId: string, released: readonly ReleasedPack[] = RELEASED_CONTENT_PACKS): PackAccess {
-  return released.find((pack) => pack.id === packId)?.access ?? 'free';
+  const entry = released.find((pack) => pack.id === packId);
+  if (!entry) return 'free';
+  return entry.access ?? DEFAULT_PACK_ACCESS;
 }
 
 /** The grade of a unit, from its mission ids (g7-u3-m2 → 7), or null when they don't say. */

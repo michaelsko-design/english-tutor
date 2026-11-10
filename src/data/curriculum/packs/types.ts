@@ -68,9 +68,12 @@ export interface PackContent {
 /** Who plays a released pack: every learner, or Pro learners only (docs/feature-pro-tier.md) */
 export type PackAccess = 'free' | 'pro';
 
-/** A pack switched on in the app, with the local day it shipped (`YYYY-MM-DD`) and who plays it */
+/** A released pack is Pro only unless its entry says `access: 'free'` */
+export const DEFAULT_PACK_ACCESS: PackAccess = 'pro';
+
+/** A pack switched on in the app, with the local day it shipped (`YYYY-MM-DD`) and who plays it (default Pro) */
 export interface ReleasedPack {
   id: ContentPackId;
   releasedAt: string;
-  access: PackAccess;
+  access?: PackAccess;
 }

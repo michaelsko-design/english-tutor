@@ -96,6 +96,12 @@ describe('missions', () => {
     expect(getPackAccess('season2-1', [])).toBe('free');
   });
 
+  it('makes a released pack Pro only when its entry names no access', () => {
+    const noAccess: ReleasedPack[] = [{ id: 'core-3', releasedAt: '2027-02-17' }];
+    expect(getPackAccess('core-3', noAccess)).toBe('pro');
+    expect(isFreeUnit(unit(5, 23, { packId: 'core-3' }), noAccess)).toBe(false);
+  });
+
   it('keeps missions that already have stars, and opens everything for Pro or with gating off', () => {
     const proUnit = unit(5, 3);
     expect(canPlayMission(proUnit, 'g5-u3-m1', {}, FREE)).toBe(false);

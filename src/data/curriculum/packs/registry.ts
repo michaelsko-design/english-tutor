@@ -95,7 +95,7 @@ export const CONTENT_PACK_IDS = Object.keys(CONTENT_PACKS) as ContentPackId[];
  * The packs learners see, in the order they shipped (their units are added to the map in this
  * order, so a unit's place never changes after it ships). A pack with `after` ships only after
  * that pack (`registry.test.ts`). To release a pack: add it here with
- * today's date and its `access` (free, or Pro only), and add its curriculum, lessons and exam bank to `RELEASED_PACK_CURRICULA`
+ * today's date (it is Pro only by default; add `access: 'free'` to open it to everyone), and add its curriculum, lessons and exam bank to `RELEASED_PACK_CURRICULA`
  * (`curriculum/loader.ts`), `RELEASED_PACK_LESSON_LOADERS` (`miniLessons.ts`) and
  * `RELEASED_PACK_EXAM_BANK_LOADERS` (`examBank.ts`). See docs/architecture.md §4.26.
  */

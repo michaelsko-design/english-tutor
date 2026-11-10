@@ -28,7 +28,7 @@ There are 162 missions. Every grade has mini-lessons and an exam bank. Grade 1 h
 
 - **Word decks:** 19 Season 2 decks (372 words) in `src/data/wordDecks/`, released with `season2-1` / `season2-2` (§8). `core-3` has no decks yet.
 - All four packs have lessons, exam banks, icons and tier questions. Their English clips are rendered, and the 12 Hebrew pack-card clips were rendered on 2026-11-06.
-- They still need: `tts:upload`, committing the manifest, a decision on free or Pro for each, and a check in `dev:packs` on desktop and phone.
+- Clips uploaded and committed (2026-11-10); every pack is Pro by default (`DEFAULT_PACK_ACCESS`). They still need a check in `dev:packs` on desktop and phone.
 - Season 2 uses 4 words per mission.
 
 ### Coverage with `core-3` (2026-11-09, `review:coverage -- --packs core-3`: base + core-3 only)
@@ -309,7 +309,7 @@ They have 4–6 words per mission and use review-level grammar.
 1. The owner reviews the Hebrew, the facts and the content choices; the fixes are applied, then `review:he-tiers` and `tts:review:he` by ear.
 2. Commit the work (own files only), `tts:upload`, then commit the manifest.
 3. Deploy `firestore.rules` (deck mastery in the parent snapshot).
-4. Decide free/Pro per pack; check `dev:packs` on desktop and phone, including the Vault decks.
+4. ~~Decide free/Pro~~ (Pro by default, 2026-11-10); check `dev:packs` on desktop and phone, including the Vault decks.
 5. Approve and generate the word pictures (57 words, 7 sheets, grades 2–6), then swap them in.
 6. Release on the §5 calendar: `holidays-autumn` ~25 Nov 2026 first.
 

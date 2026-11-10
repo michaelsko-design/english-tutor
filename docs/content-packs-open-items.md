@@ -3,10 +3,10 @@
 Everything below is written and passes the tests (4,142), typecheck and build. Nothing here is committed, uploaded or released. This is the list of what needs a human decision, approval or check before the work ships. Plan: `docs/content-packs-roadmap.md`.
 
 ## 1. Commit and release mechanics
-- [ ] **Commit the work.** The Season 2 decks, the word-track engine, the pack-system changes and all of `core-3` are uncommitted in the working tree. Commit only these files: `scripts/tts/hebrewReview.json`, `marketing/`, `room-*.html` and `scripts/review/*Audit*.json` belong to other work.
-- [ ] **Upload the clips, then commit the manifest.** There are about 4,070 new English clips (decks 1,329, core-3 2,739) and 285 Hebrew clips (grade 1 deck 76, core-3 grade 2 209). Run `npm run tts:upload`, then commit `public/tts/manifest.json`.
-- [ ] **Deploy `firestore.rules`** before the first deck ships. The parent report snapshot now carries `deckWordMastery`.
-- [ ] **Free or Pro** for each pack: `season2-1`, `season2-2`, `holidays-autumn`, `holidays-spring`, `core-3`. Decks follow their pack's access.
+- [x] **Commit the work** (380408e0, 2026-11-10). The Season 2 decks, the word-track engine, the pack-system changes and all of `core-3` are uncommitted in the working tree. Commit only these files: `scripts/tts/hebrewReview.json`, `marketing/`, `room-*.html` and `scripts/review/*Audit*.json` belong to other work.
+- [x] **Upload the clips, then commit the manifest** (4,348 uploaded 2026-11-10). There are about 4,070 new English clips (decks 1,329, core-3 2,739) and 285 Hebrew clips (grade 1 deck 76, core-3 grade 2 209). Run `npm run tts:upload`, then commit `public/tts/manifest.json`.
+- [x] **Deploy `firestore.rules`** (deployed 2026-11-10). The parent report snapshot now carries `deckWordMastery`.
+- [x] **Free or Pro:** decided 2026-11-10: every new pack is **Pro** by default (`DEFAULT_PACK_ACCESS`; a released entry needs `access: 'free'` to open it to everyone). Decks follow their pack's access.
 - [ ] **Look at it in the app.** Run `dev:packs` on desktop and phone. The Vault deck list and the deck session have only been tested in component tests, never seen live. `e2e/packs-core3.spec.ts` already plays core-3 in grades 2, 8 and 12.
 - [ ] **Name core-3.** The pack card now reads "עונה 3: פרק 1" / "Season 3: Chapter 1". Keep it or rename it.
 - [ ] **Lint.** `npm run lint` fails with 7 old errors in `scripts/review/auditAllHebrew.ts`, which is unrelated to this work. Fix them or leave them.
