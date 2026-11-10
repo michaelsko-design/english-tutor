@@ -5,12 +5,25 @@ import { SYMBOL_ICONS } from '../components/art/symbolIcons';
 export type EmojiSegment = { kind: 'text'; text: string } | { kind: 'emoji'; emoji: string };
 
 const VARIATION_SELECTOR = '\uFE0F';
+const ZERO_WIDTH_JOINER = '\u200D';
+const REGEX_SPECIAL = /[.*+?^${}()|[\]\\]/g;
 
-/** The drawn emoji and the symbols with a Lucide icon, longest first, each with its optional variation selector. */
+/**
+ * One emoji key as a pattern: an optional variation selector may follow any of its characters but a
+ * joiner, so "\uD83D\uDD75\uFE0F\u200D\u2640\uFE0F" (\uD83D\uDD75 FE0F ZWJ \u2640 FE0F) matches the key "\uD83D\uDD75\u200D\u2640" whole instead of only its "\uD83D\uDD75".
+ */
+function emojiKeyPattern(emoji: string): string {
+  return [...emoji]
+    .filter((char) => char !== VARIATION_SELECTOR)
+    .map((char) => char.replace(REGEX_SPECIAL, '\\$&') + (char === ZERO_WIDTH_JOINER ? '' : `${VARIATION_SELECTOR}?`))
+    .join('');
+}
+
+/** The drawn emoji and the symbols with a Lucide icon, longest first, each with its optional variation selectors. */
 const ICON_EMOJI_PATTERN = new RegExp(
   `(${[...Object.keys(ICON_ID_BY_EMOJI), ...Object.keys(SYMBOL_ICONS)]
     .sort((a, b) => b.length - a.length)
-    .map((emoji) => `${emoji}${VARIATION_SELECTOR}?`)
+    .map(emojiKeyPattern)
     .join('|')})`,
   'u',
 );

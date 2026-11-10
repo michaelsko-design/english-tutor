@@ -7,7 +7,10 @@ Everything below is written and passes the tests (4,142), typecheck and build. N
 - [x] **Upload the clips, then commit the manifest** (4,348 uploaded 2026-11-10). There are about 4,070 new English clips (decks 1,329, core-3 2,739) and 285 Hebrew clips (grade 1 deck 76, core-3 grade 2 209). Run `npm run tts:upload`, then commit `public/tts/manifest.json`.
 - [x] **Deploy `firestore.rules`** (deployed 2026-11-10). The parent report snapshot now carries `deckWordMastery`.
 - [x] **Free or Pro:** decided 2026-11-10: every new pack is **Pro** by default (`DEFAULT_PACK_ACCESS`; a released entry needs `access: 'free'` to open it to everyone). Decks follow their pack's access.
-- [ ] **Look at it in the app.** Run `dev:packs` on desktop and phone. The Vault deck list and the deck session have only been tested in component tests, never seen live. `e2e/packs-core3.spec.ts` already plays core-3 in grades 2, 8 and 12.
+- [x] **Look at it in the app** (play-tested 2026-11-10 in `dev:packs` on the emulators, grade 5 girl). Map: core-3 is unit 7 "אני בעתיד / Future Me", after both Season 2 units, and unlocks after them; 7.1 (Challenger), 7.2 (Challenger) and the Boss 7.3 (Master, at 375px phone width) play to the end; no sideways scroll on the phone. Vault: the three grade 5 decks show, with words, pictures and practice (meaning match and word magnets checked).
+  - **Fixed:** the step 4 badge "🕵️‍♀️" showed a stray ♀ next to the detective picture in every mission (the emoji swap missed a joined emoji with a variation selector inside it); deck practice told learners to order words "מהדף של המורה" (the deck's own prompt was built but never used).
+  - **Dev only:** Vite pre-bundles the emoji JSX runtime despite `optimizeDeps.exclude`, so edits to `emojiSegments.ts`/`iconArt.ts` show in `npm run dev` only after `vite --force`. The build is not affected.
+  - **For the audit / owner:** g5 7.2 "אתם תהיו זמרים בלהקה?" (plural) vs "Will you be a singer in a band?" (one singer). The g5 Restaurant deck shows 7 food words as plain emoji (salad, rice, steak, fork, spoon, tea, snack) next to drawn pictures, and "glass" shows the milk picture.
 - [x] **Name core-3:** "עונה 3" / "Season 3" (owner, 2026-11-10).
 - [ ] **Lint.** `npm run lint` fails with 7 old errors in `scripts/review/auditAllHebrew.ts`, which is unrelated to this work. Fix them or leave them.
 

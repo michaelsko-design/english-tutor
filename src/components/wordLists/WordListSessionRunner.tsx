@@ -10,7 +10,7 @@ import {
   getSpellingLetters,
   normalizeForCompare,
 } from '../../data/customWordLists';
-import { CustomWordList, LearnerProfile } from '../../types/learner';
+import { CustomWordList, LearnerGender, LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { SpeechEvaluationResult } from '../../utils/speechSimilarity';
 import { getSpeechErrorTextHe, useSpeechRecognition } from '../../hooks/useSpeechRecognition';
@@ -46,6 +46,8 @@ interface WordListSessionRunnerProps {
   getReward?: (scorePercent: number) => WordListReward;
   /** The note shown when only the repeat reward is given */
   repeatRewardNoteHe?: string;
+  /** Builds the steps when they aren't a school list's (a deck words its prompts its own way) */
+  buildSteps?: (list: CustomWordList, gender: LearnerGender, salt: number) => WordListStep[];
 }
 
 /** The question card: the Hebrew meaning to match, or the sentence's translation. Spelling and voice have their own. */
@@ -70,13 +72,14 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   salt: fixedSalt,
   getReward,
   repeatRewardNoteHe,
+  buildSteps = buildWordListSteps,
 }) => {
   useStopSpeechOnLeave();
   const gender = profile.gender;
   const isGirl = gender === 'girl';
   // A new salt per run picks other items and a new tile order, stable across re-renders.
   const [salt] = useState(() => fixedSalt ?? Math.floor(Math.random() * 1_000_000_000));
-  const steps = useMemo(() => buildWordListSteps(list, gender, salt), [list, gender, salt]);
+  const steps = useMemo(() => buildSteps(list, gender, salt), [buildSteps, list, gender, salt]);
 
   const session = useDrillSession<WordListAnswer>();
   const { stepIdx, answers, hasMissed, isResolved, feedback, selectedIdx, isFinished } = session;

@@ -55,6 +55,20 @@ describe('WordDeckSession', () => {
     expect(saved.dailyCounters.missionsCompletedToday).toBe(1);
   }, SESSION_TEST_TIMEOUT_MS);
 
+  it('asks to order a phrase without the school list’s "from the teacher’s page"', async () => {
+    const user = userEvent.setup();
+    renderSession();
+    const builderIdx = steps.findIndex((s) => s.type === 'sentence-builder');
+    expect(builderIdx).toBeGreaterThanOrEqual(0);
+
+    for (const step of steps.slice(0, builderIdx)) {
+      await answerCorrectly(user, step);
+      await user.click(screen.getByRole('button', { name: /לשלב הבא/ }));
+    }
+    expect(screen.getByText(steps[builderIdx].promptHe)).toBeInTheDocument();
+    expect(screen.queryByText(/מהדף של המורה/)).not.toBeInTheDocument();
+  }, SESSION_TEST_TIMEOUT_MS);
+
   it('shows the deck’s repeat-reward note once the deck paid today, and can run again', async () => {
     const user = userEvent.setup();
     const paid = makeProfile({ ...profile, deckRewardDates: { [FIXTURE_DECK.id]: toLocalDateStr(new Date()) } });

@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type { WordListAnswer } from '../../data/customWordLists';
-import { applyDeckResultToProfile, deckToWordList, getDeckReward, pickDeckSalt } from '../../data/wordDecks/deckSession';
+import { applyDeckResultToProfile, buildDeckSteps, deckToWordList, getDeckReward, pickDeckSalt } from '../../data/wordDecks/deckSession';
 import { DECK_REPEAT_REWARD_NOTE_HE } from '../../data/wordDecks/deckCopy';
 import type { WordDeck } from '../../data/wordDecks/types';
-import type { LearnerProfile } from '../../types/learner';
+import type { CustomWordList, LearnerGender, LearnerProfile } from '../../types/learner';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 import { toLocalDateStr } from '../../utils/dates';
 import { WordListSessionRunner, type WordListSessionNext } from '../wordLists/WordListSessionRunner';
@@ -31,6 +31,10 @@ export const WordDeckSession: React.FC<WordDeckSessionProps> = ({
 }) => {
   const [salt] = useState(() => pickDeckSalt(deck));
   const list = useMemo(() => deckToWordList(deck), [deck]);
+  const buildSteps = useCallback(
+    (_list: CustomWordList, gender: LearnerGender, stepSalt: number) => buildDeckSteps(deck, gender, stepSalt),
+    [deck],
+  );
 
   const handleFinish = (answers: WordListAnswer[], next: WordListSessionNext) => {
     onUpdateProfile(applyDeckResultToProfile(profile, deck, answers, new Date()).profile);
@@ -46,6 +50,7 @@ export const WordDeckSession: React.FC<WordDeckSessionProps> = ({
       salt={salt}
       getReward={(scorePercent) => getDeckReward(profile, deck.id, scorePercent, toLocalDateStr(new Date()))}
       repeatRewardNoteHe={DECK_REPEAT_REWARD_NOTE_HE}
+      buildSteps={buildSteps}
       onSpeakEnglish={onSpeakEnglish}
       onFinish={handleFinish}
       onClose={onClose}
