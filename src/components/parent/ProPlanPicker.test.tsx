@@ -47,6 +47,18 @@ describe('ProPlanPicker', () => {
     expect(within(priceBox()).queryByText(/^כ-.*לחודש$/)).not.toBeInTheDocument();
   });
 
+  it('says which payment methods each plan takes: card only for monthly, wallets on yearly', async () => {
+    const user = userEvent.setup();
+    render(<ProPlanPicker theme={TEST_THEME} />);
+
+    expect(priceBox()).toHaveTextContent('כרטיס אשראי, Bit, Apple Pay או Google Pay');
+
+    await user.click(screen.getByRole('radio', { name: 'חודשי' }));
+
+    expect(priceBox()).toHaveTextContent('תשלום בכרטיס אשראי בלבד');
+    expect(priceBox()).not.toHaveTextContent('Bit');
+  });
+
   it('stays within 1 to 4 children and points to WhatsApp past 4', async () => {
     const user = userEvent.setup();
     render(<ProPlanPicker theme={TEST_THEME} initialChildren={9} />);

@@ -42,6 +42,11 @@ describe('ProCheckoutPanel', () => {
     expect(screen.getByTestId('pro-checkout-total')).toHaveTextContent('64');
   });
 
+  it('tells the parent a monthly plan is paid by card only', () => {
+    renderPanel();
+    expect(screen.getByText('תשלום בכרטיס אשראי בלבד')).toBeInTheDocument();
+  });
+
   it('asks for a full name and an Israeli mobile before calling the server', async () => {
     const { user } = renderPanel();
     await user.type(screen.getByLabelText('שם מלא של המשלם/ת'), 'דנה');

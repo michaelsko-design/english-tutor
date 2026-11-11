@@ -13,8 +13,9 @@ Status (2026-10-29): **server payments layer, Phase 1, Phase 2 and Phase 3a buil
 - Tests: unit and component tests for all of it, and `e2e/pro.spec.ts` (learner asks → parent pays on the mock page → map opens → parent cancels). The whole e2e suite passes on desktop and phone (`npm run test:e2e`).
 
 **Waiting on the owner (Track A)**
-- The business registration (עוסק פטור / מורשה) and the Grow account approval. Then the Grow sandbox ids (`userId`, a recurring and a regular `pageCode`, the API key), and Grow support enabling the recurring and failed-recurring webhooks and automatic invoices.
-- A WhatsApp Business number, and the domain for the contact email.
+- Done: the business registration (עוסק פטור 310720370) and the Grow account (commercial terms signed 2026-11-09).
+- **Waiting on Grow's API rep** (asked 2026-11-11): the sandbox ids (`userId`, a recurring and a regular `pageCode`, the API key), enabling the recurring and failed-recurring webhooks, automatic קבלה, and the API price. **Grow's AI agent quoted ₪499 a month for the API, on top of the plan.** The owner asked a human rep to confirm it, and whether fixed payment pages plus webhooks can work without the API. If they can, Phase 3b's adapter design changes; re-plan it then.
+- The contact phone is decided: 052-9282667, the number already in Grow's customer details and `SUPPORT_WHATSAPP_NUMBER`. It must appear on the site's home or contact page. Still needed: the §4.3 site clearing approval for `englishvibe.co.il` once the landing site and legal texts are live.
 
 **Next, in order**
 1. **Phase 3a is done.** Left for the owner: listen to the 4 new Hebrew clips, approve the legal drafts (`docs/legal/pro-legal-drafts.md`) and get them a short legal review. The security review's open items are listed under "Phase 3a". `CRON_SECRET` must be set in Vercel for the reconcile (the streak reminder already uses it).
@@ -316,7 +317,7 @@ interface PaymentProvider {
 - Coupons and referrals (P4).
 
 ## Payment methods and invoices
-- Bit, Apple Pay, Google Pay and cards are all handled on the gateway's hosted page. Apple Pay needs the gateway's domain verification for the production domain `englishvibe.co.il`.
+- **Monthly (הוראת קבע) is card only.** Grow's Bit, Apple Pay, Google Pay and Touch services exclude recurring charges (terms §13.2.2, §13.4.2, §13.5.2; Grow confirmed it 2026-11-11). **Yearly** (one payment) can use card, Bit, Apple Pay or Google Pay. `PaymentMethodsNote` in `ProPlanPicker.tsx` says so in the picker and the checkout. Apple Pay needs the gateway's domain verification for `englishvibe.co.il`.
 - **Invoices.** Both Grow and SUMIT can issue the tax invoice/receipt (חשבונית מס / קבלה) automatically for every charge, including recurring ones, and email it to the parent. Morning (Green Invoice) is needed only if the chosen gateway's invoicing doesn't fit. The invoice name and email are the parent's, from Google, and can be edited on the hosted page.
 - Prices are stored in agorot and shown VAT-inclusive.
 
@@ -380,12 +381,40 @@ interface PaymentProvider {
 - **Business:** registration (עוסק פטור / מורשה) decides VAT on invoices, and must be settled with the gateway account.
 - The contact email in the privacy notice is `support@englishvibe.co.il` (done); set the same address on the gateway's invoices.
 
+## Grow terms that bind us
+From Grow's general terms (`TERMSNEW.pdf`) and the signed commercial terms (2026-11-09):
+1. **Plan:** 0.75% per transaction plus ₪69 a month, which includes 100 transactions or wallet payments and 100 documents; ₪0.50 for each one after that. Prices are before VAT, which an Osek Patur pays and can't reclaim. **The API is extra: ₪499 a month, per Grow's AI agent (not yet confirmed by a person).**
+2. **Payout:** money can be used from the 1st of the next month, and goes to the bank account registered with Grow. A transfer costs ₪1.75, with the first 5 each month free. Above ₪50k on the 9th, the money moves to the bank automatically.
+3. **§4.3:** each website needs its own clearing approval. Grow's site check (`Site_check.pdf`) requires:
+   - a live site that shows everything sold;
+   - a details page before payment;
+   - a contact phone on the home or contact page;
+   - the business address;
+   - a terms checkbox on the payment page, with a link to the terms;
+   - a link to the terms on the home page.
+
+   The terms must cover:
+   - how and when the service is supplied;
+   - that buyers are 18 or over;
+   - privacy;
+   - limitation of liability;
+   - cancellation under the 1981 law.
+
+   Review takes 1 to 7 business days.
+4. **§11.2.7, §13.8.5.5:** never charge the owner's card or a first-degree relative's card, not even as a test. Grow can reverse the charge. The live test charge follows Grow's guidance.
+5. **Recurring charges are card only** (see "Payment methods").
+6. **§16.19.3:** there's no 3DS on recurring charges, so chargebacks on monthly plans are ours. Under §16.16, fees are not refunded when a charge is cancelled.
+7. **§13.1.5.11:** retrying a failed recurring charge needs the customer's advance, explicit consent. It's in section 7 of the terms and the checkout consent box (`docs/legal/pro-legal-drafts.md`).
+8. **§13.8.3:** card statements show `grow-[business name]`. Grow's customer-facing details already hold the name אנגליש וייב (English: EnglishVibe), the phone and `support@englishvibe.co.il`, so the statement will likely read `grow-אנגליש וייב`. Still to be confirmed with Grow. The checkout says what the charge will look like.
+9. **Privacy:** Grow (גרואו פיימנטס בע״מ) processes the payer's details for us, and the privacy notice names it.
+10. **Documents:** automatic קבלה on every charge, renewals included, to one email address.
+
 ## Implementation phases
 The server layer (checkout, webhooks, subscriptions, Grow and mock providers, rules) is built. Each phase below ships on its own: `PRO_GATING_ENABLED` and `IS_PRO_PLAN_VISIBLE` stay off until Phase 4, so the live app doesn't change.
 
 **Track A: business setup (the owner, alongside Phases 1–3).**
 1. Register the business (עוסק פטור / מורשה). Grow and the invoices need it.
-2. Open the Grow account: sandbox ids (`userId`, a recurring and a regular `pageCode`, the API key). Ask Grow support to enable the recurring and failed-recurring webhooks and automatic invoices.
+2. ~~Open the Grow account~~ Done (2026-11-09). Waiting on the API rep: sandbox ids (`userId`, a recurring and a regular `pageCode`, the API key), the recurring and failed-recurring webhooks, automatic קבלה, and the API price (see "Where we stopped").
 3. A WhatsApp Business number to replace the private one in `SUPPORT_WHATSAPP_NUMBER`.
 4. ~~The domain for the contact email~~ Done: `englishvibe.co.il`, `support@englishvibe.co.il`.
 

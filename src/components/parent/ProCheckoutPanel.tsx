@@ -4,7 +4,7 @@ import { MAX_PRO_SEATS, quoteProPrice, type BillingPeriod } from '../../config/p
 import type { ParentLink } from '../../data/parentLink';
 import { startProCheckout } from '../../services/proBillingService';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
-import { formatShekels } from './ProPlanPicker';
+import { formatShekels, PaymentMethodsNote } from './ProPlanPicker';
 
 interface ProCheckoutPanelProps {
   theme: ThemeDefinition;
@@ -170,6 +170,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
         </button>
       </div>
 
+      <PaymentMethodsNote period={period} className={`text-center ${theme.mutedTextClass}`} />
       <p className={`text-xs font-bold text-center ${theme.mutedTextClass}`}>
         {period === 'monthly' ? 'חיוב חודשי, אפשר לבטל בכל עת.' : 'תשלום אחד לשנה, בלי חידוש אוטומטי.'} התשלום בדף המאובטח של חברת הסליקה.
       </p>

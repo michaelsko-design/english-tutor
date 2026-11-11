@@ -38,6 +38,23 @@ export function formatShekels(agorot: number, hasAgorot = false): string {
 
 const clampChildren = (children: number) => Math.min(MAX_PRO_SEATS, Math.max(1, Math.round(children)));
 
+/**
+ * Recurring charges (הוראת קבע) are card only at Grow (terms §13.2.2, §13.4.2, §13.5.2):
+ * Bit and the wallets work only for the one yearly payment.
+ */
+export const PaymentMethodsNote: React.FC<{ period: BillingPeriod; className?: string }> = ({ period, className = '' }) => (
+  <p className={`text-xs font-bold ${className}`}>
+    {period === 'monthly' ? (
+      'תשלום בכרטיס אשראי בלבד'
+    ) : (
+      <>
+        תשלום בכרטיס אשראי, <bdi dir="ltr" lang="en">Bit</bdi>, <bdi dir="ltr" lang="en">Apple Pay</bdi> או{' '}
+        <bdi dir="ltr" lang="en">Google Pay</bdi>
+      </>
+    )}
+  </p>
+);
+
 const childrenLabelHe = (children: number) => (children === 1 ? 'ילד אחד' : `${children} ילדים`);
 
 /**
@@ -121,6 +138,7 @@ export const ProPlanPicker: React.FC<ProPlanPickerProps> = ({ theme, initialChil
             ? `חוסכים ${formatShekels(quote.yearlySavingsAgorot)} בשנה לעומת תשלום חודשי`
             : `במנוי שנתי חוסכים ${formatShekels(quote.yearlySavingsAgorot)} בשנה`}
         </p>
+        <PaymentMethodsNote period={period} className={theme.mutedTextClass} />
       </div>
 
       <a
