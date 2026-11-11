@@ -26,6 +26,24 @@ test.describe('onboarding, grade 3 and up', () => {
     await expect(page.getByRole('heading', { name: /כל הכבוד/ })).toHaveCount(0);
     await expectDashboard(page);
   });
+
+  test('a new 3rd grader starts on grade 1 at the explorer tier, keeping grade 3 as the school grade', async ({
+    page,
+    learner,
+  }) => {
+    await register(page, learner, '/', { name: 'נועה', age: 8 });
+    await completeOnboarding(page, { name: 'נועה', age: 8 });
+
+    // English starts in 3rd grade: the chest leads to the grade-1 letters lesson, not a grade-3 mission
+    await page.getByRole('button', { name: 'פתיחת תיבת המתנה' }).click();
+    await page.getByRole('button', { name: /נלמד אותיות/ }).click();
+    await expect(firstLessonDialog(page)).toBeVisible({ timeout: 20_000 });
+
+    const uid = await findUid(learner.username);
+    await expect
+      .poll(async () => readDocument(`learners/${uid}`))
+      .toMatchObject({ gradeId: 'grade-1', schoolGradeId: 'grade-3', preferredTier: 'explorer' });
+  });
 });
 
 test.describe('onboarding', () => {
@@ -77,6 +95,7 @@ test.describe('onboarding', () => {
         gender: 'boy',
         age: 6,
         gradeId: 'grade-1',
+        preferredTier: 'explorer',
         themeId: 'cozy-studio',
         isShabbatObserver: false,
         hasSeenWelcomeGiftModal: true,

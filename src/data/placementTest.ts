@@ -147,6 +147,18 @@ export function pickNextQuestion(
 }
 
 /** The tier within the recommended grade, so a learner moved to an easier grade isn't also given the easiest tier. */
+/** How many grades above the school grade the estimate must be before the test moves a learner up. */
+const MIN_GRADES_UP_TO_MOVE = 2;
+
+/**
+ * Aims down: an estimate below the school grade always moves the learner down (a mission that is
+ * too hard costs more than one that is too easy); moving up needs a clear margin, so a lucky
+ * streak doesn't push a learner too high.
+ */
+function isMoveRecommended(estimate: number, schoolGrade: number): boolean {
+  return estimate < schoolGrade || estimate - schoolGrade >= MIN_GRADES_UP_TO_MOVE;
+}
+
 function recommendTier(estimate: number, recommendedGrade: number): ProficiencyTier {
   const diff = estimate - recommendedGrade;
   if (diff <= -1) return 'explorer';
@@ -166,8 +178,8 @@ function masteryEvidence(answer: PlacementAnswer): number {
 }
 
 /**
- * Turns the answers into a placement result. The raw estimate is the rounded mean mastery
- * evidence of the answers in the estimate window. The tier uses the raw estimate, so it can
+ * Turns the answers into a placement result. The raw estimate is the mean mastery evidence of the
+ * answers in the estimate window, rounded down (between two grades means the lower one). The tier uses the raw estimate, so it can
  * fall outside 1–12; the grade ids are clamped.
  */
 export function computePlacementResult(
@@ -180,9 +192,10 @@ export function computePlacementResult(
   const mean = evidence.length
     ? evidence.reduce((sum, g) => sum + g, 0) / evidence.length
     : schoolGrade;
-  const rawEstimate = Math.round(mean);
+  // Aim down: a learner between two grades is placed in the lower one
+  const rawEstimate = Math.floor(mean);
   const estimate = clampGrade(rawEstimate);
-  const recommendedGrade = Math.abs(estimate - schoolGrade) >= 2 ? estimate : schoolGrade;
+  const recommendedGrade = isMoveRecommended(estimate, schoolGrade) ? estimate : schoolGrade;
 
   return {
     completedAt,
@@ -196,7 +209,7 @@ export function computePlacementResult(
 
 /**
  * The result for a learner who can't read English yet: no questions, the letters of grade 1 at the
- * easiest tier, whatever their school grade (the ±2 rule doesn't apply).
+ * easiest tier, whatever their school grade (the school-grade rule doesn't apply).
  */
 export function buildNonReaderResult(completedAt: string): PlacementResult {
   return {

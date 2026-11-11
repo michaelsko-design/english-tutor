@@ -199,12 +199,39 @@ describe('computePlacementResult', () => {
     expect(result.recommendedGradeId).toBe('grade-7');
   });
 
-  it('keeps the school grade but lowers the tier when one grade below', () => {
+  it('moves the learner down even when only one grade below the school grade', () => {
     const answers = simulateTest(7, (difficulty) => difficulty <= 6);
     const result = computePlacementResult(answers, 7, completedAt);
     expect(result.estimatedGradeId).toBe('grade-6');
-    expect(result.recommendedTier).toBe('explorer');
-    expect(result.recommendedGradeId).toBe('grade-7');
+    expect(result.recommendedTier).toBe('challenger');
+    expect(result.recommendedGradeId).toBe('grade-6');
+  });
+
+  /** Ten answers whose estimate window (the last six) shows mastery of the given grades */
+  const answersShowing = (grades: readonly number[]): PlacementAnswer[] => [
+    ...Array.from({ length: 4 }, (_, i) => ({ questionId: `warmup-${i}`, difficulty: 1, isCorrect: true })),
+    ...grades.map((grade, i) => ({ questionId: `q-${i}`, difficulty: grade, isCorrect: true })),
+  ];
+
+  it('aims down: knowledge between grades 5 and 6 places the learner in grade 5', () => {
+    const result = computePlacementResult(answersShowing([5, 5, 5, 6, 6, 6]), 5, completedAt);
+    expect(result.estimatedGradeId).toBe('grade-5');
+    expect(result.recommendedGradeId).toBe('grade-5');
+  });
+
+  it('aims down for a 6th grader whose knowledge is between grades 5 and 6', () => {
+    const result = computePlacementResult(answersShowing([5, 5, 6, 6, 6, 6]), 6, completedAt);
+    expect(result.recommendedGradeId).toBe('grade-5');
+  });
+
+  it('moves an early-grade learner to the grade they showed, not up to the school grade', () => {
+    const result = computePlacementResult(answersShowing([2, 2, 2, 2, 2, 2]), 3, completedAt);
+    expect(result.recommendedGradeId).toBe('grade-2');
+  });
+
+  it('moves up only with a margin of two grades', () => {
+    expect(computePlacementResult(answersShowing([6, 6, 6, 6, 6, 6]), 5, completedAt).recommendedGradeId).toBe('grade-5');
+    expect(computePlacementResult(answersShowing([7, 7, 7, 7, 7, 7]), 5, completedAt).recommendedGradeId).toBe('grade-7');
   });
 
   it('keeps the school grade but raises the tier when one grade above', () => {
