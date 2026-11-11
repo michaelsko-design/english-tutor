@@ -33,7 +33,15 @@ export interface SpeechStatusService extends TextToSpeechService {
    */
   enqueue(text: string, options?: SpeakOptions): void;
   getCurrent(): CurrentSpeech | null;
-  /** Calls the listener whenever a reading starts or ends; returns the unsubscribe function. */
+  /**
+   * The microphone is listening: stops the reading in progress, and plays nothing until the
+   * returned release is called, so the mic never hears the app read the answer. Calling the
+   * release again does nothing.
+   */
+  holdForMic(): () => void;
+  /** Whether a microphone is listening right now (read-aloud is held). */
+  isMicOpen(): boolean;
+  /** Calls the listener whenever a reading starts or ends, or the mic opens or closes; returns the unsubscribe function. */
   subscribe(listener: () => void): () => void;
 }
 
@@ -47,15 +55,19 @@ export function createSpeechStatus(service: TextToSpeechService): SpeechStatusSe
   /** Counts every speak and stop, so a sequence knows when something else took over. */
   let generation = 0;
   const listeners = new Set<() => void>();
+  /** How many microphones are listening; read-aloud plays nothing while it is above 0. */
+  let micHolds = 0;
+  const notify = () => listeners.forEach((listener) => listener());
 
   const setCurrent = (next: CurrentSpeech | null) => {
     if (next === current) return;
     current = next;
-    listeners.forEach((listener) => listener());
+    notify();
   };
 
   const play = async (text: string, options: SpeakOptions = {}) => {
     generation += 1;
+    if (micHolds > 0) return;
     const reading: CurrentSpeech = { text, rate: options.rate ?? DEFAULT_SPEECH_RATE };
     setCurrent(reading);
     try {
@@ -98,9 +110,17 @@ export function createSpeechStatus(service: TextToSpeechService): SpeechStatusSe
     await play(text, options);
   };
 
+  const stop = () => {
+    cancelQueue();
+    generation += 1;
+    service.stop();
+    setCurrent(null);
+  };
+
   return {
     speak,
     enqueue(text, options) {
+      if (micHolds > 0) return;
       queue.push({ text, options });
       while (queue.length > MAX_QUEUED_READINGS) queue.shift();
       // Load the clip now, while the word before it plays, so the words run together
@@ -117,12 +137,20 @@ export function createSpeechStatus(service: TextToSpeechService): SpeechStatusSe
         if (generation !== mine) return;
       }
     },
-    stop() {
-      cancelQueue();
-      generation += 1;
-      service.stop();
-      setCurrent(null);
+    stop,
+    holdForMic() {
+      stop();
+      micHolds += 1;
+      notify();
+      let isReleased = false;
+      return () => {
+        if (isReleased) return;
+        isReleased = true;
+        micHolds -= 1;
+        notify();
+      };
     },
+    isMicOpen: () => micHolds > 0,
     isReady: () => service.isReady(),
     getCurrent: () => current,
     subscribe(listener) {

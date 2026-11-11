@@ -13,6 +13,7 @@ vi.mock('../services/tts', async (importOriginal) => ({
     speakSequence: vi.fn(),
     subscribe: () => () => {},
     getCurrent: () => null,
+    isMicOpen: () => false,
   }),
   speakHebrew: vi.fn().mockResolvedValue(undefined),
 }));

@@ -61,6 +61,14 @@ export function stopSpeech(): void {
   service?.stop();
 }
 
+/**
+ * The microphone opened: stops the reading and holds read-aloud until the returned release is
+ * called, so the mic can't hear the app read the answer (see SpeechStatusService.holdForMic).
+ */
+export function holdSpeechForMic(): () => void {
+  return getTtsService().holdForMic();
+}
+
 /** Reads Hebrew with the Hebrew voice (the instruction, a hint, feedback); the English voice choice doesn't apply. */
 export function speakHebrew(text: string, rate = DEFAULT_SPEECH_RATE): Promise<void> {
   // The same text a 🔊 button compares with, so it shows "stop" while this plays

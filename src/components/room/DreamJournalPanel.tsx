@@ -272,8 +272,9 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
           <button
             type="button"
             onClick={dreamSpeech.toggle}
+            disabled={dreamSpeech.isMicOpen}
             aria-pressed={dreamSpeech.isSpeaking}
-            className={`w-full p-3 rounded-2xl text-sm font-extrabold flex items-center gap-2 ${theme.secondaryBtnClass}`}
+            className={`w-full p-3 rounded-2xl disabled:opacity-40 text-sm font-extrabold flex items-center gap-2 ${theme.secondaryBtnClass}`}
             dir="ltr" lang="en"
           >
             <SpeakIcon isSpeaking={dreamSpeech.isSpeaking} className="w-4 h-4 shrink-0" />
@@ -283,6 +284,7 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
             targetEn={dreamEn}
             speechEval={speechEval}
             isListening={speech.isListening}
+            isStarting={speech.isStarting}
             isCompleted={wasReadAloud}
             gender={profile.gender}
             theme={theme}

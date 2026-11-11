@@ -9,13 +9,22 @@ export function useCurrentSpeech(): CurrentSpeech | null {
   return useSyncExternalStore(service.subscribe, service.getCurrent);
 }
 
+/** Whether a microphone is listening (nothing is read aloud then); re-renders when it opens or closes. */
+export function useIsMicOpen(): boolean {
+  const service = getTtsService();
+  return useSyncExternalStore(service.subscribe, service.isMicOpen);
+}
+
 /**
  * A 🔊 button that reads its text, and while that text is being read, stops it instead.
  * For a list of buttons, use useCurrentSpeech once and toggleSpeech per button.
+ * `isMicOpen`: the mic is listening, so the button can't play (show it disabled).
  */
 export function useSpeechToggle(onSpeak: SpeakFn, text: string, rate = DEFAULT_SPEECH_RATE) {
   const isSpeaking = isSameSpeech(useCurrentSpeech(), text, rate);
-  return { isSpeaking, toggle: () => toggleSpeech(isSpeaking, onSpeak, text, rate) };}
+  const isMicOpen = useIsMicOpen();
+  return { isSpeaking, isMicOpen, toggle: () => toggleSpeech(isSpeaking, onSpeak, text, rate) };
+}
 
 /** The reading a button press just cut off, until the end of that press (see useStopSpeechOnButtonPress). */
 let stoppedByPress: CurrentSpeech | null = null;

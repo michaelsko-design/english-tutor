@@ -5,8 +5,7 @@ import { celebrate } from '../utils/celebrate';
 import { CurriculumUnit, VocabularyItem } from '../data/curriculum';
 import { LearnerGender } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
-import { evaluateSpokenSentence } from '../utils/speechSimilarity';
-import { getSpeechRecognitionApi, type SpeechRecognitionLike } from '../utils/speechRecognitionApi';
+import { useSpeechRecognition, type SpeechErrorKind } from '../hooks/useSpeechRecognition';
 import {
   X,
   BookOpen,
@@ -17,7 +16,7 @@ import {
 } from 'lucide-react';
 import { isolateLtr, formatVibeGain } from '../utils/bidi';
 import { isSameSpeech } from '../services/tts';
-import { toggleSpeech, useCurrentSpeech, useStopSpeechOnLeave } from '../hooks/useSpeech';
+import { toggleSpeech, useCurrentSpeech, useIsMicOpen, useStopSpeechOnLeave } from '../hooks/useSpeech';
 import { SpeakIcon, STOP_SPEECH_LABEL, STOP_SPEECH_TEXT } from './SpeakIcon';
 import { Button } from './ui/Button';
 import { VibeAmount } from './ui/VibeAmount';
@@ -30,6 +29,23 @@ const VAULT_REWARD_LABEL = `${formatVibeGain(10)} · ${isolateLtr('+2 💎')}`;
 
 /** How long the practice result stays up before it clears itself */
 const FEEDBACK_DISMISS_MS = 6000;
+
+/** The Vault's microphone problem message, naming the word that wasn't heard */
+function getVaultMicErrorText(kind: SpeechErrorKind, isGirl: boolean, wordEn: string): string {
+  if (kind === 'unsupported') {
+    return isGirl
+      ? 'הדפדפן שלך אינו תומך בזיהוי דיבור קולי. אנא השתמשי בדפדפן Chrome או Edge כדי לתרגל הגייה במיקרופון.'
+      : 'הדפדפן שלך אינו תומך בזיהוי דיבור קולי. אנא השתמש בדפדפן Chrome או Edge כדי לתרגל הגייה במיקרופון.';
+  }
+  if (kind === 'not-allowed') {
+    return isGirl
+      ? 'הגישה למיקרופון חסומה בדפדפן. אשרי גישה למיקרופון ונסי שוב!'
+      : 'הגישה למיקרופון חסומה בדפדפן. אשר גישה למיקרופון ונסה שוב!';
+  }
+  return isGirl
+    ? `לא הצלחנו לשמוע את המילה "${wordEn}". לחצי שוב על המיקרופון ואמרי אותה בקול ברור!`
+    : `לא הצלחנו לשמוע את המילה "${wordEn}". לחץ שוב על המיקרופון ואמור אותה בקול ברור!`;
+}
 
 interface VocabularyVaultModalProps {
   units: CurriculumUnit[];
@@ -104,16 +120,14 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
   useDialog(dialogRef, { onClose });
   useStopSpeechOnLeave();
   const currentSpeech = useCurrentSpeech();
+  const isMicOpen = useIsMicOpen();
 
-  // Closing the Vault mid-word stops listening, so no result arrives after it closed
-  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
-  useEffect(() => () => recognitionRef.current?.abort(), []);
+  // Closing the Vault mid-word stops listening (the hook cancels on unmount), so no result arrives after it closed
+  const speech = useSpeechRecognition();
 
   const handlePracticeWord = (vocab: VocabularyItem) => {
     setPracticingWord(vocab.wordEn);
     setFeedbackMsg(null);
-
-    const SpeechRecognitionApi = getSpeechRecognitionApi();
 
     const completeWordMastery = (transcript: string) => {
       setPracticingWord(null);
@@ -128,28 +142,12 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
       celebrate('small');
     };
 
-    if (!SpeechRecognitionApi) {
-      setPracticingWord(null);
-      setFeedbackMsg({
-        isCorrect: false,
-        text: isGirl
-          ? 'הדפדפן שלך אינו תומך בזיהוי דיבור קולי. אנא השתמשי בדפדפן Chrome או Edge כדי לתרגל הגייה במיקרופון.'
-          : 'הדפדפן שלך אינו תומך בזיהוי דיבור קולי. אנא השתמש בדפדפן Chrome או Edge כדי לתרגל הגייה במיקרופון.',
-      });
-      return;
-    }
-
-    const recognition = new SpeechRecognitionApi();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onresult = (event) => {
-      const transcript: string = event.results?.[0]?.[0]?.transcript || '';
-      const evalResult = evaluateSpokenSentence(vocab.wordEn, transcript);
-      if (evalResult.passed) {
-        completeWordMastery(transcript);
-      } else {
+    speech.start(vocab.wordEn, {
+      onResult: (transcript, evalResult) => {
+        if (evalResult.passed) {
+          completeWordMastery(transcript);
+          return;
+        }
         setPracticingWord(null);
         setFeedbackMsg({
           isCorrect: false,
@@ -157,32 +155,12 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
             ? `שמענו "${transcript || '...'}" במקום "${vocab.wordEn}" — האזיני שוב למילה ונסי פעם נוספת!`
             : `שמענו "${transcript || '...'}" במקום "${vocab.wordEn}" — האזן שוב למילה ונסה פעם נוספת!`,
         });
-      }
-    };
-
-    recognition.onerror = (event) => {
-      setPracticingWord(null);
-      const errCode = event?.error || '';
-      if (errCode === 'not-allowed' || errCode === 'service-not-allowed') {
-        setFeedbackMsg({
-          isCorrect: false,
-          text: isGirl
-            ? 'הגישה למיקרופון חסומה בדפדפן. אשרי גישה למיקרופון ונסי שוב!'
-            : 'הגישה למיקרופון חסומה בדפדפן. אשר גישה למיקרופון ונסה שוב!',
-        });
-      } else {
-        setFeedbackMsg({
-          isCorrect: false,
-          text: isGirl
-            ? `לא הצלחנו לשמוע את המילה "${vocab.wordEn}". לחצי שוב על המיקרופון ואמרי אותה בקול ברור!`
-            : `לא הצלחנו לשמוע את המילה "${vocab.wordEn}". לחץ שוב על המיקרופון ואמור אותה בקול ברור!`,
-        });
-      }
-    };
-
-    recognitionRef.current?.abort();
-    recognitionRef.current = recognition;
-    recognition.start();
+      },
+      onError: (kind) => {
+        setPracticingWord(null);
+        setFeedbackMsg({ isCorrect: false, text: getVaultMicErrorText(kind, isGirl, vocab.wordEn) });
+      },
+    });
   };
 
   return (
@@ -365,11 +343,11 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                 {/* Audio TTS & Voice Recognition Buttons */}
                 <div className="flex items-center justify-between gap-2 pt-1">
                   <div className="flex items-center gap-1.5">
-                    <Button theme={theme} variant="secondary" size="sm" onClick={() => toggleSpeech(isListenSpeaking, onSpeakEnglish, listenText, 0.95)}>
+                    <Button theme={theme} variant="secondary" size="sm" disabled={isMicOpen} onClick={() => toggleSpeech(isListenSpeaking, onSpeakEnglish, listenText, 0.95)}>
                       <SpeakIcon isSpeaking={isListenSpeaking} className="w-3.5 h-3.5" />
                       <span>{isListenSpeaking ? STOP_SPEECH_TEXT : 'Listen'}</span>
                     </Button>
-                    <Button theme={theme} variant="secondary" size="sm" onClick={() => toggleSpeech(isSlowSpeaking, onSpeakEnglish, item.wordEn, 0.65)} title={isSlowSpeaking ? STOP_SPEECH_LABEL : 'Listen Slowly'} aria-label={isSlowSpeaking ? STOP_SPEECH_LABEL : undefined} dir="ltr" lang="en">
+                    <Button theme={theme} variant="secondary" size="sm" disabled={isMicOpen} onClick={() => toggleSpeech(isSlowSpeaking, onSpeakEnglish, item.wordEn, 0.65)} title={isSlowSpeaking ? STOP_SPEECH_LABEL : 'Listen Slowly'} aria-label={isSlowSpeaking ? STOP_SPEECH_LABEL : undefined} dir="ltr" lang="en">
                       {isSlowSpeaking ? '⏹' : '🐢 Slow'}
                     </Button>
                   </div>
@@ -379,13 +357,17 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                     onClick={() => handlePracticeWord(item)}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${
                       isRecordingThis
-                        ? 'bg-rose-500 text-white animate-pulse'
+                        ? speech.isStarting
+                          ? 'bg-amber-400 text-slate-900'
+                          : 'bg-rose-500 text-white animate-pulse'
                         : theme.primaryBtnClass
                     }`}
                   >
                     <Mic className="w-3.5 h-3.5" />
                     <span>
-                      {isRecordingThis
+                      {isRecordingThis && speech.isStarting
+                        ? 'רגע… המיקרופון נפתח'
+                        : isRecordingThis
                         ? isGirl
                           ? 'אמרי את המילה...'
                           : 'אמור את המילה...'

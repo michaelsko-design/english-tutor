@@ -298,6 +298,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
             targetHe={step.translationHe}
             speechEval={speechEval}
             isListening={speech.isListening}
+            isStarting={speech.isStarting}
             isCompleted={isResolved}
             gender={gender}
             theme={theme}

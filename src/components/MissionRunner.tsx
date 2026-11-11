@@ -658,6 +658,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                         targetHe={currentStep.speakTargetHe}
                         speechEval={speechEval}
                         isListening={speech.isListening}
+                        isStarting={speech.isStarting}
                         isCompleted={stepCompleted}
                         gender={gender}
                         theme={theme}

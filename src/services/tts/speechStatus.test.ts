@@ -286,3 +286,52 @@ describe('speakSequence', () => {
     expect(vi.mocked(service.speak).mock.calls.map(([text]) => text)).not.toContain('four');
   });
 });
+
+describe('holdForMic', () => {
+  it('stops the reading in progress and notifies listeners', () => {
+    const { service } = fakeService();
+    const status = createSpeechStatus(service);
+    void status.speak('The answer is cat.');
+    const listener = vi.fn();
+    status.subscribe(listener);
+
+    status.holdForMic();
+
+    expect(service.stop).toHaveBeenCalled();
+    expect(status.getCurrent()).toBeNull();
+    expect(status.isMicOpen()).toBe(true);
+    expect(listener).toHaveBeenCalled();
+  });
+
+  it('plays nothing while the mic is open, and plays again after release', async () => {
+    const { service } = fakeService();
+    const status = createSpeechStatus(service);
+    const release = status.holdForMic();
+
+    await status.speak('cat');
+    status.enqueue('dog');
+    await status.speakSequence([{ text: 'one' }, { text: 'two' }]);
+
+    expect(service.speak).not.toHaveBeenCalled();
+    expect(status.getCurrent()).toBeNull();
+
+    release();
+    void status.speak('cat');
+    expect(service.speak).toHaveBeenCalledWith('cat', {});
+    expect(status.isMicOpen()).toBe(false);
+  });
+
+  it('ignores a second release, so another open mic stays locked', () => {
+    const { service } = fakeService();
+    const status = createSpeechStatus(service);
+    const releaseFirst = status.holdForMic();
+    status.holdForMic();
+
+    releaseFirst();
+    releaseFirst();
+
+    expect(status.isMicOpen()).toBe(true);
+    void status.speak('cat');
+    expect(service.speak).not.toHaveBeenCalled();
+  });
+});

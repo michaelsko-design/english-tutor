@@ -28,6 +28,7 @@ vi.mock('../services/tts', async (importOriginal) => {
     ...actual,
     getTtsService: () => silentService,
     stopSpeech: () => silentService.stop(),
+    holdSpeechForMic: () => silentService.holdForMic(),
     speakHebrew: async () => {},
   };
 });

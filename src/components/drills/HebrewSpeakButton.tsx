@@ -31,7 +31,8 @@ export const HebrewSpeakButton: React.FC<HebrewSpeakButtonProps> = ({ text, labe
         event.stopPropagation();
         speech.toggle();
       }}
-      className={`min-w-11 min-h-11 inline-flex items-center justify-center rounded-xl shrink-0 bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 ${className}`}
+      disabled={speech.isMicOpen}
+      className={`min-w-11 min-h-11 inline-flex items-center justify-center rounded-xl shrink-0 disabled:opacity-40 bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 ${className}`}
       aria-label={name}
       title={name}
     >

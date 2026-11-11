@@ -140,7 +140,8 @@ export const PhonePanel: React.FC<PhonePanelProps> = ({ profile, theme, onUpdate
                 <button
                   type="button"
                   onClick={messageSpeech.toggle}
-                  className="p-2 rounded-full bg-white/15 shrink-0"
+                  disabled={messageSpeech.isMicOpen}
+                  className="p-2 rounded-full bg-white/15 shrink-0 disabled:opacity-40"
                   aria-label={messageSpeech.isSpeaking ? STOP_SPEECH_LABEL : 'השמעת ההודעה'}
                 >
                   <SpeakIcon isSpeaking={messageSpeech.isSpeaking} />
@@ -161,6 +162,7 @@ export const PhonePanel: React.FC<PhonePanelProps> = ({ profile, theme, onUpdate
               targetHe={message.replyHe}
               speechEval={speechEval}
               isListening={speech.isListening}
+              isStarting={speech.isStarting}
               isCompleted={isResolved}
               gender={profile.gender}
               theme={theme}

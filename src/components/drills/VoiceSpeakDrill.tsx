@@ -13,6 +13,8 @@ interface VoiceSpeakDrillProps {
   /** Word-by-word result of the latest attempt (green = heard, orange = missed) */
   speechEval: SpeechEvaluationResult | null;
   isListening: boolean;
+  /** The mic was tapped but isn't recording yet: tell the learner to wait a moment */
+  isStarting?: boolean;
   isCompleted: boolean;
   gender: LearnerGender;
   theme: ThemeDefinition;
@@ -35,6 +37,18 @@ function getWordClass(isScored: boolean, isMatched: boolean): string {
     : 'bg-amber-500/25';
 }
 
+function getMicStateClass(isListening: boolean, isStarting: boolean, prefersReducedMotion: boolean, idleClass: string): string {
+  if (isListening) return `bg-rose-500 text-white ${prefersReducedMotion ? '' : 'animate-pulse'}`;
+  if (isStarting) return 'bg-amber-400 text-slate-900';
+  return idleClass;
+}
+
+function getMicLabel(isListening: boolean, isStarting: boolean, isGirl: boolean): string {
+  if (isListening) return isGirl ? 'מקשיב לך… קראי את המשפט באנגלית!' : 'מקשיב לך… קרא את המשפט באנגלית!';
+  if (isStarting) return 'רגע… המיקרופון נפתח';
+  return isGirl ? 'לחצי ודברי' : 'לחץ ודבר';
+}
+
 /**
  * The voice studio: the sentence to say is the card (tap a word to hear it), with normal and slow
  * listening inside it, and one big record button under it. Scored word by word.
@@ -44,6 +58,7 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
   targetHe,
   speechEval,
   isListening,
+  isStarting = false,
   isCompleted,
   gender,
   theme,
@@ -58,21 +73,15 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
   const prefersReducedMotion = usePrefersReducedMotion();
   const normalSpeech = useSpeechToggle(onSpeakEnglish, targetEn, NORMAL_RATE);
   const slowSpeech = useSpeechToggle(onSpeakEnglish, targetEn, SLOW_RATE);
+  // While the mic is open nothing plays, so the listen buttons and word chips are off
+  const isMicOpen = normalSpeech.isMicOpen;
   const words = speechEval
     ? speechEval.wordResults
     : targetEn.split(/\s+/).map((w) => ({ targetWord: w, cleanWord: w, matched: false }));
 
   const listenButtonClass = `min-h-11 px-4 rounded-xl text-xs font-extrabold flex items-center gap-1.5 ${theme.secondaryBtnClass}`;
-  const micStateClass = isListening
-    ? `bg-rose-500 text-white ${prefersReducedMotion ? '' : 'animate-pulse'}`
-    : theme.primaryBtnClass;
-  const micLabel = isListening
-    ? isGirl
-      ? 'מקשיב לך… קראי את המשפט באנגלית!'
-      : 'מקשיב לך… קרא את המשפט באנגלית!'
-    : isGirl
-    ? 'לחצי ודברי'
-    : 'לחץ ודבר';
+  const micStateClass = getMicStateClass(isListening, isStarting, prefersReducedMotion, theme.primaryBtnClass);
+  const micLabel = getMicLabel(isListening, isStarting, isGirl);
 
   return (
     <div className="space-y-3 sm:space-y-5">
@@ -98,7 +107,8 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
                   <button
                     type="button"
                     onClick={() => onSpeakEnglish(item.targetWord, WORD_RATE)}
-                    className={`inline rounded-lg px-0.5 transition-colors ${getWordClass(speechEval !== null, item.matched)}`}
+                    disabled={isMicOpen}
+                    className={`inline rounded-lg px-0.5 transition-colors disabled:cursor-default ${getWordClass(speechEval !== null, item.matched)}`}
                     title="Tap any word to hear it pronounced"
                   >
                     {item.targetWord}
@@ -116,11 +126,11 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
         )}
 
         <div className="flex flex-wrap items-center justify-center gap-2.5">
-          <button type="button" onClick={slowSpeech.toggle} className={listenButtonClass}>
+          <button type="button" onClick={slowSpeech.toggle} disabled={isMicOpen} className={`${listenButtonClass} disabled:opacity-40`}>
             <SpeakIcon isSpeaking={slowSpeech.isSpeaking} />
             <span>{slowSpeech.isSpeaking ? STOP_SPEECH_TEXT : '🐢 איטי'}</span>
           </button>
-          <button type="button" onClick={normalSpeech.toggle} className={listenButtonClass}>
+          <button type="button" onClick={normalSpeech.toggle} disabled={isMicOpen} className={`${listenButtonClass} disabled:opacity-40`}>
             <SpeakIcon isSpeaking={normalSpeech.isSpeaking} />
             <span>{normalSpeech.isSpeaking ? STOP_SPEECH_TEXT : 'רגיל'}</span>
           </button>

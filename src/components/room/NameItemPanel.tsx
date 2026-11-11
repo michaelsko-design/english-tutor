@@ -219,6 +219,7 @@ export const NameItemPanel: React.FC<NameItemPanelProps> = ({
           targetHe={item.nameHe}
           speechEval={speechEval}
           isListening={speech.isListening}
+          isStarting={speech.isStarting}
           isCompleted={isNamed}
           gender={gender}
           theme={theme}

@@ -102,7 +102,8 @@ export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
         <button
           type="button"
           onClick={speech.toggle}
-          className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl shrink-0 ${theme.secondaryBtnClass}`}
+          disabled={speech.isMicOpen}
+          className={`min-w-11 min-h-11 flex items-center justify-center rounded-xl shrink-0 disabled:opacity-40 ${theme.secondaryBtnClass}`}
           aria-label={label}
           title={label}
         >

@@ -22,6 +22,10 @@ export interface SpeechRecognitionLike {
   onresult: ((event: SpeechRecognitionEventLike) => void) | null;
   onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null;
   onend: (() => void) | null;
+  /** The service began listening (fallback for browsers without onaudiostart). */
+  onstart?: (() => void) | null;
+  /** The microphone began recording: from here on, speech is heard. */
+  onaudiostart?: (() => void) | null;
   start: () => void;
   abort: () => void;
 }
