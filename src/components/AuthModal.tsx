@@ -20,7 +20,7 @@ import { getHebrewCopy } from '../utils/hebrewGender';
 import { normalizeIdentifierToEmail, usernameFromEmail } from '../utils/username';
 import { SignInPanel } from './auth/SignInPanel';
 import { CredentialMode, credentialErrorHe, validateCredentials } from './auth/credentialValidation';
-import { APP_NAME } from '../config/appInfo';
+import { APP_NAME, LANDING_PAGE_PATH } from '../config/appInfo';
 import { AppLogo } from './AppLogo';
 import { saveGuestWithGoogle, saveGuestWithUsername } from '../services/accountService';
 import { PrivacyNoticeDialog } from './privacy/PrivacyNoticeDialog';
@@ -409,7 +409,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 onClearMessages={clearMessages}
               />
 
-              <div className="text-center">
+              <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-center">
                 <button
                   type="button"
                   onClick={() => setIsPrivacyOpen(true)}
@@ -417,6 +417,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 >
                   🔒 פרטיות ומידע להורים
                 </button>
+                <a href={LANDING_PAGE_PATH} className="text-xs underline opacity-75 hover:opacity-100">
+                  מה זה <bdi>{APP_NAME}</bdi>?
+                </a>
               </div>
 
               {!isMandatory && (

@@ -1,0 +1,229 @@
+<!doctype html>
+<!-- The public landing page (/home/). Static HTML: no React, no Firebase. Its site markers are
+     filled at build time from src/site/siteContent.ts by the site-pages plugin in vite.config.ts. -->
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#5d489c" />
+    <meta
+      name="description"
+      content="EnglishVibe: אנגלית לכיתות א׳–י״ב בעברית, במשימות קצרות ומשחקיות. הכנה למבחנים ולהכתבות, דוח שבועי להורים, בלי פרסומות. מתחילים חינם."
+    />
+    <meta property="og:title" content="EnglishVibe: אנגלית שילדים רוצים לתרגל" />
+    <meta property="og:description" content="משימות קצרות, הכנה למבחנים ולהכתבות, דוח שבועי להורים. מתחילים חינם." />
+    <meta property="og:image" content="/icon-512.png" />
+    <meta property="og:locale" content="he_IL" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="stylesheet" href="/src/site/site.css" />
+    <title>EnglishVibe: אנגלית לכיתות א׳–י״ב</title>
+  </head>
+  <body>
+    <a class="site-skip" href="#main">דילוג לתוכן</a>
+
+    <header class="site-header">
+      <div class="site-wrap">
+        <a class="site-logo" href="/home/" aria-label="EnglishVibe, לעמוד הבית">
+          <img src="/icon-192.png" alt="" width="40" height="40" />
+          <bdi>EnglishVibe</bdi>
+        </a>
+        <nav class="site-nav" aria-label="ניווט ראשי">
+          <a href="#how">איך זה עובד</a>
+          <a href="#exams">מבחנים והכתבות</a>
+          <a href="#pricing">מחירים</a>
+          <a href="#parents">להורים</a>
+          <a href="#faq">שאלות</a>
+        </nav>
+        <a class="site-button site-button-small" href="<!--site:app-link-->">להתחיל</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="site-hero" aria-labelledby="hero-title">
+        <div class="site-wrap">
+          <div>
+            <p class="site-kicker">לכיתות א׳–י״ב, בעברית</p>
+            <h1 id="hero-title">אנגלית שילדים <span class="site-accent">רוצים</span> לתרגל</h1>
+            <p class="site-lead">
+              משימות קצרות ומשחקיות שמלמדות מילים, קריאה, דיבור ודקדוק, לפי הכיתה ולפי הרמה. ההסברים בעברית, האנגלית
+              מוקראת בקול, וההורים רואים כל שבוע מה התקדם.
+            </p>
+            <div class="site-cta-row">
+              <a class="site-button site-button-sun" href="<!--site:app-link-->">מתחילים עכשיו</a>
+              <span class="site-free"><!--site:free-line--></span>
+            </div>
+            <ul class="site-badges" aria-label="בקצרה">
+              <li>בלי פרסומות</li>
+              <li>בלי צ׳אט פתוח</li>
+              <li>עובד בדפדפן, בלי הורדה</li>
+              <li>מותאם למסגרת של משרד החינוך</li>
+            </ul>
+          </div>
+          <div class="site-hero-art">
+            <img src="/icon-512.png" alt="" width="320" height="320" fetchpriority="high" />
+          </div>
+        </div>
+      </section>
+
+      <section class="site-section" id="how" aria-labelledby="how-title">
+        <div class="site-wrap">
+          <div class="site-section-head">
+            <p class="site-kicker">איך זה עובד</p>
+            <h2 id="how-title">עשר דקות ביום, בקצב של הילד/ה</h2>
+          </div>
+          <ol class="site-steps">
+            <li>
+              <h3>מבחן רמה קצר</h3>
+              <p>כמה שאלות בהתחלה, והאפליקציה יודעת מאיפה להתחיל: מהאותיות בכיתה א׳ ועד הכנה לבגרות.</p>
+            </li>
+            <li>
+              <h3>משימה יומית</h3>
+              <p>כל משימה משלבת שיחה, בניית משפטים, הקלטת קול, דקדוק וקטע קריאה. שלוש רמות קושי לכל משימה.</p>
+            </li>
+            <li>
+              <h3>רואים התקדמות</h3>
+              <p>כוכבים, רצף ימים ויהלומים לחדר האישי, ודוח שבועי שאפשר לשלוח להורים בוואטסאפ.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="site-section site-section-alt" aria-labelledby="features-title">
+        <div class="site-wrap">
+          <div class="site-section-head">
+            <p class="site-kicker">מה יש בפנים</p>
+            <h2 id="features-title">כל מה שצריך כדי להתקדם, במקום אחד</h2>
+          </div>
+          <div class="site-grid">
+            <article class="site-card">
+              <span class="site-icon" aria-hidden="true">🗣️</span>
+              <h3>שומעים ומדברים</h3>
+              <p>כל משפט באנגלית מוקרא בקול טבעי, ותרגילי הגייה עם מיקרופון. בכיתות א׳–ב׳ גם ההוראות בעברית מוקראות.</p>
+            </article>
+            <article class="site-card">
+              <span class="site-icon" aria-hidden="true">📚</span>
+              <h3>לפי הכיתה</h3>
+              <p>יחידות לכל כיתה מא׳ עד י״ב, מותאמות למסגרת תוכנית הלימודים של משרד החינוך.</p>
+            </article>
+            <article class="site-card">
+              <span class="site-icon" aria-hidden="true">🎯</span>
+              <h3>שלוש רמות קושי</h3>
+              <p>Explorer, Challenger ו-Master: שאלות שונות באמת בכל רמה, כך שגם מי שמתקדם מהר מקבל אתגר.</p>
+            </article>
+            <article class="site-card">
+              <span class="site-icon" aria-hidden="true">💬</span>
+              <h3>עברית שמדברת אליהם</h3>
+              <p>ההסברים בעברית ופונים לילד או לילדה בלשון הנכונה. בלי לנחש מה כתוב באנגלית.</p>
+            </article>
+            <article class="site-card">
+              <span class="site-icon" aria-hidden="true">🏠</span>
+              <h3>חדר אישי ומשחקים</h3>
+              <p>יהלומים שמרוויחים במשימות קונים פריטים לחדר ולדמות. ויש משחקי מילים כמו תפזורת ותשבץ.</p>
+            </article>
+            <article class="site-card">
+              <span class="site-icon" aria-hidden="true">🛡️</span>
+              <h3>חברים, בלי סיכונים</h3>
+              <p>אתגרים בין חברים בלי צ׳אט ובלי טקסט חופשי. מתחת לגיל 13 ההורה מחליט אם להפעיל.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="site-section" id="exams" aria-labelledby="exams-title">
+        <div class="site-wrap site-split">
+          <div>
+            <p class="site-kicker">מבחנים והכתבות</p>
+            <h2 id="exams-title">יש מבחן ביום חמישי? מתכוננים בלי ויכוחים</h2>
+            <p class="site-lead">
+              מעתיקים את רשימת המילים שהמורה שלחה, או מזינים תאריך מבחן, והאפליקציה בונה תרגול יומי עד המבחן.
+            </p>
+          </div>
+          <div class="site-card">
+            <ul class="site-checks">
+              <li><strong>רשימת מילים להכתבה:</strong> משמעות, איות והגייה, בשלושה סבבים.</li>
+              <li><strong>תוכנית למבחן:</strong> תרגול יומי לפי התאריך, עם בנק שאלות לכל כיתה.</li>
+              <li><strong>מבחן תרגול ותעודת מוכנות</strong> בסוף הדרך.</li>
+              <li><strong>לבגרות:</strong> הבנת הנקרא ומבנה חיבור, בכיתות הגבוהות.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="site-section site-section-alt" id="pricing" aria-labelledby="pricing-title">
+        <div class="site-wrap">
+          <div class="site-section-head">
+            <p class="site-kicker">מחירים</p>
+            <h2 id="pricing-title">מתחילים חינם. משדרגים רק אם מתאים</h2>
+            <p>
+              המנוי (Pro) פותח את כל היחידות, הכנה מלאה למבחנים ועד 10 רשימות מילים פעילות. מנוי אחד מכסה עד 4
+              ילדים. רק הורה משלם, דרך פורטל ההורים. הילדים לא רואים מחירים.
+            </p>
+          </div>
+          <!--site:pricing-->
+          <p class="site-note">
+            התשלום בעמוד המאובטח של <bdi>Grow</bdi>. פרטי הכרטיס לא מגיעים אלינו, וקבלה נשלחת באימייל.
+          </p>
+        </div>
+      </section>
+
+      <section class="site-section" id="parents" aria-labelledby="parents-title">
+        <div class="site-wrap">
+          <div class="site-section-head">
+            <p class="site-kicker">להורים</p>
+            <h2 id="parents-title">מה חשוב לדעת לפני שמתחילים</h2>
+          </div>
+          <div class="site-grid">
+            <article class="site-card">
+              <h3>מי עומד מאחורי זה</h3>
+              <p>
+                <bdi>EnglishVibe</bdi> נבנתה בישראל, קודם כול בשביל הילדים שלנו בבית. זה עסק קטן ועצמאי, וכל פנייה
+                נקראת ונענית על ידינו.
+              </p>
+            </article>
+            <article class="site-card">
+              <h3>מה נשמר</h3>
+              <p>
+                שם פרטי, כיתה וההתקדמות במשימות. בלי פרסומות, בלי מכירת מידע ובלי מעקב מחוץ לאפליקציה. הפירוט המלא
+                במדיניות הפרטיות.
+              </p>
+            </article>
+            <article class="site-card">
+              <h3>שליטה בידיים שלכם</h3>
+              <p>בהגדרות אפשר להוריד את כל הנתונים כקובץ, ולמחוק את החשבון ואת כל המידע שלו לצמיתות.</p>
+            </article>
+            <article class="site-card">
+              <h3>ביטול פשוט</h3>
+              <p>
+                מנוי חודשי מבטלים בלחיצה אחת בפורטל ההורים, ואין חיובים נוספים. מנוי שנתי לא מתחדש מעצמו. עונים לכל
+                פנייה בתוך 48 שעות.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="site-section site-section-alt" id="faq" aria-labelledby="faq-title">
+        <div class="site-wrap">
+          <div class="site-section-head">
+            <p class="site-kicker">שאלות נפוצות</p>
+            <h2 id="faq-title">שאלות שהורים שואלים</h2>
+          </div>
+          <!--site:faq-->
+        </div>
+      </section>
+
+      <section class="site-section" aria-labelledby="final-title">
+        <div class="site-wrap">
+          <div class="site-final">
+            <h2 id="final-title">רוצים לנסות?</h2>
+            <p><!--site:free-line-->. כמה דקות, ורואים אם זה מתאים.</p>
+            <a class="site-button site-button-sun" href="<!--site:app-link-->">מתחילים עכשיו</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!--site:footer-->
+  </body>
+</html>

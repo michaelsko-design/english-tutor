@@ -1,65 +1,13 @@
 import React from 'react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
-import { APP_NAME, PRIVACY_CONTACT_EMAIL } from '../../config/appInfo';
+import { APP_NAME } from '../../config/appInfo';
+import { PRIVACY_NOTICE_SECTIONS } from '../../config/privacyNotice';
 
 interface PrivacyNoticeDialogProps {
   theme: ThemeDefinition;
   onClose: () => void;
 }
-
-const SECTIONS: { titleHe: string; bodyHe: string[] }[] = [
-  {
-    titleHe: 'מה נשמר',
-    bodyHe: [
-      'שם פרטי, גיל, מגדר (לפנייה נכונה בעברית), כיתה, ערכת הנושא וקול ההקראה.',
-      'ההתקדמות: כוכבים, נקודות, יהלומים, רצף, יומן פעילות של 12 השבועות האחרונים, רשימות מילים, חלומות, ציורים ופריטי החדר.',
-      'שם משתמש או חשבון Google שבהם נכנסים. הקוד הסודי נשמר אצל Google Firebase ולא אצלנו.',
-    ],
-  },
-  {
-    titleHe: 'איפה זה נשמר',
-    bodyHe: [
-      'בשירות Google Firebase (ההתקדמות נשמרת בשרתים באירופה), ועותק במכשיר עצמו כדי שהאפליקציה תעבוד גם בלי אינטרנט.',
-      'הקראה באנגלית מגיעה משירות Microsoft Azure; נשלח אליו רק הטקסט האנגלי שמוקרא, בלי פרטים על הלומד/ת.',
-      'זיהוי הדיבור בתרגילי ההגייה נעשה על ידי הדפדפן (Google או Apple), לפי ההגדרות של המכשיר.',
-    ],
-  },
-  {
-    titleHe: 'מה חברים רואים',
-    bodyHe: [
-      'רק אם מרכז החברים פעיל: שם פרטי, דמות, רמה, רצף, כוכבים ומספר משימות. אין צ׳אט ואין טקסט חופשי.',
-      'מתחת לגיל 13 מרכז החברים כבוי עד שהורה מפעיל אותו בהגדרות.',
-    ],
-  },
-  {
-    titleHe: 'מה הורים רואים',
-    bodyHe: [
-      'רק אם הלומד/ת יוצרים קוד והורה מחבר/ת אותו עם חשבון Google של ההורה (לא חובה): הדוח השבועי בלבד, כלומר שם, כיתה, רמה, רצף ופעילות ב-12 השבועות האחרונים. לא הגיל, בית הספר, החלומות או ההודעות.',
-      'אפשר לנתק את ההורה בכל רגע בהגדרות, וגם ההורה יכול להתנתק.',
-    ],
-  },
-  {
-    titleHe: 'סטטיסטיקות שימוש',
-    bodyHe: [
-      'כדי לשפר את האפליקציה אנחנו סופרים כמה פעמים נעשו פעולות כמו סיום משימה או פתיחת מסך, ושומרים דוחות שגיאה קצרים. אלה מספרים בלבד: בלי שם, בלי טקסט שהלומד/ת כתבו, בלי מזהה מכשיר ובלי עוגיות. אנחנו גם שומרים באילו משימות הלומד/ת עצרו באמצע, ואת סוג המכשיר בקווים כלליים בלבד (למשל טלפון או מחשב, ושם הדפדפן), כדי לדעת איפה קשה ובאילו מכשירים יש תקלות. הם נשמרים תחת מזהה החשבון (לא שם) ולצד הכיתה, ולכן הם לא אנונימיים לחלוטין אלא מקושרים לחשבון.',
-      'המספרים נשמרים ב-Google Firebase, מופיעים לנו רק כסיכום, ולא נמסרים לאף גורם אחר.',
-      'הורה יכול לכבות את זה בכל רגע בהגדרות, בלשונית החשבון. מחיקת החשבון מוחקת גם את המספרים האלה.',
-      'בשלב הבדיקות הסגורות, אם הילד/ה קיבלו הזמנה מאיתנו, נשמרת גם רשומת גישה (כינוי שנתנו להזמנה, למשל שם פרטי בלבד) והודעות שהילד/ה בוחרים לשלוח לנו מההגדרות. הודעות כאלה נשמרות גם אחרי מחיקת החשבון, בלי קישור לחשבון, ולכן כדאי לא לכתוב בהן פרטים אישיים.',
-    ],
-  },
-  {
-    titleHe: 'מה לא עושים',
-    bodyHe: ['אין פרסומות, אין מכירה או העברה של מידע, ואין מעקב אחרי הלומד/ת מחוץ לאפליקציה.'],
-  },
-  {
-    titleHe: 'הזכויות שלכם',
-    bodyHe: [
-      'בהגדרות אפשר להוריד את כל הנתונים כקובץ, ולמחוק את החשבון ואת כל המידע שלו לצמיתות.',
-      `לשאלות ובקשות: ${PRIVACY_CONTACT_EMAIL}`,
-    ],
-  },
-];
 
 /** The privacy notice for parents and learners, opened from the sign-in screen and the settings. */
 export const PrivacyNoticeDialog: React.FC<PrivacyNoticeDialogProps> = ({ theme, onClose }) => (
@@ -73,7 +21,7 @@ export const PrivacyNoticeDialog: React.FC<PrivacyNoticeDialogProps> = ({ theme,
       <p className={theme.mutedTextClass}>
         <bdi>{APP_NAME}</bdi> היא אפליקציה ללימוד אנגלית לילדים ולבני נוער. כאן מוסבר איזה מידע נשמר, למה ואיך מוחקים אותו.
       </p>
-      {SECTIONS.map((section) => (
+      {PRIVACY_NOTICE_SECTIONS.map((section) => (
         <section key={section.titleHe} className="space-y-1.5">
           <h3 className="font-extrabold">{section.titleHe}</h3>
           <ul className="list-disc ps-5 space-y-1">

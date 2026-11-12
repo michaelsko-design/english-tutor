@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { APP_NAME } from '../../config/appInfo';
+import { APP_NAME, LANDING_PAGE_PATH } from '../../config/appInfo';
 import { MAX_PRO_SEATS, quoteProPrice, type BillingPeriod } from '../../config/proTier';
 import type { ParentLink } from '../../data/parentLink';
 import { startProCheckout } from '../../services/proBillingService';
@@ -173,6 +173,11 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
       <PaymentMethodsNote period={period} className={`text-center ${theme.mutedTextClass}`} />
       <p className={`text-xs font-bold text-center ${theme.mutedTextClass}`}>
         {period === 'monthly' ? 'חיוב חודשי, אפשר לבטל בכל עת.' : 'תשלום אחד לשנה, בלי חידוש אוטומטי.'} התשלום בדף המאובטח של חברת הסליקה.
+      </p>
+      <p className={`text-xs text-center ${theme.mutedTextClass}`}>
+        <a href={`${LANDING_PAGE_PATH}#pricing`} target="_blank" rel="noopener" className="underline">
+          כל המחירים, שאלות נפוצות ופרטי התקשרות
+        </a>
       </p>
     </form>
   );

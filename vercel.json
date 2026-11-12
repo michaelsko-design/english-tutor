@@ -47,6 +47,12 @@
       "schedule": "0 3 * * *"
     }
   ],
+  "redirects": [
+    { "source": "/home", "destination": "/home/", "permanent": true },
+    { "source": "/terms", "destination": "/terms/", "permanent": true },
+    { "source": "/privacy", "destination": "/privacy/", "permanent": true },
+    { "source": "/refunds", "destination": "/refunds/", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/__/auth/:path*", "destination": "https://english-tutor-il-7.firebaseapp.com/__/auth/:path*" }
   ],

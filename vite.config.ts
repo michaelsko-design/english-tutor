@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { defineConfig, loadEnv, type Plugin, type ResolvedConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { buildSiteBlocks, fillSiteMarkers } from './src/site/renderSite';
 
 /**
  * Serves the /api/tts Vercel Function from the dev server, with AZURE_* from .env.local. Without
@@ -124,6 +125,26 @@ function swPrecachePlugin(): Plugin {
   };
 }
 
+/** The public landing site's pages (static HTML next to the app; docs/architecture.md §4.32) */
+const SITE_PAGES = ['home', 'terms', 'privacy', 'refunds'] as const;
+
+/**
+ * Fills the landing site's `<!--site:name-->` markers (prices, contact, legal texts) from
+ * src/site/renderSite.ts, in dev and in the build. Pages without markers (the app) pass through.
+ */
+function sitePagesPlugin(): Plugin {
+  const readRepoText = (relativePath: string): string => readFileSync(resolve(__dirname, relativePath), 'utf8');
+  return {
+    name: 'site-pages',
+    transformIndexHtml: {
+      order: 'pre',
+      handler(html) {
+        return html.includes('<!--site:') ? fillSiteMarkers(html, buildSiteBlocks(readRepoText)) : html;
+      },
+    },
+  };
+}
+
 /**
  * Libraries in their own chunks: their file names (content hashes) stay the same between releases,
  * so returning learners download only the app code that changed.
@@ -145,11 +166,16 @@ export default defineConfig(({ mode }) => ({
     ttsApiDevPlugin(loadEnv(mode, process.cwd(), 'AZURE_')),
     ...(mode === 'emulator' ? [paymentsApiDevPlugin()] : []),
     swPrecachePlugin(),
+    sitePagesPlugin(),
   ],
   build: {
     rollupOptions: {
-      // Two HTML entries: the learner app and the owner's installable mini-app (/owner/)
-      input: { main: resolve(__dirname, 'index.html'), owner: resolve(__dirname, 'owner/index.html') },
+      // HTML entries: the learner app, the owner's installable mini-app (/owner/) and the landing site
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        owner: resolve(__dirname, 'owner/index.html'),
+        ...Object.fromEntries(SITE_PAGES.map((page) => [`site-${page}`, resolve(__dirname, `${page}/index.html`)])),
+      },
       output: { manualChunks: vendorChunk },
     },
   },

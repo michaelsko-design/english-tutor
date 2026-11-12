@@ -10,5 +10,8 @@ export const VIBE_CHEER_HE = 'יש לך וייב טוב!';
  */
 export const SUPPORT_WHATSAPP_NUMBER = '972529282667';
 
+/** The public landing site (home/index.html, static, next to the app; docs/architecture.md §4.32) */
+export const LANDING_PAGE_PATH = '/home/';
+
 /** Where parents send privacy questions and requests (shown in the privacy notice). */
 export const PRIVACY_CONTACT_EMAIL = 'support@englishvibe.co.il';
