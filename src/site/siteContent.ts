@@ -42,6 +42,9 @@ export function formatIsraeliPhone(internationalDigits: string): string {
   return `${local.slice(0, 3)}-${local.slice(3)}`;
 }
 
+/** The phone is left off the site for now (owner, 2026-11-12); true puts it back in the footer */
+export const SHOW_PHONE_ON_SITE = false;
+
 export const CONTACT = {
   email: PRIVACY_CONTACT_EMAIL,
   phoneDisplay: formatIsraeliPhone(SUPPORT_WHATSAPP_NUMBER),
@@ -82,22 +85,24 @@ export const EXTRA_CHILD_MONTHLY = formatShekels(PRO_PRICES_AGOROT[2].monthly - 
  */
 export const PRO_WORD_LISTS = 10;
 
+/** What every plan has: the last rows of each card, the same text in all three */
+const SHARED_PLAN_FEATURES: readonly string[] = ['מבחן רמה, חדר אישי, מדבקות ומשחקי מילים', 'אתגרים עם חברים ודוח שבועי להורים'];
+
 export const FREE_PLAN_FEATURES: readonly string[] = [
   'יחידות הלימוד הראשונות בכל כיתה',
   'יום טעימה מתוכנית ההכנה למבחן',
   `עד ${FREE_WORD_LISTS} רשימות מילים מבית הספר`,
   `${FREE_THEME_IDS.length} עיצובים ו-${FREE_COMPANION_IDS.length} דמויות לבחירה`,
-  'מבחן רמה, חדר אישי, מדבקות ומשחקי מילים',
-  'אתגרים עם חברים ודוח שבועי להורים',
+  ...SHARED_PLAN_FEATURES,
 ];
 
-/** Parallel to the free list, row by row, so the difference reads across the cards */
+/** Parallel to the free list, row by row (the cards line the rows up), so the difference reads across */
 export const PRO_PLAN_FEATURES: readonly string[] = [
   'כל יחידות הלימוד בכל הכיתות',
   'הכנה מלאה למבחן: כל ימי התרגול, מבחן תרגול ותעודת מוכנות',
   `עד ${PRO_WORD_LISTS} רשימות מילים פעילות`,
   'כל העיצובים וכל הדמויות',
-  'וכל מה שיש בחינם',
+  ...SHARED_PLAN_FEATURES,
 ];
 
 export interface FaqItem {

@@ -17,6 +17,9 @@ import {
   BUSINESS,
   CONTACT,
   EXTRA_CHILD_MONTHLY,
+  FREE_PLAN_FEATURES,
+  PRO_PLAN_FEATURES,
+  SHOW_PHONE_ON_SITE,
   PRO_WORD_LISTS,
   FREE_START_LINE_HE,
   LEGAL_PAGES_LIVE,
@@ -35,6 +38,11 @@ describe('siteContent', () => {
     expect(formatShekels(3900)).toBe('₪39');
     expect(formatShekels(6450)).toBe('₪64.50');
     expect(() => formatShekels(-1)).toThrow();
+  });
+
+  it('gives every plan card six feature rows, the count the cards subgrid lines up (home-more.css)', () => {
+    expect(FREE_PLAN_FEATURES).toHaveLength(6);
+    expect(PRO_PLAN_FEATURES).toHaveLength(6);
   });
 
   it('formats the support number as a local Israeli phone', () => {
@@ -84,13 +92,14 @@ describe('renderSite', () => {
     expect(() => extractMarkdownSection(markdown, '## C')).toThrow();
   });
 
-  it("covers Grow's site check on the home page: every price, phone, address", () => {
+  it("covers Grow's site check on the home page: every price, address, and no phone while it is off", () => {
     const home = fillSiteMarkers(readRepoText('home/index.html'), blocks);
     for (const row of PRICE_ROWS) {
       expect(home).toContain(row.monthly);
       expect(home).toContain(row.yearly);
     }
-    expect(home).toContain(CONTACT.phoneDisplay);
+    expect(SHOW_PHONE_ON_SITE).toBe(false);
+    expect(home).not.toContain(CONTACT.phoneDisplay);
     expect(home).toContain(CONTACT.email);
     expect(home).toContain(BUSINESS.addressHe);
     expect(home).toContain(BUSINESS.registrationHe);

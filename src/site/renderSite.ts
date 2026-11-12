@@ -11,13 +11,13 @@ import {
   APP_ENTRY_URL,
   BUSINESS,
   CONTACT,
-  EXTRA_CHILD_MONTHLY,
   FAQ,
   FREE_PLAN_FEATURES,
   FREE_START_LINE_HE,
   LEGAL_PAGES_LIVE,
   PRICE_ROWS,
   PRO_PLAN_FEATURES,
+  SHOW_PHONE_ON_SITE,
 } from './siteContent';
 
 export const TERMS_DOC_PATH = 'docs/legal/pro-legal-drafts.md';
@@ -71,13 +71,16 @@ function renderFeatureList(features: readonly string[]): string {
 /** The Pro cards show the one-child price; the table below has every family size */
 const ONE_CHILD_PRICE_HE = 'המחיר לילד/ה אחד/ת';
 
+/** Under the table: how each period is paid and cancelled */
+const PAYMENT_NOTE_HE =
+  'חודשי: בכרטיס אשראי, מתחדש כל חודש ומבטלים בלחיצה בפורטל ההורים. שנתי: תשלום אחד שלא מתחדש מעצמו, בכרטיס אשראי, <bdi>Bit</bdi>, <bdi>Apple Pay</bdi> או <bdi>Google Pay</bdi>.';
+
 interface PlanCard {
   name: string;
   price: string;
   per: string;
-  /** Who the price is for (the Pro prices are for one child) */
-  seats?: string;
-  note: string;
+  /** One line under the price: who the Pro price is for, or the free plan's no-card line */
+  tag: string;
   isFeatured?: boolean;
 }
 
@@ -88,8 +91,7 @@ function renderPlanCard(plan: PlanCard, features: readonly string[]): string {
     badge,
     `<p class="site-plan-name">${plan.name}</p>`,
     `<p class="site-price">${plan.price}<span>${plan.per}</span></p>`,
-    plan.seats ? `<p class="site-plan-seats">${plan.seats}</p>` : '',
-    `<p class="site-plan-note">${plan.note}</p>`,
+    `<p class="site-plan-tag">${plan.tag}</p>`,
     renderFeatureList(features),
     '</div>',
   ].join('');
@@ -102,14 +104,13 @@ function renderPricing(): string {
   ).join('');
   return [
     '<div class="site-price-cards">',
-    renderPlanCard({ name: 'חינם', price: '₪0', per: '', note: `${escapeHtml(FREE_START_LINE_HE)}.` }, FREE_PLAN_FEATURES),
+    renderPlanCard({ name: 'חינם', price: '₪0', per: '', tag: escapeHtml(FREE_START_LINE_HE) }, FREE_PLAN_FEATURES),
     renderPlanCard(
       {
         name: '<bdi>Pro</bdi> חודשי',
         price: PRICE_ROWS[0].monthly,
         per: ' לחודש',
-        seats: ONE_CHILD_PRICE_HE,
-        note: `כל ילד/ה נוסף/ת: ${EXTRA_CHILD_MONTHLY} לחודש. מתחדש כל חודש, ומבטלים בלחיצה בפורטל ההורים, בלי חיובים נוספים. כרטיס אשראי.`,
+        tag: ONE_CHILD_PRICE_HE,
       },
       PRO_PLAN_FEATURES,
     ),
@@ -118,8 +119,7 @@ function renderPricing(): string {
         name: '<bdi>Pro</bdi> שנתי',
         price: PRICE_ROWS[0].yearly,
         per: ' לשנה',
-        seats: ONE_CHILD_PRICE_HE,
-        note: `ל-${PRICE_ROWS.length} ילדים: ${PRICE_ROWS[PRICE_ROWS.length - 1].yearly} לשנה. תשלום אחד, לא מתחדש מעצמו. כרטיס אשראי, <bdi>Bit</bdi>, <bdi>Apple Pay</bdi> או <bdi>Google Pay</bdi>.`,
+        tag: ONE_CHILD_PRICE_HE,
         isFeatured: true,
       },
       PRO_PLAN_FEATURES,
@@ -128,6 +128,7 @@ function renderPricing(): string {
     '<table class="site-table" aria-label="המחיר לפי מספר הילדים במנוי">',
     '<thead><tr><th scope="col">ילדים במנוי</th><th scope="col">חודשי</th><th scope="col">שנתי</th></tr></thead>',
     `<tbody>${rows}</tbody></table>`,
+    `<p class="site-note">${PAYMENT_NOTE_HE}</p>`,
   ].join('');
 }
 
@@ -142,7 +143,7 @@ function renderContact(): string {
   return [
     '<ul class="site-contact">',
     `<li>אימייל: <a href="mailto:${CONTACT.email}" dir="ltr">${CONTACT.email}</a></li>`,
-    `<li>טלפון: <a href="${CONTACT.phoneHref}" dir="ltr">${CONTACT.phoneDisplay}</a></li>`,
+    SHOW_PHONE_ON_SITE ? `<li>טלפון: <a href="${CONTACT.phoneHref}" dir="ltr">${CONTACT.phoneDisplay}</a></li>` : '',
     `<li>${escapeHtml(CONTACT.responseHoursHe)}.</li>`,
     '</ul>',
   ].join('');
