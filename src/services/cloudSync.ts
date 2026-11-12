@@ -669,8 +669,8 @@ export async function saveProfileToFirestore(
   const batch = writeBatch(db);
   batch.set(docRef, sanitized, { merge: true });
   // A merge keeps keys the profile no longer has, so an item taken out of the room (or moved to a
-  // new placement key) would come back from the cloud, and a new exam plan would keep the old plan's
-  // archive and certificate. These maps are written as a whole.
+  // new placement key) or a piece of clothing taken off would come back from the cloud, and a new
+  // exam plan would keep the old plan's archive and certificate. These maps are written as a whole.
   if (sanitized.examPrep) {
     batch.update(docRef, { examPrep: sanitized.examPrep });
   }
@@ -678,6 +678,7 @@ export async function saveProfileToFirestore(
     batch.update(docRef, {
       'room.placements': sanitized.room.placements ?? {},
       'room.positions': sanitized.room.positions ?? deleteField(),
+      'room.outfit': sanitized.room.outfit ?? deleteField(),
     });
   }
   await batch.commit();

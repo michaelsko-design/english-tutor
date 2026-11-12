@@ -47,3 +47,31 @@ describe('saveProfileToFirestore examPrep', () => {
     expect(mocks.batch.update).not.toHaveBeenCalled();
   });
 });
+
+describe('saveProfileToFirestore room outfit', () => {
+  const baseRoom = { placements: {}, namedItemIds: [], updatedAt: '2026-11-12T10:00:00.000Z' };
+
+  beforeEach(() => {
+    mocks.batch.update.mockClear();
+  });
+
+  it('writes the outfit as a whole, so a taken-off item does not stay in the cloud', async () => {
+    const room = { ...baseRoom, outfit: { head: 'cap' } };
+
+    await saveProfileToFirestore('uid-1', { room } as unknown as LearnerProfile);
+
+    expect(mocks.batch.update).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ 'room.outfit': { head: 'cap' } })
+    );
+  });
+
+  it('deletes the cloud outfit when every item was taken off', async () => {
+    await saveProfileToFirestore('uid-1', { room: baseRoom } as unknown as LearnerProfile);
+
+    expect(mocks.batch.update).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ 'room.outfit': '__delete__' })
+    );
+  });
+});
