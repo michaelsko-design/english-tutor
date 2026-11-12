@@ -312,10 +312,38 @@ function mergeExamDay(local: ExamPlanDay, cloud: ExamPlanDay | undefined): ExamP
  * progress from both (earliest completion and best score per day, best mock score, and the
  * earliest certificate and archive times).
  */
+function isBefore(iso: string | undefined, referenceIso: string): boolean {
+  return Boolean(iso) && Date.parse(iso as string) < Date.parse(referenceIso);
+}
+
+/**
+ * Removes results a plan cannot have: an archive or certificate dated before the plan was made, or a
+ * best mock score while the plan's mock exam has no score. An old merge-write left the previous
+ * plan's results on a new plan this way, which archived the new plan as soon as it was made.
+ */
+function dropStalePlanFields(plan: ExamPrepPlan): ExamPrepPlan {
+  const mockDay = (plan.days || []).find((d) => d.kind === 'mock');
+  const isStaleArchive = isBefore(plan.archivedAt, plan.createdAt);
+  const isStaleCertificate = isBefore(plan.certificateEarnedAt, plan.createdAt);
+  const isStaleMockScore =
+    plan.bestMockScore !== undefined && (isStaleCertificate || (mockDay !== undefined && mockDay.scorePercent === undefined));
+  if (!isStaleArchive && !isStaleCertificate && !isStaleMockScore) return plan;
+
+  const { archivedAt, certificateEarnedAt, bestMockScore, ...rest } = plan;
+  return {
+    ...rest,
+    ...(archivedAt && !isStaleArchive ? { archivedAt } : {}),
+    ...(certificateEarnedAt && !isStaleCertificate ? { certificateEarnedAt } : {}),
+    ...(bestMockScore !== undefined && !isStaleMockScore ? { bestMockScore } : {}),
+  };
+}
+
 function mergeExamPrep(
-  local: ExamPrepPlan | undefined,
-  cloud: ExamPrepPlan | undefined
+  rawLocal: ExamPrepPlan | undefined,
+  rawCloud: ExamPrepPlan | undefined
 ): ExamPrepPlan | undefined {
+  const local = rawLocal && dropStalePlanFields(rawLocal);
+  const cloud = rawCloud && dropStalePlanFields(rawCloud);
   if (!local || !cloud) return local || cloud;
   if (local.id !== cloud.id) {
     return Date.parse(cloud.createdAt) >= Date.parse(local.createdAt) ? cloud : local;
@@ -641,7 +669,11 @@ export async function saveProfileToFirestore(
   const batch = writeBatch(db);
   batch.set(docRef, sanitized, { merge: true });
   // A merge keeps keys the profile no longer has, so an item taken out of the room (or moved to a
-  // new placement key) would come back from the cloud. These two maps are written as a whole.
+  // new placement key) would come back from the cloud, and a new exam plan would keep the old plan's
+  // archive and certificate. These maps are written as a whole.
+  if (sanitized.examPrep) {
+    batch.update(docRef, { examPrep: sanitized.examPrep });
+  }
   if (sanitized.room) {
     batch.update(docRef, {
       'room.placements': sanitized.room.placements ?? {},

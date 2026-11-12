@@ -178,6 +178,53 @@ describe('mergeLearnerProfiles examPrep', () => {
     expect(merged?.archivedAt).toBe('2026-10-26T08:00:00.000Z');
   });
 
+  it('drops results a new plan inherited from the previous plan in the cloud', () => {
+    // A merge-write once left the old plan's archive, certificate and mock score on a new plan
+    const createdAt = '2026-11-12T13:23:05.047Z';
+    const days = [makeDay(0), makeDay(1, { kind: 'mock' })];
+    const local = makeExamPlan('new', createdAt, days);
+    const cloud = {
+      ...makeExamPlan('new', createdAt, days),
+      archivedAt: '2026-11-11T17:52:09.974Z',
+      certificateEarnedAt: '2026-10-20T11:33:52.110Z',
+      bestMockScore: 100,
+    };
+
+    for (const [a, b] of [[local, cloud], [cloud, local]]) {
+      const merged = mergeLearnerProfiles({ ...baseProfile, examPrep: a }, { examPrep: b }).examPrep;
+      expect(merged?.id).toBe('new');
+      expect(merged).not.toHaveProperty('archivedAt');
+      expect(merged).not.toHaveProperty('certificateEarnedAt');
+      expect(merged).not.toHaveProperty('bestMockScore');
+    }
+  });
+
+  it('cleans a plan that exists only in the cloud with inherited results', () => {
+    const createdAt = '2026-11-12T13:23:05.047Z';
+    const cloud = {
+      ...makeExamPlan('new', createdAt, [makeDay(0, { kind: 'mock' })]),
+      archivedAt: '2026-11-11T17:52:09.974Z',
+      certificateEarnedAt: '2026-10-20T11:33:52.110Z',
+      bestMockScore: 100,
+    };
+
+    expect(mergeLearnerProfiles(baseProfile, { examPrep: cloud }).examPrep).toEqual(
+      makeExamPlan('new', createdAt, [makeDay(0, { kind: 'mock' })])
+    );
+  });
+
+  it('keeps a real archive, certificate and mock score made after the plan was created', () => {
+    const createdAt = '2026-10-01T00:00:00.000Z';
+    const plan = {
+      ...makeExamPlan('a', createdAt, [makeDay(0, { kind: 'mock', completedAt: '2026-10-20T08:00:00.000Z', scorePercent: 90 })]),
+      archivedAt: '2026-10-26T08:00:00.000Z',
+      certificateEarnedAt: '2026-10-20T08:00:00.000Z',
+      bestMockScore: 90,
+    };
+
+    expect(mergeLearnerProfiles({ ...baseProfile, examPrep: plan }, { examPrep: plan }).examPrep).toEqual(plan);
+  });
+
   it('keeps a plan that exists on only one side and omits the field otherwise', () => {
     const plan = makeExamPlan('a', '2026-10-01T00:00:00.000Z');
 
