@@ -1,7 +1,8 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { PRO_PRICES_AGOROT } from '../config/proTier';
+import { MAX_ACTIVE_LISTS } from '../data/customWordLists';
 import { PRIVACY_NOTICE_SECTIONS } from '../config/privacyNotice';
 import {
   buildSiteBlocks,
@@ -16,6 +17,7 @@ import {
   BUSINESS,
   CONTACT,
   EXTRA_CHILD_MONTHLY,
+  PRO_WORD_LISTS,
   FREE_START_LINE_HE,
   LEGAL_PAGES_LIVE,
   PRICE_ROWS,
@@ -48,6 +50,17 @@ describe('siteContent', () => {
     }
     expect(PRICE_ROWS[0]).toMatchObject({ monthly: '₪39', yearly: '₪349' });
     expect(EXTRA_CHILD_MONTHLY).toBe('₪25');
+  });
+
+  it("states Pro's word-list limit as the app enforces it", () => {
+    expect(PRO_WORD_LISTS).toBe(MAX_ACTIVE_LISTS);
+  });
+
+  it('shows only real app screens that exist', () => {
+    const home = readFileSync(resolve(REPO_ROOT, 'home/index.html'), 'utf-8');
+    const screens = [...home.matchAll(/\/site\/screens\/([a-z-]+\.webp)/g)].map((match) => match[1]);
+    expect(screens.length).toBeGreaterThan(0);
+    for (const file of new Set(screens)) expect(existsSync(resolve(REPO_ROOT, 'public/site/screens', file)), file).toBe(true);
   });
 
   it('tags every link into the app with its source', () => {

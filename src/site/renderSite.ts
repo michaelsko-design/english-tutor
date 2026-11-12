@@ -13,9 +13,11 @@ import {
   CONTACT,
   EXTRA_CHILD_MONTHLY,
   FAQ,
+  FREE_PLAN_FEATURES,
   FREE_START_LINE_HE,
   LEGAL_PAGES_LIVE,
   PRICE_ROWS,
+  PRO_PLAN_FEATURES,
 } from './siteContent';
 
 export const TERMS_DOC_PATH = 'docs/legal/pro-legal-drafts.md';
@@ -62,6 +64,23 @@ export function markdownToHtml(markdown: string): string {
   return marked.parse(markdown, { async: false, gfm: true });
 }
 
+function renderFeatureList(features: readonly string[]): string {
+  return `<ul class="site-plan-features">${features.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+}
+
+function renderPlanCard(plan: { name: string; price: string; per: string; note: string; isFeatured?: boolean }, features: readonly string[]): string {
+  const badge = plan.isFeatured ? '<span class="site-plan-badge">הכי משתלם</span>' : '';
+  return [
+    `<div class="site-plan${plan.isFeatured ? ' site-plan-featured' : ''}">`,
+    badge,
+    `<p class="site-plan-name">${plan.name}</p>`,
+    `<p class="site-price">${plan.price}<span>${plan.per}</span></p>`,
+    `<p class="site-plan-note">${plan.note}</p>`,
+    renderFeatureList(features),
+    '</div>',
+  ].join('');
+}
+
 function renderPricing(): string {
   const rows = PRICE_ROWS.map(
     (row) =>
@@ -69,9 +88,26 @@ function renderPricing(): string {
   ).join('');
   return [
     '<div class="site-price-cards">',
-    `<div class="site-card"><p class="site-kicker">חינם</p><p class="site-price">₪0</p><p>${escapeHtml(FREE_START_LINE_HE)}.</p></div>`,
-    `<div class="site-card site-card-brand"><p class="site-kicker">Pro חודשי</p><p class="site-price">${PRICE_ROWS[0].monthly}<span> לחודש</span></p><p>${EXTRA_CHILD_MONTHLY} לכל ילד/ה נוסף/ת. מתחדש כל חודש, מבטלים בלחיצה. כרטיס אשראי.</p></div>`,
-    `<div class="site-card"><p class="site-kicker">Pro שנתי</p><p class="site-price">${PRICE_ROWS[0].yearly}<span> לשנה</span></p><p>תשלום אחד, לא מתחדש מעצמו. כרטיס אשראי, <bdi>Bit</bdi>, <bdi>Apple Pay</bdi> או <bdi>Google Pay</bdi>.</p></div>`,
+    renderPlanCard({ name: 'חינם', price: '₪0', per: '', note: `${escapeHtml(FREE_START_LINE_HE)}.` }, FREE_PLAN_FEATURES),
+    renderPlanCard(
+      {
+        name: '<bdi>Pro</bdi> שנתי',
+        price: PRICE_ROWS[0].yearly,
+        per: ' לשנה',
+        note: 'תשלום אחד, לא מתחדש מעצמו. כרטיס אשראי, <bdi>Bit</bdi>, <bdi>Apple Pay</bdi> או <bdi>Google Pay</bdi>.',
+        isFeatured: true,
+      },
+      PRO_PLAN_FEATURES,
+    ),
+    renderPlanCard(
+      {
+        name: '<bdi>Pro</bdi> חודשי',
+        price: PRICE_ROWS[0].monthly,
+        per: ' לחודש',
+        note: `${EXTRA_CHILD_MONTHLY} לכל ילד/ה נוסף/ת. מתחדש כל חודש, מבטלים בלחיצה. כרטיס אשראי.`,
+      },
+      PRO_PLAN_FEATURES,
+    ),
     '</div>',
     '<table class="site-table"><caption>כל המחירים (עוסק פטור, פטור ממע״מ)</caption>',
     '<thead><tr><th scope="col">ילדים במנוי</th><th scope="col">חודשי</th><th scope="col">שנתי</th></tr></thead>',

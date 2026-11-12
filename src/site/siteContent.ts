@@ -4,7 +4,7 @@
  * server would not charge. Grow's site check needs every plan, the phone and the address on the site.
  */
 import { APP_NAME, PRIVACY_CONTACT_EMAIL, SUPPORT_WHATSAPP_NUMBER } from '../config/appInfo';
-import { PRO_PRICES_AGOROT, type ProSeatCount } from '../config/proTier';
+import { FREE_WORD_LISTS, MAX_PRO_SEATS, PRO_PRICES_AGOROT, type ProSeatCount } from '../config/proTier';
 
 /**
  * Off until the lawyer approves the drafts (backlog: "Pro legal texts"). While off, the legal pages
@@ -69,6 +69,27 @@ export const PRICE_ROWS: readonly PriceRow[] = SEAT_COUNTS.map((seats) => ({
 
 /** The extra child's monthly price, as the plan picker words it ("₪25 לכל ילד נוסף") */
 export const EXTRA_CHILD_MONTHLY = formatShekels(PRO_PRICES_AGOROT[2].monthly - PRO_PRICES_AGOROT[1].monthly);
+
+/**
+ * Pro's active word lists (`MAX_ACTIVE_LISTS` in data/customWordLists.ts; not imported, since that
+ * module pulls in the curriculum loader and this file runs in vite.config.ts). A test keeps them equal.
+ */
+export const PRO_WORD_LISTS = 10;
+
+export const FREE_PLAN_FEATURES: readonly string[] = [
+  'היחידות הראשונות של כל כיתה',
+  `עד ${FREE_WORD_LISTS} רשימות מילים מבית הספר`,
+  'טעימה מתוכנית ההכנה למבחן',
+  'משחקי מילים והחדר האישי',
+];
+
+export const PRO_PLAN_FEATURES: readonly string[] = [
+  'כל היחידות של כל הכיתות',
+  'הכנה מלאה למבחנים, עד יום המבחן',
+  `עד ${PRO_WORD_LISTS} רשימות מילים פעילות`,
+  'כל העולמות וכל החברים',
+  `מנוי אחד לעד ${MAX_PRO_SEATS} ילדים`,
+];
 
 export interface FaqItem {
   questionHe: string;

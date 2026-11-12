@@ -1,6 +1,7 @@
 <!doctype html>
 <!-- The public landing page (/home/). Static HTML: no React, no Firebase. Its site markers are
-     filled at build time from src/site/siteContent.ts by the site-pages plugin in vite.config.ts. -->
+     filled at build time from src/site/siteContent.ts by the site-pages plugin in vite.config.ts.
+     The phone screens are real app screenshots: `npm run site:screens` captures them again. -->
 <html lang="he" dir="rtl">
   <head>
     <meta charset="UTF-8" />
@@ -16,10 +17,11 @@
     <meta property="og:locale" content="he_IL" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" as="image" href="/site/screens/home.webp" fetchpriority="high" />
     <link rel="stylesheet" href="/src/site/site.css" />
     <title>EnglishVibe: אנגלית לכיתות א׳–י״ב</title>
   </head>
-  <body>
+  <body class="site-home">
     <a class="site-skip" href="#main">דילוג לתוכן</a>
 
     <header class="site-header">
@@ -29,100 +31,203 @@
           <bdi>EnglishVibe</bdi>
         </a>
         <nav class="site-nav" aria-label="ניווט ראשי">
-          <a href="#how">איך זה עובד</a>
+          <a href="#mission">איך זה עובד</a>
+          <a href="#world">מה יש בפנים</a>
           <a href="#exams">מבחנים והכתבות</a>
-          <a href="#pricing">מחירים</a>
           <a href="#parents">להורים</a>
-          <a href="#faq">שאלות</a>
+          <a href="#pricing">מחירים</a>
         </nav>
         <a class="site-button site-button-small" href="<!--site:app-link-->">להתחיל</a>
       </div>
     </header>
 
     <main id="main">
-      <section class="site-hero" aria-labelledby="hero-title">
-        <div class="site-wrap">
-          <div>
-            <p class="site-kicker">לכיתות א׳–י״ב, בעברית</p>
-            <h1 id="hero-title">אנגלית שילדים <span class="site-accent">רוצים</span> לתרגל</h1>
-            <p class="site-lead">
+      <!-- Hero -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="site-wrap hero-grid">
+          <div class="hero-copy">
+            <p class="pill"><span aria-hidden="true">✨</span> אנגלית לכיתות א׳–י״ב, בעברית</p>
+            <h1 id="hero-title">
+              אנגלית שילדים
+              <span class="hero-mark">רוצים</span>
+              לתרגל
+            </h1>
+            <p class="hero-lead">
               משימות קצרות ומשחקיות שמלמדות מילים, קריאה, דיבור ודקדוק, לפי הכיתה ולפי הרמה. ההסברים בעברית, האנגלית
               מוקראת בקול, וההורים רואים כל שבוע מה התקדם.
             </p>
-            <div class="site-cta-row">
-              <a class="site-button site-button-sun" href="<!--site:app-link-->">מתחילים עכשיו</a>
-              <span class="site-free"><!--site:free-line--></span>
+            <div class="hero-cta">
+              <a class="site-button site-button-big" href="<!--site:app-link-->">
+                מתחילים עכשיו <span aria-hidden="true">←</span>
+              </a>
+              <p class="hero-free"><span aria-hidden="true">✓</span> <!--site:free-line--></p>
             </div>
-            <ul class="site-badges" aria-label="בקצרה">
-              <li>בלי פרסומות</li>
-              <li>בלי צ׳אט פתוח</li>
-              <li>עובד בדפדפן, בלי הורדה</li>
-              <li>מותאם למסגרת של משרד החינוך</li>
+            <ul class="hero-proof" aria-label="בקצרה">
+              <li><span aria-hidden="true">🚫</span> בלי פרסומות</li>
+              <li><span aria-hidden="true">💬</span> בלי צ׳אט פתוח</li>
+              <li><span aria-hidden="true">🌐</span> בדפדפן, בלי הורדה</li>
             </ul>
           </div>
-          <div class="site-hero-art">
-            <img src="/icon-512.png" alt="" width="320" height="320" fetchpriority="high" />
+
+          <div class="hero-stage" aria-hidden="true">
+            <div class="hero-blob"></div>
+            <figure class="phone phone-back phone-back-start">
+              <img src="/site/screens/sentence-builder.webp" alt="" width="600" height="1298" loading="eager" />
+            </figure>
+            <figure class="phone phone-back phone-back-end">
+              <img src="/site/screens/victory.webp" alt="" width="600" height="1298" loading="eager" />
+            </figure>
+            <figure class="phone phone-front">
+              <img src="/site/screens/home.webp" alt="" width="600" height="1298" fetchpriority="high" />
+            </figure>
+            <img class="hero-mascot" src="/art/cozy-studio/companion-wave@256.webp" alt="" width="256" height="256" />
+            <span class="sticker sticker-gems" dir="ltr">+16 💎</span>
+            <span class="sticker sticker-stars">⭐⭐⭐</span>
+            <span class="sticker sticker-listen" dir="ltr" lang="en">🔊 I can swim fast.</span>
           </div>
         </div>
+        <p class="visually-hidden">
+          במסך הבית של האפליקציה רואים את המשימה היומית, אתגרים יומיים, החדר האישי, הכנה למבחן ורשימות מילים.
+        </p>
       </section>
 
-      <section class="site-section" id="how" aria-labelledby="how-title">
-        <div class="site-wrap">
-          <div class="site-section-head">
-            <p class="site-kicker">איך זה עובד</p>
-            <h2 id="how-title">עשר דקות ביום, בקצב של הילד/ה</h2>
-          </div>
-          <ol class="site-steps">
-            <li>
-              <h3>מבחן רמה קצר</h3>
-              <p>כמה שאלות בהתחלה, והאפליקציה יודעת מאיפה להתחיל: מהאותיות בכיתה א׳ ועד הכנה לבגרות.</p>
-            </li>
-            <li>
-              <h3>משימה יומית</h3>
-              <p>כל משימה משלבת שיחה, בניית משפטים, הקלטת קול, דקדוק וקטע קריאה. שלוש רמות קושי לכל משימה.</p>
-            </li>
-            <li>
-              <h3>רואים התקדמות</h3>
-              <p>כוכבים, רצף ימים ויהלומים לחדר האישי, ודוח שבועי שאפשר לשלוח להורים בוואטסאפ.</p>
-            </li>
-          </ol>
+      <!-- Ribbon -->
+      <div class="ribbon" role="presentation">
+        <div class="site-wrap ribbon-row">
+          <span>📚 יחידות לכל כיתה, מא׳ עד י״ב</span>
+          <span>🔊 כל משפט מוקרא בקול</span>
+          <span>🎯 שלוש רמות קושי</span>
+          <span>📝 הכנה להכתבות ולמבחנים</span>
+          <span>👨‍👩‍👧 דוח שבועי להורים</span>
         </div>
+      </div>
+
+      <!-- One mission -->
+      <section class="section" id="mission" aria-labelledby="mission-title">
+        <div class="site-wrap">
+          <div class="section-head">
+            <p class="kicker">איך זה עובד</p>
+            <h2 id="mission-title">משימה אחת, עשר דקות. ככה זה נראה</h2>
+            <p>
+              כל משימה היא סיפור קצר עם חמישה שלבים שונים, כדי שגם מילים, גם דיבור וגם קריאה יקבלו מקום. אלה צילומי
+              מסך אמיתיים מהמשימה הראשונה של כיתה ד׳.
+            </p>
+          </div>
+        </div>
+        <ol class="rail" aria-label="שלבי המשימה">
+          <li class="rail-item">
+            <figure class="phone">
+              <img src="/site/screens/mission-tiers.webp" alt="מסך פתיחת משימה: בוחרים אחת משלוש רמות" width="600" height="1298" loading="lazy" />
+            </figure>
+            <h3>בוחרים רמה</h3>
+            <p>בסיס וביטחון, רמת כיתה מלאה או מצוינות והעשרה. בכל רמה שאלות אחרות.</p>
+          </li>
+          <li class="rail-item">
+            <figure class="phone">
+              <img src="/site/screens/mini-lesson.webp" alt="שיעור קצר בעברית על can ופועל" width="600" height="1298" loading="lazy" />
+            </figure>
+            <h3>שיעור של דקה</h3>
+            <p>הכלל בעברית, עם דוגמה וטעות נפוצה שכדאי להכיר. ואז מתרגלים.</p>
+          </li>
+          <li class="rail-item">
+            <figure class="phone">
+              <img src="/site/screens/sentence-builder.webp" alt="בניית המשפט I can swim fast ממילים" width="600" height="1298" loading="lazy" />
+            </figure>
+            <h3>בונים משפטים</h3>
+            <p>מקישים על המילים לפי הסדר ובונים את המשפט באנגלית. שגיאה? מנסים שוב.</p>
+          </li>
+          <li class="rail-item">
+            <figure class="phone">
+              <img src="/site/screens/speak.webp" alt="תרגיל הגייה עם מיקרופון" width="600" height="1298" loading="lazy" />
+            </figure>
+            <h3>אומרים בקול</h3>
+            <p>שומעים את המשפט, ברגיל או לאט, ואומרים אותו למיקרופון.</p>
+          </li>
+          <li class="rail-item">
+            <figure class="phone">
+              <img src="/site/screens/story.webp" alt="קטע קריאה קצר עם איור" width="600" height="1298" loading="lazy" />
+            </figure>
+            <h3>קוראים סיפור</h3>
+            <p>קטע קריאה קצר עם איור, הקראה בקול ותרגום לעברית כרמז.</p>
+          </li>
+          <li class="rail-item">
+            <figure class="phone">
+              <img src="/site/screens/victory.webp" alt="מסך סיום משימה עם כוכבים ופרסים" width="600" height="1298" loading="lazy" />
+            </figure>
+            <h3>אוספים פרסים</h3>
+            <p>כוכבים, יהלומים לחדר האישי, ומילים חדשות שנכנסות לאוצר המילים.</p>
+          </li>
+        </ol>
+        <p class="rail-hint" aria-hidden="true">← גוללים הצידה לשלב הבא</p>
       </section>
 
-      <section class="site-section site-section-alt" aria-labelledby="features-title">
+      <!-- Bento -->
+      <section class="section section-tint" id="world" aria-labelledby="world-title">
         <div class="site-wrap">
-          <div class="site-section-head">
-            <p class="site-kicker">מה יש בפנים</p>
-            <h2 id="features-title">כל מה שצריך כדי להתקדם, במקום אחד</h2>
+          <div class="section-head">
+            <p class="kicker">מה יש בפנים</p>
+            <h2 id="world-title">עולם שלם, לא עוד דף עבודה</h2>
           </div>
-          <div class="site-grid">
-            <article class="site-card">
-              <span class="site-icon" aria-hidden="true">🗣️</span>
-              <h3>שומעים ומדברים</h3>
-              <p>כל משפט באנגלית מוקרא בקול טבעי, ותרגילי הגייה עם מיקרופון. בכיתות א׳–ב׳ גם ההוראות בעברית מוקראות.</p>
+          <div class="bento">
+            <article class="tile tile-map">
+              <div class="tile-text">
+                <h3>מפה לכל כיתה</h3>
+                <p>
+                  יחידה אחרי יחידה, משימה אחרי משימה, לפי מסגרת תוכנית הלימודים של משרד החינוך. רואים בדיוק איפה עומדים
+                  ומה הבא בתור.
+                </p>
+              </div>
+              <div class="crop crop-tall">
+                <img src="/site/screens/map.webp" alt="מפת העולם של כיתה ד׳ עם יחידות ומשימות" width="600" height="1298" loading="lazy" />
+              </div>
             </article>
-            <article class="site-card">
-              <span class="site-icon" aria-hidden="true">📚</span>
-              <h3>לפי הכיתה</h3>
-              <p>יחידות לכל כיתה מא׳ עד י״ב, מותאמות למסגרת תוכנית הלימודים של משרד החינוך.</p>
+
+            <article class="tile tile-tiers">
+              <h3>שלוש רמות, שאלות שונות באמת</h3>
+              <p>מי שצריך ביטחון מתחיל בבסיס. מי שרץ קדימה מקבל אתגר אמיתי, לא את אותה שאלה בצבע אחר.</p>
+              <ul class="tiers" aria-label="רמות הקושי">
+                <li><span aria-hidden="true">🌱</span> בסיס וביטחון</li>
+                <li><span aria-hidden="true">⚡</span> רמת כיתה מלאה</li>
+                <li><span aria-hidden="true">👑</span> מצוינות והעשרה</li>
+              </ul>
             </article>
-            <article class="site-card">
-              <span class="site-icon" aria-hidden="true">🎯</span>
-              <h3>שלוש רמות קושי</h3>
-              <p>Explorer, Challenger ו-Master: שאלות שונות באמת בכל רמה, כך שגם מי שמתקדם מהר מקבל אתגר.</p>
+
+            <article class="tile tile-words">
+              <div class="crop crop-mid">
+                <img src="/site/screens/word-bank.webp" alt="מאגר המילים של הכיתה, עם הקראה רגילה ואיטית" width="600" height="1298" loading="lazy" />
+              </div>
+              <div class="tile-text">
+                <h3>מאגר מילים שמדבר</h3>
+                <p>כל מילה עם משפט לדוגמה, תרגום והקראה בקול טבעי, גם לאט.</p>
+              </div>
             </article>
-            <article class="site-card">
-              <span class="site-icon" aria-hidden="true">💬</span>
+
+            <article class="tile tile-hebrew">
+              <p class="tile-quote" aria-hidden="true">
+                <span>כל הכבוד, נועה!</span>
+                <span>כל הכבוד, איתי!</span>
+              </p>
               <h3>עברית שמדברת אליהם</h3>
-              <p>ההסברים בעברית ופונים לילד או לילדה בלשון הנכונה. בלי לנחש מה כתוב באנגלית.</p>
+              <p>ההסברים בעברית ופונים לילד או לילדה בלשון הנכונה. בכיתות א׳–ב׳ גם ההוראות מוקראות בקול.</p>
             </article>
-            <article class="site-card">
-              <span class="site-icon" aria-hidden="true">🏠</span>
-              <h3>חדר אישי ומשחקים</h3>
-              <p>יהלומים שמרוויחים במשימות קונים פריטים לחדר ולדמות. ויש משחקי מילים כמו תפזורת ותשבץ.</p>
+
+            <article class="tile tile-room">
+              <div class="tile-text">
+                <h3>חדר אישי ושלושה חברים</h3>
+                <p>יהלומים שמרוויחים במשימות קונים פריטים לחדר. ובוחרים חבר שילווה את הדרך.</p>
+              </div>
+              <div class="mascots" aria-hidden="true">
+                <img src="/art/neon-pop/companion-cheer@256.webp" alt="" width="256" height="256" loading="lazy" />
+                <img src="/art/cozy-studio/companion-cheer@256.webp" alt="" width="256" height="256" loading="lazy" />
+                <img src="/art/starlight-rpg/companion-cheer@256.webp" alt="" width="256" height="256" loading="lazy" />
+              </div>
+              <div class="crop crop-room">
+                <img src="/site/screens/room.webp" alt="החדר האישי באפליקציה" width="600" height="1298" loading="lazy" />
+              </div>
             </article>
-            <article class="site-card">
-              <span class="site-icon" aria-hidden="true">🛡️</span>
+
+            <article class="tile tile-safe">
+              <span class="tile-icon" aria-hidden="true">🛡️</span>
               <h3>חברים, בלי סיכונים</h3>
               <p>אתגרים בין חברים בלי צ׳אט ובלי טקסט חופשי. מתחת לגיל 13 ההורה מחליט אם להפעיל.</p>
             </article>
@@ -130,34 +235,88 @@
         </div>
       </section>
 
-      <section class="site-section" id="exams" aria-labelledby="exams-title">
-        <div class="site-wrap site-split">
-          <div>
-            <p class="site-kicker">מבחנים והכתבות</p>
-            <h2 id="exams-title">יש מבחן ביום חמישי? מתכוננים בלי ויכוחים</h2>
-            <p class="site-lead">
-              מעתיקים את רשימת המילים שהמורה שלחה, או מזינים תאריך מבחן, והאפליקציה בונה תרגול יומי עד המבחן.
+      <!-- Exams -->
+      <section class="section section-ink" id="exams" aria-labelledby="exams-title">
+        <div class="site-wrap exams-grid">
+          <div class="exams-copy">
+            <p class="kicker kicker-sun">מבחנים והכתבות</p>
+            <h2 id="exams-title">יש הכתבה ביום חמישי? מתכוננים בלי ויכוחים</h2>
+            <p class="exams-lead">
+              מעתיקים את רשימת המילים שהמורה שלחה, או מזינים את תאריך המבחן, והאפליקציה בונה תרגול יומי עד היום הגדול.
             </p>
-          </div>
-          <div class="site-card">
-            <ul class="site-checks">
+            <ul class="checks">
               <li><strong>רשימת מילים להכתבה:</strong> משמעות, איות והגייה, בשלושה סבבים.</li>
               <li><strong>תוכנית למבחן:</strong> תרגול יומי לפי התאריך, עם בנק שאלות לכל כיתה.</li>
               <li><strong>מבחן תרגול ותעודת מוכנות</strong> בסוף הדרך.</li>
               <li><strong>לבגרות:</strong> הבנת הנקרא ומבנה חיבור, בכיתות הגבוהות.</li>
             </ul>
           </div>
+          <div class="exams-phones">
+            <figure class="phone phone-tilt-start">
+              <img src="/site/screens/wordlist-import.webp" alt="ייבוא רשימת מילים מבית הספר: מדביקים את המילים והתרגום" width="600" height="1298" loading="lazy" />
+              <figcaption>1. מדביקים את הרשימה</figcaption>
+            </figure>
+            <figure class="phone phone-raised">
+              <img src="/site/screens/exam-plan.webp" alt="תוכנית הכנה למבחן: תרגול לכל יום עד המבחן" width="600" height="1298" loading="lazy" />
+              <figcaption>2. מקבלים תוכנית יומית</figcaption>
+            </figure>
+            <figure class="phone phone-tilt-end">
+              <img src="/site/screens/wordlist-practice.webp" alt="תרגול מילים מהרשימה" width="600" height="1298" loading="lazy" />
+              <figcaption>3. מתרגלים עד שזה יושב</figcaption>
+            </figure>
+          </div>
         </div>
       </section>
 
-      <section class="site-section site-section-alt" id="pricing" aria-labelledby="pricing-title">
+      <!-- Parents -->
+      <section class="section" id="parents" aria-labelledby="parents-title">
+        <div class="site-wrap parents-grid">
+          <div class="parents-visual">
+            <figure class="phone">
+              <img src="/site/screens/parent-report.webp" alt="הדוח השבועי להורים: ימי תרגול, משימות, כוכבים ומילים חדשות" width="600" height="1298" loading="lazy" />
+            </figure>
+            <span class="sticker sticker-report">כל שבוע, בוואטסאפ 📲</span>
+          </div>
+          <div>
+            <p class="kicker">להורים</p>
+            <h2 id="parents-title">רואים מה קורה, בלי לעמוד מעל הראש</h2>
+            <p class="parents-lead">
+              הדוח השבועי מראה ימי תרגול, משימות, כוכבים ומילים חדשות. מזמינים הורה מתוך האפליקציה, או שולחים את
+              הדוח בוואטסאפ.
+            </p>
+            <div class="trust">
+              <article>
+                <h3>מי עומד מאחורי זה</h3>
+                <p>
+                  <bdi>EnglishVibe</bdi> נבנתה בישראל, קודם כול בשביל הילדים שלנו בבית. זה עסק קטן ועצמאי, וכל פנייה
+                  נקראת ונענית על ידינו.
+                </p>
+              </article>
+              <article>
+                <h3>מה נשמר</h3>
+                <p>שם פרטי, כיתה וההתקדמות במשימות. בלי פרסומות, בלי מכירת מידע ובלי מעקב מחוץ לאפליקציה.</p>
+              </article>
+              <article>
+                <h3>שליטה בידיים שלכם</h3>
+                <p>בהגדרות אפשר להוריד את כל הנתונים כקובץ, ולמחוק את החשבון ואת כל המידע שלו לצמיתות.</p>
+              </article>
+              <article>
+                <h3>ביטול פשוט</h3>
+                <p>מנוי חודשי מבטלים בלחיצה בפורטל ההורים. מנוי שנתי לא מתחדש מעצמו. עונים לכל פנייה בתוך 48 שעות.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pricing -->
+      <section class="section section-tint" id="pricing" aria-labelledby="pricing-title">
         <div class="site-wrap">
-          <div class="site-section-head">
-            <p class="site-kicker">מחירים</p>
+          <div class="section-head section-head-center">
+            <p class="kicker">מחירים</p>
             <h2 id="pricing-title">מתחילים חינם. משדרגים רק אם מתאים</h2>
             <p>
-              המנוי (Pro) פותח את כל היחידות, הכנה מלאה למבחנים ועד 10 רשימות מילים פעילות. מנוי אחד מכסה עד 4
-              ילדים. רק הורה משלם, דרך פורטל ההורים. הילדים לא רואים מחירים.
+              מנוי אחד מכסה עד 4 ילדים. רק הורה משלם, דרך פורטל ההורים, והילדים לא רואים מחירים.
             </p>
           </div>
           <!--site:pricing-->
@@ -167,58 +326,32 @@
         </div>
       </section>
 
-      <section class="site-section" id="parents" aria-labelledby="parents-title">
-        <div class="site-wrap">
-          <div class="site-section-head">
-            <p class="site-kicker">להורים</p>
-            <h2 id="parents-title">מה חשוב לדעת לפני שמתחילים</h2>
-          </div>
-          <div class="site-grid">
-            <article class="site-card">
-              <h3>מי עומד מאחורי זה</h3>
-              <p>
-                <bdi>EnglishVibe</bdi> נבנתה בישראל, קודם כול בשביל הילדים שלנו בבית. זה עסק קטן ועצמאי, וכל פנייה
-                נקראת ונענית על ידינו.
-              </p>
-            </article>
-            <article class="site-card">
-              <h3>מה נשמר</h3>
-              <p>
-                שם פרטי, כיתה וההתקדמות במשימות. בלי פרסומות, בלי מכירת מידע ובלי מעקב מחוץ לאפליקציה. הפירוט המלא
-                במדיניות הפרטיות.
-              </p>
-            </article>
-            <article class="site-card">
-              <h3>שליטה בידיים שלכם</h3>
-              <p>בהגדרות אפשר להוריד את כל הנתונים כקובץ, ולמחוק את החשבון ואת כל המידע שלו לצמיתות.</p>
-            </article>
-            <article class="site-card">
-              <h3>ביטול פשוט</h3>
-              <p>
-                מנוי חודשי מבטלים בלחיצה אחת בפורטל ההורים, ואין חיובים נוספים. מנוי שנתי לא מתחדש מעצמו. עונים לכל
-                פנייה בתוך 48 שעות.
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="site-section site-section-alt" id="faq" aria-labelledby="faq-title">
-        <div class="site-wrap">
-          <div class="site-section-head">
-            <p class="site-kicker">שאלות נפוצות</p>
+      <!-- FAQ -->
+      <section class="section" id="faq" aria-labelledby="faq-title">
+        <div class="site-wrap faq-grid">
+          <div class="section-head">
+            <p class="kicker">שאלות נפוצות</p>
             <h2 id="faq-title">שאלות שהורים שואלים</h2>
+            <p>לא מצאתם תשובה? כתבו לנו, אנחנו עונים בתוך 48 שעות.</p>
           </div>
-          <!--site:faq-->
+          <div><!--site:faq--></div>
         </div>
       </section>
 
-      <section class="site-section" aria-labelledby="final-title">
+      <!-- Final CTA -->
+      <section class="section section-last" aria-labelledby="final-title">
         <div class="site-wrap">
-          <div class="site-final">
-            <h2 id="final-title">רוצים לנסות?</h2>
+          <div class="final">
+            <div class="final-mascots" aria-hidden="true">
+              <img src="/art/starlight-rpg/companion-cheer@256.webp" alt="" width="256" height="256" loading="lazy" />
+              <img src="/art/cozy-studio/companion-cheer@256.webp" alt="" width="256" height="256" loading="lazy" />
+              <img src="/art/neon-pop/companion-cheer@256.webp" alt="" width="256" height="256" loading="lazy" />
+            </div>
+            <h2 id="final-title">המשימה הראשונה מחכה</h2>
             <p><!--site:free-line-->. כמה דקות, ורואים אם זה מתאים.</p>
-            <a class="site-button site-button-sun" href="<!--site:app-link-->">מתחילים עכשיו</a>
+            <a class="site-button site-button-big site-button-sun" href="<!--site:app-link-->">
+              מתחילים עכשיו <span aria-hidden="true">←</span>
+            </a>
           </div>
         </div>
       </section>
