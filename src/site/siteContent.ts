@@ -4,7 +4,13 @@
  * server would not charge. Grow's site check needs every plan, the phone and the address on the site.
  */
 import { APP_NAME, PRIVACY_CONTACT_EMAIL, SUPPORT_WHATSAPP_NUMBER } from '../config/appInfo';
-import { FREE_WORD_LISTS, MAX_PRO_SEATS, PRO_PRICES_AGOROT, type ProSeatCount } from '../config/proTier';
+import {
+  FREE_COMPANION_IDS,
+  FREE_THEME_IDS,
+  FREE_WORD_LISTS,
+  PRO_PRICES_AGOROT,
+  type ProSeatCount,
+} from '../config/proTier';
 
 /**
  * Off until the lawyer approves the drafts (backlog: "Pro legal texts"). While off, the legal pages
@@ -77,18 +83,21 @@ export const EXTRA_CHILD_MONTHLY = formatShekels(PRO_PRICES_AGOROT[2].monthly - 
 export const PRO_WORD_LISTS = 10;
 
 export const FREE_PLAN_FEATURES: readonly string[] = [
-  'היחידות הראשונות של כל כיתה',
+  'יחידות הלימוד הראשונות בכל כיתה',
+  'יום טעימה מתוכנית ההכנה למבחן',
   `עד ${FREE_WORD_LISTS} רשימות מילים מבית הספר`,
-  'טעימה מתוכנית ההכנה למבחן',
-  'משחקי מילים והחדר האישי',
+  `${FREE_THEME_IDS.length} עיצובים ו-${FREE_COMPANION_IDS.length} דמויות לבחירה`,
+  'מבחן רמה, חדר אישי, מדבקות ומשחקי מילים',
+  'אתגרים עם חברים ודוח שבועי להורים',
 ];
 
+/** Parallel to the free list, row by row, so the difference reads across the cards */
 export const PRO_PLAN_FEATURES: readonly string[] = [
-  'כל היחידות של כל הכיתות',
-  'הכנה מלאה למבחנים, עד יום המבחן',
+  'כל יחידות הלימוד בכל הכיתות',
+  'הכנה מלאה למבחן: כל ימי התרגול, מבחן תרגול ותעודת מוכנות',
   `עד ${PRO_WORD_LISTS} רשימות מילים פעילות`,
-  'כל העולמות וכל החברים',
-  `אחים ואחיות באותו מנוי (עד ${MAX_PRO_SEATS} ילדים)`,
+  'כל העיצובים וכל הדמויות',
+  'וכל מה שיש בחינם',
 ];
 
 export interface FaqItem {

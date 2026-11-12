@@ -105,6 +105,16 @@ function renderPricing(): string {
     renderPlanCard({ name: 'חינם', price: '₪0', per: '', note: `${escapeHtml(FREE_START_LINE_HE)}.` }, FREE_PLAN_FEATURES),
     renderPlanCard(
       {
+        name: '<bdi>Pro</bdi> חודשי',
+        price: PRICE_ROWS[0].monthly,
+        per: ' לחודש',
+        seats: ONE_CHILD_PRICE_HE,
+        note: `כל ילד/ה נוסף/ת: ${EXTRA_CHILD_MONTHLY} לחודש. מתחדש כל חודש, ומבטלים בלחיצה בפורטל ההורים, בלי חיובים נוספים. כרטיס אשראי.`,
+      },
+      PRO_PLAN_FEATURES,
+    ),
+    renderPlanCard(
+      {
         name: '<bdi>Pro</bdi> שנתי',
         price: PRICE_ROWS[0].yearly,
         per: ' לשנה',
@@ -114,18 +124,8 @@ function renderPricing(): string {
       },
       PRO_PLAN_FEATURES,
     ),
-    renderPlanCard(
-      {
-        name: '<bdi>Pro</bdi> חודשי',
-        price: PRICE_ROWS[0].monthly,
-        per: ' לחודש',
-        seats: ONE_CHILD_PRICE_HE,
-        note: `כל ילד/ה נוסף/ת: ${EXTRA_CHILD_MONTHLY} לחודש. מתחדש כל חודש, מבטלים בלחיצה. כרטיס אשראי.`,
-      },
-      PRO_PLAN_FEATURES,
-    ),
     '</div>',
-    '<table class="site-table"><caption>המחיר לפי מספר הילדים במנוי (עוסק פטור, פטור ממע״מ)</caption>',
+    '<table class="site-table" aria-label="המחיר לפי מספר הילדים במנוי">',
     '<thead><tr><th scope="col">ילדים במנוי</th><th scope="col">חודשי</th><th scope="col">שנתי</th></tr></thead>',
     `<tbody>${rows}</tbody></table>`,
   ].join('');
@@ -193,6 +193,7 @@ export function buildSiteBlocks(readRepoText: ReadRepoText): Readonly<Record<str
     pricing: renderPricing,
     faq: renderFaq,
     contact: renderContact,
+    'email-link': () => `<a href="mailto:${CONTACT.email}" dir="ltr">${CONTACT.email}</a>`,
     footer: renderFooter,
     'legal-head': renderLegalHead,
     'draft-banner': renderDraftBanner,
