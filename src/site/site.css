@@ -1241,6 +1241,17 @@ p {
   color: var(--ev-muted);
 }
 
+.site-plan-seats {
+  align-self: flex-start;
+  margin: -2px 0 12px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--ev-brand-soft);
+  color: var(--ev-brand);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
 .site-plan-note {
   font-size: 0.93rem;
   color: var(--ev-muted);

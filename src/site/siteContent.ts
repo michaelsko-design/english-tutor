@@ -88,7 +88,7 @@ export const PRO_PLAN_FEATURES: readonly string[] = [
   'הכנה מלאה למבחנים, עד יום המבחן',
   `עד ${PRO_WORD_LISTS} רשימות מילים פעילות`,
   'כל העולמות וכל החברים',
-  `מנוי אחד לעד ${MAX_PRO_SEATS} ילדים`,
+  `אחים ואחיות באותו מנוי (עד ${MAX_PRO_SEATS} ילדים)`,
 ];
 
 export interface FaqItem {

@@ -68,13 +68,27 @@ function renderFeatureList(features: readonly string[]): string {
   return `<ul class="site-plan-features">${features.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
 }
 
-function renderPlanCard(plan: { name: string; price: string; per: string; note: string; isFeatured?: boolean }, features: readonly string[]): string {
+/** The Pro cards show the one-child price; the table below has every family size */
+const ONE_CHILD_PRICE_HE = 'המחיר לילד/ה אחד/ת';
+
+interface PlanCard {
+  name: string;
+  price: string;
+  per: string;
+  /** Who the price is for (the Pro prices are for one child) */
+  seats?: string;
+  note: string;
+  isFeatured?: boolean;
+}
+
+function renderPlanCard(plan: PlanCard, features: readonly string[]): string {
   const badge = plan.isFeatured ? '<span class="site-plan-badge">הכי משתלם</span>' : '';
   return [
     `<div class="site-plan${plan.isFeatured ? ' site-plan-featured' : ''}">`,
     badge,
     `<p class="site-plan-name">${plan.name}</p>`,
     `<p class="site-price">${plan.price}<span>${plan.per}</span></p>`,
+    plan.seats ? `<p class="site-plan-seats">${plan.seats}</p>` : '',
     `<p class="site-plan-note">${plan.note}</p>`,
     renderFeatureList(features),
     '</div>',
@@ -94,7 +108,8 @@ function renderPricing(): string {
         name: '<bdi>Pro</bdi> שנתי',
         price: PRICE_ROWS[0].yearly,
         per: ' לשנה',
-        note: 'תשלום אחד, לא מתחדש מעצמו. כרטיס אשראי, <bdi>Bit</bdi>, <bdi>Apple Pay</bdi> או <bdi>Google Pay</bdi>.',
+        seats: ONE_CHILD_PRICE_HE,
+        note: `ל-${PRICE_ROWS.length} ילדים: ${PRICE_ROWS[PRICE_ROWS.length - 1].yearly} לשנה. תשלום אחד, לא מתחדש מעצמו. כרטיס אשראי, <bdi>Bit</bdi>, <bdi>Apple Pay</bdi> או <bdi>Google Pay</bdi>.`,
         isFeatured: true,
       },
       PRO_PLAN_FEATURES,
@@ -104,12 +119,13 @@ function renderPricing(): string {
         name: '<bdi>Pro</bdi> חודשי',
         price: PRICE_ROWS[0].monthly,
         per: ' לחודש',
-        note: `${EXTRA_CHILD_MONTHLY} לכל ילד/ה נוסף/ת. מתחדש כל חודש, מבטלים בלחיצה. כרטיס אשראי.`,
+        seats: ONE_CHILD_PRICE_HE,
+        note: `כל ילד/ה נוסף/ת: ${EXTRA_CHILD_MONTHLY} לחודש. מתחדש כל חודש, מבטלים בלחיצה. כרטיס אשראי.`,
       },
       PRO_PLAN_FEATURES,
     ),
     '</div>',
-    '<table class="site-table"><caption>כל המחירים (עוסק פטור, פטור ממע״מ)</caption>',
+    '<table class="site-table"><caption>המחיר לפי מספר הילדים במנוי (עוסק פטור, פטור ממע״מ)</caption>',
     '<thead><tr><th scope="col">ילדים במנוי</th><th scope="col">חודשי</th><th scope="col">שנתי</th></tr></thead>',
     `<tbody>${rows}</tbody></table>`,
   ].join('');
