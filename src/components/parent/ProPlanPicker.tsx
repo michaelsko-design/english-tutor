@@ -125,6 +125,7 @@ export const ProPlanPicker: React.FC<ProPlanPickerProps> = ({ theme, initialChil
       </div>
 
       <div className={`p-4 rounded-2xl text-center space-y-1 ${theme.inputBgClass}`} aria-live="polite" data-testid="pro-price-box">
+        <p className={`text-sm font-extrabold ${theme.mutedTextClass}`}>סה״כ ל{children === 1 ? 'ילד אחד' : `-${children} ילדים`}</p>
         <p className="text-3xl font-black">
           {formatShekels(quote.chargeAgorot)}
           <span className="text-base font-extrabold"> {period === 'yearly' ? 'לשנה' : 'לחודש'}</span>

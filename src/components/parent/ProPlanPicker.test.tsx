@@ -18,6 +18,7 @@ describe('ProPlanPicker', () => {
     expect(box).toContain('349 ₪ לשנה');
     expect(box).toContain('29.08 ₪ לחודש');
     expect(box).toContain('חוסכים 119 ₪ בשנה');
+    expect(box).toContain('סה״כ לילד אחד');
   });
 
   it('updates the price and the per-child rate with the counter', async () => {
@@ -28,6 +29,7 @@ describe('ProPlanPicker', () => {
 
     expect(screen.getByText('2 ילדים')).toBeInTheDocument();
     const box = plain(priceBox().textContent);
+    expect(box).toContain('סה״כ ל-2 ילדים');
     expect(box).toContain('569 ₪ לשנה');
     expect(box).toContain('47.42 ₪ לחודש');
     expect(box).toContain('23.71 ₪ לחודש לכל ילד');
