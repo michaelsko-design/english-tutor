@@ -161,7 +161,7 @@ function buildSentenceStep(ctx: BlendStepContext, sentenceIdx: number): MissionE
   const { he } = ctx;
   const sentence = FIRST_SENTENCES[sentenceIdx % FIRST_SENTENCES.length];
   const options: MultipleChoiceOption[] = [
-    { textEn: sentence.emoji, pictureId: getPhonicsPictureId(sentence.emoji), speakEn: '', isCorrect: true, explanationHe: `כל הכבוד! קראת משפט שלם: "${sentence.he}"` },
+    { textEn: sentence.emoji, pictureId: getVocabPictureId(sentence.en) ?? getPhonicsPictureId(sentence.emoji), speakEn: '', isCorrect: true, explanationHe: `כל הכבוד! קראת משפט שלם: "${sentence.he}"` },
     ...sentence.distractorEmojis.slice(0, ctx.optionCount - 1).map((emoji) => ({
       textEn: emoji,
       pictureId: getPhonicsPictureId(emoji),
