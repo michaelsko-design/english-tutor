@@ -1,6 +1,8 @@
 /**
  * Builds the vocabulary picture list: every grade 1–6 word with an emoji that a picture can show
- * (not `ABSTRACT_WORDS`), one entry per word and meaning, packed 16 to a sheet.
+ * (not `ABSTRACT_WORDS`), the hand-picked concrete words of grades 7–12 and the word decks
+ * (`PICKED_WORDS`) and the grade 1 letter words and sentence that need one (`PHONICS_WORDS`),
+ * one entry per word and meaning, packed 16 to a sheet.
  *
  * Writes  scripts/art/vocabPictureList.json         (input of renderVocabPictures.mjs and the slicer)
  *         src/components/art/vocabPictureIds.ts     (word → picture id, read by the app)
@@ -12,6 +14,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { CURRICULUM_BY_GRADE } from '../../src/test/curriculum';
 import { ABSTRACT_WORDS } from '../../src/data/pictureCues';
+import { ALL_WORD_DECKS } from '../../src/data/wordDecks/all';
 // @ts-expect-error plain JS module shared with the render script
 import { SUBJECTS, defaultSubject } from './vocabPictureSubjects.mjs';
 
@@ -22,6 +25,29 @@ const PER_SHEET = 16;
 const MAX_GRADE = 6;
 /** The pilot sheet, already drawn, in its cell order. */
 const PILOT_KEYS = ['doll', 'desk', 'carpet', 'card', 'kitten', 'puppy', 'jump', 'fly', 'brother', 'sister', 'grandparents', 'bat|מחבט', 'box', 'teddy', 'chair', 'hat'];
+/** Grade 7–12 and word-deck words a picture can show (most of the others are abstract), lowercase. */
+const PICKED_WORDS: ReadonlySet<string> = new Set([
+  // grades 7–12
+  'audience', 'luggage', 'attendant', 'clue', 'summit', 'pollution', 'electricity', 'interview', 'listener', 'headline', 'document', 'graduation', 'monument',
+  // grade 4 deck
+  'road', 'hotel', 'store', 'restaurant', 'bank', 'city', 'walk', 'sign', 'ambulance', 'lie down', 'shoulder', 'arm', 'back', 'body', 'face', 'finger', 'hair', 'head', 'knee', 'neck',
+  'hospital', 'fall', 'chicken', 'farm', 'zoo', 'mouse', 'grass', 'sea', 'tooth', 'noise', 'brown', 'black', 'white', 'hold', 'hear',
+  // grade 5 deck
+  'autumn', 'sky', 'wind', 'cloud', 'snow', 'wet', 'the cold', 'refrigerator', 'stove', 'mug', 'toothbrush', 'wash up', 'tidy', 'dining room', 'living room', 'shower', 'soap',
+  'do the cleaning', 'feed', 'empty', 'knife', 'plate', 'fast food', 'order', 'meal', 'salad', 'rice', 'steak', 'sandwich', 'salt', 'fork', 'spoon', 'glass', 'bottle', 'coffee', 'tea',
+  'thirsty', 'snack',
+  // grade 6 deck
+  'countryside', 'field', 'hill', 'island', 'wood', 'hole', 'smoke', 'grow', 'police station', 'police', 'nurse', 'university', 'meeting', 'pay', 'market', 'worker', 'waiter',
+  'waitress', 'driver', 'office', 'grill', 'pour', 'fill', 'piece', 'garlic', 'potato', 'meat', 'butter', 'yogurt', 'jam', 'biscuit',
+]);
+/** Grade 1 letter words and the first-sentence picture that aren't vocabulary words with a picture (or are abstract there). */
+const PHONICS_WORDS: ReadonlyArray<{ word: string; he: string; emoji: string; id?: string }> = [
+  { word: 'up', he: 'למעלה', emoji: '⬆️' },
+  { word: 'zero', he: 'אפס', emoji: '0️⃣' },
+  { word: 'net', he: 'רשת', emoji: '🥅' },
+  { word: 'shell', he: 'צדף', emoji: '🐚' },
+  { word: 'The cat is on the bed.', he: 'החתול על המיטה.', emoji: '🐱', id: 'vocab-cat-on-the-bed' },
+];
 /** Words whose meanings need pictures of their own, keyed `word|Hebrew`. */
 const SPLIT_MEANINGS: Record<string, Record<string, string>> = {
   bat: { 'מחבט': 'vocab-bat', 'עטלף': 'vocab-bat-animal' },
@@ -61,7 +87,27 @@ function collectWords(): Map<string, Omit<Entry, 'sheet' | 'cell'>> {
       }
     }
   }
+  for (const p of PHONICS_WORDS) addWord(words, p.word, p.he, p.emoji, p.id);
+  for (const [grade, pack] of Object.entries(CURRICULUM_BY_GRADE)) {
+    if (Number(grade.split('-')[1]) <= MAX_GRADE) continue;
+    for (const v of pack.units.flatMap((u) => u.missions.flatMap((m) => m.vocabulary))) addPicked(words, v.wordEn, v.translationHe, v.emoji);
+  }
+  for (const v of Object.values(ALL_WORD_DECKS).flatMap((decks) => decks.flatMap((d) => d.items))) addPicked(words, v.wordEn, v.translationHe, v.emoji);
+  const missing = [...PICKED_WORDS].filter((w) => !words.has(w));
+  if (missing.length) throw new Error(`Picked words not found: ${missing.join(', ')}`);
   return words;
+}
+
+type WordMap = Map<string, Omit<Entry, 'sheet' | 'cell'>>;
+
+function addWord(words: WordMap, wordEn: string, he: string, emoji: string, id?: string): void {
+  const key = wordEn.trim().toLowerCase();
+  if (words.has(key)) return;
+  words.set(key, { key, id: id ?? `vocab-${slug(wordEn)}`, word: wordEn, he, emoji, subject: SUBJECTS[key] ?? defaultSubject(wordEn, he) });
+}
+
+function addPicked(words: WordMap, wordEn: string, he: string, emoji: string | undefined): void {
+  if (PICKED_WORDS.has(wordEn.trim().toLowerCase())) addWord(words, wordEn, he, emoji ?? '');
 }
 
 function buildList(): Entry[] {
@@ -91,8 +137,11 @@ function buildList(): Entry[] {
   return entries;
 }
 
+/** Only pictures whose sheet is drawn reach the app; the rest wait for their sheet (e.g. a redraw sheet held for later). */
+const isSheetDrawn = (sheet: number) => existsSync(join(ROOT, 'art-src', 'vocab-sheets', `sheet-${sheet}.png`));
+
 function writeIds(entries: Entry[]): void {
-  const lines = entries.map((e) => `  ${JSON.stringify(e.key)}: ${JSON.stringify(e.id)},`);
+  const lines = entries.filter((e) => isSheetDrawn(e.sheet)).map((e) => `  ${JSON.stringify(e.key)}: ${JSON.stringify(e.id)},`);
   const source = `/** Generated by scripts/art/buildVocabPictureList.ts: vocabulary word (or "word|Hebrew") → drawn picture id. */
 export const VOCAB_PICTURE_IDS: Readonly<Record<string, string>> = {
 ${lines.join('\n')}

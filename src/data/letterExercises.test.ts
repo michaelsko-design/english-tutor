@@ -141,8 +141,7 @@ describe('grade 1 letters and blending units (Feature 48)', () => {
     }
   });
 
-  it('shows a drawn picture for every picture card and picture answer (up and zero are still to be drawn)', () => {
-    const STILL_TO_DRAW = new Set(['⬆️', '0️⃣']);
+  it('shows a drawn picture for every picture card and picture answer', () => {
     const isPicture = (text: string) => !/\p{L}/u.test(text) && text !== '👂';
     const missing = new Set<string>();
     for (const mission of PHONICS_MISSIONS) {
@@ -155,11 +154,10 @@ describe('grade 1 letters and blending units (Feature 48)', () => {
         }
       }
     }
-    expect([...missing].filter((emoji) => !STILL_TO_DRAW.has(emoji))).toEqual([]);
+    expect([...missing]).toEqual([]);
   });
 
-  it("shows drawn pictures in the lessons' quick tries (net, shell, up and zero are still to be drawn)", () => {
-    const STILL_TO_DRAW = new Set(['🥅', '🐚', '⬆️', '0️⃣']);
+  it("shows drawn pictures in the lessons' quick tries", () => {
     const missing = Object.values(GRADE_1_PHONICS_LESSONS).flatMap(({ quickTry }) =>
       quickTry
         ? [
@@ -168,6 +166,6 @@ describe('grade 1 letters and blending units (Feature 48)', () => {
           ]
         : []
     );
-    expect(missing.filter((emoji) => !STILL_TO_DRAW.has(emoji))).toEqual([]);
+    expect(missing).toEqual([]);
   });
 });

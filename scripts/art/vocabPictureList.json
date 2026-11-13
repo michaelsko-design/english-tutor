@@ -2368,5 +2368,1225 @@
     "subject": "a backpack: a school backpack with two straps",
     "sheet": 15,
     "cell": 13
+  },
+  {
+    "key": "up",
+    "id": "vocab-up",
+    "word": "up",
+    "he": "למעלה",
+    "emoji": "⬆️",
+    "subject": "up: a red balloon floating straight up into a blue sky, with a child below pointing up at it",
+    "sheet": 17,
+    "cell": 0
+  },
+  {
+    "key": "zero",
+    "id": "vocab-zero",
+    "word": "zero",
+    "he": "אפס",
+    "emoji": "0️⃣",
+    "subject": "zero: one big, round, thick number 0 made of shiny blue plastic, nothing else (this one picture may show the digit 0)",
+    "sheet": 17,
+    "cell": 1
+  },
+  {
+    "key": "net",
+    "id": "vocab-net",
+    "word": "net",
+    "he": "רשת",
+    "emoji": "🥅",
+    "subject": "a net: a small football goal with its white net, seen from the front at an angle",
+    "sheet": 17,
+    "cell": 2
+  },
+  {
+    "key": "shell",
+    "id": "vocab-shell",
+    "word": "shell",
+    "he": "צדף",
+    "emoji": "🐚",
+    "subject": "a shell: one pink and cream spiral seashell lying on a little patch of sand",
+    "sheet": 17,
+    "cell": 3
+  },
+  {
+    "key": "the cat is on the bed.",
+    "id": "vocab-cat-on-the-bed",
+    "word": "The cat is on the bed.",
+    "he": "החתול על המיטה.",
+    "emoji": "🐱",
+    "subject": "the cat is on the bed: a ginger cat sitting on top of a neatly made bed with a pillow and a blanket, the whole bed and cat drawn small enough to fit with white space all around; no words",
+    "sheet": 25,
+    "cell": 0
+  },
+  {
+    "key": "audience",
+    "id": "vocab-audience",
+    "word": "audience",
+    "he": "קהל / צופים",
+    "emoji": "👥",
+    "subject": "an audience: rows of people seen from behind, sitting and watching a lit stage with a red curtain",
+    "sheet": 17,
+    "cell": 5
+  },
+  {
+    "key": "luggage",
+    "id": "vocab-luggage",
+    "word": "luggage",
+    "he": "מטען / מזוודות",
+    "emoji": "🧳",
+    "subject": "luggage: two travel suitcases with wheels and handles standing side by side, one with a luggage tag",
+    "sheet": 17,
+    "cell": 6
+  },
+  {
+    "key": "attendant",
+    "id": "vocab-attendant",
+    "word": "attendant",
+    "he": "דייל / דיילת",
+    "emoji": "🧑‍✈️",
+    "subject": "a flight attendant: a smiling flight attendant in a neat uniform, holding a tray of drinks in a plane aisle",
+    "sheet": 17,
+    "cell": 7
+  },
+  {
+    "key": "clue",
+    "id": "vocab-clue",
+    "word": "clue",
+    "he": "רמז",
+    "emoji": "🧩",
+    "subject": "a clue: a magnifying glass held over a muddy footprint on the ground",
+    "sheet": 17,
+    "cell": 8
+  },
+  {
+    "key": "summit",
+    "id": "vocab-summit",
+    "word": "summit",
+    "he": "פסגה",
+    "emoji": "⛰️",
+    "subject": "a summit: a snowy mountain with a small red flag planted on its very top, the whole mountain and flag drawn in the lower two thirds of the cell with white space above the flag",
+    "sheet": 25,
+    "cell": 1
+  },
+  {
+    "key": "pollution",
+    "id": "vocab-pollution",
+    "word": "pollution",
+    "he": "זיהום",
+    "emoji": "🛢️",
+    "subject": "pollution: a factory chimney puffing thick dark smoke over a grey river with litter floating in it",
+    "sheet": 17,
+    "cell": 10
+  },
+  {
+    "key": "electricity",
+    "id": "vocab-electricity",
+    "word": "electricity",
+    "he": "חשמל",
+    "emoji": "⚡",
+    "subject": "electricity: a plug going into a wall socket, with a bright yellow lightning bolt beside it",
+    "sheet": 17,
+    "cell": 11
+  },
+  {
+    "key": "interview",
+    "id": "vocab-interview",
+    "word": "interview",
+    "he": "לראיין / ראיון",
+    "emoji": "🎤",
+    "subject": "an interview: a reporter holding a microphone toward a person who is answering",
+    "sheet": 17,
+    "cell": 12
+  },
+  {
+    "key": "listener",
+    "id": "vocab-listener",
+    "word": "listener",
+    "he": "מאזין / מאזינה",
+    "emoji": "🎧",
+    "subject": "a listener: a child wearing big headphones, eyes closed, smiling, with music notes floating around",
+    "sheet": 17,
+    "cell": 13
+  },
+  {
+    "key": "headline",
+    "id": "vocab-headline",
+    "word": "headline",
+    "he": "כותרת ראשית",
+    "emoji": "📰",
+    "subject": "a headline: a newspaper with one huge bold headline across the top (shown as thick black bars, no real letters) above a photo",
+    "sheet": 17,
+    "cell": 14
+  },
+  {
+    "key": "document",
+    "id": "vocab-document",
+    "word": "document",
+    "he": "מסמך",
+    "emoji": "📄",
+    "subject": "a document: one sheet of paper covered with lines of writing (shown as grey lines, no real letters) and a round red stamp at the bottom",
+    "sheet": 17,
+    "cell": 15
+  },
+  {
+    "key": "graduation",
+    "id": "vocab-graduation",
+    "word": "graduation",
+    "he": "סיום לימודים / טקס סיום",
+    "emoji": "🎓",
+    "subject": "graduation: a happy young graduate in a cap and gown, holding a rolled diploma tied with a ribbon",
+    "sheet": 18,
+    "cell": 0
+  },
+  {
+    "key": "monument",
+    "id": "vocab-monument",
+    "word": "monument",
+    "he": "אנדרטה / מבנה עתיק מפואר",
+    "emoji": "🏛️",
+    "subject": "a monument: a tall stone memorial column standing on wide stone steps",
+    "sheet": 18,
+    "cell": 1
+  },
+  {
+    "key": "road",
+    "id": "vocab-road",
+    "word": "road",
+    "he": "כביש",
+    "emoji": "🛣️",
+    "subject": "a road: a grey asphalt road with white dashed lines, curving away between green grass",
+    "sheet": 18,
+    "cell": 2
+  },
+  {
+    "key": "hotel",
+    "id": "vocab-hotel",
+    "word": "hotel",
+    "he": "מלון",
+    "emoji": "🏨",
+    "subject": "a hotel: a tall building with many windows, a revolving door and a doorman; the sign over the door shows only a small picture of a bed; absolutely no letters or words anywhere",
+    "sheet": 25,
+    "cell": 2
+  },
+  {
+    "key": "store",
+    "id": "vocab-store",
+    "word": "store",
+    "he": "חנות",
+    "emoji": "🏪",
+    "subject": "a store: a small shop front with a striped awning and goods in the window",
+    "sheet": 18,
+    "cell": 4
+  },
+  {
+    "key": "restaurant",
+    "id": "vocab-restaurant",
+    "word": "restaurant",
+    "he": "מסעדה",
+    "emoji": "🍽️",
+    "subject": "a restaurant: the front of a small restaurant with an awning and tables and chairs outside, a fork-and-knife symbol over the door",
+    "sheet": 18,
+    "cell": 5
+  },
+  {
+    "key": "bank",
+    "id": "vocab-bank",
+    "word": "bank",
+    "he": "בנק",
+    "emoji": "🏦",
+    "subject": "a bank: a bank building with stone columns and a big gold coin symbol over the door",
+    "sheet": 18,
+    "cell": 6
+  },
+  {
+    "key": "city",
+    "id": "vocab-city",
+    "word": "city",
+    "he": "עיר",
+    "emoji": "🏙️",
+    "subject": "a city: a skyline of many tall buildings and skyscrapers close together",
+    "sheet": 18,
+    "cell": 7
+  },
+  {
+    "key": "walk",
+    "id": "vocab-walk",
+    "word": "walk",
+    "he": "ללכת ברגל",
+    "emoji": "🚶",
+    "subject": "walk: a child walking along a path, one foot in front of the other, arms swinging",
+    "sheet": 18,
+    "cell": 8
+  },
+  {
+    "key": "sign",
+    "id": "vocab-sign",
+    "word": "sign",
+    "he": "שלט",
+    "emoji": "🪧",
+    "subject": "a sign: a blank rectangular signboard on a wooden pole, with nothing written on it",
+    "sheet": 18,
+    "cell": 9
+  },
+  {
+    "key": "ambulance",
+    "id": "vocab-ambulance",
+    "word": "ambulance",
+    "he": "אמבולנס",
+    "emoji": "🚑",
+    "subject": "an ambulance: a white ambulance van with a red stripe and flashing lights on the roof",
+    "sheet": 18,
+    "cell": 10
+  },
+  {
+    "key": "lie down",
+    "id": "vocab-lie-down",
+    "word": "lie down",
+    "he": "לשכב",
+    "emoji": "🛌",
+    "subject": "lie down: a child lying flat on a bed, head on the pillow, eyes open",
+    "sheet": 18,
+    "cell": 11
+  },
+  {
+    "key": "shoulder",
+    "id": "vocab-shoulder",
+    "word": "shoulder",
+    "he": "כתף",
+    "emoji": "🤷",
+    "subject": "a shoulder: a child seen from the front, one shoulder glowing yellow and a big red arrow pointing to that shoulder",
+    "sheet": 18,
+    "cell": 12
+  },
+  {
+    "key": "arm",
+    "id": "vocab-arm",
+    "word": "arm",
+    "he": "זרוע",
+    "emoji": "💪",
+    "subject": "an arm: a child seen from the front, one whole arm glowing yellow and a big red arrow pointing to that arm",
+    "sheet": 18,
+    "cell": 13
+  },
+  {
+    "key": "back",
+    "id": "vocab-back",
+    "word": "back",
+    "he": "גב",
+    "emoji": "🎒",
+    "subject": "a back: a child seen from behind, no backpack, the back glowing yellow and a big red arrow pointing to the back",
+    "sheet": 18,
+    "cell": 14
+  },
+  {
+    "key": "body",
+    "id": "vocab-body",
+    "word": "body",
+    "he": "גוף",
+    "emoji": "🧍",
+    "subject": "a body: a whole child standing straight with arms slightly out, the whole body outlined by a soft yellow glow",
+    "sheet": 18,
+    "cell": 15
+  },
+  {
+    "key": "face",
+    "id": "vocab-face",
+    "word": "face",
+    "he": "פנים",
+    "emoji": "🙂",
+    "subject": "a face: a smiling child's face seen from the front, eyes, nose and mouth clear, filling the picture",
+    "sheet": 19,
+    "cell": 0
+  },
+  {
+    "key": "finger",
+    "id": "vocab-finger",
+    "word": "finger",
+    "he": "אצבע",
+    "emoji": "☝️",
+    "subject": "a finger: one hand with only the index finger raised, the finger glowing yellow",
+    "sheet": 19,
+    "cell": 1
+  },
+  {
+    "key": "hair",
+    "id": "vocab-hair",
+    "word": "hair",
+    "he": "שיער",
+    "emoji": "💇",
+    "subject": "hair: a child with long, flowing, shiny hair, seen from behind and the side so the hair is the main thing",
+    "sheet": 19,
+    "cell": 2
+  },
+  {
+    "key": "head",
+    "id": "vocab-head",
+    "word": "head",
+    "he": "ראש",
+    "emoji": "🧢",
+    "subject": "a head: a child with short brown hair seen from the front, the whole head glowing yellow and a big red arrow pointing to the head",
+    "sheet": 25,
+    "cell": 3
+  },
+  {
+    "key": "knee",
+    "id": "vocab-knee",
+    "word": "knee",
+    "he": "ברך",
+    "emoji": "🦵",
+    "subject": "a knee: a child's bent leg seen from the side, the knee glowing yellow and a big red arrow pointing to the knee",
+    "sheet": 19,
+    "cell": 4
+  },
+  {
+    "key": "neck",
+    "id": "vocab-neck",
+    "word": "neck",
+    "he": "צוואר",
+    "emoji": "🦒",
+    "subject": "a neck: a child seen from the front, the neck glowing yellow and a big red arrow pointing to the neck",
+    "sheet": 19,
+    "cell": 5
+  },
+  {
+    "key": "hospital",
+    "id": "vocab-hospital",
+    "word": "hospital",
+    "he": "בית חולים",
+    "emoji": "🏥",
+    "subject": "a hospital: a large white hospital building with a big red cross on the front and an ambulance outside",
+    "sheet": 19,
+    "cell": 6
+  },
+  {
+    "key": "fall",
+    "id": "vocab-fall",
+    "word": "fall",
+    "he": "ליפול",
+    "emoji": "🤕",
+    "subject": "fall: a child tripping over a stone and falling forward, arms out",
+    "sheet": 19,
+    "cell": 7
+  },
+  {
+    "key": "chicken",
+    "id": "vocab-chicken",
+    "word": "chicken",
+    "he": "תרנגולת",
+    "emoji": "🐔",
+    "subject": "a chicken: a white hen standing on the ground, with a red comb",
+    "sheet": 19,
+    "cell": 8
+  },
+  {
+    "key": "farm",
+    "id": "vocab-farm",
+    "word": "farm",
+    "he": "חווה",
+    "emoji": "🚜",
+    "subject": "a farm: a red barn, a fence, a green field and a tractor",
+    "sheet": 19,
+    "cell": 9
+  },
+  {
+    "key": "zoo",
+    "id": "vocab-zoo",
+    "word": "zoo",
+    "he": "גן חיות",
+    "emoji": "🦓",
+    "subject": "a zoo: a giraffe, a zebra and an elephant standing behind a low wooden fence with trees; no gate, no sign, no letters or words anywhere",
+    "sheet": 25,
+    "cell": 4
+  },
+  {
+    "key": "mouse",
+    "id": "vocab-mouse",
+    "word": "mouse",
+    "he": "עכבר",
+    "emoji": "🐭",
+    "subject": "a mouse: a small grey mouse with round ears and a long thin tail",
+    "sheet": 19,
+    "cell": 11
+  },
+  {
+    "key": "grass",
+    "id": "vocab-grass",
+    "word": "grass",
+    "he": "דשא",
+    "emoji": "🌿",
+    "subject": "grass: a patch of thick green lawn grass",
+    "sheet": 19,
+    "cell": 12
+  },
+  {
+    "key": "sea",
+    "id": "vocab-sea",
+    "word": "sea",
+    "he": "ים",
+    "emoji": "🌊",
+    "subject": "the sea: blue sea waves reaching to the horizon under a clear sky",
+    "sheet": 19,
+    "cell": 13
+  },
+  {
+    "key": "tooth",
+    "id": "vocab-tooth",
+    "word": "tooth",
+    "he": "שן",
+    "emoji": "🦷",
+    "subject": "a tooth: one big white tooth with a small shine",
+    "sheet": 19,
+    "cell": 14
+  },
+  {
+    "key": "noise",
+    "id": "vocab-noise",
+    "word": "noise",
+    "he": "רעש",
+    "emoji": "📯",
+    "subject": "noise: a child covering both ears next to a loud banging drum, with jagged sound lines",
+    "sheet": 19,
+    "cell": 15
+  },
+  {
+    "key": "brown",
+    "id": "vocab-brown",
+    "word": "brown",
+    "he": "חום",
+    "emoji": "🟤",
+    "subject": "the colour brown: a big round splash of brown paint, nothing else",
+    "sheet": 20,
+    "cell": 0
+  },
+  {
+    "key": "black",
+    "id": "vocab-black",
+    "word": "black",
+    "he": "שחור",
+    "emoji": "⚫",
+    "subject": "the colour black: a big round splash of black paint, nothing else",
+    "sheet": 20,
+    "cell": 1
+  },
+  {
+    "key": "white",
+    "id": "vocab-white",
+    "word": "white",
+    "he": "לבן",
+    "emoji": "⚪",
+    "subject": "the colour white: a big round splash of pure white paint, filled solid white with soft light-grey shading and a clear grey outline, on the white background, nothing else",
+    "sheet": 25,
+    "cell": 5
+  },
+  {
+    "key": "hold",
+    "id": "vocab-hold",
+    "word": "hold",
+    "he": "להחזיק",
+    "emoji": "🤲",
+    "subject": "hold: two hands holding a cardboard box",
+    "sheet": 20,
+    "cell": 3
+  },
+  {
+    "key": "hear",
+    "id": "vocab-hear",
+    "word": "hear",
+    "he": "לשמוע",
+    "emoji": "👂",
+    "subject": "hear: a child cupping one hand behind an ear, with curved sound waves coming toward the ear",
+    "sheet": 20,
+    "cell": 4
+  },
+  {
+    "key": "autumn",
+    "id": "vocab-autumn",
+    "word": "autumn",
+    "he": "סתיו",
+    "emoji": "🍂",
+    "subject": "autumn: a tree with orange and red leaves, leaves falling and piled on the ground",
+    "sheet": 20,
+    "cell": 5
+  },
+  {
+    "key": "sky",
+    "id": "vocab-sky",
+    "word": "sky",
+    "he": "שמיים",
+    "emoji": "🌌",
+    "subject": "the sky: a wide blue sky with a few small white clouds and nothing on the ground",
+    "sheet": 20,
+    "cell": 6
+  },
+  {
+    "key": "wind",
+    "id": "vocab-wind",
+    "word": "wind",
+    "he": "רוח",
+    "emoji": "💨",
+    "subject": "wind: a tree bending in the wind, leaves blowing away, with swirling wind lines",
+    "sheet": 20,
+    "cell": 7
+  },
+  {
+    "key": "cloud",
+    "id": "vocab-cloud",
+    "word": "cloud",
+    "he": "ענן",
+    "emoji": "☁️",
+    "subject": "a cloud: one big fluffy white cloud with soft grey-blue shading underneath and a clear outline, drawn in the middle of the cell with white space above it",
+    "sheet": 25,
+    "cell": 6
+  },
+  {
+    "key": "snow",
+    "id": "vocab-snow",
+    "word": "snow",
+    "he": "שלג",
+    "emoji": "❄️",
+    "subject": "snow: snowflakes falling on a snowy hill with a snowman",
+    "sheet": 20,
+    "cell": 9
+  },
+  {
+    "key": "wet",
+    "id": "vocab-wet",
+    "word": "wet",
+    "he": "רטוב",
+    "emoji": "💧",
+    "subject": "wet: a child soaked by rain, hair and clothes dripping with water drops",
+    "sheet": 20,
+    "cell": 10
+  },
+  {
+    "key": "the cold",
+    "id": "vocab-the-cold",
+    "word": "the cold",
+    "he": "הקור",
+    "emoji": "🥶",
+    "subject": "the cold: a shivering child in a scarf and hat, blue cheeks, breath steaming, snowflakes around",
+    "sheet": 20,
+    "cell": 11
+  },
+  {
+    "key": "refrigerator",
+    "id": "vocab-refrigerator",
+    "word": "refrigerator",
+    "he": "מקרר",
+    "emoji": "🧊",
+    "subject": "a refrigerator: a white kitchen fridge with one door open, food and drinks on the shelves inside",
+    "sheet": 20,
+    "cell": 12
+  },
+  {
+    "key": "stove",
+    "id": "vocab-stove",
+    "word": "stove",
+    "he": "כיריים",
+    "emoji": "🍳",
+    "subject": "a stove: a kitchen stove with a pot on a burning blue gas flame",
+    "sheet": 20,
+    "cell": 13
+  },
+  {
+    "key": "mug",
+    "id": "vocab-mug",
+    "word": "mug",
+    "he": "ספל",
+    "emoji": "☕",
+    "subject": "a mug: one big ceramic mug with a handle, a hot drink steaming",
+    "sheet": 20,
+    "cell": 14
+  },
+  {
+    "key": "toothbrush",
+    "id": "vocab-toothbrush",
+    "word": "toothbrush",
+    "he": "מברשת שיניים",
+    "emoji": "🪥",
+    "subject": "a toothbrush: one toothbrush with toothpaste on the bristles",
+    "sheet": 20,
+    "cell": 15
+  },
+  {
+    "key": "wash up",
+    "id": "vocab-wash-up",
+    "word": "wash up",
+    "he": "לשטוף כלים",
+    "emoji": "🧽",
+    "subject": "wash up: two hands washing a plate in a kitchen sink full of soap bubbles",
+    "sheet": 21,
+    "cell": 0
+  },
+  {
+    "key": "tidy",
+    "id": "vocab-tidy",
+    "word": "tidy",
+    "he": "מסודר",
+    "emoji": "✨",
+    "subject": "tidy: a very neat child's bedroom, bed made, toys on shelves, nothing on the floor",
+    "sheet": 21,
+    "cell": 1
+  },
+  {
+    "key": "dining room",
+    "id": "vocab-dining-room",
+    "word": "dining room",
+    "he": "פינת אוכל",
+    "emoji": "🪑",
+    "subject": "a dining room: a dining table with plates set out and chairs around it",
+    "sheet": 21,
+    "cell": 2
+  },
+  {
+    "key": "living room",
+    "id": "vocab-living-room",
+    "word": "living room",
+    "he": "סלון",
+    "emoji": "🛋️",
+    "subject": "a living room: a sofa with cushions, a coffee table, a rug and a TV",
+    "sheet": 21,
+    "cell": 3
+  },
+  {
+    "key": "shower",
+    "id": "vocab-shower",
+    "word": "shower",
+    "he": "מקלחת",
+    "emoji": "🚿",
+    "subject": "a shower: a shower head spraying water into a shower cubicle",
+    "sheet": 21,
+    "cell": 4
+  },
+  {
+    "key": "soap",
+    "id": "vocab-soap",
+    "word": "soap",
+    "he": "סבון",
+    "emoji": "🧼",
+    "subject": "soap: a plain pink bar of soap with nothing printed or written on it, and a few soap bubbles",
+    "sheet": 25,
+    "cell": 7
+  },
+  {
+    "key": "do the cleaning",
+    "id": "vocab-do-the-cleaning",
+    "word": "do the cleaning",
+    "he": "לנקות את הבית",
+    "emoji": "🧹",
+    "subject": "do the cleaning: a child sweeping the floor with a broom, a bucket and mop nearby",
+    "sheet": 21,
+    "cell": 6
+  },
+  {
+    "key": "feed",
+    "id": "vocab-feed",
+    "word": "feed",
+    "he": "להאכיל",
+    "emoji": "🐕",
+    "subject": "feed: a child pouring dry food into a dog's bowl while the dog waits",
+    "sheet": 21,
+    "cell": 7
+  },
+  {
+    "key": "empty",
+    "id": "vocab-empty",
+    "word": "empty",
+    "he": "ריק",
+    "emoji": "🫙",
+    "subject": "empty: one completely empty clear glass jar with its lid off, nothing inside",
+    "sheet": 21,
+    "cell": 8
+  },
+  {
+    "key": "knife",
+    "id": "vocab-knife",
+    "word": "knife",
+    "he": "סכין",
+    "emoji": "🔪",
+    "subject": "a knife: one table knife",
+    "sheet": 21,
+    "cell": 9
+  },
+  {
+    "key": "plate",
+    "id": "vocab-plate",
+    "word": "plate",
+    "he": "צלחת",
+    "emoji": "🍽️",
+    "subject": "a plate: one empty round white plate, nothing on it",
+    "sheet": 21,
+    "cell": 10
+  },
+  {
+    "key": "fast food",
+    "id": "vocab-fast-food",
+    "word": "fast food",
+    "he": "מזון מהיר",
+    "emoji": "🍟",
+    "subject": "fast food: a hamburger, a carton of french fries and a cola cup together",
+    "sheet": 21,
+    "cell": 11
+  },
+  {
+    "key": "order",
+    "id": "vocab-order",
+    "word": "order",
+    "he": "להזמין",
+    "emoji": "📝",
+    "subject": "order: a child at a restaurant table pointing at a menu while a waiter writes on a notepad",
+    "sheet": 21,
+    "cell": 12
+  },
+  {
+    "key": "meal",
+    "id": "vocab-meal",
+    "word": "meal",
+    "he": "ארוחה",
+    "emoji": "🍽️",
+    "subject": "a meal: a full plate of dinner (chicken, rice and vegetables) with a fork, a knife and a glass of juice",
+    "sheet": 21,
+    "cell": 13
+  },
+  {
+    "key": "salad",
+    "id": "vocab-salad",
+    "word": "salad",
+    "he": "סלט",
+    "emoji": "🥗",
+    "subject": "a salad: a bowl of green salad with tomatoes and cucumber",
+    "sheet": 21,
+    "cell": 14
+  },
+  {
+    "key": "rice",
+    "id": "vocab-rice",
+    "word": "rice",
+    "he": "אורז",
+    "emoji": "🍚",
+    "subject": "rice: a bowl of white rice",
+    "sheet": 21,
+    "cell": 15
+  },
+  {
+    "key": "steak",
+    "id": "vocab-steak",
+    "word": "steak",
+    "he": "סטייק",
+    "emoji": "🥩",
+    "subject": "a steak: a grilled steak on a plate",
+    "sheet": 22,
+    "cell": 0
+  },
+  {
+    "key": "sandwich",
+    "id": "vocab-sandwich",
+    "word": "sandwich",
+    "he": "כריך; סנדוויץ׳",
+    "emoji": "🥪",
+    "subject": "a sandwich: a sandwich with cheese, lettuce and tomato, cut in half",
+    "sheet": 22,
+    "cell": 1
+  },
+  {
+    "key": "salt",
+    "id": "vocab-salt",
+    "word": "salt",
+    "he": "מלח",
+    "emoji": "🧂",
+    "subject": "salt: a white salt shaker with a little salt spilled beside it",
+    "sheet": 22,
+    "cell": 2
+  },
+  {
+    "key": "fork",
+    "id": "vocab-fork",
+    "word": "fork",
+    "he": "מזלג",
+    "emoji": "🍴",
+    "subject": "a fork: one dinner fork",
+    "sheet": 22,
+    "cell": 3
+  },
+  {
+    "key": "spoon",
+    "id": "vocab-spoon",
+    "word": "spoon",
+    "he": "כף",
+    "emoji": "🥄",
+    "subject": "a spoon: one spoon",
+    "sheet": 22,
+    "cell": 4
+  },
+  {
+    "key": "glass",
+    "id": "vocab-glass",
+    "word": "glass",
+    "he": "כוס (זכוכית)",
+    "emoji": "🥛",
+    "subject": "a glass: one empty clear drinking glass, sparkling (the cup, made of glass)",
+    "sheet": 22,
+    "cell": 5
+  },
+  {
+    "key": "bottle",
+    "id": "vocab-bottle",
+    "word": "bottle",
+    "he": "בקבוק",
+    "emoji": "🍶",
+    "subject": "a bottle: one clear plastic bottle of water with a blue cap",
+    "sheet": 22,
+    "cell": 6
+  },
+  {
+    "key": "coffee",
+    "id": "vocab-coffee",
+    "word": "coffee",
+    "he": "קפה",
+    "emoji": "☕",
+    "subject": "coffee: a cup of black coffee on a saucer, coffee beans beside it",
+    "sheet": 22,
+    "cell": 7
+  },
+  {
+    "key": "tea",
+    "id": "vocab-tea",
+    "word": "tea",
+    "he": "תה",
+    "emoji": "🍵",
+    "subject": "tea: a glass cup of tea with a tea bag string hanging out and a lemon slice",
+    "sheet": 22,
+    "cell": 8
+  },
+  {
+    "key": "thirsty",
+    "id": "vocab-thirsty",
+    "word": "thirsty",
+    "he": "צמא",
+    "emoji": "🏜️",
+    "subject": "thirsty: a hot, sweaty child with tongue out, reaching for a glass of water",
+    "sheet": 22,
+    "cell": 9
+  },
+  {
+    "key": "snack",
+    "id": "vocab-snack",
+    "word": "snack",
+    "he": "חטיף",
+    "emoji": "🥨",
+    "subject": "a snack: a small bag of pretzels and a granola bar",
+    "sheet": 22,
+    "cell": 10
+  },
+  {
+    "key": "countryside",
+    "id": "vocab-countryside",
+    "word": "countryside",
+    "he": "אזור כפרי",
+    "emoji": "🌾",
+    "subject": "the countryside: green rolling fields, a little farmhouse and a wooden fence",
+    "sheet": 22,
+    "cell": 11
+  },
+  {
+    "key": "field",
+    "id": "vocab-field",
+    "word": "field",
+    "he": "שדה",
+    "emoji": "🌻",
+    "subject": "a field: a wide field of sunflowers",
+    "sheet": 22,
+    "cell": 12
+  },
+  {
+    "key": "hill",
+    "id": "vocab-hill",
+    "word": "hill",
+    "he": "גבעה",
+    "emoji": "⛰️",
+    "subject": "a hill: one round green grassy hill with a single tree on top",
+    "sheet": 22,
+    "cell": 13
+  },
+  {
+    "key": "island",
+    "id": "vocab-island",
+    "word": "island",
+    "he": "אי",
+    "emoji": "🏝️",
+    "subject": "an island: a small sandy island with a palm tree, in the middle of blue sea",
+    "sheet": 22,
+    "cell": 14
+  },
+  {
+    "key": "wood",
+    "id": "vocab-wood",
+    "word": "wood",
+    "he": "עץ (חומר)",
+    "emoji": "🪵",
+    "subject": "wood (the material): a stack of wooden planks and a cut log showing its rings",
+    "sheet": 22,
+    "cell": 15
+  },
+  {
+    "key": "hole",
+    "id": "vocab-hole",
+    "word": "hole",
+    "he": "חור",
+    "emoji": "🕳️",
+    "subject": "a hole: a hole dug in the ground, with a pile of dirt and a spade beside it",
+    "sheet": 23,
+    "cell": 0
+  },
+  {
+    "key": "smoke",
+    "id": "vocab-smoke",
+    "word": "smoke",
+    "he": "עשן",
+    "emoji": "🌫️",
+    "subject": "smoke: grey smoke rising in curls from a campfire",
+    "sheet": 23,
+    "cell": 1
+  },
+  {
+    "key": "grow",
+    "id": "vocab-grow",
+    "word": "grow",
+    "he": "לגדול",
+    "emoji": "🌱",
+    "subject": "grow: a seed, a small sprout and a tall plant in three pots in a row, getting taller",
+    "sheet": 23,
+    "cell": 2
+  },
+  {
+    "key": "police station",
+    "id": "vocab-police-station",
+    "word": "police station",
+    "he": "תחנת משטרה",
+    "emoji": "🚓",
+    "subject": "a police station: a building with a blue light over the door and a police car parked outside; the building has no sign and no letters or words anywhere",
+    "sheet": 25,
+    "cell": 8
+  },
+  {
+    "key": "police",
+    "id": "vocab-police",
+    "word": "police",
+    "he": "משטרה",
+    "emoji": "👮",
+    "subject": "the police: a friendly police officer in uniform and cap, standing next to a police car",
+    "sheet": 23,
+    "cell": 4
+  },
+  {
+    "key": "nurse",
+    "id": "vocab-nurse",
+    "word": "nurse",
+    "he": "אח / אחות",
+    "emoji": "🩺",
+    "subject": "a nurse: a nurse in hospital scrubs with a stethoscope around the neck",
+    "sheet": 23,
+    "cell": 5
+  },
+  {
+    "key": "university",
+    "id": "vocab-university",
+    "word": "university",
+    "he": "אוניברסיטה",
+    "emoji": "🎓",
+    "subject": "a university: a large old campus building with a clock tower, students with books walking in front",
+    "sheet": 23,
+    "cell": 6
+  },
+  {
+    "key": "meeting",
+    "id": "vocab-meeting",
+    "word": "meeting",
+    "he": "פגישה",
+    "emoji": "🤝",
+    "subject": "a meeting: four adults sitting around an office table, talking, with papers and laptops",
+    "sheet": 23,
+    "cell": 7
+  },
+  {
+    "key": "pay",
+    "id": "vocab-pay",
+    "word": "pay",
+    "he": "לשלם",
+    "emoji": "💳",
+    "subject": "pay: a hand giving coins and a banknote to a cashier at a shop counter",
+    "sheet": 23,
+    "cell": 8
+  },
+  {
+    "key": "market",
+    "id": "vocab-market",
+    "word": "market",
+    "he": "שוק",
+    "emoji": "🧺",
+    "subject": "a market: open-air market stalls under awnings, piled with fruit and vegetables",
+    "sheet": 23,
+    "cell": 9
+  },
+  {
+    "key": "worker",
+    "id": "vocab-worker",
+    "word": "worker",
+    "he": "עובד",
+    "emoji": "👷",
+    "subject": "a worker: a builder in a yellow hard hat and safety vest holding a hammer",
+    "sheet": 23,
+    "cell": 10
+  },
+  {
+    "key": "waiter",
+    "id": "vocab-waiter",
+    "word": "waiter",
+    "he": "מלצר",
+    "emoji": "🤵",
+    "subject": "a waiter: a man in a white shirt and black vest carrying a tray with drinks",
+    "sheet": 23,
+    "cell": 11
+  },
+  {
+    "key": "waitress",
+    "id": "vocab-waitress",
+    "word": "waitress",
+    "he": "מלצרית",
+    "emoji": "💁",
+    "subject": "a waitress: a woman in an apron carrying a tray with plates of food",
+    "sheet": 23,
+    "cell": 12
+  },
+  {
+    "key": "driver",
+    "id": "vocab-driver",
+    "word": "driver",
+    "he": "נהג",
+    "emoji": "🚌",
+    "subject": "a driver: a bus driver sitting at the big steering wheel of a bus",
+    "sheet": 23,
+    "cell": 13
+  },
+  {
+    "key": "office",
+    "id": "vocab-office",
+    "word": "office",
+    "he": "משרד",
+    "emoji": "🗄️",
+    "subject": "an office: a desk with a computer, an office chair and a filing cabinet",
+    "sheet": 23,
+    "cell": 14
+  },
+  {
+    "key": "grill",
+    "id": "vocab-grill",
+    "word": "grill",
+    "he": "לצלות על האש",
+    "emoji": "🍢",
+    "subject": "grill: meat and vegetable skewers cooking on a barbecue grill, a little smoke",
+    "sheet": 23,
+    "cell": 15
+  },
+  {
+    "key": "pour",
+    "id": "vocab-pour",
+    "word": "pour",
+    "he": "למזוג; לשפוך",
+    "emoji": "🫗",
+    "subject": "pour: water pouring from a jug into a glass",
+    "sheet": 24,
+    "cell": 0
+  },
+  {
+    "key": "fill",
+    "id": "vocab-fill",
+    "word": "fill",
+    "he": "למלא",
+    "emoji": "🚰",
+    "subject": "fill: a bucket being filled with water under an outdoor tap",
+    "sheet": 24,
+    "cell": 1
+  },
+  {
+    "key": "piece",
+    "id": "vocab-piece",
+    "word": "piece",
+    "he": "חתיכה",
+    "emoji": "🍰",
+    "subject": "a piece: one slice of cake on a small plate, the rest of the cake behind it",
+    "sheet": 24,
+    "cell": 2
+  },
+  {
+    "key": "garlic",
+    "id": "vocab-garlic",
+    "word": "garlic",
+    "he": "שום",
+    "emoji": "🧄",
+    "subject": "garlic: a whole white garlic bulb and one clove",
+    "sheet": 24,
+    "cell": 3
+  },
+  {
+    "key": "potato",
+    "id": "vocab-potato",
+    "word": "potato",
+    "he": "תפוח אדמה",
+    "emoji": "🥔",
+    "subject": "a potato: two brown potatoes",
+    "sheet": 24,
+    "cell": 4
+  },
+  {
+    "key": "meat",
+    "id": "vocab-meat",
+    "word": "meat",
+    "he": "בשר",
+    "emoji": "🍖",
+    "subject": "meat: a piece of raw red meat on a wooden board",
+    "sheet": 24,
+    "cell": 5
+  },
+  {
+    "key": "butter",
+    "id": "vocab-butter",
+    "word": "butter",
+    "he": "חמאה",
+    "emoji": "🧈",
+    "subject": "butter: a block of yellow butter on a dish with a knife",
+    "sheet": 24,
+    "cell": 6
+  },
+  {
+    "key": "yogurt",
+    "id": "vocab-yogurt",
+    "word": "yogurt",
+    "he": "יוגורט",
+    "emoji": "🫐",
+    "subject": "yogurt: a small open yogurt cup with a spoon in the white yogurt",
+    "sheet": 24,
+    "cell": 7
+  },
+  {
+    "key": "jam",
+    "id": "vocab-jam",
+    "word": "jam",
+    "he": "ריבה",
+    "emoji": "🥫",
+    "subject": "jam: a glass jar of red strawberry jam with a spoon",
+    "sheet": 24,
+    "cell": 8
+  },
+  {
+    "key": "biscuit",
+    "id": "vocab-biscuit",
+    "word": "biscuit",
+    "he": "ביסקוויט; עוגייה",
+    "emoji": "🍪",
+    "subject": "a biscuit: a few round biscuits (cookies) on a small plate",
+    "sheet": 24,
+    "cell": 9
   }
 ]
