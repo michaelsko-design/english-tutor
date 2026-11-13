@@ -9,10 +9,11 @@ const CHECKOUT_ID = 'c'.repeat(32);
 const ENV = { FIREBASE_SERVICE_ACCOUNT_JSON: SERVICE_ACCOUNT_JSON, PAYMENT_WEBHOOK_SECRET: 'hook-secret', APP_ORIGIN: 'https://app.example' };
 const PAYER = { payerName: 'ישראל ישראלי', payerPhone: '050-123-4567' };
 
-function setup({ linked = ['parent1_kid1', 'parent1_kid2'], provider = true } = {}) {
+function setup({ linked = ['parent1_kid1', 'parent1_kid2'], provider = true, canChangeRecurring = true } = {}) {
   const fake = createFakeFirestore();
   const gateway = {
     id: 'grow',
+    canChangeRecurring,
     createPaymentPage: vi.fn(async () => ({ url: 'https://pay.example/page', processId: 'p1', processToken: 'secret-token' })),
     confirmPayment: vi.fn(),
     acknowledge: vi.fn(),
@@ -54,12 +55,36 @@ describe('handleCheckoutRequest', () => {
       payerPhone: '0501234567',
       description: 'EnglishVibe Pro monthly 2 children',
       successUrl: `https://app.example/?parent&paid=${CHECKOUT_ID}`,
-      notifyUrl: 'https://app.example/api/payment-webhook?source=process&key=hook-secret',
+      notifyUrl: `https://app.example/api/payment-webhook?source=process&key=hook-secret&checkout=${CHECKOUT_ID}`,
     }));
     expect(fake.get('checkouts', CHECKOUT_ID)).toMatchObject({
       parentUid: 'parent1', childUids: ['kid1', 'kid2'], period: 'monthly', seatLimit: 2, amountAgorot: 6400,
       status: 'pending', provider: 'grow', processId: 'p1', processToken: 'secret-token',
     });
+    // Grow's API changes standing orders itself: the payer's details stay with Grow only
+    expect(fake.get('checkouts', CHECKOUT_ID)).not.toHaveProperty('payerPhone');
+  });
+
+  it("lets Grow's notice through Vercel's Preview protection, never on Production", async () => {
+    const bypass = { VERCEL_AUTOMATION_BYPASS_SECRET: 'bypass1' };
+    const preview = setup();
+    await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER }), { ...ENV, ...bypass, VERCEL_ENV: 'preview' }, preview.deps);
+    expect(preview.gateway.createPaymentPage).toHaveBeenCalledWith(expect.objectContaining({
+      notifyUrl: expect.stringMatching(/&checkout=c+&x-vercel-protection-bypass=bypass1$/),
+    }));
+    const production = setup();
+    await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER }), { ...ENV, ...bypass, VERCEL_ENV: 'production' }, production.deps);
+    expect(production.gateway.createPaymentPage).toHaveBeenCalledWith(expect.objectContaining({
+      notifyUrl: expect.not.stringContaining('bypass'),
+    }));
+  });
+
+  it("keeps the payer's details when the owner changes standing orders by hand (Grow through Make)", async () => {
+    const { fake, deps } = setup({ canChangeRecurring: false });
+
+    await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER, payerEmail: 'p@example.com' }), ENV, deps);
+
+    expect(fake.get('checkouts', CHECKOUT_ID)).toMatchObject({ payerName: 'ישראל ישראלי', payerPhone: '0501234567', payerEmail: 'p@example.com' });
   });
 
   it('refuses a child the parent is not linked to', async () => {

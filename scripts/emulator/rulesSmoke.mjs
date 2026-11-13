@@ -307,6 +307,11 @@ await expect('the paying parent cannot read the checkout record', false, () =>
   getDoc(doc(b.db, 'checkouts', 'x'.repeat(32))));
 await expect('nobody can write a payment record', false, () =>
   setDoc(doc(b.db, 'payments', 'mock_1'), { subscriptionId: 'x', amountAgorot: 0, at: 0 }));
+await seedAsServer(`gatewayTasks/${'x'.repeat(32)}_cancel`, { kind: { stringValue: 'cancel' }, payerPhone: { stringValue: '0500000000' } });
+await expect('the paying parent cannot read an owner Grow task', false, () =>
+  getDoc(doc(b.db, 'gatewayTasks', `${'x'.repeat(32)}_cancel`)));
+await expect('nobody can write an owner Grow task', false, () =>
+  setDoc(doc(b.db, 'gatewayTasks', 'forged'), { kind: 'refund', doneAt: 0 }));
 await expect('nobody can read the owner reminder log', false, () => getDoc(doc(a.db, 'reminderSends', `2026-11-06_${ua.uid}`)));
 await expect('nobody can write the owner reminder log', false, () =>
   setDoc(doc(a.db, 'reminderSends', `2026-11-06_${ua.uid}`), { uid: ua.uid, dateStr: '2026-11-06', kind: 'streak' }));
@@ -390,7 +395,7 @@ await expect('a learner cannot read feedback notes', false, () => getDoc(doc(a.d
 await expect('a learner cannot edit a sent feedback note', false, () => setDoc(doc(a.db, 'feedback', 'note-a1'), feedbackNote(ua.uid, { text: 'changed' })));
 await expect('a learner cannot read client errors', false, () => getDoc(doc(a.db, 'clientErrors', `${today}_abc`)));
 await deleteDoc(doc(b.db, 'parentLinks', linkId)).catch(() => {});
-for (const path of [`entitlements/${ua.uid}`, `subscriptions/${'x'.repeat(32)}`, `checkouts/${'x'.repeat(32)}`]) {
+for (const path of [`entitlements/${ua.uid}`, `subscriptions/${'x'.repeat(32)}`, `checkouts/${'x'.repeat(32)}`, `gatewayTasks/${'x'.repeat(32)}_cancel`]) {
   await fetch(ownerDoc(path), { method: 'DELETE', headers: { Authorization: 'Bearer owner' } }).catch(() => {});
 }
 

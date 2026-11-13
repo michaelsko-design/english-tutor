@@ -3,13 +3,16 @@
  * `Authorization: Bearer $CRON_SECRET` (docs/feature-pro-tier.md, "Phase 3a"). It frees the seats of
  * deleted accounts, deletes their entitlements, and marks ended plans and seats `expired`. A monthly
  * plan still `active` past its end is only reported (`missedRenewals`): its renewal webhook went
- * missing, and only the gateway can say whether it was charged.
+ * missing, and only the gateway can say whether it was charged. A gateway that can't change a
+ * standing order (Grow through Make) gets an owner task instead; open tasks older than two days are
+ * counted (`overdueTasks`) and logged.
  */
 import { ConflictError, createFirestoreAdmin, type DocumentWrite, type FirestoreAdmin, type PlainDocument } from './_lib/firestoreAdmin.js';
 import { AdminError, createAuthAdmin, parseServiceAccount } from './_lib/googleAdmin.js';
 import { firebaseProjectId, jsonResponse } from './_lib/parentRequest.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
-import { PaymentError, safeEqual, type PaymentProvider } from './_lib/payments/provider.js';
+import { changesRecurringByApi, PaymentError, safeEqual, type PaymentProvider } from './_lib/payments/provider.js';
+import { gatewayTaskWrite, openGatewayTasks, readPayer, recurringChangeTask } from './_lib/gatewayTasks.js';
 import { entitlementFields, readSubscription, subscriptionFields, type Subscription } from './_lib/proBilling.js';
 import { checkLapse, entitlementAction, repairForDeletedAccounts, type PlanRepair } from './_lib/proReconcile.js';
 
@@ -26,8 +29,12 @@ interface Tally {
   expired: number;
   deleted: number;
   missedRenewals: number;
+  overdueTasks: number;
   failed: number;
 }
+
+/** An owner task still open after this long is reported */
+const TASK_OVERDUE_MS = 2 * 24 * 60 * 60 * 1000;
 
 const subscriptionWrite = (sub: Subscription, nowMs: number): DocumentWrite => ({
   collection: 'subscriptions',
@@ -39,16 +46,19 @@ const subscriptionWrite = (sub: Subscription, nowMs: number): DocumentWrite => (
 /** Gateway first (as the parent's own changes do), then the plan and its remaining seats in one write. */
 async function applyRepair(admin: FirestoreAdmin, provider: PaymentProvider | null, sub: Subscription, repair: PlanRepair, nowMs: number): Promise<boolean> {
   if (repair.gateway && !provider) return false;
-  if (repair.gateway) await provider!.updateRecurring(sub.billing, repair.gateway);
+  const isManual = Boolean(repair.gateway && provider && !changesRecurringByApi(provider));
+  const tasks = isManual && repair.gateway ? [gatewayTaskWrite(recurringChangeTask(repair.next, repair.gateway, await readPayer(admin, sub.id)), nowMs)] : [];
+  if (repair.gateway && !isManual) await provider!.updateRecurring(sub.billing, repair.gateway);
   try {
     await admin.commit([
+      ...tasks,
       subscriptionWrite(repair.next, nowMs),
       ...repair.next.childUids.map((childUid) => ({ collection: 'entitlements', id: childUid, fields: entitlementFields(repair.next, nowMs) })),
     ]);
     return true;
   } catch (error) {
     // A price change goes back; a cancel can't, and the next run finds the plan canceled at the gateway only
-    if (repair.gateway && 'amountAgorot' in repair.gateway) {
+    if (!isManual && repair.gateway && 'amountAgorot' in repair.gateway) {
       await provider!.updateRecurring(sub.billing, { amountAgorot: sub.amountAgorot }).catch(() => undefined);
     }
     if (error instanceof ConflictError) return false;
@@ -121,7 +131,7 @@ export async function handleProReconcileRequest(
   const { fetchImpl = fetch, nowMs = Date.now, createAdmin = createFirestoreAdmin, createProvider = createPaymentProvider } = deps;
   const projectId = firebaseProjectId(env);
   const findExistingUids = deps.findExistingUids ?? ((uids: string[]) => createAuthAdmin(account, projectId, { fetchImpl }).findExistingUids(uids));
-  const tally: Tally = { released: 0, expired: 0, deleted: 0, missedRenewals: 0, failed: 0 };
+  const tally: Tally = { released: 0, expired: 0, deleted: 0, missedRenewals: 0, overdueTasks: 0, failed: 0 };
 
   try {
     const admin = createAdmin(account, projectId, { fetchImpl });
@@ -143,6 +153,7 @@ export async function handleProReconcileRequest(
 
     for (const sub of subscriptions) await reconcileSubscription(admin, provider, sub, missingUids, tally, now);
     for (const doc of entitlements) await reconcileEntitlement(admin, doc, missingUids, tally, now);
+    tally.overdueTasks = openGatewayTasks(await admin.listDocuments('gatewayTasks')).filter((task) => now - task.createdAt > TASK_OVERDUE_MS).length;
   } catch (error) {
     // Only a status or gateway code is logged: never ids, tokens or keys
     const detail = error instanceof AdminError ? error.status : error instanceof PaymentError ? `gateway ${error.code}` : 'unexpected';
@@ -150,6 +161,7 @@ export async function handleProReconcileRequest(
     return jsonResponse(502, { error: 'Reconcile failed', ...tally });
   }
   if (tally.missedRenewals > 0) console.error(`pro-reconcile: ${tally.missedRenewals} monthly plan(s) past their end with no renewal`);
+  if (tally.overdueTasks > 0) console.error(`pro-reconcile: ${tally.overdueTasks} Grow task(s) open for more than 2 days (owner dashboard)`);
   return jsonResponse(200, { ...tally });
 }
 

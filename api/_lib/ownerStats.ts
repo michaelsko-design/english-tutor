@@ -4,6 +4,7 @@
  */
 
 import type { ConversionStats } from './conversionFunnel.js';
+import type { GatewayTask } from './gatewayTasks.js';
 import type { UsageStats } from './usageStats.js';
 
 export const OWNER_STATS_DAYS = 14;
@@ -52,6 +53,8 @@ export interface OwnerStats {
   conversion?: ConversionStats;
   /** Test accounts on the owner's list, left out of every number above */
   excludedTestUsers: number;
+  /** Open Grow tasks the owner does by hand (`gatewayTasks.ts`); absent from older answers */
+  gatewayTasks?: GatewayTask[];
 }
 
 export interface ParentStats {

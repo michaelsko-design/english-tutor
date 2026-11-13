@@ -1,20 +1,24 @@
 /**
  * POST /api/payment-webhook?source=process|account&key=<PAYMENT_WEBHOOK_SECRET>: the gateway tells
  * us about payments (docs/feature-pro-tier.md, "Server").
- * - `process`: a payment page was paid. The body is never trusted: the checkout id (cField1) only
- *   says which checkout to look at, and the payment is confirmed by asking the gateway about that
- *   checkout's own process ids. Then one atomic write creates the payment record (once), the
- *   subscription and every child's entitlement, and the gateway is acknowledged.
+ * - `process`: a payment page was paid. The body is never trusted: the checkout id (`&checkout=` in
+ *   the address, else cField1) only says which checkout to look at, and the payment is confirmed
+ *   against that checkout's own process ids: by asking the gateway (Grow's API), or by the link's
+ *   secret token in the notice (Grow through Make). Then one atomic write creates the payment record
+ *   (once), the subscription and every child's entitlement, and the gateway is acknowledged.
  * - `account`: Grow's account webhooks: a monthly charge after the first (extends the plan by a
- *   month) or a failed one (marks it past due). They carry Grow's `webhookKey`.
- * Answers 200 for anything it will never act on, so the gateway stops retrying it.
+ *   month) or a failed one (marks it past due). A charge for a standing order we don't know yet is
+ *   linked to the one monthly plan that fits its payer and amount, or left as an owner task.
+ * Work only the owner can do in Grow (a refund, a cancel or price change through Make) becomes a
+ * `gatewayTasks` record. Answers 200 for anything it will never act on, so the gateway stops retrying.
  */
 import { ConflictError, createFirestoreAdmin, type FirestoreAdmin } from './_lib/firestoreAdmin.js';
 import { AdminError, parseServiceAccount } from './_lib/googleAdmin.js';
 import { errorResponse, firebaseProjectId, jsonResponse } from './_lib/parentRequest.js';
+import { gatewayTaskWrite, readPayer, recurringChangeTask, type NewGatewayTask } from './_lib/gatewayTasks.js';
 import { parseGrowAccountWebhook, type GrowAccountEvent } from './_lib/payments/grow.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
-import { PaymentError, safeEqual, type PaymentProvider } from './_lib/payments/provider.js';
+import { changesRecurringByApi, PaymentError, safeEqual, type PaymentProvider } from './_lib/payments/provider.js';
 import {
   addPeriods,
   CHECKOUT_ID_PATTERN,
@@ -137,8 +141,38 @@ function planTerms(checkout: Checkout, seatedCount: number, isRecurring: boolean
   return { seatLimit: seatedCount, amountAgorot, status: 'active', gatewayFix: isRecurring ? { amountAgorot } : null };
 }
 
-async function handleProcessNotification(fields: Record<string, string>, admin: FirestoreAdmin, provider: PaymentProvider, nowMs: number): Promise<Response> {
-  const checkoutId = fields.cField1 ?? '';
+/** Owner tasks for an activation: refunds for children seated elsewhere, and a standing-order change Make can't make */
+async function activationTasks(
+  admin: FirestoreAdmin,
+  provider: PaymentProvider,
+  sub: Subscription,
+  terms: PlanTerms,
+  payment: { transactionId: string; seatedElsewhere: string[] },
+  nowMs: number
+): Promise<DocumentWrite[]> {
+  if (payment.seatedElsewhere.length === 0) return [];
+  const payer = await readPayer(admin, sub.id);
+  const tasks: NewGatewayTask[] = [{
+    id: `refund_${provider.id}_${payment.transactionId}`,
+    kind: 'refund',
+    subscriptionId: sub.id,
+    amountAgorot: 0,
+    dueAt: 0,
+    note: `${payment.seatedElsewhere.length} child(ren) already had Pro on another plan: refund their share of this payment`,
+    ...payer,
+  }];
+  if (terms.gatewayFix && !changesRecurringByApi(provider)) tasks.push(recurringChangeTask(sub, terms.gatewayFix, payer));
+  return tasks.map((task) => gatewayTaskWrite(task, nowMs));
+}
+
+async function handleProcessNotification(
+  fields: Record<string, string>,
+  checkoutIdInUrl: string,
+  admin: FirestoreAdmin,
+  provider: PaymentProvider,
+  nowMs: number
+): Promise<Response> {
+  const checkoutId = checkoutIdInUrl || fields.cField1 || '';
   if (!CHECKOUT_ID_PATTERN.test(checkoutId)) return ignored('no checkout');
   const checkout = readCheckout(await admin.getDocument('checkouts', checkoutId));
   if (!checkout || !checkout.processId) return ignored('unknown checkout');
@@ -150,7 +184,7 @@ async function handleProcessNotification(fields: Record<string, string>, admin: 
     return ignored('already paid');
   }
 
-  const payment = await provider.confirmPayment(checkout.period, { processId: checkout.processId, processToken: checkout.processToken });
+  const payment = await provider.confirmPayment(checkout.period, { processId: checkout.processId, processToken: checkout.processToken }, fields);
   if (!payment) return ignored('not paid');
   if (payment.amountAgorot !== checkout.amountAgorot) {
     console.error('payment-webhook: amount does not match the checkout');
@@ -177,7 +211,9 @@ async function handleProcessNotification(fields: Record<string, string>, admin: 
   }
   if (seatedElsewhere.length > 0) console.error('payment-webhook: a child already has Pro, refund needed');
   const seated = checkout.childUids.filter((uid) => !seatedElsewhere.includes(uid));
-  const terms = planTerms(checkout, seated.length, payment.recurringRef !== null);
+  // Through Make a monthly plan is a standing order even before we learn its id
+  const isRecurring = payment.recurringRef !== null || (checkout.period === 'monthly' && !changesRecurringByApi(provider));
+  const terms = planTerms(checkout, seated.length, isRecurring);
   const sub: Subscription = {
     id: checkout.id,
     payerParentUid: checkout.parentUid,
@@ -206,8 +242,13 @@ async function handleProcessNotification(fields: Record<string, string>, admin: 
       ...(old.updateTime ? { precondition: { updateTime: old.updateTime } } : {}),
     });
   }
+  const tasks = await activationTasks(admin, provider, sub, terms, { transactionId: payment.transactionId, seatedElsewhere }, nowMs);
   try {
-    await admin.commit([...activationWrites(checkout, sub, provider, { transactionId: payment.transactionId, seatedElsewhere, seatVersions }, nowMs), ...oldPlanWrites]);
+    await admin.commit([
+      ...activationWrites(checkout, sub, provider, { transactionId: payment.transactionId, seatedElsewhere, seatVersions }, nowMs),
+      ...oldPlanWrites,
+      ...tasks,
+    ]);
   } catch (error) {
     if (!(error instanceof ConflictError)) throw error;
     // Recorded by a parallel notification, or something else blocked it: a 503 makes the gateway retry
@@ -220,7 +261,7 @@ async function handleProcessNotification(fields: Record<string, string>, admin: 
     // The gateway keeps the payment either way; only the acknowledgement is missing
     console.error(`payment-webhook: acknowledge failed (${error instanceof PaymentError ? error.code : 'unexpected'})`);
   }
-  if (terms.gatewayFix) {
+  if (terms.gatewayFix && changesRecurringByApi(provider)) {
     try {
       await provider.updateRecurring(payment.billing, terms.gatewayFix);
     } catch (error) {
@@ -257,9 +298,77 @@ async function childrenStillFree(admin: FirestoreAdmin, sub: Subscription, nowMs
   return free;
 }
 
+/** An Israeli mobile as the checkout stores it (05XXXXXXXX), or '' */
+function israeliMobile(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  const local = digits.startsWith('972') ? `0${digits.slice(3)}` : digits;
+  return /^05\d{8}$/.test(local) ? local : '';
+}
+
+/**
+ * Grow through Make never tells us a new standing order's id: its first renewal or failure links it
+ * to the one monthly plan with no id yet whose payer's phone (and email, when both have one) and,
+ * for a renewal, amount match. Null when none or several fit.
+ */
+async function linkUnmatchedPlan(admin: FirestoreAdmin, event: GrowAccountEvent, nowMs: number): Promise<Subscription | null> {
+  const phone = israeliMobile(event.payerPhone);
+  if (!phone) return null;
+  const email = event.payerEmail.trim().toLowerCase();
+  const fits: Subscription[] = [];
+  for (const doc of await admin.queryDocuments('checkouts', 'payerPhone', phone)) {
+    const checkout = readCheckout(doc);
+    if (!checkout || checkout.status !== 'paid' || checkout.period !== 'monthly' || checkout.provider !== 'grow') continue;
+    const checkoutEmail = typeof doc.fields.payerEmail === 'string' ? doc.fields.payerEmail.trim().toLowerCase() : '';
+    if (email && checkoutEmail && email !== checkoutEmail) continue;
+    const sub = readSubscription(await admin.getDocument('subscriptions', checkout.id));
+    if (!sub || sub.recurringRef || sub.period !== 'monthly') continue;
+    if (event.kind === 'renewal' && event.amountAgorot !== sub.amountAgorot) continue;
+    fits.push(sub);
+  }
+  if (fits.length !== 1) return null;
+  const sub = fits[0];
+  try {
+    await admin.commit([
+      { collection: 'recurringRefs', id: `grow_${event.recurringRef}`, precondition: { exists: false }, fields: { subscriptionId: sub.id } },
+      {
+        collection: 'subscriptions',
+        id: sub.id,
+        mergeFields: ['recurringRef', 'updatedAt'],
+        fields: { recurringRef: event.recurringRef, updatedAt: nowMs },
+        ...(sub.updateTime ? { precondition: { updateTime: sub.updateTime } } : {}),
+      },
+    ]);
+  } catch (error) {
+    // Linked by a parallel notification, or the plan changed: read whatever is there now
+    if (!(error instanceof ConflictError)) throw error;
+  }
+  return findSubscriptionByRef(admin, 'grow', event.recurringRef);
+}
+
+/** A charge or failure we couldn't tie to a plan: the owner looks it up in Grow */
+function unmatchedTask(event: GrowAccountEvent, nowMs: number): DocumentWrite {
+  const ref = event.kind === 'renewal' ? event.paymentId : event.recurringRef;
+  return gatewayTaskWrite({
+    id: `unmatched_${event.kind}_${ref}`,
+    kind: 'match_renewal',
+    subscriptionId: '',
+    amountAgorot: event.amountAgorot ?? 0,
+    dueAt: 0,
+    note: event.kind === 'renewal'
+      ? `A standing-order charge (Grow ${event.recurringRef}) matched no plan: find the parent, or refund it`
+      : `A failed standing-order charge (Grow ${event.recurringRef}) matched no plan: check it in Grow`,
+    payerName: event.payerName,
+    payerPhone: event.payerPhone,
+    payerEmail: event.payerEmail,
+  }, nowMs);
+}
+
 async function handleAccountEvent(event: GrowAccountEvent, admin: FirestoreAdmin, nowMs: number): Promise<Response> {
-  const sub = await findSubscriptionByRef(admin, 'grow', event.recurringRef);
-  if (!sub) return ignored('unknown recurring charge');
+  const sub = (await findSubscriptionByRef(admin, 'grow', event.recurringRef)) ?? (await linkUnmatchedPlan(admin, event, nowMs));
+  if (!sub) {
+    await admin.commit([unmatchedTask(event, nowMs)]);
+    return ignored('unknown recurring charge');
+  }
   if (event.kind === 'failed') {
     if (sub.status !== 'active') return ignored('not active');
     await admin.commit(updatedSubscriptionWrites({ ...sub, status: 'past_due' }, nowMs));
@@ -283,8 +392,22 @@ async function handleAccountEvent(event: GrowAccountEvent, admin: FirestoreAdmin
     status: sub.status === 'canceled' ? 'canceled' : 'active',
     periodEnd: addPeriods(Math.max(sub.periodEnd, nowMs), 'monthly'),
   };
+  // Charged after the parent cancelled: the standing order is still running in Grow
+  const refund = sub.status === 'canceled'
+    ? [gatewayTaskWrite({
+      id: `refund_${paymentId}`,
+      kind: 'refund',
+      subscriptionId: sub.id,
+      amountAgorot: event.amountAgorot,
+      dueAt: 0,
+      note: 'Charged after the plan was cancelled: refund this charge and cancel the standing order in Grow',
+      ...(await readPayer(admin, sub.id)),
+    }, nowMs)]
+    : [];
+  if (refund.length > 0) console.error('payment-webhook: a canceled plan was charged, refund needed');
   try {
     await admin.commit([
+      ...refund,
       {
         collection: 'payments',
         id: paymentId,
@@ -319,7 +442,7 @@ export async function handlePaymentWebhook(
   try {
     const admin = createAdmin(account, firebaseProjectId(env), { fetchImpl });
     const source = url.searchParams.get('source');
-    if (source === 'process') return await handleProcessNotification(fields, admin, provider, nowMs());
+    if (source === 'process') return await handleProcessNotification(fields, url.searchParams.get('checkout') ?? '', admin, provider, nowMs());
     if (source === 'account' && provider.id === 'grow') {
       const event = parseGrowAccountWebhook(fields, env.GROW_WEBHOOK_KEY ?? '');
       return event ? await handleAccountEvent(event, admin, nowMs()) : ignored('not a known event');

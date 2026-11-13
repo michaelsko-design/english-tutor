@@ -1,9 +1,12 @@
 /**
  * GET /api/owner-stats: the numbers behind the owner dashboard (`?owner`). Only the owner's Google
- * account may call it (`OWNER_UID`, the uid of that account); the answer holds aggregates only.
+ * account may call it (`OWNER_UID`, the uid of that account); the answer holds aggregates only, plus
+ * the open Grow tasks (`gatewayTasks`: the payer's name and phone, so the owner can find them in Grow).
+ * PATCH {taskId} marks a Grow task done (`_lib/ownerGatewayTasks.ts`).
  * The same account can still be a parent: this adds a second route, it changes nothing for parents.
  */
 import { handleFunnelRequest } from './_lib/funnelCounter.js';
+import { handleGatewayTaskDone, listOpenGatewayTasks } from './_lib/ownerGatewayTasks.js';
 import { createFirestoreAdmin } from './_lib/firestoreAdmin.js';
 import { computeConversionFunnel } from './_lib/conversionFunnel.js';
 import { AdminError, createAuthAdmin, type AccountsInfo } from './_lib/googleAdmin.js';
@@ -120,7 +123,7 @@ export async function handleOwnerStatsRequest(
       todayStr: israelDateStr(now),
       now,
     });
-    return jsonResponse(200, { ...stats, usage, conversion });
+    return jsonResponse(200, { ...stats, usage, conversion, gatewayTasks: await listOpenGatewayTasks(admin) });
   } catch (error) {
     // Only a status is logged: never ids, tokens or keys
     console.error(`owner-stats: failed (${error instanceof AdminError ? error.status : 'unexpected'})`);
@@ -130,6 +133,11 @@ export async function handleOwnerStatsRequest(
 
 export function GET(request: Request): Promise<Response> {
   return handleOwnerStatsRequest(request, process.env);
+}
+
+/** Marks a Grow task done (owner only) */
+export function PATCH(request: Request): Promise<Response> {
+  return handleGatewayTaskDone(request, process.env);
 }
 
 /** The anonymous sign-up counter (src/services/analytics/funnel.ts); it shares this file to stay within the function limit */

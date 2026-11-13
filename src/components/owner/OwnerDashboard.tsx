@@ -8,6 +8,7 @@ import { EarlyTestersCard } from './EarlyTestersCard';
 import { UsageCard } from './UsageCard';
 import { SuccessGatesCard } from './SuccessGatesCard';
 import { ConversionFunnelCard } from './ConversionFunnelCard';
+import { GatewayTasksCard } from './GatewayTasksCard';
 import { OwnerTabs, type OwnerTabDef } from './OwnerTabs';
 import { OverviewPanel } from './cards/OverviewPanel';
 import { ReminderEngineCard } from './cards/ReminderEngineCard';
@@ -57,7 +58,12 @@ const StatsView: React.FC<{ stats: OwnerStats; tab: TabId; onTestUsersChanged: (
   return (
     <div className="space-y-6">
       <div role="tabpanel" id={`owner-panel-${tab}`} aria-labelledby={`owner-tab-${tab}`} className="space-y-6">
-        {tab === 'overview' && <OverviewPanel stats={stats} />}
+        {tab === 'overview' && (
+          <>
+            {stats.gatewayTasks && stats.gatewayTasks.length > 0 && <GatewayTasksCard tasks={stats.gatewayTasks} />}
+            <OverviewPanel stats={stats} />
+          </>
+        )}
 
         {tab === 'funnel' &&
           (stats.conversion ? (

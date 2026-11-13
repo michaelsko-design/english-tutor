@@ -143,15 +143,22 @@ describe('parseGrowAccountWebhook', () => {
   it('reads a monthly renewal and a failed charge', () => {
     expect(
       parseGrowAccountWebhook({ webhookKey: 'KEY', transactionCode: 'T1', paymentSum: 64, directDebitId: '55', paymentType: 'הוראת קבע' }, 'KEY')
-    ).toEqual({ kind: 'renewal', recurringRef: '55', paymentId: 'T1', amountAgorot: 6400 });
-    expect(parseGrowAccountWebhook({ webhook_key: 'KEY', regular_payment_id: '55', error_message: 'פג תוקף' }, 'KEY')).toEqual({
-      kind: 'failed', recurringRef: '55', message: 'פג תוקף',
+    ).toEqual({ kind: 'renewal', recurringRef: '55', paymentId: 'T1', amountAgorot: 6400, payerName: '', payerPhone: '', payerEmail: '' });
+    expect(parseGrowAccountWebhook({ webhook_key: 'KEY', regular_payment_id: '55', error_message: 'פג תוקף', sum: '39', phone: '0501234567' }, 'KEY')).toEqual({
+      kind: 'failed', recurringRef: '55', message: 'פג תוקף', amountAgorot: 3900, payerName: '', payerPhone: '0501234567', payerEmail: '',
     });
   });
 
-  it('refuses a wrong key, a missing configured key and unknown events', () => {
+  it('carries the payer, to link a plan whose standing order id we never got', () => {
+    expect(
+      parseGrowAccountWebhook({ transactionCode: 'T1', paymentSum: 39, directDebitId: '55', fullName: 'ישראל ישראלי', payerPhone: '0501234567', payerEmail: 'a@b.co' }, '')
+    ).toMatchObject({ payerName: 'ישראל ישראלי', payerPhone: '0501234567', payerEmail: 'a@b.co' });
+  });
+
+  it('refuses a wrong key and unknown events; without a configured key, takes any (the address carries our secret)', () => {
     expect(parseGrowAccountWebhook({ webhookKey: 'NOPE', transactionCode: 'T1', paymentSum: 64, directDebitId: '55' }, 'KEY')).toBeNull();
-    expect(parseGrowAccountWebhook({ webhookKey: '', regular_payment_id: '55' }, '')).toBeNull();
+    expect(parseGrowAccountWebhook({ regular_payment_id: '55' }, 'KEY')).toBeNull();
+    expect(parseGrowAccountWebhook({ webhookKey: '', regular_payment_id: '55' }, '')).toMatchObject({ kind: 'failed', recurringRef: '55' });
     expect(parseGrowAccountWebhook({ webhookKey: 'KEY', transactionCode: 'T1', paymentSum: 5 }, 'KEY')).toBeNull();
   });
 });

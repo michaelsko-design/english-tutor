@@ -108,7 +108,8 @@ To add to `SECTIONS` in `PrivacyNoticeDialog.tsx`, after "מה הורים רוא
   bodyHe: [
     'רק הורה מחובר יכול לשלם על Pro. התשלום נעשה בעמוד המאובטח של גרואו פיימנטס בע״מ (Grow), ופרטי אמצעי התשלום לא מגיעים אלינו.',
     'אנחנו שומרים את מצב המנוי (פעיל, מבוטל, עד מתי), איזה חשבון הורה משלם, אילו ילדים במנוי, הסכומים ומספרי האישור של חברת התשלומים.',
-    'השם, הטלפון והאימייל שנמסרים בתשלום עוברים ישירות ל-Grow, לצורך התשלום והקבלה, ולא נשמרים אצלנו. Grow מעבדת אותם בשבילנו, לפי מדיניות הפרטיות שלה.',
+    'השם, הטלפון והאימייל שנמסרים בתשלום עוברים ל-Grow, לצורך התשלום והקבלה. Grow מעבדת אותם בשבילנו, לפי מדיניות הפרטיות שלה. הם עוברים ל-Grow דרך שירות האוטומציה Make (של חברת Celonis), שמעביר אותם ואינו שומר אותם.',
+    'אנחנו שומרים את השם, הטלפון והאימייל של המשלם, כדי לטפל בביטול או בשינוי של הוראת הקבע ובהחזרים. [לבדיקה משפטית: כמה זמן שומרים אותם אחרי סיום המנוי.]',
     'רשומות התשלום נשמרות כפי שחוקי המס דורשים (בדרך כלל 7 שנים), עם מזהה החשבון בלבד, גם אחרי מחיקת החשבון.',
   ],
 },
@@ -151,6 +152,7 @@ Both links open the dialogs. The server records the consent with the checkout (`
 9. **Retrying failed monthly charges:** Grow's terms (§13.1.5.11) allow retries only with the customer's advance, explicit consent. Are the sentence in section 7 and the extra line in the checkout box enough?
 10. **Grow as a processor:** Grow processes the payer's name, phone and email for us, and its privacy policy allows sharing with Meta when WhatsApp is used. Does the privacy notice need to say more than "Grow processes them for us under its own privacy policy"?
 11. **Published phone number and address:** Grow's site check requires a contact phone on the site and the business address on the site or in the terms. Is the private home address acceptable, or should it be a P.O. box?
+12. **Make as a processor abroad, and keeping payer details:** payments go to Grow through Make.com (Celonis, outside Israel), which passes the payer's name, phone and email on without keeping them (its run history is set to confidential). We also keep the payer's name, phone and email on the checkout record, so the owner can cancel or change the standing order in Grow by hand. Does this need consent or a notice beyond the privacy text above (transfer abroad, Privacy Protection Law Amendment 13)? How long may we keep them after the plan ends, given that billing records may have to be kept?
 
 ---
 

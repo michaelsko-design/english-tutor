@@ -45,9 +45,23 @@ export interface RecurringChange {
 
 export interface PaymentProvider {
   readonly id: 'grow' | 'mock';
+  /**
+   * False when the gateway's recurring charge can only be changed or cancelled by hand (Grow through
+   * Make): callers then leave the owner a task (`gatewayTasks.ts`) instead of calling `updateRecurring`.
+   * Missing means true.
+   */
+  readonly canChangeRecurring?: boolean;
   createPaymentPage(input: PaymentPageInput): Promise<PaymentPage>;
-  /** Asks the gateway about the payment page; null while nothing has been paid on it. */
-  confirmPayment(period: BillingPeriod, page: Pick<PaymentPage, 'processId' | 'processToken'>): Promise<ConfirmedPayment | null>;
+  /**
+   * Confirms a payment on the page; null while nothing has been paid on it. `notice` is the
+   * notification's flattened fields: a gateway that can't be asked checks them against the page's
+   * secret token instead.
+   */
+  confirmPayment(
+    period: BillingPeriod,
+    page: Pick<PaymentPage, 'processId' | 'processToken'>,
+    notice?: Readonly<Record<string, string>>
+  ): Promise<ConfirmedPayment | null>;
   /** Tells the gateway the payment was received (Grow: approveTransaction). */
   acknowledge(period: BillingPeriod, payment: ConfirmedPayment): Promise<void>;
   /** Changes the amount of a recurring charge from its next charge, or cancels it. */
@@ -55,6 +69,11 @@ export interface PaymentProvider {
 }
 
 /** The gateway refused a call or could not be reached; `code` is the gateway's error id when it gave one */
+/** True when `updateRecurring` can be called (see `canChangeRecurring`) */
+export function changesRecurringByApi(provider: Pick<PaymentProvider, 'canChangeRecurring'>): boolean {
+  return provider.canChangeRecurring !== false;
+}
+
 export class PaymentError extends Error {
   constructor(
     message: string,

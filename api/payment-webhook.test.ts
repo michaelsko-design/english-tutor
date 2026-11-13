@@ -13,10 +13,11 @@ const PAID: ConfirmedPayment = {
   transactionId: 'T100', amountAgorot: 6400, recurringRef: 'DD7', billing: '{"transactionId":"T100"}', details: {},
 };
 
-function setup(payment: ConfirmedPayment | null = PAID) {
+function setup(payment: ConfirmedPayment | null = PAID, canChangeRecurring = true) {
   const fake = createFakeFirestore();
   const gateway = {
     id: 'grow',
+    canChangeRecurring,
     createPaymentPage: vi.fn(),
     confirmPayment: vi.fn(async () => payment),
     acknowledge: vi.fn(async () => {}),
@@ -27,6 +28,7 @@ function setup(payment: ConfirmedPayment | null = PAID) {
   fake.seed('checkouts', CHECKOUT_ID, {
     parentUid: 'parent1', childUids: ['kid1', 'kid2'], period: 'monthly', seatLimit: 2, amountAgorot: 6400,
     status: 'pending', provider: 'grow', processId: 'P-REAL', processToken: 'TOK-REAL', createdAt: NOW - 60000,
+    payerName: 'ישראל ישראלי', payerPhone: '0501234567', payerEmail: 'parent@example.com',
   });
   return { fake, gateway, deps, clock };
 }
@@ -62,7 +64,7 @@ describe('handlePaymentWebhook: payment page notifications', () => {
     const response = await handlePaymentWebhook(processCallback(GROW_CALLBACK), ENV, deps);
 
     expect(response.status).toBe(200);
-    expect(gateway.confirmPayment).toHaveBeenCalledWith('monthly', { processId: 'P-REAL', processToken: 'TOK-REAL' });
+    expect(gateway.confirmPayment).toHaveBeenCalledWith('monthly', { processId: 'P-REAL', processToken: 'TOK-REAL' }, expect.objectContaining({ processId: 'P-FORGED' }));
     expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({
       payerParentUid: 'parent1', childUids: ['kid1', 'kid2'], status: 'active', periodEnd: Date.UTC(2026, 10, 28, 12),
       amountAgorot: 6400, recurringRef: 'DD7',
@@ -175,14 +177,20 @@ describe('handlePaymentWebhook: Grow account webhooks', () => {
     const stranger = { webhookKey: 'GROWKEY', transactionCode: 'R9', paymentSum: 64, directDebitId: 'DD999' };
     expect(await (await handlePaymentWebhook(accountWebhook(stranger), ENV, deps)).json()).toMatchObject({ ignored: 'unknown recurring charge' });
     expect(fake.get('payments', 'grow_R9')).toBeUndefined();
+    expect(fake.get('gatewayTasks', 'unmatched_renewal_R9')).toMatchObject({ kind: 'match_renewal', amountAgorot: 6400 });
   });
 
-  it('keeps a renewal on a canceled plan canceled, extending what was paid', async () => {
+  it('keeps a renewal on a canceled plan canceled, extending what was paid, and asks the owner to refund it', async () => {
     const { fake, deps } = await activated();
     const sub = fake.get('subscriptions', CHECKOUT_ID)!;
     fake.seed('subscriptions', CHECKOUT_ID, { ...sub, status: 'canceled' });
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
     await handlePaymentWebhook(accountWebhook({ webhookKey: 'GROWKEY', transactionCode: 'R2', paymentSum: 64, directDebitId: 'DD7' }), ENV, deps);
+    errors.mockRestore();
     expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ status: 'canceled', periodEnd: NOW + 61 * DAY });
+    expect(fake.get('gatewayTasks', 'refund_grow_R2')).toMatchObject({
+      kind: 'refund', subscriptionId: CHECKOUT_ID, amountAgorot: 6400, payerPhone: '0501234567', doneAt: 0,
+    });
   });
 
   it('brings back an expired plan on a late charge, but not over a seat on a newer plan', async () => {
@@ -213,6 +221,85 @@ describe('handlePaymentWebhook: Grow account webhooks', () => {
     const { deps } = await activated();
     const odd = { webhookKey: 'GROWKEY', transactionCode: '../x', paymentSum: 64, directDebitId: 'DD7' };
     expect(await (await handlePaymentWebhook(accountWebhook(odd), ENV, deps)).json()).toMatchObject({ ignored: 'not a known event' });
+  });
+});
+
+describe('handlePaymentWebhook: Grow through Make', () => {
+  const PAID_NO_REF: ConfirmedPayment = { ...PAID, recurringRef: null };
+
+  /** Grow's payment-link notice: JSON, the checkout id in our notify address */
+  function linkNotice(checkoutId = CHECKOUT_ID) {
+    return new Request(`https://app.test/api/payment-webhook?source=process&key=hook-secret&checkout=${checkoutId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ err: '', status: '1', data: { statusCode: '2', transactionId: 'T100', paymentLinkProcessToken: 'TOK-REAL' } }),
+    });
+  }
+
+  async function activatedWithoutRef() {
+    const context = setup(PAID_NO_REF, false);
+    await handlePaymentWebhook(linkNotice(), ENV, context.deps);
+    context.clock.now = Date.UTC(2026, 10, 27, 12);
+    return context;
+  }
+
+  it('takes the checkout from the notify address and hands the notice to the gateway to check', async () => {
+    const { fake, gateway, deps } = setup(PAID_NO_REF, false);
+
+    expect((await handlePaymentWebhook(linkNotice(), ENV, deps)).status).toBe(200);
+
+    expect(gateway.confirmPayment).toHaveBeenCalledWith(
+      'monthly',
+      { processId: 'P-REAL', processToken: 'TOK-REAL' },
+      expect.objectContaining({ paymentLinkProcessToken: 'TOK-REAL', statusCode: '2' })
+    );
+    expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ status: 'active', recurringRef: null });
+  });
+
+  it('links the plan to its standing order on the first renewal, by payer and amount', async () => {
+    const { fake, deps } = await activatedWithoutRef();
+    const renewal = { transactionCode: 'R1', paymentSum: 64, directDebitId: 'DD55', payerPhone: '+972-50-123-4567', payerEmail: 'Parent@example.com' };
+
+    expect((await handlePaymentWebhook(accountWebhook(renewal), { ...ENV, GROW_WEBHOOK_KEY: '' }, deps)).status).toBe(200);
+
+    expect(fake.get('recurringRefs', 'grow_DD55')).toEqual({ subscriptionId: CHECKOUT_ID });
+    expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ recurringRef: 'DD55', periodEnd: Date.UTC(2026, 11, 28, 12) });
+    expect(fake.get('payments', 'grow_R1')).toMatchObject({ kind: 'renewal' });
+  });
+
+  it('leaves the owner a task when the renewal fits no plan or another email', async () => {
+    const { fake, deps } = await activatedWithoutRef();
+    const otherAmount = { transactionCode: 'R1', paymentSum: 39, directDebitId: 'DD55', payerPhone: '0501234567' };
+    const otherEmail = { transactionCode: 'R2', paymentSum: 64, directDebitId: 'DD56', payerPhone: '0501234567', payerEmail: 'x@y.z' };
+
+    await handlePaymentWebhook(accountWebhook(otherAmount), { ...ENV, GROW_WEBHOOK_KEY: '' }, deps);
+    await handlePaymentWebhook(accountWebhook(otherEmail), { ...ENV, GROW_WEBHOOK_KEY: '' }, deps);
+
+    expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ recurringRef: null, periodEnd: Date.UTC(2026, 10, 28, 12) });
+    expect(fake.get('gatewayTasks', 'unmatched_renewal_R1')).toMatchObject({ kind: 'match_renewal', payerPhone: '0501234567', amountAgorot: 3900 });
+    expect(fake.get('gatewayTasks', 'unmatched_renewal_R2')).toMatchObject({ kind: 'match_renewal' });
+  });
+
+  it('marks a plan past due on its first failed charge, linking it by phone', async () => {
+    const { fake, deps } = await activatedWithoutRef();
+    const failed = { regular_payment_id: 'DD55', error_message: 'סירוב', sum: '64', phone: '0501234567', email: 'parent@example.com' };
+
+    await handlePaymentWebhook(accountWebhook(failed), { ...ENV, GROW_WEBHOOK_KEY: '' }, deps);
+
+    expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ status: 'past_due', recurringRef: 'DD55' });
+  });
+
+  it('asks the owner to refund children seated elsewhere and to lower the standing order by hand', async () => {
+    const { fake, gateway, deps } = setup(PAID_NO_REF, false);
+    fake.seed('entitlements', 'kid2', { status: 'active', periodEnd: NOW + 9 * DAY, subscriptionId: 'other' });
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await handlePaymentWebhook(linkNotice(), ENV, deps);
+
+    errors.mockRestore();
+    expect(gateway.updateRecurring).not.toHaveBeenCalled();
+    expect(fake.get('gatewayTasks', 'refund_grow_T100')).toMatchObject({ kind: 'refund', subscriptionId: CHECKOUT_ID });
+    expect(fake.get('gatewayTasks', `${CHECKOUT_ID}_amount`)).toMatchObject({ kind: 'amount', amountAgorot: 3900 });
   });
 });
 
