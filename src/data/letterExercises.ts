@@ -15,6 +15,7 @@ import type { MissionExerciseStep, MultipleChoiceOption } from './missionExercis
 import type { LearnerGender, ProficiencyTier } from '../types/learner';
 import { getAlphabetLetter, getLetterNameSpeech, getLettersBefore, type AlphabetLetter } from './alphabet';
 import { hebrewTemplate } from '../utils/hebrewGender';
+import { getVocabPictureId } from '../components/art/vocabPictureIds';
 import { getPronunciationTipHe, isolateLtr } from '../utils/hints';
 
 /** English inside Hebrew feedback stays left-to-right ("באות B", not a flipped "B-ב") */
@@ -124,6 +125,7 @@ function buildPictureStep(letter: AlphabetLetter, ctx: LetterStepContext): Missi
         : he`💡 אמרי את המילה בקול לאט, והקשיבי לצליל הראשון שלה.`,
     questionEn: word.en,
     cardDisplay: word.emoji,
+    cardPictureId: getVocabPictureId(word.en, word.he),
     options,
   };
 }
@@ -151,12 +153,14 @@ function buildFindStep(letter: AlphabetLetter, ctx: LetterStepContext): MissionE
   const options: MultipleChoiceOption[] = [
     {
       textEn: word.emoji,
+      pictureId: getVocabPictureId(word.en, word.he),
       speakEn: word.en,
       isCorrect: true,
       explanationHe: `מעולה! ${word.emoji} ${en(word.en)} ${startsOrEnds(letter)} באות ${en(letter.upper)}.`,
     },
     ...otherLetters(letter, ctx.pool, ctx.optionCount).map((other) => ({
       textEn: other.words[2].emoji,
+      pictureId: getVocabPictureId(other.words[2].en, other.words[2].he),
       speakEn: other.words[2].en,
       isCorrect: false,
       explanationHe: `${other.words[2].emoji} ${en(other.words[2].en)} ${startsOrEnds(other)} באות ${en(other.upper)}. נסו שוב!`,

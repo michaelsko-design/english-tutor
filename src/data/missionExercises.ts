@@ -38,6 +38,8 @@ export interface MultipleChoiceOption {
   explanationHe: string;
   /** What the option's 🔊 reads when it differs from the text (a picture option reads its word) */
   speakEn?: string;
+  /** A drawn picture shown instead of the text (an emoji), which stays as its fallback */
+  pictureId?: string;
 }
 
 export interface MissionExerciseStep {

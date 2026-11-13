@@ -49,7 +49,7 @@ sheet of 16.
 | 0 | Word pictures everywhere a word appears: word bank (`VocabularyVaultModal`), word lists, word decks, room games, dream journal, matching drills | 0 (reuse 237) | 0 | $0 | `getWordPicture()` helper + `pictureId` on those screens |
 | 1 | **Sign-in and onboarding + the 40 borrowed UI icons**: child, parent (adult with child), new account, sign in, save with Google, privacy for parents, tip bulb, tour compass, profile, calendar, clock, … | ~30 | 2 | $0.10 | role buttons in `auth/SignInPanel.tsx`, `CredentialsForm.tsx`; repoint `ICON_ID_BY_EMOJI` to new `ui-*` ids |
 | 2 | Mission and unit pictures on the map, mission sheet, intro and victory screens (107 mission icons + unit badges, grades 1–12) | ~120 | 8 | $0.40 | `mission.pictureId` from the mission id; fallback to today's icon |
-| 3 | Grade 1 letters and blending (`alphabet.ts`, `blendingWords.ts`) | ~60 (rest reuse vocab) | 4 | $0.20 | `cardPictureId` in letter and blending steps |
+| 3 | Grade 1 letters and blending (`alphabet.ts`, `blendingWords.ts`) | **done**: 91 of 93 words reuse vocab pictures; 5 left (up, zero, net, shell, cat on the bed) go on the phase 4 sheets | 0 | $0 | `cardPictureId` on cards, `pictureId` on answer options and lesson quick tries (`data/phonicsPictures.ts`) |
 | 4 | Concrete grade 7–12 vocabulary and word-deck words (212 + 55 words; abstract ones get none) | ~180 | 12 | $0.60 | add to the vocab list (grade cap 6 → 12, abstract filter) |
 | 5 | Lesson text and the core-3 pack: clocks at set times, colour dots (→ CSS circles), numbers; delete pure decoration | ~30 | 2 | $0.10 | edit lesson and pack text (TTS unaffected: `toSpeakableText` strips emoji) |
 | | **Total** | **~420** | **~28** | **≈ $1.40 + ~$0.30 redraws** | |

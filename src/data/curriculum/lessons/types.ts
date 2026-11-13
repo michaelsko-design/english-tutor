@@ -28,6 +28,9 @@ export interface LessonQuickTry {
   /** What a picture option's 🔊 reads (the word it shows), when `correct` / `wrong` is only a picture */
   correctSpeakEn?: string;
   wrongSpeakEn?: string;
+  /** Drawn pictures for picture options (public/art/icons/<id>.webp); the emoji stays as the fallback */
+  correctPictureId?: string;
+  wrongPictureId?: string;
   /** Why the answer is right, shown after any pick */
   explainHe: string;
 }
