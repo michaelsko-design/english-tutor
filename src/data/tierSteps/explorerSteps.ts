@@ -22,8 +22,9 @@ export function buildExplorerSteps(ctx: TierContext): MissionExerciseStep[] {
   const isFocusFirst = word === ctx.vocab[0];
   const distractor = isFocusFirst ? seed.wrongWords[0] : ctx.vocab[0];
   const isMiddleOrHigh = MIDDLE_AND_HIGH_ID.test(mission.id);
-  const picture = isMiddleOrHigh ? undefined : getPictureCue(word);
-  const hasPicture = Boolean(picture);
+  const cue = isMiddleOrHigh ? undefined : getPictureCue(word);
+  const picture = cue?.emoji;
+  const hasPicture = Boolean(cue);
   const cloze = toClozeSentence(word.exampleEn, word.wordEn);
 
   const step1: MissionExerciseStep = {
@@ -42,9 +43,10 @@ export function buildExplorerSteps(ctx: TierContext): MissionExerciseStep[] {
       : 'Which word is right?',
     cardTextHe: hasPicture ? undefined : word.translationHe,
     cardDisplay: picture,
+    cardPictureId: cue?.pictureId,
     options: choiceOptions(
       word.wordEn,
-      he`מעולה! ${picture ? `${picture} ` : ''}${word.wordEn} פירושו "${word.translationHe}".`,
+      he`מעולה! ${cue?.isEmojiFitting ? `${cue.emoji} ` : ''}${word.wordEn} פירושו "${word.translationHe}".`,
       [distractor.wordEn],
       () => he`לא בדיוק — ${distractor.wordEn} פירושו "${distractor.translationHe}". נסי שוב!`
     ),

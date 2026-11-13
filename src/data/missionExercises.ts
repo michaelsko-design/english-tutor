@@ -70,6 +70,8 @@ export interface MissionExerciseStep {
   hideText?: boolean;
   /** Letters and blending steps: what the question card shows very large (a letter, a picture, a word) */
   cardDisplay?: string;
+  /** A drawn picture shown instead of `cardDisplay` (public/art/icons/<id>.webp); the emoji stays as the fallback */
+  cardPictureId?: string;
   /** Blending steps: the word as sound tiles ("sh", "i", "p") */
   soundTiles?: string[];
   /** Blending: whether the tiles may slide the word aloud (hidden in Master's reading check) */

@@ -529,3 +529,8 @@ export function getIconSrc(emoji: string, displaySizePx: number, devicePixelRati
   const pixels = displaySizePx * (devicePixelRatio > 0 ? devicePixelRatio : 1);
   return `${ICON_DIR}/${id}${pixels <= SMALL_ICON_PX ? '@128' : ''}.webp`;
 }
+
+/** A drawn picture's full-size file by its icon id (a vocabulary picture, shown large on a question card). */
+export function getPictureSrc(id: string): string {
+  return `${ICON_DIR}/${id}.webp`;
+}

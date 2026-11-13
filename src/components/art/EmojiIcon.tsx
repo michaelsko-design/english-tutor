@@ -1,6 +1,6 @@
 import React from 'react';
 import { useArtStatus } from '../../hooks/useArtStatus';
-import { getIconSrc } from './iconArt';
+import { getIconSrc, getPictureSrc } from './iconArt';
 import { getSymbolIcon } from './symbolIcons';
 import { RAW_EMOJI_PROP } from '../../emojiJsx/withEmojiIcons';
 
@@ -11,6 +11,8 @@ interface EmojiIconProps {
   className?: string;
   /** Sits in a line of text: its bottom edge goes a little below the baseline, like a glyph's */
   isInline?: boolean;
+  /** A drawn picture to show instead of the emoji's own icon (the emoji stays as the fallback) */
+  pictureId?: string;
 }
 
 const SYMBOL_STROKE_WIDTH = 2.5;
@@ -32,8 +34,8 @@ function getDevicePixelRatio(): number {
  * A catalog emoji as its drawn icon (public/art/icons). Emoji without an icon, and icons whose
  * file is missing, show the plain emoji at the same size, so the box never jumps.
  */
-export const EmojiIcon: React.FC<EmojiIconProps> = ({ emoji, size, className = '', isInline = false }) => {
-  const SymbolIcon = getSymbolIcon(emoji);
+export const EmojiIcon: React.FC<EmojiIconProps> = ({ emoji, size, className = '', isInline = false, pictureId }) => {
+  const SymbolIcon = pictureId ? null : getSymbolIcon(emoji);
   if (SymbolIcon) {
     return (
       <SymbolIcon
@@ -46,7 +48,7 @@ export const EmojiIcon: React.FC<EmojiIconProps> = ({ emoji, size, className = '
     );
   }
   const sizePx = toPixels(size);
-  const src = getIconSrc(emoji, sizePx ?? Number.POSITIVE_INFINITY, getDevicePixelRatio());
+  const src = pictureId ? getPictureSrc(pictureId) : getIconSrc(emoji, sizePx ?? Number.POSITIVE_INFINITY, getDevicePixelRatio());
   const textEmoji = (
     <span
       className={`inline-block leading-none ${className}`}
