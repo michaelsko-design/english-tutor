@@ -4,15 +4,17 @@
 // Usage (PowerShell):
 //   npm i --no-save firebase-admin
 //   $env:GOOGLE_APPLICATION_CREDENTIALS = "C:\path\to\service-account.json"   # keep the key OUTSIDE the repo
+//   $env:FIREBASE_TARGET = "staging"   # optional: act on the staging project (with its own key)
 //   node scripts/allowExisting.mjs                                  # list accounts, change nothing
 //   node scripts/allowExisting.mjs --apply noa12 dana7              # allow these (username or uid)
 //   node scripts/allowExisting.mjs --apply noa12 --cohort family
 //   node scripts/allowExisting.mjs --all --cohort existing          # allow EVERY account that exists now (guests too)
 import { initializeApp, applicationDefault } from 'firebase-admin/app';
+import { resolveProjectId } from './lib/firebaseTarget.mjs';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 
-const PROJECT_ID = 'english-tutor-il-7';
+const PROJECT_ID = resolveProjectId();
 const USERNAME_EMAIL_DOMAIN = 'peachnote.tutor.local';
 const COMP_PERIOD_END_MS = Date.UTC(2100, 0, 1);
 

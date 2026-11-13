@@ -3,14 +3,16 @@
 // Usage (PowerShell):
 //   npm i --no-save firebase-admin
 //   $env:GOOGLE_APPLICATION_CREDENTIALS = "C:\path\to\service-account.json"   # keep the key OUTSIDE the repo
+//   $env:FIREBASE_TARGET = "staging"   # optional: act on the staging project (with its own key)
 //   $env:APP_ORIGIN = "https://your-production-domain"
 //   node scripts/createInvite.mjs noa dana --cohort tester-nov26 --days 14
 // Labels are aliases (first names or "kid-3"), never full names; they show in the owner dashboard.
 import { randomInt } from 'node:crypto';
 import { initializeApp, applicationDefault } from 'firebase-admin/app';
+import { resolveProjectId } from './lib/firebaseTarget.mjs';
 import { getFirestore } from 'firebase-admin/firestore';
 
-const PROJECT_ID = 'english-tutor-il-7';
+const PROJECT_ID = resolveProjectId();
 /** Without 0/1/I/L/O so a code read aloud or typed from WhatsApp is unambiguous (matches CODE_PATTERN in api/redeem-invite.ts) */
 const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const CODE_LENGTH = 10;

@@ -3,13 +3,15 @@
 // Usage (PowerShell):
 //   npm i --no-save firebase-admin
 //   $env:GOOGLE_APPLICATION_CREDENTIALS = "C:\path\to\service-account.json"   # keep the key OUTSIDE the repo
+//   $env:FIREBASE_TARGET = "staging"   # optional: act on the staging project (with its own key)
 //   node scripts/grantPro.mjs <username or uid>            # Pro with no end
 //   node scripts/grantPro.mjs <username or uid> --revoke   # back to free
 import { initializeApp, applicationDefault } from 'firebase-admin/app';
+import { resolveProjectId } from './lib/firebaseTarget.mjs';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 
-const PROJECT_ID = 'english-tutor-il-7';
+const PROJECT_ID = resolveProjectId();
 const USERNAME_EMAIL_DOMAIN = 'peachnote.tutor.local';
 /** Open-ended: 1 Jan 2100 */
 const COMP_PERIOD_END_MS = Date.UTC(2100, 0, 1);

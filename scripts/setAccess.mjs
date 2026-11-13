@@ -5,13 +5,15 @@
 // Usage (PowerShell):
 //   npm i --no-save firebase-admin
 //   $env:GOOGLE_APPLICATION_CREDENTIALS = "C:\path\to\service-account.json"   # keep the key OUTSIDE the repo
+//   $env:FIREBASE_TARGET = "staging"   # optional: act on the staging project (with its own key)
 //   node scripts/setAccess.mjs --closed
 //   node scripts/setAccess.mjs --open
 //   node scripts/setAccess.mjs            # shows the current state
 import { initializeApp, applicationDefault } from 'firebase-admin/app';
+import { resolveProjectId } from './lib/firebaseTarget.mjs';
 import { getFirestore } from 'firebase-admin/firestore';
 
-const PROJECT_ID = 'english-tutor-il-7';
+const PROJECT_ID = resolveProjectId();
 const args = process.argv.slice(2);
 
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {

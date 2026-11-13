@@ -4,7 +4,7 @@ Hebrew-first, gamified English-learning web app for Israeli students, grades 1â€
 **Full architecture and feature specs: `docs/architecture.md`** (read only the section you need, e.g. `grep -n "^### 4.20" docs/architecture.md`).
 
 ## Core Stack
-React 18 + TypeScript, Vite 6, Tailwind CSS 3 (`darkMode: 'class'`, set from the theme), Firebase (Auth + Firestore, project `english-tutor-il-7`), Azure Neural TTS (rendered MP3 clips + `/api/tts` Vercel Function), Vitest. Deploy: Vercel; **a push to `main` deploys to production.**
+React 18 + TypeScript, Vite 6, Tailwind CSS 3 (`darkMode: 'class'`, set from the theme), Firebase (Auth + Firestore, project `english-tutor-il-7`), Azure Neural TTS (rendered MP3 clips + `/api/tts` Vercel Function), Vitest. Deploy: Vercel; **a push to `main` deploys to production.** Changes are tried on staging first: branch `staging` (Vercel Preview) + Firebase project `english-tutor-staging` (`docs/staging.md`).
 
 ## Commands
 ```bash
