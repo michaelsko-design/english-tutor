@@ -213,8 +213,6 @@ export const ContestRunner: React.FC<ContestRunnerProps> = ({
         {questionCard && (
           <QuestionBubble
             content={questionCard}
-            speakerAvatar={step.speakerAvatar}
-            speakerName={step.speakerName}
             theme={theme}
             onSpeakEnglish={onSpeakEnglish}
           />

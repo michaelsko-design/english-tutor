@@ -10,8 +10,6 @@ interface QuestionBubbleProps {
   content: QuestionCardContent;
   /** Text read aloud by the speaker button; defaults to the card text. English cards only. */
   readAloudText?: string;
-  speakerAvatar?: string;
-  speakerName?: string;
   theme: ThemeDefinition;
   onSpeakEnglish: (text: string, rate?: number) => void;
 }
@@ -58,8 +56,6 @@ function useFitWord(ref: React.RefObject<HTMLElement>, isEnabled: boolean, text:
 export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
   content,
   readAloudText,
-  speakerAvatar,
-  speakerName,
   theme,
   onSpeakEnglish,
 }) => {
@@ -78,13 +74,7 @@ export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
     <div
       className={`p-3 sm:p-4 md:p-6 rounded-3xl border-2 border-current/15 ${theme.cardBgClass} flex items-start gap-3`}
     >
-      {speakerAvatar && (
-        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl shrink-0 ${theme.primaryBtnClass}`}>
-          {speakerAvatar}
-        </div>
-      )}
       <div className={`flex-1 min-w-0 ${isWord ? 'py-2 short:py-0' : ''}`}>
-        {speakerName && <div className="text-xs font-bold opacity-75 mb-1">{speakerName}</div>}
         <p
           ref={textRef}
           className={`${TEXT_SIZE_CLASS[content.size]} font-black ${isFitWord ? 'whitespace-nowrap' : 'break-words'}`}

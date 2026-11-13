@@ -214,8 +214,6 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
         {questionCard && (
           <QuestionBubble
             content={questionCard}
-            speakerAvatar={step.speakerAvatar}
-            speakerName={step.speakerName}
             theme={theme}
             onSpeakEnglish={onSpeakEnglish}
           />

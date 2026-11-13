@@ -33,14 +33,13 @@ export function buildExplorerSteps(ctx: TierContext): MissionExerciseStep[] {
     hintHe: cloze
       ? he`💡 איזו מילה משלימה את המשפט? "${isolateLtr(cloze)}"`
       : `💡 ${getWordShapeHintHe(word.wordEn, [distractor.wordEn])}`,
-    speakerName: 'Word Guide',
-    speakerAvatar: mission.icon,
     questionEn: isMiddleOrHigh
       ? `Which English word means "${word.translationHe}"?`
       : word.emoji
       ? `What is this? ${word.emoji}`
       : 'Which word is right?',
     cardTextHe: hasPicture ? undefined : word.translationHe,
+    cardDisplay: hasPicture ? word.emoji : undefined,
     options: choiceOptions(
       word.wordEn,
       he`מעולה! ${word.emoji ? `${word.emoji} ` : ''}${word.wordEn} פירושו "${word.translationHe}".`,

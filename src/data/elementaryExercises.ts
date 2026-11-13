@@ -89,14 +89,13 @@ export function buildElementaryExercises(
           ? he`איזו מילה באנגלית מתאימה לתמונה? בחרי:`
           : he`איך אומרים את זה באנגלית?`,
       hintHe: englishOptionHint([wrongA.wordEn]),
-      speakerName: 'Word Guide',
-      speakerAvatar: mission.icon,
       questionEn: isMiddleOrHigh
         ? `Which English word means "${v0.translationHe}"?`
         : v0.emoji
         ? `What is this? ${v0.emoji}`
         : 'Which word is right?',
       cardTextHe: v0.emoji && !isMiddleOrHigh ? undefined : v0.translationHe,
+      cardDisplay: v0.emoji && !isMiddleOrHigh ? v0.emoji : undefined,
       options: opts,
     };
   } else if (!isMaster) {
@@ -107,8 +106,6 @@ export function buildElementaryExercises(
       badgeLabelHe: he`💬 שלב 1/5: מה פירוש המילה?`,
       promptHe: he`מה המשמעות של המילה?`,
       hintHe: he`💡 כדאי לקרוא את המילה בתוך משפט: "${isolateLtr(v0.exampleEn)}"`,
-      speakerName: 'Word Guide',
-      speakerAvatar: mission.icon,
       questionEn: v0.wordEn,
       options: [
         { textEn: v0.translationHe, isCorrect: true, explanationHe: correctExplain },
@@ -124,8 +121,6 @@ export function buildElementaryExercises(
       badgeLabelHe: he`💬 שלב 1/5: איך אומרים באנגלית?`,
       promptHe: he`איך אומרים את זה באנגלית?`,
       hintHe: englishOptionHint([wrongA.wordEn, wrongB.wordEn]),
-      speakerName: 'Word Guide',
-      speakerAvatar: mission.icon,
       questionEn: 'Which English word is right?',
       cardTextHe: v0.translationHe,
       options: [
