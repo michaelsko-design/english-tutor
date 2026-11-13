@@ -1,6 +1,7 @@
 import { MissionNode } from './curriculum';
 import { LearnerGender, ProficiencyTier } from '../types/learner';
 import type { MissionExerciseStep, MultipleChoiceOption } from './missionExercises';
+import { getPictureCue } from './pictureCues';
 import {
   findAnswerSentenceNumber,
   getPronunciationTipHe,
@@ -54,7 +55,8 @@ export function buildElementaryExercises(
 
   // ---- Step 1: vocabulary match -------------------------------------------------
   let step1: MissionExerciseStep;
-  const correctExplain = he`מעולה! ${v0.emoji ? `${v0.emoji} ` : ''}${v0.wordEn} פירושו "${v0.translationHe}".`;
+  const v0Picture = getPictureCue(v0);
+  const correctExplain = he`מעולה! ${v0Picture ? `${v0Picture} ` : ''}${v0.wordEn} פירושו "${v0.translationHe}".`;
   const wrongExplain = (w: { wordEn: string; translationHe: string }) =>
     he`לא בדיוק — ${w.wordEn} פירושו "${w.translationHe}". נסי שוב!`;
 
@@ -65,6 +67,7 @@ export function buildElementaryExercises(
     mission.id.startsWith('g10-') ||
     mission.id.startsWith('g11-') ||
     mission.id.startsWith('g12-');
+  const picture = isMiddleOrHigh ? undefined : v0Picture;
 
   // English-word options: a fill-in-the-blank example needs real understanding, while a letter
   // clue would single out one of only two or three options.
@@ -85,17 +88,17 @@ export function buildElementaryExercises(
       type: 'chat-reply',
       badgeLabelHe: he`💬 שלב 1/5: איזו מילה זו?`,
       promptHe:
-        v0.emoji && !isMiddleOrHigh
+        picture
           ? he`איזו מילה באנגלית מתאימה לתמונה? בחרי:`
           : he`איך אומרים את זה באנגלית?`,
       hintHe: englishOptionHint([wrongA.wordEn]),
       questionEn: isMiddleOrHigh
         ? `Which English word means "${v0.translationHe}"?`
-        : v0.emoji
-        ? `What is this? ${v0.emoji}`
+        : picture
+        ? `What is this? ${picture}`
         : 'Which word is right?',
-      cardTextHe: v0.emoji && !isMiddleOrHigh ? undefined : v0.translationHe,
-      cardDisplay: v0.emoji && !isMiddleOrHigh ? v0.emoji : undefined,
+      cardTextHe: picture ? undefined : v0.translationHe,
+      cardDisplay: picture,
       options: opts,
     };
   } else if (!isMaster) {

@@ -1,4 +1,5 @@
 import type { MissionExerciseStep } from '../missionExercises';
+import { getPictureCue } from '../pictureCues';
 import { getWordShapeHintHe, isolateLtr, toClozeSentence } from '../../utils/hints';
 import {
   buildSentenceStep,
@@ -21,7 +22,8 @@ export function buildExplorerSteps(ctx: TierContext): MissionExerciseStep[] {
   const isFocusFirst = word === ctx.vocab[0];
   const distractor = isFocusFirst ? seed.wrongWords[0] : ctx.vocab[0];
   const isMiddleOrHigh = MIDDLE_AND_HIGH_ID.test(mission.id);
-  const hasPicture = Boolean(word.emoji) && !isMiddleOrHigh;
+  const picture = isMiddleOrHigh ? undefined : getPictureCue(word);
+  const hasPicture = Boolean(picture);
   const cloze = toClozeSentence(word.exampleEn, word.wordEn);
 
   const step1: MissionExerciseStep = {
@@ -35,14 +37,14 @@ export function buildExplorerSteps(ctx: TierContext): MissionExerciseStep[] {
       : `💡 ${getWordShapeHintHe(word.wordEn, [distractor.wordEn])}`,
     questionEn: isMiddleOrHigh
       ? `Which English word means "${word.translationHe}"?`
-      : word.emoji
-      ? `What is this? ${word.emoji}`
+      : picture
+      ? `What is this? ${picture}`
       : 'Which word is right?',
     cardTextHe: hasPicture ? undefined : word.translationHe,
-    cardDisplay: hasPicture ? word.emoji : undefined,
+    cardDisplay: picture,
     options: choiceOptions(
       word.wordEn,
-      he`מעולה! ${word.emoji ? `${word.emoji} ` : ''}${word.wordEn} פירושו "${word.translationHe}".`,
+      he`מעולה! ${picture ? `${picture} ` : ''}${word.wordEn} פירושו "${word.translationHe}".`,
       [distractor.wordEn],
       () => he`לא בדיוק — ${distractor.wordEn} פירושו "${distractor.translationHe}". נסי שוב!`
     ),
