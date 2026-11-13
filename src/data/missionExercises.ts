@@ -49,9 +49,7 @@ export interface MissionExerciseStep {
   hintHe: string;
   /** A fuller hint that replaces `hintHe` (and opens itself) after the learner's first wrong answer */
   hintAfterWrongHe?: string;
-  // For chat-reply, grammar-detective, story-unseen
-  speakerName?: string;
-  speakerAvatar?: string;
+  // For story-unseen
   contextPassageEn?: string;
   contextPassageHe?: string;
   questionEn: string;
@@ -182,8 +180,6 @@ export function getRawExercisesForMission(
       badgeLabelHe: he`💬 שלב 1/5: אתגר אוצר מילים בהקשר`,
       promptHe: he`בחרי את המשמעות הנכונה של המילה "${v0.wordEn}" מתוך הסיפור:`,
       hintHe: he`💡 כדאי לקרוא את המילה בתוך משפט: "${isolateLtr(v0.exampleEn)}"`,
-      speakerName: 'Studio Guide',
-      speakerAvatar: mission.icon,
       questionEn: `In the sentence "${v0.exampleEn}", what does "${v0.wordEn}" mean?`,
       options: [
         {

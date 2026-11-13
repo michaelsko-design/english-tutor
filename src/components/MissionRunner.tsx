@@ -645,8 +645,6 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                     <QuestionBubble
                       content={questionCard}
                       readAloudText={getCardReadAloudText(currentStep)}
-                      speakerAvatar={currentStep.speakerAvatar}
-                      speakerName={currentStep.speakerName}
                       theme={theme}
                       onSpeakEnglish={onSpeakEnglish}
                     />

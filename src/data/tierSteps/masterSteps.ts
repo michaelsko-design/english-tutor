@@ -54,8 +54,6 @@ function buildVocabularyStep(ctx: TierContext): MissionExerciseStep {
     badgeLabelHe: he`💬 שלב 1/5: איך אומרים באנגלית?`,
     promptHe: he`איך אומרים את זה באנגלית?`,
     hintHe: `💡 המילה מתחילה באות ${word.wordEn[0].toUpperCase()}.`,
-    speakerName: 'Word Guide',
-    speakerAvatar: mission.icon,
     questionEn: 'Which English word is right?',
     cardTextHe: word.translationHe,
     options: choiceOptions(word.wordEn, explainHe, others.slice(0, 3), () => he`לא בדיוק. נסי שוב!`),

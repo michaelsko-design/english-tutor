@@ -44,8 +44,6 @@ export function buildChallengerSteps(ctx: TierContext): MissionExerciseStep[] {
     hintHe: he`💡 קראו את המשפט עד הסוף ובדקו איזו מילה מתאימה לו במשמעות ובדקדוק.`,
     // After a miss the Hebrew sentence is fair help (it would give the answer away up front)
     hintAfterWrongHe: `💡 המשפט בעברית: ${word.exampleHe}`,
-    speakerName: 'Word Guide',
-    speakerAvatar: mission.icon,
     questionEn: cloze ?? word.exampleEn,
     options: choiceOptions(
       word.wordEn,

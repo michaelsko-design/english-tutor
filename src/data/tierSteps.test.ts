@@ -3,6 +3,7 @@ import type { MissionNode } from './curriculum';
 import { getExercisesForMission, type MissionExerciseStep } from './missionExercises';
 import { LearnerGender, ProficiencyTier } from '../types/learner';
 import { TIER_FIXTURE_MISSION } from './testing/tierFixture';
+import { getCardReadAloudText } from '../components/drills/questionCard';
 
 const GENDERS: LearnerGender[] = ['girl', 'boy'];
 
@@ -80,6 +81,22 @@ describe('tier steps: three genuinely different missions', () => {
     expect(s3.speakTargetEn).toBe(TIER_FIXTURE_MISSION.drillSeed!.shortSentenceEn);
     expect(s5.contextPassageHe).toBeTruthy();
     expect(s5.contextPassageEn).toBe(TIER_FIXTURE_MISSION.drillSeed!.tiers!.explorer.story.passageEn);
+  });
+
+  it('Explorer: a picture word shows its picture large on the card and still reads "What is this?"', () => {
+    const [s1] = stepsFor('explorer');
+    const pictured = TIER_FIXTURE_MISSION.vocabulary.find((w) => s1.questionEn.includes(w.emoji ?? '\u0000'));
+    expect(pictured).toBeDefined();
+    expect(s1.cardDisplay).toBe(pictured!.emoji);
+    expect(s1.cardTextHe).toBeUndefined();
+    expect(getCardReadAloudText(s1)).toBe(s1.questionEn);
+    expect(s1).not.toHaveProperty('speakerName');
+  });
+
+  it('Explorer: a middle-school mission has no picture card', () => {
+    const [s1] = stepsFor('explorer', { ...TIER_FIXTURE_MISSION, id: 'g8-u1-m1' });
+    expect(s1.cardDisplay).toBeUndefined();
+    expect(s1.cardTextHe).toBeTruthy();
   });
 
   it('Challenger: the cloze word is vocabulary[1] and the full key sentence is built and spoken', () => {
