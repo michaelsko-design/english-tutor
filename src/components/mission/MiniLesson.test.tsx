@@ -5,6 +5,11 @@ import { LESSON_PACK_LOADERS, type MiniLesson as MiniLessonData } from '../../da
 import { TEST_THEME } from '../../test/fixtures';
 import { MiniLesson } from './MiniLesson';
 
+const speakHebrewMock = vi.hoisted(() => vi.fn(() => Promise.resolve()));
+vi.mock('../../services/tts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../services/tts')>()),
+  speakHebrew: speakHebrewMock,
+}));
 vi.mock('../companion/Companion', () => ({ Companion: ({ pose }: { pose: string }) => <span>{`pose:${pose}`}</span> }));
 
 const LESSON: MiniLessonData = {
@@ -117,6 +122,25 @@ describe('MiniLesson', () => {
     await user.click(next());
     await user.click(screen.getByText('goes'));
     expect(screen.getByText('pose:cheer')).toBeInTheDocument();
+  });
+
+  it('reads the quick-try question by itself when the card opens in grades 1–2', async () => {
+    const user = setup({ readsHebrewAloud: true });
+    await user.click(next());
+    speakHebrewMock.mockClear();
+    await user.click(next());
+    expect(speakHebrewMock).toHaveBeenCalledWith('מה נכון?');
+  });
+
+  it('gives a picture option a listen button that reads its word', async () => {
+    const user = setup({
+      lesson: { ...LESSON, quickTry: { promptHe: 'איזו תמונה?', correct: '🍎', wrong: '🐜', correctSpeakEn: 'apple', wrongSpeakEn: 'ant', explainHe: 'כן' } } as MiniLessonData,
+      readsHebrewAloud: true,
+    });
+    await user.click(next());
+    await user.click(next());
+    await user.click(screen.getAllByRole('button', { name: /הקשבה לתשובה/ })[0]);
+    expect(fns.onSpeakEnglish).toHaveBeenCalledTimes(1);
   });
 
   it('shows a Boss recap with its parts', () => {
