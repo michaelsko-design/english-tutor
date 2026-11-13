@@ -14,6 +14,8 @@ import { ExamPrepPlan, ExamSkill, LearnerProfile, SUPPORTED_GRADES } from '../..
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from './ExamModalShell';
 import { Button } from '../ui/Button';
+import { EmojiIcon } from '../art/EmojiIcon';
+import { getUnitPictureId } from '../art/mapPictureIds';
 import { useGradeCurriculum } from '../../hooks/useGradeCurricula';
 
 interface ExamPrepSetupProps {
@@ -137,7 +139,7 @@ export const ExamPrepSetup: React.FC<ExamPrepSetupProps> = ({ profile, theme, on
                   className={chipClass(isOn)}
                 >
                   <div className="font-extrabold text-sm">
-                    {u.badgeEmoji} יחידה {u.unitNumber}: {u.titleHe}
+                    <EmojiIcon emoji={u.badgeEmoji} pictureId={getUnitPictureId(profile.gradeId, u.unitNumber)} size="1.5em" isInline /> יחידה {u.unitNumber}: {u.titleHe}
                   </div>
                   <div className={`text-xs mt-0.5 line-clamp-2 ${theme.mutedTextClass}`} dir="ltr" lang="en">
                     {u.topics.join(' · ')}

@@ -1,0 +1,2882 @@
+[
+  {
+    "key": "abc-friends",
+    "id": "map-abc-friends",
+    "word": "abc-friends",
+    "he": "",
+    "subject": "three stacked colourful wooden toy blocks with simple shapes painted on them",
+    "sheet": 1,
+    "cell": 0
+  },
+  {
+    "key": "letters-abc",
+    "id": "map-letters-abc",
+    "word": "letters-abc",
+    "he": "",
+    "subject": "an apple, a ball and a cat sitting together",
+    "sheet": 1,
+    "cell": 1
+  },
+  {
+    "key": "letters-def",
+    "id": "map-letters-def",
+    "word": "letters-def",
+    "he": "",
+    "subject": "a dog, an egg and a fish together",
+    "sheet": 1,
+    "cell": 2
+  },
+  {
+    "key": "boss-letter-party",
+    "id": "map-boss-letter-party",
+    "word": "boss-letter-party",
+    "he": "",
+    "subject": "a dog and a cat in party hats next to a cake and balloons",
+    "sheet": 1,
+    "cell": 3
+  },
+  {
+    "key": "letter-parade",
+    "id": "map-letter-parade",
+    "word": "letter-parade",
+    "he": "",
+    "subject": "a marching drum with colourful flags and streamers",
+    "sheet": 1,
+    "cell": 4
+  },
+  {
+    "key": "letters-ghi",
+    "id": "map-letters-ghi",
+    "word": "letters-ghi",
+    "he": "",
+    "subject": "a goat, a hat and an iguana together",
+    "sheet": 1,
+    "cell": 5
+  },
+  {
+    "key": "letters-jklm",
+    "id": "map-letters-jklm",
+    "word": "letters-jklm",
+    "he": "",
+    "subject": "a glass of juice, a kite, a lion and a monkey together",
+    "sheet": 1,
+    "cell": 6
+  },
+  {
+    "key": "boss-big-parade",
+    "id": "map-boss-big-parade",
+    "word": "boss-big-parade",
+    "he": "",
+    "subject": "a parade float covered in balloons and streamers",
+    "sheet": 1,
+    "cell": 7
+  },
+  {
+    "key": "letter-garden",
+    "id": "map-letter-garden",
+    "word": "letter-garden",
+    "he": "",
+    "subject": "a garden bed of tulips with a watering can",
+    "sheet": 1,
+    "cell": 8
+  },
+  {
+    "key": "letters-nop",
+    "id": "map-letters-nop",
+    "word": "letters-nop",
+    "he": "",
+    "subject": "a bird's nest with eggs, an octopus and a pig together",
+    "sheet": 1,
+    "cell": 9
+  },
+  {
+    "key": "letters-qrst",
+    "id": "map-letters-qrst",
+    "word": "letters-qrst",
+    "he": "",
+    "subject": "a queen, a rabbit, a sun and a tiger together",
+    "sheet": 1,
+    "cell": 10
+  },
+  {
+    "key": "boss-garden-treasure",
+    "id": "map-boss-garden-treasure",
+    "word": "boss-garden-treasure",
+    "he": "",
+    "subject": "a treasure chest half buried in a flower garden, with a small shovel",
+    "sheet": 1,
+    "cell": 11
+  },
+  {
+    "key": "all-letters",
+    "id": "map-all-letters",
+    "word": "all-letters",
+    "he": "",
+    "subject": "an open alphabet picture book showing an apple, a ball and a cat",
+    "sheet": 1,
+    "cell": 12
+  },
+  {
+    "key": "letters-uvw",
+    "id": "map-letters-uvw",
+    "word": "letters-uvw",
+    "he": "",
+    "subject": "an umbrella, a van and a whale together",
+    "sheet": 1,
+    "cell": 13
+  },
+  {
+    "key": "letters-xyz",
+    "id": "map-letters-xyz",
+    "word": "letters-xyz",
+    "he": "",
+    "subject": "a xylophone, a yo-yo and a zebra together",
+    "sheet": 1,
+    "cell": 14
+  },
+  {
+    "key": "trophy-finale",
+    "id": "map-trophy-finale",
+    "word": "trophy-finale",
+    "he": "",
+    "subject": "a shiny gold trophy cup with a star, with confetti around it",
+    "sheet": 1,
+    "cell": 15
+  },
+  {
+    "key": "word-builder",
+    "id": "map-word-builder",
+    "word": "word-builder",
+    "he": "",
+    "subject": "a child stacking big toy bricks into a little wall",
+    "sheet": 2,
+    "cell": 0
+  },
+  {
+    "key": "short-a",
+    "id": "map-short-a",
+    "word": "short-a",
+    "he": "",
+    "subject": "a cat wearing a hat, sitting on a map",
+    "sheet": 2,
+    "cell": 1
+  },
+  {
+    "key": "short-i-o",
+    "id": "map-short-i-o",
+    "word": "short-i-o",
+    "he": "",
+    "subject": "a pig and a dog side by side",
+    "sheet": 2,
+    "cell": 2
+  },
+  {
+    "key": "boss-word-builder",
+    "id": "map-boss-word-builder",
+    "word": "boss-word-builder",
+    "he": "",
+    "subject": "a toy crane lifting a toy brick onto a tower",
+    "sheet": 2,
+    "cell": 3
+  },
+  {
+    "key": "i-can-read",
+    "id": "map-i-can-read",
+    "word": "i-can-read",
+    "he": "",
+    "subject": "a happy child reading a picture book",
+    "sheet": 2,
+    "cell": 4
+  },
+  {
+    "key": "short-e-u",
+    "id": "map-short-e-u",
+    "word": "short-e-u",
+    "he": "",
+    "subject": "a hen standing under a bright sun",
+    "sheet": 2,
+    "cell": 5
+  },
+  {
+    "key": "digraphs",
+    "id": "map-digraphs",
+    "word": "digraphs",
+    "he": "",
+    "subject": "a ship, a chick and a thumbs-up hand together",
+    "sheet": 2,
+    "cell": 6
+  },
+  {
+    "key": "boss-first-sentence",
+    "id": "map-boss-first-sentence",
+    "word": "boss-first-sentence",
+    "he": "",
+    "subject": "a child reading aloud from an open book, a speech bubble with a heart",
+    "sheet": 2,
+    "cell": 7
+  },
+  {
+    "key": "forest-friends",
+    "id": "map-forest-friends",
+    "word": "forest-friends",
+    "he": "",
+    "subject": "a tree in a forest with a squirrel and an owl on its branches",
+    "sheet": 2,
+    "cell": 8
+  },
+  {
+    "key": "hello-friends",
+    "id": "map-hello-friends",
+    "word": "hello-friends",
+    "he": "",
+    "subject": "a cat and a dog waving hello",
+    "sheet": 2,
+    "cell": 9
+  },
+  {
+    "key": "red-blue",
+    "id": "map-red-blue",
+    "word": "red-blue",
+    "he": "",
+    "subject": "a red bird and a blue bird on one branch",
+    "sheet": 2,
+    "cell": 10
+  },
+  {
+    "key": "forest-sound",
+    "id": "map-forest-sound",
+    "word": "forest-sound",
+    "he": "",
+    "subject": "a duck quacking by a pond with reeds, music notes around it",
+    "sheet": 2,
+    "cell": 11
+  },
+  {
+    "key": "numbers-sunshine",
+    "id": "map-numbers-sunshine",
+    "word": "numbers-sunshine",
+    "he": "",
+    "subject": "a cheerful sun above a row of colourful balloons",
+    "sheet": 2,
+    "cell": 12
+  },
+  {
+    "key": "count-1-5",
+    "id": "map-count-1-5",
+    "word": "count-1-5",
+    "he": "",
+    "subject": "exactly five yellow ducklings walking in a single row (count them: one, two, three, four, five)",
+    "sheet": 21,
+    "cell": 0
+  },
+  {
+    "key": "count-6-10",
+    "id": "map-count-6-10",
+    "word": "count-6-10",
+    "he": "",
+    "subject": "exactly ten colourful marbles in two rows of five",
+    "sheet": 2,
+    "cell": 14
+  },
+  {
+    "key": "goodbye-sun",
+    "id": "map-goodbye-sun",
+    "word": "goodbye-sun",
+    "he": "",
+    "subject": "a sunset over the sea, the sun half below the horizon",
+    "sheet": 2,
+    "cell": 15
+  },
+  {
+    "key": "school-building",
+    "id": "map-school-building",
+    "word": "school-building",
+    "he": "",
+    "subject": "a small school building with a bell, and children walking in",
+    "sheet": 3,
+    "cell": 0
+  },
+  {
+    "key": "my-body",
+    "id": "map-my-body",
+    "word": "my-body",
+    "he": "",
+    "subject": "a smiling child pointing at their own nose",
+    "sheet": 3,
+    "cell": 1
+  },
+  {
+    "key": "classroom-things",
+    "id": "map-classroom-things",
+    "word": "classroom-things",
+    "he": "",
+    "subject": "a book, a pen and a school bag together",
+    "sheet": 3,
+    "cell": 2
+  },
+  {
+    "key": "teacher-says",
+    "id": "map-teacher-says",
+    "word": "teacher-says",
+    "he": "",
+    "subject": "a friendly teacher with a pointer in front of a blank blackboard",
+    "sheet": 3,
+    "cell": 3
+  },
+  {
+    "key": "picnic",
+    "id": "map-picnic",
+    "word": "picnic",
+    "he": "",
+    "subject": "a picnic basket with a red checked cloth",
+    "sheet": 3,
+    "cell": 4
+  },
+  {
+    "key": "fruit-bowl",
+    "id": "map-fruit-bowl",
+    "word": "fruit-bowl",
+    "he": "",
+    "subject": "a bowl of fruit: apples, bananas and grapes",
+    "sheet": 3,
+    "cell": 5
+  },
+  {
+    "key": "toys",
+    "id": "map-toys",
+    "word": "toys",
+    "he": "",
+    "subject": "a teddy bear, a ball and a toy car together",
+    "sheet": 3,
+    "cell": 6
+  },
+  {
+    "key": "picnic-party",
+    "id": "map-picnic-party",
+    "word": "picnic-party",
+    "he": "",
+    "subject": "children having a picnic on a blanket with balloons",
+    "sheet": 3,
+    "cell": 7
+  },
+  {
+    "key": "zoo",
+    "id": "map-zoo",
+    "word": "zoo",
+    "he": "",
+    "subject": "a zoo entrance gate with a giraffe peeking over the top",
+    "sheet": 3,
+    "cell": 8
+  },
+  {
+    "key": "little-animals",
+    "id": "map-little-animals",
+    "word": "little-animals",
+    "he": "",
+    "subject": "a butterfly, a ladybug and a bee together",
+    "sheet": 3,
+    "cell": 9
+  },
+  {
+    "key": "animal-parade",
+    "id": "map-animal-parade",
+    "word": "animal-parade",
+    "he": "",
+    "subject": "an elephant, a lion, a crocodile and a monkey marching in a line",
+    "sheet": 3,
+    "cell": 10
+  },
+  {
+    "key": "shapes-sizes",
+    "id": "map-shapes-sizes",
+    "word": "shapes-sizes",
+    "he": "",
+    "subject": "a ruler next to a big block and a small block",
+    "sheet": 3,
+    "cell": 11
+  },
+  {
+    "key": "shapes",
+    "id": "map-shapes",
+    "word": "shapes",
+    "he": "",
+    "subject": "a red circle, a blue square and a yellow triangle as toy shapes",
+    "sheet": 3,
+    "cell": 12
+  },
+  {
+    "key": "big-small",
+    "id": "map-big-small",
+    "word": "big-small",
+    "he": "",
+    "subject": "a big elephant next to a tiny mouse",
+    "sheet": 3,
+    "cell": 13
+  },
+  {
+    "key": "shape-show",
+    "id": "map-shape-show",
+    "word": "shape-show",
+    "he": "",
+    "subject": "a shape-sorter toy box with colourful shape blocks",
+    "sheet": 3,
+    "cell": 14
+  },
+  {
+    "key": "autumn-winter-holidays",
+    "id": "map-autumn-winter-holidays",
+    "word": "autumn-winter-holidays",
+    "he": "",
+    "subject": "a lit candle in a holder surrounded by orange autumn leaves",
+    "sheet": 3,
+    "cell": 15
+  },
+  {
+    "key": "rosh-hashana",
+    "id": "map-rosh-hashana",
+    "word": "rosh-hashana",
+    "he": "",
+    "subject": "a red apple next to a small jar of honey with a honey dipper and a pomegranate",
+    "sheet": 4,
+    "cell": 0
+  },
+  {
+    "key": "sukkot",
+    "id": "map-sukkot",
+    "word": "sukkot",
+    "he": "",
+    "subject": "a sukkah: a small wooden hut with a roof of green palm branches and hanging fruit decorations",
+    "sheet": 4,
+    "cell": 1
+  },
+  {
+    "key": "hanukkah",
+    "id": "map-hanukkah",
+    "word": "hanukkah",
+    "he": "",
+    "subject": "a lit Hanukkah menorah with nine candles and a spinning dreidel beside it",
+    "sheet": 4,
+    "cell": 2
+  },
+  {
+    "key": "spring-summer-holidays",
+    "id": "map-spring-summer-holidays",
+    "word": "spring-summer-holidays",
+    "he": "",
+    "subject": "a bunch of spring flowers in front of a bright summer sun",
+    "sheet": 4,
+    "cell": 3
+  },
+  {
+    "key": "purim-tubishvat",
+    "id": "map-purim-tubishvat",
+    "word": "purim-tubishvat",
+    "he": "",
+    "subject": "a colourful carnival mask with ribbons next to a young tree sapling in soil",
+    "sheet": 4,
+    "cell": 4
+  },
+  {
+    "key": "passover-independence",
+    "id": "map-passover-independence",
+    "word": "passover-independence",
+    "he": "",
+    "subject": "a stack of matzah next to a small blue-and-white Israeli flag",
+    "sheet": 4,
+    "cell": 5
+  },
+  {
+    "key": "shavuot-summer",
+    "id": "map-shavuot-summer",
+    "word": "shavuot-summer",
+    "he": "",
+    "subject": "a sheaf of golden wheat next to a sand bucket and spade on a sunny beach",
+    "sheet": 4,
+    "cell": 6
+  },
+  {
+    "key": "toy-shop",
+    "id": "map-toy-shop",
+    "word": "toy-shop",
+    "he": "",
+    "subject": "a toy shop shelf with a teddy bear, a ball and a toy train",
+    "sheet": 4,
+    "cell": 7
+  },
+  {
+    "key": "bat-hat-cat",
+    "id": "map-bat-hat-cat",
+    "word": "bat-hat-cat",
+    "he": "",
+    "subject": "a cat wearing a hat and holding a cricket bat",
+    "sheet": 4,
+    "cell": 8
+  },
+  {
+    "key": "family-snack",
+    "id": "map-family-snack",
+    "word": "family-snack",
+    "he": "",
+    "subject": "a family sharing a bowl of fruit at a kitchen table",
+    "sheet": 4,
+    "cell": 9
+  },
+  {
+    "key": "family-picnic",
+    "id": "map-family-picnic",
+    "word": "family-picnic",
+    "he": "",
+    "subject": "a family of four having a picnic on a blanket in a park",
+    "sheet": 4,
+    "cell": 10
+  },
+  {
+    "key": "dad-kids",
+    "id": "map-dad-kids",
+    "word": "dad-kids",
+    "he": "",
+    "subject": "a dad holding hands with a boy and a girl",
+    "sheet": 4,
+    "cell": 11
+  },
+  {
+    "key": "healthy-basket",
+    "id": "map-healthy-basket",
+    "word": "healthy-basket",
+    "he": "",
+    "subject": "a basket full of carrots, apples, broccoli and bread",
+    "sheet": 4,
+    "cell": 12
+  },
+  {
+    "key": "farm",
+    "id": "map-farm",
+    "word": "farm",
+    "he": "",
+    "subject": "a red barn with a cow and a hen in front of it",
+    "sheet": 4,
+    "cell": 13
+  },
+  {
+    "key": "farm-animals",
+    "id": "map-farm-animals",
+    "word": "farm-animals",
+    "he": "",
+    "subject": "a cow, a sheep and a hen together",
+    "sheet": 4,
+    "cell": 14
+  },
+  {
+    "key": "pets",
+    "id": "map-pets",
+    "word": "pets",
+    "he": "",
+    "subject": "a pet rabbit, a kitten and a puppy sitting together",
+    "sheet": 4,
+    "cell": 15
+  },
+  {
+    "key": "busy-farm",
+    "id": "map-busy-farm",
+    "word": "busy-farm",
+    "he": "",
+    "subject": "a farmer on a small tractor with a horse beside it",
+    "sheet": 5,
+    "cell": 0
+  },
+  {
+    "key": "home-clothes",
+    "id": "map-home-clothes",
+    "word": "home-clothes",
+    "he": "",
+    "subject": "a little house with a T-shirt hanging on a washing line",
+    "sheet": 5,
+    "cell": 1
+  },
+  {
+    "key": "red-shirt",
+    "id": "map-red-shirt",
+    "word": "red-shirt",
+    "he": "",
+    "subject": "a red T-shirt",
+    "sheet": 5,
+    "cell": 2
+  },
+  {
+    "key": "cozy-room",
+    "id": "map-cozy-room",
+    "word": "cozy-room",
+    "he": "",
+    "subject": "a cozy child's bedroom corner with a bed, a lamp and a round rug",
+    "sheet": 5,
+    "cell": 3
+  },
+  {
+    "key": "on-the-move",
+    "id": "map-on-the-move",
+    "word": "on-the-move",
+    "he": "",
+    "subject": "a bus stop with a bus arriving",
+    "sheet": 5,
+    "cell": 4
+  },
+  {
+    "key": "bus-car",
+    "id": "map-bus-car",
+    "word": "bus-car",
+    "he": "",
+    "subject": "a red bus and a blue car",
+    "sheet": 5,
+    "cell": 5
+  },
+  {
+    "key": "plane-ship",
+    "id": "map-plane-ship",
+    "word": "plane-ship",
+    "he": "",
+    "subject": "an airplane flying above a ship on the sea",
+    "sheet": 5,
+    "cell": 6
+  },
+  {
+    "key": "train-trip",
+    "id": "map-train-trip",
+    "word": "train-trip",
+    "he": "",
+    "subject": "a train crossing a bridge through green hills",
+    "sheet": 5,
+    "cell": 7
+  },
+  {
+    "key": "playground",
+    "id": "map-playground",
+    "word": "playground",
+    "he": "",
+    "subject": "a playground with a slide and a swing",
+    "sheet": 5,
+    "cell": 8
+  },
+  {
+    "key": "kite-tree",
+    "id": "map-kite-tree",
+    "word": "kite-tree",
+    "he": "",
+    "subject": "a kite stuck in the branches of a tree",
+    "sheet": 5,
+    "cell": 9
+  },
+  {
+    "key": "under-basket",
+    "id": "map-under-basket",
+    "word": "under-basket",
+    "he": "",
+    "subject": "a kitten peeking out from under an upside-down basket",
+    "sheet": 5,
+    "cell": 10
+  },
+  {
+    "key": "hide-seek",
+    "id": "map-hide-seek",
+    "word": "hide-seek",
+    "he": "",
+    "subject": "a child hiding behind a tree while another child covers their eyes",
+    "sheet": 5,
+    "cell": 11
+  },
+  {
+    "key": "polite",
+    "id": "map-polite",
+    "word": "polite",
+    "he": "",
+    "subject": "two children shaking hands and smiling",
+    "sheet": 5,
+    "cell": 12
+  },
+  {
+    "key": "please-thanks",
+    "id": "map-please-thanks",
+    "word": "please-thanks",
+    "he": "",
+    "subject": "a child giving a flower to another child, a small heart above them",
+    "sheet": 5,
+    "cell": 13
+  },
+  {
+    "key": "sorry",
+    "id": "map-sorry",
+    "word": "sorry",
+    "he": "",
+    "subject": "a child with a hand on their chest apologising to another child",
+    "sheet": 5,
+    "cell": 14
+  },
+  {
+    "key": "polite-party",
+    "id": "map-polite-party",
+    "word": "polite-party",
+    "he": "",
+    "subject": "children passing slices of birthday cake to each other at a table",
+    "sheet": 5,
+    "cell": 15
+  },
+  {
+    "key": "art-class",
+    "id": "map-art-class",
+    "word": "art-class",
+    "he": "",
+    "subject": "a paint palette with two brushes",
+    "sheet": 6,
+    "cell": 0
+  },
+  {
+    "key": "pencil-case",
+    "id": "map-pencil-case",
+    "word": "pencil-case",
+    "he": "",
+    "subject": "an open pencil case full of colourful pencils",
+    "sheet": 6,
+    "cell": 1
+  },
+  {
+    "key": "crayons",
+    "id": "map-crayons",
+    "word": "crayons",
+    "he": "",
+    "subject": "an open box of colourful crayons",
+    "sheet": 6,
+    "cell": 2
+  },
+  {
+    "key": "boss-art-class",
+    "id": "map-boss-art-class",
+    "word": "boss-art-class",
+    "he": "",
+    "subject": "a child painting a picture at an easel",
+    "sheet": 6,
+    "cell": 3
+  },
+  {
+    "key": "days-weather",
+    "id": "map-days-weather",
+    "word": "days-weather",
+    "he": "",
+    "subject": "a rainbow over a white cloud and a sun",
+    "sheet": 6,
+    "cell": 4
+  },
+  {
+    "key": "weekend-fun",
+    "id": "map-weekend-fun",
+    "word": "weekend-fun",
+    "he": "",
+    "subject": "a family riding bicycles in a sunny park",
+    "sheet": 6,
+    "cell": 5
+  },
+  {
+    "key": "feelings",
+    "id": "map-feelings",
+    "word": "feelings",
+    "he": "",
+    "subject": "three round faces in a row: happy, sad and surprised",
+    "sheet": 6,
+    "cell": 6
+  },
+  {
+    "key": "zoo-animals",
+    "id": "map-zoo-animals",
+    "word": "zoo-animals",
+    "he": "",
+    "subject": "a lion, an elephant and a zebra together",
+    "sheet": 6,
+    "cell": 7
+  },
+  {
+    "key": "swim-jump-fly",
+    "id": "map-swim-jump-fly",
+    "word": "swim-jump-fly",
+    "he": "",
+    "subject": "a fish swimming, a frog jumping and a bird flying",
+    "sheet": 6,
+    "cell": 8
+  },
+  {
+    "key": "zoo-day",
+    "id": "map-zoo-day",
+    "word": "zoo-day",
+    "he": "",
+    "subject": "a zookeeper feeding a tiger behind a low fence",
+    "sheet": 6,
+    "cell": 9
+  },
+  {
+    "key": "party-food",
+    "id": "map-party-food",
+    "word": "party-food",
+    "he": "",
+    "subject": "a pizza, cupcakes and a jug of juice on a party table",
+    "sheet": 6,
+    "cell": 10
+  },
+  {
+    "key": "presents-balloons",
+    "id": "map-presents-balloons",
+    "word": "presents-balloons",
+    "he": "",
+    "subject": "wrapped presents with a bunch of balloons tied to them",
+    "sheet": 6,
+    "cell": 11
+  },
+  {
+    "key": "birthday-party",
+    "id": "map-birthday-party",
+    "word": "birthday-party",
+    "he": "",
+    "subject": "children in party hats around a birthday cake with candles",
+    "sheet": 6,
+    "cell": 12
+  },
+  {
+    "key": "jobs",
+    "id": "map-jobs",
+    "word": "jobs",
+    "he": "",
+    "subject": "a doctor's bag, a chef's hat and a paintbrush together",
+    "sheet": 6,
+    "cell": 13
+  },
+  {
+    "key": "doctor-cook",
+    "id": "map-doctor-cook",
+    "word": "doctor-cook",
+    "he": "",
+    "subject": "a doctor with a stethoscope next to a cook in a chef's hat",
+    "sheet": 6,
+    "cell": 14
+  },
+  {
+    "key": "artist-astronaut",
+    "id": "map-artist-astronaut",
+    "word": "artist-astronaut",
+    "he": "",
+    "subject": "an artist with a palette next to an astronaut in a space suit",
+    "sheet": 6,
+    "cell": 15
+  },
+  {
+    "key": "job-parade",
+    "id": "map-job-parade",
+    "word": "job-parade",
+    "he": "",
+    "subject": "children dressed as a firefighter, a doctor and a pilot marching",
+    "sheet": 7,
+    "cell": 0
+  },
+  {
+    "key": "alarm-clock",
+    "id": "map-alarm-clock",
+    "word": "alarm-clock",
+    "he": "",
+    "subject": "a ringing alarm clock with two bells",
+    "sheet": 7,
+    "cell": 1
+  },
+  {
+    "key": "good-morning",
+    "id": "map-good-morning",
+    "word": "good-morning",
+    "he": "",
+    "subject": "a child stretching and getting out of bed, the sun at the window",
+    "sheet": 7,
+    "cell": 2
+  },
+  {
+    "key": "day-night",
+    "id": "map-day-night",
+    "word": "day-night",
+    "he": "",
+    "subject": "a sky that is half day with a sun and half night with a moon and stars",
+    "sheet": 7,
+    "cell": 3
+  },
+  {
+    "key": "do-you-like",
+    "id": "map-do-you-like",
+    "word": "do-you-like",
+    "he": "",
+    "subject": "a child thinking, with a question-mark thought bubble",
+    "sheet": 7,
+    "cell": 4
+  },
+  {
+    "key": "butterfly-net",
+    "id": "map-butterfly-net",
+    "word": "butterfly-net",
+    "he": "",
+    "subject": "a child holding a butterfly net",
+    "sheet": 7,
+    "cell": 5
+  },
+  {
+    "key": "question-game",
+    "id": "map-question-game",
+    "word": "question-game",
+    "he": "",
+    "subject": "two children on a game-show stage, one holding a microphone",
+    "sheet": 7,
+    "cell": 6
+  },
+  {
+    "key": "independence-day",
+    "id": "map-independence-day",
+    "word": "independence-day",
+    "he": "",
+    "subject": "small blue-and-white Israeli flags with colourful fireworks behind them",
+    "sheet": 7,
+    "cell": 7
+  },
+  {
+    "key": "superhero",
+    "id": "map-superhero",
+    "word": "superhero",
+    "he": "",
+    "subject": "a child in a red superhero cape and mask, flying",
+    "sheet": 7,
+    "cell": 8
+  },
+  {
+    "key": "super-powers",
+    "id": "map-super-powers",
+    "word": "super-powers",
+    "he": "",
+    "subject": "a superhero mask with a yellow lightning bolt",
+    "sheet": 7,
+    "cell": 9
+  },
+  {
+    "key": "can-you",
+    "id": "map-can-you",
+    "word": "can-you",
+    "he": "",
+    "subject": "a child balancing on one foot doing a trick while a friend watches",
+    "sheet": 7,
+    "cell": 10
+  },
+  {
+    "key": "superhero-test",
+    "id": "map-superhero-test",
+    "word": "superhero-test",
+    "he": "",
+    "subject": "a child in a superhero cape jumping over a hurdle",
+    "sheet": 7,
+    "cell": 11
+  },
+  {
+    "key": "house-rooms",
+    "id": "map-house-rooms",
+    "word": "house-rooms",
+    "he": "",
+    "subject": "a dollhouse opened up to show its rooms",
+    "sheet": 7,
+    "cell": 12
+  },
+  {
+    "key": "in-on-under",
+    "id": "map-in-on-under",
+    "word": "in-on-under",
+    "he": "",
+    "subject": "a cardboard box with a cat on it, a ball in it and a shoe under it",
+    "sheet": 7,
+    "cell": 13
+  },
+  {
+    "key": "house-tour",
+    "id": "map-house-tour",
+    "word": "house-tour",
+    "he": "",
+    "subject": "a big house with a garden and a front path",
+    "sheet": 7,
+    "cell": 14
+  },
+  {
+    "key": "sports",
+    "id": "map-sports",
+    "word": "sports",
+    "he": "",
+    "subject": "a football, a basketball and a tennis racket together",
+    "sheet": 7,
+    "cell": 15
+  },
+  {
+    "key": "favorite-sport",
+    "id": "map-favorite-sport",
+    "word": "favorite-sport",
+    "he": "",
+    "subject": "a child kicking a football on green grass",
+    "sheet": 8,
+    "cell": 0
+  },
+  {
+    "key": "hobbies",
+    "id": "map-hobbies",
+    "word": "hobbies",
+    "he": "",
+    "subject": "a child drawing a picture and another child singing into a microphone",
+    "sheet": 8,
+    "cell": 1
+  },
+  {
+    "key": "sports-day",
+    "id": "map-sports-day",
+    "word": "sports-day",
+    "he": "",
+    "subject": "children running a race toward a finish-line ribbon",
+    "sheet": 8,
+    "cell": 2
+  },
+  {
+    "key": "food-market",
+    "id": "map-food-market",
+    "word": "food-market",
+    "he": "",
+    "subject": "a market stall full of fruit and vegetables",
+    "sheet": 8,
+    "cell": 3
+  },
+  {
+    "key": "fruit-veggies",
+    "id": "map-fruit-veggies",
+    "word": "fruit-veggies",
+    "he": "",
+    "subject": "carrots, tomatoes, apples and bananas together",
+    "sheet": 8,
+    "cell": 4
+  },
+  {
+    "key": "eat-drink",
+    "id": "map-eat-drink",
+    "word": "eat-drink",
+    "he": "",
+    "subject": "a plate of food next to a glass of milk",
+    "sheet": 8,
+    "cell": 5
+  },
+  {
+    "key": "clothes-shop",
+    "id": "map-clothes-shop",
+    "word": "clothes-shop",
+    "he": "",
+    "subject": "a clothes rack with dresses and shirts on hangers",
+    "sheet": 8,
+    "cell": 6
+  },
+  {
+    "key": "dress-coat",
+    "id": "map-dress-coat",
+    "word": "dress-coat",
+    "he": "",
+    "subject": "a dress and a coat on hangers",
+    "sheet": 8,
+    "cell": 7
+  },
+  {
+    "key": "jeans-boots",
+    "id": "map-jeans-boots",
+    "word": "jeans-boots",
+    "he": "",
+    "subject": "a pair of blue jeans and a pair of boots",
+    "sheet": 8,
+    "cell": 8
+  },
+  {
+    "key": "how-much",
+    "id": "map-how-much",
+    "word": "how-much",
+    "he": "",
+    "subject": "a blank price tag hanging from a shirt, with a few coins",
+    "sheet": 8,
+    "cell": 9
+  },
+  {
+    "key": "healthy-body",
+    "id": "map-healthy-body",
+    "word": "healthy-body",
+    "he": "",
+    "subject": "a smiling child flexing their arm muscles",
+    "sheet": 8,
+    "cell": 10
+  },
+  {
+    "key": "wash-hands",
+    "id": "map-wash-hands",
+    "word": "wash-hands",
+    "he": "",
+    "subject": "hands washing under a tap with soap bubbles",
+    "sheet": 8,
+    "cell": 11
+  },
+  {
+    "key": "two-ears",
+    "id": "map-two-ears",
+    "word": "two-ears",
+    "he": "",
+    "subject": "a child cupping both hands behind their ears to listen",
+    "sheet": 8,
+    "cell": 12
+  },
+  {
+    "key": "doctor-visit",
+    "id": "map-doctor-visit",
+    "word": "doctor-visit",
+    "he": "",
+    "subject": "a friendly doctor listening to a child's heart with a stethoscope",
+    "sheet": 8,
+    "cell": 13
+  },
+  {
+    "key": "friends-feelings",
+    "id": "map-friends-feelings",
+    "word": "friends-feelings",
+    "he": "",
+    "subject": "two friends hugging, with a heart above them",
+    "sheet": 8,
+    "cell": 14
+  },
+  {
+    "key": "why-because",
+    "id": "map-why-because",
+    "word": "why-because",
+    "he": "",
+    "subject": "a child thinking, with a light-bulb thought bubble",
+    "sheet": 8,
+    "cell": 15
+  },
+  {
+    "key": "friends-forever",
+    "id": "map-friends-forever",
+    "word": "friends-forever",
+    "he": "",
+    "subject": "two children holding hands, wearing matching friendship bracelets",
+    "sheet": 9,
+    "cell": 0
+  },
+  {
+    "key": "pet-cafe",
+    "id": "map-pet-cafe",
+    "word": "pet-cafe",
+    "he": "",
+    "subject": "a cozy café corner with a cat sleeping on a cushion beside a cup of cocoa",
+    "sheet": 9,
+    "cell": 1
+  },
+  {
+    "key": "pet-cat",
+    "id": "map-pet-cat",
+    "word": "pet-cat",
+    "he": "",
+    "subject": "a fluffy white cat with a pink bow",
+    "sheet": 9,
+    "cell": 2
+  },
+  {
+    "key": "pet-cafe-challenge",
+    "id": "map-pet-cafe-challenge",
+    "word": "pet-cafe-challenge",
+    "he": "",
+    "subject": "a cat and a dog sitting at a little café table",
+    "sheet": 9,
+    "cell": 3
+  },
+  {
+    "key": "town",
+    "id": "map-town",
+    "word": "town",
+    "he": "",
+    "subject": "a small town street with shops and a clock tower",
+    "sheet": 9,
+    "cell": 4
+  },
+  {
+    "key": "library",
+    "id": "map-library",
+    "word": "library",
+    "he": "",
+    "subject": "a library with tall bookshelves and a reading table",
+    "sheet": 9,
+    "cell": 5
+  },
+  {
+    "key": "clock",
+    "id": "map-clock",
+    "word": "clock",
+    "he": "",
+    "subject": "a round wall clock with a simple face and two hands",
+    "sheet": 9,
+    "cell": 6
+  },
+  {
+    "key": "supermarket",
+    "id": "map-supermarket",
+    "word": "supermarket",
+    "he": "",
+    "subject": "a supermarket shopping cart full of groceries",
+    "sheet": 9,
+    "cell": 7
+  },
+  {
+    "key": "daily-routine",
+    "id": "map-daily-routine",
+    "word": "daily-routine",
+    "he": "",
+    "subject": "a toothbrush, a cereal bowl and a school bag together",
+    "sheet": 9,
+    "cell": 8
+  },
+  {
+    "key": "breakfast",
+    "id": "map-breakfast",
+    "word": "breakfast",
+    "he": "",
+    "subject": "a breakfast plate with eggs and toast, and a glass of orange juice",
+    "sheet": 9,
+    "cell": 9
+  },
+  {
+    "key": "free-time",
+    "id": "map-free-time",
+    "word": "free-time",
+    "he": "",
+    "subject": "a guitar, a game controller and a football together",
+    "sheet": 9,
+    "cell": 10
+  },
+  {
+    "key": "weekly-planner",
+    "id": "map-weekly-planner",
+    "word": "weekly-planner",
+    "he": "",
+    "subject": "a weekly planner page with colourful stickers on some days",
+    "sheet": 9,
+    "cell": 11
+  },
+  {
+    "key": "movie-night",
+    "id": "map-movie-night",
+    "word": "movie-night",
+    "he": "",
+    "subject": "a bowl of popcorn in front of a TV showing a cartoon",
+    "sheet": 9,
+    "cell": 12
+  },
+  {
+    "key": "family-tree",
+    "id": "map-family-tree",
+    "word": "family-tree",
+    "he": "",
+    "subject": "a tree with small framed family portraits hanging from its branches",
+    "sheet": 9,
+    "cell": 13
+  },
+  {
+    "key": "lost-found",
+    "id": "map-lost-found",
+    "word": "lost-found",
+    "he": "",
+    "subject": "a lost-and-found box with a cap, a scarf and a toy",
+    "sheet": 9,
+    "cell": 14
+  },
+  {
+    "key": "cooking",
+    "id": "map-cooking",
+    "word": "cooking",
+    "he": "",
+    "subject": "a cooking pot on a stove with steam rising",
+    "sheet": 9,
+    "cell": 15
+  },
+  {
+    "key": "bake-cake",
+    "id": "map-bake-cake",
+    "word": "bake-cake",
+    "he": "",
+    "subject": "a mixing bowl with eggs, flour and a whisk",
+    "sheet": 10,
+    "cell": 0
+  },
+  {
+    "key": "pizza-night",
+    "id": "map-pizza-night",
+    "word": "pizza-night",
+    "he": "",
+    "subject": "a whole pizza on a wooden board",
+    "sheet": 10,
+    "cell": 1
+  },
+  {
+    "key": "chef-finale",
+    "id": "map-chef-finale",
+    "word": "chef-finale",
+    "he": "",
+    "subject": "a child chef in a tall white chef's hat holding a plate of pasta",
+    "sheet": 10,
+    "cell": 2
+  },
+  {
+    "key": "future-me",
+    "id": "map-future-me",
+    "word": "future-me",
+    "he": "",
+    "subject": "a child looking through a telescope at the stars",
+    "sheet": 10,
+    "cell": 3
+  },
+  {
+    "key": "astronaut-dream",
+    "id": "map-astronaut-dream",
+    "word": "astronaut-dream",
+    "he": "",
+    "subject": "a child dreaming, with a thought bubble showing a rocket",
+    "sheet": 10,
+    "cell": 4
+  },
+  {
+    "key": "crystal-ball",
+    "id": "map-crystal-ball",
+    "word": "crystal-ball",
+    "he": "",
+    "subject": "a sparkling crystal ball on a small stand",
+    "sheet": 10,
+    "cell": 5
+  },
+  {
+    "key": "future-plan",
+    "id": "map-future-plan",
+    "word": "future-plan",
+    "he": "",
+    "subject": "a graduation cap on top of a stack of books",
+    "sheet": 10,
+    "cell": 6
+  },
+  {
+    "key": "passover",
+    "id": "map-passover",
+    "word": "passover",
+    "he": "",
+    "subject": "a Passover seder plate with matzah and a cup of grape juice",
+    "sheet": 10,
+    "cell": 7
+  },
+  {
+    "key": "creators-club",
+    "id": "map-creators-club",
+    "word": "creators-club",
+    "he": "",
+    "subject": "children at a table making crafts: painting, clay and a small robot kit",
+    "sheet": 10,
+    "cell": 8
+  },
+  {
+    "key": "music-club",
+    "id": "map-music-club",
+    "word": "music-club",
+    "he": "",
+    "subject": "a guitar and a drum with music notes",
+    "sheet": 10,
+    "cell": 9
+  },
+  {
+    "key": "chess",
+    "id": "map-chess",
+    "word": "chess",
+    "he": "",
+    "subject": "a chessboard with chess pieces",
+    "sheet": 10,
+    "cell": 10
+  },
+  {
+    "key": "digital",
+    "id": "map-digital",
+    "word": "digital",
+    "he": "",
+    "subject": "a laptop with a smartphone beside it",
+    "sheet": 10,
+    "cell": 11
+  },
+  {
+    "key": "voice-note",
+    "id": "map-voice-note",
+    "word": "voice-note",
+    "he": "",
+    "subject": "a smartphone with a microphone and sound waves",
+    "sheet": 10,
+    "cell": 12
+  },
+  {
+    "key": "laptop-password",
+    "id": "map-laptop-password",
+    "word": "laptop-password",
+    "he": "",
+    "subject": "a laptop with a padlock on its screen",
+    "sheet": 10,
+    "cell": 13
+  },
+  {
+    "key": "digital-day",
+    "id": "map-digital-day",
+    "word": "digital-day",
+    "he": "",
+    "subject": "headphones resting on a laptop",
+    "sheet": 10,
+    "cell": 14
+  },
+  {
+    "key": "memories",
+    "id": "map-memories",
+    "word": "memories",
+    "he": "",
+    "subject": "an open photo album with holiday snapshots",
+    "sheet": 10,
+    "cell": 15
+  },
+  {
+    "key": "beach-weekend",
+    "id": "map-beach-weekend",
+    "word": "beach-weekend",
+    "he": "",
+    "subject": "a beach towel, sunglasses and a sun hat on the sand",
+    "sheet": 11,
+    "cell": 0
+  },
+  {
+    "key": "fireworks",
+    "id": "map-fireworks",
+    "word": "fireworks",
+    "he": "",
+    "subject": "colourful fireworks bursting in a dark night sky",
+    "sheet": 11,
+    "cell": 1
+  },
+  {
+    "key": "bigger-faster",
+    "id": "map-bigger-faster",
+    "word": "bigger-faster",
+    "he": "",
+    "subject": "a cheetah running next to an elephant",
+    "sheet": 11,
+    "cell": 2
+  },
+  {
+    "key": "subjects",
+    "id": "map-subjects",
+    "word": "subjects",
+    "he": "",
+    "subject": "a microscope, a globe and a book together",
+    "sheet": 11,
+    "cell": 3
+  },
+  {
+    "key": "ready-grade7",
+    "id": "map-ready-grade7",
+    "word": "ready-grade7",
+    "he": "",
+    "subject": "a child with a big backpack walking happily toward a bigger school",
+    "sheet": 11,
+    "cell": 4
+  },
+  {
+    "key": "suitcase",
+    "id": "map-suitcase",
+    "word": "suitcase",
+    "he": "",
+    "subject": "a suitcase covered in travel stickers",
+    "sheet": 11,
+    "cell": 5
+  },
+  {
+    "key": "hike",
+    "id": "map-hike",
+    "word": "hike",
+    "he": "",
+    "subject": "a hiker with a backpack on a mountain trail",
+    "sheet": 11,
+    "cell": 6
+  },
+  {
+    "key": "trip-diary",
+    "id": "map-trip-diary",
+    "word": "trip-diary",
+    "he": "",
+    "subject": "a camera next to a travel diary with photos tucked in",
+    "sheet": 11,
+    "cell": 7
+  },
+  {
+    "key": "gold-medal",
+    "id": "map-gold-medal",
+    "word": "gold-medal",
+    "he": "",
+    "subject": "a gold medal on a ribbon",
+    "sheet": 11,
+    "cell": 8
+  },
+  {
+    "key": "amazing-records",
+    "id": "map-amazing-records",
+    "word": "amazing-records",
+    "he": "",
+    "subject": "a giant prize pumpkin with a blue first-place ribbon",
+    "sheet": 11,
+    "cell": 9
+  },
+  {
+    "key": "run-throw",
+    "id": "map-run-throw",
+    "word": "run-throw",
+    "he": "",
+    "subject": "a child throwing a ball while another child runs",
+    "sheet": 11,
+    "cell": 10
+  },
+  {
+    "key": "train-hard",
+    "id": "map-train-hard",
+    "word": "train-hard",
+    "he": "",
+    "subject": "a coach with a whistle training a child doing sit-ups",
+    "sheet": 11,
+    "cell": 11
+  },
+  {
+    "key": "bubble-tea",
+    "id": "map-bubble-tea",
+    "word": "bubble-tea",
+    "he": "",
+    "subject": "a bubble tea cup with a wide straw next to a croissant",
+    "sheet": 11,
+    "cell": 12
+  },
+  {
+    "key": "group-chat",
+    "id": "map-group-chat",
+    "word": "group-chat",
+    "he": "",
+    "subject": "a smartphone with colourful empty chat bubbles and hearts",
+    "sheet": 11,
+    "cell": 13
+  },
+  {
+    "key": "cafe",
+    "id": "map-cafe",
+    "word": "cafe",
+    "he": "",
+    "subject": "a cup of coffee and a croissant on a small round café table",
+    "sheet": 11,
+    "cell": 14
+  },
+  {
+    "key": "vlog",
+    "id": "map-vlog",
+    "word": "vlog",
+    "he": "",
+    "subject": "a smartphone on a ring light, filming",
+    "sheet": 11,
+    "cell": 15
+  },
+  {
+    "key": "studio",
+    "id": "map-studio",
+    "word": "studio",
+    "he": "",
+    "subject": "a studio microphone with big headphones hanging next to it",
+    "sheet": 12,
+    "cell": 0
+  },
+  {
+    "key": "studio-singer",
+    "id": "map-studio-singer",
+    "word": "studio-singer",
+    "he": "",
+    "subject": "a teenager singing into a studio microphone",
+    "sheet": 12,
+    "cell": 1
+  },
+  {
+    "key": "secret-code",
+    "id": "map-secret-code",
+    "word": "secret-code",
+    "he": "",
+    "subject": "an envelope sealed with a small padlock and a key",
+    "sheet": 12,
+    "cell": 2
+  },
+  {
+    "key": "live-concert",
+    "id": "map-live-concert",
+    "word": "live-concert",
+    "he": "",
+    "subject": "a concert stage with spotlights and a singer",
+    "sheet": 12,
+    "cell": 3
+  },
+  {
+    "key": "detective-london",
+    "id": "map-detective-london",
+    "word": "detective-london",
+    "he": "",
+    "subject": "a magnifying glass over a map of London with the Big Ben clock tower",
+    "sheet": 12,
+    "cell": 4
+  },
+  {
+    "key": "museum-key",
+    "id": "map-museum-key",
+    "word": "museum-key",
+    "he": "",
+    "subject": "an old golden key on a museum pedestal",
+    "sheet": 12,
+    "cell": 5
+  },
+  {
+    "key": "detective",
+    "id": "map-detective",
+    "word": "detective",
+    "he": "",
+    "subject": "a detective in a coat holding a magnifying glass over footprints",
+    "sheet": 12,
+    "cell": 6
+  },
+  {
+    "key": "detective-diary",
+    "id": "map-detective-diary",
+    "word": "detective-diary",
+    "he": "",
+    "subject": "a detective diary with a deerstalker hat and a magnifying glass",
+    "sheet": 12,
+    "cell": 7
+  },
+  {
+    "key": "future-dreams",
+    "id": "map-future-dreams",
+    "word": "future-dreams",
+    "he": "",
+    "subject": "a teenager looking up at a starry sky with a shooting star",
+    "sheet": 12,
+    "cell": 8
+  },
+  {
+    "key": "advice",
+    "id": "map-advice",
+    "word": "advice",
+    "he": "",
+    "subject": "two teenagers talking, one giving advice, a light bulb above them",
+    "sheet": 12,
+    "cell": 9
+  },
+  {
+    "key": "food-truck",
+    "id": "map-food-truck",
+    "word": "food-truck",
+    "he": "",
+    "subject": "a colourful food truck",
+    "sheet": 12,
+    "cell": 10
+  },
+  {
+    "key": "food-truck-counter",
+    "id": "map-food-truck-counter",
+    "word": "food-truck-counter",
+    "he": "",
+    "subject": "a food-truck counter with a stack of cheese and burgers",
+    "sheet": 12,
+    "cell": 11
+  },
+  {
+    "key": "spices",
+    "id": "map-spices",
+    "word": "spices",
+    "he": "",
+    "subject": "small glass jars of colourful spices and herbs",
+    "sheet": 12,
+    "cell": 12
+  },
+  {
+    "key": "market-day",
+    "id": "map-market-day",
+    "word": "market-day",
+    "he": "",
+    "subject": "a market stall with a cash box and coins",
+    "sheet": 12,
+    "cell": 13
+  },
+  {
+    "key": "gadget-lab",
+    "id": "map-gadget-lab",
+    "word": "gadget-lab",
+    "he": "",
+    "subject": "a workbench with tools and a small robot",
+    "sheet": 12,
+    "cell": 14
+  },
+  {
+    "key": "heavy-backpack",
+    "id": "map-heavy-backpack",
+    "word": "heavy-backpack",
+    "he": "",
+    "subject": "an overstuffed backpack on a bathroom scale",
+    "sheet": 12,
+    "cell": 15
+  },
+  {
+    "key": "balance-scale",
+    "id": "map-balance-scale",
+    "word": "balance-scale",
+    "he": "",
+    "subject": "an old-fashioned golden balance scale with two pans",
+    "sheet": 13,
+    "cell": 0
+  },
+  {
+    "key": "inventors-fair",
+    "id": "map-inventors-fair",
+    "word": "inventors-fair",
+    "he": "",
+    "subject": "a science-fair table with an invention and a blue ribbon",
+    "sheet": 13,
+    "cell": 1
+  },
+  {
+    "key": "croissant",
+    "id": "map-croissant",
+    "word": "croissant",
+    "he": "",
+    "subject": "a golden croissant on a plate",
+    "sheet": 13,
+    "cell": 2
+  },
+  {
+    "key": "made-ourselves",
+    "id": "map-made-ourselves",
+    "word": "made-ourselves",
+    "he": "",
+    "subject": "two children decorating cupcakes they baked",
+    "sheet": 13,
+    "cell": 3
+  },
+  {
+    "key": "busy-cafe",
+    "id": "map-busy-cafe",
+    "word": "busy-cafe",
+    "he": "",
+    "subject": "a waiter carrying a tray of drinks at a busy café counter",
+    "sheet": 13,
+    "cell": 4
+  },
+  {
+    "key": "cozy-winter",
+    "id": "map-cozy-winter",
+    "word": "cozy-winter",
+    "he": "",
+    "subject": "a mug of hot cocoa and a knitted blanket by a window with rain outside",
+    "sheet": 13,
+    "cell": 5
+  },
+  {
+    "key": "travel",
+    "id": "map-travel",
+    "word": "travel",
+    "he": "",
+    "subject": "an airplane flying around a globe",
+    "sheet": 13,
+    "cell": 6
+  },
+  {
+    "key": "tokyo",
+    "id": "map-tokyo",
+    "word": "tokyo",
+    "he": "",
+    "subject": "a Japanese pagoda with pink cherry blossoms",
+    "sheet": 13,
+    "cell": 7
+  },
+  {
+    "key": "lost-luggage",
+    "id": "map-lost-luggage",
+    "word": "lost-luggage",
+    "he": "",
+    "subject": "a lonely suitcase on an airport baggage belt",
+    "sheet": 13,
+    "cell": 8
+  },
+  {
+    "key": "bullet-train",
+    "id": "map-bullet-train",
+    "word": "bullet-train",
+    "he": "",
+    "subject": "a bullet train with a magnifying glass in front of it",
+    "sheet": 13,
+    "cell": 9
+  },
+  {
+    "key": "lost-ticket",
+    "id": "map-lost-ticket",
+    "word": "lost-ticket",
+    "he": "",
+    "subject": "a train ticket lying on a station platform",
+    "sheet": 13,
+    "cell": 10
+  },
+  {
+    "key": "city-route",
+    "id": "map-city-route",
+    "word": "city-route",
+    "he": "",
+    "subject": "a city map with a red pin and a dotted route",
+    "sheet": 13,
+    "cell": 11
+  },
+  {
+    "key": "milestones",
+    "id": "map-milestones",
+    "word": "milestones",
+    "he": "",
+    "subject": "a snowy mountain peak with a small red flag planted on its very top",
+    "sheet": 21,
+    "cell": 1
+  },
+  {
+    "key": "explorer",
+    "id": "map-explorer",
+    "word": "explorer",
+    "he": "",
+    "subject": "a teenage explorer with binoculars and a compass",
+    "sheet": 13,
+    "cell": 13
+  },
+  {
+    "key": "planet-earth",
+    "id": "map-planet-earth",
+    "word": "planet-earth",
+    "he": "",
+    "subject": "planet Earth with a green leaf curling around it",
+    "sheet": 13,
+    "cell": 14
+  },
+  {
+    "key": "oceans",
+    "id": "map-oceans",
+    "word": "oceans",
+    "he": "",
+    "subject": "a sea turtle swimming in a clean blue ocean",
+    "sheet": 13,
+    "cell": 15
+  },
+  {
+    "key": "renewable",
+    "id": "map-renewable",
+    "word": "renewable",
+    "he": "",
+    "subject": "solar panels next to a wind turbine",
+    "sheet": 14,
+    "cell": 0
+  },
+  {
+    "key": "youth-summit",
+    "id": "map-youth-summit",
+    "word": "youth-summit",
+    "he": "",
+    "subject": "teenagers sitting around a round table with a globe in the middle",
+    "sheet": 14,
+    "cell": 1
+  },
+  {
+    "key": "time-capsule",
+    "id": "map-time-capsule",
+    "word": "time-capsule",
+    "he": "",
+    "subject": "an old metal box holding a cassette tape, an old camera and a letter",
+    "sheet": 14,
+    "cell": 2
+  },
+  {
+    "key": "old-letter",
+    "id": "map-old-letter",
+    "word": "old-letter",
+    "he": "",
+    "subject": "an old letter with a wax seal and a fountain pen",
+    "sheet": 14,
+    "cell": 3
+  },
+  {
+    "key": "old-phone",
+    "id": "map-old-phone",
+    "word": "old-phone",
+    "he": "",
+    "subject": "an old rotary telephone",
+    "sheet": 14,
+    "cell": 4
+  },
+  {
+    "key": "museum-old-things",
+    "id": "map-museum-old-things",
+    "word": "museum-old-things",
+    "he": "",
+    "subject": "a museum glass case with an old radio and a gramophone",
+    "sheet": 14,
+    "cell": 5
+  },
+  {
+    "key": "bullseye",
+    "id": "map-bullseye",
+    "word": "bullseye",
+    "he": "",
+    "subject": "a dartboard with a dart in the very centre",
+    "sheet": 14,
+    "cell": 6
+  },
+  {
+    "key": "enjoy-playing",
+    "id": "map-enjoy-playing",
+    "word": "enjoy-playing",
+    "he": "",
+    "subject": "a teenager happily playing an electric guitar",
+    "sheet": 14,
+    "cell": 7
+  },
+  {
+    "key": "try-new",
+    "id": "map-try-new",
+    "word": "try-new",
+    "he": "",
+    "subject": "a teenager trying rock climbing on a climbing wall",
+    "sheet": 14,
+    "cell": 8
+  },
+  {
+    "key": "award-plaque",
+    "id": "map-award-plaque",
+    "word": "award-plaque",
+    "he": "",
+    "subject": "a teenager holding up an award plaque with a star",
+    "sheet": 14,
+    "cell": 9
+  },
+  {
+    "key": "made-in-israel",
+    "id": "map-made-in-israel",
+    "word": "made-in-israel",
+    "he": "",
+    "subject": "an Israeli flag with oranges and a computer chip in front of it",
+    "sheet": 14,
+    "cell": 10
+  },
+  {
+    "key": "factory",
+    "id": "map-factory",
+    "word": "factory",
+    "he": "",
+    "subject": "a small factory with boxes moving on a conveyor belt",
+    "sheet": 14,
+    "cell": 11
+  },
+  {
+    "key": "used-everywhere",
+    "id": "map-used-everywhere",
+    "word": "used-everywhere",
+    "he": "",
+    "subject": "a globe surrounded by smartphones and laptops",
+    "sheet": 14,
+    "cell": 12
+  },
+  {
+    "key": "jaffa-orange",
+    "id": "map-jaffa-orange",
+    "word": "jaffa-orange",
+    "he": "",
+    "subject": "a big orange with leaves on a small expo stand",
+    "sheet": 14,
+    "cell": 13
+  },
+  {
+    "key": "winter-storm",
+    "id": "map-winter-storm",
+    "word": "winter-storm",
+    "he": "",
+    "subject": "dark storm clouds with lightning and an umbrella blown inside out",
+    "sheet": 14,
+    "cell": 14
+  },
+  {
+    "key": "summer-trip",
+    "id": "map-summer-trip",
+    "word": "summer-trip",
+    "he": "",
+    "subject": "a car packed for a trip under a summer sun, a folded map on top",
+    "sheet": 14,
+    "cell": 15
+  },
+  {
+    "key": "podcast-recording",
+    "id": "map-podcast-recording",
+    "word": "podcast-recording",
+    "he": "",
+    "subject": "two teenagers recording a podcast with microphones",
+    "sheet": 15,
+    "cell": 0
+  },
+  {
+    "key": "sound-editing",
+    "id": "map-sound-editing",
+    "word": "sound-editing",
+    "he": "",
+    "subject": "a laptop showing sound waves, with headphones",
+    "sheet": 15,
+    "cell": 1
+  },
+  {
+    "key": "broadcast",
+    "id": "map-broadcast",
+    "word": "broadcast",
+    "he": "",
+    "subject": "a radio studio with a red recording light and a microphone",
+    "sheet": 15,
+    "cell": 2
+  },
+  {
+    "key": "debate-robot",
+    "id": "map-debate-robot",
+    "word": "debate-robot",
+    "he": "",
+    "subject": "two teenagers at debate podiums with a friendly robot between them",
+    "sheet": 15,
+    "cell": 3
+  },
+  {
+    "key": "debate",
+    "id": "map-debate",
+    "word": "debate",
+    "he": "",
+    "subject": "a teenager speaking at a podium with a microphone, a trophy beside the podium",
+    "sheet": 15,
+    "cell": 4
+  },
+  {
+    "key": "newspaper",
+    "id": "map-newspaper",
+    "word": "newspaper",
+    "he": "",
+    "subject": "a folded newspaper with pictures and grey lines instead of words",
+    "sheet": 15,
+    "cell": 5
+  },
+  {
+    "key": "news-camera",
+    "id": "map-news-camera",
+    "word": "news-camera",
+    "he": "",
+    "subject": "a TV news camera and a handheld microphone",
+    "sheet": 15,
+    "cell": 6
+  },
+  {
+    "key": "inventions",
+    "id": "map-inventions",
+    "word": "inventions",
+    "he": "",
+    "subject": "a light bulb, an old telephone and a wooden wheel together",
+    "sheet": 15,
+    "cell": 7
+  },
+  {
+    "key": "reporter",
+    "id": "map-reporter",
+    "word": "reporter",
+    "he": "",
+    "subject": "a reporter with a notebook and a pencil next to a magnifying glass",
+    "sheet": 15,
+    "cell": 8
+  },
+  {
+    "key": "global-citizens",
+    "id": "map-global-citizens",
+    "word": "global-citizens",
+    "he": "",
+    "subject": "a globe wearing a graduation cap",
+    "sheet": 15,
+    "cell": 9
+  },
+  {
+    "key": "leader-speech",
+    "id": "map-leader-speech",
+    "word": "leader-speech",
+    "he": "",
+    "subject": "a speaker at a podium in front of a crowd",
+    "sheet": 15,
+    "cell": 10
+  },
+  {
+    "key": "majors",
+    "id": "map-majors",
+    "word": "majors",
+    "he": "",
+    "subject": "a microscope, a paint palette and a calculator together",
+    "sheet": 15,
+    "cell": 11
+  },
+  {
+    "key": "graduation",
+    "id": "map-graduation",
+    "word": "graduation",
+    "he": "",
+    "subject": "graduation caps thrown into the air under a blue sky",
+    "sheet": 15,
+    "cell": 12
+  },
+  {
+    "key": "museum-building",
+    "id": "map-museum-building",
+    "word": "museum-building",
+    "he": "",
+    "subject": "a museum building with columns and steps",
+    "sheet": 15,
+    "cell": 13
+  },
+  {
+    "key": "empty-frame",
+    "id": "map-empty-frame",
+    "word": "empty-frame",
+    "he": "",
+    "subject": "an empty golden picture frame on a museum wall",
+    "sheet": 15,
+    "cell": 14
+  },
+  {
+    "key": "midnight-alarm",
+    "id": "map-midnight-alarm",
+    "word": "midnight-alarm",
+    "he": "",
+    "subject": "a red museum alarm light flashing next to a clock at midnight",
+    "sheet": 15,
+    "cell": 15
+  },
+  {
+    "key": "expedition",
+    "id": "map-expedition",
+    "word": "expedition",
+    "he": "",
+    "subject": "an explorer tent in the snow with a flag beside it",
+    "sheet": 16,
+    "cell": 0
+  },
+  {
+    "key": "ice-messages",
+    "id": "map-ice-messages",
+    "word": "ice-messages",
+    "he": "",
+    "subject": "a walkie-talkie lying on the snow next to a penguin",
+    "sheet": 16,
+    "cell": 1
+  },
+  {
+    "key": "conversation",
+    "id": "map-conversation",
+    "word": "conversation",
+    "he": "",
+    "subject": "two teenagers talking, with two empty speech bubbles above them",
+    "sheet": 16,
+    "cell": 2
+  },
+  {
+    "key": "polar-flag",
+    "id": "map-polar-flag",
+    "word": "polar-flag",
+    "he": "",
+    "subject": "a polar explorer planting a flag on top of an icy peak",
+    "sheet": 16,
+    "cell": 3
+  },
+  {
+    "key": "id-card",
+    "id": "map-id-card",
+    "word": "id-card",
+    "he": "",
+    "subject": "a whole ID card, fully visible with all four corners, a smiling photo on the left and blank lines on the right",
+    "sheet": 21,
+    "cell": 2
+  },
+  {
+    "key": "identity",
+    "id": "map-identity",
+    "word": "identity",
+    "he": "",
+    "subject": "a teenager looking in a mirror and smiling",
+    "sheet": 16,
+    "cell": 5
+  },
+  {
+    "key": "home-places",
+    "id": "map-home-places",
+    "word": "home-places",
+    "he": "",
+    "subject": "a cozy street of houses with a red map pin over one of them",
+    "sheet": 16,
+    "cell": 6
+  },
+  {
+    "key": "identity-collage",
+    "id": "map-identity-collage",
+    "word": "identity-collage",
+    "he": "",
+    "subject": "a poster-board collage of photos with a heart in the middle",
+    "sheet": 16,
+    "cell": 7
+  },
+  {
+    "key": "sapling",
+    "id": "map-sapling",
+    "word": "sapling",
+    "he": "",
+    "subject": "two hands holding a small green sapling with soil",
+    "sheet": 16,
+    "cell": 8
+  },
+  {
+    "key": "green-city",
+    "id": "map-green-city",
+    "word": "green-city",
+    "he": "",
+    "subject": "a green city with trees on the rooftops and solar panels",
+    "sheet": 16,
+    "cell": 9
+  },
+  {
+    "key": "phone-feed",
+    "id": "map-phone-feed",
+    "word": "phone-feed",
+    "he": "",
+    "subject": "a smartphone showing a feed of picture posts",
+    "sheet": 16,
+    "cell": 10
+  },
+  {
+    "key": "fake-news",
+    "id": "map-fake-news",
+    "word": "fake-news",
+    "he": "",
+    "subject": "a newspaper with a big red cross on it and a magnifying glass",
+    "sheet": 16,
+    "cell": 11
+  },
+  {
+    "key": "digital-footprints",
+    "id": "map-digital-footprints",
+    "word": "digital-footprints",
+    "he": "",
+    "subject": "glowing footprints leading to a laptop",
+    "sheet": 16,
+    "cell": 12
+  },
+  {
+    "key": "fact-check",
+    "id": "map-fact-check",
+    "word": "fact-check",
+    "he": "",
+    "subject": "a magnifying glass over a smartphone with a green check mark",
+    "sheet": 16,
+    "cell": 13
+  },
+  {
+    "key": "microscope",
+    "id": "map-microscope",
+    "word": "microscope",
+    "he": "",
+    "subject": "a microscope",
+    "sheet": 16,
+    "cell": 14
+  },
+  {
+    "key": "test-tubes",
+    "id": "map-test-tubes",
+    "word": "test-tubes",
+    "he": "",
+    "subject": "test tubes with colourful liquids next to a DNA strand",
+    "sheet": 16,
+    "cell": 15
+  },
+  {
+    "key": "galaxy-telescope",
+    "id": "map-galaxy-telescope",
+    "word": "galaxy-telescope",
+    "he": "",
+    "subject": "a telescope pointing at a spiral galaxy",
+    "sheet": 17,
+    "cell": 0
+  },
+  {
+    "key": "deep-ocean",
+    "id": "map-deep-ocean",
+    "word": "deep-ocean",
+    "he": "",
+    "subject": "a small yellow submarine with a light in the deep dark sea",
+    "sheet": 17,
+    "cell": 1
+  },
+  {
+    "key": "future-laptop",
+    "id": "map-future-laptop",
+    "word": "future-laptop",
+    "he": "",
+    "subject": "a futuristic laptop projecting a hologram",
+    "sheet": 17,
+    "cell": 2
+  },
+  {
+    "key": "robot-painter",
+    "id": "map-robot-painter",
+    "word": "robot-painter",
+    "he": "",
+    "subject": "a robot painting a picture at an easel",
+    "sheet": 17,
+    "cell": 3
+  },
+  {
+    "key": "exam",
+    "id": "map-exam",
+    "word": "exam",
+    "he": "",
+    "subject": "an exam sheet with lines and boxes, a pencil and a small clock beside it",
+    "sheet": 17,
+    "cell": 4
+  },
+  {
+    "key": "job-interview",
+    "id": "map-job-interview",
+    "word": "job-interview",
+    "he": "",
+    "subject": "a teenager at a job interview shaking hands across a desk",
+    "sheet": 17,
+    "cell": 5
+  },
+  {
+    "key": "manager",
+    "id": "map-manager",
+    "word": "manager",
+    "he": "",
+    "subject": "a manager with a clipboard giving instructions to a teenager",
+    "sheet": 17,
+    "cell": 6
+  },
+  {
+    "key": "internship",
+    "id": "map-internship",
+    "word": "internship",
+    "he": "",
+    "subject": "an office desk with a laptop, a folder and an ID badge on a lanyard",
+    "sheet": 17,
+    "cell": 7
+  },
+  {
+    "key": "hourglass",
+    "id": "map-hourglass",
+    "word": "hourglass",
+    "he": "",
+    "subject": "an hourglass with sand running",
+    "sheet": 17,
+    "cell": 8
+  },
+  {
+    "key": "marathon",
+    "id": "map-marathon",
+    "word": "marathon",
+    "he": "",
+    "subject": "a runner crossing a marathon finish line",
+    "sheet": 17,
+    "cell": 9
+  },
+  {
+    "key": "paint-roller",
+    "id": "map-paint-roller",
+    "word": "paint-roller",
+    "he": "",
+    "subject": "a paint roller halfway through painting a wall",
+    "sheet": 17,
+    "cell": 10
+  },
+  {
+    "key": "showcase",
+    "id": "map-showcase",
+    "word": "showcase",
+    "he": "",
+    "subject": "a theatre stage with a spotlight and red curtains",
+    "sheet": 17,
+    "cell": 11
+  },
+  {
+    "key": "gap-year",
+    "id": "map-gap-year",
+    "word": "gap-year",
+    "he": "",
+    "subject": "a big travel backpack with a rolled map strapped to it",
+    "sheet": 17,
+    "cell": 12
+  },
+  {
+    "key": "leaving-sunday",
+    "id": "map-leaving-sunday",
+    "word": "leaving-sunday",
+    "he": "",
+    "subject": "a packed suitcase by the front door with a passport on top",
+    "sheet": 17,
+    "cell": 13
+  },
+  {
+    "key": "scuba-turtle",
+    "id": "map-scuba-turtle",
+    "word": "scuba-turtle",
+    "he": "",
+    "subject": "a sea turtle swimming next to a scuba diver",
+    "sheet": 17,
+    "cell": 14
+  },
+  {
+    "key": "travel-slides",
+    "id": "map-travel-slides",
+    "word": "travel-slides",
+    "he": "",
+    "subject": "a teenager presenting travel photos on a big screen",
+    "sheet": 17,
+    "cell": 15
+  },
+  {
+    "key": "film-book",
+    "id": "map-film-book",
+    "word": "film-book",
+    "he": "",
+    "subject": "a film clapperboard next to an open book",
+    "sheet": 18,
+    "cell": 0
+  },
+  {
+    "key": "two-roads",
+    "id": "map-two-roads",
+    "word": "two-roads",
+    "he": "",
+    "subject": "a road splitting into two paths in an autumn forest",
+    "sheet": 18,
+    "cell": 1
+  },
+  {
+    "key": "dominoes",
+    "id": "map-dominoes",
+    "word": "dominoes",
+    "he": "",
+    "subject": "a row of dominoes falling one after another",
+    "sheet": 18,
+    "cell": 2
+  },
+  {
+    "key": "essay",
+    "id": "map-essay",
+    "word": "essay",
+    "he": "",
+    "subject": "an open notebook with neat handwritten lines and a fountain pen",
+    "sheet": 18,
+    "cell": 3
+  },
+  {
+    "key": "masks",
+    "id": "map-masks",
+    "word": "masks",
+    "he": "",
+    "subject": "two theatre masks, one smiling and one sad",
+    "sheet": 18,
+    "cell": 4
+  },
+  {
+    "key": "two-sides",
+    "id": "map-two-sides",
+    "word": "two-sides",
+    "he": "",
+    "subject": "two teenagers looking at the same sculpture from opposite sides",
+    "sheet": 18,
+    "cell": 5
+  },
+  {
+    "key": "pocket-watch",
+    "id": "map-pocket-watch",
+    "word": "pocket-watch",
+    "he": "",
+    "subject": "an old golden pocket watch on a chain",
+    "sheet": 18,
+    "cell": 6
+  },
+  {
+    "key": "looking-back",
+    "id": "map-looking-back",
+    "word": "looking-back",
+    "he": "",
+    "subject": "a teenager looking back over their shoulder at footprints in the sand",
+    "sheet": 18,
+    "cell": 7
+  },
+  {
+    "key": "ancient-ruins",
+    "id": "map-ancient-ruins",
+    "word": "ancient-ruins",
+    "he": "",
+    "subject": "an ancient Greek temple ruin with a magnifying glass in front",
+    "sheet": 18,
+    "cell": 8
+  },
+  {
+    "key": "old-map",
+    "id": "map-old-map",
+    "word": "old-map",
+    "he": "",
+    "subject": "an old rolled scroll map with a compass on it",
+    "sheet": 18,
+    "cell": 9
+  },
+  {
+    "key": "study-books",
+    "id": "map-study-books",
+    "word": "study-books",
+    "he": "",
+    "subject": "a stack of study books with a pencil and a highlighter",
+    "sheet": 18,
+    "cell": 10
+  },
+  {
+    "key": "skimming",
+    "id": "map-skimming",
+    "word": "skimming",
+    "he": "",
+    "subject": "a magnifying glass sliding over a page of text lines",
+    "sheet": 18,
+    "cell": 11
+  },
+  {
+    "key": "charts",
+    "id": "map-charts",
+    "word": "charts",
+    "he": "",
+    "subject": "a bar chart and a pie chart on a whiteboard",
+    "sheet": 18,
+    "cell": 12
+  },
+  {
+    "key": "wish-star",
+    "id": "map-wish-star",
+    "word": "wish-star",
+    "he": "",
+    "subject": "a shooting star over a small sleeping town",
+    "sheet": 18,
+    "cell": 13
+  },
+  {
+    "key": "dandelion",
+    "id": "map-dandelion",
+    "word": "dandelion",
+    "he": "",
+    "subject": "a dandelion seed head with seeds blowing away in the wind",
+    "sheet": 18,
+    "cell": 14
+  },
+  {
+    "key": "broken-vase",
+    "id": "map-broken-vase",
+    "word": "broken-vase",
+    "he": "",
+    "subject": "a broken vase with its pieces on the floor",
+    "sheet": 18,
+    "cell": 15
+  },
+  {
+    "key": "magic-lamp",
+    "id": "map-magic-lamp",
+    "word": "magic-lamp",
+    "he": "",
+    "subject": "a golden magic lamp with a puff of glowing smoke",
+    "sheet": 19,
+    "cell": 0
+  },
+  {
+    "key": "toolbox",
+    "id": "map-toolbox",
+    "word": "toolbox",
+    "he": "",
+    "subject": "an open red toolbox with a hammer and a wrench",
+    "sheet": 19,
+    "cell": 1
+  },
+  {
+    "key": "renovation",
+    "id": "map-renovation",
+    "word": "renovation",
+    "he": "",
+    "subject": "a worker on a ladder painting the front of a house",
+    "sheet": 19,
+    "cell": 2
+  },
+  {
+    "key": "tailor",
+    "id": "map-tailor",
+    "word": "tailor",
+    "he": "",
+    "subject": "a sewing machine with scissors and a measuring tape",
+    "sheet": 19,
+    "cell": 3
+  },
+  {
+    "key": "wedding-cake",
+    "id": "map-wedding-cake",
+    "word": "wedding-cake",
+    "he": "",
+    "subject": "a white wedding cake decorated with flowers",
+    "sheet": 19,
+    "cell": 4
+  },
+  {
+    "key": "missing-necklace",
+    "id": "map-missing-necklace",
+    "word": "missing-necklace",
+    "he": "",
+    "subject": "an open empty jewellery box with a pearl necklace trailing out",
+    "sheet": 19,
+    "cell": 5
+  },
+  {
+    "key": "lab-mystery",
+    "id": "map-lab-mystery",
+    "word": "lab-mystery",
+    "he": "",
+    "subject": "a glass beaker of bright green water in a science lab",
+    "sheet": 19,
+    "cell": 6
+  },
+  {
+    "key": "winter-lake",
+    "id": "map-winter-lake",
+    "word": "winter-lake",
+    "he": "",
+    "subject": "a blue lake between green hills with rain clouds above it",
+    "sheet": 19,
+    "cell": 7
+  },
+  {
+    "key": "puzzle-pieces",
+    "id": "map-puzzle-pieces",
+    "word": "puzzle-pieces",
+    "he": "",
+    "subject": "two puzzle pieces joining together",
+    "sheet": 19,
+    "cell": 8
+  },
+  {
+    "key": "building-blocks",
+    "id": "map-building-blocks",
+    "word": "building-blocks",
+    "he": "",
+    "subject": "building blocks stacked into a tall steady tower",
+    "sheet": 19,
+    "cell": 9
+  },
+  {
+    "key": "essay-star",
+    "id": "map-essay-star",
+    "word": "essay-star",
+    "he": "",
+    "subject": "a fountain pen writing on a page, with a gold star sticker on the page",
+    "sheet": 19,
+    "cell": 10
+  },
+  {
+    "key": "ripples",
+    "id": "map-ripples",
+    "word": "ripples",
+    "he": "",
+    "subject": "ripples spreading across calm water from a single drop",
+    "sheet": 19,
+    "cell": 11
+  },
+  {
+    "key": "globe-briefcase",
+    "id": "map-globe-briefcase",
+    "word": "globe-briefcase",
+    "he": "",
+    "subject": "a briefcase in front of a globe",
+    "sheet": 19,
+    "cell": 12
+  },
+  {
+    "key": "teamwork",
+    "id": "map-teamwork",
+    "word": "teamwork",
+    "he": "",
+    "subject": "teenagers working together around one laptop",
+    "sheet": 19,
+    "cell": 13
+  },
+  {
+    "key": "team-leader",
+    "id": "map-team-leader",
+    "word": "team-leader",
+    "he": "",
+    "subject": "a teenager leading a small team up a hill, holding a flag",
+    "sheet": 19,
+    "cell": 14
+  },
+  {
+    "key": "crossroads",
+    "id": "map-crossroads",
+    "word": "crossroads",
+    "he": "",
+    "subject": "a crossroads signpost with blank arrow signs",
+    "sheet": 19,
+    "cell": 15
+  },
+  {
+    "key": "seed-to-tree",
+    "id": "map-seed-to-tree",
+    "word": "seed-to-tree",
+    "he": "",
+    "subject": "a seed in soil next to the big tree it grew into",
+    "sheet": 20,
+    "cell": 0
+  },
+  {
+    "key": "mirror-past",
+    "id": "map-mirror-past",
+    "word": "mirror-past",
+    "he": "",
+    "subject": "a teenager looking into a mirror that shows their younger self",
+    "sheet": 20,
+    "cell": 1
+  },
+  {
+    "key": "paraphrase",
+    "id": "map-paraphrase",
+    "word": "paraphrase",
+    "he": "",
+    "subject": "two speech bubbles with the same light bulb inside each",
+    "sheet": 20,
+    "cell": 2
+  },
+  {
+    "key": "summarize",
+    "id": "map-summarize",
+    "word": "summarize",
+    "he": "",
+    "subject": "a funnel turning a pile of papers into one small card",
+    "sheet": 20,
+    "cell": 3
+  },
+  {
+    "key": "stepping-stones",
+    "id": "map-stepping-stones",
+    "word": "stepping-stones",
+    "he": "",
+    "subject": "stepping stones across a stream",
+    "sheet": 20,
+    "cell": 4
+  },
+  {
+    "key": "community",
+    "id": "map-community",
+    "word": "community",
+    "he": "",
+    "subject": "neighbours of different ages sharing bowls of hot soup on a cold day",
+    "sheet": 20,
+    "cell": 5
+  },
+  {
+    "key": "ui-role-child",
+    "id": "ui-role-child",
+    "word": "ui-role-child",
+    "he": "",
+    "subject": "a smiling schoolchild with a backpack, waving",
+    "sheet": 20,
+    "cell": 6
+  },
+  {
+    "key": "ui-role-parent",
+    "id": "ui-role-parent",
+    "word": "ui-role-parent",
+    "he": "",
+    "subject": "a parent holding a young child's hand, both smiling",
+    "sheet": 20,
+    "cell": 7
+  },
+  {
+    "key": "ui-new-account",
+    "id": "ui-new-account",
+    "word": "ui-new-account",
+    "he": "",
+    "subject": "a smiling child holding up a new name card with a gold star on it",
+    "sheet": 20,
+    "cell": 8
+  },
+  {
+    "key": "ui-idea",
+    "id": "ui-idea",
+    "word": "ui-idea",
+    "he": "",
+    "subject": "a glowing yellow light bulb",
+    "sheet": 20,
+    "cell": 9
+  },
+  {
+    "key": "ui-profile",
+    "id": "ui-profile",
+    "word": "ui-profile",
+    "he": "",
+    "subject": "a friendly child portrait in a round frame",
+    "sheet": 20,
+    "cell": 10
+  },
+  {
+    "key": "ui-settings-look",
+    "id": "ui-settings-look",
+    "word": "ui-settings-look",
+    "he": "",
+    "subject": "a paintbrush painting a short rainbow stroke",
+    "sheet": 20,
+    "cell": 11
+  },
+  {
+    "key": "ui-settings-friends",
+    "id": "ui-settings-friends",
+    "word": "ui-settings-friends",
+    "he": "",
+    "subject": "two smiling children side by side with their arms around each other",
+    "sheet": 20,
+    "cell": 12
+  },
+  {
+    "key": "ui-settings-account",
+    "id": "ui-settings-account",
+    "word": "ui-settings-account",
+    "he": "",
+    "subject": "a closed golden padlock with a small key beside it",
+    "sheet": 20,
+    "cell": 13
+  },
+  {
+    "key": "ui-gender-girl",
+    "id": "ui-gender-girl",
+    "word": "ui-gender-girl",
+    "he": "",
+    "subject": "a smiling girl's head and shoulders, with a ponytail",
+    "sheet": 20,
+    "cell": 14
+  },
+  {
+    "key": "ui-gender-boy",
+    "id": "ui-gender-boy",
+    "word": "ui-gender-boy",
+    "he": "",
+    "subject": "a smiling boy's head and shoulders, with short hair",
+    "sheet": 20,
+    "cell": 15
+  }
+]

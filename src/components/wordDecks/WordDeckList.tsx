@@ -10,6 +10,7 @@ import { useSpeechToggle } from '../../hooks/useSpeech';
 import { isolateLtr } from '../../utils/bidi';
 import { SpeakIcon, STOP_SPEECH_LABEL } from '../SpeakIcon';
 import { Button } from '../ui/Button';
+import { WordPicture } from '../art/WordPicture';
 
 type SpeakFn = (text: string, rate?: number) => void;
 
@@ -44,7 +45,7 @@ const DeckWordRow: React.FC<{ item: WordDeckItem; isMastered: boolean; onSpeakEn
         <SpeakIcon isSpeaking={speech.isSpeaking} className="w-3.5 h-3.5" />
       </button>
       <span className="font-extrabold text-sm" dir="ltr" lang="en">
-        {item.emoji ? `${item.emoji} ` : ''}
+        <WordPicture wordEn={item.wordEn} translationHe={item.translationHe} emoji={item.emoji} size="1.75em" />{' '}
         {item.wordEn}
       </span>
       <span className="text-xs font-bold opacity-80 min-w-0 truncate">{item.translationHe}</span>

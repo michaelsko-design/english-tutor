@@ -1,4 +1,5 @@
 import { CurriculumUnit } from './curriculum/types';
+import { getUnitPicture } from '../components/art/mapPictures';
 import { DailyQuestDefinition } from './rewardShop';
 import { BossGate } from './milestones';
 import { DailyActivityCounters, LearnerGender } from '../types/learner';
@@ -116,6 +117,8 @@ export interface MapPeek {
   unitNumber: number;
   unitTitleHe: string;
   unitEmoji: string;
+  /** The unit's drawn picture (falls back to unitEmoji) */
+  unitPictureId?: string;
   starsEarned: number;
   starsPossible: number;
   missionsCompleted: number;
@@ -135,6 +138,7 @@ export function getMapPeek(units: CurriculumUnit[], progress: Record<string, num
     unitNumber: currentUnit.unitNumber,
     unitTitleHe: currentUnit.titleHe,
     unitEmoji: currentUnit.badgeEmoji,
+    unitPictureId: getUnitPicture(currentUnit),
     starsEarned: missions.reduce((acc, m) => acc + starsOf(m.id), 0),
     starsPossible: missions.length * MAX_STARS_PER_MISSION,
     missionsCompleted: missions.filter((m) => starsOf(m.id) > 0).length,

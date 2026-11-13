@@ -9,6 +9,7 @@
  *   node scripts/art/renderVocabPictures.mjs submit [sheet …]    every missing sheet (or the named ones) as one batch
  *   node scripts/art/renderVocabPictures.mjs status
  *   node scripts/art/renderVocabPictures.mjs collect
+ * Add `--set map` for the unit and mission pictures (list from scripts/art/buildMapPictureList.mjs).
  * Sheets land in art-src/vocab-sheets/sheet-<n>.png. To redraw single pictures, move their entries in
  * vocabPictureList.json to a new sheet number (cells 0, 1, …) and submit that sheet.
  */
@@ -17,13 +18,32 @@ import { join } from 'node:path';
 import { batchItems, fetchBatch, imageFrom, readApiKey, stateStore, submitBatch } from './geminiBatch.mjs';
 
 const MODEL = 'gemini-3.1-flash-image';
-const SHEETS_DIR = join(process.cwd(), 'art-src', 'vocab-sheets');
-const LIST_FILE = join(process.cwd(), 'scripts', 'art', 'vocabPictureList.json');
-const state = stateStore(join(process.cwd(), '.art-gemini-vocab-batches.json'));
+/** Picture sets drawn the same way; `--set map` picks the unit and mission pictures (buildMapPictureList.mjs). */
+const SETS = {
+  vocab: {
+    list: 'vocabPictureList.json',
+    sheets: 'vocab-sheets',
+    state: '.art-gemini-vocab-batches.json',
+    intro: 'A picture-dictionary sheet for young children (ages 6–12) learning English words. Each picture must be instantly recognisable as exactly the named word and nothing else, even to a six-year-old.',
+  },
+  map: {
+    list: 'mapPictureList.json',
+    sheets: 'map-sheets',
+    state: '.art-gemini-map-batches.json',
+    intro: 'A sheet of topic pictures for the lesson map of an English-learning app for children (ages 6–18). Each picture must clearly show exactly the described scene or object, so a child recognises the topic at a glance.',
+  },
+};
+const setArg = process.argv.indexOf('--set');
+const SET_NAME = setArg > 0 ? process.argv[setArg + 1] : 'vocab';
+const SET = SETS[SET_NAME];
+if (!SET) throw new Error(`Unknown --set ${SET_NAME}`);
+const SHEETS_DIR = join(process.cwd(), 'art-src', SET.sheets);
+const LIST_FILE = join(process.cwd(), 'scripts', 'art', SET.list);
+const state = stateStore(join(process.cwd(), SET.state));
 const PER_SHEET = 16;
 
 const STYLE = [
-  'A picture-dictionary sheet for young children (ages 6–12) learning English words. Each picture must be instantly recognisable as exactly the named word and nothing else, even to a six-year-old.',
+  SET.intro,
   'Style: cute, friendly 2.5D illustration with soft rounded shapes, clean dark outlines, simple soft shading and natural, true-to-life colours. One matching set: the same line weight, lighting and level of detail in every picture. No text, letters, numbers, words, labels, logos, watermark or signature anywhere in the image.',
 ].join('\n');
 const LAYOUT = [
@@ -77,7 +97,7 @@ async function submit(apiKey, named) {
   console.log(`${pictures} picture(s) on ${todo.length} sheet(s) to draw (${todo.length} request(s)).`);
   if (todo.length === 0) return;
   const requests = todo.map(({ n, entries }) => ({ request: request(entries), metadata: { key: String(n) } }));
-  const batch = await submitBatch(apiKey, MODEL, `vocab-pictures-${Date.now()}`, requests);
+  const batch = await submitBatch(apiKey, MODEL, `${SET_NAME}-pictures-${Date.now()}`, requests);
   state.write([{ name: batch.name, sheets: todo.map((s) => s.n), submittedAt: new Date().toISOString() }]);
   console.log(`Submitted ${batch.name}`);
 }
@@ -116,7 +136,8 @@ async function collect(apiKey) {
 }
 
 async function main() {
-  const [command = 'status', ...args] = process.argv.slice(2);
+  const plain = process.argv.slice(2).filter((arg, i, all) => arg !== '--set' && all[i - 1] !== '--set');
+  const [command = 'status', ...args] = plain;
   if (command === 'prompts') {
     for (const { n, entries } of sheetsToDraw(args)) console.log(`--- sheet ${n} ---\n${buildPrompt(entries)}\n`);
     return;

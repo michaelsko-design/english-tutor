@@ -8,6 +8,8 @@ import {
   type ThemeAudience,
   type ThemeDefinition,
 } from '../../themes/themeRegistry';
+import { SCREEN_PICTURE_IDS } from '../art/mapPictureIds';
+import { EmojiIcon } from '../art/EmojiIcon';
 
 interface ThemedProps {
   theme: ThemeDefinition;
@@ -66,9 +68,9 @@ interface GenderFieldProps extends ThemedProps {
   onGenderChange: (gender: LearnerGender) => void;
 }
 
-const GENDER_OPTIONS: { id: LearnerGender; emoji: string; labelHe: string }[] = [
-  { id: 'girl', emoji: '👧', labelHe: 'בת' },
-  { id: 'boy', emoji: '👦', labelHe: 'בן' },
+const GENDER_OPTIONS: { id: LearnerGender; emoji: string; labelHe: string; pictureId?: string }[] = [
+  { id: 'girl', emoji: '👧', labelHe: 'בת', pictureId: SCREEN_PICTURE_IDS['ui-gender-girl'] },
+  { id: 'boy', emoji: '👦', labelHe: 'בן', pictureId: SCREEN_PICTURE_IDS['ui-gender-boy'] },
 ];
 
 /** Girl / boy as two big buttons; the Hebrew copy is inflected from this choice */
@@ -86,7 +88,7 @@ export const GenderField: React.FC<GenderFieldProps> = ({ gender, theme, onGende
             gender === option.id ? theme.primaryBtnClass : theme.secondaryBtnClass
           }`}
         >
-          <span>{option.emoji}</span>
+          <EmojiIcon emoji={option.emoji} pictureId={option.pictureId} size="1.75em" />
           <span>{option.labelHe}</span>
         </button>
       ))}

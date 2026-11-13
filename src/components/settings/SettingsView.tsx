@@ -31,14 +31,15 @@ import { GradeSelect } from './GradeSelect';
 import { FriendsHubFields, GenderAgeFields, NameField, ShabbatToggle, ThemePicker } from './ProfileFields';
 import { CompanionPicker } from './CompanionPicker';
 import { SettingsTabs, tabButtonId, tabPanelId, type SettingsTabItem } from './SettingsTabs';
+import { SCREEN_PICTURE_IDS } from '../art/mapPictureIds';
 
 type SettingsTabId = 'profile' | 'look' | 'friends' | 'account';
 
 const SETTINGS_TABS: SettingsTabItem<SettingsTabId>[] = [
-  { id: 'profile', labelHe: 'פרופיל', icon: '👤' },
-  { id: 'look', labelHe: 'עיצוב', icon: '🎨' },
-  { id: 'friends', labelHe: 'חברים', icon: '👫' },
-  { id: 'account', labelHe: 'חשבון', icon: '🔒' },
+  { id: 'profile', labelHe: 'פרופיל', icon: '👤', pictureId: SCREEN_PICTURE_IDS['ui-profile'] },
+  { id: 'look', labelHe: 'עיצוב', icon: '🎨', pictureId: SCREEN_PICTURE_IDS['ui-settings-look'] },
+  { id: 'friends', labelHe: 'חברים', icon: '👫', pictureId: SCREEN_PICTURE_IDS['ui-settings-friends'] },
+  { id: 'account', labelHe: 'חשבון', icon: '🔒', pictureId: SCREEN_PICTURE_IDS['ui-settings-account'] },
 ];
 
 const NAME_SAVE_DELAY_MS = 600;

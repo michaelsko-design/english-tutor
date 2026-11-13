@@ -4,6 +4,7 @@ import { LearnerGender } from '../../../types/learner';
 import { ThemeDefinition } from '../../../themes/themeRegistry';
 import { spellSlots } from '../../../utils/letterSlots';
 import { FeedbackBanner, SpellingMagnetDrill } from '../../drills';
+import { WordPicture } from '../../art/WordPicture';
 
 interface ScrambleGameProps {
   rounds: ScrambleRound[];
@@ -59,7 +60,7 @@ export const ScrambleGame: React.FC<ScrambleGameProps> = ({ rounds, gender, them
   return (
     <div className="space-y-3">
       <p className="text-xs font-bold">
-        מילה {idx + 1} מתוך {rounds.length} · {round.word.emoji} {round.word.he}
+        מילה {idx + 1} מתוך {rounds.length} · <WordPicture wordEn={round.word.word} emoji={round.word.emoji} /> {round.word.he}
       </p>
       <SpellingMagnetDrill
         key={idx}

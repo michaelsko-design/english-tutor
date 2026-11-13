@@ -3,6 +3,9 @@ import { ChevronDown } from 'lucide-react';
 import { MapPeek as MapPeekData } from '../../data/homeBase';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { HudIcon } from '../hud/HudIcon';
+import { EmojiIcon } from '../art/EmojiIcon';
+
+const UNIT_PICTURE_SIZE = '2rem';
 
 interface MapPeekProps {
   peek: MapPeekData;
@@ -19,7 +22,7 @@ export const MapPeek: React.FC<MapPeekProps> = ({ peek, gradeLabelHe, theme, onO
     className={`w-full rounded-2xl px-3.5 py-2.5 flex items-center gap-3 text-right transition-transform active:scale-[0.99] ${theme.cardBgClass}`}
   >
     <span className="text-2xl leading-none shrink-0" aria-hidden="true">
-      {peek.unitEmoji || '🗺️'}
+      <EmojiIcon emoji={peek.unitEmoji || '🗺️'} pictureId={peek.unitPictureId} size={UNIT_PICTURE_SIZE} />
     </span>
     <span className="flex-1 min-w-0">
       <span className="block font-extrabold text-sm leading-tight line-clamp-2">

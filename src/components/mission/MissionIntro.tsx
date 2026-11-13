@@ -12,6 +12,8 @@ import { Companion } from '../companion/Companion';
 import { TierChoice } from './TierChoice';
 import type { MissionLadder } from '../../data/tierProgress';
 import { Button } from '../ui/Button';
+import { EmojiIcon } from '../art/EmojiIcon';
+import { getMissionPictureId } from '../art/mapPictures';
 
 /**
  * The mission's mini-lesson (Feature 42): it opens by itself after Start on a first play ('auto'),
@@ -96,7 +98,7 @@ export const MissionIntro: React.FC<MissionIntroProps> = ({
         </span>
         <h2 className="text-2xl md:text-3xl font-extrabold leading-tight">
           <span className="me-1.5" aria-hidden="true">
-            {mission.icon}
+            <EmojiIcon emoji={mission.icon} pictureId={getMissionPictureId(mission.id)} size="1.5em" isInline />
           </span>
           {titleHe}
           <HebrewSpeakButton text={titleHe} label="הקשבה לכותרת המשימה" className="ms-2 align-middle" />
