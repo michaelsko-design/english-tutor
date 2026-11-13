@@ -4,6 +4,8 @@ import {
   ArrowUp,
   Check,
   Circle,
+  FastForward,
+  Play,
   Plus,
   Settings,
   Square,
@@ -24,6 +26,8 @@ export const SYMBOL_ICONS: Readonly<Record<string, LucideIcon>> = {
   '⚙': Settings,
   '⚪': Circle,
   '🔊': Volume2,
+  '▶': Play,
+  '⏩': FastForward,
 };
 
 const VARIATION_SELECTOR = /️/g;

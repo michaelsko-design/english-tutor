@@ -4,6 +4,7 @@ import { LearnerGender } from '../../../types/learner';
 import { ThemeDefinition } from '../../../themes/themeRegistry';
 import { LetterGrid, cellKey } from './LetterGrid';
 import { Button } from '../../ui/Button';
+import { WordPicture } from '../../art/WordPicture';
 
 interface WordHuntGameProps {
   puzzle: WordSearchPuzzle;
@@ -77,7 +78,7 @@ export const WordHuntGame: React.FC<WordHuntGameProps> = ({
               }`}
             >
               <span>
-                {p.word.emoji} {p.word.he}
+                <WordPicture wordEn={p.word.word} emoji={p.word.emoji} /> {p.word.he}
               </span>
               {(showEnglishList || isWordFound) && (
                 <span dir="ltr" lang="en" className="font-extrabold">

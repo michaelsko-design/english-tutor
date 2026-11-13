@@ -18,6 +18,8 @@ import { VibeAmount } from '../ui/VibeAmount';
 import { SHEET_OVERLAY_CLASS, SHEET_PANEL_WIDE_CLASS } from '../ui/sheetLayout';
 import { ASK_PARENT_LABEL_HE } from '../../data/proAsk';
 import { APP_NAME } from '../../config/appInfo';
+import { EmojiIcon } from '../art/EmojiIcon';
+import { getMissionPictureId } from '../art/mapPictures';
 
 interface MissionSheetProps {
   stop: MapStop;
@@ -129,7 +131,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
             </span>
             <h3 id="mission-sheet-title" className="text-xl font-extrabold leading-snug">
               <span className="me-1.5" aria-hidden="true">
-                {mission.icon}
+                <EmojiIcon emoji={mission.icon} pictureId={getMissionPictureId(mission.id)} size="1.6em" isInline />
               </span>
               {inflectHebrew(mission.titleHe, gender)}
             </h3>

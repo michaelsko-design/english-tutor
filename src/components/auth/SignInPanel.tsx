@@ -8,14 +8,19 @@ import { LearnerBasicsForm } from '../LearnerBasicsForm';
 import { clearSignupDraft, setSignupDraft, type SignupDraft } from '../../data/signupDraft';
 import { suggestUsername } from '../../utils/username';
 import { trackFunnel } from '../../services/analytics/funnel';
+import { SCREEN_PICTURE_IDS } from '../art/mapPictureIds';
+import { EmojiIcon } from '../art/EmojiIcon';
+
+const NEW_ACCOUNT_PICTURE = <EmojiIcon emoji="🆕" pictureId={SCREEN_PICTURE_IDS['ui-new-account']} size="1.5em" isInline />;
+const NEW_ACCOUNT_PICTURE_LARGE = <EmojiIcon emoji="🆕" pictureId={SCREEN_PICTURE_IDS['ui-new-account']} size="2rem" />;
 
 const NEW_LEARNER_DEFAULTS: SignupDraft = { name: '', gender: 'girl', gradeId: 'grade-4', hasParentConsent: false };
 
 type Audience = 'child' | 'parent';
 
 const AUDIENCE_TABS = [
-  { id: 'child' as const, labelHe: 'ילד/ה', icon: '🧒' },
-  { id: 'parent' as const, labelHe: 'הורה', icon: '🧑' },
+  { id: 'child' as const, labelHe: 'ילד/ה', icon: '🧒', pictureId: SCREEN_PICTURE_IDS['ui-role-child'] },
+  { id: 'parent' as const, labelHe: 'הורה', icon: '🧑', pictureId: SCREEN_PICTURE_IDS['ui-role-parent'] },
 ];
 
 const TABS_ID = 'sign-in-audience';
@@ -126,7 +131,7 @@ export function SignInPanel({
 
       {form === 'new' && !basics ? (
         <div className={`p-4 rounded-2xl space-y-3 ${theme.cardBgClass}`}>
-          <h3 className="text-sm font-extrabold">🆕 קודם נכיר: מי לומד?</h3>
+          <h3 className="text-sm font-extrabold">{NEW_ACCOUNT_PICTURE} קודם נכיר: מי לומד?</h3>
           <LearnerBasicsForm
             theme={theme}
             initial={NEW_LEARNER_DEFAULTS}
@@ -153,7 +158,7 @@ export function SignInPanel({
       ) : (
         <div className="grid grid-cols-2 gap-2">
           <Button theme={theme} variant="secondary" size="lg" className="flex-col !gap-1 whitespace-nowrap" onClick={() => openForm('new')}>
-            <span aria-hidden="true" className="text-xl leading-none">🆕</span>
+            <span aria-hidden="true" className="leading-none">{NEW_ACCOUNT_PICTURE_LARGE}</span>
             <span>חדש/ה כאן</span>
           </Button>
           <Button theme={theme} variant="secondary" size="lg" className="flex-col !gap-1 whitespace-nowrap" onClick={() => openForm('existing')}>

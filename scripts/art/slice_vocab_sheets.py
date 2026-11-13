@@ -12,22 +12,27 @@ would give the answer away, so a one-line band of dense ink at the top of a cell
 with almost no ink, is cut off. A cell with drawing on its outer rim spilled over a cell border and
 is reported, so that sheet can be drawn again.
 
-Usage:  python scripts/art/slice_vocab_sheets.py
+Usage:  python scripts/art/slice_vocab_sheets.py [--set map]   (map: unit and mission pictures, scripts/art/mapPictureList.json -> art-src/map-icons)
 Needs:  Python 3.10+, Pillow and numpy
 """
 import base64
 import html
 import io
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-LIST_FILE = ROOT / "scripts" / "art" / "vocabPictureList.json"
-SHEETS_DIR = ROOT / "art-src" / "vocab-sheets"
-OUT_ROOT = ROOT / "art-src" / "vocab-icons"
+# Picture sets drawn the same way: (list file, sheets folder, output folder, cut word labels)
+# The map set keeps the top of every cell: its pictures carry no word labels, and the label cut
+# took flags, hats and thought bubbles off them.
+SETS = {
+    "vocab": ("vocabPictureList.json", "vocab-sheets", "vocab-icons", True),
+    "map": ("mapPictureList.json", "map-sheets", "map-icons", False),
+}
 COLUMNS = 4
 WHITE_TOLERANCE = 40  # a pixel this far from pure white counts as drawing
 LABEL_ZONE = 0.3  # a label starts in the top 30% of the cell
@@ -133,15 +138,19 @@ def thumb_uri(img: Image.Image) -> str:
 
 
 def main() -> None:
-    entries = json.loads(LIST_FILE.read_text(encoding="utf-8"))
-    out_dir = OUT_ROOT / "icons"
+    set_name = sys.argv[sys.argv.index("--set") + 1] if "--set" in sys.argv else "vocab"
+    list_name, sheets_name, out_name, cuts_labels = SETS[set_name]
+    sheets_dir = ROOT / "art-src" / sheets_name
+    out_root = ROOT / "art-src" / out_name
+    entries = json.loads((ROOT / "scripts" / "art" / list_name).read_text(encoding="utf-8"))
+    out_dir = out_root / "icons"
     out_dir.mkdir(parents=True, exist_ok=True)
     sheets: dict[int, list[dict]] = {}
     for entry in entries:
         sheets.setdefault(entry["sheet"], []).append(entry)
     tiles, written = [], 0
     for number in sorted(sheets):
-        path = SHEETS_DIR / f"sheet-{number}.png"
+        path = sheets_dir / f"sheet-{number}.png"
         if not path.exists():
             print(f"skip    sheet-{number}.png (not drawn yet)")
             continue
@@ -150,7 +159,7 @@ def main() -> None:
         for entry in sheets[number]:
             row, col = divmod(entry["cell"], COLUMNS)
             cell = clear_grid_lines(sheet.crop((col * cw, row * ch, (col + 1) * cw, (row + 1) * ch)))
-            cell, had_label = strip_labels(cell)
+            cell, had_label = strip_labels(cell) if cuts_labels else (cell, False)
             if touches_rim(cell):
                 print(f"warning {entry['id']}: drawing touches the cell border in sheet-{number}")
             picture = trim(drop_specks(cell))
@@ -169,7 +178,7 @@ def main() -> None:
         "object-fit:contain}small{color:#777}</style>"
         f"<h1>Vocabulary pictures ({written})</h1><main>{''.join(tiles)}</main>"
     )
-    (OUT_ROOT / "review.html").write_text(page, encoding="utf-8")
+    (out_root / "review.html").write_text(page, encoding="utf-8")
     print(f"{written} picture(s) written to {out_dir}")
 
 

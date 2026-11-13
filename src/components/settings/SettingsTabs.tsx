@@ -1,10 +1,13 @@
 import React, { useRef } from 'react';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
+import { EmojiIcon } from '../art/EmojiIcon';
 
 export interface SettingsTabItem<Id extends string> {
   id: Id;
   labelHe: string;
   icon: string;
+  /** A drawn picture shown instead of the icon's own drawing (the icon stays as the fallback) */
+  pictureId?: string;
 }
 
 interface SettingsTabsProps<Id extends string> {
@@ -73,7 +76,9 @@ export function SettingsTabs<Id extends string>({
               isActive ? theme.primaryBtnClass : theme.secondaryBtnClass
             }`}
           >
-            <span aria-hidden="true" className={`${isLarge ? 'text-3xl' : 'text-base'} leading-none`}>{tab.icon}</span>
+            <span aria-hidden="true" className={`${isLarge ? 'text-3xl' : 'text-base'} leading-none`}>
+              <EmojiIcon emoji={tab.icon} pictureId={tab.pictureId} size={isLarge ? '2.5rem' : '1.75rem'} />
+            </span>
             <span className="leading-tight">{tab.labelHe}</span>
           </button>
         );

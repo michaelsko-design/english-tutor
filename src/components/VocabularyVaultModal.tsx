@@ -5,6 +5,8 @@ import { celebrate } from '../utils/celebrate';
 import { CurriculumUnit, VocabularyItem } from '../data/curriculum';
 import { LearnerGender } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
+import { EmojiIcon } from './art/EmojiIcon';
+import { getUnitPicture } from './art/mapPictures';
 import { useSpeechRecognition, type SpeechErrorKind } from '../hooks/useSpeechRecognition';
 import {
   X,
@@ -23,6 +25,7 @@ import { VibeAmount } from './ui/VibeAmount';
 import { VaultWordDecks } from './wordDecks/VaultWordDecks';
 import type { WordDeck } from '../data/wordDecks/types';
 import type { DeckWordMasteryMap } from '../data/wordDecks/deckMastery';
+import { WordPicture } from './art/WordPicture';
 
 /** The reward inside a Hebrew sentence, isolated so "+10 XP" doesn't flip */
 const VAULT_REWARD_LABEL = `${formatVibeGain(10)} · ${isolateLtr('+2 💎')}`;
@@ -237,7 +240,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                       : theme.secondaryBtnClass
                   }`}
                 >
-                  {u.badgeEmoji} פרק {u.unitNumber}
+                  <EmojiIcon emoji={u.badgeEmoji} pictureId={getUnitPicture(u)} size="1.4em" isInline /> פרק {u.unitNumber}
                 </button>
               ))}
             </div>
@@ -311,7 +314,7 @@ export const VocabularyVaultModal: React.FC<VocabularyVaultModalProps> = ({
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span className="text-lg font-extrabold break-words min-w-0" dir="ltr" lang="en">
-                        {item.emoji ? `${item.emoji} ` : ''}
+                        <WordPicture wordEn={item.wordEn} translationHe={item.translationHe} emoji={item.emoji} size="2em" />{' '}
                         {item.wordEn}
                       </span>
                       <span className="text-xs px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 font-semibold">

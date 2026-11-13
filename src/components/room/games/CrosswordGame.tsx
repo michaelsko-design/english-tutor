@@ -3,6 +3,7 @@ import { CrosswordEntry, CrosswordPuzzle, getEntryCells, scorePercent } from '..
 import { LearnerGender } from '../../../types/learner';
 import { ThemeDefinition } from '../../../themes/themeRegistry';
 import { Button } from '../../ui/Button';
+import { WordPicture } from '../../art/WordPicture';
 
 interface CrosswordGameProps {
   puzzle: CrosswordPuzzle;
@@ -119,7 +120,7 @@ export const CrosswordGame: React.FC<CrosswordGameProps> = ({ puzzle, gender, th
                     entryId(entry) === activeId ? theme.primaryBtnClass : theme.secondaryBtnClass
                   } disabled:opacity-60`}
                 >
-                  {entry.number}. {entry.word.emoji} {entry.word.he} ({entry.word.word.length})
+                  {entry.number}. <WordPicture wordEn={entry.word.word} emoji={entry.word.emoji} /> {entry.word.he} ({entry.word.word.length})
                   {solved[entryId(entry)] && <span dir="ltr" lang="en"> ✓ {entry.word.word}</span>}
                 </button>
               ))}

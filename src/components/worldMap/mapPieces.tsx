@@ -6,6 +6,8 @@ import { MAP_BANNER_HEIGHT } from '../../data/worldMap';
 import { HudIcon } from '../hud/HudIcon';
 import { ArtImage } from '../art/ArtImage';
 import { WorldMapStyle } from './worldMapStyles';
+import { EmojiIcon } from '../art/EmojiIcon';
+import { getUnitPicture } from '../art/mapPictures';
 
 /** Landmark width, as a share of the map width */
 const LANDMARK_WIDTH_SHARE = 0.34;
@@ -68,7 +70,7 @@ export const UnitBanner: React.FC<UnitBannerProps> = ({
         className={`w-11 h-11 shrink-0 rounded-2xl flex items-center justify-center text-2xl shadow-md ${style.bannerBadgeClass}`}
         aria-hidden="true"
       >
-        {unit.badgeEmoji}
+        <EmojiIcon emoji={unit.badgeEmoji} pictureId={getUnitPicture(unit)} size="2.25rem" />
       </span>
       <span className="flex-1 min-w-0 min-h-0 max-h-full overflow-hidden leading-tight">
         {/* The titles already start with the unit number ("פרק 1:", "Unit 1:"), so no separate label */}
@@ -101,7 +103,7 @@ interface MapLandmarkProps {
 export const MapLandmark: React.FC<MapLandmarkProps> = ({ theme, unit, gradeNumber, position, mapHeight }) => {
   const fallback = (
     <div className="absolute inset-[18%] rounded-full bg-white/80 ring-4 ring-white/40 shadow-lg flex items-center justify-center">
-      <span className="text-4xl leading-none">{unit.badgeEmoji}</span>
+      <EmojiIcon emoji={unit.badgeEmoji} pictureId={getUnitPicture(unit)} size="2.75rem" />
     </div>
   );
   return (

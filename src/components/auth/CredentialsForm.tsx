@@ -4,6 +4,8 @@ import type { ThemeDefinition } from '../../themes/themeRegistry';
 import { MIN_PIN_LENGTH } from '../../utils/username';
 import { Button } from '../ui/Button';
 import type { CredentialMode } from './credentialValidation';
+import { SCREEN_PICTURE_IDS } from '../art/mapPictureIds';
+import { EmojiIcon } from '../art/EmojiIcon';
 
 interface CredentialsFormProps {
   mode: CredentialMode;
@@ -44,7 +46,15 @@ export function CredentialsForm({
 
   return (
     <form onSubmit={handleSubmit} className={`p-4 rounded-2xl space-y-3 ${theme.cardBgClass}`}>
-      <h3 className="text-sm font-extrabold">{isNew ? '🆕 בוחרים שם משתמש וסיסמה' : '🔑 כניסה עם שם משתמש'}</h3>
+      <h3 className="text-sm font-extrabold">
+        {isNew ? (
+          <>
+            <EmojiIcon emoji="🆕" pictureId={SCREEN_PICTURE_IDS['ui-new-account']} size="1.5em" isInline /> בוחרים שם משתמש וסיסמה
+          </>
+        ) : (
+          '🔑 כניסה עם שם משתמש'
+        )}
+      </h3>
 
       <div>
         <label htmlFor={usernameId} className="block text-xs font-bold mb-1">

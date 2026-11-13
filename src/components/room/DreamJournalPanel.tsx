@@ -24,6 +24,7 @@ import { holdDiamonds } from '../../services/diamondFlight';
 import { DreamJournalList } from './DreamJournalList';
 import { RoomPanelFrame } from './RoomPanelFrame';
 import { Button } from '../ui/Button';
+import { WordPicture } from '../art/WordPicture';
 
 interface DreamJournalPanelProps {
   profile: LearnerProfile;
@@ -147,7 +148,7 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
                 aria-pressed={isPicked}
                 className={`px-2.5 py-1.5 rounded-xl text-xs font-bold ${isPicked ? theme.primaryBtnClass : theme.secondaryBtnClass}`}
               >
-                {word.emoji} {word.he}
+                <WordPicture wordEn={word.en} emoji={word.emoji} /> {word.he}
               </button>
             );
           })}
@@ -171,7 +172,7 @@ export const DreamJournalPanel: React.FC<DreamJournalPanelProps> = ({
         return (
           <div key={key} className="flex flex-wrap items-center gap-1.5" dir="ltr" lang="en">
             <span className="text-xs font-bold" dir="rtl">
-              {picked.emoji} {picked.he} =
+              <WordPicture wordEn={picked.en} emoji={picked.emoji} /> {picked.he} =
             </span>
             {solved[key] ? (
               <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-300">✓ {picked.en}</span>

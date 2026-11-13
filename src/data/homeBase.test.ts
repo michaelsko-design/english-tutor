@@ -135,6 +135,12 @@ describe('getMapPeek', () => {
     });
   });
 
+  it('gives the current unit its drawn picture from the missions’ grade', () => {
+    const unit = { ...makeUnit(13), missions: [{ id: 'g1-u31-m1' } as MissionNode] };
+
+    expect(getMapPeek([unit], {})?.unitPictureId).toBe('map-autumn-winter-holidays');
+  });
+
   it('stays on the last unit once every mission has stars, and ignores other grades', () => {
     const progress = Object.fromEntries(units.flatMap((u) => u.missions.map((m) => [m.id, 3])));
     const peek = getMapPeek(units, { ...progress, 'other-grade': 3 });

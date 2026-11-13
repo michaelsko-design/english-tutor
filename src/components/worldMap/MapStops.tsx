@@ -10,6 +10,11 @@ import { ArtImage } from '../art/ArtImage';
 import { LockBadge, ProBadge, StarRow, getPinStyle } from './mapPieces';
 import { WorldMapStyle } from './worldMapStyles';
 import { hasSeenCastleOpen, rememberCastleOpen } from './castleMemory';
+import { EmojiIcon } from '../art/EmojiIcon';
+import { getMissionPictureId } from '../art/mapPictures';
+
+/** The mission's picture inside its map coin */
+const STOP_PICTURE_SIZE = '1.6em';
 
 export const COIN_SIZE = 60;
 export const CASTLE_SIZE = 108;
@@ -101,10 +106,12 @@ export const MissionCoinStop: React.FC<StopProps> = ({ stop, mapHeight, theme, g
         <span className="absolute inset-1 rounded-full border-2 border-white/40 pointer-events-none" aria-hidden="true" />
         {status === 'locked' ? (
           <span className="opacity-50 grayscale" aria-hidden="true">
-            {mission.icon}
+            <EmojiIcon emoji={mission.icon} pictureId={getMissionPictureId(mission.id)} size={STOP_PICTURE_SIZE} />
           </span>
         ) : (
-          <span aria-hidden="true">{mission.icon}</span>
+          <span aria-hidden="true">
+            <EmojiIcon emoji={mission.icon} pictureId={getMissionPictureId(mission.id)} size={STOP_PICTURE_SIZE} />
+          </span>
         )}
         {status === 'locked' && <LockBadge className="-bottom-1 -right-1" />}
         {status === 'pro' && <ProBadge className="-bottom-1 -right-1" />}
