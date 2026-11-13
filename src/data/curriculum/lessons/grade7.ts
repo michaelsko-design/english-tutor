@@ -63,7 +63,7 @@ export const GRADE_7_LESSONS: LessonPack = {
     },
   },
   'g7-u2-m2': {
-    titleHe: 'פעלים שלא אוהבים ing 🚫',
+    titleHe: 'פעלים שלא אוהבים ing',
     ideaHe:
       'פעלים של מחשבה, רגש ושייכות, כמו know, like, want ו-believe, מתארים מצב ולא פעולה. לכן הם לא מקבלים ing, גם כשמדברים על עכשיו.',
     pattern: 'know / want / need + no -ing',

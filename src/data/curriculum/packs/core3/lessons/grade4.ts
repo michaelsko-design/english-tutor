@@ -29,7 +29,7 @@ export const CORE_3_GRADE_4_LESSONS: LessonPack = {
     examples: [
       { en: 'I am thirsty because it is hot.', he: 'אני צמא/ה כי חם.', highlight: 'because', emoji: '🥤' },
       { en: 'We laugh because the clown is funny.', he: 'אנחנו צוחקים כי הליצן מצחיק.', highlight: 'because', emoji: '😂' },
-      { en: 'Take an umbrella because it is raining.', he: 'קחו מטרייה כי יורד גשם.', highlight: 'because', emoji: '☔' },
+      { en: 'Take an umbrella because it is raining.', he: 'קחו מטרייה כי יורד גשם.', highlight: 'because', emoji: '☔', pictureId: 'vocab-umbrella' },
     ],
     tipHe: 'לא משאירים את because בלי משפט אחריו: because it is hot, ולא because hot.',
     quickTry: {

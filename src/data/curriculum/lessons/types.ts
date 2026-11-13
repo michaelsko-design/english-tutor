@@ -16,6 +16,8 @@ export interface LessonExample {
   highlight: string;
   /** Picture for early grades */
   emoji?: string;
+  /** A drawn picture to show instead of the emoji's icon (the sentence's own drawing is found by its text) */
+  pictureId?: string;
 }
 
 /** One quick question at the end of the lesson. Not scored. */

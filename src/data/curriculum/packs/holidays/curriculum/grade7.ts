@@ -450,7 +450,7 @@ const UNIT_HOLIDAYS_SPRING: MiddleSchoolUnitSpec = {
       sentenceHe: 'בכל יום עצמאות אנחנו עושים פיקניק, וממש עכשיו אבא תולה דגל.',
       vocab: [
         ['freedom', 'noun', 'חירות / חופש', '🕊️', 'Passover is the holiday of freedom.', 'פסח הוא חג החירות.'],
-        ['flag', 'noun', 'דגל', '🏳️', 'There is a blue and white flag on every balcony.', 'יש דגל כחול-לבן על כל מרפסת.'],
+        ['flag', 'noun', 'דגל', '🇮🇱', 'There is a blue and white flag on every balcony.', 'יש דגל כחול-לבן על כל מרפסת.'],
         ['picnic', 'noun', 'פיקניק', '🧺', 'Our class has a picnic in the park every spring.', 'הכיתה שלנו עושה פיקניק בפארק בכל אביב.'],
         ['fireworks', 'noun', 'זיקוקים', '🎆', 'The fireworks light up the sky over the city.', 'הזיקוקים מאירים את השמיים מעל העיר.'],
       ],

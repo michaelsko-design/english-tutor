@@ -132,7 +132,7 @@ export const GRADE_5_LESSONS: LessonPack = {
     },
   },
   'g5-u3-m3': {
-    titleHe: 'do או does בשאלה? 🕘',
+    titleHe: 'do או does בשאלה?',
     ideaHe: 'שאלה ב-Present Simple צריכה do או does. does בא עם he / she / it, ו-do עם השאר. אחרי does הפועל בלי s.',
     pattern: 'do / does + subject + verb?',
     examples: [

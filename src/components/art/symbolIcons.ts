@@ -2,6 +2,8 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
+  BadgePlus,
+  CaseSensitive,
   Check,
   Circle,
   FastForward,
@@ -11,6 +13,7 @@ import {
   Square,
   Undo2,
   Volume2,
+  X,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -28,6 +31,10 @@ export const SYMBOL_ICONS: Readonly<Record<string, LucideIcon>> = {
   '🔊': Volume2,
   '▶': Play,
   '⏩': FastForward,
+  '✔': Check,
+  '✘': X,
+  '🔠': CaseSensitive,
+  '🆕': BadgePlus,
 };
 
 const VARIATION_SELECTOR = /️/g;

@@ -22,10 +22,14 @@ import { getTtsService, speakHebrew } from '../../services/tts';
 import { toSpeakableText } from '../../services/tts/ttsText';
 import { BlendCards, LetterCards } from './PhonicsLessonCards';
 import { Button } from '../ui/Button';
+import { EmojiIcon } from '../art/EmojiIcon';
+import { getVocabPictureId } from '../art/vocabPictureIds';
 
 export const LESSON_COMPANION_SIZE = 96;
 /** The read-aloud rate of lesson examples, the same as the drills' (one rendered clip each) */
 const LESSON_SPEAK_RATE = 0.95;
+/** Example pictures sit in the sentence line, a little taller than the text so a clock's hands can be read. */
+const EXAMPLE_PICTURE_SIZE = '1.6em';
 
 interface MiniLessonProps {
   lesson: MiniLessonData;
@@ -312,7 +316,12 @@ const ExamplesCard: React.FC<
                   <span dir="ltr" lang="en" className="block text-base md:text-lg font-extrabold leading-snug text-left">
                     {example.emoji && (
                       <span className="me-2" aria-hidden="true">
-                        {example.emoji}
+                        <EmojiIcon
+                          emoji={example.emoji}
+                          pictureId={example.pictureId ?? getVocabPictureId(example.en)}
+                          size={EXAMPLE_PICTURE_SIZE}
+                          isInline
+                        />
                       </span>
                     )}
                     {before}

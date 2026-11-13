@@ -74,7 +74,7 @@ export const GRADE_1_LESSONS: LessonPack = {
     },
   },
   'g1-u2-m2': {
-    titleHe: 'סופרים עד 10 🔟',
+    titleHe: 'סופרים עד 10',
     ideaHe: 'six, seven, eight, nine, ten. סופרים יחד, לאט.',
     pattern: '6 six · 7 seven · 8 eight · 9 nine · 10 ten',
     examples: [
@@ -128,7 +128,7 @@ export const GRADE_1_LESSONS: LessonPack = {
     examples: [
       { en: 'I have a ruler.', he: 'יש לי סרגל.', highlight: 'a ruler', emoji: '📏' },
       { en: 'This is a chair.', he: 'זה כיסא.', highlight: 'a chair', emoji: '🪑' },
-      { en: 'I see a clock.', he: 'אני רואה שעון.', highlight: 'a clock', emoji: '🕐' },
+      { en: 'I see a clock.', he: 'אני רואה שעון.', highlight: 'a clock', emoji: '🕐', pictureId: 'vocab-clock' },
     ],
     quickTry: {
       promptHe: 'מה נכון?',
