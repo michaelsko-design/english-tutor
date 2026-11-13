@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { AppRoot } from './components/AppRoot';
 import { AppErrorBoundary } from './components/AppErrorBoundary';
+import { StagingBadge } from './components/StagingBadge';
 // Fonts are bundled with the app (not loaded from Google), so they work offline and send no requests out
 import '@fontsource-variable/plus-jakarta-sans';
 import '@fontsource-variable/rubik';
@@ -26,5 +27,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <AppErrorBoundary>
       <AppRoot />
     </AppErrorBoundary>
+    <StagingBadge />
   </React.StrictMode>
 );

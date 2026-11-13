@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "english-tutor-il-7"
+    "default": "english-tutor-il-7",
+    "staging": "english-tutor-staging"
   }
 }

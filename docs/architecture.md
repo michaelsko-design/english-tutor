@@ -25,7 +25,7 @@ It provides an engaging, Duolingo-meets-aesthetic-studio learning experience fea
 | **Speech & Audio** | Azure Neural read-aloud (rendered MP3 clips + `/api/tts` Vercel Function), Web Speech API `SpeechSynthesis` as fallback, `SpeechRecognition` / `webkitSpeechRecognition` |
 | **Backend & Auth** | [Firebase](https://firebase.google.com/) (Authentication & Cloud Firestore) |
 | **Testing** | [Vitest](https://vitest.dev/) unit tests (`npm test`) |
-| **Deployment & Hosting** | [Vercel](https://vercel.com/) (project `english-tutor`, team `clear-shield`; a push to `main` deploys to production). Firebase hosts only Auth and Firestore (project `english-tutor-il-7`). |
+| **Deployment & Hosting** | [Vercel](https://vercel.com/) (project `english-tutor`, team `clear-shield`; a push to `main` deploys to production). Firebase hosts only Auth and Firestore (project `english-tutor-il-7`). Staging: branch `staging` (Vercel Preview) + Firebase project `english-tutor-staging`; flow and setup in `docs/staging.md`. |
 
 **Production URL:** https://englishvibe.co.il/ (the old Vercel address `english-tutor-nine-ebon.vercel.app` still works; `english-tutor-clear-shield.vercel.app` is the team alias behind Vercel's login, and `english-tutor.vercel.app` is someone else's app).
 

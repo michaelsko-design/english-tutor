@@ -2,12 +2,14 @@
 // Usage (PowerShell):
 //   npm i --no-save firebase-admin
 //   $env:GOOGLE_APPLICATION_CREDENTIALS = "C:\path\to\service-account.json"   # keep the key OUTSIDE the repo
+//   $env:FIREBASE_TARGET = "staging"   # optional: act on the staging project (with its own key)
 //   $env:NEW_PIN = "<new PIN>"
 //   node scripts/resetLearnerPin.mjs <uid>
 import { initializeApp, applicationDefault } from 'firebase-admin/app';
+import { resolveProjectId } from './lib/firebaseTarget.mjs';
 import { getAuth } from 'firebase-admin/auth';
 
-const PROJECT_ID = 'english-tutor-il-7';
+const PROJECT_ID = resolveProjectId();
 const MIN_PIN_LENGTH = 6; // Firebase Auth minimum password length
 
 const uid = process.argv[2];
