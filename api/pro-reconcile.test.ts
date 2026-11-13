@@ -17,10 +17,11 @@ function plan(id: string, overrides: Partial<Subscription> = {}): Subscription {
   };
 }
 
-function setup(existing: string[], { provider = true } = {}) {
+function setup(existing: string[], { provider = true, canChangeRecurring = true } = {}) {
   const fake = createFakeFirestore();
   const gateway = {
     id: 'grow',
+    canChangeRecurring,
     createPaymentPage: vi.fn(),
     confirmPayment: vi.fn(),
     acknowledge: vi.fn(),
@@ -44,6 +45,28 @@ function setup(existing: string[], { provider = true } = {}) {
 const cron = (secret = 'cron') => new Request('https://app.test/api/pro-reconcile', { headers: { authorization: `Bearer ${secret}` } });
 
 describe('handleProReconcileRequest', () => {
+  it("leaves the owner a task for a deleted learner's lower price when the gateway can't change it (Make)", async () => {
+    const { fake, gateway, deps, seedPlan } = setup(['parent1', 'kid1'], { canChangeRecurring: false });
+    seedPlan(plan('s1'));
+
+    expect(await (await handleProReconcileRequest(cron(), ENV, deps)).json()).toMatchObject({ released: 1, failed: 0 });
+
+    expect(gateway.updateRecurring).not.toHaveBeenCalled();
+    expect(fake.get('gatewayTasks', 's1_amount')).toMatchObject({ kind: 'amount', amountAgorot: 3900, doneAt: 0 });
+  });
+
+  it('counts owner tasks open for more than two days', async () => {
+    const { fake, deps } = setup([]);
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    fake.seed('gatewayTasks', 'old', { kind: 'cancel', createdAt: NOW - 3 * DAY, doneAt: 0 });
+    fake.seed('gatewayTasks', 'new', { kind: 'cancel', createdAt: NOW - DAY, doneAt: 0 });
+    fake.seed('gatewayTasks', 'done', { kind: 'cancel', createdAt: NOW - 9 * DAY, doneAt: NOW - 8 * DAY });
+
+    expect(await (await handleProReconcileRequest(cron(), ENV, deps)).json()).toMatchObject({ overdueTasks: 1 });
+    expect(logged).toHaveBeenCalledWith(expect.stringContaining('1 Grow task'));
+    logged.mockRestore();
+  });
+
   it('refuses a call without the cron secret', async () => {
     const { deps } = setup([]);
     expect((await handleProReconcileRequest(cron('wrong'), ENV, deps)).status).toBe(401);

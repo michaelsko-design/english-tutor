@@ -10,16 +10,20 @@ Status (2026-10-29): **server payments layer, Phase 1, Phase 2 and Phase 3a buil
 - Phase 1: learner gating and the kid-safe "ask a parent" sheet, behind `PRO_GATING_ENABLED` (off). Comp grants: `scripts/grantPro.mjs`.
 - Phase 2: the parent's checkout, return page and per-child Pro lines (cancel, add or remove a child, the yearly renew notice), on the mock gateway, behind `IS_PRO_PLAN_VISIBLE` (dev server only). Local runs: `npm run dev:emu` serves the payment functions against the emulators.
 - Phase 3a, server half: the daily reconcile (`api/pro-reconcile.ts`), seat races closed, `MAX_LINKED_CHILDREN`, the daily cap on unpaid checkouts, one-plan-only renewals, the entitlement in the data export. Details under "Phase 3a".
+- **Grow through Make (built 2026-11-13, not yet run against Grow):** `api/_lib/payments/growMake.ts` (`PAYMENT_PROVIDER=grow-make`), owner tasks for what Make can't do (`api/_lib/gatewayTasks.ts`, the owner dashboard's "Grow tasks" card), payment-link notices, standing orders linked on their first renewal. See "Grow through Make" below and `docs/grow-make-setup.md`.
 - Tests: unit and component tests for all of it, and `e2e/pro.spec.ts` (learner asks → parent pays on the mock page → map opens → parent cancels). The whole e2e suite passes on desktop and phone (`npm run test:e2e`).
 
 **Waiting on the owner (Track A)**
 - Done: the business registration (עוסק פטור 310720370) and the Grow account (commercial terms signed 2026-11-09).
-- **Waiting on Grow's API rep** (asked 2026-11-11): the sandbox ids (`userId`, a recurring and a regular `pageCode`, the API key), enabling the recurring and failed-recurring webhooks, automatic קבלה, and the API price. **Grow's AI agent quoted ₪499 a month for the API, on top of the plan.** The owner asked a human rep to confirm it, and whether fixed payment pages plus webhooks can work without the API. If they can, Phase 3b's adapter design changes; re-plan it then.
+- **Decided 2026-11-13: Grow through Make, not the API.** Grow's API costs ₪250 + VAT a month (about ₪295), charged from the testing stage on. Grow's own Make.com app is free. Webhooks are self-service in Grow's dashboard (rep Shai, 2026-11-13). Move to the API (`grow.ts`, kept) at about 20 families or when manual tasks pile up.
+- **Owner, now:**
+  - Build the Make sandbox scenario (`docs/grow-make-setup.md`, steps 1–2).
+  - Send Grow the open questions: how to trigger a renewal and a failed charge in the sandbox; whether a payment-link standing order runs until cancelled; what Get Payment Link Info returns; the notice format; webhook keys; קבלה with `vatType` 3; where to cancel or change a standing order.
 - The contact phone is decided: 052-9282667, the number already in Grow's customer details and `SUPPORT_WHATSAPP_NUMBER`. It must appear on the site's home or contact page. Still needed: the §4.3 site clearing approval for `englishvibe.co.il` once the landing site and legal texts are live.
 
 **Next, in order**
 1. **Phase 3a is done.** Left for the owner: listen to the 4 new Hebrew clips, approve the legal drafts (`docs/legal/pro-legal-drafts.md`) and get them a short legal review. The security review's open items are listed under "Phase 3a". `CRON_SECRET` must be set in Vercel for the reconcile (the streak reminder already uses it).
-2. **Phase 3b (needs the Grow sandbox):** run the real adapter against the sandbox, fix what it assumed wrong, set the Vercel env.
+2. **Phase 3b (needs the Make sandbox scenario):** run `create` once and paste the Make output to Claude (personal details blanked), fix the field names, then the sandbox cases in `docs/grow-make-setup.md` step 5 on a Preview deployment, then the Vercel env.
 3. **Phase 4:** launch.
 4. After launch: coupons, referrals, and the children's friend-invite reward.
 
@@ -383,7 +387,7 @@ interface PaymentProvider {
 
 ## Grow terms that bind us
 From Grow's general terms (`TERMSNEW.pdf`) and the signed commercial terms (2026-11-09):
-1. **Plan:** 0.75% per transaction plus ₪69 a month, which includes 100 transactions or wallet payments and 100 documents; ₪0.50 for each one after that. Prices are before VAT, which an Osek Patur pays and can't reclaim. **The API is extra: ₪499 a month, per Grow's AI agent (not yet confirmed by a person).**
+1. **Plan:** 0.75% per transaction plus ₪69 a month, which includes 100 transactions or wallet payments and 100 documents; ₪0.50 for each one after that. Prices are before VAT, which an Osek Patur pays and can't reclaim. **The API is extra: ₪250 + VAT a month, from the testing stage on (Grow rep, 2026-11-12); we use Grow's free Make app instead.**
 2. **Payout:** money can be used from the 1st of the next month, and goes to the bank account registered with Grow. A transfer costs ₪1.75, with the first 5 each month free. Above ₪50k on the 9th, the money moves to the bank automatically.
 3. **§4.3:** each website needs its own clearing approval. Grow's site check (`Site_check.pdf`) requires:
    - a live site that shows everything sold;
@@ -471,7 +475,29 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
   - Spoken lines say "Pro" as `PRO_SPOKEN_HE` (פְּרוֹ) and avoid words spelled the same for a girl and a boy, so no existing clip changed. Both card variants of every pack and both sheet lines are in the Hebrew corpus; the 4 clips are rendered and uploaded. Not yet checked by ear.
 - **Legal texts (drafted):** `docs/legal/pro-legal-drafts.md`: the terms of service, the privacy notice's payments section, the checkout's terms line and consent box, the questions for a legal review, and the app changes they need in Phase 4.
 
-**Phase 3b: real Grow (not started; needs Track A steps 1–2).**
+**Grow through Make (built 2026-11-13).** Grow's API is a paid add-on, so the server talks to Grow through one Make.com scenario (`docs/grow-make-setup.md`). `api/_lib/payments/growMake.ts` implements the same `PaymentProvider`, with `id: 'grow'`, so the records keep their keys if we move to the API:
+- **Opening a page:** `create` → Grow's Create Payment Link. Monthly is a standing order, card only. Yearly is one payment by card, Bit, Apple Pay or Google Pay. Prices are whole shekels, VAT type exempt.
+- **Confirming a payment:** Grow sends the notice to our `notifyUrl`, which carries `&checkout=<id>`. It's trusted only when its `paymentLinkProcessId` and `paymentLinkProcessToken` match the checkout's. Grow gave that token to our server alone, through Make, and it never reaches the browser.
+  - A monthly plan's standing-order id comes from the notice or from `info` (Get Payment Link Info).
+  - Otherwise, the first renewal or failure links itself. It must match exactly one monthly plan with no id yet, on the payer's phone (and email, when both have one) and, for a renewal, the amount. The checkout keeps the payer's name, phone and email only on this route, for that link and for the owner's tasks.
+- **Acknowledging:** `approve` → Approve Transaction.
+- **Changes Make can't make** (`canChangeRecurring: false`) become owner tasks in `gatewayTasks/{id}` (server only; rules smoke test). The owner does them in Grow's dashboard and presses Done on the owner dashboard:
+  - **Cancel:** the plan is saved as canceled, plus a task "cancel the standing order" with the next charge date.
+  - **A monthly price change:** add or remove a child, a deleted learner (reconcile), or a child seated elsewhere at payment. It becomes an "amount" task.
+  - **Refunds:** a child seated elsewhere, or a renewal charged on a canceled plan.
+  - **A renewal or failure that matched no plan:** an "unmatched" task.
+  - **Overdue:** the reconcile counts tasks open for more than 2 days (`overdueTasks`), and the owner card turns red after a day.
+- **Account webhooks:** created in Grow's dashboard. Without a `GROW_WEBHOOK_KEY`, the secret in the address is the check.
+- **On Preview:** the notify URL carries Vercel's automation bypass (`VERCEL_AUTOMATION_BYPASS_SECRET`). It is never added on Production.
+- **Env:** `GROW_MAKE_WEBHOOK_URL` and `GROW_MAKE_API_KEY`, one pair per environment.
+- **Not yet checked against Grow:** these field names follow Grow's docs, which contradict themselves in places:
+  - `statusCode` 2 = paid;
+  - `directDebitId` in Get Payment Link Info;
+  - the failed-charge fields;
+  - Approve Transaction's fields.
+
+**Phase 3b: real Grow through Make (code built; needs the owner's Make sandbox scenario).**
+- Steps: `docs/grow-make-setup.md`, steps 1–5. The paid-API cases below are kept for a later move to the API.
 - Grow sandbox (test card 4580458045804580): a monthly and a yearly payment, the webhook's content type, `paymentNum`, the `directDebitId`, a renewal, a failed charge and a cancel. Fix the adapter where it assumed wrong.
 - Check that the invoice is issued and emailed for a sandbox charge.
 - Vercel env (Grow ids, `PAYMENT_WEBHOOK_SECRET`, `APP_ORIGIN`, `GROW_WEBHOOK_KEY`) and Grow's origin in the `vercel.json` CSP where the redirect needs it.

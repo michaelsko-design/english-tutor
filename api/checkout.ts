@@ -17,7 +17,7 @@ import {
   type ParentRequestDeps,
 } from './_lib/parentRequest.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
-import { PaymentError, type PaymentProvider } from './_lib/payments/provider.js';
+import { changesRecurringByApi, PaymentError, type PaymentProvider } from './_lib/payments/provider.js';
 import { holdsLiveSeat, renewableSeatEnd, UID_PATTERN } from './_lib/proBilling.js';
 import { isBillingPeriod, MAX_LINKED_CHILDREN, MAX_PRO_SEATS, proPriceAgorot, type BillingPeriod } from '../src/config/proTier.js';
 
@@ -121,6 +121,15 @@ function describePlan(period: BillingPeriod, children: number): string {
   return `EnglishVibe Pro ${period} ${children} ${children === 1 ? 'child' : 'children'}`;
 }
 
+/**
+ * On a protected Vercel Preview, Grow's notice needs Vercel's automation bypass to reach the webhook
+ * (Settings > Deployment Protection > Protection Bypass for Automation). Never on Production.
+ */
+function previewBypass(env: Record<string, string | undefined>): string {
+  const secret = env.VERCEL_AUTOMATION_BYPASS_SECRET ?? '';
+  return env.VERCEL_ENV === 'preview' && secret ? `&x-vercel-protection-bypass=${encodeURIComponent(secret)}` : '';
+}
+
 function appOrigin(request: Request, env: Record<string, string | undefined>): string {
   return (env.APP_ORIGIN || new URL(request.url).origin).replace(/\/+$/, '');
 }
@@ -128,10 +137,15 @@ function appOrigin(request: Request, env: Record<string, string | undefined>): s
 async function openPaymentPage(
   provider: PaymentProvider,
   admin: ReturnType<typeof createFirestoreAdmin>,
-  input: { checkoutId: string; body: CheckoutBody; amountAgorot: number; origin: string; webhookSecret: string; nowMs: number },
+  input: { checkoutId: string; body: CheckoutBody; amountAgorot: number; origin: string; webhookSecret: string; bypass: string; nowMs: number },
   caller: ParentCaller
 ): Promise<string> {
   const { checkoutId, body, amountAgorot, origin } = input;
+  // Kept only when the owner must find the standing order in Grow by hand (gatewayTasks), and to
+  // link its first renewal to this plan (payment-webhook)
+  const payer: Record<string, string> = changesRecurringByApi(provider)
+    ? {}
+    : { payerName: body.payerName, payerPhone: body.payerPhone, payerEmail: body.payerEmail };
   await admin.commit([{
     collection: 'checkouts',
     id: checkoutId,
@@ -147,6 +161,7 @@ async function openPaymentPage(
       processId: '',
       processToken: '',
       createdAt: input.nowMs,
+      ...payer,
     },
   }]);
   const page = await provider.createPaymentPage({
@@ -159,7 +174,7 @@ async function openPaymentPage(
     payerEmail: body.payerEmail,
     successUrl: `${origin}/?parent&paid=${checkoutId}`,
     cancelUrl: `${origin}/?parent&paid=${checkoutId}&status=cancel`,
-    notifyUrl: `${origin}/api/payment-webhook?source=process&key=${encodeURIComponent(input.webhookSecret)}`,
+    notifyUrl: `${origin}/api/payment-webhook?source=process&key=${encodeURIComponent(input.webhookSecret)}&checkout=${checkoutId}${input.bypass}`,
   });
   // The page only works once the checkout knows it: the webhook confirms payments against these ids
   await admin.commit([{
@@ -215,7 +230,7 @@ export async function handleCheckoutRequest(
     const url = await openPaymentPage(
       provider,
       admin,
-      { checkoutId: newId(), body, amountAgorot, origin: appOrigin(request, env), webhookSecret, nowMs: now },
+      { checkoutId: newId(), body, amountAgorot, origin: appOrigin(request, env), webhookSecret, bypass: previewBypass(env), nowMs: now },
       caller
     );
     return jsonResponse(200, { url });

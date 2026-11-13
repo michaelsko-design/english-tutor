@@ -5,6 +5,8 @@
  * - `addChild` / `removeChild`: changes the seats under `proBilling.ts`'s rules; a monthly plan's
  *   new price applies from its next charge. A removed child keeps Pro until periodEnd, at most a month.
  * The gateway is changed first and the records after, so a refused gateway call changes nothing.
+ * A gateway that can't change a standing order (Grow through Make) gets an owner task instead, saved
+ * in the same write as the plan.
  */
 import { ConflictError, createFirestoreAdmin, type DocumentWrite, type FirestoreAdmin } from './_lib/firestoreAdmin.js';
 import { AdminError, parseServiceAccount } from './_lib/googleAdmin.js';
@@ -18,7 +20,8 @@ import {
   type ParentRequestDeps,
 } from './_lib/parentRequest.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
-import { PaymentError, type PaymentProvider } from './_lib/payments/provider.js';
+import { changesRecurringByApi, PaymentError, type PaymentProvider, type RecurringChange } from './_lib/payments/provider.js';
+import { gatewayTaskWrite, readPayer, recurringChangeTask } from './_lib/gatewayTasks.js';
 import {
   addChildToSubscription,
   addPeriods,
@@ -99,19 +102,33 @@ interface ActionContext {
 async function cancel({ sub, admin, provider, nowMs }: ActionContext): Promise<Response> {
   if (sub.status === 'canceled' || sub.status === 'expired') return jsonResponse(200, { ok: true });
   if (sub.period === 'yearly') return errorResponse(409, 'A yearly plan does not renew, so there is nothing to cancel');
+  if (!changesRecurringByApi(provider)) {
+    const task = await manualTask(admin, sub, { cancel: true }, nowMs);
+    await admin.commit(saveWrites({ ...sub, status: 'canceled' }, nowMs, [task]));
+    return jsonResponse(200, { ok: true });
+  }
   await provider.updateRecurring(sub.billing, { cancel: true });
   await admin.commit(saveWrites({ ...sub, status: 'canceled' }, nowMs));
   return jsonResponse(200, { ok: true });
+}
+
+/** The owner's task for a standing-order change the gateway can't make */
+async function manualTask(admin: FirestoreAdmin, sub: Subscription, change: RecurringChange, nowMs: number): Promise<DocumentWrite> {
+  return gatewayTaskWrite(recurringChangeTask(sub, change, await readPayer(admin, sub.id)), nowMs);
 }
 
 /** Changes the gateway's amount, then saves; if the save loses a race, the gateway amount goes back. */
 async function applySeatChange(context: ActionContext, change: SeatChange, extra: DocumentWrite[], newSeat?: NewSeat): Promise<Response> {
   if (!change.ok) return errorResponse(change.status, change.error);
   const { sub, admin, provider, nowMs } = context;
-  const changesAmount = change.amountChanged && sub.period === 'monthly';
+  const isManual = !changesRecurringByApi(provider);
+  const changesAmount = change.amountChanged && sub.period === 'monthly' && !isManual;
+  const tasks = change.amountChanged && sub.period === 'monthly' && isManual
+    ? [await manualTask(admin, change.sub, { amountAgorot: change.sub.amountAgorot }, nowMs)]
+    : [];
   if (changesAmount) await provider.updateRecurring(sub.billing, { amountAgorot: change.sub.amountAgorot });
   try {
-    await admin.commit(saveWrites(change.sub, nowMs, extra, newSeat));
+    await admin.commit(saveWrites(change.sub, nowMs, [...extra, ...tasks], newSeat));
   } catch (error) {
     if (changesAmount) await provider.updateRecurring(sub.billing, { amountAgorot: sub.amountAgorot }).catch(() => undefined);
     if (error instanceof ConflictError) return errorResponse(409, 'The plan changed, try again');

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { handleOwnerStatsRequest } from './owner-stats';
+import { handleGatewayTaskDone } from './_lib/ownerGatewayTasks';
 import { createFakeFirestore } from './_lib/testing/fakeFirestoreAdmin';
 import { SERVICE_ACCOUNT_JSON, idToken } from './_lib/testing/parentRequestFixtures';
 
@@ -86,6 +87,28 @@ describe('handleOwnerStatsRequest', () => {
     expect(withoutList.byGrade.map((g: { gradeId: string }) => g.gradeId)).toEqual(['grade-4', 'grade-7']);
     expect(withoutList.parents.links).toBe(3);
     expect(withoutList.reminders).toMatchObject({ subscribers: 2, sent: 2 });
+  });
+
+  it('lists the open Grow tasks, and lets the owner mark one done', async () => {
+    const { deps, fake } = setup();
+    fake.seed('gatewayTasks', 'sub1_cancel', { kind: 'cancel', subscriptionId: 'sub1', dueAt: NOW + 5000, payerPhone: '0501234567', createdAt: 1, doneAt: 0 });
+    fake.seed('gatewayTasks', 'old', { kind: 'amount', createdAt: 1, doneAt: 5 });
+
+    const body = await (await handleOwnerStatsRequest(call('owner1'), ENV, deps)).json();
+    expect(body.gatewayTasks).toEqual([expect.objectContaining({ id: 'sub1_cancel', kind: 'cancel', payerPhone: '0501234567' })]);
+
+    const patch = (uid: string, taskId: unknown) =>
+      new Request('https://app.test/api/owner-stats', {
+        method: 'PATCH',
+        headers: { 'X-Firebase-Token': idToken(uid, 'google.com'), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskId }),
+      });
+    expect((await handleGatewayTaskDone(patch('mom1', 'sub1_cancel'), ENV, deps)).status).toBe(403);
+    expect((await handleGatewayTaskDone(patch('owner1', '../x'), ENV, deps)).status).toBe(400);
+    expect((await handleGatewayTaskDone(patch('owner1', 'missing'), ENV, deps)).status).toBe(404);
+    const done = await handleGatewayTaskDone(patch('owner1', 'sub1_cancel'), ENV, deps);
+    expect(await done.json()).toEqual({ gatewayTasks: [] });
+    expect(fake.get('gatewayTasks', 'sub1_cancel')).toMatchObject({ doneAt: NOW });
   });
 
   it('hides the failure details', async () => {

@@ -6,6 +6,7 @@ import { fetchOwnerStats, type OwnerStats } from '../../services/ownerStatsServi
 import { TestAccountsCard } from './TestAccountsCard';
 import { EarlyTestersCard } from './EarlyTestersCard';
 import { UsageCard } from './UsageCard';
+import { GatewayTasksCard } from './GatewayTasksCard';
 import { OwnerTabs, type OwnerTabDef } from './OwnerTabs';
 import { OverviewPanel } from './cards/OverviewPanel';
 import { ReminderEngineCard } from './cards/ReminderEngineCard';
@@ -54,7 +55,12 @@ const StatsView: React.FC<{ stats: OwnerStats; tab: TabId; onTestUsersChanged: (
   return (
     <div className="space-y-6">
       <div role="tabpanel" id={`owner-panel-${tab}`} aria-labelledby={`owner-tab-${tab}`} className="space-y-6">
-        {tab === 'overview' && <OverviewPanel stats={stats} />}
+        {tab === 'overview' && (
+          <>
+            {stats.gatewayTasks && stats.gatewayTasks.length > 0 && <GatewayTasksCard tasks={stats.gatewayTasks} />}
+            <OverviewPanel stats={stats} />
+          </>
+        )}
 
         {tab === 'learners' && (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

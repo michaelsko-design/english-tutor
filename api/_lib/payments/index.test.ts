@@ -9,6 +9,12 @@ describe('createPaymentProvider', () => {
     expect(createPaymentProvider({ PAYMENT_PROVIDER: 'grow' })).toBeNull();
   });
 
+  it('builds Grow through Make only when its webhook is configured', () => {
+    const make = { PAYMENT_PROVIDER: 'grow-make', GROW_MAKE_WEBHOOK_URL: 'https://hook.eu2.make.com/abc', GROW_MAKE_API_KEY: 'k' };
+    expect(createPaymentProvider(make)).toMatchObject({ id: 'grow', canChangeRecurring: false });
+    expect(createPaymentProvider({ PAYMENT_PROVIDER: 'grow-make' })).toBeNull();
+  });
+
   it('allows the mock gateway on local runs against a demo project only', () => {
     const demo = { PAYMENT_PROVIDER: 'mock', FIREBASE_PROJECT_ID: 'demo-english-vibe' };
     expect(createPaymentProvider(demo)?.id).toBe('mock');

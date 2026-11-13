@@ -3,6 +3,7 @@
  * list comes from `learners/{uid}` with a field mask (grade, dates, activity log).
  */
 
+import type { GatewayTask } from './gatewayTasks.js';
 import type { UsageStats } from './usageStats.js';
 
 export const OWNER_STATS_DAYS = 14;
@@ -49,6 +50,8 @@ export interface OwnerStats {
   usage?: UsageStats;
   /** Test accounts on the owner's list, left out of every number above */
   excludedTestUsers: number;
+  /** Open Grow tasks the owner does by hand (`gatewayTasks.ts`); absent from older answers */
+  gatewayTasks?: GatewayTask[];
 }
 
 export interface ParentStats {

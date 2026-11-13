@@ -189,24 +189,48 @@ export function createGrowProvider(config: GrowConfig, fetchImpl: typeof fetch =
   };
 }
 
+/** Who paid, as Grow reports it: used to link a plan whose standing order id we never got */
+export interface GrowPayer {
+  payerName: string;
+  payerPhone: string;
+  payerEmail: string;
+}
+
 export type GrowAccountEvent =
-  | { kind: 'renewal'; recurringRef: string; paymentId: string; amountAgorot: number }
-  | { kind: 'failed'; recurringRef: string; message: string };
+  | ({ kind: 'renewal'; recurringRef: string; paymentId: string; amountAgorot: number } & GrowPayer)
+  | ({ kind: 'failed'; recurringRef: string; message: string; amountAgorot: number | null } & GrowPayer);
 
 /**
- * An account webhook from Grow (enabled by Grow support): a monthly charge after the first, or a
- * failed one. Null when it isn't one of those or its `webhookKey` doesn't match ours.
+ * An account webhook from Grow (the dashboard's "ניהול וובהוקים"): a monthly charge after the first,
+ * or a failed one. Null when it isn't one of those, or when we set a `webhookKey` (GROW_WEBHOOK_KEY)
+ * and it doesn't match. Without one, the secret in the webhook's address is the only check.
  */
 export function parseGrowAccountWebhook(body: GrowData, webhookKey: string): GrowAccountEvent | null {
   const fields = toStrings(body);
   const key = fields.webhookKey || fields.webhook_key || '';
-  if (!safeEqual(key, webhookKey)) return null;
+  if (webhookKey && !safeEqual(key, webhookKey)) return null;
   if (GATEWAY_ID_PATTERN.test(fields.regular_payment_id ?? '')) {
-    return { kind: 'failed', recurringRef: fields.regular_payment_id, message: fields.error_message ?? '' };
+    return {
+      kind: 'failed',
+      recurringRef: fields.regular_payment_id,
+      message: fields.error_message ?? '',
+      amountAgorot: sumToAgorot(fields.sum),
+      payerName: fields.payer_name ?? '',
+      payerPhone: fields.phone ?? '',
+      payerEmail: fields.email ?? '',
+    };
   }
   const amountAgorot = sumToAgorot(fields.paymentSum);
   if (GATEWAY_ID_PATTERN.test(fields.directDebitId ?? '') && GATEWAY_ID_PATTERN.test(fields.transactionCode ?? '') && amountAgorot !== null) {
-    return { kind: 'renewal', recurringRef: fields.directDebitId, paymentId: fields.transactionCode, amountAgorot };
+    return {
+      kind: 'renewal',
+      recurringRef: fields.directDebitId,
+      paymentId: fields.transactionCode,
+      amountAgorot,
+      payerName: fields.fullName ?? '',
+      payerPhone: fields.payerPhone ?? '',
+      payerEmail: fields.payerEmail ?? '',
+    };
   }
   return null;
 }

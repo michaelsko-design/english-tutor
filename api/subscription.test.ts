@@ -18,11 +18,13 @@ function plan(overrides: Partial<Subscription> = {}): Subscription {
   };
 }
 
-function setup(sub: Subscription = plan(), linked = ['parent1_kid1', 'parent1_kid2', 'parent1_kid3']) {
+function setup(sub: Subscription = plan(), linked = ['parent1_kid1', 'parent1_kid2', 'parent1_kid3'], canChangeRecurring = true) {
   const fake = createFakeFirestore();
   fake.seed('subscriptions', SUB_ID, subscriptionFields(sub, NOW));
+  fake.seed('checkouts', SUB_ID, { parentUid: 'parent1', payerName: 'ישראל ישראלי', payerPhone: '0501234567', payerEmail: '' });
   const gateway = {
     id: 'grow',
+    canChangeRecurring,
     createPaymentPage: vi.fn(),
     confirmPayment: vi.fn(),
     acknowledge: vi.fn(),
@@ -50,6 +52,30 @@ describe('handleSubscriptionRequest', () => {
     expect(gateway.updateRecurring).toHaveBeenCalledWith('BILLING', { cancel: true });
     expect(fake.get('subscriptions', SUB_ID)).toMatchObject({ status: 'canceled', periodEnd: NOW + 20 * DAY });
     expect(fake.get('entitlements', 'kid1')).toMatchObject({ status: 'canceled', periodEnd: NOW + 20 * DAY });
+  });
+
+  it('leaves the owner a task to cancel in Grow when the gateway cannot (Make)', async () => {
+    const { fake, gateway, deps } = setup(plan(), undefined, false);
+
+    expect((await handleSubscriptionRequest(call({ action: 'cancel' }), ENV, deps)).status).toBe(200);
+
+    expect(gateway.updateRecurring).not.toHaveBeenCalled();
+    expect(fake.get('subscriptions', SUB_ID)).toMatchObject({ status: 'canceled' });
+    expect(fake.get('gatewayTasks', `${SUB_ID}_cancel`)).toMatchObject({
+      kind: 'cancel', subscriptionId: SUB_ID, dueAt: NOW + 20 * DAY, payerPhone: '0501234567', doneAt: 0,
+    });
+    expect(fake.commits).toHaveLength(1);
+  });
+
+  it('leaves the owner a task to change the amount when the gateway cannot (Make)', async () => {
+    const { fake, gateway, deps } = setup(plan(), undefined, false);
+
+    const response = await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps);
+
+    expect(await response.json()).toEqual({ ok: true, amountAgorot: 8900, seatLimit: 3 });
+    expect(gateway.updateRecurring).not.toHaveBeenCalled();
+    expect(fake.get('gatewayTasks', `${SUB_ID}_amount`)).toMatchObject({ kind: 'amount', amountAgorot: 8900 });
+    expect(fake.get('entitlements', 'kid3')).toMatchObject({ status: 'active' });
   });
 
   it('has nothing to cancel on a yearly plan', async () => {
