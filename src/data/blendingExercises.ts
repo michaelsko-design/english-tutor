@@ -13,8 +13,10 @@
  */
 import type { MissionNode } from './curriculum';
 import type { MissionExerciseStep, MultipleChoiceOption } from './missionExercises';
+import { getVocabPictureId } from '../components/art/vocabPictureIds';
 import type { LearnerGender, ProficiencyTier } from '../types/learner';
 import { FIRST_SENTENCES, getBlendWord, type BlendWord } from './blendingWords';
+import { getPhonicsPictureId } from './phonicsPictures';
 import { hebrewTemplate } from '../utils/hebrewGender';
 import { getPronunciationTipHe, isolateLtr } from '../utils/hints';
 
@@ -33,13 +35,17 @@ interface BlendStepContext {
 
 const DECOY_LETTER_POOL = 'bdfgklmnprstvz'.split('');
 
+const pictureOf = (word: BlendWord) => getVocabPictureId(word.word, word.he);
+
+
 /** Picture options: the word's picture and pictures of other words of the mission. */
 function pictureOptions(word: BlendWord, ctx: BlendStepContext): MultipleChoiceOption[] {
   const others = ctx.words.filter((other) => other.word !== word.word).slice(0, ctx.optionCount - 1);
   return [
-    { textEn: word.emoji, speakEn: '', isCorrect: true, explanationHe: `מעולה! ${en(word.word)} ${word.emoji} זה "${word.he}".` },
+    { textEn: word.emoji, pictureId: pictureOf(word), speakEn: '', isCorrect: true, explanationHe: `מעולה! ${en(word.word)} ${word.emoji} זה "${word.he}".` },
     ...others.map((other) => ({
       textEn: other.emoji,
+      pictureId: pictureOf(other),
       speakEn: '',
       isCorrect: false,
       explanationHe: `${other.emoji} זה ${en(other.word)}. קראו שוב אות אחרי אות ונסו שוב!`,
@@ -99,6 +105,7 @@ function buildBuildStep(word: BlendWord, ctx: BlendStepContext): MissionExercise
     hintHe: he`💡 הקשיבי למילה לאט. איזו אות שומעים ראשונה? ואחריה?`,
     questionEn: word.word,
     cardDisplay: word.emoji,
+    cardPictureId: pictureOf(word),
     targetSentenceEn: word.word,
     letterTiles: seededShuffle(
       [...word.word.split(''), ...pickDecoyLetters(word.word, ctx)],
@@ -144,6 +151,7 @@ function buildChangeStep(word: BlendWord, ctx: BlendStepContext): MissionExercis
     // Nothing is read by itself: hearing the word would answer the reading check
     questionEn: '',
     cardDisplay: word.emoji,
+    cardPictureId: pictureOf(word),
     options,
   };
 }
@@ -153,9 +161,10 @@ function buildSentenceStep(ctx: BlendStepContext, sentenceIdx: number): MissionE
   const { he } = ctx;
   const sentence = FIRST_SENTENCES[sentenceIdx % FIRST_SENTENCES.length];
   const options: MultipleChoiceOption[] = [
-    { textEn: sentence.emoji, speakEn: '', isCorrect: true, explanationHe: `כל הכבוד! קראת משפט שלם: "${sentence.he}"` },
+    { textEn: sentence.emoji, pictureId: getPhonicsPictureId(sentence.emoji), speakEn: '', isCorrect: true, explanationHe: `כל הכבוד! קראת משפט שלם: "${sentence.he}"` },
     ...sentence.distractorEmojis.slice(0, ctx.optionCount - 1).map((emoji) => ({
       textEn: emoji,
+      pictureId: getPhonicsPictureId(emoji),
       speakEn: '',
       isCorrect: false,
       explanationHe: he`עוד לא. קראי שוב את המשפט לאט, מילה אחרי מילה, ונסי שוב!`,

@@ -4,6 +4,7 @@ import { CURRICULUM_BY_GRADE } from '../test/curriculum';
 import { ALPHABET } from './alphabet';
 import { BLEND_WORDS, getBlendWord } from './blendingWords';
 import { getExercisesForMission } from './missionExercises';
+import { GRADE_1_PHONICS_LESSONS } from './curriculum/lessons/grade1Phonics';
 import { inflectHebrew } from '../utils/hebrewGender';
 import { LearnerGender, ProficiencyTier } from '../types/learner';
 
@@ -138,5 +139,35 @@ describe('grade 1 letters and blending units (Feature 48)', () => {
         if (letter.tipHe) expect(inflectHebrew(letter.tipHe, gender), letter.upper).toBe(letter.tipHe);
       }
     }
+  });
+
+  it('shows a drawn picture for every picture card and picture answer (up and zero are still to be drawn)', () => {
+    const STILL_TO_DRAW = new Set(['⬆️', '0️⃣']);
+    const isPicture = (text: string) => !/\p{L}/u.test(text) && text !== '👂';
+    const missing = new Set<string>();
+    for (const mission of PHONICS_MISSIONS) {
+      for (const tier of TIERS) {
+        for (const step of getExercisesForMission(mission, tier)) {
+          if (step.cardDisplay && isPicture(step.cardDisplay) && !step.cardPictureId) missing.add(step.cardDisplay);
+          for (const option of step.options ?? []) {
+            if (isPicture(option.textEn) && !option.pictureId) missing.add(option.textEn);
+          }
+        }
+      }
+    }
+    expect([...missing].filter((emoji) => !STILL_TO_DRAW.has(emoji))).toEqual([]);
+  });
+
+  it("shows drawn pictures in the lessons' quick tries (net, shell, up and zero are still to be drawn)", () => {
+    const STILL_TO_DRAW = new Set(['🥅', '🐚', '⬆️', '0️⃣']);
+    const missing = Object.values(GRADE_1_PHONICS_LESSONS).flatMap(({ quickTry }) =>
+      quickTry
+        ? [
+            ...(quickTry.correctPictureId ? [] : [quickTry.correct]),
+            ...(quickTry.wrongPictureId ? [] : [quickTry.wrong]),
+          ]
+        : []
+    );
+    expect(missing.filter((emoji) => !STILL_TO_DRAW.has(emoji))).toEqual([]);
   });
 });

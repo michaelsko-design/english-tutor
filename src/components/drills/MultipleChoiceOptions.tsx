@@ -4,6 +4,7 @@ import { MultipleChoiceOption } from '../../data/missionExercises';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { getTextLang } from '../../utils/bidi';
 import { OptionSpeakButton } from './OptionSpeakButton';
+import { EmojiIcon } from '../art/EmojiIcon';
 
 interface MultipleChoiceOptionsProps {
   options: MultipleChoiceOption[];
@@ -21,6 +22,8 @@ interface MultipleChoiceOptionsProps {
 
 const CORRECT_STYLE = 'bg-emerald-500/20 border-2 border-emerald-500 btn-chunky-correct';
 const WRONG_STYLE = 'bg-rose-500/20 border-2 border-rose-500 btn-chunky-wrong';
+/** A drawn picture option: larger than the emoji it replaces, so a young learner can see it clearly */
+const OPTION_PICTURE_SIZE = '2em';
 
 /**
  * Chunky answer buttons (Feature 25): a pressed edge, the answer text only, and a check or a
@@ -73,7 +76,11 @@ export const MultipleChoiceOptions: React.FC<MultipleChoiceOptionsProps> = ({
                 className={`font-extrabold leading-snug ${isGlyph ? 'text-fluid-word md:text-fluid-word-lg leading-tight w-full text-center' : 'text-base md:text-lg'}`}
                 lang={lang}
               >
-                {opt.textEn}
+                {opt.pictureId ? (
+                  <EmojiIcon emoji={opt.textEn} pictureId={opt.pictureId} size={OPTION_PICTURE_SIZE} />
+                ) : (
+                  opt.textEn
+                )}
               </span>
               {pictureWordEn && (
                 <span className="sr-only" lang="en">

@@ -200,8 +200,20 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
 function toOptions(quickTry: LessonQuickTry | undefined, seed: string): MultipleChoiceOption[] {
   if (!quickTry) return [];
   const options: MultipleChoiceOption[] = [
-    { textEn: quickTry.correct, speakEn: quickTry.correctSpeakEn, isCorrect: true, explanationHe: quickTry.explainHe },
-    { textEn: quickTry.wrong, speakEn: quickTry.wrongSpeakEn, isCorrect: false, explanationHe: quickTry.explainHe },
+    {
+      textEn: quickTry.correct,
+      speakEn: quickTry.correctSpeakEn,
+      pictureId: quickTry.correctPictureId,
+      isCorrect: true,
+      explanationHe: quickTry.explainHe,
+    },
+    {
+      textEn: quickTry.wrong,
+      speakEn: quickTry.wrongSpeakEn,
+      pictureId: quickTry.wrongPictureId,
+      isCorrect: false,
+      explanationHe: quickTry.explainHe,
+    },
   ];
   return seededShuffle(options, `${seed}-lesson`);
 }

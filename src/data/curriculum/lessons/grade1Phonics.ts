@@ -1,6 +1,8 @@
 import type { LessonPack, MiniLesson } from './types';
 import { getAlphabetLetter } from '../../alphabet';
 import { getBlendWord } from '../../blendingWords';
+import { getPhonicsPictureId } from '../../phonicsPictures';
+import { getVocabPictureId } from '../../../components/art/vocabPictureIds';
 
 /**
  * Grade 1 mini-lessons of units 1–6 (Feature 48), built from the alphabet and blending words:
@@ -30,6 +32,8 @@ function lettersLesson(letters: string[]): MiniLesson {
       wrong: second.words[1].emoji,
       correctSpeakEn: first.words[1].en,
       wrongSpeakEn: second.words[1].en,
+      correctPictureId: getVocabPictureId(first.words[1].en, first.words[1].he),
+      wrongPictureId: getVocabPictureId(second.words[1].en, second.words[1].he),
       explainHe: `${first.words[1].emoji} ${first.words[1].en} ${verb === 'מסתיימת' ? 'מסתיים' : 'מתחיל'} ב-${first.upper}.`,
     },
     letters,
@@ -69,6 +73,8 @@ function blendLesson(spec: BlendLessonSpec): MiniLesson {
       questionEn: spec.tryWord,
       correct: spec.tryEmoji,
       wrong: spec.wrongEmoji,
+      correctPictureId: getVocabPictureId(spec.tryWord, spec.tryHe),
+      wrongPictureId: getPhonicsPictureId(spec.wrongEmoji),
       explainHe: `${spec.tryWord} זה ${spec.tryHe} ${spec.tryEmoji}`,
     },
     blendWords: spec.words,

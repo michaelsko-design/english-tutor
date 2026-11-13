@@ -4,6 +4,7 @@ import { getAlphabetLetter } from '../../data/alphabet';
 import { getBlendWord } from '../../data/blendingWords';
 import { letterToken } from '../../services/tts/ttsText';
 import { SoundTiles } from '../drills';
+import { WordPicture } from '../art/WordPicture';
 
 interface PhonicsCardsProps {
   theme: ThemeDefinition;
@@ -55,7 +56,7 @@ export const LetterCards: React.FC<PhonicsCardsProps & { letters: string[] }> = 
                   className="btn-chunky min-h-20 rounded-2xl bg-black/5 dark:bg-white/10 flex flex-col items-center justify-center gap-0.5 p-1"
                 >
                   <span className="text-3xl" aria-hidden="true">
-                    {word.emoji}
+                    <WordPicture wordEn={word.en} translationHe={word.he} emoji={word.emoji} size="1.4em" />
                   </span>
                   <span className="text-xs font-extrabold" dir="ltr" lang="en">
                     {word.en}
@@ -90,7 +91,7 @@ export const BlendCards: React.FC<PhonicsCardsProps & { words: string[] }> = ({
         return (
           <li key={text} className="space-y-1">
             <div className="text-center text-3xl" aria-hidden="true">
-              {word.emoji}
+              <WordPicture wordEn={word.word} translationHe={word.he} emoji={word.emoji} size="1.75em" />
             </div>
             <SoundTiles tiles={word.tiles} word={word.word} canSlide onSpeakEnglish={onSpeakEnglish} theme={theme} />
           </li>
