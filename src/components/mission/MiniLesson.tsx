@@ -92,7 +92,9 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
   // Early readers hear the first example when the examples open
   useEffect(() => {
     let isCancelled = false;
-    if (readsAloud && card === 'examples') onSpeakEnglish(lesson.examples[0].en, LESSON_SPEAK_RATE);
+    // Letter and blending cards are tap-to-hear, so nothing is read when they open
+    const isTapToHear = Boolean(lesson.letters || lesson.blendWords);
+    if (readsAloud && card === 'examples' && !isTapToHear) onSpeakEnglish(lesson.examples[0].en, LESSON_SPEAK_RATE);
     if (readsHebrewAloud && card === 'idea') {
       // The heading first, then the explanation, without a tap in between
       void speakHebrew(lesson.titleHe).then(() => {
