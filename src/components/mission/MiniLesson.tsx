@@ -164,7 +164,8 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
             onPick={(idx) => {
               setQuickTryPick(idx);
               // A Hebrew option (a word's meaning) isn't read with the English voice
-              const { textEn } = quickTryOptions[idx];
+              const { textEn: pickedText, speakEn } = quickTryOptions[idx];
+              const textEn = speakEn || pickedText;
               const isEnglish = /[A-Za-z]/.test(textEn);
               // Grades 1–2 hear the picked word, then the Hebrew explanation (not one over the other)
               if (readsHebrewAloud && lesson.quickTry) {
@@ -181,7 +182,7 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
         )}
       </div>
 
-      <StickyActionBar theme={theme} className="gap-3">
+      <StickyActionBar theme={theme} className="gap-3 sm:static">
         {cardIdx > 0 && (
           <Button theme={theme} variant="secondary" className="btn-chunky" onClick={() => setCardIdx(cardIdx - 1)}>
             הקודם
@@ -199,8 +200,8 @@ export const MiniLesson: React.FC<MiniLessonProps> = ({
 function toOptions(quickTry: LessonQuickTry | undefined, seed: string): MultipleChoiceOption[] {
   if (!quickTry) return [];
   const options: MultipleChoiceOption[] = [
-    { textEn: quickTry.correct, isCorrect: true, explanationHe: quickTry.explainHe },
-    { textEn: quickTry.wrong, isCorrect: false, explanationHe: quickTry.explainHe },
+    { textEn: quickTry.correct, speakEn: quickTry.correctSpeakEn, isCorrect: true, explanationHe: quickTry.explainHe },
+    { textEn: quickTry.wrong, speakEn: quickTry.wrongSpeakEn, isCorrect: false, explanationHe: quickTry.explainHe },
   ];
   return seededShuffle(options, `${seed}-lesson`);
 }

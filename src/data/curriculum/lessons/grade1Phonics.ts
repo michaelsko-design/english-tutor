@@ -28,6 +28,8 @@ function lettersLesson(letters: string[]): MiniLesson {
       promptHe: `איזו תמונה ${verb} באות ${first.upper}?`,
       correct: first.words[1].emoji,
       wrong: second.words[1].emoji,
+      correctSpeakEn: first.words[1].en,
+      wrongSpeakEn: second.words[1].en,
       explainHe: `${first.words[1].emoji} ${first.words[1].en} ${verb === 'מסתיימת' ? 'מסתיים' : 'מתחיל'} ב-${first.upper}.`,
     },
     letters,
