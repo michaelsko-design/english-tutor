@@ -5,6 +5,7 @@ import { useSpeechToggle } from '../../hooks/useSpeech';
 import { SpeakIcon, STOP_SPEECH_LABEL } from '../SpeakIcon';
 import { HebrewSpeakButton } from './HebrewSpeakButton';
 import { QuestionCardContent, splitBlanks } from './questionCard';
+import { EmojiIcon } from '../art/EmojiIcon';
 
 interface QuestionBubbleProps {
   content: QuestionCardContent;
@@ -27,6 +28,9 @@ const BlankSlot: React.FC<{ text: string }> = ({ text }) => (
     <span className="sr-only">{text}</span>
   </span>
 );
+
+/** A drawn picture on the card, relative to the glyph text size (so it grows with the screen like the emoji did) */
+const PICTURE_SIZE = '1.6em';
 
 const MIN_FIT_SCALE = 0.5;
 const FIT_STEP = 0.04;
@@ -81,7 +85,9 @@ export const QuestionBubble: React.FC<QuestionBubbleProps> = ({
           dir={isEnglish ? 'ltr' : 'rtl'}
           lang={content.lang}
         >
-          {splitBlanks(content.text).map((part, idx) =>
+          {content.pictureId ? (
+            <EmojiIcon emoji={content.text} pictureId={content.pictureId} size={PICTURE_SIZE} />
+          ) : splitBlanks(content.text).map((part, idx) =>
             part.isBlank ? <BlankSlot key={idx} text={part.text} /> : <React.Fragment key={idx}>{part.text}</React.Fragment>
           )}
         </p>

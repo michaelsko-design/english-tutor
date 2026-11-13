@@ -55,8 +55,8 @@ export function buildElementaryExercises(
 
   // ---- Step 1: vocabulary match -------------------------------------------------
   let step1: MissionExerciseStep;
-  const v0Picture = getPictureCue(v0);
-  const correctExplain = he`מעולה! ${v0Picture ? `${v0Picture} ` : ''}${v0.wordEn} פירושו "${v0.translationHe}".`;
+  const v0Cue = getPictureCue(v0);
+  const correctExplain = he`מעולה! ${v0Cue?.isEmojiFitting ? `${v0Cue.emoji} ` : ''}${v0.wordEn} פירושו "${v0.translationHe}".`;
   const wrongExplain = (w: { wordEn: string; translationHe: string }) =>
     he`לא בדיוק — ${w.wordEn} פירושו "${w.translationHe}". נסי שוב!`;
 
@@ -67,7 +67,8 @@ export function buildElementaryExercises(
     mission.id.startsWith('g10-') ||
     mission.id.startsWith('g11-') ||
     mission.id.startsWith('g12-');
-  const picture = isMiddleOrHigh ? undefined : v0Picture;
+  const cue = isMiddleOrHigh ? undefined : v0Cue;
+  const picture = cue?.emoji;
 
   // English-word options: a fill-in-the-blank example needs real understanding, while a letter
   // clue would single out one of only two or three options.
@@ -99,6 +100,7 @@ export function buildElementaryExercises(
         : 'Which word is right?',
       cardTextHe: picture ? undefined : v0.translationHe,
       cardDisplay: picture,
+      cardPictureId: cue?.pictureId,
       options: opts,
     };
   } else if (!isMaster) {

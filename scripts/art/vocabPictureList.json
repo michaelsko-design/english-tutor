@@ -1,0 +1,2372 @@
+[
+  {
+    "key": "doll",
+    "id": "vocab-doll",
+    "word": "doll",
+    "he": "בובה",
+    "emoji": "🪆",
+    "subject": "a doll: a classic soft toy baby doll with yarn hair and a simple pink dress, standing, clearly a toy (not a real child, not a nesting doll)",
+    "sheet": 1,
+    "cell": 0
+  },
+  {
+    "key": "desk",
+    "id": "vocab-desk",
+    "word": "desk",
+    "he": "שולחן כתיבה",
+    "emoji": "🪑",
+    "subject": "a desk: a child's wooden school writing desk with one drawer, a closed notebook and a pencil on top, seen from the front at a slight angle, with no chair",
+    "sheet": 1,
+    "cell": 1
+  },
+  {
+    "key": "carpet",
+    "id": "vocab-carpet",
+    "word": "carpet",
+    "he": "שטיח",
+    "emoji": "🧶",
+    "subject": "a carpet: a rectangular patterned floor rug with fringes on the short ends, lying flat, seen from above at an angle",
+    "sheet": 1,
+    "cell": 2
+  },
+  {
+    "key": "card",
+    "id": "vocab-card",
+    "word": "card",
+    "he": "כרטיס ברכה",
+    "emoji": "💌",
+    "subject": "a greeting card: a folded card standing half open, with a balloon and a heart drawn on its front, no writing",
+    "sheet": 1,
+    "cell": 3
+  },
+  {
+    "key": "kitten",
+    "id": "vocab-kitten",
+    "word": "kitten",
+    "he": "גור חתולים",
+    "emoji": "🐱",
+    "subject": "a kitten: a tiny fluffy baby cat with a big head, big eyes and short legs, sitting, clearly very young and small",
+    "sheet": 1,
+    "cell": 4
+  },
+  {
+    "key": "puppy",
+    "id": "vocab-puppy",
+    "word": "puppy",
+    "he": "גור כלבים",
+    "emoji": "🐶",
+    "subject": "a puppy: a tiny round baby dog with floppy ears, big paws and a big head, sitting, clearly very young",
+    "sheet": 1,
+    "cell": 5
+  },
+  {
+    "key": "jump",
+    "id": "vocab-jump",
+    "word": "jump",
+    "he": "לקפוץ",
+    "emoji": "🦘",
+    "subject": "jump: a happy child in the middle of a jump, both feet high off the ground, arms up, with small motion lines under the feet",
+    "sheet": 1,
+    "cell": 6
+  },
+  {
+    "key": "fly",
+    "id": "vocab-fly",
+    "word": "fly",
+    "he": "לעוף",
+    "emoji": "🦅",
+    "subject": "fly: a small bird flying with wings spread wide, with a few curved air lines behind it, in the middle of the cell",
+    "sheet": 1,
+    "cell": 7
+  },
+  {
+    "key": "brother",
+    "id": "vocab-brother",
+    "word": "brother",
+    "he": "אח",
+    "emoji": "👦",
+    "subject": "brother: a big boy and a little boy standing side by side holding hands, looking alike (same hair colour)",
+    "sheet": 1,
+    "cell": 8
+  },
+  {
+    "key": "sister",
+    "id": "vocab-sister",
+    "word": "sister",
+    "he": "אחות",
+    "emoji": "👧",
+    "subject": "sister: a big girl and a little girl standing side by side holding hands, looking alike (same hair colour)",
+    "sheet": 1,
+    "cell": 9
+  },
+  {
+    "key": "grandparents",
+    "id": "vocab-grandparents",
+    "word": "grandparents",
+    "he": "סבא וסבתא",
+    "emoji": "👵",
+    "subject": "grandparents: a smiling grandmother and grandfather with grey hair and glasses standing side by side, arm in arm",
+    "sheet": 1,
+    "cell": 10
+  },
+  {
+    "key": "bat|מחבט",
+    "id": "vocab-bat",
+    "word": "bat",
+    "he": "מחבט",
+    "emoji": "🏏",
+    "subject": "a bat: a wooden baseball bat lying diagonally next to a white baseball, sports equipment only (not the animal)",
+    "sheet": 1,
+    "cell": 11
+  },
+  {
+    "key": "box",
+    "id": "vocab-box",
+    "word": "box",
+    "he": "קופסה",
+    "emoji": "📦",
+    "subject": "a box: a closed brown cardboard box, simple cube shape, no labels",
+    "sheet": 1,
+    "cell": 12
+  },
+  {
+    "key": "teddy",
+    "id": "vocab-teddy",
+    "word": "teddy",
+    "he": "דובי צעצוע",
+    "emoji": "🧸",
+    "subject": "a teddy bear: a soft brown plush teddy bear sitting, with a small bow tie",
+    "sheet": 1,
+    "cell": 13
+  },
+  {
+    "key": "chair",
+    "id": "vocab-chair",
+    "word": "chair",
+    "he": "כיסא",
+    "emoji": "🪑",
+    "subject": "a chair: a simple wooden kitchen chair with four legs and a backrest, seen at an angle, with no table",
+    "sheet": 1,
+    "cell": 14
+  },
+  {
+    "key": "hat",
+    "id": "vocab-hat",
+    "word": "hat",
+    "he": "כובע",
+    "emoji": "🎩",
+    "subject": "a hat: a simple straw sun hat with a round brim and a ribbon band",
+    "sheet": 1,
+    "cell": 15
+  },
+  {
+    "key": "apple",
+    "id": "vocab-apple",
+    "word": "apple",
+    "he": "תפוח",
+    "emoji": "🍎",
+    "subject": "apple (in Hebrew: תפוח): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 2,
+    "cell": 0
+  },
+  {
+    "key": "ant",
+    "id": "vocab-ant",
+    "word": "ant",
+    "he": "נמלה",
+    "emoji": "🐜",
+    "subject": "ant (in Hebrew: נמלה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 2,
+    "cell": 1
+  },
+  {
+    "key": "alligator",
+    "id": "vocab-alligator",
+    "word": "alligator",
+    "he": "תנין",
+    "emoji": "🐊",
+    "subject": "an alligator: a friendly green alligator with a wide rounded snout",
+    "sheet": 2,
+    "cell": 2
+  },
+  {
+    "key": "ball",
+    "id": "vocab-ball",
+    "word": "ball",
+    "he": "כדור",
+    "emoji": "⚽",
+    "subject": "ball (in Hebrew: כדור): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 2,
+    "cell": 3
+  },
+  {
+    "key": "banana",
+    "id": "vocab-banana",
+    "word": "banana",
+    "he": "בננה",
+    "emoji": "🍌",
+    "subject": "banana (in Hebrew: בננה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 2,
+    "cell": 4
+  },
+  {
+    "key": "bear",
+    "id": "vocab-bear",
+    "word": "bear",
+    "he": "דוב",
+    "emoji": "🐻",
+    "subject": "bear (in Hebrew: דוב): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 2,
+    "cell": 5
+  },
+  {
+    "key": "cat",
+    "id": "vocab-cat",
+    "word": "cat",
+    "he": "חתול",
+    "emoji": "🐱",
+    "subject": "cat (in Hebrew: חתול): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 2,
+    "cell": 6
+  },
+  {
+    "key": "car",
+    "id": "vocab-car",
+    "word": "car",
+    "he": "מכונית",
+    "emoji": "🚗",
+    "subject": "car (in Hebrew: מכונית): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 2,
+    "cell": 7
+  },
+  {
+    "key": "cake",
+    "id": "vocab-cake",
+    "word": "cake",
+    "he": "עוגה",
+    "emoji": "🎂",
+    "subject": "cake (in Hebrew: עוגה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 2,
+    "cell": 8
+  },
+  {
+    "key": "dog",
+    "id": "vocab-dog",
+    "word": "dog",
+    "he": "כלב",
+    "emoji": "🐶",
+    "subject": "dog (in Hebrew: כלב): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 2,
+    "cell": 9
+  },
+  {
+    "key": "duck",
+    "id": "vocab-duck",
+    "word": "duck",
+    "he": "ברווז",
+    "emoji": "🦆",
+    "subject": "duck (in Hebrew: ברווז): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 2,
+    "cell": 10
+  },
+  {
+    "key": "door",
+    "id": "vocab-door",
+    "word": "door",
+    "he": "דלת",
+    "emoji": "🚪",
+    "subject": "a door: a closed wooden front door with a round door knob",
+    "sheet": 2,
+    "cell": 11
+  },
+  {
+    "key": "egg",
+    "id": "vocab-egg",
+    "word": "egg",
+    "he": "ביצה",
+    "emoji": "🥚",
+    "subject": "egg (in Hebrew: ביצה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 2,
+    "cell": 12
+  },
+  {
+    "key": "elephant",
+    "id": "vocab-elephant",
+    "word": "elephant",
+    "he": "פיל",
+    "emoji": "🐘",
+    "subject": "elephant (in Hebrew: פיל): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 2,
+    "cell": 13
+  },
+  {
+    "key": "envelope",
+    "id": "vocab-envelope",
+    "word": "envelope",
+    "he": "מעטפה",
+    "emoji": "✉️",
+    "subject": "an envelope: a closed white paper envelope",
+    "sheet": 2,
+    "cell": 14
+  },
+  {
+    "key": "fish",
+    "id": "vocab-fish",
+    "word": "fish",
+    "he": "דג",
+    "emoji": "🐟",
+    "subject": "fish (in Hebrew: דג): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 2,
+    "cell": 15
+  },
+  {
+    "key": "frog",
+    "id": "vocab-frog",
+    "word": "frog",
+    "he": "צפרדע",
+    "emoji": "🐸",
+    "subject": "frog (in Hebrew: צפרדע): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 3,
+    "cell": 0
+  },
+  {
+    "key": "flower",
+    "id": "vocab-flower",
+    "word": "flower",
+    "he": "פרח",
+    "emoji": "🌸",
+    "subject": "flower (in Hebrew: פרח): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 3,
+    "cell": 1
+  },
+  {
+    "key": "goat",
+    "id": "vocab-goat",
+    "word": "goat",
+    "he": "עז",
+    "emoji": "🐐",
+    "subject": "goat (in Hebrew: עז): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 3,
+    "cell": 2
+  },
+  {
+    "key": "grapes",
+    "id": "vocab-grapes",
+    "word": "grapes",
+    "he": "ענבים",
+    "emoji": "🍇",
+    "subject": "grapes (in Hebrew: ענבים): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 3,
+    "cell": 3
+  },
+  {
+    "key": "gift",
+    "id": "vocab-gift",
+    "word": "gift",
+    "he": "מתנה",
+    "emoji": "🎁",
+    "subject": "a gift: a gift box wrapped in paper with a big ribbon bow",
+    "sheet": 3,
+    "cell": 4
+  },
+  {
+    "key": "horse",
+    "id": "vocab-horse",
+    "word": "horse",
+    "he": "סוס",
+    "emoji": "🐴",
+    "subject": "horse (in Hebrew: סוס): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 3,
+    "cell": 5
+  },
+  {
+    "key": "house",
+    "id": "vocab-house",
+    "word": "house",
+    "he": "בית",
+    "emoji": "🏠",
+    "subject": "a house: a small house with a red roof, a door, two windows and a chimney",
+    "sheet": 3,
+    "cell": 6
+  },
+  {
+    "key": "insect",
+    "id": "vocab-insect",
+    "word": "insect",
+    "he": "חרק",
+    "emoji": "🐛",
+    "subject": "an insect: a ladybug with six legs, clearly an insect",
+    "sheet": 3,
+    "cell": 7
+  },
+  {
+    "key": "iguana",
+    "id": "vocab-iguana",
+    "word": "iguana",
+    "he": "איגואנה",
+    "emoji": "🦎",
+    "subject": "an iguana: a green iguana lizard",
+    "sheet": 3,
+    "cell": 8
+  },
+  {
+    "key": "ink",
+    "id": "vocab-ink",
+    "word": "ink",
+    "he": "דיו",
+    "emoji": "🖋️",
+    "subject": "ink: a small glass ink bottle with dark blue ink and a fountain pen dipped in it",
+    "sheet": 3,
+    "cell": 9
+  },
+  {
+    "key": "juice",
+    "id": "vocab-juice",
+    "word": "juice",
+    "he": "מיץ",
+    "emoji": "🧃",
+    "subject": "juice (in Hebrew: מיץ): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 3,
+    "cell": 10
+  },
+  {
+    "key": "jacket",
+    "id": "vocab-jacket",
+    "word": "jacket",
+    "he": "מעיל",
+    "emoji": "🧥",
+    "subject": "a jacket: a zipped winter jacket",
+    "sheet": 3,
+    "cell": 11
+  },
+  {
+    "key": "joystick",
+    "id": "vocab-joystick",
+    "word": "joystick",
+    "he": "ג׳ויסטיק",
+    "emoji": "🕹️",
+    "subject": "a joystick: a video game joystick controller",
+    "sheet": 3,
+    "cell": 12
+  },
+  {
+    "key": "kite",
+    "id": "vocab-kite",
+    "word": "kite",
+    "he": "עפיפון",
+    "emoji": "🪁",
+    "subject": "kite (in Hebrew: עפיפון): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 3,
+    "cell": 13
+  },
+  {
+    "key": "key",
+    "id": "vocab-key",
+    "word": "key",
+    "he": "מפתח",
+    "emoji": "🔑",
+    "subject": "key (in Hebrew: מפתח): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 3,
+    "cell": 14
+  },
+  {
+    "key": "kangaroo",
+    "id": "vocab-kangaroo",
+    "word": "kangaroo",
+    "he": "קנגורו",
+    "emoji": "🦘",
+    "subject": "kangaroo (in Hebrew: קנגורו): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 3,
+    "cell": 15
+  },
+  {
+    "key": "lion",
+    "id": "vocab-lion",
+    "word": "lion",
+    "he": "אריה",
+    "emoji": "🦁",
+    "subject": "lion (in Hebrew: אריה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 4,
+    "cell": 0
+  },
+  {
+    "key": "lemon",
+    "id": "vocab-lemon",
+    "word": "lemon",
+    "he": "לימון",
+    "emoji": "🍋",
+    "subject": "lemon (in Hebrew: לימון): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 4,
+    "cell": 1
+  },
+  {
+    "key": "leaf",
+    "id": "vocab-leaf",
+    "word": "leaf",
+    "he": "עלה",
+    "emoji": "🍃",
+    "subject": "a leaf: one single green leaf",
+    "sheet": 4,
+    "cell": 2
+  },
+  {
+    "key": "moon",
+    "id": "vocab-moon",
+    "word": "moon",
+    "he": "ירח",
+    "emoji": "🌙",
+    "subject": "moon (in Hebrew: ירח): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 4,
+    "cell": 3
+  },
+  {
+    "key": "monkey",
+    "id": "vocab-monkey",
+    "word": "monkey",
+    "he": "קוף",
+    "emoji": "🐒",
+    "subject": "monkey (in Hebrew: קוף): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 4,
+    "cell": 4
+  },
+  {
+    "key": "milk",
+    "id": "vocab-milk",
+    "word": "milk",
+    "he": "חלב",
+    "emoji": "🥛",
+    "subject": "milk (in Hebrew: חלב): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 4,
+    "cell": 5
+  },
+  {
+    "key": "nose",
+    "id": "vocab-nose",
+    "word": "nose",
+    "he": "אף",
+    "emoji": "👃",
+    "subject": "a nose: a friendly cartoon human nose, side view",
+    "sheet": 4,
+    "cell": 6
+  },
+  {
+    "key": "nut",
+    "id": "vocab-nut",
+    "word": "nut",
+    "he": "אגוז",
+    "emoji": "🥜",
+    "subject": "nut (in Hebrew: אגוז): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 4,
+    "cell": 7
+  },
+  {
+    "key": "nine",
+    "id": "vocab-nine",
+    "word": "nine",
+    "he": "תשע",
+    "emoji": "9️⃣",
+    "subject": "nine: exactly nine red apples in three rows of three",
+    "sheet": 4,
+    "cell": 8
+  },
+  {
+    "key": "octopus",
+    "id": "vocab-octopus",
+    "word": "octopus",
+    "he": "תמנון",
+    "emoji": "🐙",
+    "subject": "octopus (in Hebrew: תמנון): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 4,
+    "cell": 9
+  },
+  {
+    "key": "orange|תפוז",
+    "id": "vocab-orange",
+    "word": "orange",
+    "he": "תפוז",
+    "emoji": "🍊",
+    "subject": "an orange (the fruit): a whole round orange with a small green leaf, next to one orange slice",
+    "sheet": 4,
+    "cell": 10
+  },
+  {
+    "key": "ox",
+    "id": "vocab-ox",
+    "word": "ox",
+    "he": "שור",
+    "emoji": "🐂",
+    "subject": "ox (in Hebrew: שור): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 4,
+    "cell": 11
+  },
+  {
+    "key": "pig",
+    "id": "vocab-pig",
+    "word": "pig",
+    "he": "חזיר",
+    "emoji": "🐷",
+    "subject": "pig (in Hebrew: חזיר): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 4,
+    "cell": 12
+  },
+  {
+    "key": "pen",
+    "id": "vocab-pen",
+    "word": "pen",
+    "he": "עט",
+    "emoji": "🖊️",
+    "subject": "pen (in Hebrew: עט): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 4,
+    "cell": 13
+  },
+  {
+    "key": "pizza",
+    "id": "vocab-pizza",
+    "word": "pizza",
+    "he": "פיצה",
+    "emoji": "🍕",
+    "subject": "pizza (in Hebrew: פיצה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 4,
+    "cell": 14
+  },
+  {
+    "key": "queen",
+    "id": "vocab-queen",
+    "word": "queen",
+    "he": "מלכה",
+    "emoji": "👑",
+    "subject": "a queen: a friendly queen with a golden crown and a long red royal robe",
+    "sheet": 4,
+    "cell": 15
+  },
+  {
+    "key": "question",
+    "id": "vocab-question",
+    "word": "question",
+    "he": "שאלה",
+    "emoji": "❓",
+    "subject": "a question: a child scratching their head, looking puzzled, with a big question-mark-shaped thought bubble (the only symbol allowed)",
+    "sheet": 5,
+    "cell": 0
+  },
+  {
+    "key": "quiet",
+    "id": "vocab-quiet",
+    "word": "quiet",
+    "he": "שקט",
+    "emoji": "🤫",
+    "subject": "quiet: a child holding one finger to the lips to ask for silence, with no letters, no sound marks and no speech bubble",
+    "sheet": 16,
+    "cell": 0
+  },
+  {
+    "key": "rabbit",
+    "id": "vocab-rabbit",
+    "word": "rabbit",
+    "he": "ארנב",
+    "emoji": "🐰",
+    "subject": "a rabbit: a grey rabbit with long ears",
+    "sheet": 5,
+    "cell": 2
+  },
+  {
+    "key": "rain",
+    "id": "vocab-rain",
+    "word": "rain",
+    "he": "גשם",
+    "emoji": "🌧️",
+    "subject": "rain: a cloud with rain drops falling",
+    "sheet": 5,
+    "cell": 3
+  },
+  {
+    "key": "robot",
+    "id": "vocab-robot",
+    "word": "robot",
+    "he": "רובוט",
+    "emoji": "🤖",
+    "subject": "robot (in Hebrew: רובוט): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 5,
+    "cell": 4
+  },
+  {
+    "key": "sun",
+    "id": "vocab-sun",
+    "word": "sun",
+    "he": "שמש",
+    "emoji": "☀️",
+    "subject": "sun (in Hebrew: שמש): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 5,
+    "cell": 5
+  },
+  {
+    "key": "snake",
+    "id": "vocab-snake",
+    "word": "snake",
+    "he": "נחש",
+    "emoji": "🐍",
+    "subject": "snake (in Hebrew: נחש): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 5,
+    "cell": 6
+  },
+  {
+    "key": "star",
+    "id": "vocab-star",
+    "word": "star",
+    "he": "כוכב",
+    "emoji": "⭐",
+    "subject": "star (in Hebrew: כוכב): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 5,
+    "cell": 7
+  },
+  {
+    "key": "tiger",
+    "id": "vocab-tiger",
+    "word": "tiger",
+    "he": "טיגריס",
+    "emoji": "🐯",
+    "subject": "tiger (in Hebrew: טיגריס): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 5,
+    "cell": 8
+  },
+  {
+    "key": "tree",
+    "id": "vocab-tree",
+    "word": "tree",
+    "he": "עץ",
+    "emoji": "🌳",
+    "subject": "tree (in Hebrew: עץ): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 5,
+    "cell": 9
+  },
+  {
+    "key": "train",
+    "id": "vocab-train",
+    "word": "train",
+    "he": "רכבת",
+    "emoji": "🚂",
+    "subject": "train (in Hebrew: רכבת): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 5,
+    "cell": 10
+  },
+  {
+    "key": "umbrella",
+    "id": "vocab-umbrella",
+    "word": "umbrella",
+    "he": "מטרייה",
+    "emoji": "☂️",
+    "subject": "umbrella (in Hebrew: מטרייה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 5,
+    "cell": 11
+  },
+  {
+    "key": "unicorn",
+    "id": "vocab-unicorn",
+    "word": "unicorn",
+    "he": "חד-קרן",
+    "emoji": "🦄",
+    "subject": "unicorn (in Hebrew: חד-קרן): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 5,
+    "cell": 12
+  },
+  {
+    "key": "van",
+    "id": "vocab-van",
+    "word": "van",
+    "he": "טנדר",
+    "emoji": "🚐",
+    "subject": "van (in Hebrew: טנדר): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 5,
+    "cell": 13
+  },
+  {
+    "key": "violin",
+    "id": "vocab-violin",
+    "word": "violin",
+    "he": "כינור",
+    "emoji": "🎻",
+    "subject": "violin (in Hebrew: כינור): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 5,
+    "cell": 14
+  },
+  {
+    "key": "volcano",
+    "id": "vocab-volcano",
+    "word": "volcano",
+    "he": "הר געש",
+    "emoji": "🌋",
+    "subject": "volcano (in Hebrew: הר געש): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 5,
+    "cell": 15
+  },
+  {
+    "key": "watermelon",
+    "id": "vocab-watermelon",
+    "word": "watermelon",
+    "he": "אבטיח",
+    "emoji": "🍉",
+    "subject": "watermelon (in Hebrew: אבטיח): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 6,
+    "cell": 0
+  },
+  {
+    "key": "whale",
+    "id": "vocab-whale",
+    "word": "whale",
+    "he": "לווייתן",
+    "emoji": "🐳",
+    "subject": "whale (in Hebrew: לווייתן): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 6,
+    "cell": 1
+  },
+  {
+    "key": "window",
+    "id": "vocab-window",
+    "word": "window",
+    "he": "חלון",
+    "emoji": "🪟",
+    "subject": "a window: a window with four glass panes and open curtains",
+    "sheet": 6,
+    "cell": 2
+  },
+  {
+    "key": "fox",
+    "id": "vocab-fox",
+    "word": "fox",
+    "he": "שועל",
+    "emoji": "🦊",
+    "subject": "fox (in Hebrew: שועל): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 6,
+    "cell": 3
+  },
+  {
+    "key": "six",
+    "id": "vocab-six",
+    "word": "six",
+    "he": "שש",
+    "emoji": "6️⃣",
+    "subject": "six: exactly six red apples in two rows of three",
+    "sheet": 6,
+    "cell": 4
+  },
+  {
+    "key": "yo-yo",
+    "id": "vocab-yo-yo",
+    "word": "yo-yo",
+    "he": "יו-יו",
+    "emoji": "🪀",
+    "subject": "yo-yo (in Hebrew: יו-יו): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 6,
+    "cell": 5
+  },
+  {
+    "key": "yellow",
+    "id": "vocab-yellow",
+    "word": "yellow",
+    "he": "צהוב",
+    "emoji": "💛",
+    "subject": "the colour yellow: a big round splash of bright yellow paint, nothing else",
+    "sheet": 6,
+    "cell": 6
+  },
+  {
+    "key": "yawn",
+    "id": "vocab-yawn",
+    "word": "yawn",
+    "he": "פיהוק",
+    "emoji": "🥱",
+    "subject": "yawn: a sleepy child yawning with a wide open mouth and one hand near the mouth",
+    "sheet": 6,
+    "cell": 7
+  },
+  {
+    "key": "zebra",
+    "id": "vocab-zebra",
+    "word": "zebra",
+    "he": "זברה",
+    "emoji": "🦓",
+    "subject": "zebra (in Hebrew: זברה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 6,
+    "cell": 8
+  },
+  {
+    "key": "zipper",
+    "id": "vocab-zipper",
+    "word": "zipper",
+    "he": "רוכסן",
+    "emoji": "🤐",
+    "subject": "a zipper: a jacket zipper, half open, close up",
+    "sheet": 6,
+    "cell": 10
+  },
+  {
+    "key": "map",
+    "id": "vocab-map",
+    "word": "map",
+    "he": "מפה",
+    "emoji": "🗺️",
+    "subject": "map (in Hebrew: מפה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 6,
+    "cell": 11
+  },
+  {
+    "key": "bag",
+    "id": "vocab-bag",
+    "word": "bag",
+    "he": "תיק",
+    "emoji": "👜",
+    "subject": "a bag: a school backpack",
+    "sheet": 6,
+    "cell": 12
+  },
+  {
+    "key": "bat|עטלף",
+    "id": "vocab-bat-animal",
+    "word": "bat",
+    "he": "עטלף",
+    "emoji": "🦇",
+    "subject": "a bat (the animal): a small cute brown bat flying with its wings spread",
+    "sheet": 6,
+    "cell": 13
+  },
+  {
+    "key": "lip",
+    "id": "vocab-lip",
+    "word": "lip",
+    "he": "שפה",
+    "emoji": "👄",
+    "subject": "lips: a pair of smiling pink lips",
+    "sheet": 6,
+    "cell": 14
+  },
+  {
+    "key": "pin",
+    "id": "vocab-pin",
+    "word": "pin",
+    "he": "סיכה",
+    "emoji": "📌",
+    "subject": "a pin: a push pin pinned into a notice board",
+    "sheet": 6,
+    "cell": 15
+  },
+  {
+    "key": "pot",
+    "id": "vocab-pot",
+    "word": "pot",
+    "he": "סיר",
+    "emoji": "🍲",
+    "subject": "a pot: a cooking pot with two handles and a lid",
+    "sheet": 7,
+    "cell": 0
+  },
+  {
+    "key": "log",
+    "id": "vocab-log",
+    "word": "log",
+    "he": "בול עץ",
+    "emoji": "🪵",
+    "subject": "a log: a round wooden log, part of a tree trunk",
+    "sheet": 7,
+    "cell": 1
+  },
+  {
+    "key": "bed",
+    "id": "vocab-bed",
+    "word": "bed",
+    "he": "מיטה",
+    "emoji": "🛏️",
+    "subject": "bed (in Hebrew: מיטה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 7,
+    "cell": 2
+  },
+  {
+    "key": "hen",
+    "id": "vocab-hen",
+    "word": "hen",
+    "he": "תרנגולת",
+    "emoji": "🐔",
+    "subject": "a hen: a brown hen standing",
+    "sheet": 7,
+    "cell": 3
+  },
+  {
+    "key": "ten",
+    "id": "vocab-ten",
+    "word": "ten",
+    "he": "עשר",
+    "emoji": "🔟",
+    "subject": "ten: exactly 10 (ten) red apples in two rows, five apples in the top row and five apples in the bottom row, no more and no fewer",
+    "sheet": 16,
+    "cell": 1
+  },
+  {
+    "key": "bus",
+    "id": "vocab-bus",
+    "word": "bus",
+    "he": "אוטובוס",
+    "emoji": "🚌",
+    "subject": "bus (in Hebrew: אוטובוס): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 7,
+    "cell": 5
+  },
+  {
+    "key": "cup",
+    "id": "vocab-cup",
+    "word": "cup",
+    "he": "כוס",
+    "emoji": "☕",
+    "subject": "a cup: a cup with a handle on a saucer",
+    "sheet": 7,
+    "cell": 6
+  },
+  {
+    "key": "ship",
+    "id": "vocab-ship",
+    "word": "ship",
+    "he": "אונייה",
+    "emoji": "🚢",
+    "subject": "ship (in Hebrew: אונייה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 7,
+    "cell": 7
+  },
+  {
+    "key": "chip",
+    "id": "vocab-chip",
+    "word": "chip",
+    "he": "צ׳יפס",
+    "emoji": "🍟",
+    "subject": "chips: a paper cone of french fries",
+    "sheet": 7,
+    "cell": 8
+  },
+  {
+    "key": "bath",
+    "id": "vocab-bath",
+    "word": "bath",
+    "he": "אמבטיה",
+    "emoji": "🛁",
+    "subject": "bath (in Hebrew: אמבטיה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 7,
+    "cell": 9
+  },
+  {
+    "key": "hello",
+    "id": "vocab-hello",
+    "word": "hello",
+    "he": "שלום",
+    "emoji": "👋",
+    "subject": "hello: a smiling child waving one hand hello",
+    "sheet": 7,
+    "cell": 10
+  },
+  {
+    "key": "happy",
+    "id": "vocab-happy",
+    "word": "happy",
+    "he": "שמח / שמחה",
+    "emoji": "😊",
+    "subject": "happy: a child with a big happy smile, eyes shining, arms open",
+    "sheet": 7,
+    "cell": 11
+  },
+  {
+    "key": "red",
+    "id": "vocab-red",
+    "word": "red",
+    "he": "אדום",
+    "emoji": "🔴",
+    "subject": "the colour red: a big round splash of bright red paint, nothing else",
+    "sheet": 7,
+    "cell": 12
+  },
+  {
+    "key": "blue",
+    "id": "vocab-blue",
+    "word": "blue",
+    "he": "כחול",
+    "emoji": "🔵",
+    "subject": "the colour blue: a big round splash of bright blue paint, nothing else",
+    "sheet": 7,
+    "cell": 13
+  },
+  {
+    "key": "three",
+    "id": "vocab-three",
+    "word": "three",
+    "he": "שלוש / שלושה",
+    "emoji": "3️⃣",
+    "subject": "three: exactly three red apples in a row",
+    "sheet": 7,
+    "cell": 14
+  },
+  {
+    "key": "one",
+    "id": "vocab-one",
+    "word": "one",
+    "he": "אחת / אחד",
+    "emoji": "1️⃣",
+    "subject": "one: exactly one red apple",
+    "sheet": 7,
+    "cell": 15
+  },
+  {
+    "key": "five",
+    "id": "vocab-five",
+    "word": "five",
+    "he": "חמש / חמישה",
+    "emoji": "5️⃣",
+    "subject": "five: exactly 5 (five) red apples in one straight row, count them: one, two, three, four, five, no more and no fewer",
+    "sheet": 16,
+    "cell": 2
+  },
+  {
+    "key": "bird",
+    "id": "vocab-bird",
+    "word": "bird",
+    "he": "ציפור",
+    "emoji": "🐦",
+    "subject": "bird (in Hebrew: ציפור): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 8,
+    "cell": 1
+  },
+  {
+    "key": "eight",
+    "id": "vocab-eight",
+    "word": "eight",
+    "he": "שמונה",
+    "emoji": "8️⃣",
+    "subject": "eight: exactly eight red apples in two rows of four",
+    "sheet": 8,
+    "cell": 2
+  },
+  {
+    "key": "goodbye",
+    "id": "vocab-goodbye",
+    "word": "goodbye",
+    "he": "להתראות",
+    "emoji": "👋",
+    "subject": "goodbye: a child with a backpack walking away and waving goodbye over the shoulder",
+    "sheet": 8,
+    "cell": 3
+  },
+  {
+    "key": "friend",
+    "id": "vocab-friend",
+    "word": "friend",
+    "he": "חבר / חברה",
+    "emoji": "🤝",
+    "subject": "friends: two smiling children of the same age, a boy and a girl, standing side by side with their arms around each other’s shoulders",
+    "sheet": 8,
+    "cell": 4
+  },
+  {
+    "key": "eye",
+    "id": "vocab-eye",
+    "word": "eye",
+    "he": "עין",
+    "emoji": "👁️",
+    "subject": "an eye: one big friendly cartoon eye with eyelashes",
+    "sheet": 8,
+    "cell": 5
+  },
+  {
+    "key": "hand",
+    "id": "vocab-hand",
+    "word": "hand",
+    "he": "יד",
+    "emoji": "✋",
+    "subject": "a hand: an open hand with five fingers, palm facing forward",
+    "sheet": 8,
+    "cell": 6
+  },
+  {
+    "key": "ear",
+    "id": "vocab-ear",
+    "word": "ear",
+    "he": "אוזן",
+    "emoji": "👂",
+    "subject": "an ear: one human ear, side view",
+    "sheet": 8,
+    "cell": 7
+  },
+  {
+    "key": "book",
+    "id": "vocab-book",
+    "word": "book",
+    "he": "ספר",
+    "emoji": "📘",
+    "subject": "a book: one closed book with a plain cover",
+    "sheet": 8,
+    "cell": 8
+  },
+  {
+    "key": "stand",
+    "id": "vocab-stand",
+    "word": "stand",
+    "he": "לעמוד",
+    "emoji": "🧍",
+    "subject": "stand: a child standing up straight on both feet, arms by the sides, smiling",
+    "sheet": 8,
+    "cell": 9
+  },
+  {
+    "key": "sit",
+    "id": "vocab-sit",
+    "word": "sit",
+    "he": "לשבת",
+    "emoji": "🪑",
+    "subject": "sit: a child sitting on a chair, hands on knees",
+    "sheet": 8,
+    "cell": 10
+  },
+  {
+    "key": "open",
+    "id": "vocab-open",
+    "word": "open",
+    "he": "לפתוח",
+    "emoji": "📖",
+    "subject": "open: a child opening a big door, the door half open",
+    "sheet": 8,
+    "cell": 11
+  },
+  {
+    "key": "listen",
+    "id": "vocab-listen",
+    "word": "listen",
+    "he": "להקשיב",
+    "emoji": "👂",
+    "subject": "listen: a child holding a hand behind one ear, listening carefully, with small sound waves coming toward the ear",
+    "sheet": 8,
+    "cell": 12
+  },
+  {
+    "key": "eat",
+    "id": "vocab-eat",
+    "word": "eat",
+    "he": "לאכול",
+    "emoji": "🍽️",
+    "subject": "eat: a child at a table eating soup with a spoon",
+    "sheet": 8,
+    "cell": 13
+  },
+  {
+    "key": "water",
+    "id": "vocab-water",
+    "word": "water",
+    "he": "מים",
+    "emoji": "💧",
+    "subject": "water: a clear glass of water",
+    "sheet": 8,
+    "cell": 14
+  },
+  {
+    "key": "drink",
+    "id": "vocab-drink",
+    "word": "drink",
+    "he": "לשתות",
+    "emoji": "🥤",
+    "subject": "drink: a child drinking a glass of water",
+    "sheet": 8,
+    "cell": 15
+  },
+  {
+    "key": "big",
+    "id": "vocab-big",
+    "word": "big",
+    "he": "גדול / גדולה",
+    "emoji": "🐘",
+    "subject": "big: a big elephant standing next to a tiny mouse, the elephant clearly much bigger",
+    "sheet": 9,
+    "cell": 0
+  },
+  {
+    "key": "little",
+    "id": "vocab-little",
+    "word": "little",
+    "he": "קטן / קטנה",
+    "emoji": "🐦",
+    "subject": "little: a tiny little mouse next to a big shoe, the mouse clearly very small",
+    "sheet": 9,
+    "cell": 1
+  },
+  {
+    "key": "mother",
+    "id": "vocab-mother",
+    "word": "mother",
+    "he": "אמא",
+    "emoji": "👩",
+    "subject": "mother: a smiling young mother hugging her small child",
+    "sheet": 9,
+    "cell": 2
+  },
+  {
+    "key": "family",
+    "id": "vocab-family",
+    "word": "family",
+    "he": "משפחה",
+    "emoji": "👪",
+    "subject": "a family: a mother, a father and two children standing together, smiling",
+    "sheet": 9,
+    "cell": 3
+  },
+  {
+    "key": "father",
+    "id": "vocab-father",
+    "word": "father",
+    "he": "אבא",
+    "emoji": "👨",
+    "subject": "father: a smiling young father carrying his small child on his shoulders",
+    "sheet": 9,
+    "cell": 4
+  },
+  {
+    "key": "baby",
+    "id": "vocab-baby",
+    "word": "baby",
+    "he": "תינוק / תינוקת",
+    "emoji": "👶",
+    "subject": "a baby: a small smiling baby in a diaper sitting up, holding a rattle",
+    "sheet": 9,
+    "cell": 5
+  },
+  {
+    "key": "carrot",
+    "id": "vocab-carrot",
+    "word": "carrot",
+    "he": "גזר",
+    "emoji": "🥕",
+    "subject": "carrot (in Hebrew: גזר): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 9,
+    "cell": 6
+  },
+  {
+    "key": "cow",
+    "id": "vocab-cow",
+    "word": "cow",
+    "he": "פרה",
+    "emoji": "🐄",
+    "subject": "cow (in Hebrew: פרה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 9,
+    "cell": 7
+  },
+  {
+    "key": "sheep",
+    "id": "vocab-sheep",
+    "word": "sheep",
+    "he": "כבשה",
+    "emoji": "🐑",
+    "subject": "sheep (in Hebrew: כבשה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 9,
+    "cell": 8
+  },
+  {
+    "key": "shirt",
+    "id": "vocab-shirt",
+    "word": "shirt",
+    "he": "חולצה",
+    "emoji": "👕",
+    "subject": "shirt (in Hebrew: חולצה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 9,
+    "cell": 9
+  },
+  {
+    "key": "shoes",
+    "id": "vocab-shoes",
+    "word": "shoes",
+    "he": "נעליים",
+    "emoji": "👟",
+    "subject": "shoes (in Hebrew: נעליים): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 9,
+    "cell": 10
+  },
+  {
+    "key": "socks",
+    "id": "vocab-socks",
+    "word": "socks",
+    "he": "גרביים",
+    "emoji": "🧦",
+    "subject": "socks (in Hebrew: גרביים): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 9,
+    "cell": 11
+  },
+  {
+    "key": "pencil",
+    "id": "vocab-pencil",
+    "word": "pencil",
+    "he": "עיפרון",
+    "emoji": "✏️",
+    "subject": "pencil (in Hebrew: עיפרון): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 9,
+    "cell": 12
+  },
+  {
+    "key": "paper",
+    "id": "vocab-paper",
+    "word": "paper",
+    "he": "נייר / דף",
+    "emoji": "📄",
+    "subject": "paper: a stack of white paper sheets",
+    "sheet": 9,
+    "cell": 13
+  },
+  {
+    "key": "crayon",
+    "id": "vocab-crayon",
+    "word": "crayon",
+    "he": "עיפרון צבעוני",
+    "emoji": "🖍️",
+    "subject": "crayon (in Hebrew: עיפרון צבעוני): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 9,
+    "cell": 14
+  },
+  {
+    "key": "green",
+    "id": "vocab-green",
+    "word": "green",
+    "he": "ירוק",
+    "emoji": "🟢",
+    "subject": "the colour green: a big round splash of bright green paint, nothing else",
+    "sheet": 9,
+    "cell": 15
+  },
+  {
+    "key": "purple",
+    "id": "vocab-purple",
+    "word": "purple",
+    "he": "סגול",
+    "emoji": "🟣",
+    "subject": "the colour purple: a big round splash of bright purple paint, nothing else",
+    "sheet": 10,
+    "cell": 0
+  },
+  {
+    "key": "orange|כתום",
+    "id": "vocab-orange-color",
+    "word": "orange",
+    "he": "כתום",
+    "emoji": "🟠",
+    "subject": "the colour orange: a big round splash of bright orange paint, nothing else",
+    "sheet": 10,
+    "cell": 1
+  },
+  {
+    "key": "ruler",
+    "id": "vocab-ruler",
+    "word": "ruler",
+    "he": "סרגל",
+    "emoji": "📏",
+    "subject": "ruler (in Hebrew: סרגל): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 10,
+    "cell": 2
+  },
+  {
+    "key": "scissors",
+    "id": "vocab-scissors",
+    "word": "scissors",
+    "he": "מספריים",
+    "emoji": "✂️",
+    "subject": "scissors (in Hebrew: מספריים): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 10,
+    "cell": 3
+  },
+  {
+    "key": "notebook",
+    "id": "vocab-notebook",
+    "word": "notebook",
+    "he": "מחברת",
+    "emoji": "📓",
+    "subject": "notebook (in Hebrew: מחברת): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 10,
+    "cell": 4
+  },
+  {
+    "key": "paintbrush",
+    "id": "vocab-paintbrush",
+    "word": "paintbrush",
+    "he": "מכחול",
+    "emoji": "🖌️",
+    "subject": "a paintbrush: one paintbrush with paint on its tip",
+    "sheet": 10,
+    "cell": 5
+  },
+  {
+    "key": "weather",
+    "id": "vocab-weather",
+    "word": "weather",
+    "he": "מזג אוויר",
+    "emoji": "🌤️",
+    "subject": "the weather: a sun, a cloud with rain drops and a snowflake together in one small group",
+    "sheet": 10,
+    "cell": 6
+  },
+  {
+    "key": "rainy",
+    "id": "vocab-rainy",
+    "word": "rainy",
+    "he": "גשום",
+    "emoji": "🌧️",
+    "subject": "rainy: a grey cloud with lots of rain falling onto an open umbrella",
+    "sheet": 10,
+    "cell": 7
+  },
+  {
+    "key": "sunny",
+    "id": "vocab-sunny",
+    "word": "sunny",
+    "he": "שמשי",
+    "emoji": "☀️",
+    "subject": "sunny: a bright smiling sun shining in a clear blue sky",
+    "sheet": 10,
+    "cell": 8
+  },
+  {
+    "key": "cloudy",
+    "id": "vocab-cloudy",
+    "word": "cloudy",
+    "he": "מעונן",
+    "emoji": "☁️",
+    "subject": "cloudy: several grey and white clouds covering the sky",
+    "sheet": 10,
+    "cell": 9
+  },
+  {
+    "key": "windy",
+    "id": "vocab-windy",
+    "word": "windy",
+    "he": "עם רוח / רוחות",
+    "emoji": "💨",
+    "subject": "windy: a tree bending in strong wind with leaves blowing away and wind lines",
+    "sheet": 10,
+    "cell": 10
+  },
+  {
+    "key": "tired",
+    "id": "vocab-tired",
+    "word": "tired",
+    "he": "עייף / עייפה",
+    "emoji": "😴",
+    "subject": "tired: a very tired child with droopy half-closed eyes and slumped shoulders, holding a pillow",
+    "sheet": 10,
+    "cell": 11
+  },
+  {
+    "key": "sad",
+    "id": "vocab-sad",
+    "word": "sad",
+    "he": "עצוב / עצובה",
+    "emoji": "😢",
+    "subject": "sad: a sad child with a frown and one tear on the cheek",
+    "sheet": 10,
+    "cell": 12
+  },
+  {
+    "key": "friday",
+    "id": "vocab-friday",
+    "word": "Friday",
+    "he": "יום שישי",
+    "emoji": "🎉",
+    "subject": "Friday (the day before Shabbat): a table set for a Friday evening dinner with two candles, a braided challah bread and a cup",
+    "sheet": 10,
+    "cell": 13
+  },
+  {
+    "key": "giraffe",
+    "id": "vocab-giraffe",
+    "word": "giraffe",
+    "he": "ג׳ירפה",
+    "emoji": "🦒",
+    "subject": "giraffe (in Hebrew: ג׳ירפה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 10,
+    "cell": 14
+  },
+  {
+    "key": "swim",
+    "id": "vocab-swim",
+    "word": "swim",
+    "he": "לשחות",
+    "emoji": "🏊",
+    "subject": "swim: a child swimming in blue water, arms stroking, head above the water",
+    "sheet": 10,
+    "cell": 15
+  },
+  {
+    "key": "run",
+    "id": "vocab-run",
+    "word": "run",
+    "he": "לרוץ",
+    "emoji": "🏃",
+    "subject": "run: a child running fast, one leg forward, arms swinging, with motion lines behind",
+    "sheet": 11,
+    "cell": 0
+  },
+  {
+    "key": "parrot",
+    "id": "vocab-parrot",
+    "word": "parrot",
+    "he": "תוכי",
+    "emoji": "🦜",
+    "subject": "parrot (in Hebrew: תוכי): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 11,
+    "cell": 1
+  },
+  {
+    "key": "ice cream",
+    "id": "vocab-ice-cream",
+    "word": "ice cream",
+    "he": "גלידה",
+    "emoji": "🍦",
+    "subject": "ice cream (in Hebrew: גלידה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 11,
+    "cell": 2
+  },
+  {
+    "key": "present",
+    "id": "vocab-present",
+    "word": "present",
+    "he": "מתנה",
+    "emoji": "🎁",
+    "subject": "a present: a gift box wrapped in paper with a big ribbon bow",
+    "sheet": 11,
+    "cell": 3
+  },
+  {
+    "key": "balloon",
+    "id": "vocab-balloon",
+    "word": "balloon",
+    "he": "בלון",
+    "emoji": "🎈",
+    "subject": "balloon (in Hebrew: בלון): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 11,
+    "cell": 4
+  },
+  {
+    "key": "candle",
+    "id": "vocab-candle",
+    "word": "candle",
+    "he": "נר",
+    "emoji": "🕯️",
+    "subject": "candle (in Hebrew: נר): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 11,
+    "cell": 5
+  },
+  {
+    "key": "dance",
+    "id": "vocab-dance",
+    "word": "dance",
+    "he": "לרקוד",
+    "emoji": "💃",
+    "subject": "dance: a child dancing happily, one leg lifted, arms up, with small music notes around",
+    "sheet": 11,
+    "cell": 6
+  },
+  {
+    "key": "sing",
+    "id": "vocab-sing",
+    "word": "sing",
+    "he": "לשיר",
+    "emoji": "🎤",
+    "subject": "sing: a child singing with mouth open, holding a microphone, with music notes coming out",
+    "sheet": 11,
+    "cell": 7
+  },
+  {
+    "key": "party",
+    "id": "vocab-party",
+    "word": "party",
+    "he": "מסיבה",
+    "emoji": "🎉",
+    "subject": "a party: balloons, a party hat and confetti together",
+    "sheet": 11,
+    "cell": 8
+  },
+  {
+    "key": "birthday",
+    "id": "vocab-birthday",
+    "word": "birthday",
+    "he": "יום הולדת",
+    "emoji": "🎂",
+    "subject": "a birthday: a child wearing a party hat blowing out candles on a birthday cake",
+    "sheet": 11,
+    "cell": 9
+  },
+  {
+    "key": "climb",
+    "id": "vocab-climb",
+    "word": "climb",
+    "he": "לטפס",
+    "emoji": "🧗",
+    "subject": "climb: a child climbing up a ladder, holding the rungs with both hands",
+    "sheet": 11,
+    "cell": 10
+  },
+  {
+    "key": "help",
+    "id": "vocab-help",
+    "word": "help",
+    "he": "לעזור",
+    "emoji": "🤝",
+    "subject": "help: a child helping a smaller child up after a fall, reaching out a hand",
+    "sheet": 11,
+    "cell": 11
+  },
+  {
+    "key": "strong",
+    "id": "vocab-strong",
+    "word": "strong",
+    "he": "חזק / חזקה",
+    "emoji": "💪",
+    "subject": "strong: a child lifting a big pair of dumbbells over the head, smiling",
+    "sheet": 11,
+    "cell": 12
+  },
+  {
+    "key": "high",
+    "id": "vocab-high",
+    "word": "high",
+    "he": "גבוה",
+    "emoji": "🦅",
+    "subject": "high: a kite flying very high above a small house and tree",
+    "sheet": 11,
+    "cell": 13
+  },
+  {
+    "key": "brave",
+    "id": "vocab-brave",
+    "word": "brave",
+    "he": "אמיץ / אמיצה",
+    "emoji": "🦁",
+    "subject": "brave: a small child in a superhero cape standing proudly with fists on hips",
+    "sheet": 11,
+    "cell": 14
+  },
+  {
+    "key": "bedroom",
+    "id": "vocab-bedroom",
+    "word": "bedroom",
+    "he": "חדר שינה",
+    "emoji": "🛏️",
+    "subject": "a bedroom: a cosy small bedroom with a bed, a pillow and a bedside lamp",
+    "sheet": 11,
+    "cell": 15
+  },
+  {
+    "key": "kitchen",
+    "id": "vocab-kitchen",
+    "word": "kitchen",
+    "he": "מטבח",
+    "emoji": "🍳",
+    "subject": "a kitchen: a small kitchen with a stove, a pot on it and a fridge",
+    "sheet": 12,
+    "cell": 0
+  },
+  {
+    "key": "lamp",
+    "id": "vocab-lamp",
+    "word": "lamp",
+    "he": "מנורה",
+    "emoji": "💡",
+    "subject": "a lamp: a table lamp with a lampshade, switched on",
+    "sheet": 12,
+    "cell": 1
+  },
+  {
+    "key": "shelf",
+    "id": "vocab-shelf",
+    "word": "shelf",
+    "he": "מדף",
+    "emoji": "📚",
+    "subject": "a shelf: one wooden wall shelf with a few books and a small plant on it",
+    "sheet": 12,
+    "cell": 2
+  },
+  {
+    "key": "sofa",
+    "id": "vocab-sofa",
+    "word": "sofa",
+    "he": "ספה",
+    "emoji": "🛋️",
+    "subject": "sofa (in Hebrew: ספה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 12,
+    "cell": 3
+  },
+  {
+    "key": "bathroom",
+    "id": "vocab-bathroom",
+    "word": "bathroom",
+    "he": "חדר אמבטיה",
+    "emoji": "🛁",
+    "subject": "a bathroom: a small bathroom with a bathtub, a sink and a mirror",
+    "sheet": 12,
+    "cell": 4
+  },
+  {
+    "key": "garden",
+    "id": "vocab-garden",
+    "word": "garden",
+    "he": "גינה",
+    "emoji": "🌷",
+    "subject": "a garden: a small flower garden with colourful flowers and a little fence",
+    "sheet": 12,
+    "cell": 5
+  },
+  {
+    "key": "mirror",
+    "id": "vocab-mirror",
+    "word": "mirror",
+    "he": "מראה",
+    "emoji": "🪞",
+    "subject": "a mirror: an oval wall mirror with a wooden frame",
+    "sheet": 12,
+    "cell": 6
+  },
+  {
+    "key": "football",
+    "id": "vocab-football",
+    "word": "football",
+    "he": "כדורגל",
+    "emoji": "⚽",
+    "subject": "football (soccer): a black-and-white soccer ball",
+    "sheet": 12,
+    "cell": 7
+  },
+  {
+    "key": "basketball",
+    "id": "vocab-basketball",
+    "word": "basketball",
+    "he": "כדורסל",
+    "emoji": "🏀",
+    "subject": "a basketball: an orange basketball",
+    "sheet": 12,
+    "cell": 8
+  },
+  {
+    "key": "tennis",
+    "id": "vocab-tennis",
+    "word": "tennis",
+    "he": "טניס",
+    "emoji": "🎾",
+    "subject": "tennis: a tennis racket and a yellow tennis ball",
+    "sheet": 12,
+    "cell": 9
+  },
+  {
+    "key": "draw",
+    "id": "vocab-draw",
+    "word": "draw",
+    "he": "לצייר",
+    "emoji": "🎨",
+    "subject": "draw: a child drawing a sun on a sheet of paper with a crayon",
+    "sheet": 12,
+    "cell": 10
+  },
+  {
+    "key": "read",
+    "id": "vocab-read",
+    "word": "read",
+    "he": "לקרוא",
+    "emoji": "📖",
+    "subject": "read: a child sitting and reading an open book",
+    "sheet": 12,
+    "cell": 11
+  },
+  {
+    "key": "team",
+    "id": "vocab-team",
+    "word": "team",
+    "he": "קבוצה",
+    "emoji": "👥",
+    "subject": "a team: four children in the same matching sports shirts standing together with their arms raised, one holding a ball",
+    "sheet": 12,
+    "cell": 12
+  },
+  {
+    "key": "winner",
+    "id": "vocab-winner",
+    "word": "winner",
+    "he": "מנצח / מנצחת",
+    "emoji": "🏆",
+    "subject": "a winner: a happy child on the top step of a winners’ podium holding up a golden trophy",
+    "sheet": 12,
+    "cell": 13
+  },
+  {
+    "key": "tomato",
+    "id": "vocab-tomato",
+    "word": "tomato",
+    "he": "עגבנייה",
+    "emoji": "🍅",
+    "subject": "tomato (in Hebrew: עגבנייה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 12,
+    "cell": 14
+  },
+  {
+    "key": "bread",
+    "id": "vocab-bread",
+    "word": "bread",
+    "he": "לחם",
+    "emoji": "🍞",
+    "subject": "bread (in Hebrew: לחם): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 12,
+    "cell": 15
+  },
+  {
+    "key": "cheese",
+    "id": "vocab-cheese",
+    "word": "cheese",
+    "he": "גבינה",
+    "emoji": "🧀",
+    "subject": "cheese (in Hebrew: גבינה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 13,
+    "cell": 0
+  },
+  {
+    "key": "vegetables",
+    "id": "vocab-vegetables",
+    "word": "vegetables",
+    "he": "ירקות",
+    "emoji": "🥦",
+    "subject": "vegetables: a carrot, a tomato, a cucumber and broccoli together",
+    "sheet": 13,
+    "cell": 1
+  },
+  {
+    "key": "fruit",
+    "id": "vocab-fruit",
+    "word": "fruit",
+    "he": "פירות",
+    "emoji": "🍇",
+    "subject": "fruit: an apple, a banana, grapes and an orange together",
+    "sheet": 13,
+    "cell": 2
+  },
+  {
+    "key": "basket",
+    "id": "vocab-basket",
+    "word": "basket",
+    "he": "סל",
+    "emoji": "🧺",
+    "subject": "basket (in Hebrew: סל): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 13,
+    "cell": 3
+  },
+  {
+    "key": "healthy",
+    "id": "vocab-healthy",
+    "word": "healthy",
+    "he": "בריא / בריאה",
+    "emoji": "💪",
+    "subject": "healthy: a smiling child holding an apple in one hand and a bottle of water in the other, standing on a green lawn",
+    "sheet": 13,
+    "cell": 4
+  },
+  {
+    "key": "fluffy",
+    "id": "vocab-fluffy",
+    "word": "fluffy",
+    "he": "פרוותי / נעים למגע",
+    "emoji": "🐑",
+    "subject": "fluffy: a very fluffy round white rabbit with thick soft fur",
+    "sheet": 13,
+    "cell": 5
+  },
+  {
+    "key": "friendly",
+    "id": "vocab-friendly",
+    "word": "friendly",
+    "he": "ידידותי / נחמד",
+    "emoji": "🤗",
+    "subject": "friendly: a smiling child giving a flower to another child",
+    "sheet": 13,
+    "cell": 6
+  },
+  {
+    "key": "hamster",
+    "id": "vocab-hamster",
+    "word": "hamster",
+    "he": "אוגר",
+    "emoji": "🐹",
+    "subject": "hamster (in Hebrew: אוגר): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 13,
+    "cell": 7
+  },
+  {
+    "key": "goldfish",
+    "id": "vocab-goldfish",
+    "word": "goldfish",
+    "he": "דג זהב",
+    "emoji": "🐠",
+    "subject": "a goldfish: one orange goldfish in a round fish bowl",
+    "sheet": 13,
+    "cell": 8
+  },
+  {
+    "key": "library",
+    "id": "vocab-library",
+    "word": "library",
+    "he": "ספרייה",
+    "emoji": "📚",
+    "subject": "a library: tall bookshelves full of colourful books with a small reading table",
+    "sheet": 13,
+    "cell": 9
+  },
+  {
+    "key": "clock",
+    "id": "vocab-clock",
+    "word": "clock",
+    "he": "שעון קיר",
+    "emoji": "🕒",
+    "subject": "a clock: a round wall clock with hands and small dots instead of numbers",
+    "sheet": 13,
+    "cell": 10
+  },
+  {
+    "key": "o'clock",
+    "id": "vocab-oclock",
+    "word": "o'clock",
+    "he": "שעה עגולה",
+    "emoji": "🕔",
+    "subject": "o'clock: a round wall clock showing exactly three o'clock (long hand straight up, short hand pointing right), dots instead of numbers",
+    "sheet": 13,
+    "cell": 11
+  },
+  {
+    "key": "half past",
+    "id": "vocab-half-past",
+    "word": "half past",
+    "he": "וחצי",
+    "emoji": "🕞",
+    "subject": "half past: a round wall clock where the long minute hand points straight down to the bottom (the six position) and the short hour hand points to the right and slightly down, halfway between three and four; dots instead of numbers",
+    "sheet": 16,
+    "cell": 3
+  },
+  {
+    "key": "supermarket",
+    "id": "vocab-supermarket",
+    "word": "supermarket",
+    "he": "סופרמרקט",
+    "emoji": "🛒",
+    "subject": "a supermarket: a shop shelf full of food items next to a shopping cart",
+    "sheet": 13,
+    "cell": 13
+  },
+  {
+    "key": "breakfast",
+    "id": "vocab-breakfast",
+    "word": "breakfast",
+    "he": "ארוחת בוקר",
+    "emoji": "🍳",
+    "subject": "breakfast: a plate with a fried egg and toast, a glass of orange juice next to it, morning sun",
+    "sheet": 13,
+    "cell": 14
+  },
+  {
+    "key": "wake up",
+    "id": "vocab-wake-up",
+    "word": "wake up",
+    "he": "להתעורר / לקום",
+    "emoji": "⏰",
+    "subject": "wake up: a child sitting up in bed, stretching and yawning, with a ringing alarm clock next to the bed",
+    "sheet": 13,
+    "cell": 15
+  },
+  {
+    "key": "brush",
+    "id": "vocab-brush",
+    "word": "brush",
+    "he": "לצחצח",
+    "emoji": "🪥",
+    "subject": "brush (teeth): a child brushing their teeth with a toothbrush, foam on the mouth",
+    "sheet": 14,
+    "cell": 0
+  },
+  {
+    "key": "school",
+    "id": "vocab-school",
+    "word": "school",
+    "he": "בית ספר",
+    "emoji": "🏫",
+    "subject": "a school: a school building with a bell on the roof and a small playground",
+    "sheet": 14,
+    "cell": 1
+  },
+  {
+    "key": "homework",
+    "id": "vocab-homework",
+    "word": "homework",
+    "he": "שיעורי בית",
+    "emoji": "📝",
+    "subject": "homework: a child at a desk at home writing in a notebook with a pencil, a school bag beside the chair",
+    "sheet": 14,
+    "cell": 2
+  },
+  {
+    "key": "lunch",
+    "id": "vocab-lunch",
+    "word": "lunch",
+    "he": "ארוחת צהריים",
+    "emoji": "🥪",
+    "subject": "lunch: a lunch box with a sandwich, an apple and a small juice box",
+    "sheet": 14,
+    "cell": 3
+  },
+  {
+    "key": "dinner",
+    "id": "vocab-dinner",
+    "word": "dinner",
+    "he": "ארוחת ערב",
+    "emoji": "🍽️",
+    "subject": "dinner: a dinner plate with chicken, rice and vegetables, a fork and knife beside it",
+    "sheet": 14,
+    "cell": 4
+  },
+  {
+    "key": "sleep",
+    "id": "vocab-sleep",
+    "word": "sleep",
+    "he": "לישון",
+    "emoji": "😴",
+    "subject": "sleep: a child sleeping in bed under a blanket, eyes closed, with a small \"z z\" shape drawn as curly lines (no letters)",
+    "sheet": 14,
+    "cell": 5
+  },
+  {
+    "key": "guitar",
+    "id": "vocab-guitar",
+    "word": "guitar",
+    "he": "גיטרה",
+    "emoji": "🎸",
+    "subject": "guitar (in Hebrew: גיטרה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 14,
+    "cell": 6
+  },
+  {
+    "key": "weekend",
+    "id": "vocab-weekend",
+    "word": "weekend",
+    "he": "סוף שבוע",
+    "emoji": "🎉",
+    "subject": "the weekend: a happy family having a picnic on a blanket in a park",
+    "sheet": 14,
+    "cell": 7
+  },
+  {
+    "key": "cinema",
+    "id": "vocab-cinema",
+    "word": "cinema",
+    "he": "קולנוע",
+    "emoji": "🎬",
+    "subject": "a cinema: rows of red cinema seats facing a big bright movie screen",
+    "sheet": 14,
+    "cell": 8
+  },
+  {
+    "key": "ticket",
+    "id": "vocab-ticket",
+    "word": "ticket",
+    "he": "כרטיס",
+    "emoji": "🎟️",
+    "subject": "ticket (in Hebrew: כרטיס): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 14,
+    "cell": 9
+  },
+  {
+    "key": "popcorn",
+    "id": "vocab-popcorn",
+    "word": "popcorn",
+    "he": "פופקורן",
+    "emoji": "🍿",
+    "subject": "popcorn (in Hebrew: פופקורן): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 14,
+    "cell": 10
+  },
+  {
+    "key": "instrument",
+    "id": "vocab-instrument",
+    "word": "instrument",
+    "he": "כלי נגינה",
+    "emoji": "🎸",
+    "subject": "a musical instrument: a guitar, a drum and a trumpet together",
+    "sheet": 14,
+    "cell": 11
+  },
+  {
+    "key": "together",
+    "id": "vocab-together",
+    "word": "together",
+    "he": "ביחד",
+    "emoji": "🤝",
+    "subject": "together: three children holding hands in a row, smiling",
+    "sheet": 14,
+    "cell": 12
+  },
+  {
+    "key": "chess",
+    "id": "vocab-chess",
+    "word": "chess",
+    "he": "שחמט",
+    "emoji": "♟️",
+    "subject": "chess: a chessboard with a few chess pieces on it",
+    "sheet": 14,
+    "cell": 13
+  },
+  {
+    "key": "club",
+    "id": "vocab-club",
+    "word": "club",
+    "he": "חוג / מועדון",
+    "emoji": "👥",
+    "subject": "a club: a small group of children sitting together around a table building a model rocket",
+    "sheet": 14,
+    "cell": 14
+  },
+  {
+    "key": "calendar",
+    "id": "vocab-calendar",
+    "word": "calendar",
+    "he": "לוח שנה",
+    "emoji": "🗓️",
+    "subject": "a calendar: a wall calendar page with a grid of empty squares and one day circled in red, no numbers or letters",
+    "sheet": 14,
+    "cell": 15
+  },
+  {
+    "key": "message",
+    "id": "vocab-message",
+    "word": "message",
+    "he": "הודעה",
+    "emoji": "💬",
+    "subject": "a message: a mobile phone screen showing a chat speech bubble (no letters)",
+    "sheet": 15,
+    "cell": 0
+  },
+  {
+    "key": "record",
+    "id": "vocab-record",
+    "word": "record",
+    "he": "להקליט",
+    "emoji": "🎙️",
+    "subject": "record: a child speaking into a microphone on a stand, with a red recording light on the microphone",
+    "sheet": 15,
+    "cell": 1
+  },
+  {
+    "key": "laptop",
+    "id": "vocab-laptop",
+    "word": "laptop",
+    "he": "מחשב נייד",
+    "emoji": "💻",
+    "subject": "a laptop: an open laptop computer",
+    "sheet": 15,
+    "cell": 2
+  },
+  {
+    "key": "password",
+    "id": "vocab-password",
+    "word": "password",
+    "he": "סיסמה",
+    "emoji": "🔑",
+    "subject": "a password: a closed padlock next to a small key",
+    "sheet": 15,
+    "cell": 3
+  },
+  {
+    "key": "website",
+    "id": "vocab-website",
+    "word": "website",
+    "he": "אתר אינטרנט",
+    "emoji": "🌐",
+    "subject": "a website: a computer screen showing a simple web page with a picture and coloured blocks (no letters)",
+    "sheet": 15,
+    "cell": 4
+  },
+  {
+    "key": "headphones",
+    "id": "vocab-headphones",
+    "word": "headphones",
+    "he": "אוזניות",
+    "emoji": "🎧",
+    "subject": "headphones: a pair of over-ear headphones",
+    "sheet": 15,
+    "cell": 5
+  },
+  {
+    "key": "screen",
+    "id": "vocab-screen",
+    "word": "screen",
+    "he": "מסך",
+    "emoji": "🖥️",
+    "subject": "a screen: a computer monitor screen on a stand",
+    "sheet": 15,
+    "cell": 6
+  },
+  {
+    "key": "online",
+    "id": "vocab-online",
+    "word": "online",
+    "he": "באופן מקוון / ברשת",
+    "emoji": "🌐",
+    "subject": "online: a child smiling at a laptop screen that shows another child waving (a video call)",
+    "sheet": 15,
+    "cell": 7
+  },
+  {
+    "key": "beach",
+    "id": "vocab-beach",
+    "word": "beach",
+    "he": "חוף ים",
+    "emoji": "🏖️",
+    "subject": "a beach: sand, sea waves, a beach umbrella and a sandcastle",
+    "sheet": 15,
+    "cell": 8
+  },
+  {
+    "key": "fireworks",
+    "id": "vocab-fireworks",
+    "word": "fireworks",
+    "he": "זיקוקים",
+    "emoji": "🎆",
+    "subject": "fireworks (in Hebrew: זיקוקים): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 15,
+    "cell": 9
+  },
+  {
+    "key": "costume",
+    "id": "vocab-costume",
+    "word": "costume",
+    "he": "תחפושת",
+    "emoji": "🎭",
+    "subject": "a costume: a child dressed up in a lion costume for a party",
+    "sheet": 15,
+    "cell": 10
+  },
+  {
+    "key": "doughnut",
+    "id": "vocab-doughnut",
+    "word": "doughnut",
+    "he": "סופגנייה",
+    "emoji": "🍩",
+    "subject": "doughnut (in Hebrew: סופגנייה): one clear, simple picture of exactly this, drawn on its own",
+    "sheet": 15,
+    "cell": 11
+  },
+  {
+    "key": "science",
+    "id": "vocab-science",
+    "word": "science",
+    "he": "מדעים",
+    "emoji": "🔬",
+    "subject": "science: a microscope next to two glass test tubes with coloured liquid",
+    "sheet": 15,
+    "cell": 12
+  },
+  {
+    "key": "backpack",
+    "id": "vocab-backpack",
+    "word": "backpack",
+    "he": "תיק גב",
+    "emoji": "🎒",
+    "subject": "a backpack: a school backpack with two straps",
+    "sheet": 15,
+    "cell": 13
+  }
+]

@@ -5,6 +5,8 @@ export interface QuestionCardContent {
   /** `word` for a single English word (vocabulary), shown very large and centered; `glyph` for a
    * letter or a picture of grade 1's letters and blending steps, larger still */
   size: 'sentence' | 'word' | 'glyph';
+  /** A drawn picture shown instead of the text (an emoji), which stays as its fallback */
+  pictureId?: string;
 }
 
 interface QuestionCardStep {
@@ -15,6 +17,8 @@ interface QuestionCardStep {
   cardTextHe?: string;
   /** Letters and blending steps: the letter, picture or sentence to show (Feature 48) */
   cardDisplay?: string;
+  /** A drawn picture for `cardDisplay` (vocabulary "What is this?" cards) */
+  cardPictureId?: string;
   /** Blending steps that show the word as sound tiles instead of a card */
   soundTiles?: string[];
 }
@@ -33,7 +37,8 @@ export function getQuestionCardContent(step: QuestionCardStep): QuestionCardCont
   if (step.type === 'voice-speak' || step.soundTiles) return null;
   if (step.cardDisplay) {
     const isSentence = /\s/.test(step.cardDisplay.trim());
-    return { text: step.cardDisplay, lang: 'en', size: isSentence ? 'sentence' : 'glyph' };
+    const content: QuestionCardContent = { text: step.cardDisplay, lang: 'en', size: isSentence ? 'sentence' : 'glyph' };
+    return step.cardPictureId ? { ...content, pictureId: step.cardPictureId } : content;
   }
   if (step.type === 'sentence-builder') {
     // Without a translation (a teacher's sheet), the instruction above is enough
