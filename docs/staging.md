@@ -35,21 +35,21 @@ Done (2026-11-13, through the Firebase MCP):
 - [x] `.firebaserc` alias `staging`
 
 Left (Firebase console, project `english-tutor-staging`):
-- [ ] Authentication → Sign-in method: Email/Password, Anonymous and Google enabled (a deploy was attempted from `firebase.json`; check they show as enabled)
-- [ ] Authentication → Settings → Authorized domains: add the staging Vercel domain(s)
-- [ ] Project settings → Service accounts → generate a key (for `FIREBASE_SERVICE_ACCOUNT_JSON` on Vercel Preview; keep it outside the repo)
-- [ ] After your first staging sign-up: `config/access` and `allowed/{uid}` for yourself (`FIREBASE_TARGET=staging node scripts/setAccess.mjs --closed`, `... allowExisting.mjs --apply <you>`)
+- [x] Authentication → Sign-in method: Email/Password, Anonymous and Google enabled (2026-11-13)
+- [x] Authentication → Settings → Authorized domains: staging branch URL added (2026-11-13)
+- [x] Service-account key generated (kept outside the repo; also the `GOOGLE_APPLICATION_CREDENTIALS` key for admin scripts on staging)
+- [x] `config/access` = open on staging (2026-11-13), so any staging account can use the app. To test the tester gate itself: `FIREBASE_TARGET=staging node scripts/setAccess.mjs --closed`, then `... allowExisting.mjs --apply <you>`
 
 Left (Vercel project `english-tutor`, Settings → Environment Variables, **Preview** only, branch `staging`):
 - [x] The six `VITE_FIREBASE_*` (staging web app config), `FIREBASE_PROJECT_ID`, `FIREBASE_PROJECT_NUMBER` (added 2026-11-13 with `vercel env add <NAME> preview staging`; `VITE_FIREBASE_API_KEY` as `--type config`, it is public by design)
 - [x] `FIREBASE_SERVICE_ACCOUNT_JSON` = the staging key, Preview branch `staging` (2026-11-13; checked: the staging funnel counter wrote to `english-tutor-staging`)
 - [x] The live `FIREBASE_SERVICE_ACCOUNT_JSON` narrowed to Production only, so other preview branches can't reach live data
-- [ ] `OWNER_UID`: your uid in the staging project
-- [ ] Payments: `PAYMENT_PROVIDER=grow`, `GROW_ENV=sandbox` + sandbox ids, its own `PAYMENT_WEBHOOK_SECRET`, `APP_ORIGIN` = the staging URL (or leave `PAYMENT_PROVIDER` unset to keep payments off)
-- [ ] `APPCHECK_ENFORCE` unset; `VITE_APPCHECK_SITE_KEY` empty on Preview
-- [ ] Production variables stay as they are
+- [ ] `OWNER_UID` (Preview, branch `staging`): your uid in the staging project, only needed for the owner dashboard (`/?owner`) on staging. Sign in on staging with Google first, then the uid is in Firebase → Authentication
+- [ ] Payments: off on staging for now (no `PAYMENT_PROVIDER` on Preview). When Grow/Make is ready to try: `PAYMENT_PROVIDER=grow`, `GROW_ENV=sandbox` + sandbox ids, its own `PAYMENT_WEBHOOK_SECRET`, `APP_ORIGIN` = the staging URL
+- [x] `APPCHECK_ENFORCE` and `VITE_APPCHECK_SITE_KEY` are Production only, so App Check is off on staging
+- [x] Production variables unchanged (only the live service-account key was narrowed from Production+Preview to Production)
 - [x] `staging` branch created on GitHub from `main` (2026-11-13); branch URL `english-tutor-git-staging-clear-shield.vercel.app`
-- [ ] Open the branch URL; it should show the STAGING label (only once the badge code is on the `staging` branch)
+- [x] Badge code on `staging` (ae9b3529); the build has it switched on
 
 Optional:
 - Custom domain for the `staging` branch (Vercel → Domains → assign to Git branch `staging`).
