@@ -41,7 +41,7 @@ export const SEASON2_GRADE_9_LESSONS: LessonPack = {
     },
   },
   'g9-u22-m1': {
-    titleHe: 'אמרו ש... דיבור עקיף 🗨️',
+    titleHe: 'אמרו ש... דיבור עקיף',
     ideaHe:
       'כשמוסרים מה מישהו אמר, אחרי said הזמן זז צעד אחורה: am / is הופכים ל-was, ו-Present Simple הופך ל-Past Simple. גם I הופך ל-he או she.',
     pattern: 'said (that) + one step back',

@@ -195,7 +195,7 @@ export const GRADE_10_LESSONS: LessonPack = {
     },
   },
   'g10-u4-m3': {
-    titleHe: 'unless: אלא אם כן ⛔',
+    titleHe: 'unless: אלא אם כן',
     ideaHe: 'unless פירושו "אלא אם כן", כלומר if … not. כמו אחרי if, גם אחרי unless בא הווה ולא will.',
     pattern: 'unless = if … not',
     examples: [

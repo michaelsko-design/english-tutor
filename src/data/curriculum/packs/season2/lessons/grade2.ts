@@ -52,7 +52,7 @@ export const SEASON2_GRADE_2_LESSONS: LessonPack = {
     },
   },
   'g2-u22-m2': {
-    titleHe: 'under: מתחת 👇',
+    titleHe: 'under: מתחת',
     ideaHe: 'under פירושו "מתחת". הנעליים מתחת למיטה: under the bed.',
     pattern: 'under the …',
     examples: [

@@ -11,6 +11,7 @@ vi.mock('../../services/tts', async (importOriginal) => ({
   speakHebrew: speakHebrewMock,
 }));
 vi.mock('../companion/Companion', () => ({ Companion: ({ pose }: { pose: string }) => <span>{`pose:${pose}`}</span> }));
+vi.mock('../../hooks/useArtStatus', () => ({ useArtStatus: () => 'loaded' }));
 
 const LESSON: MiniLessonData = {
   titleHe: 'זמן הווה פשוט',
@@ -66,6 +67,17 @@ describe('MiniLesson', () => {
     expect(fns.onSpeakEnglish).toHaveBeenCalledWith('She runs fast.', 0.95);
     await user.click(screen.getByRole('button', { name: 'הקודם' }));
     expect(screen.getByRole('heading', { name: 'זמן הווה פשוט' })).toBeInTheDocument();
+  });
+
+  it("shows an example's own drawn picture instead of its emoji's icon", async () => {
+    const lesson = {
+      ...LESSON,
+      examples: [{ en: 'I see a clock.', he: 'אני רואה שעון.', highlight: 'a clock', emoji: '🕐', pictureId: 'vocab-clock' }],
+    } as MiniLessonData;
+    const user = setup({ lesson });
+    await user.click(next());
+    const example = screen.getByRole('button', { name: /I see a clock/ });
+    expect(example.querySelector('img')?.getAttribute('src')).toContain('vocab-clock');
   });
 
   it('reads the first example by itself for early readers', async () => {

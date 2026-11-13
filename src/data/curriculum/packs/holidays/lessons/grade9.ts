@@ -22,7 +22,7 @@ export const HOLIDAYS_GRADE_9_LESSONS: LessonPack = {
     },
   },
   'g9-u31-m2': {
-    titleHe: 'באמצע הפעולה: when ו-while ☔',
+    titleHe: 'באמצע הפעולה: when ו-while',
     ideaHe:
       'Past Continuous (was / were + V-ing) מתאר פעולה שנמשכה בעבר. פעולה קצרה שקטעה אותה באה ב-Past Simple אחרי when.',
     pattern: 'was / were + V-ing … when + V2',

@@ -35,6 +35,16 @@ SETS = {
 }
 COLUMNS = 4
 WHITE_TOLERANCE = 40  # a pixel this far from pure white counts as drawing
+# Pictures the label cut gets wrong (a two-line label, a label inside the picture's panel, a label
+# below the picture): the band of the cell to keep, as fractions of its height, instead of the cut.
+HAND_CROPS = {
+    "vocab-cat-on-the-bed": (0.32, 1.0),
+    "vocab-cloud": (0.24, 1.0),
+    "vocab-oil": (0.0, 0.8),
+    "vocab-sunburn": (0.22, 1.0),
+    "vocab-heatwave": (0.0, 0.855),
+    "vocab-bright": (0.24, 1.0),
+}
 LABEL_ZONE = 0.3  # a label starts in the top 30% of the cell
 LABEL_MIN_HEIGHT = 25  # rows below the label's top before its bottom edge is looked for
 LABEL_MAX_HEIGHT = 100
@@ -159,7 +169,11 @@ def main() -> None:
         for entry in sheets[number]:
             row, col = divmod(entry["cell"], COLUMNS)
             cell = clear_grid_lines(sheet.crop((col * cw, row * ch, (col + 1) * cw, (row + 1) * ch)))
-            cell, had_label = strip_labels(cell) if cuts_labels else (cell, False)
+            if entry["id"] in HAND_CROPS:
+                top, bottom = HAND_CROPS[entry["id"]]
+                cell, had_label = cell.crop((0, round(top * ch), cw, round(bottom * ch))), True
+            else:
+                cell, had_label = strip_labels(cell) if cuts_labels else (cell, False)
             if touches_rim(cell):
                 print(f"warning {entry['id']}: drawing touches the cell border in sheet-{number}")
             picture = trim(drop_specks(cell))

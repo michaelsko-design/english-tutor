@@ -6,7 +6,7 @@ import type { LessonPack } from '../../../lessons/types';
  */
 export const SEASON2_GRADE_8_LESSONS: LessonPack = {
   'g8-u21-m1': {
-    titleHe: 'פעם זה היה ככה 📻',
+    titleHe: 'פעם זה היה ככה',
     ideaHe:
       'used to + V1 מתאר הרגל או מצב שהיו בעבר ונגמרו. הוא אומר "נהגו ל..." או "פעם...". הפועל שאחריו תמיד בצורת הבסיס.',
     pattern: 'used to + V1',
@@ -63,7 +63,7 @@ export const SEASON2_GRADE_8_LESSONS: LessonPack = {
     },
   },
   'g8-u22-m2': {
-    titleHe: 'החלטתי ל... to! 🚦',
+    titleHe: 'החלטתי ל... to!',
     ideaHe:
       'אחרי decide, want, hope, promise, refuse, afford ו-manage בא to ופועל בצורת הבסיס (infinitive). כך מתארים החלטות, תקוות והבטחות.',
     pattern: 'decide / promise / refuse + to + V1',

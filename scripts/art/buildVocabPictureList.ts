@@ -15,6 +15,10 @@ import { join } from 'node:path';
 import { CURRICULUM_BY_GRADE } from '../../src/test/curriculum';
 import { ABSTRACT_WORDS } from '../../src/data/pictureCues';
 import { ALL_WORD_DECKS } from '../../src/data/wordDecks/all';
+import { BASE_CURRICULUM_BY_GRADE } from '../../src/data/curriculum/base';
+import { ALL_PACK_CURRICULA } from '../../src/data/curriculum/packs';
+import { withPacks } from '../../src/data/curriculum/packs/merge';
+import { CONTENT_PACK_IDS } from '../../src/data/curriculum/packs/registry';
 // @ts-expect-error plain JS module shared with the render script
 import { SUBJECTS, defaultSubject } from './vocabPictureSubjects.mjs';
 
@@ -39,7 +43,21 @@ const PICKED_WORDS: ReadonlySet<string> = new Set([
   // grade 6 deck
   'countryside', 'field', 'hill', 'island', 'wood', 'hole', 'smoke', 'grow', 'police station', 'police', 'nurse', 'university', 'meeting', 'pay', 'market', 'worker', 'waiter',
   'waitress', 'driver', 'office', 'grill', 'pour', 'fill', 'piece', 'garlic', 'potato', 'meat', 'butter', 'yogurt', 'jam', 'biscuit',
+  // phase 5: grades 7–12 pack words
+  'check in', 'rescue', 'alarm', 'battery', 'charge', 'cassette', 'spice', 'taste', 'earn', 'heavy', 'sunscreen', 'shelter', 'thunder', 'soaked', 'oil',
+  'heater', 'shiver', 'parade', 'barbecue', 'campsite', 'sunburn', 'hike', 'pomegranate', 'storm', 'agriculture', 'heatwave', 'electronic', 'model',
+  'calculate', 'nightmare', 'frighten', 'exodus', 'pioneer', 'appliance',
+  // phase 5: place and size words of the grade 4–6 decks
+  'far', 'behind', 'between', 'turn', 'upstairs', 'downstairs', 'deep', 'wide', 'plastic', 'bright', 'turn off',
 ]);
+/** Lesson example sentences with a picture of their own (MiniLesson looks the sentence up), keyed by the sentence. */
+const LESSON_SENTENCES: ReadonlyArray<{ word: string; he: string; emoji: string; id: string }> = [
+  { word: "It is seven o'clock.", he: 'השעה שבע.', emoji: '🕖', id: 'vocab-clock-seven' },
+  { word: 'It is half past two.', he: 'השעה שתיים וחצי.', emoji: '🕝', id: 'vocab-clock-half-past-two' },
+  { word: 'The party is at six o’clock.', he: 'המסיבה בשעה שש.', emoji: '🕕', id: 'vocab-party-at-six' },
+  { word: 'a little blue boat', he: 'סירה כחולה קטנה', emoji: '⛵', id: 'vocab-little-blue-boat' },
+  { word: 'The snail is slow.', he: 'החילזון איטי.', emoji: '🐌', id: 'vocab-snail-is-slow' },
+];
 /** Grade 1 letter words and the first-sentence picture that aren't vocabulary words with a picture (or are abstract there). */
 const PHONICS_WORDS: ReadonlyArray<{ word: string; he: string; emoji: string; id?: string }> = [
   { word: 'up', he: 'למעלה', emoji: '⬆️' },
@@ -66,6 +84,9 @@ interface Entry {
   cell: number;
 }
 
+/** Only pictures whose sheet is drawn reach the app; the rest wait for their sheet (e.g. a redraw sheet held for later). */
+const isSheetDrawn = (sheet: number) => existsSync(join(ROOT, 'art-src', 'vocab-sheets', `sheet-${sheet}.png`));
+
 const slug = (word: string) => word.toLowerCase().replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 function collectWords(): Map<string, Omit<Entry, 'sheet' | 'cell'>> {
@@ -87,8 +108,9 @@ function collectWords(): Map<string, Omit<Entry, 'sheet' | 'cell'>> {
       }
     }
   }
-  for (const p of PHONICS_WORDS) addWord(words, p.word, p.he, p.emoji, p.id);
-  for (const [grade, pack] of Object.entries(CURRICULUM_BY_GRADE)) {
+  for (const p of [...PHONICS_WORDS, ...LESSON_SENTENCES]) addWord(words, p.word, p.he, p.emoji, p.id);
+  // Picked words may come from packs not released yet, so their pictures are ready on release.
+  for (const [grade, pack] of Object.entries(withPacks(BASE_CURRICULUM_BY_GRADE, CONTENT_PACK_IDS, ALL_PACK_CURRICULA))) {
     if (Number(grade.split('-')[1]) <= MAX_GRADE) continue;
     for (const v of pack.units.flatMap((u) => u.missions.flatMap((m) => m.vocabulary))) addPicked(words, v.wordEn, v.translationHe, v.emoji);
   }
@@ -124,7 +146,8 @@ function buildList(): Entry[] {
     }
   }
   let sheet = Math.max(0, ...entries.map((e) => e.sheet));
-  let inSheet = PER_SHEET;
+  // A last sheet not drawn yet (e.g. a redraw sheet) takes new words in its free cells first.
+  let inSheet = sheet && !isSheetDrawn(sheet) ? Math.max(...entries.filter((e) => e.sheet === sheet).map((e) => e.cell)) + 1 : PER_SHEET;
   for (const [key, word] of words) {
     if (taken.has(key)) continue;
     if (inSheet === PER_SHEET) {
@@ -136,9 +159,6 @@ function buildList(): Entry[] {
   }
   return entries;
 }
-
-/** Only pictures whose sheet is drawn reach the app; the rest wait for their sheet (e.g. a redraw sheet held for later). */
-const isSheetDrawn = (sheet: number) => existsSync(join(ROOT, 'art-src', 'vocab-sheets', `sheet-${sheet}.png`));
 
 function writeIds(entries: Entry[]): void {
   const lines = entries.filter((e) => isSheetDrawn(e.sheet)).map((e) => `  ${JSON.stringify(e.key)}: ${JSON.stringify(e.id)},`);

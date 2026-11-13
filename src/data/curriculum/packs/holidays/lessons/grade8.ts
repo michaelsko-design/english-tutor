@@ -25,7 +25,7 @@ export const HOLIDAYS_GRADE_8_LESSONS: LessonPack = {
     },
   },
   'g8-u31-m2': {
-    titleHe: 'מה קרה באמצע? ⛈️',
+    titleHe: 'מה קרה באמצע?',
     ideaHe:
       'Past Continuous (was / were + ing) מתאר פעולה ארוכה ברקע. Past Simple מתאר את מה שקרה פתאום. while בא לפני הרקע, ו-when לפני הפעולה הקצרה.',
     pattern: 'while + was / were + verb-ing · when + V2',

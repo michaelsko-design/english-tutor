@@ -3588,5 +3588,505 @@
     "subject": "a biscuit: a few round biscuits (cookies) on a small plate",
     "sheet": 24,
     "cell": 9
+  },
+  {
+    "key": "it is seven o'clock.",
+    "id": "vocab-clock-seven",
+    "word": "It is seven o'clock.",
+    "he": "השעה שבע.",
+    "emoji": "🕖",
+    "subject": "a round wall clock with a white face, the 12 numbers drawn as simple dots (no digits), one short thick hour hand and one long thin minute hand; the long minute hand points straight up at 12 and the short hour hand points exactly at 7: seven o'clock",
+    "sheet": 25,
+    "cell": 9
+  },
+  {
+    "key": "it is half past two.",
+    "id": "vocab-clock-half-past-two",
+    "word": "It is half past two.",
+    "he": "השעה שתיים וחצי.",
+    "emoji": "🕝",
+    "subject": "a round wall clock with a white face, the 12 numbers drawn as simple dots (no digits), one short thick hour hand and one long thin minute hand; the long minute hand points straight down at 6 and the short hour hand points halfway between 2 and 3: half past two",
+    "sheet": 25,
+    "cell": 10
+  },
+  {
+    "key": "the party is at six o’clock.",
+    "id": "vocab-party-at-six",
+    "word": "The party is at six o’clock.",
+    "he": "המסיבה בשעה שש.",
+    "emoji": "🕕",
+    "subject": "a birthday party: balloons and a cake beside a round wall clock with a white face, the 12 numbers drawn as simple dots (no digits), one short thick hour hand and one long thin minute hand; the long minute hand points straight up at 12 and the short hour hand points straight down at 6: six o'clock",
+    "sheet": 25,
+    "cell": 11
+  },
+  {
+    "key": "a little blue boat",
+    "id": "vocab-little-blue-boat",
+    "word": "a little blue boat",
+    "he": "סירה כחולה קטנה",
+    "emoji": "⛵",
+    "subject": "a little blue boat: one small blue sailing boat with a white sail on calm water",
+    "sheet": 25,
+    "cell": 12
+  },
+  {
+    "key": "the snail is slow.",
+    "id": "vocab-snail-is-slow",
+    "word": "The snail is slow.",
+    "he": "החילזון איטי.",
+    "emoji": "🐌",
+    "subject": "the snail is slow: a snail crawling slowly along a leaf, a few short motion lines behind it",
+    "sheet": 25,
+    "cell": 13
+  },
+  {
+    "key": "spice",
+    "id": "vocab-spice",
+    "word": "spice",
+    "he": "תבלין",
+    "emoji": "🌶️",
+    "subject": "spice: small bowls of colourful spices (red, yellow, orange powder) and a red chili",
+    "sheet": 25,
+    "cell": 14
+  },
+  {
+    "key": "taste",
+    "id": "vocab-taste",
+    "word": "taste",
+    "he": "לטעום / טעם",
+    "emoji": "👅",
+    "subject": "taste: a child tasting soup from a wooden spoon over a pot",
+    "sheet": 25,
+    "cell": 15
+  },
+  {
+    "key": "earn",
+    "id": "vocab-earn",
+    "word": "earn",
+    "he": "להרוויח (כסף)",
+    "emoji": "💵",
+    "subject": "earn: a teenager being paid coins and a banknote after washing a car",
+    "sheet": 26,
+    "cell": 0
+  },
+  {
+    "key": "battery",
+    "id": "vocab-battery",
+    "word": "battery",
+    "he": "סוללה",
+    "emoji": "🔋",
+    "subject": "a battery: one big battery with a green charge level",
+    "sheet": 26,
+    "cell": 1
+  },
+  {
+    "key": "heavy",
+    "id": "vocab-heavy",
+    "word": "heavy",
+    "he": "כבד / כבדה",
+    "emoji": "🏋️",
+    "subject": "heavy: a child struggling to lift a very heavy box, bending knees",
+    "sheet": 26,
+    "cell": 2
+  },
+  {
+    "key": "charge",
+    "id": "vocab-charge",
+    "word": "charge",
+    "he": "להטעין",
+    "emoji": "🔌",
+    "subject": "charge: a phone plugged into a charger cable, a lightning bolt on its screen",
+    "sheet": 26,
+    "cell": 3
+  },
+  {
+    "key": "storm",
+    "id": "vocab-storm",
+    "word": "storm",
+    "he": "סערה",
+    "emoji": "⛈️",
+    "subject": "a storm: dark clouds, heavy rain, wind bending a palm tree, big waves",
+    "sheet": 26,
+    "cell": 4
+  },
+  {
+    "key": "sunscreen",
+    "id": "vocab-sunscreen",
+    "word": "sunscreen",
+    "he": "קרם הגנה",
+    "emoji": "🧴",
+    "subject": "sunscreen: a child rubbing white sun cream on their arm, a bottle of sun cream beside them, on a beach",
+    "sheet": 26,
+    "cell": 5
+  },
+  {
+    "key": "cassette",
+    "id": "vocab-cassette",
+    "word": "cassette",
+    "he": "קלטת",
+    "emoji": "📼",
+    "subject": "a cassette: an old music cassette tape with its two reels",
+    "sheet": 26,
+    "cell": 6
+  },
+  {
+    "key": "electronic",
+    "id": "vocab-electronic",
+    "word": "electronic",
+    "he": "אלקטרוני",
+    "emoji": "🔌",
+    "subject": "electronic: a green circuit board with small chips and wires",
+    "sheet": 26,
+    "cell": 7
+  },
+  {
+    "key": "model",
+    "id": "vocab-model",
+    "word": "model",
+    "he": "דגם",
+    "emoji": "🚘",
+    "subject": "a model: three small toy cars of different models in a row on a shelf",
+    "sheet": 26,
+    "cell": 8
+  },
+  {
+    "key": "pomegranate",
+    "id": "vocab-pomegranate",
+    "word": "pomegranate",
+    "he": "רימון",
+    "emoji": "🍎",
+    "subject": "a pomegranate: one red pomegranate and one cut open showing the red seeds",
+    "sheet": 26,
+    "cell": 9
+  },
+  {
+    "key": "shelter",
+    "id": "vocab-shelter",
+    "word": "shelter",
+    "he": "מחסה / מבנה זמני",
+    "emoji": "⛺",
+    "subject": "a shelter: a sukkah, a simple hut with a roof of green palm leaves",
+    "sheet": 26,
+    "cell": 10
+  },
+  {
+    "key": "thunder",
+    "id": "vocab-thunder",
+    "word": "thunder",
+    "he": "רעם",
+    "emoji": "🌩️",
+    "subject": "thunder: a dark storm cloud with a lightning bolt and big zigzag sound lines",
+    "sheet": 26,
+    "cell": 11
+  },
+  {
+    "key": "soaked",
+    "id": "vocab-soaked",
+    "word": "soaked",
+    "he": "רטוב לגמרי",
+    "emoji": "💦",
+    "subject": "soaked: a child completely wet from the rain, water dripping from hair and clothes, no umbrella",
+    "sheet": 26,
+    "cell": 12
+  },
+  {
+    "key": "oil",
+    "id": "vocab-oil",
+    "word": "oil",
+    "he": "שמן",
+    "emoji": "🫒",
+    "subject": "oil: a glass bottle of golden olive oil and a few green olives",
+    "sheet": 26,
+    "cell": 13
+  },
+  {
+    "key": "heater",
+    "id": "vocab-heater",
+    "word": "heater",
+    "he": "תנור חימום",
+    "emoji": "♨️",
+    "subject": "a heater: an electric room heater glowing orange, warm wavy lines",
+    "sheet": 26,
+    "cell": 14
+  },
+  {
+    "key": "shiver",
+    "id": "vocab-shiver",
+    "word": "shiver",
+    "he": "לרעוד (מקור)",
+    "emoji": "🥶",
+    "subject": "shiver: a child in a coat shivering with cold, blue cheeks, little shake lines",
+    "sheet": 26,
+    "cell": 15
+  },
+  {
+    "key": "parade",
+    "id": "vocab-parade",
+    "word": "parade",
+    "he": "מצעד / תהלוכה",
+    "emoji": "🎺",
+    "subject": "a parade: a line of people marching with drums and flags along a street",
+    "sheet": 27,
+    "cell": 0
+  },
+  {
+    "key": "barbecue",
+    "id": "vocab-barbecue",
+    "word": "barbecue",
+    "he": "מנגל",
+    "emoji": "🍖",
+    "subject": "a barbecue: people around a grill in a park, smoke rising from the meat",
+    "sheet": 27,
+    "cell": 1
+  },
+  {
+    "key": "campsite",
+    "id": "vocab-campsite",
+    "word": "campsite",
+    "he": "חניון לילה / אתר קמפינג",
+    "emoji": "🏕️",
+    "subject": "a campsite: two tents and a small campfire by a river, trees around",
+    "sheet": 27,
+    "cell": 2
+  },
+  {
+    "key": "sunburn",
+    "id": "vocab-sunburn",
+    "word": "sunburn",
+    "he": "כוויית שמש",
+    "emoji": "🥵",
+    "subject": "sunburn: a child with bright red sunburned shoulders and face under a hot sun",
+    "sheet": 27,
+    "cell": 3
+  },
+  {
+    "key": "hike",
+    "id": "vocab-hike",
+    "word": "hike",
+    "he": "לטייל ברגל / לצעוד בשטח",
+    "emoji": "🥾",
+    "subject": "hike: a child with a backpack and hiking boots walking up a rocky desert trail",
+    "sheet": 27,
+    "cell": 4
+  },
+  {
+    "key": "alarm",
+    "id": "vocab-alarm",
+    "word": "alarm",
+    "he": "אזעקה",
+    "emoji": "🚨",
+    "subject": "an alarm: a red siren light on a pole flashing, with loud sound lines",
+    "sheet": 27,
+    "cell": 5
+  },
+  {
+    "key": "check in",
+    "id": "vocab-check-in",
+    "word": "check in",
+    "he": "לעשות צ'ק-אין / להירשם בכניסה",
+    "emoji": "🛎️",
+    "subject": "check in: a family with suitcases at a hotel reception desk, a receptionist handing over a key, a small bell on the desk",
+    "sheet": 27,
+    "cell": 6
+  },
+  {
+    "key": "rescue",
+    "id": "vocab-rescue",
+    "word": "rescue",
+    "he": "להציל / לחלץ",
+    "emoji": "🛟",
+    "subject": "rescue: a lifeguard swimming a sea turtle back to safety in the waves",
+    "sheet": 27,
+    "cell": 7
+  },
+  {
+    "key": "nightmare",
+    "id": "vocab-nightmare",
+    "word": "nightmare",
+    "he": "סיוט",
+    "emoji": "😱",
+    "subject": "a nightmare: a child sitting up in bed at night, scared, a dark scary cloud above",
+    "sheet": 27,
+    "cell": 8
+  },
+  {
+    "key": "exodus",
+    "id": "vocab-exodus",
+    "word": "exodus",
+    "he": "יציאה (המונית) / יציאת מצרים",
+    "emoji": "🚶",
+    "subject": "exodus: a long line of people with bundles and donkeys walking across the desert",
+    "sheet": 27,
+    "cell": 9
+  },
+  {
+    "key": "agriculture",
+    "id": "vocab-agriculture",
+    "word": "agriculture",
+    "he": "חקלאות",
+    "emoji": "🚜",
+    "subject": "agriculture: a tractor ploughing a green field, rows of crops",
+    "sheet": 27,
+    "cell": 10
+  },
+  {
+    "key": "heatwave",
+    "id": "vocab-heatwave",
+    "word": "heatwave",
+    "he": "גל חום",
+    "emoji": "🌡️",
+    "subject": "a heatwave: a huge hot sun, a red thermometer, heat waves over a city street",
+    "sheet": 27,
+    "cell": 11
+  },
+  {
+    "key": "appliance",
+    "id": "vocab-appliance",
+    "word": "appliance",
+    "he": "מכשיר חשמלי ביתי",
+    "emoji": "🔌",
+    "subject": "an appliance: a washing machine, a fridge and a toaster side by side",
+    "sheet": 27,
+    "cell": 12
+  },
+  {
+    "key": "frighten",
+    "id": "vocab-frighten",
+    "word": "frighten",
+    "he": "להפחיד",
+    "emoji": "😨",
+    "subject": "frighten: two children hiding under a blanket, scared eyes, a creepy shadow on the wall",
+    "sheet": 27,
+    "cell": 13
+  },
+  {
+    "key": "calculate",
+    "id": "vocab-calculate",
+    "word": "calculate",
+    "he": "לחשב",
+    "emoji": "🧮",
+    "subject": "calculate: a child pressing buttons on a calculator, a notebook beside it",
+    "sheet": 27,
+    "cell": 14
+  },
+  {
+    "key": "pioneer",
+    "id": "vocab-pioneer",
+    "word": "pioneer",
+    "he": "חלוץ / חלוצה",
+    "emoji": "🧑‍🌾",
+    "subject": "a pioneer: an early farmer in a work hat and boots digging a field with a hoe, a small wooden hut behind",
+    "sheet": 27,
+    "cell": 15
+  },
+  {
+    "key": "far",
+    "id": "vocab-far",
+    "word": "far",
+    "he": "רחוק",
+    "emoji": "🔭",
+    "subject": "far: a child standing in front, pointing at a tiny house far away on the horizon",
+    "sheet": 28,
+    "cell": 0
+  },
+  {
+    "key": "behind",
+    "id": "vocab-behind",
+    "word": "behind",
+    "he": "מאחורי",
+    "emoji": "🔙",
+    "subject": "behind: a cat hiding behind a big box, only its tail and ears showing",
+    "sheet": 28,
+    "cell": 1
+  },
+  {
+    "key": "between",
+    "id": "vocab-between",
+    "word": "between",
+    "he": "בין",
+    "emoji": "↔️",
+    "subject": "between: a ball sitting between two boxes",
+    "sheet": 28,
+    "cell": 2
+  },
+  {
+    "key": "turn",
+    "id": "vocab-turn",
+    "word": "turn",
+    "he": "לפנות",
+    "emoji": "↪️",
+    "subject": "turn: a car turning left at a street corner, a curved arrow showing the turn",
+    "sheet": 28,
+    "cell": 3
+  },
+  {
+    "key": "bright",
+    "id": "vocab-bright",
+    "word": "bright",
+    "he": "בהיר",
+    "emoji": "🔆",
+    "subject": "bright: a very bright shining sun with strong rays, a child squinting",
+    "sheet": 28,
+    "cell": 4
+  },
+  {
+    "key": "turn off",
+    "id": "vocab-turn-off",
+    "word": "turn off",
+    "he": "לכבות",
+    "emoji": "🔌",
+    "subject": "turn off: a finger pressing the off button of a TV remote, the TV screen going dark",
+    "sheet": 28,
+    "cell": 5
+  },
+  {
+    "key": "upstairs",
+    "id": "vocab-upstairs",
+    "word": "upstairs",
+    "he": "למעלה",
+    "emoji": "🔼",
+    "subject": "upstairs: a child climbing a staircase up to the upper floor, an arrow pointing up",
+    "sheet": 28,
+    "cell": 6
+  },
+  {
+    "key": "downstairs",
+    "id": "vocab-downstairs",
+    "word": "downstairs",
+    "he": "למטה",
+    "emoji": "🔽",
+    "subject": "downstairs: a child walking down a staircase to the lower floor, an arrow pointing down",
+    "sheet": 28,
+    "cell": 7
+  },
+  {
+    "key": "deep",
+    "id": "vocab-deep",
+    "word": "deep",
+    "he": "עמוק",
+    "emoji": "🤿",
+    "subject": "deep: a diver far down in deep blue sea, the surface high above",
+    "sheet": 28,
+    "cell": 8
+  },
+  {
+    "key": "wide",
+    "id": "vocab-wide",
+    "word": "wide",
+    "he": "רחב",
+    "emoji": "↔️",
+    "subject": "wide: a very wide river with a long bridge across it",
+    "sheet": 28,
+    "cell": 9
+  },
+  {
+    "key": "plastic",
+    "id": "vocab-plastic",
+    "word": "plastic",
+    "he": "פלסטיק",
+    "emoji": "🧴",
+    "subject": "plastic: plastic bottles, a plastic bag and a plastic cup",
+    "sheet": 28,
+    "cell": 10
   }
 ]

@@ -6,7 +6,7 @@ import type { LessonPack } from '../../../lessons/types';
  */
 export const SEASON2_GRADE_7_LESSONS: LessonPack = {
   'g7-u21-m1': {
-    titleHe: 'סופרים או לא סופרים? 🧮',
+    titleHe: 'סופרים או לא סופרים?',
     ideaHe:
       'דברים שאפשר לספור (apples, friends) הולכים עם many. דברים שלא סופרים (water, sugar, money) הולכים עם much. כך גם בשאלה: How many? או How much?',
     pattern: 'many + countable · much + uncountable',
@@ -25,7 +25,7 @@ export const SEASON2_GRADE_7_LESSONS: LessonPack = {
     },
   },
   'g7-u21-m2': {
-    titleHe: 'קצת, אבל לא הרבה 🤏',
+    titleHe: 'קצת, אבל לא הרבה',
     ideaHe:
       'a few ו-a little שניהם אומרים "קצת". a few בא עם דברים שסופרים (a few friends), ו-a little עם דברים שלא סופרים (a little time).',
     pattern: 'a few + plural · a little + uncountable',
@@ -44,7 +44,7 @@ export const SEASON2_GRADE_7_LESSONS: LessonPack = {
     },
   },
   'g7-u22-m1': {
-    titleHe: 'יותר מדי או מספיק? 🎚️',
+    titleHe: 'יותר מדי או מספיק?',
     ideaHe:
       'too לפני שם התואר אומר "יותר מדי" (too hot). enough אחרי שם התואר אומר "מספיק" (old enough). not … enough אומר שחסר משהו.',
     pattern: 'too + adjective · adjective + enough',
@@ -63,7 +63,7 @@ export const SEASON2_GRADE_7_LESSONS: LessonPack = {
     },
   },
   'g7-u22-m2': {
-    titleHe: 'מי מנצח בהשוואה? 🥊',
+    titleHe: 'מי מנצח בהשוואה?',
     ideaHe:
       'למילה קצרה מוסיפים er (fast → faster), ולמילה ארוכה מוסיפים more לפניה (more famous). אחרי ההשוואה בא than. as … as אומר "בדיוק כמו".',
     pattern: 'adjective-er / more + adjective + than · as + adjective + as',
