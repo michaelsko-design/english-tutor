@@ -5,7 +5,8 @@
  */
 import { handleFunnelRequest } from './_lib/funnelCounter.js';
 import { createFirestoreAdmin } from './_lib/firestoreAdmin.js';
-import { AdminError, createAuthAdmin } from './_lib/googleAdmin.js';
+import { computeConversionFunnel } from './_lib/conversionFunnel.js';
+import { AdminError, createAuthAdmin, type AccountsInfo } from './_lib/googleAdmin.js';
 import { authenticateOwner } from './_lib/ownerRequest.js';
 import { errorResponse, jsonResponse, type ParentRequestDeps } from './_lib/parentRequest.js';
 import {
@@ -17,7 +18,8 @@ import {
   readFunnelRows,
   readMissionStruggleRows,
 } from './_lib/usageStats.js';
-import { FUNNEL_EVENTS } from '../src/services/analytics/events.js';
+import { MARKETING_SOURCES } from '../src/config/marketingSources.js';
+import { FUNNEL_EVENTS, FUNNEL_SOURCE_EVENTS, funnelSourceKey } from '../src/services/analytics/events.js';
 import { computeOwnerStats, israelDateStr, proChildUidsFrom, withoutTestUsers, type LearnerRow } from './_lib/ownerStats.js';
 
 const LEARNER_FIELDS = ['gradeId', 'isOnboarded', 'activityLog'] as const;
@@ -26,7 +28,12 @@ export interface OwnerStatsDeps extends ParentRequestDeps {
   nowMs?: () => number;
   createAdmin?: typeof createFirestoreAdmin;
   findAnonymousUids?: (uids: string[]) => Promise<Set<string>>;
+  /** Guests and account creation dates in one Auth lookup; replaces `findAnonymousUids` when given */
+  lookupAccounts?: (uids: string[]) => Promise<AccountsInfo>;
 }
+
+/** The pre-account counters per source tag, e.g. `signup_done__wa_family` */
+const FUNNEL_SOURCE_FIELDS = FUNNEL_SOURCE_EVENTS.flatMap((event) => MARKETING_SOURCES.map((src) => funnelSourceKey(event, src)));
 
 export async function handleOwnerStatsRequest(
   request: Request,
@@ -38,7 +45,12 @@ export async function handleOwnerStatsRequest(
   const { account, projectId } = owner;
 
   const { fetchImpl = fetch, nowMs = Date.now, createAdmin = createFirestoreAdmin } = deps;
-  const findAnonymousUids = deps.findAnonymousUids ?? ((uids: string[]) => createAuthAdmin(account, projectId, { fetchImpl }).findAnonymousUids(uids));
+  const { findAnonymousUids } = deps;
+  const lookupAccounts =
+    deps.lookupAccounts ??
+    (findAnonymousUids
+      ? async (uids: string[]): Promise<AccountsInfo> => ({ anonymousUids: await findAnonymousUids(uids), createdMsByUid: new Map() })
+      : (uids: string[]) => createAuthAdmin(account, projectId, { fetchImpl }).lookupAccounts(uids));
 
   try {
     const admin = createAdmin(account, projectId, { fetchImpl });
@@ -47,9 +59,9 @@ export async function handleOwnerStatsRequest(
     const testUids = new Set((await admin.listFieldsOf('testUsers', ['label'])).map((row) => row.id));
     const uidOf = (row: { id: string }) => [row.id];
     const learners: LearnerRow[] = withoutTestUsers(await admin.listFieldsOf('learners', LEARNER_FIELDS), testUids, uidOf);
-    const entitlements = withoutTestUsers(await admin.listFieldsOf('entitlements', ['status', 'periodEnd']), testUids, uidOf);
-    const anonymousUids = await findAnonymousUids(learners.map((row) => row.id));
-    const [links, sends, subscriptions, analyticsDocs, errorDocs, allowedDocs, feedbackDocs, missionDocs, funnelDocs] = await Promise.all([
+    const entitlements = withoutTestUsers(await admin.listFieldsOf('entitlements', ['status', 'periodEnd', 'source']), testUids, uidOf);
+    const { anonymousUids, createdMsByUid } = await lookupAccounts(learners.map((row) => row.id));
+    const [links, sends, subscriptions, analyticsDocs, errorDocs, allowedDocs, feedbackDocs, missionDocs, funnelDocs, signupDocs, checkoutDocs, planDocs] = await Promise.all([
       admin.listFieldsOf('parentLinks', ['parentUid', 'childUid']),
       admin.listFieldsOf('reminderSends', ['uid', 'dateStr', 'kind']),
       admin.listFieldsOf('pushSubscriptions', ['streakDays']),
@@ -58,12 +70,34 @@ export async function handleOwnerStatsRequest(
       admin.listFieldsOf('allowed', ['label', 'cohort']),
       admin.listFieldsOf('feedback', ['uid', 'day', 'kind', 'text', 'gradeId', 'appVersion', 'testerLabel']),
       admin.listFieldsOf('missionStruggle', ['uid', 'day', 'missionId', 'tier', 'starts', 'abandons']),
-      admin.listFieldsOf('funnelDaily', [...FUNNEL_EVENTS]),
+      admin.listFieldsOf('funnelDaily', [...FUNNEL_EVENTS, ...FUNNEL_SOURCE_FIELDS]),
+      admin.listFieldsOf('signups', ['src', 'campaign']),
+      admin.listFieldsOf('checkouts', ['parentUid', 'childUids', 'status']),
+      admin.listFieldsOf('subscriptions', ['payerParentUid', 'childUids', 'status', 'periodEnd', 'createdAt']),
     ]);
     const todayStr = israelDateStr(now);
     const allowedRows = readAllowedRows(withoutTestUsers(allowedDocs, testUids, uidOf));
+    const analyticsRows = readAnalyticsRows(withoutTestUsers(analyticsDocs, testUids, ({ fields }) => [String(fields.uid)]));
+    const parentLinks = withoutTestUsers(links, testUids, ({ fields }) => [String(fields.parentUid), String(fields.childUid)]).flatMap(({ fields }) =>
+      typeof fields.parentUid === 'string' && typeof fields.childUid === 'string' ? [{ parentUid: fields.parentUid, childUid: fields.childUid }] : []
+    );
+    const childUidsOf = (fields: Record<string, unknown>): string[] => (Array.isArray(fields.childUids) ? fields.childUids.map(String) : []);
+    const conversion = computeConversionFunnel({
+      learners,
+      anonymousUids,
+      createdMsByUid,
+      signups: withoutTestUsers(signupDocs, testUids, uidOf),
+      analytics: analyticsRows,
+      parentLinks,
+      checkouts: withoutTestUsers(checkoutDocs, testUids, ({ fields }) => [String(fields.parentUid), ...childUidsOf(fields)]),
+      subscriptions: withoutTestUsers(planDocs, testUids, ({ fields }) => [String(fields.payerParentUid), ...childUidsOf(fields)]),
+      entitlements,
+      funnelDocs,
+      todayStr,
+      nowMs: now.getTime(),
+    });
     const usage = computeUsageStats(
-      readAnalyticsRows(withoutTestUsers(analyticsDocs, testUids, ({ fields }) => [String(fields.uid)])),
+      analyticsRows,
       readClientErrorRows(errorDocs),
       todayStr,
       allowedRows,
@@ -73,11 +107,7 @@ export async function handleOwnerStatsRequest(
     );
     const stats = computeOwnerStats({
       excludedTestUsers: testUids.size,
-      parentLinks: withoutTestUsers(links, testUids, ({ fields }) => [String(fields.parentUid), String(fields.childUid)]).flatMap(({ fields }) =>
-        typeof fields.parentUid === 'string' && typeof fields.childUid === 'string'
-          ? [{ parentUid: fields.parentUid, childUid: fields.childUid }]
-          : []
-      ),
+      parentLinks,
       reminderSends: withoutTestUsers(sends, testUids, ({ fields }) => [String(fields.uid)]).flatMap(({ fields }) =>
         typeof fields.uid === 'string' && typeof fields.dateStr === 'string' && (fields.kind === 'streak' || fields.kind === 'comeback')
           ? [{ uid: fields.uid, dateStr: fields.dateStr, kind: fields.kind }]
@@ -90,7 +120,7 @@ export async function handleOwnerStatsRequest(
       todayStr: israelDateStr(now),
       now,
     });
-    return jsonResponse(200, { ...stats, usage });
+    return jsonResponse(200, { ...stats, usage, conversion });
   } catch (error) {
     // Only a status is logged: never ids, tokens or keys
     console.error(`owner-stats: failed (${error instanceof AdminError ? error.status : 'unexpected'})`);

@@ -327,6 +327,17 @@ await expect('a learner can count struggle signals', true, () =>
   setDoc(dayDoc(ua.uid), dayData(ua.uid, { mission_start: increment(1), mission_abandon: increment(1), hint_used: increment(1), tts_error: increment(1) }), { merge: true }));
 await expect('a learner can count the onboarding and first-week steps', true, () =>
   setDoc(dayDoc(ua.uid), dayData(ua.uid, { onboarding_view: increment(1), greeting_done: increment(1), week_one_seen: increment(1), tour_skipped: increment(1) }), { merge: true }));
+await expect('a learner can count the Pro wall and an ask sent', true, () =>
+  setDoc(dayDoc(ua.uid), dayData(ua.uid, { pro_wall_view: increment(1), pro_ask_sent: increment(1) }), { merge: true }));
+// Where a new account came from (the `?src=` tag): written once, never read or changed
+const signup = (uid, extra = {}) => ({ uid, day: today, src: 'wa-family', ...extra });
+await expect('a sign-up source outside the list is rejected', false, () => setDoc(doc(a.db, 'signups', ua.uid), signup(ua.uid, { src: 'made-up' })));
+await expect('a sign-up with a badly shaped campaign is rejected', false, () => setDoc(doc(a.db, 'signups', ua.uid), signup(ua.uid, { campaign: 'Dec Soft!' })));
+await expect('a sign-up with an extra field is rejected', false, () => setDoc(doc(a.db, 'signups', ua.uid), signup(ua.uid, { name: 'Dana' })));
+await expect('a learner cannot store a sign-up source for another account', false, () => setDoc(doc(a.db, 'signups', ub.uid), signup(ub.uid)));
+await expect('a learner can store their own sign-up source once', true, () => setDoc(doc(a.db, 'signups', ua.uid), signup(ua.uid, { campaign: 'dec-soft' })));
+await expect('a stored sign-up source cannot be changed', false, () => setDoc(doc(a.db, 'signups', ua.uid), signup(ua.uid, { src: 'landing' })));
+await expect('a learner cannot read a sign-up source', false, () => getDoc(doc(a.db, 'signups', ua.uid)));
 await expect('a client cannot write or read the anonymous sign-up counters', false, () =>
   setDoc(doc(a.db, 'funnelDaily', today), { gate_view: increment(1) }, { merge: true }));
 await expect('a client cannot read the anonymous sign-up counters', false, () => getDoc(doc(a.db, 'funnelDaily', today)));

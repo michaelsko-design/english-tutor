@@ -334,7 +334,7 @@ interface PaymentProvider {
 - `redeemedCount` is incremented in the same commit that writes the redemption, so `maxRedemptions` holds under races.
 - Coupons are made by an admin script, `scripts/coupons.mjs create|list|disable`, which uses the service account like `scripts/resetLearnerPin.mjs`. No admin UI.
 - **Promotions** are ordinary coupons with dates and a redemption cap:
-  - Launch: "השקה", first month ₪9.90, for the first 200 families.
+  - Launch: "השקה", a cheaper first month (₪9.90 planned) for every parent while the promotion runs. **Decided 2026-11-14:** applied automatically (no code typed), limited by the promotion's dates (for example the first week), not by a count of families. Deferred until Grow answers whether a standing order can charge a cheaper first payment and whether a link can be priced in agorot.
   - Seasonal: back to school (late August–September), before exams and the Bagrut (April–May), Hanukkah, summer.
   - Teachers: a class code, 20% off, one per teacher.
   - Win-back: a one-time ₪19 first month for a parent who canceled at least 30 days ago.

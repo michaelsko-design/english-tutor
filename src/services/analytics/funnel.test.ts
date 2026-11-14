@@ -9,7 +9,13 @@ describe('trackFunnel', () => {
     trackFunnel('gate_view', send, true);
     trackFunnel('gate_view', send, true);
     expect(send).toHaveBeenCalledTimes(1);
-    expect(send).toHaveBeenCalledWith('/api/owner-stats', expect.objectContaining({ method: 'POST', body: JSON.stringify({ event: 'gate_view' }) }));
+    expect(send).toHaveBeenCalledWith('/api/owner-stats', expect.objectContaining({ method: 'POST', body: JSON.stringify({ event: 'gate_view', src: 'direct' }) }));
+  });
+
+  it('sends the source tag only with the steps counted per source', () => {
+    const send = okFetch();
+    trackFunnel('consent_ticked', send, true);
+    expect(send).toHaveBeenCalledWith('/api/owner-stats', expect.objectContaining({ body: JSON.stringify({ event: 'consent_ticked' }) }));
   });
 
   it('does nothing when analytics are off', () => {

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { APP_NAME } from '../../config/appInfo';
@@ -11,6 +11,7 @@ import {
   hasAskedToday,
   rememberAsk,
 } from '../../data/proAsk';
+import { trackEvent } from '../../services/analytics';
 import { createParentInvite, listParentsOfChild } from '../../services/parentService';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 import type { ProAskLearner, ProUpsellFocus } from './proUpsellContext';
@@ -84,9 +85,17 @@ export const ProUpsellSheet: React.FC<ProUpsellSheetProps> = ({ learner, focus, 
   const handleAsk = async () => {
     setAskState({ kind: 'preparing' });
     const next = await prepareAskMessage(learner);
-    if (next.kind === 'ready') rememberAsk(learner.uid, todayStr);
+    if (next.kind === 'ready') {
+      rememberAsk(learner.uid, todayStr);
+      trackEvent('pro_ask_sent');
+    }
     setAskState(next);
   };
+
+  // The funnel's "reached the wall": every way into this sheet is a locked Pro stop
+  useEffect(() => {
+    trackEvent('pro_wall_view');
+  }, []);
 
   const askArea = (() => {
     if (learner.isGuest) {

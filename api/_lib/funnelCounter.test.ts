@@ -24,6 +24,14 @@ describe('handleFunnelRequest', () => {
     expect(fake.get('funnelDaily', '2026-10-29')).toEqual({ gate_view: 2, signup_done: 1 });
   });
 
+  it('also counts sign-up steps per source tag, and ignores a tag outside the list', async () => {
+    const { fake, deps } = setup();
+    await handleFunnelRequest(post({ event: 'signup_done', src: 'wa-family' }), ENV, deps);
+    await handleFunnelRequest(post({ event: 'gate_view', src: 'made.up' }), ENV, deps);
+    await handleFunnelRequest(post({ event: 'consent_ticked', src: 'landing' }), ENV, deps);
+    expect(fake.get('funnelDaily', '2026-10-29')).toEqual({ signup_done: 1, signup_done__wa_family: 1, gate_view: 1, consent_ticked: 1 });
+  });
+
   it('refuses an event outside the allow-list and stores nothing', async () => {
     const { fake, deps } = setup();
     const response = await handleFunnelRequest(post({ event: 'mission_finish' }), ENV, deps);

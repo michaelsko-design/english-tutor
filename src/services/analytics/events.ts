@@ -3,6 +3,8 @@
  * text, names or free-form values; an event outside the list is dropped before it is stored.
  */
 
+import type { MarketingSource } from '../../config/marketingSources';
+
 export const ANALYTICS_EVENTS = [
   'session_start',
   'onboarding_view',
@@ -31,6 +33,9 @@ export const ANALYTICS_EVENTS = [
   'feature_room',
   'feature_shop',
   'feature_settings',
+  // The conversion funnel: a locked Pro stop was opened, and "ask a parent" was sent
+  'pro_wall_view',
+  'pro_ask_sent',
 ] as const;
 
 /** The "feature opened" counters, in the order the owner dashboard lists them */
@@ -84,6 +89,9 @@ export const FUNNEL_EVENTS = [
   'signup_done',
   'signup_name_taken',
   'signup_error',
+  // A parent opened a parent link (no account yet either); the second one is a link from a Pro ask
+  'parent_link_open',
+  'parent_pro_link_open',
 ] as const;
 
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];
@@ -91,5 +99,15 @@ export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];
 const FUNNEL_EVENT_SET: ReadonlySet<string> = new Set(FUNNEL_EVENTS);
 
 export const isFunnelEvent = (name: unknown): name is FunnelEvent => typeof name === 'string' && FUNNEL_EVENT_SET.has(name);
+
+/** The pre-account steps that are also counted per source tag (`?src=`) */
+export const FUNNEL_SOURCE_EVENTS = ['gate_view', 'signup_done'] as const satisfies readonly FunnelEvent[];
+export type FunnelSourceEvent = (typeof FUNNEL_SOURCE_EVENTS)[number];
+
+export const isFunnelSourceEvent = (name: unknown): name is FunnelSourceEvent =>
+  typeof name === 'string' && (FUNNEL_SOURCE_EVENTS as readonly string[]).includes(name);
+
+/** The `funnelDaily` field that counts a step for one source, e.g. `signup_done__wa_family` (no dashes: a plain field path) */
+export const funnelSourceKey = (event: FunnelSourceEvent, src: MarketingSource): string => `${event}__${src.replace(/-/g, '_')}`;
 
 export const FUNNEL_DAILY_COLLECTION = 'funnelDaily';

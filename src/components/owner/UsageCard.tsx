@@ -31,6 +31,8 @@ const PRE_AUTH_LABELS: Record<string, string> = {
   signup_done: 'Account created',
   signup_name_taken: 'Username was taken',
   signup_error: 'Sign-up failed',
+  parent_link_open: 'A parent opened an invite link',
+  parent_pro_link_open: 'A parent opened a Pro ask link',
 };
 
 const FEATURE_LABELS: Record<string, string> = {

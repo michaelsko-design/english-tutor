@@ -40,6 +40,9 @@ import { HebrewAudioContext, playsHebrewAloud } from './data/hebrewAudio';
 import { AccountResult, deleteAccount } from './services/accountService';
 import { DEFAULT_PROFILE, WELCOME_GIFT_DIAMONDS } from './data/defaultProfile';
 import { setAnalyticsContext, trackEvent } from './services/analytics';
+import { trackFunnel } from './services/analytics/funnel';
+import { currentNewAccount, recordSignup } from './services/signupService';
+import { getStoredAttribution } from './data/attribution';
 import { clearSignupDraft, takeSignupDraft } from './data/signupDraft';
 import { advanceStreak, getCurrentStreak } from './data/streak';
 import { toLocalDateStr } from './utils/dates';
@@ -351,6 +354,19 @@ export function App() {
     // handleUpdateProfile only reads refs and state setters, so it never needs to re-run this effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProfileReady, profile.isOnboarded]);
+
+  // A new account is stored once with the link tag it arrived from (`?src=`), for the owner's funnel.
+  // A Google account never passes the username form, so its "signed up" step is counted here.
+  const signupUid = authUser?.uid;
+  const isSignupGuest = authUser?.isAnonymous === true;
+  useEffect(() => {
+    if (!isProfileReady || !signupUid) return;
+    const account = currentNewAccount(signupUid);
+    if (!account) return;
+    void recordSignup(account, getStoredAttribution()).then((isRecorded) => {
+      if (isRecorded && !isSignupGuest) trackFunnel('signup_done');
+    });
+  }, [isProfileReady, signupUid, isSignupGuest]);
 
   const proAccess = useLearnerProAccess(authUser?.uid);
   const activeTheme = resolveLearnerTheme(profile.themeId, profile.companionId, proAccess);

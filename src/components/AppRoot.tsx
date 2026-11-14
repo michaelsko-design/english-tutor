@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import App from '../App';
 import { isParentRoute, parseParentParam } from '../data/parentLink';
+import { parseParentProRoute } from '../data/parentProRoute';
+import { trackFunnel } from '../services/analytics/funnel';
 import { auth } from '../services/firebase';
 import { getAccountKind } from '../services/accountService';
 import { readAccountRole, writeAccountRole } from '../services/accountRole';
@@ -59,6 +61,14 @@ export const AppRoot: React.FC = () => {
 const LearnerOrParentRoot: React.FC = () => {
   const isParentView = isParentRoute(window.location.search);
   const [screen, setScreen] = useState<Screen>(isParentView ? 'parent' : 'checking');
+
+  // The funnel: count a parent opening an invite link (`/?parent` alone is a returning parent)
+  useEffect(() => {
+    const { search } = window.location;
+    if (!isParentView || parseParentParam(search) === null) return;
+    trackFunnel('parent_link_open');
+    if (parseParentProRoute(search).hasProIntent) trackFunnel('parent_pro_link_open');
+  }, [isParentView]);
 
   useEffect(() => {
     if (isParentView) return undefined;

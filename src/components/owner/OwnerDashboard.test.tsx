@@ -230,8 +230,8 @@ describe('OwnerDashboard', () => {
     await renderReady();
     const overview = screen.getByRole('tab', { name: 'Overview' });
     fireEvent.keyDown(overview, { key: 'ArrowRight' });
-    expect(screen.getByRole('tab', { name: 'Learners' })).toHaveAttribute('aria-selected', 'true');
-    fireEvent.keyDown(screen.getByRole('tab', { name: 'Learners' }), { key: 'ArrowLeft' });
+    expect(screen.getByRole('tab', { name: 'Funnel' })).toHaveAttribute('aria-selected', 'true');
+    fireEvent.keyDown(screen.getByRole('tab', { name: 'Funnel' }), { key: 'ArrowLeft' });
     expect(screen.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true');
   });
 

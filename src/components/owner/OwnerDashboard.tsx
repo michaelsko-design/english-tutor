@@ -6,6 +6,8 @@ import { fetchOwnerStats, type OwnerStats } from '../../services/ownerStatsServi
 import { TestAccountsCard } from './TestAccountsCard';
 import { EarlyTestersCard } from './EarlyTestersCard';
 import { UsageCard } from './UsageCard';
+import { SuccessGatesCard } from './SuccessGatesCard';
+import { ConversionFunnelCard } from './ConversionFunnelCard';
 import { OwnerTabs, type OwnerTabDef } from './OwnerTabs';
 import { OverviewPanel } from './cards/OverviewPanel';
 import { ReminderEngineCard } from './cards/ReminderEngineCard';
@@ -18,11 +20,12 @@ type Load =
   | { status: 'error'; message: string }
   | { status: 'ready'; stats: OwnerStats };
 
-const TAB_IDS = ['overview', 'learners', 'engagement', 'testers'] as const;
+const TAB_IDS = ['overview', 'funnel', 'learners', 'engagement', 'testers'] as const;
 type TabId = (typeof TAB_IDS)[number];
 
 const TABS: ReadonlyArray<OwnerTabDef<TabId>> = [
   { id: 'overview', label: 'Overview' },
+  { id: 'funnel', label: 'Funnel' },
   { id: 'learners', label: 'Learners' },
   { id: 'engagement', label: 'Engagement' },
   { id: 'testers', label: 'Testers' },
@@ -55,6 +58,16 @@ const StatsView: React.FC<{ stats: OwnerStats; tab: TabId; onTestUsersChanged: (
     <div className="space-y-6">
       <div role="tabpanel" id={`owner-panel-${tab}`} aria-labelledby={`owner-tab-${tab}`} className="space-y-6">
         {tab === 'overview' && <OverviewPanel stats={stats} />}
+
+        {tab === 'funnel' &&
+          (stats.conversion ? (
+            <>
+              <SuccessGatesCard gates={stats.conversion.gates} />
+              <ConversionFunnelCard conversion={stats.conversion} />
+            </>
+          ) : (
+            <p className="text-sm text-slate-500 dark:text-slate-400">The server did not send the funnel yet. Refresh after the next deploy.</p>
+          ))}
 
         {tab === 'learners' && (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

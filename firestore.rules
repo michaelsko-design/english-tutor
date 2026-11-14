@@ -571,9 +571,26 @@ service cloud.firestore {
           'mission_finish_tier_master', 'mission_three_stars',
           'mission_start', 'mission_abandon', 'hint_used', 'tts_error',
           'feature_exam_prep', 'feature_word_lists', 'feature_friends', 'feature_progress_report',
-          'feature_room', 'feature_shop', 'feature_settings'])
+          'feature_room', 'feature_shop', 'feature_settings',
+          'pro_wall_view', 'pro_ask_sent'])
         && request.resource.data.counts.get('session_start', 0) <= 1000000
         && request.resource.data.counts.get('mission_finish', 0) <= 1000000;
+    }
+
+    // Where a new account came from (src/services/signupService.ts): the `?src=` tag of the link, a
+    // word from the list in src/config/marketingSources.ts, plus an optional campaign. Written once
+    // by the account itself, never changed or read by clients; the owner API reads it.
+    match /signups/{uid} {
+      allow read, update, delete: if false;
+      allow create: if request.auth != null
+        && isAllowed()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['uid', 'day', 'src', 'campaign'])
+        && request.resource.data.uid == uid
+        && isNearToday(request.resource.data.day)
+        && request.resource.data.src in ['direct', 'landing', 'wa-family', 'wa-teachers', 'wa-parents', 'wa-students', 'qr', 'ig', 'fb', 'tiktok', 'ad', 'other']
+        && (!('campaign' in request.resource.data)
+          || (request.resource.data.campaign is string && request.resource.data.campaign.matches('^[a-z0-9-]{1,24}$')));
     }
 
     // Steps before an account exists (src/services/analytics/events.ts FUNNEL_EVENTS): one counter
