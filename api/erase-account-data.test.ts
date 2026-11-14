@@ -18,6 +18,7 @@ function setup(entitlement: Record<string, string | number>) {
   fake.seed('missionStruggle', `2026-11-08_${OTHER}_m1_explorer`, { uid: OTHER, day: '2026-11-08' });
   fake.seed('feedback', 'n1', { uid: KID, text: 'hi' });
   fake.seed('allowed', KID, { cohort: 'tester', label: 'noa' });
+  fake.seed('signups', KID, { uid: KID, day: '2026-11-08', src: 'landing' });
   fake.seed('entitlements', KID, entitlement);
   return { fake, deps: { verifyToken: vi.fn(async () => true), createAdmin: vi.fn(() => fake.admin) as never } };
 }
@@ -31,6 +32,7 @@ describe('erase-account-data', () => {
     expect(fake.get('missionStruggle', `2026-11-08_${OTHER}_m1_explorer`)).toBeDefined();
     expect(fake.get('feedback', 'n1')).toMatchObject({ uid: '', testerLabel: 'noa', text: 'hi' });
     expect(fake.get('allowed', KID)).toBeUndefined();
+    expect(fake.get('signups', KID)).toBeUndefined();
     expect(fake.get('entitlements', KID)).toBeUndefined();
     expect(fake.get('analyticsDaily', `2026-11-08_${OTHER}`)).toBeDefined();
   });

@@ -23,6 +23,11 @@ export interface AdminDeps {
   nowMs?: () => number;
 }
 
+export interface AccountsInfo {
+  anonymousUids: Set<string>;
+  createdMsByUid: Map<string, number>;
+}
+
 export class AdminError extends Error {
   constructor(
     message: string,
@@ -155,6 +160,26 @@ export function createAuthAdmin(account: ServiceAccount, projectId: string, { fe
         }
       }
       return anonymous;
+    },
+
+    /**
+     * For the owner's funnel: which of these accounts are guests, and when each account was created
+     * (ms), looked up 100 at a time. An account that no longer exists is in neither.
+     */
+    async lookupAccounts(uids: readonly string[]): Promise<AccountsInfo> {
+      const anonymousUids = new Set<string>();
+      const createdMsByUid = new Map<string, number>();
+      for (let start = 0; start < uids.length; start += LOOKUP_BATCH) {
+        const response = await call('accounts:lookup', { localId: uids.slice(start, start + LOOKUP_BATCH) });
+        if (!response.ok) throw new AdminError('Auth lookup failed', response.status);
+        const body = (await response.json()) as { users?: { localId: string; providerUserInfo?: unknown[]; createdAt?: string }[] };
+        for (const user of body.users ?? []) {
+          if (!user.providerUserInfo?.length) anonymousUids.add(user.localId);
+          const createdMs = Number(user.createdAt);
+          if (Number.isFinite(createdMs) && createdMs > 0) createdMsByUid.set(user.localId, createdMs);
+        }
+      }
+      return { anonymousUids, createdMsByUid };
     },
 
     /** Deletes the sign-in itself. An account that is already gone counts as deleted, so a retry is safe. */

@@ -1,5 +1,6 @@
 import { isFirebaseConfigured } from '../firebase';
-import { isFunnelEvent, type FunnelEvent } from './events';
+import { getStoredAttribution } from '../../data/attribution';
+import { isFunnelEvent, isFunnelSourceEvent, type FunnelEvent } from './events';
 
 /** A method of the owner-stats function file (see api/_lib/funnelCounter.ts): Vercel Hobby allows 12 functions */
 const FUNNEL_URL = '/api/owner-stats';
@@ -20,7 +21,7 @@ export function trackFunnel(event: FunnelEvent, send: typeof fetch = fetch, enab
     void send(FUNNEL_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event }),
+      body: JSON.stringify(isFunnelSourceEvent(event) ? { event, src: getStoredAttribution().src } : { event }),
       keepalive: true,
     }).catch(() => undefined);
   } catch {

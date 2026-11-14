@@ -3,6 +3,7 @@
  * list comes from `learners/{uid}` with a field mask (grade, dates, activity log).
  */
 
+import type { ConversionStats } from './conversionFunnel.js';
 import type { GatewayTask } from './gatewayTasks.js';
 import type { UsageStats } from './usageStats.js';
 
@@ -48,6 +49,8 @@ export interface OwnerStats {
   reminders: ReminderStats;
   /** Product analytics (funnel, retention, errors); absent until the owner API adds it */
   usage?: UsageStats;
+  /** The conversion funnel and the success gates (`conversionFunnel.ts`); absent from older answers */
+  conversion?: ConversionStats;
   /** Test accounts on the owner's list, left out of every number above */
   excludedTestUsers: number;
   /** Open Grow tasks the owner does by hand (`gatewayTasks.ts`); absent from older answers */

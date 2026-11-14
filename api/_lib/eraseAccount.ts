@@ -44,6 +44,8 @@ export async function eraseServerRecords(admin: FirestoreAdmin, uid: string): Pr
         ]
       : []),
     admin.deleteDocument('allowed', uid),
+    // Where the account came from (the `?src=` tag)
+    admin.deleteDocument('signups', uid),
     ...(isPaid ? [] : [admin.deleteDocument('entitlements', uid)]),
   ]);
 }

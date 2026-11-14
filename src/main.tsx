@@ -9,10 +9,13 @@ import '@fontsource-variable/rubik';
 import './index.css';
 import { watchVoices } from './utils/ttsVoice';
 import { getTtsService } from './services/tts';
+import { captureAttribution } from './data/attribution';
 
 watchVoices();
 // Created early so the clip list loads on the first tap
 getTtsService();
+// The link's `?src=` tag is kept before anything renders, so the very first funnel count carries it
+captureAttribution(window.location.search);
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
