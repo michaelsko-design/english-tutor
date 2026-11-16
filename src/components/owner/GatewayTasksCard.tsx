@@ -12,6 +12,7 @@ const TITLES: Record<GatewayTask['kind'], string> = {
   amount: 'Change the standing order amount',
   refund: 'Refund',
   match_renewal: 'Unmatched Grow charge',
+  extend: 'Extend the standing order',
 };
 
 const shekels = (agorot: number) => `₪${(agorot / 100).toLocaleString('en-GB', { maximumFractionDigits: 2 })}`;

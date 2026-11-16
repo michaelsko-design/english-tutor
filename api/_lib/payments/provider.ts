@@ -51,6 +51,12 @@ export interface PaymentProvider {
    * Missing means true.
    */
   readonly canChangeRecurring?: boolean;
+  /**
+   * How many charges one recurring charge makes before it stops (Grow through Make can't open one
+   * that runs until cancelled). The owner extends it by hand, from a task one charge before the end.
+   * Missing means it runs until cancelled.
+   */
+  readonly recurringChargeLimit?: number;
   createPaymentPage(input: PaymentPageInput): Promise<PaymentPage>;
   /**
    * Confirms a payment on the page; null while nothing has been paid on it. `notice` is the

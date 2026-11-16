@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createGrowMakeProvider, readGrowMakeConfig, type GrowMakeConfig } from './growMake';
 import { PaymentError } from './provider';
 
-const CONFIG: GrowMakeConfig = { webhookUrl: 'https://hook.eu2.make.com/abc123', apiKey: 'make-key' };
+const CONFIG: GrowMakeConfig = { webhookUrl: 'https://hook.eu2.make.com/abc123', apiKey: 'make-key', maxCharges: 12 };
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
@@ -44,9 +44,19 @@ describe('readGrowMakeConfig', () => {
     expect(readGrowMakeConfig({ GROW_MAKE_WEBHOOK_URL: 'https://evil.example/make.com', GROW_MAKE_API_KEY: 'k' })).toBeNull();
     expect(readGrowMakeConfig({ GROW_MAKE_WEBHOOK_URL: CONFIG.webhookUrl, GROW_MAKE_API_KEY: 'make-key' })).toEqual(CONFIG);
   });
+
+  it('takes the standing order length from GROW_MAKE_MAX_CHARGES (3 to 36, default 12)', () => {
+    const base = { GROW_MAKE_WEBHOOK_URL: CONFIG.webhookUrl, GROW_MAKE_API_KEY: 'make-key' };
+    expect(readGrowMakeConfig({ ...base, GROW_MAKE_MAX_CHARGES: '36' })?.maxCharges).toBe(36);
+    for (const bad of ['2', '37', '12.5', 'x']) expect(readGrowMakeConfig({ ...base, GROW_MAKE_MAX_CHARGES: bad })).toBeNull();
+  });
 });
 
 describe('createGrowMakeProvider', () => {
+  it('says how many charges a standing order makes before the owner extends it', () => {
+    expect(createGrowMakeProvider(CONFIG).recurringChargeLimit).toBe(12);
+  });
+
   it('cannot change or cancel a recurring charge (done by hand in Grow)', async () => {
     const { provider } = makeWith();
     expect(provider.id).toBe('grow');
@@ -74,6 +84,7 @@ describe('createGrowMakeProvider', () => {
       payerEmail: PAGE_INPUT.payerEmail,
       successUrl: PAGE_INPUT.successUrl,
       notifyUrl: PAGE_INPUT.notifyUrl,
+      maxCharges: 12,
     });
   });
 

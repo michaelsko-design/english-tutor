@@ -13,11 +13,12 @@ const PAID: ConfirmedPayment = {
   transactionId: 'T100', amountAgorot: 6400, recurringRef: 'DD7', billing: '{"transactionId":"T100"}', details: {},
 };
 
-function setup(payment: ConfirmedPayment | null = PAID, canChangeRecurring = true) {
+function setup(payment: ConfirmedPayment | null = PAID, canChangeRecurring = true, recurringChargeLimit?: number) {
   const fake = createFakeFirestore();
   const gateway = {
     id: 'grow',
     canChangeRecurring,
+    recurringChargeLimit,
     createPaymentPage: vi.fn(),
     confirmPayment: vi.fn(async () => payment),
     acknowledge: vi.fn(async () => {}),
@@ -147,6 +148,7 @@ describe('handlePaymentWebhook: Grow account webhooks', () => {
     expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ periodEnd: Date.UTC(2026, 11, 28, 12), status: 'active' });
     expect(fake.get('entitlements', 'kid2')).toMatchObject({ periodEnd: Date.UTC(2026, 11, 28, 12) });
     expect(fake.get('payments', 'grow_R1')).toMatchObject({ kind: 'renewal', amountAgorot: 6400 });
+    expect(fake.get('gatewayTasks', `${CHECKOUT_ID}_extend_1`)).toBeUndefined();
   });
 
   it('refuses a renewal charged for less than the plan, and logs it', async () => {
@@ -287,6 +289,27 @@ describe('handlePaymentWebhook: Grow through Make', () => {
     await handlePaymentWebhook(accountWebhook(failed), { ...ENV, GROW_WEBHOOK_KEY: '' }, deps);
 
     expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({ status: 'past_due', recurringRef: 'DD55' });
+  });
+
+  it('asks the owner to extend a standing order one charge before it ends, once per round', async () => {
+    // Activation is charge 1; with 3 charges per standing order, charge 2 leaves one
+    const { fake, deps, clock } = setup(PAID, false, 3);
+    await handlePaymentWebhook(processCallback(GROW_CALLBACK), ENV, deps);
+    const renewal = (code: string) => accountWebhook({ webhookKey: 'GROWKEY', transactionCode: code, paymentSum: 64, directDebitId: 'DD7' });
+
+    clock.now = Date.UTC(2026, 10, 27, 12);
+    await handlePaymentWebhook(renewal('R1'), ENV, deps);
+
+    expect(fake.get('gatewayTasks', `${CHECKOUT_ID}_extend_1`)).toMatchObject({
+      kind: 'extend', subscriptionId: CHECKOUT_ID, dueAt: Date.UTC(2026, 11, 28, 12), payerPhone: '0501234567', doneAt: 0,
+    });
+
+    fake.seed('gatewayTasks', `${CHECKOUT_ID}_extend_1`, { ...fake.get('gatewayTasks', `${CHECKOUT_ID}_extend_1`), doneAt: clock.now });
+    clock.now = Date.UTC(2026, 11, 27, 12);
+    await handlePaymentWebhook(renewal('R2'), ENV, deps);
+
+    expect(fake.get('gatewayTasks', `${CHECKOUT_ID}_extend_1`)).toMatchObject({ doneAt: Date.UTC(2026, 10, 27, 12) });
+    expect(fake.get('gatewayTasks', `${CHECKOUT_ID}_extend_2`)).toBeUndefined();
   });
 
   it('asks the owner to refund children seated elsewhere and to lower the standing order by hand', async () => {

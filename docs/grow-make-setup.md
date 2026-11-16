@@ -41,7 +41,7 @@ Build one scenario per environment: sandbox first, then a copy on the live conne
 3. Click **Redetermine data structure**, then send this sample from a terminal. Replace the address and the key:
 
 ```bash
-curl -X POST "<GROW_MAKE_WEBHOOK_URL>" -H "Content-Type: application/json" -H "x-make-apikey: <GROW_MAKE_API_KEY>" -d "{\"action\":\"create\",\"recurring\":true,\"transactionTypes\":[1],\"checkoutId\":\"test\",\"productName\":\"EnglishVibe Pro monthly 1 child\",\"price\":39,\"payerName\":\"Test Parent\",\"payerPhone\":\"0500000000\",\"payerEmail\":\"\",\"successUrl\":\"https://englishvibe.co.il/?parent\",\"notifyUrl\":\"https://englishvibe.co.il/api/payment-webhook\",\"processId\":\"\",\"processToken\":\"\",\"transactionId\":\"\",\"transactionToken\":\"\",\"asmachta\":\"\",\"fullName\":\"\"}"
+curl -X POST "<GROW_MAKE_WEBHOOK_URL>" -H "Content-Type: application/json" -H "x-make-apikey: <GROW_MAKE_API_KEY>" -d "{\"action\":\"create\",\"recurring\":true,\"transactionTypes\":[1],\"checkoutId\":\"test\",\"productName\":\"EnglishVibe Pro monthly 1 child\",\"price\":39,\"payerName\":\"Test Parent\",\"payerPhone\":\"0500000000\",\"payerEmail\":\"\",\"successUrl\":\"https://englishvibe.co.il/?parent\",\"notifyUrl\":\"https://englishvibe.co.il/api/payment-webhook\",\"maxCharges\":12,\"processId\":\"\",\"processToken\":\"\",\"transactionId\":\"\",\"transactionToken\":\"\",\"asmachta\":\"\",\"fullName\":\"\"}"
 ```
 
 ### Module 2: Router with three routes
@@ -53,7 +53,11 @@ Each route has a filter on `action`:
 ### Route `create`
 1. **Grow → Create Payment Link** (connection: Grow Sandbox). Field reference: developers.grow.business, "createPaymentLink".
    - **Sending Mode:** none. We show the link ourselves, so Grow sends no SMS or email.
+   - **Sending Mode** "none" shows as `3` in the module input.
    - **Payment Type:** `recurring payment` when `recurring` is true, otherwise payments with **1** payment. Use `if(recurring; …; …)`, or two routes split by a filter.
+     - For a recurring payment, **Max or Custom** = Max Payments and **Payments Max Number** = map `maxCharges` (the server sends `GROW_MAKE_MAX_CHARGES`, default 12).
+     - **A standing order can't run until cancelled through Make** (Grow, 2026-11-15). Grow refuses `1`, and this Make module refuses anything above 12 ("Maximum value is 12", a Make-side check); Grow says Make allows up to 36. If **Custom** takes 36, set `GROW_MAKE_MAX_CHARGES=36`.
+     - One charge before a standing order runs out, the owner gets an **"Extend the standing order"** task: add the same number of charges to it in Grow's standing-orders area.
    - **Payment methods (transactionType):** map `transactionTypes`:
      - 1 = card;
      - 6 = Bit;
@@ -65,7 +69,7 @@ Each route has a filter on `action`:
      - name = `productName`;
      - price = `price` (whole shekels);
      - quantity = 1;
-     - **VAT type = 3** (exempt, עוסק פטור).
+     - **VAT type:** exempt (עוסק פטור) on the live account. **The sandbox refused 3 (exempt)** and only takes regular VAT, so the sandbox scenario uses regular VAT. Ask Grow which value an עוסק פטור sends live.
    - **Page fields:**
      - full name = `payerName`;
      - phone = `payerPhone`;
@@ -82,7 +86,7 @@ Each route has a filter on `action`:
 {"url":"{{Data.URL}}","processId":"{{Data.Payment Link Process ID}}","processToken":"{{Data.Payment Link Process Token}}"}
 ```
 
-   Use Make's mapping panel to pick these three fields from the Create Payment Link output.
+   Use Make's mapping panel to pick these three fields from the Create Payment Link output. A sandbox run (2026-11-13) answered `Status: 1`, an empty `Error`, and `Data` with `Payment Link Process ID` (a number), `Payment Link Process Token` and `URL` (`https://sandbox.grow.link/…`).
 
 ### Route `info`
 1. **Grow → Get Payment Link Info**: process id = `processId`, process token = `processToken`.
@@ -129,13 +133,14 @@ Use this address for both:
 | `PAYMENT_PROVIDER` | `grow-make` | `grow-make` |
 | `GROW_MAKE_WEBHOOK_URL` | sandbox scenario address | live scenario address |
 | `GROW_MAKE_API_KEY` | sandbox key | live key |
+| `GROW_MAKE_MAX_CHARGES` | unset (12), or what the module takes | the same |
 | `PAYMENT_WEBHOOK_SECRET` | long random string | a different long random string |
 | `APP_ORIGIN` | the Preview URL | `https://englishvibe.co.il` |
 | `GROW_WEBHOOK_KEY` | only if Grow shows one | only if Grow shows one |
 | `CRON_SECRET`, `FIREBASE_SERVICE_ACCOUNT_JSON`, `OWNER_UID` | as today | as today |
 
 - **Preview protection:** turn on Vercel **Deployment Protection → Protection Bypass for Automation**. The checkout then adds the bypass to Grow's notify URL on Preview only.
-- **Preview uses the live Firebase project.** Test with a test parent account on the owner's test list. Never use the owner's own card or a relative's card (Grow terms §11.2.7).
+- **Test on staging** (the `staging` branch, Firebase project `english-tutor-staging`; `docs/staging.md`), with a test parent account. Never use the owner's own card or a relative's card (Grow terms §11.2.7).
 
 ## 5. Sandbox test run (card 4580 4580 4580 4580)
 
@@ -164,3 +169,4 @@ Use this address for both:
 - **Change the standing order amount:** set the new amount from the next charge.
 - **Refund:** a charge after cancelling, or a child who already had Pro.
 - **Unmatched Grow charge:** a renewal or failure we couldn't tie to a plan. Find the parent by phone in Grow.
+- **Extend the standing order:** it has one charge left. In Grow's standing-orders area, add the number of charges the note says (the same as `GROW_MAKE_MAX_CHARGES`), before the date shown. Then press Done.

@@ -9,7 +9,8 @@
  * Grow sends the payment notice straight to our `notifyUrl`. It is trusted only when it carries the
  * link's secret process token, which Grow gave our server alone (it never reaches the browser).
  * Make can't change or cancel a standing order, so `canChangeRecurring` is false: the owner does it
- * in Grow by hand, from a task on the owner dashboard.
+ * in Grow by hand, from a task on the owner dashboard. Nor can it open one that runs until
+ * cancelled: each stops after `maxCharges`, and the owner extends it from a task one charge before.
  */
 import type { BillingPeriod } from '../../../src/config/proTier.js';
 import {
@@ -35,25 +36,42 @@ const PAID_STATUS_CODE = '2';
 const AGOROT_PER_SHEKEL = 100;
 const TIMEOUT_MS = 10_000;
 const MAKE_HOST = /(^|\.)make\.com$/;
+/**
+ * Charges in one standing order. Make's Grow module allows 2 to 12 (Grow says up to 36, never
+ * unlimited); below 3 the owner's "extend" task would be due at the very first payment.
+ */
+const DEFAULT_MAX_CHARGES = 12;
+const MIN_MAX_CHARGES = 3;
+const MAX_MAX_CHARGES = 36;
 
 export interface GrowMakeConfig {
   /** The scenario's custom webhook address (secret) */
   webhookUrl: string;
   /** The webhook's API key, sent as `x-make-apikey` */
   apiKey: string;
+  /** Charges in one standing order (`GROW_MAKE_MAX_CHARGES`), the scenario's "Payments Max Number" */
+  maxCharges: number;
+}
+
+function readMaxCharges(value: string | undefined): number | null {
+  if (!value) return DEFAULT_MAX_CHARGES;
+  if (!/^\d+$/.test(value)) return null;
+  const charges = Number(value);
+  return charges >= MIN_MAX_CHARGES && charges <= MAX_MAX_CHARGES ? charges : null;
 }
 
 export function readGrowMakeConfig(env: Record<string, string | undefined>): GrowMakeConfig | null {
   const webhookUrl = env.GROW_MAKE_WEBHOOK_URL ?? '';
   const apiKey = env.GROW_MAKE_API_KEY ?? '';
-  if (!webhookUrl || !apiKey) return null;
+  const maxCharges = readMaxCharges(env.GROW_MAKE_MAX_CHARGES);
+  if (!webhookUrl || !apiKey || maxCharges === null) return null;
   try {
     const url = new URL(webhookUrl);
     if (url.protocol !== 'https:' || !MAKE_HOST.test(url.hostname)) return null;
   } catch {
     return null;
   }
-  return { webhookUrl, apiKey };
+  return { webhookUrl, apiKey, maxCharges };
 }
 
 /** Every string or number leaf of a JSON value, by its last key (the first one found wins) */
@@ -101,6 +119,7 @@ export function createGrowMakeProvider(config: GrowMakeConfig, fetchImpl: typeof
   return {
     id: 'grow',
     canChangeRecurring: false,
+    recurringChargeLimit: config.maxCharges,
 
     async createPaymentPage(input: PaymentPageInput): Promise<PaymentPage> {
       // Grow takes product prices in whole shekels
@@ -117,6 +136,7 @@ export function createGrowMakeProvider(config: GrowMakeConfig, fetchImpl: typeof
           payerEmail: input.payerEmail,
           successUrl: input.successUrl,
           notifyUrl: input.notifyUrl,
+          maxCharges: config.maxCharges,
         })
       );
       if (!page.url?.startsWith('https://') || !page.processId || !page.processToken) throw new PaymentError('Grow payment link is incomplete');

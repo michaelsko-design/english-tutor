@@ -34,6 +34,12 @@ describe('GatewayTasksCard', () => {
     expect(screen.getAllByText(/before 20 Nov/)).toHaveLength(2);
   });
 
+  it('names a standing order that is about to run out', () => {
+    render(<GatewayTasksCard tasks={[task({ id: 'sub1_extend_1', kind: 'extend', note: 'The standing order has one charge left: add 12 more charges to it in Grow' })]} nowMs={NOW} />);
+    expect(screen.getByText(/Extend the standing order/)).toBeInTheDocument();
+    expect(screen.getByText(/add 12 more charges/)).toBeInTheDocument();
+  });
+
   it('flags tasks open for more than a day', () => {
     render(<GatewayTasksCard tasks={[task({ createdAt: NOW - 30 * HOUR })]} nowMs={NOW} />);
     expect(screen.getByText(/1 open for more than a day/)).toBeInTheDocument();
