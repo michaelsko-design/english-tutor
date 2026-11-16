@@ -15,7 +15,7 @@
 import { ConflictError, createFirestoreAdmin, type FirestoreAdmin } from './_lib/firestoreAdmin.js';
 import { AdminError, parseServiceAccount } from './_lib/googleAdmin.js';
 import { errorResponse, firebaseProjectId, jsonResponse } from './_lib/parentRequest.js';
-import { gatewayTaskWrite, readPayer, recurringChangeTask, type NewGatewayTask } from './_lib/gatewayTasks.js';
+import { chargesLeft, extendTask, gatewayTaskWrite, readPayer, recurringChangeTask, type NewGatewayTask } from './_lib/gatewayTasks.js';
 import { parseGrowAccountWebhook, type GrowAccountEvent } from './_lib/payments/grow.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
 import { changesRecurringByApi, PaymentError, safeEqual, type PaymentProvider } from './_lib/payments/provider.js';
@@ -363,7 +363,23 @@ function unmatchedTask(event: GrowAccountEvent, nowMs: number): DocumentWrite {
   }, nowMs);
 }
 
-async function handleAccountEvent(event: GrowAccountEvent, admin: FirestoreAdmin, nowMs: number): Promise<Response> {
+/**
+ * A standing order opened through Make stops after `chargeLimit` charges: one charge before, the owner
+ * gets a task to extend it. `renewed` is the plan after this renewal, whose payment isn't saved yet.
+ */
+async function extendWrites(admin: FirestoreAdmin, renewed: Subscription, chargeLimit: number | undefined, nowMs: number): Promise<DocumentWrite[]> {
+  if (!chargeLimit || renewed.status !== 'active') return [];
+  const chargesMade = (await admin.queryDocuments('payments', 'subscriptionId', renewed.id)).length + 1;
+  if (chargesLeft(chargesMade, chargeLimit) !== 1) return [];
+  return [gatewayTaskWrite(extendTask(renewed, chargesMade, chargeLimit, await readPayer(admin, renewed.id)), nowMs)];
+}
+
+async function handleAccountEvent(
+  event: GrowAccountEvent,
+  admin: FirestoreAdmin,
+  nowMs: number,
+  chargeLimit: number | undefined
+): Promise<Response> {
   const sub = (await findSubscriptionByRef(admin, 'grow', event.recurringRef)) ?? (await linkUnmatchedPlan(admin, event, nowMs));
   if (!sub) {
     await admin.commit([unmatchedTask(event, nowMs)]);
@@ -405,9 +421,11 @@ async function handleAccountEvent(event: GrowAccountEvent, admin: FirestoreAdmin
     }, nowMs)]
     : [];
   if (refund.length > 0) console.error('payment-webhook: a canceled plan was charged, refund needed');
+  const extend = await extendWrites(admin, renewed, chargeLimit, nowMs);
   try {
     await admin.commit([
       ...refund,
+      ...extend,
       {
         collection: 'payments',
         id: paymentId,
@@ -445,7 +463,7 @@ export async function handlePaymentWebhook(
     if (source === 'process') return await handleProcessNotification(fields, url.searchParams.get('checkout') ?? '', admin, provider, nowMs());
     if (source === 'account' && provider.id === 'grow') {
       const event = parseGrowAccountWebhook(fields, env.GROW_WEBHOOK_KEY ?? '');
-      return event ? await handleAccountEvent(event, admin, nowMs()) : ignored('not a known event');
+      return event ? await handleAccountEvent(event, admin, nowMs(), provider.recurringChargeLimit) : ignored('not a known event');
     }
     return errorResponse(400, 'Invalid request');
   } catch (error) {

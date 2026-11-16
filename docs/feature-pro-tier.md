@@ -486,6 +486,7 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
   - **A monthly price change:** add or remove a child, a deleted learner (reconcile), or a child seated elsewhere at payment. It becomes an "amount" task.
   - **Refunds:** a child seated elsewhere, or a renewal charged on a canceled plan.
   - **A renewal or failure that matched no plan:** an "unmatched" task.
+  - **A standing order running out:** Make can't open one that runs until cancelled (Grow, 2026-11-15). Each makes `GROW_MAKE_MAX_CHARGES` charges (default 12). On the renewal that leaves one charge, an "extend" task asks the owner to add as many again in Grow (`extendTask`; counted from the plan's `payments`).
   - **Overdue:** the reconcile counts tasks open for more than 2 days (`overdueTasks`), and the owner card turns red after a day.
 - **Account webhooks:** created in Grow's dashboard. Without a `GROW_WEBHOOK_KEY`, the secret in the address is the check.
 - **On Preview:** the notify URL carries Vercel's automation bypass (`VERCEL_AUTOMATION_BYPASS_SECRET`). It is never added on Production.

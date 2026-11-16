@@ -8,9 +8,9 @@ import type { DocumentWrite, FirestoreAdmin, PlainDocument, PlainValue } from '.
 import type { RecurringChange } from './payments/provider.js';
 import type { Subscription } from './proBilling.js';
 
-export type GatewayTaskKind = 'cancel' | 'amount' | 'refund' | 'match_renewal';
+export type GatewayTaskKind = 'cancel' | 'amount' | 'refund' | 'match_renewal' | 'extend';
 
-const KINDS: readonly GatewayTaskKind[] = ['cancel', 'amount', 'refund', 'match_renewal'];
+const KINDS: readonly GatewayTaskKind[] = ['cancel', 'amount', 'refund', 'match_renewal', 'extend'];
 export const GATEWAY_TASK_ID_PATTERN = /^[A-Za-z0-9_-]{1,140}$/;
 
 export interface Payer {
@@ -92,6 +92,31 @@ export function recurringChangeTask(sub: Subscription, change: RecurringChange, 
   }
   const amountAgorot = change.amountAgorot ?? sub.amountAgorot;
   return { ...base, id: `${sub.id}_amount`, kind: 'amount', amountAgorot, note: 'Change the standing order amount from the next charge' };
+}
+
+/**
+ * Charges left in the current standing order, after `chargesMade` (the first payment included), when
+ * each one makes `limit` charges and the owner extends it by another `limit` each time.
+ */
+export function chargesLeft(chargesMade: number, limit: number): number {
+  return limit - (chargesMade % limit);
+}
+
+/**
+ * The task to extend a standing order that has one charge left. One per round (`_extend_<n>`), so a
+ * done task never comes back. Due by the last charge (`sub.periodEnd`, after this renewal).
+ */
+export function extendTask(sub: Subscription, chargesMade: number, limit: number, payer: Payer): NewGatewayTask {
+  const round = Math.floor(chargesMade / limit) + 1;
+  return {
+    id: `${sub.id}_extend_${round}`,
+    kind: 'extend',
+    subscriptionId: sub.id,
+    amountAgorot: sub.amountAgorot,
+    dueAt: sub.periodEnd,
+    note: `The standing order has one charge left: add ${limit} more charges to it in Grow`,
+    ...payer,
+  };
 }
 
 /** Open tasks first by deadline; done ones are left out */
