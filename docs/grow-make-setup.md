@@ -41,7 +41,7 @@ Build one scenario per environment: sandbox first, then a copy on the live conne
 3. Click **Redetermine data structure**, then send this sample from a terminal. Replace the address and the key:
 
 ```bash
-curl -X POST "<GROW_MAKE_WEBHOOK_URL>" -H "Content-Type: application/json" -H "x-make-apikey: <GROW_MAKE_API_KEY>" -d "{\"action\":\"create\",\"recurring\":true,\"transactionTypes\":[1],\"checkoutId\":\"test\",\"productName\":\"EnglishVibe Pro monthly 1 child\",\"price\":39,\"payerName\":\"Test Parent\",\"payerPhone\":\"0500000000\",\"payerEmail\":\"\",\"successUrl\":\"https://englishvibe.co.il/?parent\",\"notifyUrl\":\"https://englishvibe.co.il/api/payment-webhook\",\"maxCharges\":12,\"processId\":\"\",\"processToken\":\"\",\"transactionId\":\"\",\"transactionToken\":\"\",\"asmachta\":\"\",\"fullName\":\"\"}"
+curl -X POST "<GROW_MAKE_WEBHOOK_URL>" -H "Content-Type: application/json" -H "x-make-apikey: <GROW_MAKE_API_KEY>" -d "{\"action\":\"create\",\"recurring\":true,\"transactionTypes\":[1],\"checkoutId\":\"test\",\"productName\":\"EnglishVibe Pro monthly 1 child\",\"price\":39,\"payerName\":\"Test Parent\",\"payerPhone\":\"0500000000\",\"payerEmail\":\"\",\"successUrl\":\"https://englishvibe.co.il/?parent\",\"notifyUrl\":\"https://englishvibe.co.il/api/payment-webhook\",\"maxCharges\":36,\"processId\":\"\",\"processToken\":\"\",\"transactionId\":\"\",\"transactionToken\":\"\",\"asmachta\":\"\",\"fullName\":\"\"}"
 ```
 
 ### Module 2: Router with three routes
@@ -55,16 +55,10 @@ Each route has a filter on `action`:
    - **Sending Mode:** none. We show the link ourselves, so Grow sends no SMS or email.
    - **Sending Mode** "none" shows as `3` in the module input.
    - **Payment Type:** `recurring payment` when `recurring` is true, otherwise payments with **1** payment. Use `if(recurring; …; …)`, or two routes split by a filter.
-     - For a recurring payment, **Max or Custom** = Max Payments and **Payments Max Number** = map `maxCharges` (the server sends `GROW_MAKE_MAX_CHARGES`, default 12).
-     - **A standing order can't run until cancelled through Make** (Grow, 2026-11-15). Grow refuses `1`, and this Make module refuses anything above 12 ("Maximum value is 12", a Make-side check); Grow says Make allows up to 36. If **Custom** takes 36, set `GROW_MAKE_MAX_CHARGES=36`.
+     - For a recurring payment, **Max or Custom** = **Custom** and **Payments Max Number** = map `maxCharges` (the server sends `GROW_MAKE_MAX_CHARGES`, default 36).
+     - **A standing order can't run until cancelled through Make** (Grow, 2026-11-15). Grow refuses `1`. With Max or Custom = Max Payments, the module refuses anything above 12 ("Maximum value is 12", a Make-side check); **Custom takes up to 36** (checked in the sandbox, 2026-11-16).
      - One charge before a standing order runs out, the owner gets an **"Extend the standing order"** task: add the same number of charges to it in Grow's standing-orders area.
-   - **Payment methods (transactionType):** map `transactionTypes`:
-     - 1 = card;
-     - 6 = Bit;
-     - 13 = Apple Pay;
-     - 14 = Google Pay.
-
-     Monthly sends card only.
+   - **Payment methods:** the Make module has no `transactionType` field, so `transactionTypes` can't be mapped. Grow's page shows the methods the account allows; a standing order is card only (the sandbox page showed card only, 2026-11-16). Check the yearly page for Bit and the wallets.
    - **Product:**
      - name = `productName`;
      - price = `price` (whole shekels);
@@ -88,12 +82,11 @@ Each route has a filter on `action`:
 
    Use Make's mapping panel to pick these three fields from the Create Payment Link output. A sandbox run (2026-11-13) answered `Status: 1`, an empty `Error`, and `Data` with `Payment Link Process ID` (a number), `Payment Link Process Token` and `URL` (`https://sandbox.grow.link/…`).
 
-### Route `info`
+### Route `info` (optional)
+Grow's payment notice already carries `directDebitId` (sandbox, 2026-11-16), and Get Payment Link Info's output has no such field, so this route is only a fallback; without it the server logs "info failed" and links the plan on its first renewal.
 1. **Grow → Get Payment Link Info**: process id = `processId`, process token = `processToken`.
 2. **JSON → Create JSON** from the whole module output.
 3. **Webhooks → Webhook response**: status 200, the JSON string as the body.
-
-   The server only looks for `directDebitId` (the standing order id) in it.
 
 ### Route `approve`
 1. **Grow → Approve Transaction**: map each field it asks for from the webhook data. These include:
@@ -103,7 +96,7 @@ Each route has a filter on `action`:
    - Payer Phone = `payerPhone`;
    - Asmachta = `asmachta`.
 
-   The server sends every field of Grow's notice.
+   The server sends only these five fields from Grow's notice.
 2. **Webhooks → Webhook response**: status 200, body `{"ok":true}`.
 
 Then **save** the scenario and turn **Scheduling** on ("Immediately as data arrives").
@@ -133,7 +126,7 @@ Use this address for both:
 | `PAYMENT_PROVIDER` | `grow-make` | `grow-make` |
 | `GROW_MAKE_WEBHOOK_URL` | sandbox scenario address | live scenario address |
 | `GROW_MAKE_API_KEY` | sandbox key | live key |
-| `GROW_MAKE_MAX_CHARGES` | unset (12), or what the module takes | the same |
+| `GROW_MAKE_MAX_CHARGES` | unset (36) | unset (36) |
 | `PAYMENT_WEBHOOK_SECRET` | long random string | a different long random string |
 | `APP_ORIGIN` | the Preview URL | `https://englishvibe.co.il` |
 | `GROW_WEBHOOK_KEY` | only if Grow shows one | only if Grow shows one |
@@ -153,10 +146,17 @@ Use this address for both:
 | Cancel in the parent portal | Plan canceled, the owner dashboard shows "Cancel the standing order". Cancel it in Grow, press Done |
 | Add a child to a monthly plan | Owner task "Change the standing order amount" with the new price |
 
-**After each case, send Claude the Make run output and Grow's notice, with personal details blanked.** The field names in Grow's docs aren't confirmed yet:
-- Get Payment Link Info's `directDebitId`;
-- the notice's `statusCode`;
-- Approve Transaction's fields.
+**After each case, send Claude the Make run output and Grow's notice, with personal details blanked.**
+
+**Grow's payment notice, as seen in the sandbox (2026-11-16):**
+- It arrives **form-encoded** (`data[statusCode]=2`, …), not JSON as Grow's answer said. The server reads both, and the total `data[sum]` wins over each `data[productData][n][sum]`.
+- `data`:
+  - `statusCode` "2" (`status` "שולם"), `sum`, `transactionId`, `transactionToken`, `asmachta`;
+  - `directDebitId` (the standing order) and also `recurringDebitId` (a different number);
+  - `paymentLinkProcessId`/`Token`, `processId`/`Token`, `customFields[cField1]`, the payer's name and phone, and card details.
+  - It also holds the business's `invoice_name` and `invoice_license_number`: keep notices out of logs.
+- **Approve Transaction** takes `transactionId` and `transactionToken` (required), and `fullName`, `payerPhone` and `asmachta`.
+- **Open question for Grow:** do renewal and failed-charge webhooks carry `directDebitId` or `recurringDebitId`? The plan is linked by `directDebitId`.
 
 ## 6. Launch
 1. Copy the scenario onto the **live** connection, with a new webhook address and key, and set the Production env.
