@@ -11,7 +11,7 @@ How EnglishVibe takes payments through Grow's free Make.com app instead of Grow'
 ```
 parent → /api/checkout → Make scenario (action=create) → Grow: Create Payment Link → {url, processId, processToken}
 parent pays on Grow's page
-Grow → notifyUrl (/api/payment-webhook?source=process&…&checkout=<id>) → plan activated
+Grow → notifyUrl (/api/payment-webhook?source=process&key=…; checkout id from cField1) → plan activated
      → /api/payment-webhook → Make scenario (action=approve) → Grow: Approve Transaction
 Grow account webhooks (dashboard) → /api/payment-webhook?source=account&key=… → renewal / failed charge
 cancel or price change → owner task on the owner dashboard → done by hand in Grow
@@ -73,7 +73,9 @@ Each route has a filter on `action`:
      - phone = `payerPhone`;
      - email = `payerEmail`.
    - **Success URL** = `successUrl`.
-   - **Notify URL** = `notifyUrl`. It already carries our secret and the checkout id; never edit it.
+   - **Notify URL** = `notifyUrl`. It already carries our secret; never edit it.
+     - It has no checkout id: the webhook takes that from `cField1`.
+     - Keep it under 255 characters. On staging, a 263-character address (with `&checkout=` and Vercel's bypass) never reached us, while a 243-character one did (2026-11-16).
    - **cField1** = `checkoutId`.
 2. **Webhooks → Webhook response**:
    - status 200;

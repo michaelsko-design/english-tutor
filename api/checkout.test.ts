@@ -55,7 +55,7 @@ describe('handleCheckoutRequest', () => {
       payerPhone: '0501234567',
       description: 'EnglishVibe Pro monthly 2 children',
       successUrl: `https://app.example/?parent&paid=${CHECKOUT_ID}`,
-      notifyUrl: `https://app.example/api/payment-webhook?source=process&key=hook-secret&checkout=${CHECKOUT_ID}`,
+      notifyUrl: 'https://app.example/api/payment-webhook?source=process&key=hook-secret',
     }));
     expect(fake.get('checkouts', CHECKOUT_ID)).toMatchObject({
       parentUid: 'parent1', childUids: ['kid1', 'kid2'], period: 'monthly', seatLimit: 2, amountAgorot: 6400,
@@ -70,7 +70,7 @@ describe('handleCheckoutRequest', () => {
     const preview = setup();
     await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER }), { ...ENV, ...bypass, VERCEL_ENV: 'preview' }, preview.deps);
     expect(preview.gateway.createPaymentPage).toHaveBeenCalledWith(expect.objectContaining({
-      notifyUrl: expect.stringMatching(/&checkout=c+&x-vercel-protection-bypass=bypass1$/),
+      notifyUrl: expect.stringMatching(/\?source=process&key=hook-secret&x-vercel-protection-bypass=bypass1$/),
     }));
     const production = setup();
     await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER }), { ...ENV, ...bypass, VERCEL_ENV: 'production' }, production.deps);

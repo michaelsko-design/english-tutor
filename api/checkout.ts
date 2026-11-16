@@ -174,7 +174,9 @@ async function openPaymentPage(
     payerEmail: body.payerEmail,
     successUrl: `${origin}/?parent&paid=${checkoutId}`,
     cancelUrl: `${origin}/?parent&paid=${checkoutId}&status=cancel`,
-    notifyUrl: `${origin}/api/payment-webhook?source=process&key=${encodeURIComponent(input.webhookSecret)}&checkout=${checkoutId}${input.bypass}`,
+    // No `&checkout=`: Grow echoes the checkout id as cField1, and the sandbox dropped the notice
+    // of a longer staging address (about 263 characters, likely cut at 255, breaking the bypass)
+    notifyUrl: `${origin}/api/payment-webhook?source=process&key=${encodeURIComponent(input.webhookSecret)}${input.bypass}`,
   });
   // The page only works once the checkout knows it: the webhook confirms payments against these ids
   await admin.commit([{
