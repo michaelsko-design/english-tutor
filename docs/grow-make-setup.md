@@ -31,6 +31,8 @@ cancel or price change → owner task on the owner dashboard → done by hand in
 
 Build one scenario per environment: sandbox first, then a copy on the live connection.
 
+**The sandbox scenario is built** (Make connector, 2026-11-16): scenario 8616617 "EnglishVibe payments (sandbox)" on webhook 4119019, with the routes below (`create` monthly, `create` yearly, `approve`; no `info` route). Test calls returned a working link for both monthly and yearly. The webhook requires an API key (a key of type **Webhook API Key Auth**, created under Keys and attached to the webhook; Make's webhook detail page doesn't show it). Since 2026-11-16 the scenario is **on**, and calls without the key get 401. The owner puts the webhook address and the key into `GROW_MAKE_WEBHOOK_URL` / `GROW_MAKE_API_KEY` on Vercel Preview. An unknown `action` gets Make's plain `Accepted`, which the server treats as a failure.
+
 **Scenario settings** (the ⚙ at the bottom):
 - **Data is confidential: on.** Make then keeps no payer details in its run history.
 - **Sequential processing: off.**
@@ -54,11 +56,13 @@ Each route has a filter on `action`:
 1. **Grow → Create Payment Link** (connection: Grow Sandbox). Field reference: developers.grow.business, "createPaymentLink".
    - **Sending Mode:** none. We show the link ourselves, so Grow sends no SMS or email.
    - **Sending Mode** "none" shows as `3` in the module input.
-   - **Payment Type:** `recurring payment` when `recurring` is true, otherwise payments with **1** payment. Use `if(recurring; …; …)`, or two routes split by a filter.
+   - **Payment Type:** two `create` routes, split by a filter on `recurring` (`true` / `false`):
+     - monthly: Recurring Payment;
+     - yearly: Payments, Max or Custom = Custom Payments, Payments Number = **1**.
      - For a recurring payment, **Max or Custom** = **Custom** and **Payments Max Number** = map `maxCharges` (the server sends `GROW_MAKE_MAX_CHARGES`, default 36).
      - **A standing order can't run until cancelled through Make** (Grow, 2026-11-15). Grow refuses `1`. With Max or Custom = Max Payments, the module refuses anything above 12 ("Maximum value is 12", a Make-side check); **Custom takes up to 36** (checked in the sandbox, 2026-11-16).
      - One charge before a standing order runs out, the owner gets an **"Extend the standing order"** task: add the same number of charges to it in Grow's standing-orders area.
-   - **Payment methods:** the Make module has no `transactionType` field, so `transactionTypes` can't be mapped. Grow's page shows the methods the account allows; a standing order is card only (the sandbox page showed card only, 2026-11-16). Check the yearly page for Bit and the wallets.
+   - **Payment methods:** set **Charge Type** = Regular Charge. Its nested **Transaction Type** field then appears; map it to `transactionTypes` (`[1]` monthly, `[1,6,13,14]` yearly). Grow still shows only what the account allows: check the yearly page for Bit and the wallets.
    - **Product:**
      - name = `productName`;
      - price = `price` (whole shekels);
@@ -82,8 +86,8 @@ Each route has a filter on `action`:
 
    Use Make's mapping panel to pick these three fields from the Create Payment Link output. A sandbox run (2026-11-13) answered `Status: 1`, an empty `Error`, and `Data` with `Payment Link Process ID` (a number), `Payment Link Process Token` and `URL` (`https://sandbox.grow.link/…`).
 
-### Route `info` (optional)
-Grow's payment notice already carries `directDebitId` (sandbox, 2026-11-16), and Get Payment Link Info's output has no such field, so this route is only a fallback; without it the server logs "info failed" and links the plan on its first renewal.
+### Route `info` (optional, not built)
+Grow's payment notice already carries `directDebitId` (sandbox, 2026-11-16), and Get Payment Link Info's output has no such field, so the built scenario leaves this route out. Without it the server logs "info failed" and links the plan on its first renewal.
 1. **Grow → Get Payment Link Info**: process id = `processId`, process token = `processToken`.
 2. **JSON → Create JSON** from the whole module output.
 3. **Webhooks → Webhook response**: status 200, the JSON string as the body.
