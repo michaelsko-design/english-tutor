@@ -67,6 +67,21 @@ describe('handleProReconcileRequest', () => {
     logged.mockRestore();
   });
 
+  it('reminds the owner by email and WhatsApp (Make) of a task open for more than two days', async () => {
+    const { fake, deps } = setup([]);
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fetchImpl = vi.fn(async () => new Response('{"ok":true}', { status: 200 }));
+    fake.seed('gatewayTasks', 'old', { kind: 'cancel', note: 'Cancel', createdAt: NOW - 3 * DAY, doneAt: 0 });
+    fake.seed('gatewayTasks', 'new', { kind: 'cancel', note: 'Cancel', createdAt: NOW - DAY, doneAt: 0 });
+    const env = { ...ENV, GROW_MAKE_WEBHOOK_URL: 'https://hook.eu1.make.com/abc', GROW_MAKE_API_KEY: 'k' };
+
+    await handleProReconcileRequest(cron(), env, { ...deps, fetchImpl: fetchImpl as unknown as typeof fetch });
+
+    const alerts = fetchImpl.mock.calls.map((call) => JSON.parse(String((call as unknown as [string, RequestInit])[1].body)));
+    expect(alerts).toEqual([expect.objectContaining({ action: 'notify', kind: 'cancel', subject: expect.stringMatching(/^תזכורת/) })]);
+    vi.restoreAllMocks();
+  });
+
   it('refuses a call without the cron secret', async () => {
     const { deps } = setup([]);
     expect((await handleProReconcileRequest(cron('wrong'), ENV, deps)).status).toBe(401);

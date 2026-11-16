@@ -105,6 +105,20 @@ Grow's payment notice already carries `directDebitId` (sandbox, 2026-11-16), and
    The server sends only these five fields from Grow's notice.
 2. **Webhooks → Webhook response**: status 200, body `{"ok":true}`.
 
+### Route `notify` (alerts to the owner)
+The server calls it whenever it saves a Grow task (cancel, amount, extend, refund, unmatched charge), and the daily reconcile calls it again for tasks open more than 2 days (`api/_lib/ownerAlerts.ts`). The body is `{action, kind, subject, text, dueDate, dashboardUrl}`. It never carries the payer's details: those stay on the owner dashboard.
+1. **Webhooks → Webhook response:** status 200, body `{"ok":true}`, sent first so the server never waits on the alert.
+2. **Email → Send an Email to a Team Member:**
+   - to: the owner's Make address;
+   - subject = `subject`;
+   - content = `text`, right-to-left.
+3. **HTTP → Make a request** (WhatsApp through CallMeBot, free, to the owner's own number):
+   - GET `https://api.callmebot.com/whatsapp.php` with `phone`, `apikey` and `text` = `subject` + `text`;
+   - "Evaluate all states as errors" is off.
+   - **One-time owner setup:** follow callmebot.com's WhatsApp instructions (send their bot the activation message), then paste your number (international format, e.g. `972…`) and the key it sends you into this module's `phone` and `apikey`.
+   - Until then the module sends nothing useful, and the email still works.
+4. Both alert modules have an **Ignore** error handler. The scenario turns itself off after 3 errors in a row, and a failed alert must never take payments down with it.
+
 Then **save** the scenario and turn **Scheduling** on ("Immediately as data arrives").
 
 ## 3. Grow dashboard webhooks (renewals and failed charges)
@@ -170,7 +184,8 @@ Use this address for both:
 3. Make one real low-price charge on a card that isn't the owner's or a relative's. Check the קבלה, then refund it in Grow.
 
 ## Owner's manual work
-- The owner dashboard (`?owner`, Overview tab) lists open **Grow tasks**. The count turns red after a day, and the daily reconcile logs tasks open for more than two days.
+- Each new Grow task is sent to the owner by **email and WhatsApp** (route `notify`), and again every day once it's been open more than two days, until it's marked done.
+- The owner dashboard (`?owner`, Overview tab) lists open **Grow tasks**, with the payer's details. The count turns red after a day.
 - **Cancel the standing order:** do it before the date shown, or the parent is charged after cancelling.
 - **Change the standing order amount:** set the new amount from the next charge.
 - **Refund:** a charge after cancelling, or a child who already had Pro.

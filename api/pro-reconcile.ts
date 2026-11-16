@@ -5,7 +5,7 @@
  * plan still `active` past its end is only reported (`missedRenewals`): its renewal webhook went
  * missing, and only the gateway can say whether it was charged. A gateway that can't change a
  * standing order (Grow through Make) gets an owner task instead; open tasks older than two days are
- * counted (`overdueTasks`) and logged.
+ * counted (`overdueTasks`), logged, and sent to the owner again as a reminder (`_lib/ownerAlerts.ts`).
  */
 import { ConflictError, createFirestoreAdmin, type DocumentWrite, type FirestoreAdmin, type PlainDocument } from './_lib/firestoreAdmin.js';
 import { AdminError, createAuthAdmin, parseServiceAccount } from './_lib/googleAdmin.js';
@@ -13,6 +13,7 @@ import { firebaseProjectId, jsonResponse } from './_lib/parentRequest.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
 import { changesRecurringByApi, PaymentError, safeEqual, type PaymentProvider } from './_lib/payments/provider.js';
 import { gatewayTaskWrite, openGatewayTasks, readPayer, recurringChangeTask } from './_lib/gatewayTasks.js';
+import { createOwnerAlerter, withOwnerAlerts } from './_lib/ownerAlerts.js';
 import { entitlementFields, readSubscription, subscriptionFields, type Subscription } from './_lib/proBilling.js';
 import { checkLapse, entitlementAction, repairForDeletedAccounts, type PlanRepair } from './_lib/proReconcile.js';
 
@@ -134,7 +135,8 @@ export async function handleProReconcileRequest(
   const tally: Tally = { released: 0, expired: 0, deleted: 0, missedRenewals: 0, overdueTasks: 0, failed: 0 };
 
   try {
-    const admin = createAdmin(account, projectId, { fetchImpl });
+    const alert = createOwnerAlerter(env, fetchImpl);
+    const admin = withOwnerAlerts(createAdmin(account, projectId, { fetchImpl }), alert);
     const now = nowMs();
     const subscriptions = (await admin.listDocuments('subscriptions')).map(readSubscription).filter((s): s is Subscription => s !== null);
     const entitlements = await admin.listDocuments('entitlements');
@@ -153,7 +155,10 @@ export async function handleProReconcileRequest(
 
     for (const sub of subscriptions) await reconcileSubscription(admin, provider, sub, missingUids, tally, now);
     for (const doc of entitlements) await reconcileEntitlement(admin, doc, missingUids, tally, now);
-    tally.overdueTasks = openGatewayTasks(await admin.listDocuments('gatewayTasks')).filter((task) => now - task.createdAt > TASK_OVERDUE_MS).length;
+    const overdue = openGatewayTasks(await admin.listDocuments('gatewayTasks')).filter((task) => now - task.createdAt > TASK_OVERDUE_MS);
+    tally.overdueTasks = overdue.length;
+    // A daily reminder by email and WhatsApp until the owner marks it done
+    await alert(overdue, { reminder: true });
   } catch (error) {
     // Only a status or gateway code is logged: never ids, tokens or keys
     const detail = error instanceof AdminError ? error.status : error instanceof PaymentError ? `gateway ${error.code}` : 'unexpected';

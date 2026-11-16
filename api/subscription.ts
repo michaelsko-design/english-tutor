@@ -22,6 +22,7 @@ import {
 import { createPaymentProvider } from './_lib/payments/index.js';
 import { changesRecurringByApi, PaymentError, type PaymentProvider, type RecurringChange } from './_lib/payments/provider.js';
 import { gatewayTaskWrite, readPayer, recurringChangeTask } from './_lib/gatewayTasks.js';
+import { createOwnerAlerter, withOwnerAlerts } from './_lib/ownerAlerts.js';
 import {
   addChildToSubscription,
   addPeriods,
@@ -182,7 +183,7 @@ export async function handleSubscriptionRequest(
   if (!provider || !account) return errorResponse(503, 'Payments are not configured');
 
   try {
-    const admin = createAdmin(account, caller.projectId, { fetchImpl });
+    const admin = withOwnerAlerts(createAdmin(account, caller.projectId, { fetchImpl }), createOwnerAlerter(env, fetchImpl));
     const sub = readSubscription(await admin.getDocument('subscriptions', body.subscriptionId));
     // Someone else's plan looks the same as a missing one
     if (!sub || sub.payerParentUid !== caller.parentUid) return errorResponse(404, 'Plan not found');
