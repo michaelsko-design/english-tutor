@@ -107,6 +107,11 @@ describe('renderSite', () => {
     expect(home).toContain('href="/?src=landing"');
   });
 
+  it('keeps the tag of an ad or shared link that opens the home page', () => {
+    expect(readRepoText('home/index.html')).toContain('<script type="module" src="/src/site/keepSourceTag.ts"></script>');
+    expect(readRepoText('src/site/keepSourceTag.ts')).toContain('captureAttribution(window.location.search)');
+  });
+
   it('fills every page with no marker left behind', () => {
     for (const page of SITE_PAGES) {
       const html = fillSiteMarkers(readRepoText(`${page}/index.html`), blocks);
