@@ -48,15 +48,37 @@ export interface WebhookDeps {
 
 const ignored = (reason: string) => jsonResponse(200, { ok: true, ignored: reason });
 
-/** Every leaf of a JSON body or form fields such as `data[customFields][cField1]`, by its last key */
-function flattenLeaves(value: unknown, into: Record<string, string> = {}): Record<string, string> {
+/**
+ * Leaves by their last key, the shallowest one winning (the first among equals): Grow's notice
+ * has a total `data[sum]` and a `sum` in each `data[productData][n]` line after it.
+ */
+function byLastKey(leaves: Array<{ key: string; depth: number; value: string }>): Record<string, string> {
+  const best = new Map<string, { depth: number; value: string }>();
+  for (const { key, depth, value } of leaves) {
+    const current = best.get(key);
+    if (!current || depth < current.depth) best.set(key, { depth, value });
+  }
+  return Object.fromEntries([...best].map(([key, { value }]) => [key, value]));
+}
+
+/** Every leaf of a JSON body, e.g. `{data: {customFields: {cField1}}}` */
+function jsonLeaves(value: unknown, depth = 0, into: Array<{ key: string; depth: number; value: string }> = []) {
   if (value && typeof value === 'object') {
     for (const [key, child] of Object.entries(value)) {
-      if (child && typeof child === 'object') flattenLeaves(child, into);
-      else if (typeof child === 'string' || typeof child === 'number') into[key] = String(child).trim();
+      if (child && typeof child === 'object') jsonLeaves(child, depth + 1, into);
+      else if (typeof child === 'string' || typeof child === 'number') into.push({ key, depth, value: String(child).trim() });
     }
   }
   return into;
+}
+
+/** Form fields such as `data[customFields][cField1]` */
+function formLeaves(entries: Iterable<[string, string]>) {
+  return [...entries].map(([name, value]) => ({
+    key: name.replace(/^.*\[([^\]]*)\]$/, '$1'),
+    depth: (name.match(/\[/g) ?? []).length,
+    value: value.trim(),
+  }));
 }
 
 async function readFields(request: Request): Promise<Record<string, string> | null> {
@@ -65,7 +87,7 @@ async function readFields(request: Request): Promise<Record<string, string> | nu
   const type = request.headers.get('Content-Type') ?? '';
   if (type.includes('application/json')) {
     try {
-      return flattenLeaves(JSON.parse(text));
+      return byLastKey(jsonLeaves(JSON.parse(text)));
     } catch {
       return null;
     }
@@ -73,10 +95,9 @@ async function readFields(request: Request): Promise<Record<string, string> | nu
   if (type.includes('multipart/form-data')) {
     const form = await new Response(text, { headers: { 'Content-Type': type } }).formData().catch(() => null);
     if (!form) return null;
-    return Object.fromEntries([...form.entries()].map(([key, value]) => [key.replace(/^.*\[([^\]]*)\]$/, '$1'), String(value).trim()]));
+    return byLastKey(formLeaves([...form.entries()].map(([key, value]): [string, string] => [key, String(value)])));
   }
-  const params = new URLSearchParams(text);
-  return Object.fromEntries([...params.entries()].map(([key, value]) => [key.replace(/^.*\[([^\]]*)\]$/, '$1'), value.trim()]));
+  return byLastKey(formLeaves(new URLSearchParams(text).entries()));
 }
 
 /** Each seat's entitlement as it was read: a write over it must find it unchanged */

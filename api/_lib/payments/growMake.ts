@@ -34,13 +34,16 @@ const METHODS: Record<BillingPeriod, number[]> = { monthly: [CARD], yearly: [CAR
 /** Grow's status code for a paid transaction ("שולם") */
 const PAID_STATUS_CODE = '2';
 const AGOROT_PER_SHEKEL = 100;
+/** The fields of Make's Grow "Approve Transaction" module */
+const APPROVE_FIELDS = ['transactionId', 'transactionToken', 'fullName', 'payerPhone', 'asmachta'] as const;
 const TIMEOUT_MS = 10_000;
 const MAKE_HOST = /(^|\.)make\.com$/;
 /**
- * Charges in one standing order. Make's Grow module allows 2 to 12 (Grow says up to 36, never
- * unlimited); below 3 the owner's "extend" task would be due at the very first payment.
+ * Charges in one standing order. Make's Grow module takes up to 36 with "Max or Custom" = Custom
+ * (Max Payments stops at 12; never unlimited); below 3 the owner's "extend" task would be due at
+ * the very first payment.
  */
-const DEFAULT_MAX_CHARGES = 12;
+const DEFAULT_MAX_CHARGES = 36;
 const MIN_MAX_CHARGES = 3;
 const MAX_MAX_CHARGES = 36;
 
@@ -164,7 +167,9 @@ export function createGrowMakeProvider(config: GrowMakeConfig, fetchImpl: typeof
     },
 
     async acknowledge(_period, payment): Promise<void> {
-      await run('approve', payment.details);
+      // Only what Approve Transaction takes: the notice also carries card and business details
+      const notice = payment.details;
+      await run('approve', Object.fromEntries(APPROVE_FIELDS.map((field) => [field, notice[field] ?? ''])));
     },
 
     async updateRecurring(): Promise<void> {

@@ -238,6 +238,39 @@ describe('handlePaymentWebhook: Grow through Make', () => {
     });
   }
 
+  /** The shape of a real sandbox notice (2026-11-16): form-encoded, personal details replaced */
+  function formLinkNotice(productSums: string[]) {
+    const fields: Record<string, string> = {
+      err: '', status: '1',
+      'data[status]': 'שולם', 'data[statusCode]': '2', 'data[sum]': '64', 'data[paymentsNum]': '0', 'data[allPaymentsNum]': '1',
+      'data[fullName]': 'ישראל ישראלי', 'data[payerPhone]': '0501234567', 'data[payerEmail]': '',
+      'data[transactionId]': '570910', 'data[transactionToken]': 'TT1', 'data[directDebitId]': '252509',
+      'data[paymentLinkProcessId]': 'P-REAL', 'data[paymentLinkProcessToken]': 'TOK-REAL', 'data[recurringDebitId]': '10089',
+      'data[asmachta]': '133707572', 'data[processId]': '817814', 'data[processToken]': 'PT1', 'data[customFields][cField1]': CHECKOUT_ID,
+    };
+    productSums.forEach((sum, index) => {
+      fields[`data[productData][${index}][sum]`] = sum;
+      fields[`data[productData][${index}][price]`] = sum;
+    });
+    return new Request(`https://app.test/api/payment-webhook?source=process&key=hook-secret&checkout=${CHECKOUT_ID}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(fields).toString(),
+    });
+  }
+
+  it('reads a form-encoded notice, keeping the total over a product line with the same name', async () => {
+    const { gateway, deps } = setup(PAID_NO_REF, false);
+
+    expect((await handlePaymentWebhook(formLinkNotice(['39.00', '25.00']), ENV, deps)).status).toBe(200);
+
+    expect(gateway.confirmPayment).toHaveBeenCalledWith(
+      'monthly',
+      { processId: 'P-REAL', processToken: 'TOK-REAL' },
+      expect.objectContaining({ sum: '64', statusCode: '2', directDebitId: '252509', transactionId: '570910', processId: '817814' })
+    );
+  });
+
   async function activatedWithoutRef() {
     const context = setup(PAID_NO_REF, false);
     await handlePaymentWebhook(linkNotice(), ENV, context.deps);
