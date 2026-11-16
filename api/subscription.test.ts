@@ -67,6 +67,20 @@ describe('handleSubscriptionRequest', () => {
     expect(fake.commits).toHaveLength(1);
   });
 
+  it('alerts the owner through the Make scenario when a parent cancels', async () => {
+    const { deps } = setup(plan(), undefined, false);
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const env = { ...ENV, GROW_MAKE_WEBHOOK_URL: 'https://hook.eu1.make.com/abc', GROW_MAKE_API_KEY: 'k' };
+
+    expect((await handleSubscriptionRequest(call({ action: 'cancel' }), env, deps)).status).toBe(200);
+
+    const fetchMock = deps.fetchImpl as unknown as ReturnType<typeof linksFetch>;
+    const alerts = fetchMock.mock.calls.filter(([url]) => String(url) === env.GROW_MAKE_WEBHOOK_URL);
+    expect(alerts).toHaveLength(1);
+    expect(JSON.parse(String(alerts[0][1]?.body))).toMatchObject({ action: 'notify', kind: 'cancel' });
+    vi.restoreAllMocks();
+  });
+
   it('leaves the owner a task to change the amount when the gateway cannot (Make)', async () => {
     const { fake, gateway, deps } = setup(plan(), undefined, false);
 

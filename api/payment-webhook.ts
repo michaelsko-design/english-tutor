@@ -16,6 +16,7 @@ import { ConflictError, createFirestoreAdmin, type FirestoreAdmin } from './_lib
 import { AdminError, parseServiceAccount } from './_lib/googleAdmin.js';
 import { errorResponse, firebaseProjectId, jsonResponse } from './_lib/parentRequest.js';
 import { chargesLeft, extendTask, gatewayTaskWrite, readPayer, recurringChangeTask, type NewGatewayTask } from './_lib/gatewayTasks.js';
+import { createOwnerAlerter, withOwnerAlerts } from './_lib/ownerAlerts.js';
 import { parseGrowAccountWebhook, type GrowAccountEvent } from './_lib/payments/grow.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
 import { changesRecurringByApi, PaymentError, safeEqual, type PaymentProvider } from './_lib/payments/provider.js';
@@ -479,7 +480,7 @@ export async function handlePaymentWebhook(
   if (!fields) return errorResponse(400, 'Invalid request');
 
   try {
-    const admin = createAdmin(account, firebaseProjectId(env), { fetchImpl });
+    const admin = withOwnerAlerts(createAdmin(account, firebaseProjectId(env), { fetchImpl }), createOwnerAlerter(env, fetchImpl));
     const source = url.searchParams.get('source');
     if (source === 'process') return await handleProcessNotification(fields, url.searchParams.get('checkout') ?? '', admin, provider, nowMs());
     if (source === 'account' && provider.id === 'grow') {
