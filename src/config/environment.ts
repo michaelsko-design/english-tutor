@@ -8,4 +8,5 @@ export function isStagingProject(projectId: string | undefined): boolean {
   return (projectId ?? '').trim() === STAGING_FIREBASE_PROJECT_ID;
 }
 
-export const IS_STAGING_BUILD: boolean = isStagingProject(import.meta.env.VITE_FIREBASE_PROJECT_ID);
+// `?.`: server code reaches this through src/config/proTier.ts, where import.meta.env is undefined
+export const IS_STAGING_BUILD: boolean = isStagingProject(import.meta.env?.VITE_FIREBASE_PROJECT_ID);

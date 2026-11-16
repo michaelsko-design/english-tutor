@@ -45,7 +45,11 @@ Left (Vercel project `english-tutor`, Settings → Environment Variables, **Prev
 - [x] `FIREBASE_SERVICE_ACCOUNT_JSON` = the staging key, Preview branch `staging` (2026-11-13; checked: the staging funnel counter wrote to `english-tutor-staging`)
 - [x] The live `FIREBASE_SERVICE_ACCOUNT_JSON` narrowed to Production only, so other preview branches can't reach live data
 - [ ] `OWNER_UID` (Preview, branch `staging`): your uid in the staging project, only needed for the owner dashboard (`/?owner`) on staging. Sign in on staging with Google first, then the uid is in Firebase → Authentication
-- [ ] Payments: off on staging for now (no `PAYMENT_PROVIDER` on Preview). When Grow/Make is ready to try: `PAYMENT_PROVIDER=grow`, `GROW_ENV=sandbox` + sandbox ids, its own `PAYMENT_WEBHOOK_SECRET`, `APP_ORIGIN` = the staging URL
+- [x] Payments (2026-11-16), all set for Preview on branch `staging`:
+  - `PAYMENT_PROVIDER=grow-make`, `GROW_MAKE_WEBHOOK_URL` and `GROW_MAKE_API_KEY` (the Make sandbox scenario, `docs/grow-make-setup.md`);
+  - its own `PAYMENT_WEBHOOK_SECRET`;
+  - `APP_ORIGIN` = the staging URL;
+  - Protection Bypass for Automation was already on.
 - [x] `APPCHECK_ENFORCE` and `VITE_APPCHECK_SITE_KEY` are Production only, so App Check is off on staging
 - [x] Production variables unchanged (only the live service-account key was narrowed from Production+Preview to Production)
 - [x] `staging` branch created on GitHub from `main` (2026-11-13); branch URL `english-tutor-git-staging-clear-shield.vercel.app`
