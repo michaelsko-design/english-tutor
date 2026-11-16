@@ -3,6 +3,7 @@
  * computes every charge from these; the parent's plan picker only shows them.
  */
 import type { CompanionId, ThemeId } from '../types/learner';
+import { IS_STAGING_BUILD } from './environment.js';
 
 export type BillingPeriod = 'monthly' | 'yearly';
 
@@ -27,8 +28,8 @@ export const PRO_PRICES_AGOROT: Record<ProSeatCount, Record<BillingPeriod, numbe
   4: { monthly: 11400, yearly: 99900 },
 };
 
-/** The parent portal shows the plans on the dev server only, until checkout is wired to it */
-export const IS_PRO_PLAN_VISIBLE = import.meta.env?.DEV === true;
+/** The parent portal shows the plans on the dev server and on staging (Grow sandbox) only, until launch */
+export const IS_PRO_PLAN_VISIBLE = import.meta.env?.DEV === true || IS_STAGING_BUILD;
 
 /** Emulator runs only (`npm run dev:emu`, e2e): this localStorage value set to `on` turns the limits on */
 export const PRO_GATING_EMULATOR_KEY = 'english_tutor_pro_gating';
