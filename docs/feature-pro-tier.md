@@ -477,7 +477,7 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
 
 **Grow through Make (built 2026-11-13).** Grow's API is a paid add-on, so the server talks to Grow through one Make.com scenario (`docs/grow-make-setup.md`). `api/_lib/payments/growMake.ts` implements the same `PaymentProvider`, with `id: 'grow'`, so the records keep their keys if we move to the API:
 - **Opening a page:** `create` → Grow's Create Payment Link. Monthly is a standing order, card only. Yearly is one payment by card, Bit, Apple Pay or Google Pay. Prices are whole shekels, VAT type exempt.
-- **Confirming a payment:** Grow sends the notice to our `notifyUrl`, which carries `&checkout=<id>`. It's trusted only when its `paymentLinkProcessId` and `paymentLinkProcessToken` match the checkout's. Grow gave that token to our server alone, through Make, and it never reaches the browser.
+- **Confirming a payment:** Grow sends the notice to our `notifyUrl`. The checkout id comes back in `cField1`, not in the address, which stays under 255 characters. It's trusted only when its `paymentLinkProcessId` and `paymentLinkProcessToken` match the checkout's. Grow gave that token to our server alone, through Make, and it never reaches the browser.
   - A monthly plan's standing-order id comes from the notice or from `info` (Get Payment Link Info).
   - Otherwise, the first renewal or failure links itself. It must match exactly one monthly plan with no id yet, on the payer's phone (and email, when both have one) and, for a renewal, the amount. The checkout keeps the payer's name, phone and email only on this route, for that link and for the owner's tasks.
 - **Acknowledging:** `approve` → Approve Transaction.

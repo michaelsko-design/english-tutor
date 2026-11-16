@@ -252,7 +252,8 @@ describe('handlePaymentWebhook: Grow through Make', () => {
       fields[`data[productData][${index}][sum]`] = sum;
       fields[`data[productData][${index}][price]`] = sum;
     });
-    return new Request(`https://app.test/api/payment-webhook?source=process&key=hook-secret&checkout=${CHECKOUT_ID}`, {
+    // As checkout.ts builds it: the checkout id comes only from cField1
+    return new Request('https://app.test/api/payment-webhook?source=process&key=hook-secret', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(fields).toString(),
