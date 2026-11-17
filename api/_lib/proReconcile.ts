@@ -42,7 +42,7 @@ export type LapseCheck = 'expire' | 'missed_renewal' | null;
 
 /** A plan past its end and grace days: expire it, or report a monthly plan that should have renewed. */
 export function checkLapse(sub: Subscription, nowMs: number): LapseCheck {
-  if (sub.status === 'expired' || !isLapsed(sub.periodEnd, nowMs)) return null;
+  if (sub.status === 'expired' || !isLapsed(sub.periodEnd, nowMs, sub.status)) return null;
   return sub.period === 'monthly' && sub.status === 'active' ? 'missed_renewal' : 'expire';
 }
 
@@ -53,5 +53,5 @@ export function entitlementAction(doc: PlainDocument, missingUids: ReadonlySet<s
   if (missingUids.has(doc.id)) return 'delete';
   const { status, periodEnd } = doc.fields;
   if (status === 'expired' || typeof periodEnd !== 'number') return null;
-  return isLapsed(periodEnd, nowMs) ? 'expire' : null;
+  return isLapsed(periodEnd, nowMs, status) ? 'expire' : null;
 }

@@ -6,7 +6,7 @@ import {
   FREE_THEME_IDS,
   FREE_WORD_LISTS,
   PRO_GATING_ENABLED,
-  PRO_GRACE_DAYS,
+  graceDaysFor,
   isBillingPeriod,
   type BillingPeriod,
 } from '../config/proTier';
@@ -36,7 +36,7 @@ export interface Entitlement {
   plan: 'pro';
   status: EntitlementStatus;
   source: EntitlementSource;
-  /** Pro until this time (ms), plus `PRO_GRACE_DAYS` */
+  /** Pro until this time (ms), plus the grace days (`graceDaysFor`) */
   periodEnd: number;
   billingPeriod: BillingPeriod | null;
   /** A paid plan's details, for the parent portal: who pays, the plan, and its seats */
@@ -69,7 +69,7 @@ export function parseEntitlement(data: unknown): Entitlement | null {
 /** Pro now: not expired, and before the period's end plus a few days' grace. No document means free. */
 export function isPro(entitlement: Entitlement | null, nowMs: number): boolean {
   if (!entitlement || entitlement.status === 'expired') return false;
-  return nowMs < entitlement.periodEnd + PRO_GRACE_DAYS * DAY_MS;
+  return nowMs < entitlement.periodEnd + graceDaysFor(entitlement.status) * DAY_MS;
 }
 
 /** What the learner may open: Pro, or everything while gating is switched off */

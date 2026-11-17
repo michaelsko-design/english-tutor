@@ -80,7 +80,7 @@ All limits are named constants in one file, `config/proTier.ts`:
 - `FREE_COMPANION_IDS = ['mochi', 'kai']`: those two themes' own mascots (Mochi the Cat, Kai the Raccoon)
 - `FREE_WORD_LISTS = 2`
 - `FREE_EXAM_PREP_DAYS = 1`
-- `PRO_GRACE_DAYS = 3`
+- `PRO_GRACE_DAYS = 3`, and `PAST_DUE_GRACE_DAYS = 10` for a plan whose monthly charge failed (Grow retries it for up to 10 days, which can't be turned off); `graceDaysFor(status)` picks one
 - `PRO_GATING_ENABLED`
 
 ## Pricing and seats
@@ -135,7 +135,7 @@ Families with more than 4 children contact us on WhatsApp (the plan picker's but
 | `updatedAt` | number (ms) | |
 
 - **Client.** A new `services/entitlementService.ts` reads the document with `onSnapshot`, and a new `useEntitlement(uid)` hook does the same. It caches the last value in localStorage (`english_tutor_entitlement_<uid>`) so Pro works offline and the first paint after a restart is right.
-- **`isPro(ent, nowMs)`** is a pure function in `data/proGate.ts`: `status !== 'expired' && nowMs < periodEnd + PRO_GRACE_DAYS * DAY_MS`.
+- **`isPro(ent, nowMs)`** is a pure function in `data/proGate.ts`: `status !== 'expired' && nowMs < periodEnd + graceDaysFor(status) * DAY_MS`. The server's `isLapsed` uses the same grace.
   - No document means free.
   - A failed read shows the cached value, or free if nothing is cached, and never errors loudly. Losing Pro for a moment offline is better than blocking play.
   - Times use server `ms` timestamps, not local calendar days. This is a billing period, not a learning day.

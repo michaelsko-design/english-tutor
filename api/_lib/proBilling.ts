@@ -9,7 +9,7 @@
  */
 import {
   isBillingPeriod,
-  PRO_GRACE_DAYS,
+  graceDaysFor,
   proPriceAgorot,
   SEAT_SWAP_COOLDOWN_DAYS,
   YEARLY_RENEW_NOTICE_DAYS,
@@ -159,11 +159,12 @@ export function holdsLiveSeat(doc: PlainDocument | null, nowMs: number, exceptSu
   const f = doc.fields;
   if (f.status !== 'active' && f.status !== 'past_due') return false;
   if (exceptSubscriptionId && f.subscriptionId === exceptSubscriptionId) return false;
-  return !isLapsed(num(f.periodEnd), nowMs);
+  return !isLapsed(num(f.periodEnd), nowMs, f.status);
 }
 
-/** Whether Pro bought until `periodEnd` has ended, grace days included */
-export const isLapsed = (periodEnd: number, nowMs: number): boolean => periodEnd + PRO_GRACE_DAYS * DAY_MS <= nowMs;
+/** Whether Pro bought until `periodEnd` has ended, grace days included (longer while a charge is past due) */
+export const isLapsed = (periodEnd: number, nowMs: number, status?: unknown): boolean =>
+  periodEnd + graceDaysFor(status) * DAY_MS <= nowMs;
 
 /**
  * The end of a yearly seat this parent pays for, when it is in its renew window (the last
