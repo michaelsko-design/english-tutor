@@ -13,5 +13,15 @@ export const SUPPORT_WHATSAPP_NUMBER = '972529282667';
 /** The public landing site (home/index.html, static, next to the app; docs/architecture.md §4.32) */
 export const LANDING_PAGE_PATH = '/home/';
 
+/** The public terms and privacy pages (built from docs/legal/pro-legal-drafts.md and config/privacyNotice.ts) */
+export const TERMS_PAGE_PATH = '/terms/';
+export const PRIVACY_PAGE_PATH = '/privacy/';
+
+/**
+ * The terms a parent accepts at checkout, saved on the checkout as `termsVersion`: the terms' "עודכן
+ * לאחרונה" date. Change it with every change to the terms' text.
+ */
+export const TERMS_VERSION = '2026-11-10';
+
 /** Where parents send privacy questions and requests (shown in the privacy notice). */
 export const PRIVACY_CONTACT_EMAIL = 'support@englishvibe.co.il';

@@ -158,8 +158,10 @@ Both links open the dialogs. The server records the consent with the checkout (`
 
 ## 5. Changes in the app before launch (Phase 4)
 
-- A `TermsDialog` (same shell as `PrivacyNoticeDialog`) with section 1 above, linked from the sign-in screen, the settings, the parent portal and the checkout.
-- The payments section in `PrivacyNoticeDialog`.
-- The terms line and the consent box in `ProCheckoutPanel`, with `api/checkout.ts` requiring `acceptedTerms: true` and saving `termsVersion` and `acceptedAt` on the checkout.
-- The business details (name, Osek Patur number, address, email `support@englishvibe.co.il`, and the contact phone 052-9282667, which Grow's site check requires; the same number as `SUPPORT_WHATSAPP_NUMBER`) in `config/appInfo.ts`.
+Built 2026-11-17, from the drafts as they stand; the lawyer's changes go into this file (and the privacy text into `src/config/privacyNotice.ts`):
+- **Terms:** no separate dialog. The site's `/terms/` page is built from section 1 of this file, so the app links to it (`TERMS_PAGE_PATH`, new tab) from the sign-in screen ("תנאי שימוש", next to privacy), the settings' account card ("תנאי שימוש ומנוי") and the checkout's consent box. One text, nothing to keep in sync.
+- **Privacy, payments section:** "תשלום על Pro" in `PRIVACY_NOTICE_SECTIONS`, after "מה הורים רואים", without the draft's retention bracket (question 12 above stays open). The /privacy/ page always shows it; the app's dialog shows it only where Pro can be bought (`privacyNoticeSections(IS_PRO_PLAN_VISIBLE)`).
+- **Checkout:** under the total, the renewal line ("מתחדש כל חודש עד שמבטלים…" / "תשלום אחד לשנה. לא מתחדש מעצמו."); the consent box (unticked, "המשך לתשלום" disabled until it's ticked) with links to /terms/ and /privacy/, and the 10-day retry sentence on monthly plans only. `api/checkout.ts` refuses a payment page without `acceptedTerms: true` (400) and saves `termsVersion` (`TERMS_VERSION` in `config/appInfo.ts`, the terms' "עודכן לאחרונה" date: change it with the text) and `acceptedAt` on the checkout.
+- **Not yet:** the line "בפירוט החיובים יופיע: …" waits for Grow to confirm the charge name; the "מה נשמר" section doesn't mention the Pro status (the payments section does).
+- **Business details** were already in `src/site/siteContent.ts` (`BUSINESS`, `CONTACT`) and in the terms text.
 - Grow's site clearing approval (Site_check.pdf) also needs: the terms linked from the site's home page and next to the checkout box, the phone shown on the home or contact page, and every plan and price shown on the site.

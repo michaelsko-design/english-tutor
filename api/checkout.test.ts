@@ -3,11 +3,12 @@ import { handleCheckoutRequest, MAX_PENDING_CHECKOUTS_PER_DAY } from './checkout
 import { createFakeFirestore } from './_lib/testing/fakeFirestoreAdmin';
 import { linksFetch, parentRequest, SERVICE_ACCOUNT_JSON } from './_lib/testing/parentRequestFixtures';
 import type { PaymentProvider } from './_lib/payments/provider';
+import { TERMS_VERSION } from '../src/config/appInfo';
 
 const NOW = Date.UTC(2026, 9, 28);
 const CHECKOUT_ID = 'c'.repeat(32);
 const ENV = { FIREBASE_SERVICE_ACCOUNT_JSON: SERVICE_ACCOUNT_JSON, PAYMENT_WEBHOOK_SECRET: 'hook-secret', APP_ORIGIN: 'https://app.example' };
-const PAYER = { payerName: 'ישראל ישראלי', payerPhone: '050-123-4567' };
+const PAYER = { payerName: 'ישראל ישראלי', payerPhone: '050-123-4567', acceptedTerms: true };
 
 function setup({ linked = ['parent1_kid1', 'parent1_kid2'], provider = true, canChangeRecurring = true } = {}) {
   const fake = createFakeFirestore();
@@ -63,6 +64,24 @@ describe('handleCheckoutRequest', () => {
     });
     // Grow's API changes standing orders itself: the payer's details stay with Grow only
     expect(fake.get('checkouts', CHECKOUT_ID)).not.toHaveProperty('payerPhone');
+  });
+
+  it('records which terms the parent accepted, and when', async () => {
+    const { fake, deps } = setup();
+
+    await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER }), ENV, deps);
+
+    expect(fake.get('checkouts', CHECKOUT_ID)).toMatchObject({ termsVersion: TERMS_VERSION, acceptedAt: NOW });
+  });
+
+  it('refuses a payment page when the parent did not accept the terms', async () => {
+    const { gateway, deps } = setup();
+
+    for (const acceptedTerms of [undefined, false, 'yes']) {
+      const response = await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER, acceptedTerms }), ENV, deps);
+      expect(response.status).toBe(400);
+    }
+    expect(gateway.createPaymentPage).not.toHaveBeenCalled();
   });
 
   it("lets Grow's notice through Vercel's Preview protection, never on Production", async () => {

@@ -2,7 +2,8 @@ import React from 'react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { APP_NAME } from '../../config/appInfo';
-import { PRIVACY_NOTICE_SECTIONS } from '../../config/privacyNotice';
+import { privacyNoticeSections } from '../../config/privacyNotice';
+import { IS_PRO_PLAN_VISIBLE } from '../../config/proTier';
 
 interface PrivacyNoticeDialogProps {
   theme: ThemeDefinition;
@@ -21,7 +22,7 @@ export const PrivacyNoticeDialog: React.FC<PrivacyNoticeDialogProps> = ({ theme,
       <p className={theme.mutedTextClass}>
         <bdi>{APP_NAME}</bdi> היא אפליקציה ללימוד אנגלית לילדים ולבני נוער. כאן מוסבר איזה מידע נשמר, למה ואיך מוחקים אותו.
       </p>
-      {PRIVACY_NOTICE_SECTIONS.map((section) => (
+      {privacyNoticeSections(IS_PRO_PLAN_VISIBLE).map((section) => (
         <section key={section.titleHe} className="space-y-1.5">
           <h3 className="font-extrabold">{section.titleHe}</h3>
           <ul className="list-disc ps-5 space-y-1">

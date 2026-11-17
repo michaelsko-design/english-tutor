@@ -18,12 +18,12 @@ const link = (childUid: string, childName: string): ParentLink => ({
 });
 const CHILDREN = [link('kid1', 'נועה'), link('kid2', 'איתי')];
 
-function renderPanel(initialChildUids = ['kid1']) {
+function renderPanel(initialChildUids = ['kid1'], period: 'monthly' | 'yearly' = 'monthly') {
   const onNavigate = vi.fn();
   render(
     <ProCheckoutPanel
       theme={TEST_THEME}
-      period="monthly"
+      period={period}
       eligibleChildren={CHILDREN}
       initialChildUids={initialChildUids}
       parentEmail="parent@example.com"
@@ -49,6 +49,7 @@ describe('ProCheckoutPanel', () => {
 
   it('asks for a full name and an Israeli mobile before calling the server', async () => {
     const { user } = renderPanel();
+    await user.click(screen.getByRole('checkbox', { name: /תנאי השימוש/ }));
     await user.type(screen.getByLabelText('שם מלא של המשלם/ת'), 'דנה');
     await user.click(screen.getByRole('button', { name: 'המשך לתשלום' }));
     expect(screen.getByRole('alert')).toHaveTextContent('שם פרטי ושם משפחה');
@@ -64,6 +65,7 @@ describe('ProCheckoutPanel', () => {
     const { user, onNavigate } = renderPanel();
     await user.type(screen.getByLabelText('שם מלא של המשלם/ת'), '  דנה   כהן ');
     await user.type(screen.getByLabelText('טלפון נייד'), '050-123 4567');
+    await user.click(screen.getByRole('checkbox', { name: /תנאי השימוש/ }));
     await user.click(screen.getByRole('button', { name: 'המשך לתשלום' }));
     expect(billing.startProCheckout).toHaveBeenCalledWith({
       childUids: ['kid1'],
@@ -71,6 +73,7 @@ describe('ProCheckoutPanel', () => {
       payerName: 'דנה כהן',
       payerPhone: '0501234567',
       payerEmail: 'parent@example.com',
+      acceptedTerms: true,
     });
     expect(onNavigate).toHaveBeenCalledWith('https://pay.example/page');
   });
@@ -80,9 +83,33 @@ describe('ProCheckoutPanel', () => {
     const { user, onNavigate } = renderPanel();
     await user.type(screen.getByLabelText('שם מלא של המשלם/ת'), 'דנה כהן');
     await user.type(screen.getByLabelText('טלפון נייד'), '0501234567');
+    await user.click(screen.getByRole('checkbox', { name: /תנאי השימוש/ }));
     await user.click(screen.getByRole('button', { name: 'המשך לתשלום' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('כבר יש Pro');
     expect(onNavigate).not.toHaveBeenCalled();
+  });
+
+  it('cannot continue until the parent accepts the terms, with links to the terms and privacy pages', async () => {
+    const { user } = renderPanel();
+    const consent = screen.getByRole('checkbox', { name: /תנאי השימוש/ });
+    expect(consent).not.toBeChecked();
+    expect(screen.getByRole('button', { name: 'המשך לתשלום' })).toBeDisabled();
+    expect(screen.getByRole('link', { name: 'תנאי השימוש והמנוי' })).toHaveAttribute('href', '/terms/');
+    expect(screen.getByRole('link', { name: 'מדיניות הפרטיות' })).toHaveAttribute('href', '/privacy/');
+    await user.click(consent);
+    expect(screen.getByRole('button', { name: 'המשך לתשלום' })).toBeEnabled();
+  });
+
+  it('asks a monthly payer to agree to retries of a failed charge, and tells them how renewal works', () => {
+    renderPanel();
+    expect(screen.getByRole('checkbox', { name: /תנאי השימוש/ })).toHaveAccessibleName(expect.stringContaining('עד 10 ימים'));
+    expect(screen.getByText(/מתחדש כל חודש עד שמבטלים/)).toBeInTheDocument();
+  });
+
+  it('tells a yearly payer the plan does not renew by itself, with no retry consent', () => {
+    renderPanel(['kid1'], 'yearly');
+    expect(screen.getByRole('checkbox', { name: /תנאי השימוש/ })).not.toHaveAccessibleName(expect.stringContaining('עד 10 ימים'));
+    expect(screen.getByText(/לא מתחדש מעצמו/)).toBeInTheDocument();
   });
 
   it('cannot continue with no child ticked', () => {

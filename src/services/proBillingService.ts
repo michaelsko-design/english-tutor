@@ -53,6 +53,8 @@ export interface CheckoutRequest {
   payerName: string;
   payerPhone: string;
   payerEmail: string;
+  /** The parent ticked the terms box (the server refuses a payment page without it) */
+  acceptedTerms: true;
 }
 
 export type PlanAction = 'cancel' | 'addChild' | 'removeChild';
