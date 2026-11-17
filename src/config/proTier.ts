@@ -70,6 +70,12 @@ export const FREE_EXAM_PREP_DAYS = 1;
 /** Pro stays on this long after `periodEnd`, so a late renewal never locks a learner out */
 export const PRO_GRACE_DAYS = 3;
 
+/** A plan whose monthly charge failed stays Pro while Grow retries it: up to 10 days, which can't be turned off */
+export const PAST_DUE_GRACE_DAYS = 10;
+
+/** Grace days after `periodEnd` for a plan or seat in this status */
+export const graceDaysFor = (status: unknown): number => (status === 'past_due' ? PAST_DUE_GRACE_DAYS : PRO_GRACE_DAYS);
+
 /**
  * A yearly plan does not renew by itself: from this many days before its end the paying parent sees a
  * renew notice, and a new checkout for the same children continues from the old end date.

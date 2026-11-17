@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FREE_WORD_LISTS, PRO_GRACE_DAYS } from '../config/proTier';
+import { FREE_WORD_LISTS, PAST_DUE_GRACE_DAYS, PRO_GRACE_DAYS } from '../config/proTier';
 import type { ExamPlanDay } from '../types/learner';
 import type { CurriculumUnit, MissionNode } from './curriculum/types';
 import type { ReleasedPack } from './curriculum/packs/types';
@@ -70,6 +70,13 @@ describe('isPro', () => {
     const ent = entitlement({ periodEnd: NOW });
     expect(isPro(ent, NOW + PRO_GRACE_DAYS * DAY_MS - 1)).toBe(true);
     expect(isPro(ent, NOW + PRO_GRACE_DAYS * DAY_MS)).toBe(false);
+  });
+
+  it("keeps a past-due plan through Grow's 10 days of retries", () => {
+    const ent = entitlement({ periodEnd: NOW, status: 'past_due' });
+    expect(PAST_DUE_GRACE_DAYS).toBe(10);
+    expect(isPro(ent, NOW + PAST_DUE_GRACE_DAYS * DAY_MS - 1)).toBe(true);
+    expect(isPro(ent, NOW + PAST_DUE_GRACE_DAYS * DAY_MS)).toBe(false);
   });
 
   it('keeps a canceled plan until its end, but never an expired one or no document', () => {

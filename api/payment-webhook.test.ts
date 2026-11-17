@@ -172,6 +172,21 @@ describe('handlePaymentWebhook: Grow account webhooks', () => {
     expect(fake.get('entitlements', 'kid1')).toMatchObject({ status: 'past_due' });
   });
 
+  it("keeps an unmatched failure's task done when Grow's retries report it again", async () => {
+    const { fake, deps } = await activated();
+    const failed = accountWebhook({ webhook_key: 'GROWKEY', regular_payment_id: 'DD999', sum: '64', charges_attempts: '1' });
+    await handlePaymentWebhook(failed, ENV, deps);
+    const taskId = 'unmatched_failed_DD999';
+    fake.seed('gatewayTasks', taskId, { ...fake.get('gatewayTasks', taskId), doneAt: Date.UTC(2026, 10, 29) });
+    const commits = fake.commits.length;
+
+    const retry = accountWebhook({ webhook_key: 'GROWKEY', regular_payment_id: 'DD999', sum: '64', charges_attempts: '2' });
+    expect((await handlePaymentWebhook(retry, ENV, deps)).status).toBe(200);
+
+    expect(fake.get('gatewayTasks', taskId)).toMatchObject({ doneAt: Date.UTC(2026, 10, 29) });
+    expect(fake.commits).toHaveLength(commits);
+  });
+
   it('ignores a webhook with the wrong Grow key or an unknown recurring charge', async () => {
     const { fake, deps } = await activated();
     const forged = { webhookKey: 'WRONG', transactionCode: 'R9', paymentSum: 64, directDebitId: 'DD7' };

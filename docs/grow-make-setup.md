@@ -161,6 +161,7 @@ Use this address for both:
 | :--- | :--- |
 | Monthly checkout | Grow page shows card only. After paying: `subscriptions/{id}` active, entitlements on, `payments/grow_…`, קבלה emailed |
 | Yearly checkout | Page shows card (Bit and wallets are real charges, skip them). Plan active for 12 months |
+| Receipt | **Not issued yet (2026-11-16):** the payer got only Grow's payment confirmation, and no notice reached `invoiceNotifyUrl` (sandbox scenario → catcher hook). Receipts must be turned on in Grow's account first; recheck after. Before launch, the live scenario's `invoiceNotifyUrl` is left empty or points at our server, never the catcher |
 | Monthly renewal (ask Grow how to trigger one in the sandbox) | Plan linked to its standing order (`recurringRefs/grow_…`), `periodEnd` + 1 month |
 | Failed charge | Plan and seats `past_due` |
 | Cancel in the parent portal | Plan canceled, the owner dashboard shows "Cancel the standing order". Cancel it in Grow, press Done |
@@ -176,10 +177,23 @@ Use this address for both:
   - `paymentLinkProcessId`/`Token`, `processId`/`Token`, `customFields[cField1]`, the payer's name and phone, and card details.
   - It also holds the business's `invoice_name` and `invoice_license_number`: keep notices out of logs.
 - **Approve Transaction** takes `transactionId` and `transactionToken` (required), and `fullName`, `payerPhone` and `asmachta`.
-- **Open question for Grow:** do renewal and failed-charge webhooks carry `directDebitId` or `recurringDebitId`? The plan is linked by `directDebitId`.
+- **Grow's answers (2026-11-17):**
+  - **Renewals** ("Recurring Payment", from the second charge on) carry `directDebitId`: the same id the first notice gives, so they find the plan directly.
+  - **Failed charges** ("Failed Recurring Payment") carry `regular_payment_id`, "the standing order's code". Grow won't confirm it equals `directDebitId`. If it doesn't, the failure finds no plan and becomes an owner task (`match_renewal`, emailed and sent on WhatsApp); the plan isn't marked past due, and the reconcile expires it at `periodEnd` if no renewal comes. Check the first real failure and record the answer here.
+  - `recurringDebitId` is another id, used for token charges. We don't use it.
+  - **VAT:** the sandbox account is VAT-registered, so it only takes `vatType` 1. The **live** scenario must use **VAT Exempt (3)**, with the Grow account set up as an עוסק פטור.
+  - **Unlimited standing orders** exist, but only on links made in Grow's own app, not through Make (capped at 36). Those links can't carry `cField1` or the payer's details, so we keep Make plus the "extend" task.
+  - **Fixed sales pages** can't take `cField1` or prefilled details from the URL. Use Make payment links.
+- **Grow's second answers (2026-11-17):**
+  - **Receipts:** turned on in the live Grow account under מסמכים → הגדרות בית עסק / הגדרות מסמך (business details, numbering, document type קבלה for an עוסק פטור, automatic issuing and emailing to the payer). Guide: https://grow.business/invoice_guides/. **The Make sandbox is one account shared by all Grow customers**, so it never shows our document settings: receipts can only be checked on the launch charge.
+  - `invoiceNotifyUrl` reports the first payment's document only. Documents for monthly charges need a separate dashboard webhook of type "Invoice creation". We don't need either; the sandbox scenario's `invoiceNotifyUrl` can go.
+  - **No sandbox dashboard:** the sandbox standing order 252530 can't be cancelled by us, and charges nothing real. Mark its staging task done.
+  - **Failed-charge notice** (documented sample): `regular_payment_id`, `sum`, `error_message`, `charges_attempts`, `webhook_key`. No `directDebitId`, `cField1`, phone or email. Grow still won't confirm `regular_payment_id` equals `directDebitId`.
+  - **Grow retries a failed monthly charge automatically** for up to 10 days, never past the end of the calendar month, and this can't be turned off. Grow doesn't promise a notice per retry or one when it gives up. The server keeps one unmatched-failure task per standing order, so retries don't re-alert or reopen it.
+  - **Renewals and failures can't be triggered in the sandbox**, and the shared sandbox takes no dashboard webhooks. They're covered by unit tests against the documented samples, and checked live after launch.
 
 ## 6. Launch
-1. Copy the scenario onto the **live** connection, with a new webhook address and key, and set the Production env.
+1. Copy the scenario onto the **live** connection, with a new webhook address and key, and set the Production env. In the copy, set each product's **VAT Type to VAT Exempt (3)**, and clear `invoiceNotifyUrl` (or point it at our server).
 2. Create the two account webhooks in the live dashboard with the Production address.
 3. Make one real low-price charge on a card that isn't the owner's or a relative's. Check the קבלה, then refund it in Grow.
 

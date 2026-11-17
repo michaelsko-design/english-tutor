@@ -53,10 +53,14 @@ describe('checkLapse', () => {
     const ended = NOW - 4 * DAY;
     expect(checkLapse(plan({ periodEnd: NOW - 2 * DAY, status: 'canceled' }), NOW)).toBeNull();
     expect(checkLapse(plan({ periodEnd: ended, status: 'canceled' }), NOW)).toBe('expire');
-    expect(checkLapse(plan({ periodEnd: ended, status: 'past_due' }), NOW)).toBe('expire');
     expect(checkLapse(plan({ periodEnd: ended, period: 'yearly' }), NOW)).toBe('expire');
     expect(checkLapse(plan({ periodEnd: ended }), NOW)).toBe('missed_renewal');
     expect(checkLapse(plan({ periodEnd: ended, status: 'expired' }), NOW)).toBeNull();
+  });
+
+  it("keeps a past-due plan through Grow's 10 days of retries", () => {
+    expect(checkLapse(plan({ periodEnd: NOW - 9 * DAY, status: 'past_due' }), NOW)).toBeNull();
+    expect(checkLapse(plan({ periodEnd: NOW - 10 * DAY, status: 'past_due' }), NOW)).toBe('expire');
   });
 });
 
@@ -68,5 +72,10 @@ describe('entitlementAction', () => {
     expect(entitlementAction(doc('kid1', { status: 'canceled', periodEnd: NOW - 4 * DAY }), new Set(), NOW)).toBe('expire');
     expect(entitlementAction(doc('kid1', { status: 'active', periodEnd: NOW - DAY }), new Set(), NOW)).toBeNull();
     expect(entitlementAction(doc('kid1', { status: 'expired', periodEnd: NOW - 40 * DAY }), new Set(), NOW)).toBeNull();
+  });
+
+  it("keeps a past-due seat through Grow's 10 days of retries", () => {
+    expect(entitlementAction(doc('kid1', { status: 'past_due', periodEnd: NOW - 9 * DAY }), new Set(), NOW)).toBeNull();
+    expect(entitlementAction(doc('kid1', { status: 'past_due', periodEnd: NOW - 10 * DAY }), new Set(), NOW)).toBe('expire');
   });
 });

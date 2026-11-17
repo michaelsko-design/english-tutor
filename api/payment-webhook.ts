@@ -404,7 +404,9 @@ async function handleAccountEvent(
 ): Promise<Response> {
   const sub = (await findSubscriptionByRef(admin, 'grow', event.recurringRef)) ?? (await linkUnmatchedPlan(admin, event, nowMs));
   if (!sub) {
-    await admin.commit([unmatchedTask(event, nowMs)]);
+    const task = unmatchedTask(event, nowMs);
+    // Grow retries a failed charge for up to 10 days: one task (and one alert) per standing order, and a done one stays done
+    if (!(await admin.getDocument('gatewayTasks', task.id))) await admin.commit([task]);
     return ignored('unknown recurring charge');
   }
   if (event.kind === 'failed') {
