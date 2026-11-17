@@ -20,7 +20,7 @@ import { getHebrewCopy } from '../utils/hebrewGender';
 import { normalizeIdentifierToEmail, usernameFromEmail } from '../utils/username';
 import { SignInPanel } from './auth/SignInPanel';
 import { CredentialMode, credentialErrorHe, validateCredentials } from './auth/credentialValidation';
-import { APP_NAME, LANDING_PAGE_PATH } from '../config/appInfo';
+import { APP_NAME, LANDING_PAGE_PATH, TERMS_PAGE_PATH } from '../config/appInfo';
 import { AppLogo } from './AppLogo';
 import { saveGuestWithGoogle, saveGuestWithUsername } from '../services/accountService';
 import { PrivacyNoticeDialog } from './privacy/PrivacyNoticeDialog';
@@ -417,6 +417,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 >
                   🔒 פרטיות ומידע להורים
                 </button>
+                <a href={TERMS_PAGE_PATH} target="_blank" rel="noopener" className="text-xs underline opacity-75 hover:opacity-100">
+                  תנאי שימוש
+                </a>
                 <a href={LANDING_PAGE_PATH} className="text-xs underline opacity-75 hover:opacity-100">
                   מה זה <bdi>{APP_NAME}</bdi>?
                 </a>

@@ -12,6 +12,7 @@ import {
   linkGoogleToAccount,
 } from '../../services/accountService';
 import { MIN_PIN_LENGTH } from '../../utils/username';
+import { TERMS_PAGE_PATH } from '../../config/appInfo';
 import { PrivacyNoticeDialog } from '../privacy/PrivacyNoticeDialog';
 import { Button } from '../ui/Button';
 
@@ -224,6 +225,11 @@ export const AccountPrivacyCard: React.FC<AccountPrivacyCardProps> = ({ profile,
           הורדת הנתונים
         </button>
       </div>
+      <p className="text-center">
+        <a href={TERMS_PAGE_PATH} target="_blank" rel="noopener" className={`text-xs font-bold underline ${theme.mutedTextClass}`}>
+          תנאי שימוש ומנוי
+        </a>
+      </p>
 
       {!isDeleteOpen ? (
         <button

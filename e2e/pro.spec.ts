@@ -60,6 +60,7 @@ test.describe('Pro', () => {
       await expect(checkout.getByTestId('pro-checkout-total')).toContainText('39');
       await checkout.getByLabel('שם מלא של המשלם/ת').fill('דנה כהן');
       await checkout.getByLabel('טלפון נייד').fill('050-1234567');
+      await checkout.getByRole('checkbox', { name: /תנאי השימוש/ }).check();
       await checkout.getByRole('button', { name: 'המשך לתשלום' }).click();
       await expect(parent.page).toHaveURL(/[?&]mockpay=[a-f0-9]{32}/, { timeout: CLOUD_TIMEOUT_MS });
       await parent.page.getByRole('button', { name: 'תשלום לבדיקה' }).click();

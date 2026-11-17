@@ -504,7 +504,7 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
 - Vercel env (Grow ids, `PAYMENT_WEBHOOK_SECRET`, `APP_ORIGIN`, `GROW_WEBHOOK_KEY`) and Grow's origin in the `vercel.json` CSP where the redirect needs it.
 
 **Phase 4: launch.**
-- The approved terms and privacy texts in the app: a `TermsDialog`, the privacy payments section, and the checkout's terms line and consent box (saved on the checkout). Details in `docs/legal/pro-legal-drafts.md`, section 5.
+- The terms and privacy texts in the app (**built 2026-11-17 from the drafts**: terms links to `/terms/`, the privacy payments section, the checkout's renewal line and consent box, `acceptedTerms` required and `termsVersion`/`acceptedAt` saved on the checkout). Left: the lawyer's changes, bumping `TERMS_VERSION` with them. Details in `docs/legal/pro-legal-drafts.md`, section 5.
 - `comp` grants for the family's children, then `PRO_GATING_ENABLED` and `IS_PRO_PLAN_VISIBLE` on.
 - Live Grow keys: one real low-price charge, check the invoice, refund it by hand.
 - Check on desktop and phone, then push.

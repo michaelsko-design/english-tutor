@@ -8,7 +8,7 @@ vi.mock('./firebase', () => ({ auth: firebase.auth, getAppCheckToken: firebase.g
 
 import { startProCheckout } from './proBillingService';
 
-const REQUEST = { childUids: ['kid1'], period: 'yearly' as const, payerName: 'Dan Cohen', payerPhone: '0501234567', payerEmail: '' };
+const REQUEST = { childUids: ['kid1'], period: 'yearly' as const, payerName: 'Dan Cohen', payerPhone: '0501234567', payerEmail: '', acceptedTerms: true as const };
 
 function answer(status: number, body: Record<string, unknown>) {
   vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(body), { status })));

@@ -1,8 +1,9 @@
 /**
- * POST /api/checkout  {childUids, period, payerName, payerPhone, payerEmail?, dryRun?}: a paired
+ * POST /api/checkout  {childUids, period, payerName, payerPhone, payerEmail?, acceptedTerms, dryRun?}: a paired
  * parent starts EnglishVibe Pro for 1–4 of their children (docs/feature-pro-tier.md). Every child's
  * pairing is checked as the parent; the price comes from `config/proTier.ts`, never from the client.
- * `dryRun` only returns the price. Otherwise it records `checkouts/{id}`, opens the gateway's payment
+ * `dryRun` only returns the price. Otherwise the parent must have accepted the terms (`acceptedTerms`:
+ * the version and time are saved on the checkout); it records `checkouts/{id}`, opens the gateway's payment
  * page and returns its URL; the payment itself is confirmed later by /api/payment-webhook.
  */
 import { createFirestoreAdmin, type FirestoreAdmin } from './_lib/firestoreAdmin.js';
@@ -19,6 +20,7 @@ import {
 import { createPaymentProvider } from './_lib/payments/index.js';
 import { changesRecurringByApi, PaymentError, type PaymentProvider } from './_lib/payments/provider.js';
 import { holdsLiveSeat, renewableSeatEnd, UID_PATTERN } from './_lib/proBilling.js';
+import { TERMS_VERSION } from '../src/config/appInfo.js';
 import { isBillingPeriod, MAX_LINKED_CHILDREN, MAX_PRO_SEATS, proPriceAgorot, type BillingPeriod } from '../src/config/proTier.js';
 
 const MAX_BODY_BYTES = 2048;
@@ -76,6 +78,8 @@ async function readBody(request: Request): Promise<CheckoutBody | null> {
   if (!childUids || !isBillingPeriod(body.period)) return null;
   const dryRun = body.dryRun === true;
   if (dryRun) return { childUids, period: body.period, dryRun, payerName: '', payerPhone: '', payerEmail: '' };
+  // The consent box on the checkout panel: no payment page without it
+  if (body.acceptedTerms !== true) return null;
   const payer = readPayer(body);
   return payer ? { childUids, period: body.period, dryRun, ...payer } : null;
 }
@@ -161,6 +165,8 @@ async function openPaymentPage(
       processId: '',
       processToken: '',
       createdAt: input.nowMs,
+      termsVersion: TERMS_VERSION,
+      acceptedAt: input.nowMs,
       ...payer,
     },
   }]);

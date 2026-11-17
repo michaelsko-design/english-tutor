@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { APP_NAME, LANDING_PAGE_PATH } from '../../config/appInfo';
+import { APP_NAME, LANDING_PAGE_PATH, PRIVACY_PAGE_PATH, TERMS_PAGE_PATH } from '../../config/appInfo';
 import { MAX_PRO_SEATS, quoteProPrice, type BillingPeriod } from '../../config/proTier';
 import type { ParentLink } from '../../data/parentLink';
 import { startProCheckout } from '../../services/proBillingService';
@@ -27,6 +27,14 @@ const PAYER_PHONE_PATTERN = /^05\d{8}$/;
 const fieldClass = 'mt-1 w-full px-3 py-2.5 rounded-xl text-base font-bold outline-none';
 const buttonClass = 'min-h-11 px-4 rounded-2xl text-sm font-extrabold';
 
+const RENEWAL_LINE_HE: Record<BillingPeriod, string> = {
+  monthly: 'מתחדש כל חודש עד שמבטלים. אפשר לבטל בכל עת כאן בפורטל.',
+  yearly: 'תשלום אחד לשנה. לא מתחדש מעצמו.',
+};
+
+/** Grow's terms (§13.1.5.11) allow retrying a failed recurring charge only with the payer's consent in advance */
+const RETRY_CONSENT_HE = ' אם חיוב חודשי ייכשל, אני מסכים/ה שחברת התשלומים תנסה לחייב את הכרטיס שוב במשך עד 10 ימים.';
+
 const normalizeName = (value: string) => value.trim().replace(/\s+/g, ' ');
 const normalizePhone = (value: string) => value.replace(/[\s-]/g, '');
 
@@ -49,6 +57,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
   const [payerName, setPayerName] = useState('');
   const [payerPhone, setPayerPhone] = useState('');
   const [payerEmail, setPayerEmail] = useState(parentEmail ?? '');
+  const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
   const quote = quoteProPrice(selected.length, period);
@@ -89,6 +98,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
       payerName: normalizeName(payerName),
       payerPhone: normalizePhone(payerPhone),
       payerEmail: payerEmail.trim(),
+      acceptedTerms: true,
     });
     if (result.ok) {
       onNavigate(result.value);
@@ -126,6 +136,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
       <p className="text-center text-lg font-black" aria-live="polite" data-testid="pro-checkout-total">
         {quote ? `${formatShekels(quote.chargeAgorot)} ${period === 'yearly' ? 'לשנה' : 'לחודש'}` : 'בחרו לפחות ילד אחד'}
       </p>
+      <p className={`-mt-3 text-xs font-bold text-center ${theme.mutedTextClass}`}>{RENEWAL_LINE_HE[period]}</p>
 
       <label className="block text-sm font-bold">
         שם מלא של המשלם/ת
@@ -155,6 +166,27 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
         />
       </label>
 
+      <label className={`flex items-start gap-2 p-2.5 rounded-2xl text-xs font-bold leading-relaxed ${theme.inputBgClass}`}>
+        <input
+          type="checkbox"
+          checked={hasAcceptedTerms}
+          onChange={(e) => setHasAcceptedTerms(e.target.checked)}
+          className="w-5 h-5 shrink-0 mt-0.5"
+        />
+        <span>
+          קראתי ואני מסכים/ה ל
+          <a href={TERMS_PAGE_PATH} target="_blank" rel="noopener" className="underline">
+            תנאי השימוש והמנוי
+          </a>
+          {' '}ול
+          <a href={PRIVACY_PAGE_PATH} target="_blank" rel="noopener" className="underline">
+            מדיניות הפרטיות
+          </a>
+          , ואני מעל גיל 18.
+          {period === 'monthly' && RETRY_CONSENT_HE}
+        </span>
+      </label>
+
       {errorHe && (
         <p role="alert" className="text-sm font-extrabold text-rose-700 dark:text-rose-300">
           {errorHe}
@@ -162,7 +194,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
       )}
 
       <div className="flex gap-2">
-        <button type="submit" disabled={isBusy || !quote} className={`${buttonClass} flex-1 ${theme.primaryBtnClass} disabled:opacity-50`}>
+        <button type="submit" disabled={isBusy || !quote || !hasAcceptedTerms} className={`${buttonClass} flex-1 ${theme.primaryBtnClass} disabled:opacity-50`}>
           {isBusy ? 'פותחים את דף התשלום…' : 'המשך לתשלום'}
         </button>
         <button type="button" onClick={onBack} disabled={isBusy} className={`${buttonClass} ${theme.secondaryBtnClass}`}>
@@ -171,9 +203,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
       </div>
 
       <PaymentMethodsNote period={period} className={`text-center ${theme.mutedTextClass}`} />
-      <p className={`text-xs font-bold text-center ${theme.mutedTextClass}`}>
-        {period === 'monthly' ? 'חיוב חודשי, אפשר לבטל בכל עת.' : 'תשלום אחד לשנה, בלי חידוש אוטומטי.'} התשלום בדף המאובטח של חברת הסליקה.
-      </p>
+      <p className={`text-xs font-bold text-center ${theme.mutedTextClass}`}>התשלום בדף המאובטח של חברת הסליקה.</p>
       <p className={`text-xs text-center ${theme.mutedTextClass}`}>
         <a href={`${LANDING_PAGE_PATH}#pricing`} target="_blank" rel="noopener" className="underline">
           כל המחירים, שאלות נפוצות ופרטי התקשרות

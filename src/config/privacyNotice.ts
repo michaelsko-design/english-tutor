@@ -9,6 +9,10 @@ export interface PrivacyNoticeSection {
   bodyHe: readonly string[];
 }
 
+/** The section on paying for Pro (docs/legal/pro-legal-drafts.md, section 2) */
+export const PRO_PAYMENTS_SECTION_TITLE_HE = 'תשלום על Pro';
+
+/** Every section, as the public /privacy/ page shows it */
 export const PRIVACY_NOTICE_SECTIONS: readonly PrivacyNoticeSection[] = [
   {
     titleHe: 'מה נשמר',
@@ -41,6 +45,16 @@ export const PRIVACY_NOTICE_SECTIONS: readonly PrivacyNoticeSection[] = [
     ],
   },
   {
+    titleHe: PRO_PAYMENTS_SECTION_TITLE_HE,
+    bodyHe: [
+      'רק הורה מחובר יכול לשלם על Pro. התשלום נעשה בעמוד המאובטח של גרואו פיימנטס בע״מ (Grow), ופרטי אמצעי התשלום לא מגיעים אלינו.',
+      'אנחנו שומרים את מצב המנוי (פעיל, מבוטל, עד מתי), איזה חשבון הורה משלם, אילו ילדים במנוי, הסכומים ומספרי האישור של חברת התשלומים.',
+      'השם, הטלפון והאימייל שנמסרים בתשלום עוברים ל-Grow, לצורך התשלום והקבלה. Grow מעבדת אותם בשבילנו, לפי מדיניות הפרטיות שלה. הם עוברים ל-Grow דרך שירות האוטומציה Make (של חברת Celonis), שמעביר אותם ואינו שומר אותם.',
+      'אנחנו שומרים את השם, הטלפון והאימייל של המשלם, כדי לטפל בביטול או בשינוי של הוראת הקבע ובהחזרים.',
+      'רשומות התשלום נשמרות כפי שחוקי המס דורשים (בדרך כלל 7 שנים), עם מזהה החשבון בלבד, גם אחרי מחיקת החשבון.',
+    ],
+  },
+  {
     titleHe: 'סטטיסטיקות שימוש',
     bodyHe: [
       'כדי לשפר את האפליקציה אנחנו סופרים כמה פעמים נעשו פעולות כמו סיום משימה או פתיחת מסך, ושומרים דוחות שגיאה קצרים. אלה מספרים בלבד: בלי שם, בלי טקסט שהלומד/ת כתבו, בלי מזהה מכשיר ובלי עוגיות. אנחנו גם שומרים באילו משימות הלומד/ת עצרו באמצע, ואת סוג המכשיר בקווים כלליים בלבד (למשל טלפון או מחשב, ושם הדפדפן), כדי לדעת איפה קשה ובאילו מכשירים יש תקלות. הם נשמרים תחת מזהה החשבון (לא שם) ולצד הכיתה, ולכן הם לא אנונימיים לחלוטין אלא מקושרים לחשבון.',
@@ -62,3 +76,8 @@ export const PRIVACY_NOTICE_SECTIONS: readonly PrivacyNoticeSection[] = [
     ],
   },
 ];
+
+/** The sections the app shows: the payments section only once parents can buy Pro (`IS_PRO_PLAN_VISIBLE`) */
+export function privacyNoticeSections(isProBuyable: boolean): readonly PrivacyNoticeSection[] {
+  return isProBuyable ? PRIVACY_NOTICE_SECTIONS : PRIVACY_NOTICE_SECTIONS.filter((section) => section.titleHe !== PRO_PAYMENTS_SECTION_TITLE_HE);
+}

@@ -74,6 +74,14 @@ describe('AccountPrivacyCard: downloading the data', () => {
   });
 });
 
+describe('AccountPrivacyCard: the terms', () => {
+  it('links to the terms page', () => {
+    renderCard();
+
+    expect(screen.getByRole('link', { name: 'תנאי שימוש ומנוי' })).toHaveAttribute('href', '/terms/');
+  });
+});
+
 describe('AccountPrivacyCard: changing the PIN', () => {
   beforeEach(() => {
     changePin.mockReset();
