@@ -12,6 +12,7 @@ const push = vi.hoisted(() => ({
   isReminderOn: vi.fn(),
   enableReminder: vi.fn(),
   disableReminder: vi.fn(),
+  getNotificationPermission: vi.fn(),
 }));
 vi.mock('../../services/push/pushSubscription', () => push);
 
@@ -24,6 +25,7 @@ beforeEach(() => {
   push.isReminderOn.mockResolvedValue(false);
   push.enableReminder.mockResolvedValue({ ok: true });
   push.disableReminder.mockResolvedValue({ ok: true });
+  push.getNotificationPermission.mockReturnValue('default');
 });
 
 function renderCard(hasEarnedReminderReward?: boolean) {
@@ -53,5 +55,25 @@ describe('StreakReminderCard gift', () => {
     await user.click(await screen.findByRole('button', { name: 'כיבוי תזכורות' }));
 
     expect(onEnabled).not.toHaveBeenCalled();
+  });
+});
+
+describe('StreakReminderCard with notifications blocked', () => {
+  it('explains how to allow notifications instead of offering a switch that cannot work', () => {
+    push.getNotificationPermission.mockReturnValue('denied');
+    renderCard();
+
+    expect(screen.getByText(/ההתראות חסומות בדפדפן הזה/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'הפעלת תזכורות' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /קובץ ליומן/ })).toBeInTheDocument();
+  });
+
+  it('still lets a learner whose reminder is on turn it off', async () => {
+    push.getNotificationPermission.mockReturnValue('denied');
+    push.isReminderOn.mockResolvedValue(true);
+    renderCard();
+
+    expect(await screen.findByRole('button', { name: 'כיבוי תזכורות' })).toBeInTheDocument();
+    expect(screen.queryByText(/ההתראות חסומות בדפדפן הזה/)).not.toBeInTheDocument();
   });
 });
