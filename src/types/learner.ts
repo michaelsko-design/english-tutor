@@ -386,6 +386,12 @@ export interface LearnerProfile {
   hasClaimedWelcomeBack?: boolean;
   /** Whether the first-week summary card was shown and closed (data/weekOne.ts) */
   hasSeenWeekOneSummary?: boolean;
+  /** Whether the one-time diamonds for sharing the first win with a parent were paid (data/showOff.ts) */
+  hasEarnedShowOffReward?: boolean;
+  /** The local day the learner last said "not now" to the daily reminder (data/reminderReask.ts) */
+  reminderDeclinedAtStr?: string;
+  /** Whether the one-time second reminder ask (streak day 2+) was shown (data/reminderReask.ts) */
+  hasSeenReminderReask?: boolean;
   /** Latest diagnostic placement test result, if the learner has taken it */
   placementResult?: PlacementResult;
   /** Active exam preparation plan, if the learner created one */

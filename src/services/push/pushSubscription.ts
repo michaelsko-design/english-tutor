@@ -19,7 +19,10 @@ export interface ReminderFacts {
   gender?: LearnerGender;
 }
 
-export type ReminderResult = { ok: true } | { ok: false; errorHe: string };
+/** Why turning the reminder on failed: the browser refused permission, or something else broke */
+export type ReminderFailure = 'denied' | 'failed';
+
+export type ReminderResult = { ok: true } | { ok: false; errorHe: string; reason?: ReminderFailure };
 
 const NOT_ALLOWED_HE = 'ההתראות חסומות בדפדפן. אפשר לאפשר אותן בהגדרות האתר.';
 const FAILED_HE = 'לא הצלחנו להפעיל תזכורות. כדאי לנסות שוב.';
@@ -34,6 +37,11 @@ export function isIosDevice(userAgent: string): boolean {
 
 function isStandalone(): boolean {
   return window.matchMedia?.('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone === true;
+}
+
+/** The browser's notification permission, or 'default' where there is no Notification API */
+export function getNotificationPermission(): NotificationPermission {
+  return typeof Notification === 'undefined' ? 'default' : Notification.permission;
 }
 
 /** iOS only allows push for an app added to the Home Screen, so it needs the install guide first. */
@@ -86,9 +94,9 @@ export async function isReminderOn(uid: string): Promise<boolean> {
 
 /** Asks permission, subscribes this device and stores the subscription. */
 export async function enableReminder(uid: string, facts: ReminderFacts): Promise<ReminderResult> {
-  if (!db) return { ok: false, errorHe: FAILED_HE };
+  if (!db) return { ok: false, errorHe: FAILED_HE, reason: 'failed' };
   try {
-    if ((await Notification.requestPermission()) !== 'granted') return { ok: false, errorHe: NOT_ALLOWED_HE };
+    if ((await Notification.requestPermission()) !== 'granted') return { ok: false, errorHe: NOT_ALLOWED_HE, reason: 'denied' };
     const registration = await getRegistration();
     const subscription =
       (await registration.pushManager.getSubscription()) ??
@@ -99,7 +107,7 @@ export async function enableReminder(uid: string, facts: ReminderFacts): Promise
     await setDoc(doc(db, COLLECTION, uid), buildDocument(subscription, facts));
     return { ok: true };
   } catch {
-    return { ok: false, errorHe: FAILED_HE };
+    return { ok: false, errorHe: FAILED_HE, reason: 'failed' };
   }
 }
 

@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { TEST_THEME } from '../../test/fixtures';
 import type { ParentLink } from '../../data/parentLink';
+import type { ExamPitch } from '../../data/examPitch';
 import { ProCheckoutPanel } from './ProCheckoutPanel';
 
 const billing = vi.hoisted(() => ({ startProCheckout: vi.fn() }));
@@ -18,7 +19,11 @@ const link = (childUid: string, childName: string): ParentLink => ({
 });
 const CHILDREN = [link('kid1', 'נועה'), link('kid2', 'איתי')];
 
-function renderPanel(initialChildUids = ['kid1'], period: 'monthly' | 'yearly' = 'monthly') {
+function renderPanel(
+  initialChildUids = ['kid1'],
+  period: 'monthly' | 'yearly' = 'monthly',
+  examByChild?: Record<string, ExamPitch | null>
+) {
   const onNavigate = vi.fn();
   render(
     <ProCheckoutPanel
@@ -27,6 +32,7 @@ function renderPanel(initialChildUids = ['kid1'], period: 'monthly' | 'yearly' =
       eligibleChildren={CHILDREN}
       initialChildUids={initialChildUids}
       parentEmail="parent@example.com"
+      examByChild={examByChild}
       onBack={vi.fn()}
       onNavigate={onNavigate}
     />
@@ -115,5 +121,20 @@ describe('ProCheckoutPanel', () => {
   it('cannot continue with no child ticked', () => {
     renderPanel([]);
     expect(screen.getByRole('button', { name: 'המשך לתשלום' })).toBeDisabled();
+  });
+
+  it('leads with the exam of a ticked child, and not of a child left out', async () => {
+    const future = new Date(Date.now() + 9 * 86_400_000);
+    const examDateStr = `${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2, '0')}-${String(future.getDate()).padStart(2, '0')}`;
+    const { user } = renderPanel(['kid1'], 'monthly', { kid1: null, kid2: { examDateStr, listCount: 0 } });
+    expect(screen.queryByText(/להתכונן למבחן/)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('checkbox', { name: /איתי/ }));
+    expect(screen.getByText(/להתכונן למבחן באנגלית של איתי/)).toBeInTheDocument();
+  });
+
+  it('keeps the plain headline with no exam', () => {
+    renderPanel();
+    expect(screen.queryByText(/📅/)).not.toBeInTheDocument();
   });
 });

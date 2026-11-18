@@ -56,6 +56,10 @@ import { NewPackCard } from './home/NewPackCard';
 import { ParentNoticeCard } from './home/ParentNoticeCard';
 import { ParentNudgeCard } from './home/ParentNudgeCard';
 import { ReminderNudgeCard } from './home/ReminderNudgeCard';
+import { ReminderReaskSheet } from './home/ReminderReaskSheet';
+import { ProAskReminderCard } from './home/ProAskReminderCard';
+import { shouldReaskReminder } from '../data/reminderReask';
+import { getExamPitch } from '../data/examPitch';
 import { WelcomeBackCard } from './home/WelcomeBackCard';
 import { HomeTipCard } from './home/HomeTipCard';
 import { WeekOneCard } from './home/WeekOneCard';
@@ -171,6 +175,8 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   const [isPlacementOpen, setIsPlacementOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [roomRewardToast, setRoomRewardToast] = useState<RoomRewardItem | null>(null);
+  // The one-time second reminder ask, after a mission on a later day (data/reminderReask.ts)
+  const [isReminderReaskPending, setIsReminderReaskPending] = useState(false);
   const [isRoomOpen, setIsRoomOpen] = useState(false);
   useTrackFeature('feature_room', isRoomOpen);
   const [openSheet, setOpenSheet] = useState<HomeSheet | null>(null);
@@ -200,6 +206,8 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
   const proAccess = useProAccess();
   const [upsellFocus, setUpsellFocus] = useState<ProUpsellFocus | null>(null);
+  // The ask sheet was opened from the "send again" card (counted as a resend)
+  const [isAskResend, setIsAskResend] = useState(false);
   const theme = resolveLearnerTheme(profile.themeId, profile.companionId, proAccess);
 
   // The companion's idle pose is the first one a mission shows (Feature 25).
@@ -370,6 +378,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
     setActivePracticeMission(null);
     if (roomReward) setRoomRewardToast(roomReward);
+    if (authUser && shouldReaskReminder(withActivity, missionTodayStr)) setIsReminderReaskPending(true);
     reportFirstMission(true);
   };
 
@@ -603,6 +612,19 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
         {/* A PARENT JOINED, OR RESET THE PIN: THE LEARNER IS TOLD */}
         <ParentNoticeCard profile={profile} theme={theme} />
+
+        {/* A PRO ASK A PARENT HAS NOT ANSWERED IN 48 HOURS: SEND IT AGAIN */}
+        {authUser && !authUser.isAnonymous && (
+          <ProAskReminderCard
+            uid={authUser.uid}
+            theme={theme}
+            hasPro={hasFullAccess(proAccess)}
+            onResend={(focus) => {
+              setIsAskResend(true);
+              setUpsellFocus(focus);
+            }}
+          />
+        )}
 
         {/* AN OPTIONAL, CLOSABLE INVITE FOR A PARENT */}
         <ParentNudgeCard profile={profile} theme={theme} />
@@ -867,7 +889,17 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
       )}
 
       {/* DAILY QUEST REWARD WAITING: NUDGE TOAST */}
-      {isQuestNudgeOpen && !roomRewardToast && openSheet !== 'quests' && (
+      {/* THE SECOND REMINDER ASK: after the room toast, before the quest nudge */}
+      {isReminderReaskPending && !roomRewardToast && (
+        <ReminderReaskSheet
+          profile={profile}
+          theme={theme}
+          onUpdateProfile={onUpdateProfile}
+          onClose={() => setIsReminderReaskPending(false)}
+        />
+      )}
+
+      {isQuestNudgeOpen && !roomRewardToast && !isReminderReaskPending && openSheet !== 'quests' && (
         <div className="fixed inset-x-0 bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6 z-40 flex justify-center px-4 pointer-events-none">
           <button
             type="button"
@@ -927,11 +959,16 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             gender: profile.gender,
             avatarEmoji: activeAvatarEmoji,
             isGuest: authUser.isAnonymous,
+            exam: getExamPitch(profile, todayStr),
           }}
           focus={upsellFocus}
           theme={theme}
           readsHebrewAloud={playsHebrewAloud(profile.gradeId)}
-          onClose={() => setUpsellFocus(null)}
+          isResend={isAskResend}
+          onClose={() => {
+            setUpsellFocus(null);
+            setIsAskResend(false);
+          }}
         />
       )}
     </div>

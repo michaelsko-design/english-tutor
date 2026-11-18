@@ -9,6 +9,7 @@ import {
   getReminderSupport,
   isReminderOn,
 } from '../../services/push/pushSubscription';
+import { trackReminderResult } from '../../services/push/reminderOptIn';
 import { CALENDAR_REMINDER_HOUR, buildGoogleCalendarUrl, downloadReminderIcs } from '../../utils/reminderIcs';
 import { getReminderFacts } from '../../hooks/useReminderSync';
 import { REMINDER_REWARD_DIAMONDS } from '../../data/reminderReward';
@@ -48,6 +49,7 @@ export const StreakReminderCard: React.FC<StreakReminderCardProps> = ({ profile,
     setIsBusy(true);
     setErrorHe(null);
     const result = isOn ? await disableReminder(uid) : await enableReminder(uid, facts);
+    if (!isOn) trackReminderResult('settings', result);
     if (result.ok) {
       setIsOn(!isOn);
       if (!isOn) onEnabled();

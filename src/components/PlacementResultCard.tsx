@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LearnerProfile, PlacementResult, SUPPORTED_GRADES } from '../types/learner';
 import { ThemeDefinition, TIER_CONFIG } from '../themes/themeRegistry';
 import { NON_READER_RESULT_HE, PLACEMENT_REWARD_DIAMONDS, PLACEMENT_REWARD_XP } from '../data/placementTest';
 import { isolateEnglishRuns } from '../utils/bidi';
 import { useAutoSpeakHebrew } from '../hooks/useAutoSpeakHebrew';
-import { Sparkles, Check } from 'lucide-react';
+import { Sparkles, Check, Send } from 'lucide-react';
+import { auth } from '../services/firebase';
+import { trackEvent } from '../services/analytics';
+import { buildPlacementSummaryHe } from '../data/showOff';
+import { ParentShareBlock } from './parent/ParentShareBlock';
 import { Button } from './ui/Button';
 import { VibeAmount } from './ui/VibeAmount';
 
@@ -13,6 +17,8 @@ interface PlacementResultCardProps {
   profile: LearnerProfile;
   theme: ThemeDefinition;
   isFirstTest: boolean;
+  /** Offer "show my level to a parent" (a test taken from the home screen, not during onboarding) */
+  canShareWithParent?: boolean;
   onFinish: (applyRecommendation: boolean) => void;
 }
 
@@ -25,8 +31,12 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
   profile,
   theme,
   isFirstTest,
+  canShareWithParent = false,
   onFinish,
 }) => {
+  const user = auth?.currentUser ?? null;
+  const uid = canShareWithParent && user && !user.isAnonymous ? user.uid : null;
+  const [isSharing, setIsSharing] = useState(false);
   const isGirl = profile.gender === 'girl';
   const estimated = gradeMeta(result.estimatedGradeId);
   const recommendedGrade = gradeMeta(result.recommendedGradeId);
@@ -103,6 +113,23 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
         </div>
       )}
 
+      {uid && (
+        <ParentShareArea
+          uid={uid}
+          profile={profile}
+          theme={theme}
+          isOpen={isSharing}
+          onOpen={() => setIsSharing(true)}
+          summaryHe={buildPlacementSummaryHe({
+            name: profile.name,
+            gender: profile.gender,
+            levelHe: result.isNonReader ? 'מתחילים מהאותיות' : estimated.labelHe,
+            practiceGradeHe: recommendedGrade.labelHe,
+            tierHe: tier.labelHe,
+          })}
+        />
+      )}
+
       {isSameAsCurrent ? (
         <Button theme={theme} size="lg" className="w-full" onClick={() => onFinish(true)}>
           <Check className="w-5 h-5" />
@@ -124,5 +151,43 @@ export const PlacementResultCard: React.FC<PlacementResultCardProps> = ({
         </div>
       )}
     </div>
+  );
+};
+
+interface ParentShareAreaProps {
+  uid: string;
+  profile: LearnerProfile;
+  theme: ThemeDefinition;
+  isOpen: boolean;
+  onOpen: () => void;
+  summaryHe: string;
+}
+
+/** A small "show a parent" button that opens the message with the parent link. */
+const ParentShareArea: React.FC<ParentShareAreaProps> = ({ uid, profile, theme, isOpen, onOpen, summaryHe }) => {
+  if (!isOpen) {
+    return (
+      <button
+        type="button"
+        onClick={onOpen}
+        className={`w-full min-h-11 px-4 py-2.5 rounded-2xl text-sm font-extrabold flex items-center justify-center gap-1.5 border border-current/20`}
+      >
+        <Send className="w-4 h-4" aria-hidden="true" />
+        להראות להורים את הרמה שלי
+      </button>
+    );
+  }
+  return (
+    <section aria-label="לשתף את ההורים" className={`p-4 rounded-2xl ${theme.cardBgClass} space-y-2`}>
+      <p className="text-sm font-bold">שולחים להורים את התוצאה, עם קישור לאזור ההורים:</p>
+      <ParentShareBlock
+        uid={uid}
+        childName={profile.name}
+        childAvatar={profile.equippedAvatarEmoji || theme.companion.avatarEmoji}
+        summaryHe={summaryHe}
+        theme={theme}
+        onShared={() => trackEvent('placement_shared')}
+      />
+    </section>
   );
 };

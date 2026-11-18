@@ -13,6 +13,8 @@ interface ShareTextActionsProps {
   copiedLabel: string;
   copyFailedLabel: string;
   theme: ThemeDefinition;
+  /** Called when the share sheet or the WhatsApp link is tapped (not the copy button) */
+  onShare?: () => void;
 }
 
 type ShareStatus = 'idle' | 'copied' | 'copy-failed';
@@ -30,6 +32,7 @@ export const ShareTextActions: React.FC<ShareTextActionsProps> = ({
   copiedLabel,
   copyFailedLabel,
   theme,
+  onShare,
 }) => {
   const [status, setStatus] = useState<ShareStatus>('idle');
   const canNativeShare = typeof navigator.share === 'function';
@@ -44,6 +47,7 @@ export const ShareTextActions: React.FC<ShareTextActionsProps> = ({
   };
 
   const share = async () => {
+    onShare?.();
     try {
       await navigator.share({ title: shareTitle, text });
     } catch (error) {
@@ -67,6 +71,7 @@ export const ShareTextActions: React.FC<ShareTextActionsProps> = ({
             href={`https://wa.me/?text=${encodeURIComponent(text)}`}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={onShare}
             className={`${buttonClass} ${theme.primaryBtnClass}`}
           >
             <Share2 className="w-4 h-4" />

@@ -12,6 +12,7 @@ import {
   rememberAsk,
 } from '../../data/proAsk';
 import { trackEvent } from '../../services/analytics';
+import { buildExamAskLineHe, buildExamPerkHe } from '../../data/examPitch';
 import { createParentInvite, listParentsOfChild } from '../../services/parentService';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 import type { ProAskLearner, ProUpsellFocus } from './proUpsellContext';
@@ -32,6 +33,8 @@ interface ProUpsellSheetProps {
   theme: ThemeDefinition;
   /** Grades 1–2 hear the sheet in Hebrew (Feature 47) */
   readsHebrewAloud?: boolean;
+  /** Opened from the "send again" card for an ask a parent has not answered (data/proAsk.ts) */
+  isResend?: boolean;
   onClose: () => void;
 }
 
@@ -41,6 +44,17 @@ const PERKS: ReadonlyArray<{ focus: ProUpsellFocus; emoji: string; labelHe: stri
   { focus: 'lists', emoji: '📝', labelHe: 'עוד רשימות מילים מבית הספר' },
   { focus: 'themes', emoji: '🎨', labelHe: 'כל ערכות העיצוב וכל הדמויות' },
 ];
+
+/**
+ * The perk that brought the learner here comes first, except that a coming exam or school lists
+ * always lead (parents pay for a date), with the exam day or the list count in the line.
+ */
+function orderPerks(focus: ProUpsellFocus, learner: ProAskLearner, todayStr: string) {
+  const exam = learner.exam;
+  const lead: ProUpsellFocus = exam ? (exam.examDateStr ? 'exam' : 'lists') : focus;
+  const ordered = [...PERKS.filter((p) => p.focus === lead), ...PERKS.filter((p) => p.focus !== lead)];
+  return exam ? ordered.map((p, index) => (index === 0 ? { ...p, labelHe: buildExamPerkHe(exam, todayStr) } : p)) : ordered;
+}
 
 type AskState =
   | { kind: 'idle' }
@@ -58,20 +72,21 @@ async function prepareAskMessage(learner: ProAskLearner): Promise<AskState> {
     // Unknown whether a parent is paired: a new code could replace a working one, so try again later
     return { kind: 'failed', errorHe: 'לא הצלחנו להתחבר. כדאי לנסות שוב בעוד רגע.' };
   }
+  const examLineHe = learner.exam ? buildExamAskLineHe(learner.exam) : undefined;
   if (parents.length > 0) {
-    return { kind: 'ready', message: buildProAskMessageHe(learner.name, learner.gender, buildProAskUrl(origin, null)) };
+    return { kind: 'ready', message: buildProAskMessageHe(learner.name, learner.gender, buildProAskUrl(origin, null), examLineHe) };
   }
   const invite = await createParentInvite(learner.uid, learner.name, learner.avatarEmoji);
   if (!invite.ok) return { kind: 'failed', errorHe: invite.errorHe };
   const url = buildProAskUrl(origin, invite.value.code);
-  return { kind: 'ready', message: buildProAskMessageHe(learner.name, learner.gender, url) };
+  return { kind: 'ready', message: buildProAskMessageHe(learner.name, learner.gender, url, examLineHe) };
 }
 
 /**
  * The kid-safe Pro sheet (docs/feature-pro-tier.md, "ask a parent"): what Pro opens and one button
  * that sends a parent the link. No prices or plans: only the paired parent ever pays.
  */
-export const ProUpsellSheet: React.FC<ProUpsellSheetProps> = ({ learner, focus, theme, readsHebrewAloud = false, onClose }) => {
+export const ProUpsellSheet: React.FC<ProUpsellSheetProps> = ({ learner, focus, theme, readsHebrewAloud = false, isResend = false, onClose }) => {
   const sheetRef = useRef<HTMLElement>(null);
   const isReducedMotion = usePrefersReducedMotion();
   useDialog(sheetRef, { onClose });
@@ -80,14 +95,15 @@ export const ProUpsellSheet: React.FC<ProUpsellSheetProps> = ({ learner, focus, 
   const [askState, setAskState] = useState<AskState>({ kind: 'idle' });
   const hasAsked = askState.kind === 'idle' && hasAskedToday(learner.uid, todayStr);
   const isGirl = learner.gender === 'girl';
-  const perks = [...PERKS.filter((p) => p.focus === focus), ...PERKS.filter((p) => p.focus !== focus)];
+  const perks = orderPerks(focus, learner, todayStr);
 
   const handleAsk = async () => {
     setAskState({ kind: 'preparing' });
     const next = await prepareAskMessage(learner);
     if (next.kind === 'ready') {
-      rememberAsk(learner.uid, todayStr);
+      rememberAsk(learner.uid, todayStr, { focus, isResend });
       trackEvent('pro_ask_sent');
+      if (isResend) trackEvent('pro_ask_resent');
     }
     setAskState(next);
   };

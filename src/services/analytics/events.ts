@@ -36,7 +36,33 @@ export const ANALYTICS_EVENTS = [
   // The conversion funnel: a locked Pro stop was opened, and "ask a parent" was sent
   'pro_wall_view',
   'pro_ask_sent',
+  // Growth asks: where the daily reminder was turned on, a decline, a browser that refused it, and the
+  // "show a parent" shares (first win, placement result, a resent Pro ask)
+  'reminder_opt_in_firstwin',
+  'reminder_opt_in_card',
+  'reminder_opt_in_settings',
+  'reminder_opt_in_reask',
+  'reminder_ask_declined',
+  'reminder_permission_denied',
+  'show_off_shared',
+  'placement_shared',
+  'pro_ask_resent',
 ] as const;
+
+/** The growth-ask counters, in the order the owner dashboard lists them */
+export const GROWTH_EVENTS = [
+  'reminder_opt_in_firstwin',
+  'reminder_opt_in_card',
+  'reminder_opt_in_settings',
+  'reminder_opt_in_reask',
+  'reminder_ask_declined',
+  'reminder_permission_denied',
+  'show_off_shared',
+  'placement_shared',
+  'pro_ask_resent',
+] as const satisfies readonly (typeof ANALYTICS_EVENTS)[number][];
+
+export type GrowthEvent = (typeof GROWTH_EVENTS)[number];
 
 /** The "feature opened" counters, in the order the owner dashboard lists them */
 export const FEATURE_EVENTS = [

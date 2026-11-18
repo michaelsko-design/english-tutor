@@ -81,7 +81,12 @@ test.describe('onboarding', () => {
     await lesson.getByRole('button', { name: /סיימנו/ }).click();
     // The first win: a celebration with the first streak day, and (where the browser can) the reminder ask
     await expect(page.getByRole('heading', { name: /כל הכבוד/ })).toBeVisible();
-    await expect(page.getByText(/יום 1 ברצף/)).toBeVisible();    await page.getByRole('button', { name: /^(ממשיכים|לא עכשיו)$/ }).click();
+    await expect(page.getByText(/יום 1 ברצף/)).toBeVisible();
+    await page.getByRole('button', { name: /^(ממשיכים|לא עכשיו)$/ }).click();
+    // Then "show your parents": a message with a new parent link, ready to send (or skip)
+    await expect(page.getByRole('heading', { name: /שלחו להורים/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'העתקת ההודעה' })).toBeVisible();
+    await page.getByRole('button', { name: 'אולי אחר כך' }).click();
     await expectDashboard(page);
     // The grade label sits in the map peek, which wide screens hide; the map itself is always there
     await expect(page.locator('#mission-map')).toBeVisible();

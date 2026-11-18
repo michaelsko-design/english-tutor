@@ -460,9 +460,14 @@ service cloud.firestore {
     function isReportSnapshot(data) {
       let keys = ['name', 'gender', 'gradeId', 'preferredTier', 'isShabbatObserver', 'stats',
                   'missionProgress', 'activityLog', 'updatedAt'];
-      return data.keys().hasOnly(keys.concat(['deckWordMastery']))
+      return data.keys().hasOnly(keys.concat(['deckWordMastery', 'exam']))
         && data.keys().hasAll(keys)
         && (!('deckWordMastery' in data) || (data.deckWordMastery is map && data.deckWordMastery.size() <= 3000))
+        // A coming exam day and the count of school word lists (src/data/examPitch.ts), nothing more
+        && (!('exam' in data) || (data.exam is map
+          && data.exam.keys().hasOnly(['examDateStr', 'listCount'])
+          && data.exam.listCount is int && data.exam.listCount >= 0 && data.exam.listCount <= 200
+          && (!('examDateStr' in data.exam) || (data.exam.examDateStr is string && data.exam.examDateStr.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')))))
         && data.name is string
         && data.name.size() <= 40
         && data.gender in ['girl', 'boy']
@@ -582,7 +587,10 @@ service cloud.firestore {
           'mission_start', 'mission_abandon', 'hint_used', 'tts_error',
           'feature_exam_prep', 'feature_word_lists', 'feature_friends', 'feature_progress_report',
           'feature_room', 'feature_shop', 'feature_settings',
-          'pro_wall_view', 'pro_ask_sent'])
+          'pro_wall_view', 'pro_ask_sent',
+          'reminder_opt_in_firstwin', 'reminder_opt_in_card', 'reminder_opt_in_settings', 'reminder_opt_in_reask',
+          'reminder_ask_declined', 'reminder_permission_denied',
+          'show_off_shared', 'placement_shared', 'pro_ask_resent'])
         && request.resource.data.counts.get('session_start', 0) <= 1000000
         && request.resource.data.counts.get('mission_finish', 0) <= 1000000;
     }
