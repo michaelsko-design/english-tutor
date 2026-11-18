@@ -50,11 +50,13 @@ function renderPanel({ initialChildUids = ['kid1'], period = 'yearly', examByChi
 const priceBox = () => screen.getByTestId('pro-price-box');
 /** Intl puts direction marks and a no-break space around ₪; compare on plain text */
 const plain = (text: string | null) => (text ?? '').replace(/[\u200e\u200f\u00a0]/g, ' ').replace(/\s+/g, ' ');
+const PAYER_NAME_LABEL = /שם מלא של המשלם\/ת/;
+const PHONE_LABEL = /טלפון נייד/;
 const payButton = () => screen.getByRole('button', { name: 'המשך לתשלום' });
 
 async function fillAndPay(user: ReturnType<typeof userEvent.setup>, name = 'דנה כהן', phone = '0501234567') {
-  if (name) await user.type(screen.getByLabelText('שם מלא של המשלם/ת'), name);
-  await user.type(screen.getByLabelText('טלפון נייד'), phone);
+  if (name) await user.type(screen.getByLabelText(PAYER_NAME_LABEL), name);
+  await user.type(screen.getByLabelText(PHONE_LABEL), phone);
   await user.click(screen.getByRole('checkbox', { name: /תנאי השימוש/ }));
   await user.click(payButton());
 }
@@ -139,23 +141,35 @@ describe('ProCheckoutPanel payer and payment', () => {
     funnel.trackFunnel.mockReset();
   });
 
+  it('marks the name and phone as required, and not the email', () => {
+    renderPanel();
+    for (const label of [PAYER_NAME_LABEL, PHONE_LABEL]) {
+      const input = screen.getByLabelText(label);
+      expect(input).toHaveAttribute('aria-required', 'true');
+      expect(input.closest('label')).toHaveTextContent('*');
+    }
+    const email = screen.getByLabelText(/אימייל לקבלה/);
+    expect(email).not.toHaveAttribute('aria-required');
+    expect(email.closest('label')).not.toHaveTextContent('*');
+  });
+
   it('fills in the payer name from the Google account when it is a full name', () => {
     renderPanel({ parentName: '  Dana   Cohen ' });
-    expect(screen.getByLabelText('שם מלא של המשלם/ת')).toHaveValue('Dana Cohen');
+    expect(screen.getByLabelText(PAYER_NAME_LABEL)).toHaveValue('Dana Cohen');
   });
 
   it.each([null, 'Dana', 'dana_c 123'])('leaves the payer name empty for the Google name %s', (parentName) => {
     renderPanel({ parentName });
-    expect(screen.getByLabelText('שם מלא של המשלם/ת')).toHaveValue('');
+    expect(screen.getByLabelText(PAYER_NAME_LABEL)).toHaveValue('');
   });
 
   it('asks for a full name and an Israeli mobile before calling the server', async () => {
     const { user } = renderPanel();
     await fillAndPay(user, 'דנה', '0501234567');
     expect(screen.getByRole('alert')).toHaveTextContent('שם פרטי ושם משפחה');
-    await user.type(screen.getByLabelText('שם מלא של המשלם/ת'), ' כהן');
-    await user.clear(screen.getByLabelText('טלפון נייד'));
-    await user.type(screen.getByLabelText('טלפון נייד'), '031234567');
+    await user.type(screen.getByLabelText(PAYER_NAME_LABEL), ' כהן');
+    await user.clear(screen.getByLabelText(PHONE_LABEL));
+    await user.type(screen.getByLabelText(PHONE_LABEL), '031234567');
     await user.click(payButton());
     expect(screen.getByRole('alert')).toHaveTextContent('מספר נייד');
     expect(billing.startProCheckout).not.toHaveBeenCalled();
