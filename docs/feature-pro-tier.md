@@ -232,6 +232,8 @@ sequenceDiagram
   - Share `/?parent&pro=1`, with no code and no uid. The parent signs in, and the portal opens straight on that child's Pro card. With more than one child, it opens the child list with the Pro buttons shown.
 - The message is fixed Hebrew addressed to a parent, e.g. "היי! אני לומד/ת אנגלית ב-EnglishVibe ורוצה לפתוח את כל השיעורים. אפשר לשדרג כאן: <link>", inflected by the learner's gender.
 - **Rate limit.** One ask per day per learner (`localStorage`), and the sheet shows "שלחת כבר בקשה היום". This is about kindness to parents, not security; the server does not need it.
+- **Exam first** (2026-11-18, `data/examPitch.ts`): with an active exam plan or school word lists, the sheet's first perk names the exam day and days left (or the list count), whatever opened it, and the message says it ("יש לי מבחן באנגלית ב-22.11…"). The report snapshot carries `exam` (day and list count only), and the parent's checkout leads with the soonest exam of the ticked children.
+- **Resend** (2026-11-18): the ask is stored per device as `{ dateStr, atMs, focus, resends }`. 48 hours later without Pro, the home card `ProAskReminderCard` offers "לשלוח שוב", which opens the sheet again and makes a new code (the old one has expired); at most 2 resends per ask, never on a day an ask was sent.
 - **Guests** (anonymous) are first asked to save the account (`saveGuestWithGoogle` / `saveGuestWithUsername`), because Pro attaches to a uid a guest can lose.
 
 **Parent side: the parent portal (`components/parent/`).**
