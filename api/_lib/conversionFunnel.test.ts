@@ -145,7 +145,7 @@ describe('computeConversionFunnel', () => {
       input({
         funnelDocs: [
           { id: '2026-12-18', fields: { gate_view__landing: 5, signup_done__landing: 2, gate_view__wa_family: 3, parent_link_open: 4, parent_pro_link_open: 1 } },
-          { id: '2026-12-19', fields: { gate_view__landing: 1, parent_link_open: 2, parent_pro_signin_done: 1, pro_plans_view: 3, pro_checkout_open: 2, pro_checkout_submit: 1 } },
+          { id: '2026-12-19', fields: { gate_view__landing: 1, parent_link_open: 2, parent_pro_signin_done: 1, pro_plans_view: 3, pro_checkout_submit: 1 } },
         ],
       })
     );
@@ -154,7 +154,7 @@ describe('computeConversionFunnel', () => {
       { src: 'wa-family', gate_view: 3, signup_done: 0 },
     ]);
     expect(stats.parentLinkOpens).toEqual({ all: 6, pro: 1 });
-    expect(stats.parentProSteps).toEqual({ signIn: 1, plansView: 3, checkoutOpen: 2, submit: 1 });
+    expect(stats.parentProSteps).toEqual({ signIn: 1, plansView: 3, submit: 1 });
   });
 
   it('feeds the gates: the wall window and the cancel rate', () => {

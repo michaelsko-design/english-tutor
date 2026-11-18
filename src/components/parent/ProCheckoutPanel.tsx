@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { APP_NAME, LANDING_PAGE_PATH, PRIVACY_PAGE_PATH, TERMS_PAGE_PATH } from '../../config/appInfo';
+import { APP_NAME, LANDING_PAGE_PATH, PRIVACY_PAGE_PATH, SUPPORT_WHATSAPP_NUMBER, TERMS_PAGE_PATH } from '../../config/appInfo';
 import { MAX_PRO_SEATS, quoteProPrice, type BillingPeriod } from '../../config/proTier';
 import type { ParentLink } from '../../data/parentLink';
 import { buildExamHeadlineHe, pickExamLead, type ExamPitch } from '../../data/examPitch';
@@ -7,11 +7,12 @@ import { toLocalDateStr } from '../../utils/dates';
 import { startProCheckout } from '../../services/proBillingService';
 import { trackFunnel } from '../../services/analytics/funnel';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
-import { formatShekels, PaymentMethodsNote } from './ProPlanPicker';
+import { buildWhatsAppChatUrl, ProPriceBox } from './proPlanParts';
 
 interface ProCheckoutPanelProps {
   theme: ThemeDefinition;
-  period: BillingPeriod;
+  /** The plan shown first (yearly unless the parent came to renew a monthly one) */
+  initialPeriod: BillingPeriod;
   /** The children who can get Pro now (no live plan, or the parent's own plan up for renewal) */
   eligibleChildren: readonly ParentLink[];
   /** Ticked when the panel opens */
@@ -22,7 +23,6 @@ interface ProCheckoutPanelProps {
   parentName?: string | null;
   /** Each child's coming exam or school lists (from the report snapshot); the headline leads with it */
   examByChild?: Readonly<Record<string, ExamPitch | null>>;
-  onBack: () => void;
   /** Opens the payment page (a full page change) */
   onNavigate?: (url: string) => void;
 }
@@ -33,14 +33,11 @@ const PAYER_PHONE_PATTERN = /^05\d{8}$/;
 
 const fieldClass = 'mt-1 w-full px-3 py-2.5 rounded-xl text-base font-bold outline-none';
 const buttonClass = 'min-h-11 px-4 rounded-2xl text-sm font-extrabold';
-
-const RENEWAL_LINE_HE: Record<BillingPeriod, string> = {
-  monthly: 'מתחדש כל חודש עד שמבטלים. אפשר לבטל בכל עת כאן בפורטל.',
-  yearly: 'תשלום אחד לשנה. לא מתחדש מעצמו.',
-};
+const segmentClass = 'flex-1 min-h-11 px-3 rounded-2xl text-sm font-extrabold transition-colors';
 
 /** Grow's terms (§13.1.5.11) allow retrying a failed recurring charge only with the payer's consent in advance */
 const RETRY_CONSENT_HE = ' אם חיוב חודשי ייכשל, אני מסכים/ה שחברת התשלומים תנסה לחייב את הכרטיס שוב במשך עד 10 ימים.';
+const MORE_KIDS_MESSAGE_HE = `היי, אני מעוניין/ת במנוי ל-${APP_NAME} עבור יותר מ-4 ילדים. אשמח לקבל פרטים על חבילה מורחבת!`;
 
 const normalizeName = (value: string) => value.trim().replace(/\s+/g, ' ');
 const normalizePhone = (value: string) => value.replace(/[\s-]/g, '');
@@ -52,20 +49,21 @@ const initialPayerName = (parentName: string | null | undefined): string => {
 };
 
 /**
- * The step after the plan picker: which children get Pro, the payer's details for the gateway and
- * the receipt, and "continue to payment", which opens the gateway's own payment page.
+ * The parent's one plan-and-pay screen (docs/feature-pro-tier.md, "Checkout"): the billing period,
+ * which children get Pro (the price follows), the payer's details for the gateway and the receipt,
+ * the terms, and "continue to payment", which opens the gateway's own payment page.
  */
 export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
   theme,
-  period,
+  initialPeriod,
   eligibleChildren,
   initialChildUids,
   parentEmail,
   parentName,
   examByChild,
-  onBack,
   onNavigate = (url) => window.location.assign(url),
 }) => {
+  const [period, setPeriod] = useState<BillingPeriod>(initialPeriod);
   const [selected, setSelected] = useState<string[]>(() =>
     initialChildUids.filter((uid) => eligibleChildren.some((c) => c.childUid === uid)).slice(0, MAX_PRO_SEATS)
   );
@@ -76,6 +74,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
   const quote = quoteProPrice(selected.length, period);
+  const isSeatLimitReached = selected.length >= MAX_PRO_SEATS;
   // Parents pay for a date: the soonest exam (or school lists) of the ticked children leads
   const examLead = pickExamLead(
     eligibleChildren
@@ -130,10 +129,22 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
     setErrorHe(result.errorHe);
   };
 
+  const periodButton = (value: BillingPeriod, label: React.ReactNode) => (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={period === value}
+      onClick={() => setPeriod(value)}
+      className={`${segmentClass} ${period === value ? theme.primaryBtnClass : theme.secondaryBtnClass}`}
+    >
+      {label}
+    </button>
+  );
+
   return (
     <form onSubmit={(e) => void handleSubmit(e)} className={`p-4 rounded-3xl space-y-4 ${theme.cardBgClass}`} aria-labelledby="pro-checkout-title">
       <h2 id="pro-checkout-title" className="text-base font-extrabold">
-        תשלום על <bdi dir="ltr" lang="en">{APP_NAME} Pro</bdi>
+        מנוי <bdi dir="ltr" lang="en">{APP_NAME} Pro</bdi>
       </h2>
       {examLead && (
         <p className="p-3 rounded-2xl bg-amber-400/15 text-sm font-extrabold">
@@ -142,29 +153,47 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
         </p>
       )}
 
+      <div role="radiogroup" aria-label="תדירות התשלום" className="flex gap-2">
+        {periodButton('monthly', 'חודשי')}
+        {periodButton(
+          'yearly',
+          <>
+            שנתי <span className="text-xs font-bold">(3 חודשים מתנה)</span>
+          </>
+        )}
+      </div>
+
       <fieldset className="space-y-2">
         <legend className="text-sm font-extrabold">למי המנוי?</legend>
-        {eligibleChildren.length === 0 && (
-          <p className={`text-sm font-bold ${theme.mutedTextClass}`}>לכל הילדים המחוברים כבר יש Pro.</p>
+        {eligibleChildren.map((child) => {
+          const isChecked = selected.includes(child.childUid);
+          return (
+            <label key={child.childUid} className={`flex items-center gap-2 p-2.5 rounded-2xl text-sm font-bold ${theme.inputBgClass}`}>
+              <input
+                type="checkbox"
+                checked={isChecked}
+                disabled={!isChecked && isSeatLimitReached}
+                onChange={() => toggle(child.childUid)}
+                className="w-5 h-5 shrink-0"
+              />
+              <span aria-hidden="true">{child.childAvatar}</span>
+              {child.childName}
+            </label>
+          );
+        })}
+        {eligibleChildren.length > MAX_PRO_SEATS && (
+          <a
+            href={buildWhatsAppChatUrl(SUPPORT_WHATSAPP_NUMBER, MORE_KIDS_MESSAGE_HE)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`block min-h-11 px-3 py-2.5 rounded-2xl text-center text-sm font-bold ${theme.secondaryBtnClass}`}
+          >
+            צריכים מנוי ליותר מ-4 ילדים? דברו איתנו בוואטסאפ 💬
+          </a>
         )}
-        {eligibleChildren.map((child) => (
-          <label key={child.childUid} className={`flex items-center gap-2 p-2.5 rounded-2xl text-sm font-bold ${theme.inputBgClass}`}>
-            <input
-              type="checkbox"
-              checked={selected.includes(child.childUid)}
-              onChange={() => toggle(child.childUid)}
-              className="w-5 h-5 shrink-0"
-            />
-            <span aria-hidden="true">{child.childAvatar}</span>
-            {child.childName}
-          </label>
-        ))}
       </fieldset>
 
-      <p className="text-center text-lg font-black" aria-live="polite" data-testid="pro-checkout-total">
-        {quote ? `${formatShekels(quote.chargeAgorot)} ${period === 'yearly' ? 'לשנה' : 'לחודש'}` : 'בחרו לפחות ילד אחד'}
-      </p>
-      <p className={`-mt-3 text-xs font-bold text-center ${theme.mutedTextClass}`}>{RENEWAL_LINE_HE[period]}</p>
+      <ProPriceBox theme={theme} period={period} childCount={selected.length} quote={quote} />
 
       <label className="block text-sm font-bold">
         שם מלא של המשלם/ת
@@ -221,16 +250,10 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
         </p>
       )}
 
-      <div className="flex gap-2">
-        <button type="submit" disabled={isBusy || !quote || !hasAcceptedTerms} className={`${buttonClass} flex-1 ${theme.primaryBtnClass} disabled:opacity-50`}>
-          {isBusy ? 'פותחים את דף התשלום…' : 'המשך לתשלום'}
-        </button>
-        <button type="button" onClick={onBack} disabled={isBusy} className={`${buttonClass} ${theme.secondaryBtnClass}`}>
-          חזרה
-        </button>
-      </div>
+      <button type="submit" disabled={isBusy || !quote || !hasAcceptedTerms} className={`${buttonClass} w-full ${theme.primaryBtnClass} disabled:opacity-50`}>
+        {isBusy ? 'פותחים את דף התשלום…' : 'המשך לתשלום'}
+      </button>
 
-      <PaymentMethodsNote period={period} className={`text-center ${theme.mutedTextClass}`} />
       <p className={`text-xs font-bold text-center ${theme.mutedTextClass}`}>התשלום בדף המאובטח של חברת הסליקה.</p>
       <p className={`text-xs text-center ${theme.mutedTextClass}`}>
         <a href={`${LANDING_PAGE_PATH}#pricing`} target="_blank" rel="noopener" className="underline">

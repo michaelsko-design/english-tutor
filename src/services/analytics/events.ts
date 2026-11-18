@@ -121,7 +121,6 @@ export const FUNNEL_EVENTS = [
   // The parent's way to paying (the checkout record and the payment are counted from their documents)
   'parent_pro_signin_done',
   'pro_plans_view',
-  'pro_checkout_open',
   'pro_checkout_submit',
 ] as const;
 

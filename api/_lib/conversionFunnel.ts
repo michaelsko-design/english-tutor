@@ -73,8 +73,8 @@ export interface ConversionStats {
   visitsBySource: Array<{ src: MarketingSource } & Record<FunnelSourceEvent, number>>;
   /** Parent links opened (page loads): all of them, and the ones that came from a Pro ask */
   parentLinkOpens: { all: number; pro: number };
-  /** The parent's steps to paying (page loads): sign-in from a Pro ask link, plans seen, checkout opened, pay pressed */
-  parentProSteps: { signIn: number; plansView: number; checkoutOpen: number; submit: number };
+  /** The parent's steps to paying (page loads): sign-in from a Pro ask link, plans seen, pay pressed */
+  parentProSteps: { signIn: number; plansView: number; submit: number };
   gates: GateResult[];
 }
 
@@ -301,7 +301,6 @@ export function computeConversionFunnel(input: ConversionInput): ConversionStats
     parentProSteps: {
       signIn: sumField('parent_pro_signin_done'),
       plansView: sumField('pro_plans_view'),
-      checkoutOpen: sumField('pro_checkout_open'),
       submit: sumField('pro_checkout_submit'),
     },
     gates: evaluateGates(gateCounts),

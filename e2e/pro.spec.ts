@@ -52,11 +52,10 @@ test.describe('Pro', () => {
       await parent.page.getByRole('button', { name: 'אישור החיבור' }).click();
       await expect(parent.page.getByTestId('child-pro-status')).toContainText('חשבון חינמי', { timeout: CLOUD_TIMEOUT_MS });
 
-      // Monthly for one child, the payer's details, then the stand-in gateway's page
-      await parent.page.getByRole('radio', { name: 'חודשי', exact: true }).click();
-      await parent.page.getByRole('button', { name: 'המשך לתשלום' }).click();
-      const checkout = parent.page.getByRole('form', { name: /תשלום על/ });
+      // One plan-and-pay screen: monthly for the one child, the payer's details, then the stand-in gateway's page
+      const checkout = parent.page.getByRole('form', { name: /מנוי/ });
       await expect(checkout.getByRole('checkbox', { name: /נועה/ })).toBeChecked();
+      await checkout.getByRole('radio', { name: 'חודשי', exact: true }).click();
       await expect(checkout.getByTestId('pro-checkout-total')).toContainText('39');
       await checkout.getByLabel('שם מלא של המשלם/ת').fill('דנה כהן');
       await checkout.getByLabel('טלפון נייד').fill('050-1234567');
