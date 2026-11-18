@@ -46,8 +46,10 @@ function isGatingForcedOnInEmulator(): boolean {
 /**
  * The free/Pro limits switch (docs/feature-pro-tier.md, "Tier boundaries"). Off until payments work
  * end to end: until then every learner plays everything, and the app reads no entitlements.
+ * STAGING ONLY (this commit lives on the `staging` branch, never on main): staging builds turn the
+ * limits on, to test the Pro ask, the resend card and the checkout with sandbox payments.
  */
-const IS_PRO_GATING_ON = false;
+const IS_PRO_GATING_ON = IS_STAGING_BUILD;
 export const PRO_GATING_ENABLED = IS_PRO_GATING_ON || isGatingForcedOnInEmulator();
 
 /** The core units each grade gives free learners; grades not listed use `DEFAULT_FREE_CORE_UNITS` */
