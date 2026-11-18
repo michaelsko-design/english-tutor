@@ -8,7 +8,6 @@ import { startProCheckout } from '../../services/proBillingService';
 import { trackFunnel } from '../../services/analytics/funnel';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 import { formatShekels, PaymentMethodsNote } from './ProPlanPicker';
-import { RENEWAL_LINE_HE } from './proTermsCopy';
 
 interface ProCheckoutPanelProps {
   theme: ThemeDefinition;
@@ -34,6 +33,11 @@ const PAYER_PHONE_PATTERN = /^05\d{8}$/;
 
 const fieldClass = 'mt-1 w-full px-3 py-2.5 rounded-xl text-base font-bold outline-none';
 const buttonClass = 'min-h-11 px-4 rounded-2xl text-sm font-extrabold';
+
+const RENEWAL_LINE_HE: Record<BillingPeriod, string> = {
+  monthly: 'מתחדש כל חודש עד שמבטלים. אפשר לבטל בכל עת כאן בפורטל.',
+  yearly: 'תשלום אחד לשנה. לא מתחדש מעצמו.',
+};
 
 /** Grow's terms (§13.1.5.11) allow retrying a failed recurring charge only with the payer's consent in advance */
 const RETRY_CONSENT_HE = ' אם חיוב חודשי ייכשל, אני מסכים/ה שחברת התשלומים תנסה לחייב את הכרטיס שוב במשך עד 10 ימים.';
