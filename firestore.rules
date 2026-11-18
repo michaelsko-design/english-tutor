@@ -544,6 +544,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // What the owner was last warned about (Make credits running low, api/_lib/makeCredits.ts); server only
+    match /ownerNotices/{noticeId} {
+      allow read, write: if false;
+    }
+
     // Owner dashboard: the daily reminder log and the owner's test-account list. Only the server
     // (service account) reads or writes them; the app never does.
     match /reminderSends/{sendId} {

@@ -67,7 +67,7 @@ describe('handleProReconcileRequest', () => {
     logged.mockRestore();
   });
 
-  it('reminds the owner by email and WhatsApp (Make) of a task open for more than two days', async () => {
+  it('reminds the owner by email and Telegram (Make) of a task open for more than two days', async () => {
     const { fake, deps } = setup([]);
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const fetchImpl = vi.fn(async () => new Response('{"ok":true}', { status: 200 }));
@@ -80,6 +80,38 @@ describe('handleProReconcileRequest', () => {
     const alerts = fetchImpl.mock.calls.map((call) => JSON.parse(String((call as unknown as [string, RequestInit])[1].body)));
     expect(alerts).toEqual([expect.objectContaining({ action: 'notify', kind: 'cancel', subject: expect.stringMatching(/^תזכורת/) })]);
     vi.restoreAllMocks();
+  });
+
+  it("warns the owner when Make's credits pass 70%, once per cycle", async () => {
+    const { fake, deps } = setup([]);
+    const usage = { organization: { license: { operations: 1000 }, centicreditsConsumed: '75000', lastReset: '2026-10-13T09:00:00Z', nextReset: '2026-11-13T09:00:00Z' } };
+    const fetchImpl = vi.fn(async (url: string) =>
+      new Response(JSON.stringify(url.includes('/api/v2/organizations/') ? usage : { ok: true }), { status: 200 }));
+    const env = { ...ENV, GROW_MAKE_WEBHOOK_URL: 'https://hook.eu1.make.com/abc', GROW_MAKE_API_KEY: 'k', MAKE_API_TOKEN: 't', MAKE_ORGANIZATION_ID: '42' };
+    const run = () => handleProReconcileRequest(cron(), env, { ...deps, fetchImpl: fetchImpl as unknown as typeof fetch });
+
+    expect(await (await run()).json()).toMatchObject({ makeCreditsPercent: 75 });
+    await run();
+
+    const alerts = fetchImpl.mock.calls
+      .filter(([url]) => url.startsWith('https://hook.'))
+      .map((call) => JSON.parse(String((call as unknown as [string, RequestInit])[1].body)));
+    expect(alerts).toEqual([expect.objectContaining({ action: 'notify', kind: 'make_credits', subject: expect.stringContaining('70%') })]);
+    expect(fake.get('ownerNotices', 'makeCredits')).toMatchObject({ level: 70 });
+  });
+
+  it("still finishes the reconcile when Make's API refuses the credit check", async () => {
+    const { deps } = setup([]);
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fetchImpl = vi.fn(async () => new Response('{}', { status: 401 }));
+    const env = { ...ENV, MAKE_API_TOKEN: 't', MAKE_ORGANIZATION_ID: '42' };
+
+    const response = await handleProReconcileRequest(cron(), env, { ...deps, fetchImpl: fetchImpl as unknown as typeof fetch });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ makeCreditsPercent: null });
+    expect(logged).toHaveBeenCalledWith('pro-reconcile: Make credit check failed (Make API 401)');
+    logged.mockRestore();
   });
 
   it('refuses a call without the cron secret', async () => {

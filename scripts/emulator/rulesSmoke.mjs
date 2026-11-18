@@ -312,6 +312,9 @@ await expect('the paying parent cannot read an owner Grow task', false, () =>
   getDoc(doc(b.db, 'gatewayTasks', `${'x'.repeat(32)}_cancel`)));
 await expect('nobody can write an owner Grow task', false, () =>
   setDoc(doc(b.db, 'gatewayTasks', 'forged'), { kind: 'refund', doneAt: 0 }));
+await expect('nobody can read the owner notices (Make credits)', false, () => getDoc(doc(b.db, 'ownerNotices', 'makeCredits')));
+await expect('nobody can write the owner notices (Make credits)', false, () =>
+  setDoc(doc(b.db, 'ownerNotices', 'makeCredits'), { cycleStart: 'x', level: 90 }));
 await expect('nobody can read the owner reminder log', false, () => getDoc(doc(a.db, 'reminderSends', `2026-11-06_${ua.uid}`)));
 await expect('nobody can write the owner reminder log', false, () =>
   setDoc(doc(a.db, 'reminderSends', `2026-11-06_${ua.uid}`), { uid: ua.uid, dateStr: '2026-11-06', kind: 'streak' }));
