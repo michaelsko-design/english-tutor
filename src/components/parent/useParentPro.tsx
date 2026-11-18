@@ -13,7 +13,6 @@ import { ChildProSection } from './ChildProSection';
 import { MockPaymentPage } from './MockPaymentPage';
 import { ProCheckoutPanel } from './ProCheckoutPanel';
 import { ProPaymentReturn } from './ProPaymentReturn';
-import { ProPlanPicker, type ProPlanChoice } from './ProPlanPicker';
 
 interface ParentProOptions {
   user: User;
@@ -28,7 +27,8 @@ interface ParentProOptions {
   onError: (messageHe: string | null) => void;
 }
 
-interface CheckoutStep {
+/** Where the plan-and-pay screen starts when a child card asks for it (upgrade one child, or renew a plan) */
+interface PlanStart {
   period: BillingPeriod;
   childUids: string[];
 }
@@ -48,13 +48,12 @@ function clearProAddress(): void {
 
 /**
  * The parent portal's Pro parts (docs/feature-pro-tier.md, "Phase 2"): each child's Pro line, the
- * plan picker and checkout, and the page after payment. Returns the pieces for ParentHome to place.
+ * plan-and-pay screen, and the page after payment. Returns the pieces for ParentHome to place.
  */
 export function useParentPro({ user, theme, links, isEnabled, examByChild, onNotice, onError }: ParentProOptions) {
   const [route, setRoute] = useState(() => parseParentProRoute(window.location.search));
-  const [checkout, setCheckout] = useState<CheckoutStep | null>(null);
-  /** Children the parent picked from their cards ("upgrade"), ticked first at checkout */
-  const [preselect, setPreselect] = useState<string[]>([]);
+  /** Null: yearly, with every child who can join ticked */
+  const [planStart, setPlanStart] = useState<PlanStart | null>(null);
   const [isBusy, setIsBusy] = useState(false);
   const plansRef = useRef<HTMLDivElement>(null);
   const childUids = useMemo(() => (isEnabled && links ? links.map((l) => l.childUid) : []), [isEnabled, links]);
@@ -76,17 +75,10 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
     if (isEnabled && isLoaded && route.hasProIntent) plansRef.current?.scrollIntoView({ block: 'start' });
   }, [isEnabled, isLoaded, route.hasProIntent]);
 
-  const showPlans = (childUidsFirst: string[], checkoutPeriod: BillingPeriod | null) => {
+  const showPlans = (childUids: string[], period: BillingPeriod) => {
     onError(null);
-    setPreselect(childUidsFirst);
-    setCheckout(checkoutPeriod ? { period: checkoutPeriod, childUids: childUidsFirst } : null);
+    setPlanStart({ period, childUids });
     plansRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  const handleContinue = (choice: ProPlanChoice) => {
-    const ordered = [...preselect, ...eligible.map((l) => l.childUid).filter((uid) => !preselect.includes(uid))];
-    trackFunnel('pro_checkout_open');
-    setCheckout({ period: choice.period, childUids: ordered.slice(0, choice.children) });
   };
 
   const changePlan = async (action: PlanAction, subscriptionId: string, childUid?: string) => {
@@ -108,7 +100,7 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
         openPlan={openPlan}
         theme={theme}
         isBusy={isBusy}
-        onUpgrade={() => showPlans([link.childUid], null)}
+        onUpgrade={() => showPlans([link.childUid], 'yearly')}
         onRenew={() => {
           if (status?.kind === 'plan') showPlans(childrenOnSamePlan(status.subscriptionId, entitlements, nowMs), 'yearly');
         }}
@@ -155,28 +147,20 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
   useEffect(() => {
     if (isPlansShown) trackFunnel('pro_plans_view');
   }, [isPlansShown]);
+  // Unless a child card asked for something else: yearly, with every child who can join ticked
+  const start = planStart ?? { period: 'yearly' as const, childUids: eligible.map((l) => l.childUid) };
   const plansArea = isPlansShown ? (
     <div ref={plansRef} className="space-y-4 scroll-mt-4">
-      {checkout ? (
-        <ProCheckoutPanel
-          key={`${checkout.period}:${checkout.childUids.join(',')}`}
-          theme={theme}
-          period={checkout.period}
-          eligibleChildren={eligible}
-          initialChildUids={checkout.childUids}
-          parentEmail={user.email}
-          parentName={user.displayName}
-          examByChild={examByChild}
-          onBack={() => setCheckout(null)}
-        />
-      ) : (
-        <ProPlanPicker
-          key={preselect.join(',')}
-          theme={theme}
-          initialChildren={preselect.length || eligible.length || 1}
-          onContinue={handleContinue}
-        />
-      )}
+      <ProCheckoutPanel
+        key={`${start.period}:${start.childUids.join(',')}`}
+        theme={theme}
+        initialPeriod={start.period}
+        eligibleChildren={eligible}
+        initialChildUids={start.childUids}
+        parentEmail={user.email}
+        parentName={user.displayName}
+        examByChild={examByChild}
+      />
     </div>
   ) : null;
 

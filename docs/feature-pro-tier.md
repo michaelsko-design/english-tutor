@@ -84,7 +84,7 @@ All limits are named constants in one file, `config/proTier.ts`:
 - `PRO_GATING_ENABLED`
 
 ## Pricing and seats
-All prices include VAT and live in `config/proTier.ts` as `PRO_PRICES_AGOROT`, keyed by the number of children (1–4) and period. The server reads them; the parent's plan picker only shows them (`quoteProPrice`).
+All prices include VAT and live in `config/proTier.ts` as `PRO_PRICES_AGOROT`, keyed by the number of children (1–4) and period. The server reads them; the parent's plan-and-pay screen only shows them (`quoteProPrice`).
 - **Monthly:** ₪39 for the first child and ₪25 for each more.
 - **Yearly:** about 9 monthly charges ("3 months free"), rounded down to end in 9.
 
@@ -95,15 +95,14 @@ All prices include VAT and live in `config/proTier.ts` as `PRO_PRICES_AGOROT`, k
 | 3 | ₪89 | ₪799 | ≈ ₪66.58 | ₪269 |
 | 4 | ₪114 | ₪999 | ≈ ₪83.25 | ₪369 |
 
-Families with more than 4 children contact us on WhatsApp (the plan picker's button) for an extended plan.
+Families with more than 4 children contact us on WhatsApp (a button on the plan-and-pay screen when more than 4 children are linked) for an extended plan.
 
-**Plan picker** (`components/parent/ProPlanPicker.tsx`, in the parent portal; shown on the dev server only until checkout is wired, `IS_PRO_PLAN_VISIBLE`):
-- **Billing switch:** חודשי / שנתי (3 חודשים מתנה), yearly by default.
-- **Counter:** a 1–4 children stepper, starting at the parent's linked children.
-- **Price box:** the charge, the per-month rate (yearly), the per-child monthly rate (2+ children), and the yearly saving. On monthly it says what yearly would save.
-- **WhatsApp button:** "צריכים מנוי ליותר מ-4 ילדים? דברו איתנו בוואטסאפ" opens a WhatsApp chat with a prefilled message. Pressing + at 4 children highlights it and moves focus to it. The number is `SUPPORT_WHATSAPP_NUMBER` (`config/appInfo.ts`) (for now the owner's private number; replace it with a business number before launch).
-- **Footer:** "התחברות אחת להורה עם פרופיל נפרד לכל ילד • אפשר לבטל בכל עת".
-- **Continue button:** "המשך לתשלום" appears once checkout is wired (`onContinue`).
+**Plan-and-pay screen** (`components/parent/ProCheckoutPanel.tsx`, in the parent portal while `IS_PRO_PLAN_VISIBLE`; one screen since 2026-11-18, the separate plan picker step is gone):
+- **Billing switch:** חודשי / שנתי (3 חודשים מתנה), yearly by default (a renewal from a child card opens on yearly too).
+- **Children:** a checkbox per linked child who can join, all ticked at first (up to 4); upgrading from one child's card ticks only that child. Past 4 the other boxes are disabled.
+- **Price box** (`ProPriceBox`, `proPlanParts.tsx`): the charge, the per-month rate (yearly), the per-child monthly rate (2+ children), the yearly saving (on monthly, what yearly would save), how the plan renews, and the payment methods.
+- **WhatsApp button:** shown when more than 4 children are linked: "צריכים מנוי ליותר מ-4 ילדים? דברו איתנו בוואטסאפ" opens a WhatsApp chat with a prefilled message. The number is `SUPPORT_WHATSAPP_NUMBER` (`config/appInfo.ts`) (for now the owner's private number; replace it with a business number before launch).
+- **Payer, terms and pay:** see "Checkout" below. Grow needs the payer's full name and mobile to open a payment link (Make's Create Payment Link requires both), so they can't move to Grow's page.
 
 - **One subscription per paying parent.** `subscriptions/{id}` (server-only) holds:
   - `payerParentUid`, `period`, `seatLimit` (1–4) and `childUids` (at most `seatLimit`).
@@ -241,7 +240,7 @@ sequenceDiagram
   - Canceled: "בוטל, פעיל עד …".
   - Comp: "Pro (מתנה)".
 - **`ProCheckoutPanel`** (new):
-  - Starts from the plan picker's choice. Then pick which linked children take the seats (checkboxes), and enter the payer's full name and Israeli mobile number (Grow requires both).
+  - One screen: the billing period, which linked children take the seats (checkboxes), and the payer's full name and Israeli mobile number (Grow requires both).
   - Monthly vs. yearly, with prices (VAT included).
   - An optional coupon or referral code field ("קוד הנחה"). The price shown after a code comes from the server (`api/checkout` with `dryRun: true`).
   - Opened from a learner's ask, that learner is already checked.
@@ -437,8 +436,8 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
 - Not done here: the new-pack card still says "start" for a Pro pack (its text is read aloud to grades 1–2, so new copy needs Hebrew clips), and the sheet's texts are not read aloud yet.
 
 **Phase 2: parents can pay, on the mock provider (built).**
-- **Checkout** (`components/parent/useParentPro.tsx` places the pieces in `ParentHome`): the plan picker's "המשך לתשלום" opens `ProCheckoutPanel`: tick the children (the price follows the count), the payer's full name and mobile (checked like the server does), an optional e-mail for the receipt (the parent's Google e-mail prefilled; the name is prefilled from the Google account's name when it passes the name check, so a one-word name is left for the parent to type), then `startProCheckout` (`services/proBillingService.ts`) → `api/checkout.ts` → the page's address. Only an `https://` page or our own origin is followed.
-- **Steps to paying are counted.** Each step on the way is a funnel count: `parent_pro_signin_done`, `pro_plans_view`, `pro_checkout_open`, `pro_checkout_submit` (owner Funnel tab, "Parent's way to paying").
+- **Checkout** (`components/parent/useParentPro.tsx` places the pieces in `ParentHome`): `ProCheckoutPanel` is the one plan-and-pay screen: the period, the children (the price follows the count), the payer's full name and mobile (checked like the server does), an optional e-mail for the receipt (the parent's Google e-mail prefilled; the name is prefilled from the Google account's name when it passes the name check, so a one-word name is left for the parent to type), then `startProCheckout` (`services/proBillingService.ts`) → `api/checkout.ts` → the page's address. Only an `https://` page or our own origin is followed.
+- **Steps to paying are counted.** Each step on the way is a funnel count: `parent_pro_signin_done`, `pro_plans_view`, `pro_checkout_submit` (owner Funnel tab, "Parent's way to paying").
 - **Return page** `/?parent&paid=<id>` (`ProPaymentReturn`, `data/parentProRoute.ts`): "confirming…" until a linked child's entitlement carries that plan's id, then "Pro is on for …"; after a minute, "still being checked, don't pay again". `&status=cancel`: "cancelled, nothing was charged". A learner's `&pro=1` scrolls to the plans.
 - **Each child's Pro line** (`ChildProSection`, from `data/proPlanStatus.ts` over `useChildEntitlements`, live and not cached on the parent's device): free (upgrade, or "add to my plan" when the paying parent has a monthly plan under 4 children, with the new monthly price, or a yearly plan with a paid seat left), a gift (`comp`), or the plan: monthly renewing on a date, cancelled and valid until a date, or yearly valid until a date. Only the payer (`payerParentUid`) gets the controls: cancel the renewal and take a child off a shared plan, each after a confirm step; other linked parents see the status. The plan picker hides once every linked child has Pro.
 - **Yearly renewal:** from 14 days before the end (`YEARLY_RENEW_NOTICE_DAYS`), the payer sees "ends on … and does not renew by itself" and "renew for another year", a yearly checkout for the plan's children. The server lets the paying parent's own yearly seats into that checkout (`renewableSeatEnd`, in its last 14 days or grace days), and the webhook starts the new plan at the old `periodEnd`, so no paid day is lost, and takes the renewed children off the old plan in the same write (or a later change to the old plan would rewrite their entitlements). Only a yearly checkout renews: a monthly one would push its first Grow charge a year past the plan's start.

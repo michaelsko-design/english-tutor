@@ -35,7 +35,6 @@ const PRE_AUTH_LABELS: Record<string, string> = {
   parent_pro_link_open: 'A parent opened a Pro ask link',
   parent_pro_signin_done: 'A parent signed in from a Pro ask link',
   pro_plans_view: 'A parent saw the Pro plans',
-  pro_checkout_open: 'A parent opened the Pro checkout',
   pro_checkout_submit: 'A parent pressed pay',
 };
 

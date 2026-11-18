@@ -39,21 +39,11 @@ vi.mock('./ChildProSection', () => ({
     </div>
   ),
 }));
-vi.mock('./ProPlanPicker', () => ({
-  ProPlanPicker: (p: { initialChildren: number; onContinue: (c: { period: 'monthly' | 'yearly'; children: number }) => void }) => (
-    <div>
-      <span>{`picker:${p.initialChildren}`}</span>
-      <button type="button" onClick={() => p.onContinue({ period: 'yearly', children: 1 })}>continue one</button>
-      <button type="button" onClick={() => p.onContinue({ period: 'monthly', children: 2 })}>continue two</button>
-    </div>
-  ),
-}));
 vi.mock('./ProCheckoutPanel', () => ({
-  ProCheckoutPanel: (p: { period: string; initialChildUids: string[]; parentEmail: string | null; parentName?: string | null; onBack: () => void }) => (
+  ProCheckoutPanel: (p: { initialPeriod: string; initialChildUids: string[]; parentEmail: string | null; parentName?: string | null }) => (
     <div>
-      <span>{`checkout:${p.period}:${p.initialChildUids.join(',')}:${p.parentEmail}`}</span>
+      <span>{`plans:${p.initialPeriod}:${p.initialChildUids.join(',')}:${p.parentEmail}`}</span>
       <span>{`payer:${p.parentName}`}</span>
-      <button type="button" onClick={p.onBack}>back</button>
     </div>
   ),
 }));
@@ -119,7 +109,7 @@ describe('useParentPro visibility', () => {
     render(<Harness links={[NOA]} isEnabled={false} />);
 
     expect(screen.queryByText(/נועה:/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/picker:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/plans:/)).not.toBeInTheDocument();
   });
 
   it('waits for every child\'s plan before offering the plans', () => {
@@ -128,14 +118,14 @@ describe('useParentPro visibility', () => {
 
     expect(screen.getByText('נועה:free')).toBeInTheDocument();
     expect(screen.getByText('איתי:loading')).toBeInTheDocument();
-    expect(screen.queryByText(/picker:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/plans:/)).not.toBeInTheDocument();
   });
 
-  it('starts the plan picker at the number of children who can join', () => {
+  it('opens the plans on yearly with every child who can join ticked', () => {
     mocks.entitlements = { c1: null, c2: null };
     render(<Harness links={[NOA, ITAY]} />);
 
-    expect(screen.getByText('picker:2')).toBeInTheDocument();
+    expect(screen.getByText('plans:yearly:c1,c2:parent@example.com')).toBeInTheDocument();
   });
 
   it('offers no plans once every child has Pro', () => {
@@ -143,26 +133,21 @@ describe('useParentPro visibility', () => {
     render(<Harness links={[NOA, ITAY]} />);
 
     expect(screen.getByText('נועה:plan')).toBeInTheDocument();
-    expect(screen.queryByText(/picker:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/plans:/)).not.toBeInTheDocument();
   });
 
   it('offers no plans while the children are still loading', () => {
     render(<Harness links={null} />);
 
-    expect(screen.queryByText(/picker:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/plans:/)).not.toBeInTheDocument();
   });
 });
 
 describe('useParentPro checkout', () => {
-  it('counts the plans view and the checkout opening, and passes the Google name to checkout', async () => {
-    const user = userEvent.setup();
+  it('counts the plans view and passes the Google name and email to the plan-and-pay screen', () => {
     mocks.entitlements = { c1: null };
     render(<Harness links={[NOA]} />);
     expect(mocks.trackFunnel).toHaveBeenCalledWith('pro_plans_view');
-    expect(mocks.trackFunnel).not.toHaveBeenCalledWith('pro_checkout_open');
-
-    await user.click(screen.getByRole('button', { name: 'continue one' }));
-    expect(mocks.trackFunnel).toHaveBeenCalledWith('pro_checkout_open');
     expect(screen.getByText('payer:Dana Cohen')).toBeInTheDocument();
   });
 
@@ -172,29 +157,15 @@ describe('useParentPro checkout', () => {
     expect(mocks.trackFunnel).not.toHaveBeenCalled();
   });
 
-  it('goes to checkout for the first children who can join, and back to the picker', async () => {
-    const user = userEvent.setup();
-    mocks.entitlements = { c1: null, c2: null };
-    render(<Harness links={[NOA, ITAY]} />);
-
-    await user.click(screen.getByRole('button', { name: 'continue one' }));
-    expect(screen.getByText('checkout:yearly:c1:parent@example.com')).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: 'back' }));
-    expect(screen.getByText('picker:2')).toBeInTheDocument();
-  });
-
-  it('puts the child picked from a card first at checkout', async () => {
+  it('ticks only the child picked from a card', async () => {
     const user = userEvent.setup();
     mocks.entitlements = { c1: null, c2: null };
     render(<Harness links={[NOA, ITAY]} />);
 
     await user.click(screen.getByRole('button', { name: 'upgrade איתי' }));
-    expect(onError).toHaveBeenCalledWith(null);
-    expect(screen.getByText('picker:1')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'continue two' }));
-    expect(screen.getByText('checkout:monthly:c2,c1:parent@example.com')).toBeInTheDocument();
+    expect(onError).toHaveBeenCalledWith(null);
+    expect(screen.getByText('plans:yearly:c2:parent@example.com')).toBeInTheDocument();
   });
 
   it('opens a yearly renewal for everyone on the same plan', async () => {
@@ -204,7 +175,7 @@ describe('useParentPro checkout', () => {
 
     await user.click(screen.getByRole('button', { name: 'renew נועה' }));
 
-    expect(screen.getByText('checkout:yearly:c1:parent@example.com')).toBeInTheDocument();
+    expect(screen.getByText('plans:yearly:c1:parent@example.com')).toBeInTheDocument();
   });
 
   it('ignores a renewal request from a child who is not on a plan', async () => {
@@ -214,7 +185,7 @@ describe('useParentPro checkout', () => {
 
     await user.click(screen.getByRole('button', { name: 'renew נועה' }));
 
-    expect(screen.queryByText(/checkout:/)).not.toBeInTheDocument();
+    expect(screen.getByText('plans:yearly:c1:parent@example.com')).toBeInTheDocument();
   });
 });
 

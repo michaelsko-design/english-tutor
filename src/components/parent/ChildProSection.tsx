@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { ChildProStatus, OpenPlan } from '../../data/proPlanStatus';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
-import { formatShekels } from './ProPlanPicker';
+import { formatShekels } from './proPlanParts';
 
 interface ChildProSectionProps {
   childName: string;
