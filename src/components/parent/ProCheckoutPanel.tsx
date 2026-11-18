@@ -48,6 +48,13 @@ const initialPayerName = (parentName: string | null | undefined): string => {
   return PAYER_NAME_PATTERN.test(name) ? name : '';
 };
 
+/** The "*" after a required field's label; screen readers get aria-required on the input instead */
+const RequiredMark: React.FC = () => (
+  <span aria-hidden="true" className="text-red-600 dark:text-red-400">
+    *
+  </span>
+);
+
 /**
  * The parent's one plan-and-pay screen (docs/feature-pro-tier.md, "Checkout"): the billing period,
  * which children get Pro (the price follows), the payer's details for the gateway and the receipt,
@@ -196,13 +203,14 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
       <ProPriceBox theme={theme} period={period} childCount={selected.length} quote={quote} />
 
       <label className="block text-sm font-bold">
-        שם מלא של המשלם/ת
-        <input type="text" autoComplete="name" value={payerName} onChange={(e) => setPayerName(e.target.value)} className={`${fieldClass} ${theme.inputBgClass}`} />
+        שם מלא של המשלם/ת <RequiredMark />
+        <input type="text" autoComplete="name" aria-required="true" value={payerName} onChange={(e) => setPayerName(e.target.value)} className={`${fieldClass} ${theme.inputBgClass}`} />
       </label>
       <label className="block text-sm font-bold">
-        טלפון נייד
+        טלפון נייד <RequiredMark />
         <input
           type="tel"
+          aria-required="true"
           inputMode="tel"
           dir="ltr"
           autoComplete="tel-national"
