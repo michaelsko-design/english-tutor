@@ -29,8 +29,11 @@ const CARD = 1;
 const BIT = 6;
 const APPLE_PAY = 13;
 const GOOGLE_PAY = 14;
-/** Grow's standing orders are card only (terms §13.2.2, §13.4.2, §13.5.2) */
-const METHODS: Record<BillingPeriod, number[]> = { monthly: [CARD], yearly: [CARD, BIT, APPLE_PAY, GOOGLE_PAY] };
+/**
+ * Grow's standing orders are card only (terms §13.2.2, §13.4.2, §13.5.2). The one yearly payment
+ * lists the quick phone methods first: typing a card number is where parents give up.
+ */
+const METHODS: Record<BillingPeriod, number[]> = { monthly: [CARD], yearly: [BIT, APPLE_PAY, GOOGLE_PAY, CARD] };
 /** Grow's status code for a paid transaction ("שולם") */
 const PAID_STATUS_CODE = '2';
 const AGOROT_PER_SHEKEL = 100;

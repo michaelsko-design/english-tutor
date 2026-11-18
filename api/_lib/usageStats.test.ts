@@ -187,7 +187,7 @@ describe('sign-up steps before an account exists', () => {
     const { preAuth } = computeUsageStats([], [], '2026-11-06', [], [], [], rows);
     expect(preAuth.map(({ event }) => event)).toEqual([
       'gate_view', 'signup_started', 'signup_basics_done', 'consent_ticked', 'signup_done', 'signup_name_taken', 'signup_error',
-      'parent_link_open', 'parent_pro_link_open',
+      'parent_link_open', 'parent_pro_link_open', 'parent_pro_signin_done', 'pro_plans_view', 'pro_checkout_open', 'pro_checkout_submit',
     ]);
     expect(Object.fromEntries(preAuth.map(({ event, count }) => [event, count]))).toMatchObject({
       gate_view: 15, signup_started: 6, signup_done: 4, signup_error: 2, consent_ticked: 0,

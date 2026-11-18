@@ -44,6 +44,7 @@ const conversion: Conversion = {
   wallByGrade: [{ gradeId: 'grade-4', learners: 3, medianDays: 12 }],
   visitsBySource: [{ src: 'landing', gate_view: 80, signup_done: 40 }],
   parentLinkOpens: { all: 7, pro: 3 },
+  parentProSteps: { signIn: 2, plansView: 5, checkoutOpen: 4, submit: 1 },
   gates: evaluateGates(GATE_COUNTS),
 };
 
@@ -85,5 +86,6 @@ describe('ConversionFunnelCard', () => {
     expect(screen.getByText(/median 12 days/)).toBeInTheDocument();
     expect(screen.getByText(/80 saw sign-in · 40 created an account/)).toBeInTheDocument();
     expect(screen.getByText(/Parent links opened \(page loads, all sources\): 7, of them from a Pro ask: 3/)).toBeInTheDocument();
+    expect(screen.getByText(/signed in from a Pro ask 2, saw the plans 5, opened\s+checkout 4, pressed pay 1/)).toBeInTheDocument();
   });
 });

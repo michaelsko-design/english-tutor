@@ -104,7 +104,7 @@ const CohortTable: React.FC<{ cohorts: Segment['cohorts'] }> = ({ cohorts }) => 
 export const ConversionFunnelCard: React.FC<{ conversion: Conversion }> = ({ conversion }) => {
   const [src, setSrc] = useState<string>('all');
   const segment = conversion.segments.find((s) => s.src === src) ?? conversion.segments[0];
-  const { parentLinkOpens, visitsBySource, wallByGrade } = conversion;
+  const { parentLinkOpens, parentProSteps, visitsBySource, wallByGrade } = conversion;
 
   return (
     <section className={CARD_CLASS} aria-labelledby="conversion-funnel-title">
@@ -135,6 +135,10 @@ export const ConversionFunnelCard: React.FC<{ conversion: Conversion }> = ({ con
       <StepBars totals={segment.totals} />
       <p className={`mt-3 ${MUTED}`}>
         Parent links opened (page loads, all sources): {parentLinkOpens.all}, of them from a Pro ask: {parentLinkOpens.pro}.
+      </p>
+      <p className={`mt-1 ${MUTED}`}>
+        Parent's way to paying (page loads): signed in from a Pro ask {parentProSteps.signIn}, saw the plans {parentProSteps.plansView}, opened
+        checkout {parentProSteps.checkoutOpen}, pressed pay {parentProSteps.submit}.
       </p>
 
       <h3 className="mt-6 text-sm font-bold text-slate-900 dark:text-white">By sign-up week (last 12, newest first)</h3>

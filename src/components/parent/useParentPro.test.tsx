@@ -12,7 +12,9 @@ import { useParentPro } from './useParentPro';
 const mocks = vi.hoisted(() => ({
   entitlements: {} as Record<string, unknown>,
   changeProPlan: vi.fn(),
+  trackFunnel: vi.fn(),
 }));
+vi.mock('../../services/analytics/funnel', () => ({ trackFunnel: mocks.trackFunnel }));
 vi.mock('../../hooks/useChildEntitlements', () => ({ useChildEntitlements: () => mocks.entitlements }));
 vi.mock('../../services/proBillingService', () => ({ changeProPlan: mocks.changeProPlan }));
 
@@ -47,9 +49,10 @@ vi.mock('./ProPlanPicker', () => ({
   ),
 }));
 vi.mock('./ProCheckoutPanel', () => ({
-  ProCheckoutPanel: (p: { period: string; initialChildUids: string[]; parentEmail: string | null; onBack: () => void }) => (
+  ProCheckoutPanel: (p: { period: string; initialChildUids: string[]; parentEmail: string | null; parentName?: string | null; onBack: () => void }) => (
     <div>
       <span>{`checkout:${p.period}:${p.initialChildUids.join(',')}:${p.parentEmail}`}</span>
+      <span>{`payer:${p.parentName}`}</span>
       <button type="button" onClick={p.onBack}>back</button>
     </div>
   ),
@@ -66,7 +69,7 @@ vi.mock('./MockPaymentPage', () => ({ MockPaymentPage: () => <div>mock payment</
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const CHECKOUT_ID = 'a'.repeat(32);
-const USER = { uid: 'parent-1', email: 'parent@example.com' } as User;
+const USER = { uid: 'parent-1', email: 'parent@example.com', displayName: 'Dana Cohen' } as User;
 const link = (childUid: string, childName: string): ParentLink => ({
   parentUid: 'parent-1', childUid, childName, childAvatar: '🐱', inviteCode: 'ABCD2345', linkedAt: '2026-03-04T10:00:00.000Z',
 });
@@ -103,6 +106,7 @@ function Harness({ links, isEnabled = true }: { links: ParentLink[] | null; isEn
 beforeEach(() => {
   mocks.entitlements = {};
   mocks.changeProPlan.mockReset();
+  mocks.trackFunnel.mockReset();
   onNotice.mockReset();
   onError.mockReset();
   window.history.replaceState(null, '', '/?parent');
@@ -150,6 +154,24 @@ describe('useParentPro visibility', () => {
 });
 
 describe('useParentPro checkout', () => {
+  it('counts the plans view and the checkout opening, and passes the Google name to checkout', async () => {
+    const user = userEvent.setup();
+    mocks.entitlements = { c1: null };
+    render(<Harness links={[NOA]} />);
+    expect(mocks.trackFunnel).toHaveBeenCalledWith('pro_plans_view');
+    expect(mocks.trackFunnel).not.toHaveBeenCalledWith('pro_checkout_open');
+
+    await user.click(screen.getByRole('button', { name: 'continue one' }));
+    expect(mocks.trackFunnel).toHaveBeenCalledWith('pro_checkout_open');
+    expect(screen.getByText('payer:Dana Cohen')).toBeInTheDocument();
+  });
+
+  it('does not count a plans view while the plans are hidden', () => {
+    mocks.entitlements = { c1: plan() };
+    render(<Harness links={[NOA]} />);
+    expect(mocks.trackFunnel).not.toHaveBeenCalled();
+  });
+
   it('goes to checkout for the first children who can join, and back to the picker', async () => {
     const user = userEvent.setup();
     mocks.entitlements = { c1: null, c2: null };

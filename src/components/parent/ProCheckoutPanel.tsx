@@ -5,8 +5,10 @@ import type { ParentLink } from '../../data/parentLink';
 import { buildExamHeadlineHe, pickExamLead, type ExamPitch } from '../../data/examPitch';
 import { toLocalDateStr } from '../../utils/dates';
 import { startProCheckout } from '../../services/proBillingService';
+import { trackFunnel } from '../../services/analytics/funnel';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 import { formatShekels, PaymentMethodsNote } from './ProPlanPicker';
+import { RENEWAL_LINE_HE } from './proTermsCopy';
 
 interface ProCheckoutPanelProps {
   theme: ThemeDefinition;
@@ -17,6 +19,8 @@ interface ProCheckoutPanelProps {
   initialChildUids: readonly string[];
   /** Prefills the e-mail for the receipt */
   parentEmail: string | null;
+  /** The Google account's name; prefills the payer's name when it is a full name */
+  parentName?: string | null;
   /** Each child's coming exam or school lists (from the report snapshot); the headline leads with it */
   examByChild?: Readonly<Record<string, ExamPitch | null>>;
   onBack: () => void;
@@ -31,16 +35,17 @@ const PAYER_PHONE_PATTERN = /^05\d{8}$/;
 const fieldClass = 'mt-1 w-full px-3 py-2.5 rounded-xl text-base font-bold outline-none';
 const buttonClass = 'min-h-11 px-4 rounded-2xl text-sm font-extrabold';
 
-const RENEWAL_LINE_HE: Record<BillingPeriod, string> = {
-  monthly: 'מתחדש כל חודש עד שמבטלים. אפשר לבטל בכל עת כאן בפורטל.',
-  yearly: 'תשלום אחד לשנה. לא מתחדש מעצמו.',
-};
-
 /** Grow's terms (§13.1.5.11) allow retrying a failed recurring charge only with the payer's consent in advance */
 const RETRY_CONSENT_HE = ' אם חיוב חודשי ייכשל, אני מסכים/ה שחברת התשלומים תנסה לחייב את הכרטיס שוב במשך עד 10 ימים.';
 
 const normalizeName = (value: string) => value.trim().replace(/\s+/g, ' ');
 const normalizePhone = (value: string) => value.replace(/[\s-]/g, '');
+
+/** The Google name, when it would pass the name check; otherwise the parent types it */
+const initialPayerName = (parentName: string | null | undefined): string => {
+  const name = normalizeName(parentName ?? '');
+  return PAYER_NAME_PATTERN.test(name) ? name : '';
+};
 
 /**
  * The step after the plan picker: which children get Pro, the payer's details for the gateway and
@@ -52,6 +57,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
   eligibleChildren,
   initialChildUids,
   parentEmail,
+  parentName,
   examByChild,
   onBack,
   onNavigate = (url) => window.location.assign(url),
@@ -59,7 +65,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
   const [selected, setSelected] = useState<string[]>(() =>
     initialChildUids.filter((uid) => eligibleChildren.some((c) => c.childUid === uid)).slice(0, MAX_PRO_SEATS)
   );
-  const [payerName, setPayerName] = useState('');
+  const [payerName, setPayerName] = useState(() => initialPayerName(parentName));
   const [payerPhone, setPayerPhone] = useState('');
   const [payerEmail, setPayerEmail] = useState(parentEmail ?? '');
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
@@ -101,6 +107,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
       setErrorHe('כדאי לכתוב מספר נייד ישראלי, למשל 0501234567.');
       return;
     }
+    trackFunnel('pro_checkout_submit');
     setIsBusy(true);
     setErrorHe(null);
     const result = await startProCheckout({
