@@ -82,6 +82,18 @@ describe('children on a plan and checkout', () => {
     expect(canJoinCheckout(undefined)).toBe(false);
     const status = getChildProStatus(plan(), 'me', { a: plan() }, NOW);
     expect(canJoinCheckout(status)).toBe(false);
-    expect(canJoinCheckout({ ...status, hasSeat: false } as typeof status)).toBe(true);
+    expect(canJoinCheckout({ ...status, hasSeat: false, hasLeftPlan: true } as typeof status)).toBe(true);
+  });
+
+  it('keeps children of a cancelled plan out of a new checkout while their Pro runs', () => {
+    const cancelled = { a: plan({ status: 'canceled' }), b: plan({ status: 'canceled' }) };
+    const status = getChildProStatus(cancelled.a, 'me', cancelled, NOW);
+    expect(status).toMatchObject({ kind: 'plan', hasSeat: false, hasLeftPlan: false });
+    expect(canJoinCheckout(status)).toBe(false);
+  });
+
+  it('lets a child taken off a plan that goes on for others into a new checkout', () => {
+    const plans = { a: plan(), b: plan({ status: 'canceled' }) };
+    expect(canJoinCheckout(getChildProStatus(plans.b, 'me', plans, NOW))).toBe(true);
   });
 });

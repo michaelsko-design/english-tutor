@@ -653,6 +653,24 @@ await expect('an invited account can read its own allowed record', true, () => g
 await expect('an account cannot read another account allowed record', false, () => getDoc(doc(e.db, 'allowed', ua.uid)));
 await expect('an invited account can still write its learner document', true, () =>
   setDoc(doc(a.db, 'learners', ua.uid), { name: 'Noa', updatedAt: nowIso() }, { merge: true }));
+// A parent account (parents/{uid} marker) can't start a learner profile; one that already has both keeps it
+const p = app('p');
+const up = await signInOrCreate(p, 'emutest-parent@peachnote.tutor.local');
+await serverWrite(`allowed/${up.uid}`, allowedFields);
+await serverDelete(`learners/${up.uid}`);
+await setDoc(doc(p.db, 'parents', up.uid), { createdAt: nowIso() });
+await expect('a parent account cannot create a learner profile', false, () =>
+  setDoc(doc(p.db, 'learners', up.uid), { name: 'Dana', updatedAt: nowIso() }));
+await deleteDoc(doc(p.db, 'parents', up.uid)).catch(() => {});
+await expect('without the parent marker, the same account can create its learner profile', true, () =>
+  setDoc(doc(p.db, 'learners', up.uid), { name: 'Dana', updatedAt: nowIso() }));
+await setDoc(doc(p.db, 'parents', up.uid), { createdAt: nowIso() });
+await expect('an account that is already both can still update its learner profile', true, () =>
+  setDoc(doc(p.db, 'learners', up.uid), { name: 'Dana', updatedAt: nowIso() }, { merge: true }));
+await deleteDoc(doc(p.db, 'parents', up.uid)).catch(() => {});
+await serverDelete(`learners/${up.uid}`);
+await serverDelete(`allowed/${up.uid}`);
+
 // The launch switch: once config/access.open is true, everyone signed in is let in; closing it shuts them out again
 await serverWrite('config/access', { open: { booleanValue: true } });
 await expect('with access open, an uninvited account can create its learner document', true, () =>
