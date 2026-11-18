@@ -53,7 +53,7 @@ describe('ProPlanPicker', () => {
     const user = userEvent.setup();
     render(<ProPlanPicker theme={TEST_THEME} />);
 
-    expect(priceBox()).toHaveTextContent('כרטיס אשראי, Bit, Apple Pay או Google Pay');
+    expect(priceBox()).toHaveTextContent('תשלום ב-Bit, Apple Pay, Google Pay או בכרטיס אשראי');
 
     await user.click(screen.getByRole('radio', { name: 'חודשי' }));
 

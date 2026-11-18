@@ -27,6 +27,8 @@ vi.mock('../../services/parentService', () => ({
   isParentAccount: vi.fn(),
   markParentAccount: vi.fn(),
 }));
+const funnel = vi.hoisted(() => ({ trackFunnel: vi.fn() }));
+vi.mock('../../services/analytics/funnel', () => funnel);
 vi.mock('./ParentHome', () => ({
   ParentHome: ({ initialCode, onSignOut }: { initialCode: string | null; onSignOut: () => void }) => (
     <div>
@@ -56,6 +58,42 @@ beforeEach(() => {
   vi.mocked(hasLearnerProfile).mockResolvedValue(false);
   vi.mocked(isParentAccount).mockResolvedValue(false);
   vi.mocked(markParentAccount).mockResolvedValue(undefined);
+  funnel.trackFunnel.mockReset();
+  window.history.replaceState(null, '', '/?parent');
+});
+
+describe('ParentPortal Pro link', () => {
+  it('shows the price and the terms before sign-in on a Pro ask link', async () => {
+    window.history.replaceState(null, '', '/?parent=ABCD2345&pro=1');
+    renderPortal('ABCD2345');
+    await signIn(null);
+
+    expect(screen.getByTestId('pro-price-teaser')).toHaveTextContent('לא מתחדש מעצמו');
+  });
+
+  it('shows no price on a plain parent link', async () => {
+    renderPortal('ABCD2345');
+    await signIn(null);
+
+    expect(screen.queryByTestId('pro-price-teaser')).not.toBeInTheDocument();
+  });
+
+  it('counts a parent sign-in from a Pro ask link', async () => {
+    window.history.replaceState(null, '', '/?parent=ABCD2345&pro=1');
+    renderPortal('ABCD2345');
+    await signIn(PARENT);
+
+    expect(await screen.findByText('בית ההורים ABCD2345')).toBeInTheDocument();
+    expect(funnel.trackFunnel).toHaveBeenCalledWith('parent_pro_signin_done');
+  });
+
+  it('does not count a sign-in from a plain parent link', async () => {
+    renderPortal('ABCD2345');
+    await signIn(PARENT);
+
+    expect(await screen.findByText('בית ההורים ABCD2345')).toBeInTheDocument();
+    expect(funnel.trackFunnel).not.toHaveBeenCalled();
+  });
 });
 
 describe('ParentPortal signed out', () => {

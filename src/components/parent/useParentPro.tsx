@@ -7,6 +7,7 @@ import { parseParentProRoute } from '../../data/parentProRoute';
 import { canJoinCheckout, childrenOnSamePlan, findOpenPlan, getChildProStatus, type ChildProStatus } from '../../data/proPlanStatus';
 import { useChildEntitlements } from '../../hooks/useChildEntitlements';
 import { changeProPlan, type PlanAction } from '../../services/proBillingService';
+import { trackFunnel } from '../../services/analytics/funnel';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 import { ChildProSection } from './ChildProSection';
 import { MockPaymentPage } from './MockPaymentPage';
@@ -84,6 +85,7 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
 
   const handleContinue = (choice: ProPlanChoice) => {
     const ordered = [...preselect, ...eligible.map((l) => l.childUid).filter((uid) => !preselect.includes(uid))];
+    trackFunnel('pro_checkout_open');
     setCheckout({ period: choice.period, childUids: ordered.slice(0, choice.children) });
   };
 
@@ -149,7 +151,11 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
   // Nothing to buy once every linked child has Pro (adding or renewing happens on their cards)
   // Shown once every child's plan is known (the child count starts from it), and only with a child to buy for
   const isEveryPlanKnown = links !== null && links.every((l) => statuses[l.childUid] !== undefined);
-  const plansArea = isEnabled && isEveryPlanKnown && eligible.length > 0 ? (
+  const isPlansShown = isEnabled && isEveryPlanKnown && eligible.length > 0;
+  useEffect(() => {
+    if (isPlansShown) trackFunnel('pro_plans_view');
+  }, [isPlansShown]);
+  const plansArea = isPlansShown ? (
     <div ref={plansRef} className="space-y-4 scroll-mt-4">
       {checkout ? (
         <ProCheckoutPanel
@@ -159,6 +165,7 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
           eligibleChildren={eligible}
           initialChildUids={checkout.childUids}
           parentEmail={user.email}
+          parentName={user.displayName}
           examByChild={examByChild}
           onBack={() => setCheckout(null)}
         />

@@ -92,7 +92,7 @@ describe('createGrowMakeProvider', () => {
   it('offers card, Bit, Apple Pay and Google Pay on a yearly one-time link', async () => {
     const { provider, sent } = makeWith(json({ url: 'https://sandbox.grow.link/y', processId: '1', processToken: 't' }));
     await provider.createPaymentPage({ ...PAGE_INPUT, period: 'yearly', amountAgorot: 56900 });
-    expect(sent(0)).toMatchObject({ recurring: false, transactionTypes: [1, 6, 13, 14], price: 569 });
+    expect(sent(0)).toMatchObject({ recurring: false, transactionTypes: [6, 13, 14, 1], price: 569 });
   });
 
   it('refuses a price in agorot that Grow cannot take (whole shekels only)', async () => {

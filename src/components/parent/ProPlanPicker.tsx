@@ -48,8 +48,8 @@ export const PaymentMethodsNote: React.FC<{ period: BillingPeriod; className?: s
       'תשלום בכרטיס אשראי בלבד'
     ) : (
       <>
-        תשלום בכרטיס אשראי, <bdi dir="ltr" lang="en">Bit</bdi>, <bdi dir="ltr" lang="en">Apple Pay</bdi> או{' '}
-        <bdi dir="ltr" lang="en">Google Pay</bdi>
+        תשלום ב-<bdi dir="ltr" lang="en">Bit</bdi>, <bdi dir="ltr" lang="en">Apple Pay</bdi>,{' '}
+        <bdi dir="ltr" lang="en">Google Pay</bdi> או בכרטיס אשראי
       </>
     )}
   </p>

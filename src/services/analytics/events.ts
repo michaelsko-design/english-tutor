@@ -118,6 +118,11 @@ export const FUNNEL_EVENTS = [
   // A parent opened a parent link (no account yet either); the second one is a link from a Pro ask
   'parent_link_open',
   'parent_pro_link_open',
+  // The parent's way to paying (the checkout record and the payment are counted from their documents)
+  'parent_pro_signin_done',
+  'pro_plans_view',
+  'pro_checkout_open',
+  'pro_checkout_submit',
 ] as const;
 
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];

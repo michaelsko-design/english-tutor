@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TEST_THEME } from '../../test/fixtures';
 import type { ParentLink } from '../../data/parentLink';
 import type { ExamPitch } from '../../data/examPitch';
@@ -8,6 +8,8 @@ import { ProCheckoutPanel } from './ProCheckoutPanel';
 
 const billing = vi.hoisted(() => ({ startProCheckout: vi.fn() }));
 vi.mock('../../services/proBillingService', () => billing);
+const funnel = vi.hoisted(() => ({ trackFunnel: vi.fn() }));
+vi.mock('../../services/analytics/funnel', () => funnel);
 
 const link = (childUid: string, childName: string): ParentLink => ({
   parentUid: 'p1',
@@ -22,7 +24,8 @@ const CHILDREN = [link('kid1', 'נועה'), link('kid2', 'איתי')];
 function renderPanel(
   initialChildUids = ['kid1'],
   period: 'monthly' | 'yearly' = 'monthly',
-  examByChild?: Record<string, ExamPitch | null>
+  examByChild?: Record<string, ExamPitch | null>,
+  parentName: string | null = null
 ) {
   const onNavigate = vi.fn();
   render(
@@ -32,6 +35,7 @@ function renderPanel(
       eligibleChildren={CHILDREN}
       initialChildUids={initialChildUids}
       parentEmail="parent@example.com"
+      parentName={parentName}
       examByChild={examByChild}
       onBack={vi.fn()}
       onNavigate={onNavigate}
@@ -41,6 +45,32 @@ function renderPanel(
 }
 
 describe('ProCheckoutPanel', () => {
+  beforeEach(() => {
+    billing.startProCheckout.mockReset();
+    funnel.trackFunnel.mockReset();
+  });
+
+  it('fills in the payer name from the Google account when it is a full name', () => {
+    renderPanel(['kid1'], 'monthly', undefined, '  Dana   Cohen ');
+    expect(screen.getByLabelText('שם מלא של המשלם/ת')).toHaveValue('Dana Cohen');
+  });
+
+  it.each([null, 'Dana', 'dana_c 123'])('leaves the payer name empty for the Google name %s', (parentName) => {
+    renderPanel(['kid1'], 'monthly', undefined, parentName);
+    expect(screen.getByLabelText('שם מלא של המשלם/ת')).toHaveValue('');
+  });
+
+  it('counts the submit step only once the details pass the checks', async () => {
+    billing.startProCheckout.mockResolvedValue({ ok: true, value: 'https://pay.example/page' });
+    const { user } = renderPanel(['kid1'], 'monthly', undefined, 'דנה כהן');
+    await user.click(screen.getByRole('checkbox', { name: /תנאי השימוש/ }));
+    await user.click(screen.getByRole('button', { name: 'המשך לתשלום' }));
+    expect(funnel.trackFunnel).not.toHaveBeenCalled();
+    await user.type(screen.getByLabelText('טלפון נייד'), '0501234567');
+    await user.click(screen.getByRole('button', { name: 'המשך לתשלום' }));
+    expect(funnel.trackFunnel).toHaveBeenCalledWith('pro_checkout_submit');
+  });
+
   it('prices the ticked children', async () => {
     const { user } = renderPanel();
     expect(screen.getByTestId('pro-checkout-total')).toHaveTextContent('39');
