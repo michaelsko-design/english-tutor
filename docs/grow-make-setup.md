@@ -18,7 +18,7 @@ cancel or price change → owner task on the owner dashboard → done by hand in
 ```
 
 ## 1. Make account and the Grow connection
-1. Sign up at make.com. The free plan gives 1,000 credits a month, and each checkout uses about 3.
+1. Sign up at make.com. The free plan gives 1,000 credits a month and 2 active scenarios (the sandbox and the live one); each checkout, approve or alert uses about 3 credits. The reconcile warns the owner at 70% and 90% (`MAKE_API_TOKEN`, section 4).
 2. Create a scenario and add a **Grow → Create Payment Link** module, then **Create a connection**:
    - For testing, choose **Grow Sandbox**. Name it `Grow Sandbox`.
    - In "Grow account number", enter the **ID number (ת.ז.) linked to the Grow account**. This is not the Grow account number.
@@ -151,7 +151,11 @@ Use this address for both:
 | `APP_ORIGIN` | the Preview URL | `https://englishvibe.co.il` |
 | `GROW_WEBHOOK_KEY` | only if Grow shows one | only if Grow shows one |
 | `CRON_SECRET`, `FIREBASE_SERVICE_ACCOUNT_JSON`, `OWNER_UID` | as today | as today |
+| `MAKE_API_TOKEN` | unset | a Make API token with only the `organizations:read` scope |
+| `MAKE_ORGANIZATION_ID` | unset | the Make organization's id (in the address bar of the organization page) |
+| `MAKE_ZONE` | unset | unset (`eu1.make.com`) |
 
+- **Make credits warning:** the nightly reconcile reads the organization's credit use with `MAKE_API_TOKEN` and warns the owner by email and Telegram (route `notify`, kind `make_credits`) at 70% and again at 90% of the cycle's credits (`api/_lib/makeCredits.ts`). With no credits left Make stops the payment scenario and new checkouts fail until the reset, so upgrade the Make plan or buy credits when the warning comes. Make the token in Make under **Profile → API access → Add token**, tick only `organizations:read`, and paste it straight into Vercel (Production only: the Vercel cron runs only there, and staging shares the same Make organization).
 - **Preview protection:** turn on Vercel **Deployment Protection → Protection Bypass for Automation**. The checkout then adds the bypass to Grow's notify URL on Preview only.
 - **Test on staging** (the `staging` branch, Firebase project `english-tutor-staging`; `docs/staging.md`), with a test parent account. Never use the owner's own card or a relative's card (Grow terms §11.2.7).
 

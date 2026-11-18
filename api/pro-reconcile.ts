@@ -6,6 +6,8 @@
  * missing, and only the gateway can say whether it was charged. A gateway that can't change a
  * standing order (Grow through Make) gets an owner task instead; open tasks older than two days are
  * counted (`overdueTasks`), logged, and sent to the owner again as a reminder (`_lib/ownerAlerts.ts`).
+ * Last, it checks Make's monthly credits and warns the owner at 70% and 90% (`_lib/makeCredits.ts`;
+ * `makeCreditsPercent`, null when not configured). That check never fails the reconcile.
  */
 import { ConflictError, createFirestoreAdmin, type DocumentWrite, type FirestoreAdmin, type PlainDocument } from './_lib/firestoreAdmin.js';
 import { AdminError, createAuthAdmin, parseServiceAccount } from './_lib/googleAdmin.js';
@@ -13,7 +15,8 @@ import { firebaseProjectId, jsonResponse } from './_lib/parentRequest.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
 import { changesRecurringByApi, PaymentError, safeEqual, type PaymentProvider } from './_lib/payments/provider.js';
 import { manualRecurringWrites, openGatewayTasks } from './_lib/gatewayTasks.js';
-import { createOwnerAlerter, withOwnerAlerts } from './_lib/ownerAlerts.js';
+import { createOwnerAlerter, createOwnerNotifier, withOwnerAlerts } from './_lib/ownerAlerts.js';
+import { checkMakeCredits, MakeApiError } from './_lib/makeCredits.js';
 import { entitlementFields, readSubscription, subscriptionFields, type Subscription } from './_lib/proBilling.js';
 import { checkLapse, entitlementAction, repairForDeletedAccounts, type PlanRepair } from './_lib/proReconcile.js';
 
@@ -119,6 +122,23 @@ async function reconcileEntitlement(admin: FirestoreAdmin, doc: PlainDocument, m
   }
 }
 
+/** Make's credit check, on its own: a failure is logged and never fails the reconcile */
+async function checkCredits(
+  env: Record<string, string | undefined>,
+  admin: FirestoreAdmin,
+  fetchImpl: typeof fetch,
+  nowMs: () => number
+): Promise<number | null> {
+  try {
+    const check = await checkMakeCredits(env, admin, createOwnerNotifier(env, fetchImpl), { fetchImpl, nowMs });
+    return check?.percent ?? null;
+  } catch (error) {
+    const detail = error instanceof MakeApiError ? error.message : error instanceof AdminError ? error.status : 'unexpected';
+    console.error(`pro-reconcile: Make credit check failed (${detail})`);
+    return null;
+  }
+}
+
 export async function handleProReconcileRequest(
   request: Request,
   env: Record<string, string | undefined>,
@@ -157,7 +177,7 @@ export async function handleProReconcileRequest(
     for (const doc of entitlements) await reconcileEntitlement(admin, doc, missingUids, tally, now);
     const overdue = openGatewayTasks(await admin.listDocuments('gatewayTasks')).filter((task) => now - task.createdAt > TASK_OVERDUE_MS);
     tally.overdueTasks = overdue.length;
-    // A daily reminder by email and WhatsApp until the owner marks it done
+    // A daily reminder by email and Telegram until the owner marks it done
     await alert(overdue, { reminder: true });
   } catch (error) {
     // Only a status or gateway code is logged: never ids, tokens or keys
@@ -165,9 +185,10 @@ export async function handleProReconcileRequest(
     console.error(`pro-reconcile: failed (${detail})`);
     return jsonResponse(502, { error: 'Reconcile failed', ...tally });
   }
+  const makeCreditsPercent = await checkCredits(env, createAdmin(account, projectId, { fetchImpl }), fetchImpl, nowMs);
   if (tally.missedRenewals > 0) console.error(`pro-reconcile: ${tally.missedRenewals} monthly plan(s) past their end with no renewal`);
   if (tally.overdueTasks > 0) console.error(`pro-reconcile: ${tally.overdueTasks} Grow task(s) open for more than 2 days (owner dashboard)`);
-  return jsonResponse(200, { ...tally });
+  return jsonResponse(200, { ...tally, makeCreditsPercent });
 }
 
 export function GET(request: Request): Promise<Response> {
