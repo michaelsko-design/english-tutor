@@ -164,8 +164,9 @@ Use this address for both:
 | Receipt | **Not issued yet (2026-11-16):** the payer got only Grow's payment confirmation, and no notice reached `invoiceNotifyUrl` (sandbox scenario → catcher hook). Receipts must be turned on in Grow's account first; recheck after. Before launch, the live scenario's `invoiceNotifyUrl` is left empty or points at our server, never the catcher |
 | Monthly renewal (ask Grow how to trigger one in the sandbox) | Plan linked to its standing order (`recurringRefs/grow_…`), `periodEnd` + 1 month |
 | Failed charge | Plan and seats `past_due` |
-| Cancel in the parent portal | Plan canceled, the owner dashboard shows "Cancel the standing order". Cancel it in Grow, press Done |
-| Add a child to a monthly plan | Owner task "Change the standing order amount" with the new price |
+| Cancel in the parent portal | Plan canceled, the owner dashboard shows "Cancel the standing order" (an open amount task closes). Cancel it in Grow, press Done (passed on staging 2026-11-18) |
+| Add a child to a monthly plan | Owner task "Change the standing order amount" with the new price (passed on staging 2026-11-18) |
+| Remove that child before doing the task | The amount task closes by itself: Grow still charges the old price (2026-11-18 fix) |
 
 **After each case, send Claude the Make run output and Grow's notice, with personal details blanked.**
 

@@ -12,7 +12,7 @@ import { AdminError, createAuthAdmin, parseServiceAccount } from './_lib/googleA
 import { firebaseProjectId, jsonResponse } from './_lib/parentRequest.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
 import { changesRecurringByApi, PaymentError, safeEqual, type PaymentProvider } from './_lib/payments/provider.js';
-import { gatewayTaskWrite, openGatewayTasks, readPayer, recurringChangeTask } from './_lib/gatewayTasks.js';
+import { manualRecurringWrites, openGatewayTasks } from './_lib/gatewayTasks.js';
 import { createOwnerAlerter, withOwnerAlerts } from './_lib/ownerAlerts.js';
 import { entitlementFields, readSubscription, subscriptionFields, type Subscription } from './_lib/proBilling.js';
 import { checkLapse, entitlementAction, repairForDeletedAccounts, type PlanRepair } from './_lib/proReconcile.js';
@@ -48,7 +48,7 @@ const subscriptionWrite = (sub: Subscription, nowMs: number): DocumentWrite => (
 async function applyRepair(admin: FirestoreAdmin, provider: PaymentProvider | null, sub: Subscription, repair: PlanRepair, nowMs: number): Promise<boolean> {
   if (repair.gateway && !provider) return false;
   const isManual = Boolean(repair.gateway && provider && !changesRecurringByApi(provider));
-  const tasks = isManual && repair.gateway ? [gatewayTaskWrite(recurringChangeTask(repair.next, repair.gateway, await readPayer(admin, sub.id)), nowMs)] : [];
+  const tasks = isManual && repair.gateway ? await manualRecurringWrites(admin, sub, repair.next, repair.gateway, nowMs) : [];
   if (repair.gateway && !isManual) await provider!.updateRecurring(sub.billing, repair.gateway);
   try {
     await admin.commit([

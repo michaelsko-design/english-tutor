@@ -20,8 +20,8 @@ import {
   type ParentRequestDeps,
 } from './_lib/parentRequest.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
-import { changesRecurringByApi, PaymentError, type PaymentProvider, type RecurringChange } from './_lib/payments/provider.js';
-import { gatewayTaskWrite, readPayer, recurringChangeTask } from './_lib/gatewayTasks.js';
+import { changesRecurringByApi, PaymentError, type PaymentProvider } from './_lib/payments/provider.js';
+import { manualRecurringWrites } from './_lib/gatewayTasks.js';
 import { createOwnerAlerter, withOwnerAlerts } from './_lib/ownerAlerts.js';
 import {
   addChildToSubscription,
@@ -104,18 +104,14 @@ async function cancel({ sub, admin, provider, nowMs }: ActionContext): Promise<R
   if (sub.status === 'canceled' || sub.status === 'expired') return jsonResponse(200, { ok: true });
   if (sub.period === 'yearly') return errorResponse(409, 'A yearly plan does not renew, so there is nothing to cancel');
   if (!changesRecurringByApi(provider)) {
-    const task = await manualTask(admin, sub, { cancel: true }, nowMs);
-    await admin.commit(saveWrites({ ...sub, status: 'canceled' }, nowMs, [task]));
+    const canceled: Subscription = { ...sub, status: 'canceled' };
+    const tasks = await manualRecurringWrites(admin, sub, canceled, { cancel: true }, nowMs);
+    await admin.commit(saveWrites(canceled, nowMs, tasks));
     return jsonResponse(200, { ok: true });
   }
   await provider.updateRecurring(sub.billing, { cancel: true });
   await admin.commit(saveWrites({ ...sub, status: 'canceled' }, nowMs));
   return jsonResponse(200, { ok: true });
-}
-
-/** The owner's task for a standing-order change the gateway can't make */
-async function manualTask(admin: FirestoreAdmin, sub: Subscription, change: RecurringChange, nowMs: number): Promise<DocumentWrite> {
-  return gatewayTaskWrite(recurringChangeTask(sub, change, await readPayer(admin, sub.id)), nowMs);
 }
 
 /** Changes the gateway's amount, then saves; if the save loses a race, the gateway amount goes back. */
@@ -125,7 +121,7 @@ async function applySeatChange(context: ActionContext, change: SeatChange, extra
   const isManual = !changesRecurringByApi(provider);
   const changesAmount = change.amountChanged && sub.period === 'monthly' && !isManual;
   const tasks = change.amountChanged && sub.period === 'monthly' && isManual
-    ? [await manualTask(admin, change.sub, { amountAgorot: change.sub.amountAgorot }, nowMs)]
+    ? await manualRecurringWrites(admin, sub, change.sub, { amountAgorot: change.sub.amountAgorot }, nowMs)
     : [];
   if (changesAmount) await provider.updateRecurring(sub.billing, { amountAgorot: change.sub.amountAgorot });
   try {

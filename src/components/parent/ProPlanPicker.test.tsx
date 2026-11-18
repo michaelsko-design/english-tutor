@@ -82,7 +82,12 @@ describe('ProPlanPicker', () => {
   it('shows the reassurance line, and the continue button only when checkout is wired', async () => {
     const user = userEvent.setup();
     const { rerender } = render(<ProPlanPicker theme={TEST_THEME} />);
+    // Yearly (the default) is one payment that never renews, so it has nothing to cancel
+    expect(screen.getByText(/תשלום אחד, בלי חידוש אוטומטי/)).toBeInTheDocument();
+    expect(screen.queryByText(/אפשר לבטל בכל עת/)).not.toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: 'חודשי' }));
     expect(screen.getByText(/אפשר לבטל בכל עת/)).toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: /^שנתי/ }));
     expect(screen.queryByRole('button', { name: 'המשך לתשלום' })).not.toBeInTheDocument();
 
     const onContinue = vi.fn();
