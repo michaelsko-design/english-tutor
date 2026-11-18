@@ -69,12 +69,6 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
   const eligible = (links ?? []).filter((link) => canJoinCheckout(statuses[link.childUid]));
   const openPlan = findOpenPlan(user.uid, entitlements, nowMs);
 
-  // A learner's "ask a parent" link opens the plans
-  const isLoaded = links !== null;
-  useEffect(() => {
-    if (isEnabled && isLoaded && route.hasProIntent) plansRef.current?.scrollIntoView({ block: 'start' });
-  }, [isEnabled, isLoaded, route.hasProIntent]);
-
   const showPlans = (childUids: string[], period: BillingPeriod) => {
     onError(null);
     setPlanStart({ period, childUids });
@@ -147,6 +141,14 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
   useEffect(() => {
     if (isPlansShown) trackFunnel('pro_plans_view');
   }, [isPlansShown]);
+  // A learner's "ask a parent" link scrolls to the plans once, when they first appear: a new parent's
+  // child is often connected only after the page loaded, so the plans come later than the list
+  const hasScrolledToPlansRef = useRef(false);
+  useEffect(() => {
+    if (!isPlansShown || !route.hasProIntent || hasScrolledToPlansRef.current) return;
+    hasScrolledToPlansRef.current = true;
+    plansRef.current?.scrollIntoView({ block: 'start' });
+  }, [isPlansShown, route.hasProIntent]);
   // Unless a child card asked for something else: yearly, with every child who can join ticked
   const start = planStart ?? { period: 'yearly' as const, childUids: eligible.map((l) => l.childUid) };
   const plansArea = isPlansShown ? (

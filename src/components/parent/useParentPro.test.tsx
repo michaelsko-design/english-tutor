@@ -284,4 +284,25 @@ describe('useParentPro after payment', () => {
 
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
   });
+
+  it('scrolls to the plans once they appear, when the child is connected after the page loaded', () => {
+    window.history.replaceState(null, '', '/?parent=ABCD2345&pro=1');
+    mocks.entitlements = { c1: null };
+    const { rerender } = render(<Harness links={[]} />);
+    expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
+
+    rerender(<Harness links={[NOA]} />);
+    expect(screen.getByText(/plans:/)).toBeInTheDocument();
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalledTimes(1);
+
+    rerender(<Harness links={[NOA, ITAY]} />);
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not scroll to the plans without a Pro ask', () => {
+    mocks.entitlements = { c1: null };
+    render(<Harness links={[NOA]} />);
+
+    expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
+  });
 });
