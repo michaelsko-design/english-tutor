@@ -482,8 +482,8 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
   - Otherwise, the first renewal or failure links itself. It must match exactly one monthly plan with no id yet, on the payer's phone (and email, when both have one) and, for a renewal, the amount. The checkout keeps the payer's name, phone and email only on this route, for that link and for the owner's tasks.
 - **Acknowledging:** `approve` → Approve Transaction.
 - **Changes Make can't make** (`canChangeRecurring: false`) become owner tasks in `gatewayTasks/{id}` (server only; rules smoke test). The owner does them in Grow's dashboard and presses Done on the owner dashboard:
-  - **Cancel:** the plan is saved as canceled, plus a task "cancel the standing order" with the next charge date.
-  - **A monthly price change:** add or remove a child, a deleted learner (reconcile), or a child seated elsewhere at payment. It becomes an "amount" task.
+  - **Cancel:** the plan is saved as canceled, plus a task "cancel the standing order" with the next charge date. An open amount task is closed (nothing is left to re-price).
+  - **A monthly price change:** add or remove a child, a deleted learner (reconcile), or a child seated elsewhere at payment. It becomes an "amount" task (one per plan, `{plan}_amount`). The task keeps what Grow still charges (`chargedAgorot`, the price before the first change the owner hasn't made yet); a price back at that amount closes the task instead (`manualRecurringWrites`).
   - **Refunds:** a child seated elsewhere, or a renewal charged on a canceled plan.
   - **A renewal or failure that matched no plan:** an "unmatched" task.
   - **A standing order running out:** Make can't open one that runs until cancelled (Grow, 2026-11-15). Each makes `GROW_MAKE_MAX_CHARGES` charges (default 36, Make's most with "Custom"). On the renewal that leaves one charge, an "extend" task asks the owner to add as many again in Grow (`extendTask`; counted from the plan's `payments`).

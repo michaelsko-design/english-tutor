@@ -88,8 +88,48 @@ describe('handleSubscriptionRequest', () => {
 
     expect(await response.json()).toEqual({ ok: true, amountAgorot: 8900, seatLimit: 3 });
     expect(gateway.updateRecurring).not.toHaveBeenCalled();
-    expect(fake.get('gatewayTasks', `${SUB_ID}_amount`)).toMatchObject({ kind: 'amount', amountAgorot: 8900 });
+    expect(fake.get('gatewayTasks', `${SUB_ID}_amount`)).toMatchObject({ kind: 'amount', amountAgorot: 8900, chargedAgorot: 6400 });
     expect(fake.get('entitlements', 'kid3')).toMatchObject({ status: 'active' });
+  });
+
+  it('closes the amount task when the price goes back to what Grow still charges (Make)', async () => {
+    const { fake, deps } = setup(plan(), undefined, false);
+
+    await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps);
+    expect((await handleSubscriptionRequest(call({ action: 'removeChild', childUid: 'kid3' }), ENV, deps)).status).toBe(200);
+
+    expect(fake.get('subscriptions', SUB_ID)).toMatchObject({ amountAgorot: 6400 });
+    expect(fake.get('gatewayTasks', `${SUB_ID}_amount`)).toMatchObject({ amountAgorot: 8900, doneAt: NOW });
+  });
+
+  it('keeps what Grow charges across several changes before the owner makes one (Make)', async () => {
+    const { fake, deps } = setup(plan(), undefined, false);
+
+    await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps);
+    await handleSubscriptionRequest(call({ action: 'removeChild', childUid: 'kid2' }), ENV, deps);
+    await handleSubscriptionRequest(call({ action: 'removeChild', childUid: 'kid3' }), ENV, deps);
+
+    // 64 -> 89 -> 64 -> 39: Grow still charges 64, so the owner is asked for 39
+    expect(fake.get('gatewayTasks', `${SUB_ID}_amount`)).toMatchObject({ amountAgorot: 3900, chargedAgorot: 6400, doneAt: 0 });
+  });
+
+  it('starts from the plan price once the owner has made the last change (Make)', async () => {
+    const { fake, deps } = setup(plan(), undefined, false);
+    fake.seed('gatewayTasks', `${SUB_ID}_amount`, { kind: 'amount', amountAgorot: 6400, chargedAgorot: 3900, doneAt: NOW - DAY });
+
+    await handleSubscriptionRequest(call({ action: 'removeChild', childUid: 'kid2' }), ENV, deps);
+
+    expect(fake.get('gatewayTasks', `${SUB_ID}_amount`)).toMatchObject({ amountAgorot: 3900, chargedAgorot: 6400, doneAt: 0 });
+  });
+
+  it('closes an open amount task when the plan is cancelled (Make)', async () => {
+    const { fake, deps } = setup(plan(), undefined, false);
+
+    await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps);
+    expect((await handleSubscriptionRequest(call({ action: 'cancel' }), ENV, deps)).status).toBe(200);
+
+    expect(fake.get('gatewayTasks', `${SUB_ID}_amount`)).toMatchObject({ doneAt: NOW });
+    expect(fake.get('gatewayTasks', `${SUB_ID}_cancel`)).toMatchObject({ kind: 'cancel', doneAt: 0 });
   });
 
   it('has nothing to cancel on a yearly plan', async () => {

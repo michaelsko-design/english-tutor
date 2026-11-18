@@ -165,7 +165,7 @@ export const ProPlanPicker: React.FC<ProPlanPickerProps> = ({ theme, initialChil
       )}
 
       <p className={`text-xs font-bold text-center ${theme.mutedTextClass}`}>
-        התחברות אחת להורה עם פרופיל נפרד לכל ילד • אפשר לבטל בכל עת
+        התחברות אחת להורה עם פרופיל נפרד לכל ילד • {period === 'monthly' ? 'אפשר לבטל בכל עת' : 'תשלום אחד, בלי חידוש אוטומטי'}
       </p>
     </section>
   );

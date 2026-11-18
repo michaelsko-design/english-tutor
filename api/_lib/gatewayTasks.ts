@@ -25,6 +25,8 @@ export interface GatewayTask extends Payer {
   subscriptionId: string;
   /** The new monthly amount (`amount`), or the charge to refund (`refund`, `match_renewal`) */
   amountAgorot: number;
+  /** `amount` only: what Grow still charges (the price before the first change not yet made); 0 = unknown */
+  chargedAgorot?: number;
   /** What to do before this time (the plan's next charge); 0 when there's no deadline */
   dueAt: number;
   note: string;
@@ -47,6 +49,7 @@ export function gatewayTaskWrite(task: NewGatewayTask, nowMs: number): DocumentW
       kind: task.kind,
       subscriptionId: task.subscriptionId,
       amountAgorot: task.amountAgorot,
+      chargedAgorot: task.chargedAgorot ?? 0,
       dueAt: task.dueAt,
       note: task.note,
       payerName: task.payerName,
@@ -67,6 +70,7 @@ export function readGatewayTask(doc: PlainDocument): GatewayTask | null {
     kind,
     subscriptionId: str(f.subscriptionId),
     amountAgorot: num(f.amountAgorot),
+    chargedAgorot: num(f.chargedAgorot),
     dueAt: num(f.dueAt),
     note: str(f.note),
     payerName: str(f.payerName),
@@ -92,6 +96,49 @@ export function recurringChangeTask(sub: Subscription, change: RecurringChange, 
   }
   const amountAgorot = change.amountAgorot ?? sub.amountAgorot;
   return { ...base, id: `${sub.id}_amount`, kind: 'amount', amountAgorot, note: 'Change the standing order amount from the next charge' };
+}
+
+const amountTaskId = (subscriptionId: string) => `${subscriptionId}_amount`;
+
+/** Marks a task done without the owner (nothing is left to do in Grow); merge-only, so no alert is sent */
+const closeTaskWrite = (id: string, nowMs: number): DocumentWrite => ({
+  collection: 'gatewayTasks',
+  id,
+  mergeFields: ['doneAt'],
+  fields: { doneAt: nowMs },
+});
+
+async function openAmountTask(admin: FirestoreAdmin, subscriptionId: string): Promise<GatewayTask | null> {
+  const doc = await admin.getDocument('gatewayTasks', amountTaskId(subscriptionId));
+  const task = doc ? readGatewayTask(doc) : null;
+  return task && task.doneAt === 0 ? task : null;
+}
+
+/**
+ * The owner's tasks when a standing order must change and the gateway can't change it (Make):
+ * - cancel: the cancel task, and any open amount task is closed (there is nothing left to re-price);
+ * - a new amount: Grow still charges what it charged before the first change not yet made in Grow
+ *   (kept on the open task). A price back at that amount closes the open task instead of asking the
+ *   owner to "change" the standing order to what it already charges.
+ * `before` is the plan as Grow last saw it changed; `after` the plan with the new seats.
+ */
+export async function manualRecurringWrites(
+  admin: FirestoreAdmin,
+  before: Subscription,
+  after: Subscription,
+  change: RecurringChange,
+  nowMs: number
+): Promise<DocumentWrite[]> {
+  const open = await openAmountTask(admin, before.id);
+  if (change.cancel) {
+    const task = recurringChangeTask(after, change, await readPayer(admin, before.id));
+    return [gatewayTaskWrite(task, nowMs), ...(open ? [closeTaskWrite(open.id, nowMs)] : [])];
+  }
+  const amountAgorot = change.amountAgorot ?? after.amountAgorot;
+  const chargedAgorot = open ? open.chargedAgorot ?? 0 : before.amountAgorot;
+  if (chargedAgorot === amountAgorot) return open ? [closeTaskWrite(open.id, nowMs)] : [];
+  const task = recurringChangeTask(after, { amountAgorot }, await readPayer(admin, before.id));
+  return [gatewayTaskWrite({ ...task, chargedAgorot }, nowMs)];
 }
 
 /**
