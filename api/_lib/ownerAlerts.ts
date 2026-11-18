@@ -1,7 +1,7 @@
 /**
- * Tells the owner, by email and WhatsApp, about Grow work to do by hand (`gatewayTasks.ts`). The alert
+ * Tells the owner, by email and Telegram, about Grow work to do by hand (`gatewayTasks.ts`). The alert
  * goes through the same Make scenario as payments (`action: "notify"`, docs/grow-make-setup.md),
- * which sends the email and the WhatsApp message. It never carries the payer's details: the owner
+ * which sends the email and the Telegram message. It never carries the payer's details: the owner
  * finds them on the owner dashboard. An alert that can't be sent is logged; it never fails the
  * request that saved the task.
  */
