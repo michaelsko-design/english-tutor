@@ -214,6 +214,14 @@ await expect('a snapshot with mastered deck words is allowed', true, () =>
   setDoc(doc(a.db, 'reportSnapshots', ua.uid), snapshot({ deckWordMastery: { apple: masteredWord } })));
 await expect('a snapshot with deck words that are not a map is denied', false, () =>
   setDoc(doc(a.db, 'reportSnapshots', ua.uid), snapshot({ deckWordMastery: ['apple'] })));
+await expect('a snapshot with an exam day and list count is allowed', true, () =>
+  setDoc(doc(a.db, 'reportSnapshots', ua.uid), snapshot({ exam: { examDateStr: '2026-12-12', listCount: 2 } })));
+await expect('a snapshot with only school lists is allowed', true, () =>
+  setDoc(doc(a.db, 'reportSnapshots', ua.uid), snapshot({ exam: { listCount: 1 } })));
+await expect('a snapshot exam with extra fields is denied', false, () =>
+  setDoc(doc(a.db, 'reportSnapshots', ua.uid), snapshot({ exam: { examDateStr: '2026-12-12', listCount: 1, units: [1, 2] } })));
+await expect('a snapshot exam with a bad date is denied', false, () =>
+  setDoc(doc(a.db, 'reportSnapshots', ua.uid), snapshot({ exam: { examDateStr: 'next week', listCount: 1 } })));
 await expect('a parent cannot write a snapshot', false, () => setDoc(doc(b.db, 'reportSnapshots', ua.uid), snapshot()));
 await expect('the linked parent can read the snapshot', true, () => getDoc(doc(b.db, 'reportSnapshots', ua.uid)));
 await expect('the learner profile stays unreadable by the parent', false, () => getDoc(doc(b.db, 'learners', ua.uid)));
@@ -337,6 +345,12 @@ await expect('a learner can count the onboarding and first-week steps', true, ()
   setDoc(dayDoc(ua.uid), dayData(ua.uid, { onboarding_view: increment(1), greeting_done: increment(1), week_one_seen: increment(1), tour_skipped: increment(1) }), { merge: true }));
 await expect('a learner can count the Pro wall and an ask sent', true, () =>
   setDoc(dayDoc(ua.uid), dayData(ua.uid, { pro_wall_view: increment(1), pro_ask_sent: increment(1) }), { merge: true }));
+await expect('a learner can count the growth asks (reminder by place, declines, parent shares)', true, () =>
+  setDoc(dayDoc(ua.uid), dayData(ua.uid, {
+    reminder_opt_in_firstwin: increment(1), reminder_opt_in_card: increment(1), reminder_opt_in_settings: increment(1),
+    reminder_opt_in_reask: increment(1), reminder_ask_declined: increment(1), reminder_permission_denied: increment(1),
+    show_off_shared: increment(1), placement_shared: increment(1), pro_ask_resent: increment(1),
+  }), { merge: true }));
 // Where a new account came from (the `?src=` tag): written once, never read or changed
 const signup = (uid, extra = {}) => ({ uid, day: today, src: 'wa-family', ...extra });
 await expect('a sign-up source outside the list is rejected', false, () => setDoc(doc(a.db, 'signups', ua.uid), signup(ua.uid, { src: 'made-up' })));

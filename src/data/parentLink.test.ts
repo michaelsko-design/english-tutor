@@ -129,6 +129,18 @@ describe('report snapshot', () => {
     );
   });
 
+  it('carries only the exam day and the list count, and leaves them out when there are none', () => {
+    expect('exam' in buildReportSnapshot(profile, NOW)).toBe(false);
+    const withExam = {
+      ...profile,
+      examPrep: {
+        id: 'p1', createdAt: '2026-03-01T00:00:00.000Z', gradeId: profile.gradeId, examDateStr: '2026-03-20',
+        unitNumbers: [1], skills: ['vocabulary' as const], days: [],
+      },
+    };
+    expect(buildReportSnapshot(withExam, NOW).exam).toEqual({ examDateStr: '2026-03-20', listCount: 0 });
+  });
+
   it('ignores the publish time when comparing content', () => {
     const first = buildReportSnapshot(profile, NOW);
     const later = buildReportSnapshot(profile, new Date('2026-03-05T10:00:00.000Z'));
@@ -155,9 +167,15 @@ describe('child glance', () => {
   it('counts the practice days of this week (the week starts on Sunday) and the last one', () => {
     // 2026-03-04 is a Wednesday: the week started on 03-01
     expect(buildChildGlance(snapshot(), '2026-03-04')).toEqual({
-      level: 3, streakDays: 5, activeDaysThisWeek: 2, daysSinceActive: 0,
+      level: 3, streakDays: 5, activeDaysThisWeek: 2, daysSinceActive: 0, exam: null,
     });
     expect(buildChildGlance(snapshot(), '2026-03-06').daysSinceActive).toBe(2);
+  });
+
+  it('carries a coming exam from the snapshot, and drops one that has passed', () => {
+    const withExam = snapshot({ exam: { examDateStr: '2026-03-10', listCount: 1 } });
+    expect(buildChildGlance(withExam, '2026-03-04').exam).toEqual({ examDateStr: '2026-03-10', listCount: 1 });
+    expect(buildChildGlance(withExam, '2026-03-11').exam).toEqual({ listCount: 1 });
   });
 
   it('ends the streak when the last streak day is more than two days back', () => {

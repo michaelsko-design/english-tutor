@@ -68,6 +68,7 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
     theme,
     links: children,
     isEnabled: IS_PRO_PLAN_VISIBLE,
+    examByChild: Object.fromEntries(Object.entries(glances).map(([childUid, glance]) => [childUid, glance?.exam ?? null])),
     onNotice: (message) => {
       setErrorHe(null);
       setNoticeHe(message);

@@ -397,6 +397,7 @@ const PlacementTestDialog: React.FC<PlacementTestDialogProps> = ({
             profile={profile}
             theme={theme}
             isFirstTest={isFirstTest}
+            canShareWithParent={mode === 'on-demand'}
             onFinish={(applyRecommendation) => onFinish(result, applyRecommendation)}
           />
         )}

@@ -1,5 +1,6 @@
 import { DEFAULT_PROFILE } from './defaultProfile';
-import { addDays, daysBetween, parseDateStr } from '../utils/dates';
+import { addDays, daysBetween, parseDateStr, toLocalDateStr } from '../utils/dates';
+import { currentExamPitch, getExamPitch, type ExamPitch } from './examPitch';
 import { stripOwnerFields } from './activityLog';
 import { ActivityLogEntry, DeckWordMastery, GradeId, LearnerGender, LearnerProfile, LearnerStats, ProficiencyTier } from '../types/learner';
 
@@ -41,6 +42,8 @@ export interface ReportSnapshot {
   activityLog: ActivityLogEntry[];
   /** The mastered Ministry deck words only (they count in the report); left out when there are none */
   deckWordMastery?: Record<string, DeckWordMastery>;
+  /** A coming exam day and the count of school word lists, for the Pro checkout (data/examPitch.ts); left out when there are neither */
+  exam?: ExamPitch;
   /** ISO time of the last publish */
   updatedAt: string;
 }
@@ -116,6 +119,11 @@ export function buildParentUrl(origin: string, code: string): string {
   return `${origin.replace(/\/+$/, '')}/?${PARENT_PARAM}=${encodeURIComponent(code)}`;
 }
 
+/** The parent portal without a code, for a parent who is already paired */
+export function buildParentPortalUrl(origin: string): string {
+  return `${origin.replace(/\/+$/, '')}/?${PARENT_PARAM}`;
+}
+
 export function getInviteExpiry(now: Date): number {
   return now.getTime() + PARENT_CODE_DAYS * DAY_MS;
 }
@@ -137,6 +145,7 @@ export function parentLinkId(parentUid: string, childUid: string): string {
 
 export function buildReportSnapshot(profile: LearnerProfile, now: Date): ReportSnapshot {
   const deckWordMastery = masteredDeckWordsOf(profile);
+  const exam = getExamPitch(profile, toLocalDateStr(now));
   const { level, streakDays, streakLastDateStr, streakShieldsBought, streakShieldsUsed, totalActiveDays } = profile.stats;
   return {
     name: profile.name,
@@ -156,6 +165,7 @@ export function buildReportSnapshot(profile: LearnerProfile, now: Date): ReportS
     missionProgress: profile.missionProgress,
     activityLog: stripOwnerFields(profile.activityLog ?? []),
     ...(deckWordMastery ? { deckWordMastery } : {}),
+    ...(exam ? { exam } : {}),
     updatedAt: now.toISOString(),
   };
 }
@@ -194,6 +204,8 @@ export interface ChildGlance {
   activeDaysThisWeek: number;
   /** Days since the last practice day; null when there is none yet */
   daysSinceActive: number | null;
+  /** A coming exam or school lists, for the Pro checkout headline; null when there are neither */
+  exam: ExamPitch | null;
 }
 
 export function buildChildGlance(snapshot: ReportSnapshot, todayStr: string): ChildGlance {
@@ -207,6 +219,7 @@ export function buildChildGlance(snapshot: ReportSnapshot, todayStr: string): Ch
     streakDays: isStreakRunning ? streakDays : 0,
     activeDaysThisWeek: new Set(practiced.filter((day) => day >= weekStart && day <= todayStr)).size,
     daysSinceActive: lastDay === null ? null : Math.max(0, daysBetween(lastDay, todayStr)),
+    exam: currentExamPitch(snapshot.exam, todayStr),
   };
 }
 

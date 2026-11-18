@@ -15,11 +15,15 @@ const push = vi.hoisted(() => ({
   getReminderSupport: vi.fn(),
   isReminderOn: vi.fn(),
   enableReminder: vi.fn(),
+  getNotificationPermission: vi.fn(),
 }));
 vi.mock('../../services/push/pushSubscription', () => push);
 
 const analytics = vi.hoisted(() => ({ trackEvent: vi.fn() }));
 vi.mock('../../services/analytics', () => analytics);
+
+const parents = vi.hoisted(() => ({ listParentsOfChild: vi.fn(), createParentInvite: vi.fn() }));
+vi.mock('../../services/parentService', () => parents);
 
 const onUpdateProfile = vi.fn();
 const onContinue = vi.fn();
@@ -30,6 +34,10 @@ beforeEach(() => {
   push.getReminderSupport.mockReturnValue('supported');
   push.isReminderOn.mockResolvedValue(false);
   push.enableReminder.mockResolvedValue({ ok: true });
+  push.getNotificationPermission.mockReturnValue('default');
+  parents.listParentsOfChild.mockReset().mockResolvedValue([]);
+  parents.createParentInvite.mockReset().mockResolvedValue({ ok: true, value: { code: 'ABC123', invite: {} } });
+  Object.defineProperty(navigator, 'share', { value: vi.fn().mockResolvedValue(undefined), configurable: true });
   onUpdateProfile.mockReset();
   onContinue.mockReset();
   analytics.trackEvent.mockReset();
@@ -71,14 +79,66 @@ describe('FirstWinScreen', () => {
     expect(push.enableReminder).toHaveBeenCalledWith('child-1', expect.objectContaining({ isShabbatObserver: expect.any(Boolean) }));
     expect(onUpdateProfile).toHaveBeenCalledWith(expect.objectContaining({ hasEarnedReminderReward: true }));
     expect(analytics.trackEvent).toHaveBeenCalledWith('reminder_opt_in');
-    expect(onContinue).toHaveBeenCalledTimes(1);
+    expect(analytics.trackEvent).toHaveBeenCalledWith('reminder_opt_in_firstwin');
+    expect(await screen.findByRole('heading', { name: /שלחו להורים/ })).toBeInTheDocument();
+    expect(onContinue).not.toHaveBeenCalled();
   });
 
-  it('goes on without a reminder when the learner says not now', async () => {
+  it('remembers a "not now" and moves on to the parent share', async () => {
     const user = renderScreen();
     await user.click(await screen.findByRole('button', { name: 'לא עכשיו' }));
     expect(push.enableReminder).not.toHaveBeenCalled();
+    expect(analytics.trackEvent).toHaveBeenCalledWith('reminder_ask_declined');
+    expect(onUpdateProfile).toHaveBeenCalledWith(expect.objectContaining({ reminderDeclinedAtStr: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) }));
+    expect(await screen.findByRole('heading', { name: /שלחו להורים/ })).toBeInTheDocument();
+  });
+
+  it('does not ask for the reminder when the browser already blocks notifications', async () => {
+    push.getNotificationPermission.mockReturnValue('denied');
+    renderScreen();
+    expect(await screen.findByRole('button', { name: 'ממשיכים' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'כן, להפעיל תזכורת' })).not.toBeInTheDocument();
+    expect(push.isReminderOn).not.toHaveBeenCalled();
+  });
+
+  it('shares the first win with a parent link and pays the gift once', async () => {
+    const profile = makeProfile({ name: 'נועה', gradeId: 'grade-4' });
+    const user = renderScreen(profile);
+    await user.click(await screen.findByRole('button', { name: 'לא עכשיו' }));
+    await user.click(await screen.findByRole('button', { name: 'שליחה להורים' }));
+
+    expect(navigator.share).toHaveBeenCalledWith(
+      expect.objectContaining({ text: expect.stringMatching(/נועה סיימה היום את המשימה הראשונה[\s\S]*ABC123[\s\S]*\?parent=ABC123$/) })
+    );
+    expect(analytics.trackEvent).toHaveBeenCalledWith('show_off_shared');
+    expect(onUpdateProfile).toHaveBeenLastCalledWith(expect.objectContaining({ hasEarnedShowOffReward: true }));
+    expect(screen.getByText(/נשלח!/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'ממשיכים' }));
     expect(onContinue).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not pay the share gift twice', async () => {
+    const user = renderScreen(makeProfile({ name: 'נועה', hasEarnedShowOffReward: true }));
+    await user.click(await screen.findByRole('button', { name: 'לא עכשיו' }));
+    onUpdateProfile.mockReset();
+    expect(screen.queryByText(/מתנה על השליחה/)).not.toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'שליחה להורים' }));
+    expect(onUpdateProfile).not.toHaveBeenCalled();
+  });
+
+  it('lets the learner skip the share', async () => {
+    const user = renderScreen();
+    await user.click(await screen.findByRole('button', { name: 'לא עכשיו' }));
+    await user.click(await screen.findByRole('button', { name: 'אולי אחר כך' }));
+    expect(onContinue).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows a retry when the parent link cannot be made', async () => {
+    parents.listParentsOfChild.mockRejectedValue(new Error('offline'));
+    const user = renderScreen();
+    await user.click(await screen.findByRole('button', { name: 'לא עכשיו' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('לא הצלחנו להכין את ההודעה');
+    expect(screen.getByRole('button', { name: 'אולי אחר כך' })).toBeInTheDocument();
   });
 
   it('stays, with the reason, when the browser blocks notifications', async () => {
@@ -124,5 +184,7 @@ describe('FirstWinScreen', () => {
     renderScreen();
     expect(await screen.findByRole('button', { name: 'ממשיכים' })).toBeInTheDocument();
     expect(push.enableReminder).not.toHaveBeenCalled();
+    await userEvent.setup().click(screen.getByRole('button', { name: 'ממשיכים' }));
+    expect(onContinue).toHaveBeenCalledTimes(1);
   });
 });

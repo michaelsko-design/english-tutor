@@ -34,6 +34,21 @@ describe('computeUsageStats', () => {
     ]);
   });
 
+  it('counts distinct learners per growth ask, every ask listed in a fixed order', () => {
+    const stats = computeUsageStats(
+      [
+        row('a', '2026-11-05', { reminder_opt_in_firstwin: 1, show_off_shared: 2 }),
+        row('a', '2026-11-06', { show_off_shared: 1 }),
+        row('b', '2026-11-06', { reminder_ask_declined: 1, show_off_shared: 1 }),
+      ],
+      [],
+      '2026-11-06'
+    );
+    const byKey = Object.fromEntries(stats.growth.map(({ key, learners }) => [key, learners]));
+    expect(stats.growth[0].key).toBe('reminder_opt_in_firstwin');
+    expect(byKey).toMatchObject({ reminder_opt_in_firstwin: 1, reminder_ask_declined: 1, show_off_shared: 2, pro_ask_resent: 0 });
+  });
+
   it('computes day-1 retention only over learners old enough', () => {
     const stats = computeUsageStats(
       [row('a', '2026-11-04', { session_start: 1 }), row('a', '2026-11-05', { session_start: 1 }), row('b', '2026-11-04', { session_start: 1 }), row('c', '2026-11-06', { session_start: 1 })],

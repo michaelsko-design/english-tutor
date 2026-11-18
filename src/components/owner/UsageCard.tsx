@@ -45,6 +45,18 @@ const FEATURE_LABELS: Record<string, string> = {
   feature_settings: 'Settings',
 };
 
+const GROWTH_LABELS: Record<string, string> = {
+  reminder_opt_in_firstwin: 'Reminder on: first-win screen',
+  reminder_opt_in_card: 'Reminder on: home card',
+  reminder_opt_in_settings: 'Reminder on: settings',
+  reminder_opt_in_reask: 'Reminder on: second ask (day 2+)',
+  reminder_ask_declined: 'Said "not now" to the reminder',
+  reminder_permission_denied: 'Browser blocked notifications',
+  show_off_shared: 'Shared the first win with a parent',
+  placement_shared: 'Shared the placement level with a parent',
+  pro_ask_resent: 'Resent an unanswered Pro ask',
+};
+
 const percent =(share: number | null): string => (share === null ? '–' : `${Math.round(share * 100)}%`);
 
 const OS_LABELS: Record<string, string> = { ios: 'iOS', android: 'Android', windows: 'Windows', mac: 'Mac', linux: 'Linux', other: 'Other OS' };
@@ -70,6 +82,7 @@ export const UsageCard: React.FC<{ usage: OwnerStats['usage'] }> = ({ usage }) =
   }
   const { funnel, retention, missionsByTier, errors, windowDays } = usage;
   const features = usage.features ?? [];
+  const growth = usage.growth ?? [];
   const top = Math.max(1, funnel.sessions);
   const tierTotal = missionsByTier.explorer + missionsByTier.challenger + missionsByTier.master;
 
@@ -222,6 +235,20 @@ export const UsageCard: React.FC<{ usage: OwnerStats['usage'] }> = ({ usage }) =
           {features.map(({ key, learners }) => (
             <li key={key} className="flex justify-between text-xs text-slate-700 dark:text-slate-300">
               <span>{FEATURE_LABELS[key] ?? key}</span>
+              <span className="font-bold tabular-nums">{learners}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <h3 className="mt-4 text-xs font-bold text-slate-900 dark:text-white">Growth asks (learners)</h3>
+      {growth.length === 0 ? (
+        <p className={MUTED}>No growth asks yet.</p>
+      ) : (
+        <ul className="mt-1 space-y-1">
+          {growth.map(({ key, learners }) => (
+            <li key={key} className="flex justify-between text-xs text-slate-700 dark:text-slate-300">
+              <span>{GROWTH_LABELS[key] ?? key}</span>
               <span className="font-bold tabular-nums">{learners}</span>
             </li>
           ))}

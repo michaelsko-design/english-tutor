@@ -767,3 +767,27 @@ describe('mergeLearnerProfiles hasClaimedWelcomeBack', () => {
     expect('hasClaimedWelcomeBack' in mergeLearnerProfiles(baseProfile, baseProfile)).toBe(false);
   });
 });
+
+describe('mergeLearnerProfiles growth-ask fields', () => {
+  it('keeps the show-off reward and the reminder re-ask from either side', () => {
+    const merged = mergeLearnerProfiles({ ...baseProfile, hasEarnedShowOffReward: true }, { ...baseProfile, hasSeenReminderReask: true });
+    expect(merged.hasEarnedShowOffReward).toBe(true);
+    expect(merged.hasSeenReminderReask).toBe(true);
+  });
+
+  it('keeps the later reminder decline day', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, reminderDeclinedAtStr: '2026-11-18' },
+      { ...baseProfile, reminderDeclinedAtStr: '2026-11-20' }
+    );
+    expect(merged.reminderDeclinedAtStr).toBe('2026-11-20');
+    expect(mergeLearnerProfiles({ ...baseProfile, reminderDeclinedAtStr: '2026-11-18' }, baseProfile).reminderDeclinedAtStr).toBe('2026-11-18');
+  });
+
+  it('leaves the fields out when neither side has them', () => {
+    const merged = mergeLearnerProfiles(baseProfile, baseProfile);
+    expect('hasEarnedShowOffReward' in merged).toBe(false);
+    expect('hasSeenReminderReask' in merged).toBe(false);
+    expect('reminderDeclinedAtStr' in merged).toBe(false);
+  });
+});

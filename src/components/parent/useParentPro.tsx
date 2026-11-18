@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { User } from 'firebase/auth';
 import type { BillingPeriod } from '../../config/proTier';
 import type { ParentLink } from '../../data/parentLink';
+import type { ExamPitch } from '../../data/examPitch';
 import { parseParentProRoute } from '../../data/parentProRoute';
 import { canJoinCheckout, childrenOnSamePlan, findOpenPlan, getChildProStatus, type ChildProStatus } from '../../data/proPlanStatus';
 import { useChildEntitlements } from '../../hooks/useChildEntitlements';
@@ -20,6 +21,8 @@ interface ParentProOptions {
   links: readonly ParentLink[] | null;
   /** Pro is shown at all (IS_PRO_PLAN_VISIBLE) */
   isEnabled: boolean;
+  /** Each child's coming exam or school lists, from their report snapshot; the checkout leads with it */
+  examByChild?: Readonly<Record<string, ExamPitch | null>>;
   onNotice: (messageHe: string) => void;
   onError: (messageHe: string | null) => void;
 }
@@ -46,7 +49,7 @@ function clearProAddress(): void {
  * The parent portal's Pro parts (docs/feature-pro-tier.md, "Phase 2"): each child's Pro line, the
  * plan picker and checkout, and the page after payment. Returns the pieces for ParentHome to place.
  */
-export function useParentPro({ user, theme, links, isEnabled, onNotice, onError }: ParentProOptions) {
+export function useParentPro({ user, theme, links, isEnabled, examByChild, onNotice, onError }: ParentProOptions) {
   const [route, setRoute] = useState(() => parseParentProRoute(window.location.search));
   const [checkout, setCheckout] = useState<CheckoutStep | null>(null);
   /** Children the parent picked from their cards ("upgrade"), ticked first at checkout */
@@ -156,6 +159,7 @@ export function useParentPro({ user, theme, links, isEnabled, onNotice, onError 
           eligibleChildren={eligible}
           initialChildUids={checkout.childUids}
           parentEmail={user.email}
+          examByChild={examByChild}
           onBack={() => setCheckout(null)}
         />
       ) : (

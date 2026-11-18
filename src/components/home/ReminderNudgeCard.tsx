@@ -3,8 +3,10 @@ import { Bell, X } from 'lucide-react';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { auth } from '../../services/firebase';
-import { enableReminder, getReminderSupport, isReminderOn } from '../../services/push/pushSubscription';
-import { trackEvent } from '../../services/analytics';
+import { enableReminder, getNotificationPermission, getReminderSupport, isReminderOn } from '../../services/push/pushSubscription';
+import { isReminderCardDue } from '../../data/reminderReask';
+import { toLocalDateStr } from '../../utils/dates';
+import { trackReminderResult } from '../../services/push/reminderOptIn';
 import { getReminderFacts } from '../../hooks/useReminderSync';
 import { applyReminderReward, REMINDER_REWARD_DIAMONDS } from '../../data/reminderReward';
 import { Button } from '../ui/Button';
@@ -19,19 +21,26 @@ interface ReminderNudgeCardProps {
 /**
  * A small, closable home card offering the daily practice reminder. It shows only for a signed-in
  * (not guest) learner on a device that can receive it and has not turned it on, never gates
- * anything, and stays away once closed on this device. On iPhone/iPad outside the Home Screen app it
- * explains how to install first. The same switch is always in the settings.
+ * anything, and stays away once closed on this device. It waits until the learner practised on two
+ * days, and after a "not now" on the first-win screen until the second ask was shown
+ * (data/reminderReask.ts). On iPhone/iPad outside the Home Screen app it explains how to install
+ * first. A browser that blocks notifications never sees it. The same switch is always in the settings.
  */
 export const ReminderNudgeCard: React.FC<ReminderNudgeCardProps> = ({ profile, theme, onUpdateProfile }) => {
   const user = auth?.currentUser ?? null;
   const uid = user && !user.isAnonymous ? user.uid : null;
   const support = getReminderSupport();
+  const isBlocked = getNotificationPermission() === 'denied';
+  const isDue = isReminderCardDue(profile, toLocalDateStr(new Date()));
   const [isVisible, setIsVisible] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!uid || !profile.isOnboarded || support === 'unsupported' || isReminderNudgeDismissed(uid)) return undefined;
+    if (!uid || !profile.isOnboarded || !isDue || isBlocked || support === 'unsupported' || isReminderNudgeDismissed(uid)) {
+      setIsVisible(false);
+      return undefined;
+    }
     if (support === 'needs-install') {
       setIsVisible(true);
       return undefined;
@@ -43,7 +52,7 @@ export const ReminderNudgeCard: React.FC<ReminderNudgeCardProps> = ({ profile, t
     return () => {
       isCancelled = true;
     };
-  }, [uid, profile.isOnboarded, support]);
+  }, [uid, profile.isOnboarded, support, isDue, isBlocked]);
 
   if (!uid || !isVisible) return null;
 
@@ -57,8 +66,8 @@ export const ReminderNudgeCard: React.FC<ReminderNudgeCardProps> = ({ profile, t
     setErrorHe(null);
     const result = await enableReminder(uid, getReminderFacts(profile));
     setIsBusy(false);
+    trackReminderResult('card', result);
     if (result.ok) {
-      trackEvent('reminder_opt_in');
       setIsVisible(false);
       if (!profile.hasEarnedReminderReward) onUpdateProfile(applyReminderReward(profile));
     } else {

@@ -3,7 +3,7 @@
  * and the scrubbed `clientErrors` documents (src/services/analytics). Aggregates only.
  */
 import { OWNER_STATS_DAYS, addDaysToDateStr } from './ownerStats.js';
-import { FUNNEL_EVENTS, type FunnelEvent } from '../../src/services/analytics/events.js';
+import { FUNNEL_EVENTS, GROWTH_EVENTS, type FunnelEvent } from '../../src/services/analytics/events.js';
 
 export interface AnalyticsDayRow {
   uid: string;
@@ -75,6 +75,8 @@ export interface UsageStats {
   retention: { day1: number | null; day7: number | null };
   /** Distinct learners who opened each feature in the window, most used first */
   features: Array<{ key: string; learners: number }>;
+  /** Distinct learners per growth ask (reminder opt-ins by place, declines, parent shares), in GROWTH_EVENTS order */
+  growth: Array<{ key: string; learners: number }>;
   errors: Array<{ message: string; source: string; count: number; days: number; devices: string[] }>;
   /** Where learners get stuck, summed over the window */
   struggle: { missionStarts: number; missionAbandons: number; hintsUsed: number; ttsErrors: number };
@@ -276,6 +278,7 @@ export function computeUsageStats(
   const firstSeen = new Map<string, string>();
   const seenDays = new Map<string, Set<string>>();
   const featureLearners = new Map<string, Set<string>>();
+  const growthLearners = new Map<string, Set<string>>(GROWTH_EVENTS.map((key) => [key, new Set<string>()]));
   const struggle = { missionStarts: 0, missionAbandons: 0, hintsUsed: 0, ttsErrors: 0 };
   const testerByUid = new Map(allowed.map((row) => [row.uid, row]));
   const testerTotals = new Map<string, Omit<TesterRow, 'label' | 'cohort' | 'daysActive' | 'devices'> & { days: Set<string> }>();
@@ -326,6 +329,9 @@ export function computeUsageStats(
     tiers.explorer += counts.mission_finish_tier_explorer ?? 0;
     tiers.challenger += counts.mission_finish_tier_challenger ?? 0;
     tiers.master += counts.mission_finish_tier_master ?? 0;
+    for (const key of GROWTH_EVENTS) {
+      if (counts[key]) growthLearners.get(key)?.add(uid);
+    }
     for (const [key, value] of Object.entries(counts)) {
       if (!key.startsWith(FEATURE_PREFIX) || !value) continue;
       featureLearners.set(key, (featureLearners.get(key) ?? new Set<string>()).add(uid));
@@ -364,6 +370,7 @@ export function computeUsageStats(
     preAuth: preAuthCounts(funnelRows, windowStart, todayStr),
     missionsByTier: tiers,
     retention: { day1: retentionFor(firstSeen, seenDays, 1, todayStr), day7: retentionFor(firstSeen, seenDays, 7, todayStr) },
+    growth: GROWTH_EVENTS.map((key) => ({ key, learners: growthLearners.get(key)?.size ?? 0 })),
     features: [...featureLearners.entries()]
       .map(([key, learners]) => ({ key, learners: learners.size }))
       .sort((a, b) => b.learners - a.learners || a.key.localeCompare(b.key)),

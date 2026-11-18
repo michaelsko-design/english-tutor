@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { makeProfile, TEST_THEME } from '../../test/fixtures';
+import type { LearnerProfile } from '../../types/learner';
 import { ReminderNudgeCard } from './ReminderNudgeCard';
 import { isReminderNudgeDismissed } from './reminderNudge';
 
@@ -16,6 +17,7 @@ const push = vi.hoisted(() => ({
   getReminderSupport: vi.fn(),
   isReminderOn: vi.fn(),
   enableReminder: vi.fn(),
+  getNotificationPermission: vi.fn(),
 }));
 vi.mock('../../services/push/pushSubscription', () => push);
 
@@ -26,13 +28,20 @@ beforeEach(() => {
   push.getReminderSupport.mockReturnValue('supported');
   push.isReminderOn.mockResolvedValue(false);
   push.enableReminder.mockResolvedValue({ ok: true });
+  push.getNotificationPermission.mockReturnValue('default');
   onUpdateProfile.mockReset();
 });
 
 const onUpdateProfile = vi.fn();
 
-function renderCard(isOnboarded = true) {
-  render(<ReminderNudgeCard profile={makeProfile({ isOnboarded })} theme={TEST_THEME} onUpdateProfile={onUpdateProfile} />);
+/** A learner who has practised on two days, so the card is due */
+function dueProfile(overrides: Partial<LearnerProfile> = {}): LearnerProfile {
+  const base = makeProfile(overrides);
+  return { ...base, stats: { ...base.stats, totalActiveDays: 2 } };
+}
+
+function renderCard(isOnboarded = true, profile = dueProfile({ isOnboarded })) {
+  render(<ReminderNudgeCard profile={profile} theme={TEST_THEME} onUpdateProfile={onUpdateProfile} />);
 }
 
 describe('ReminderNudgeCard', () => {
@@ -93,6 +102,28 @@ describe('ReminderNudgeCard', () => {
     window.localStorage.setItem('english_tutor_reminder_nudge_dismissed_child-1', '1');
     renderCard();
 
+    expect(push.isReminderOn).not.toHaveBeenCalled();
+  });
+
+  it('waits for the second day of practice', async () => {
+    renderCard(true, makeProfile());
+    await Promise.resolve();
+    expect(push.isReminderOn).not.toHaveBeenCalled();
+  });
+
+  it('stays away after a "not now" until the second ask was shown', async () => {
+    renderCard(true, dueProfile({ reminderDeclinedAtStr: '2026-11-01' }));
+    await Promise.resolve();
+    expect(push.isReminderOn).not.toHaveBeenCalled();
+
+    renderCard(true, dueProfile({ reminderDeclinedAtStr: '2026-11-01', hasSeenReminderReask: true }));
+    expect(await screen.findByRole('button', { name: 'להפעיל תזכורת' })).toBeInTheDocument();
+  });
+
+  it('does not show where the browser blocks notifications', async () => {
+    push.getNotificationPermission.mockReturnValue('denied');
+    renderCard();
+    await Promise.resolve();
     expect(push.isReminderOn).not.toHaveBeenCalled();
   });
 });

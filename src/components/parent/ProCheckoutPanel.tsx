@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { APP_NAME, LANDING_PAGE_PATH, PRIVACY_PAGE_PATH, TERMS_PAGE_PATH } from '../../config/appInfo';
 import { MAX_PRO_SEATS, quoteProPrice, type BillingPeriod } from '../../config/proTier';
 import type { ParentLink } from '../../data/parentLink';
+import { buildExamHeadlineHe, pickExamLead, type ExamPitch } from '../../data/examPitch';
+import { toLocalDateStr } from '../../utils/dates';
 import { startProCheckout } from '../../services/proBillingService';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 import { formatShekels, PaymentMethodsNote } from './ProPlanPicker';
@@ -15,6 +17,8 @@ interface ProCheckoutPanelProps {
   initialChildUids: readonly string[];
   /** Prefills the e-mail for the receipt */
   parentEmail: string | null;
+  /** Each child's coming exam or school lists (from the report snapshot); the headline leads with it */
+  examByChild?: Readonly<Record<string, ExamPitch | null>>;
   onBack: () => void;
   /** Opens the payment page (a full page change) */
   onNavigate?: (url: string) => void;
@@ -48,6 +52,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
   eligibleChildren,
   initialChildUids,
   parentEmail,
+  examByChild,
   onBack,
   onNavigate = (url) => window.location.assign(url),
 }) => {
@@ -61,6 +66,12 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
   const quote = quoteProPrice(selected.length, period);
+  // Parents pay for a date: the soonest exam (or school lists) of the ticked children leads
+  const examLead = pickExamLead(
+    eligibleChildren
+      .filter((child) => selected.includes(child.childUid))
+      .map((child) => ({ name: child.childName, pitch: examByChild?.[child.childUid] ?? null }))
+  );
 
   // Back from the payment page, the browser may restore this page as it was: busy
   useEffect(() => {
@@ -113,6 +124,12 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
       <h2 id="pro-checkout-title" className="text-base font-extrabold">
         תשלום על <bdi dir="ltr" lang="en">{APP_NAME} Pro</bdi>
       </h2>
+      {examLead && (
+        <p className="p-3 rounded-2xl bg-amber-400/15 text-sm font-extrabold">
+          📅 {buildExamHeadlineHe(examLead.name, examLead.pitch, toLocalDateStr(new Date()))}
+          {examLead.pitch.examDateStr ? ': תוכנית הכנה מלאה, עם סימולציה ותעודה.' : ', ועוד רשימות מילים.'}
+        </p>
+      )}
 
       <fieldset className="space-y-2">
         <legend className="text-sm font-extrabold">למי המנוי?</legend>
