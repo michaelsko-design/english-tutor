@@ -6,6 +6,7 @@ import { auth } from '../../services/firebase';
 import {
   disableReminder,
   enableReminder,
+  getNotificationPermission,
   getReminderSupport,
   isReminderOn,
 } from '../../services/push/pushSubscription';
@@ -32,6 +33,8 @@ export const StreakReminderCard: React.FC<StreakReminderCardProps> = ({ profile,
   const user = auth?.currentUser ?? null;
   const uid = user && !user.isAnonymous ? user.uid : null;
   const support = getReminderSupport();
+  // A browser that already refused notifications can't be asked again from the page: explain instead
+  const isBlocked = getNotificationPermission() === 'denied';
   const [isOn, setIsOn] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
@@ -64,7 +67,14 @@ export const StreakReminderCard: React.FC<StreakReminderCardProps> = ({ profile,
   return (
     <div className="space-y-2 p-3 rounded-2xl border border-current/10 bg-black/5 dark:bg-white/5">
 
-      {support === 'supported' && (
+      {support === 'supported' && isBlocked && !isOn && (
+        <p className="text-xs sm:text-sm font-bold">
+          ההתראות חסומות בדפדפן הזה. כדי לקבל תזכורת: לוחצים על סמל המנעול או ההגדרות ליד כתובת האתר, מאפשרים התראות,
+          וחוזרים לכאן. בינתיים אפשר להשתמש בתזכורת ביומן.
+        </p>
+      )}
+
+      {support === 'supported' && !(isBlocked && !isOn) && (
         <>
           <button
             type="button"
