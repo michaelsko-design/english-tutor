@@ -23,8 +23,8 @@ export const isOwnerRoute = (pathname: string, search: string): boolean =>
 type Screen = 'checking' | 'app' | 'parent';
 
 /**
- * A Google account that is a parent's (it joined a learner through the parent area and has no
- * learner profile) opens the parent area, not the learner's onboarding. Everyone else, including
+ * A Google account that is a parent's (marked when it signed in to the parent area) opens the
+ * parent area, not the learner's onboarding. Everyone else, including
  * signed-out visitors, guests and username + PIN learners, goes straight to the app.
  */
 async function resolveScreen(user: User | null): Promise<Screen> {
@@ -32,14 +32,15 @@ async function resolveScreen(user: User | null): Promise<Screen> {
   const cached = readAccountRole(user.uid);
   if (cached) return cached === 'parent' ? 'parent' : 'app';
   try {
-    const isLearner = await hasLearnerProfile(user.uid);
-    if (isLearner) {
-      writeAccountRole(user.uid, 'learner');
-      return 'app';
-    }
+    // The parent marker wins: a parent account never becomes a learner (firestore.rules refuses it
+    // a new learner profile), even one that got a profile before that rule
     if (await isParentAccount(user.uid)) {
       writeAccountRole(user.uid, 'parent');
       return 'parent';
+    }
+    if (await hasLearnerProfile(user.uid)) {
+      writeAccountRole(user.uid, 'learner');
+      return 'app';
     }
   } catch {
     // Offline or no access: open the app, which handles its own sign-in

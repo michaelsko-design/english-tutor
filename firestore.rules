@@ -85,7 +85,10 @@ service cloud.firestore {
 
     // Each authenticated learner can only read and write their own profile document
     match /learners/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId && isAllowed();
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId && isAllowed();
+      // A parent account (marked in the parent area) never becomes a learner: no new profile for it
+      allow create: if request.auth != null && request.auth.uid == userId && isAllowed()
+        && !exists(/databases/$(database)/documents/parents/$(userId));
     }
 
     // Closed-testing access (see isAllowed). Only the server writes these; a learner reads their own

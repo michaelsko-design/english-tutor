@@ -43,6 +43,16 @@ describe('AppRoot', () => {
     expect(window.localStorage.getItem('english_tutor_account_role_g1')).toBe('parent');
   });
 
+  it('opens the parent area for a marked parent account even if a learner profile was made for it', async () => {
+    parentService.isParentAccount.mockResolvedValue(true);
+    parentService.hasLearnerProfile.mockResolvedValue(true);
+    render(<AppRoot />);
+    firebase.listener?.(googleUser);
+
+    expect(await screen.findByText('parent area')).toBeInTheDocument();
+    expect(window.localStorage.getItem('english_tutor_account_role_g1')).toBe('parent');
+  });
+
   it('opens the app for a Google learner, and remembers it', async () => {
     parentService.hasLearnerProfile.mockResolvedValue(true);
     render(<AppRoot />);

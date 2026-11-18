@@ -104,6 +104,10 @@ export function findOpenPlan(parentUid: string, entitlements: Entitlements, nowM
   return null;
 }
 
-/** A child a new checkout can include: free, left a plan, or on this parent's yearly plan near its end */
+/**
+ * A child a new checkout can include: free, taken off a plan that goes on for others, or on this
+ * parent's yearly plan near its end. A child of a cancelled plan keeps Pro to the period's end and
+ * is not offered a new plan before it (they show as free then).
+ */
 export const canJoinCheckout = (status: ChildProStatus | undefined): boolean =>
-  status?.kind === 'free' || (status?.kind === 'plan' && (!status.hasSeat || status.shouldOfferRenewal));
+  status?.kind === 'free' || (status?.kind === 'plan' && (status.hasLeftPlan || status.shouldOfferRenewal));

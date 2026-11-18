@@ -99,7 +99,7 @@ Families with more than 4 children contact us on WhatsApp (a button on the plan-
 
 **Plan-and-pay screen** (`components/parent/ProCheckoutPanel.tsx`, in the parent portal while `IS_PRO_PLAN_VISIBLE`; one screen since 2026-11-18, the separate plan picker step is gone):
 - **Billing switch:** חודשי / שנתי (3 חודשים מתנה), yearly by default (a renewal from a child card opens on yearly too).
-- **Children:** a checkbox per linked child who can join, all ticked at first (up to 4); upgrading from one child's card ticks only that child. Past 4 the other boxes are disabled.
+- **Children:** a checkbox per linked child who can join (`canJoinCheckout`: free, taken off a plan that goes on for others, or a yearly plan near its end; not the children of a cancelled plan while their Pro runs), all ticked at first (up to 4); upgrading from one child's card ticks only that child. Past 4 the other boxes are disabled.
 - **Price box** (`ProPriceBox`, `proPlanParts.tsx`): the charge, the per-month rate (yearly), the per-child monthly rate (2+ children), the yearly saving (on monthly, what yearly would save), how the plan renews, and the payment methods.
 - **WhatsApp button:** shown when more than 4 children are linked: "צריכים מנוי ליותר מ-4 ילדים? דברו איתנו בוואטסאפ" opens a WhatsApp chat with a prefilled message. The number is `SUPPORT_WHATSAPP_NUMBER` (`config/appInfo.ts`) (for now the owner's private number; replace it with a business number before launch).
 - **Payer, terms and pay:** see "Checkout" below. Grow needs the payer's full name and mobile to open a payment link (Make's Create Payment Link requires both), so they can't move to Grow's page.
