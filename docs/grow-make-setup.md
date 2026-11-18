@@ -72,6 +72,7 @@ Each route has a filter on `action`:
      - full name = `payerName`;
      - phone = `payerPhone`;
      - email = `payerEmail`.
+     - Invoice Name and Invoice License Number: left empty (not set). Set to "Optional" they add "שם לחשבונית" and "מ. תעודת זהות" to Grow's details screen; removed from the sandbox scenario 2026-11-18.
    - **Success URL** = `successUrl`.
    - **Notify URL** = `notifyUrl`. It already carries our secret; never edit it.
      - It has no checkout id: the webhook takes that from `cField1`.
