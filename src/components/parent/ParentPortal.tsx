@@ -9,7 +9,6 @@ import { IS_PRO_PLAN_VISIBLE } from '../../config/proTier';
 import { parseParentProRoute } from '../../data/parentProRoute';
 import { trackFunnel } from '../../services/analytics/funnel';
 import { ParentHome } from './ParentHome';
-import { ProPriceTeaser } from './ProPriceTeaser';
 
 interface ParentPortalProps {
   /** The code from the link (`/?parent=CODE`), when there is one */
@@ -49,7 +48,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({ initialCode }) => {
   const [check, setCheck] = useState<AccountCheck>('checking');
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
-  // A learner's Pro ask link: the price comes before the Google step, and the sign-in is counted
+  // A learner's Pro ask link: the parent's sign-in is counted as a step to paying
   const [isProLink] = useState(() => IS_PRO_PLAN_VISIBLE && parseParentProRoute(window.location.search).hasProIntent);
 
   useEffect(() => {
@@ -127,7 +126,6 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({ initialCode }) => {
             קוד ההורים: <span dir="ltr" lang="en" className="font-black tracking-widest">{initialCode}</span>
           </p>
         )}
-        {isProLink && <ProPriceTeaser theme={theme} />}
         {errorHe && (
           <p role="alert" className="text-xs font-extrabold text-rose-700 dark:text-rose-300">
             {errorHe}

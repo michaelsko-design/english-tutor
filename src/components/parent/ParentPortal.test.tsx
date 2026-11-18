@@ -63,21 +63,6 @@ beforeEach(() => {
 });
 
 describe('ParentPortal Pro link', () => {
-  it('shows the price and the terms before sign-in on a Pro ask link', async () => {
-    window.history.replaceState(null, '', '/?parent=ABCD2345&pro=1');
-    renderPortal('ABCD2345');
-    await signIn(null);
-
-    expect(screen.getByTestId('pro-price-teaser')).toHaveTextContent('לא מתחדש מעצמו');
-  });
-
-  it('shows no price on a plain parent link', async () => {
-    renderPortal('ABCD2345');
-    await signIn(null);
-
-    expect(screen.queryByTestId('pro-price-teaser')).not.toBeInTheDocument();
-  });
-
   it('counts a parent sign-in from a Pro ask link', async () => {
     window.history.replaceState(null, '', '/?parent=ABCD2345&pro=1');
     renderPortal('ABCD2345');
