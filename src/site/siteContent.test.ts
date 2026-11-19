@@ -124,7 +124,15 @@ describe('renderSite', () => {
   it('renders the legal texts from their source documents', () => {
     expect(blocks.terms()).toContain('<h3>1. מי אנחנו</h3>');
     expect(blocks.terms()).not.toContain('Questions for the legal review');
-    expect(blocks.refunds()).toContain('48 שעות');
+    expect(blocks.refunds()).toContain('3 ימי עסקים');
+    expect(blocks.refunds()).toContain('id="cancel"');
+    expect(blocks.terms()).not.toContain('48 שעות');
+    // No draft placeholder left in the published texts: every "[...]" must be a markdown link
+    const termsSource = extractMarkdownSection(readRepoText(TERMS_DOC_PATH), '## 1. תנאי שימוש');
+    expect(termsSource).not.toMatch(/\[[^\]]*\](?!\()/);
+    expect(readRepoText(REFUNDS_DOC_PATH)).not.toMatch(/\[[^\]]*\](?!\()/);
+    expect(readRepoText('home/index.html')).not.toContain('48 שעות');
+    expect(blocks.terms()).toContain('href="/privacy/"');
     expect(blocks.refunds()).not.toContain('<h1>');
     for (const section of PRIVACY_NOTICE_SECTIONS) expect(blocks.privacy()).toContain(section.titleHe);
     expect(readRepoText(TERMS_DOC_PATH).length).toBeGreaterThan(0);

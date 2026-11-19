@@ -265,7 +265,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           />
           <GradeSelect gradeId={draft.gradeId} theme={activeTheme} onChange={(gradeId) => commit({ gradeId })} />
           <ShabbatToggle
-            gender={draft.gender}
             isOn={draft.isShabbatObserver}
             theme={activeTheme}
             onToggle={() => commit({ isShabbatObserver: !draft.isShabbatObserver })}

@@ -49,7 +49,7 @@ export const CONTACT = {
   email: PRIVACY_CONTACT_EMAIL,
   phoneDisplay: formatIsraeliPhone(SUPPORT_WHATSAPP_NUMBER),
   phoneHref: `tel:+${SUPPORT_WHATSAPP_NUMBER}`,
-  responseHoursHe: 'מענה לכל פנייה בתוך 48 שעות',
+  responseHoursHe: 'מענה לכל פנייה בתוך 3 ימי עסקים (א׳–ה׳, 09:00–17:00)',
 } as const;
 
 const AGOROT_PER_SHEKEL = 100;
