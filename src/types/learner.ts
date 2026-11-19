@@ -340,6 +340,18 @@ export interface FriendsHubState {
   updatedAt: string;
 }
 
+/** An agreement to the terms and the privacy notice (legal audit TOS-04): when, to which versions, and by whom */
+export interface TermsConsent {
+  /** ISO time of the agreement */
+  acceptedAt: string;
+  /** `TERMS_VERSION` agreed to */
+  termsVersion: string;
+  /** `PRIVACY_VERSION` agreed to */
+  privacyVersion: string;
+  /** True when a parent agreed (learners under 13); false when the learner agreed with the parents' knowledge */
+  isParentConsent: boolean;
+}
+
 export interface LearnerProfile {
   isOnboarded: boolean;
   name: string;
@@ -376,6 +388,8 @@ export interface LearnerProfile {
   voicePreference?: 'female' | 'male';
   /** When a parent agreed to the privacy notice at onboarding (learners under 13) */
   parentalConsentAt?: string;
+  /** The agreement to the terms and the privacy notice at signup, every age (utils/termsConsent.ts) */
+  termsConsent?: TermsConsent;
   /** A parent switched off the anonymous usage counters and error reports; missing means on */
   isAnalyticsOptedOut?: boolean;
   /** Whether the new user has seen and acknowledged the complimentary welcome diamonds modal */

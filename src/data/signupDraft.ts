@@ -9,6 +9,10 @@ export interface SignupDraft {
   readonly name: string;
   readonly gender: LearnerGender;
   readonly gradeId: GradeId;
+  /**
+   * The consent box was ticked: under 13 a parent agreed to the terms and the privacy notice, from 13
+   * the learner did, with the parents' knowledge (the box is required at every age)
+   */
   readonly hasParentConsent: boolean;
 }
 

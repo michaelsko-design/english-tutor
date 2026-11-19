@@ -40,9 +40,9 @@ const gradeLabelForAge = (age: number): string => GRADE_LABELS[age - FIRST_GRADE
 async function fillWhoAreYou(gate: Locator, choices: OnboardingChoices): Promise<void> {
   await gate.getByLabel('איך קוראים לך?').fill(choices.name);
   await gate.getByRole('button', { name: gradeLabelForAge(choices.age) }).click();
-  // Only a learner under the parent-approval age is asked for a parent's consent
-  const consent = gate.getByRole('checkbox', { name: /אני הורה וקראתי/ });
-  if (await consent.isVisible()) await consent.check();
+  // Every learner ticks the terms-and-privacy box: a parent under 13, the learner from 13
+  const consent = gate.getByRole('checkbox', { name: /קראתי ואני מסכים/ });
+  await consent.check();
   await gate.getByRole('button', { name: 'המשך' }).click();
 }
 
@@ -92,9 +92,9 @@ export async function completeOnboarding(page: Page, choices: OnboardingChoices)
   await nameInput.fill(choices.name);
   // The form asks for the grade (age = grade + 5); the chip's accessible name is the full grade label
   await page.getByRole('button', { name: gradeLabelForAge(choices.age) }).click();
-  // Only a learner under the parent-approval age is asked for a parent's consent
-  const consent = page.getByRole('checkbox', { name: /אני הורה וקראתי/ });
-  if (await consent.isVisible()) await consent.check();
+  // Every learner ticks the terms-and-privacy box: a parent under 13, the learner from 13
+  const consent = page.getByRole('checkbox', { name: /קראתי ואני מסכים/ });
+  await consent.check();
   await page.getByRole('button', { name: ONBOARDING_SUBMIT }).click();
 }
 
