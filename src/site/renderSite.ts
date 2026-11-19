@@ -5,7 +5,7 @@
  * Runs in Node (vite.config.ts) and in the unit tests, never in the browser.
  */
 import { marked } from 'marked';
-import { APP_NAME } from '../config/appInfo';
+import { ACCESSIBILITY_PAGE_PATH, APP_NAME, CANCEL_PAGE_PATH } from '../config/appInfo';
 import { PRIVACY_NOTICE_SECTIONS } from '../config/privacyNotice';
 import {
   APP_ENTRY_URL,
@@ -22,6 +22,7 @@ import {
 
 export const TERMS_DOC_PATH = 'docs/legal/pro-legal-drafts.md';
 export const REFUNDS_DOC_PATH = 'docs/legal/Service and Refund Policy.md';
+export const ACCESSIBILITY_DOC_PATH = 'docs/legal/accessibility-statement.md';
 
 /** Reads a repo file (path relative to the repo root) as UTF-8 text */
 export type ReadRepoText = (relativePath: string) => string;
@@ -73,7 +74,7 @@ const ONE_CHILD_PRICE_HE = 'המחיר לילד/ה אחד/ת';
 
 /** Under the table: how each period is paid and cancelled */
 const PAYMENT_NOTE_HE =
-  'חודשי: בכרטיס אשראי, מתחדש כל חודש ומבטלים בלחיצה בפורטל ההורים. שנתי: תשלום אחד שלא מתחדש מעצמו, בכרטיס אשראי, <bdi>Bit</bdi>, <bdi>Apple Pay</bdi> או <bdi>Google Pay</bdi>.';
+  'חודשי: בכרטיס אשראי, מתחדש כל חודש ומבטלים בלחיצה בפורטל ההורים. שנתי: תשלום אחד שלא מתחדש מעצמו, בכרטיס אשראי, <bdi>Bit</bdi>, <bdi>Apple Pay</bdi> או <bdi>Google Pay</bdi>. המחירים בשקלים ופטורים ממע״מ (עוסק פטור), והם הסכום הסופי לתשלום.';
 
 interface PlanCard {
   name: string;
@@ -129,6 +130,9 @@ function renderPricing(): string {
     '<thead><tr><th scope="col">ילדים במנוי</th><th scope="col">חודשי</th><th scope="col">שנתי</th></tr></thead>',
     `<tbody>${rows}</tbody></table>`,
     `<p class="site-note">${PAYMENT_NOTE_HE}</p>`,
+    LEGAL_PAGES_LIVE
+      ? `<p class="site-note">ביטול בתוך 14 יום בהחזר מלא. <a href="${CANCEL_PAGE_PATH}">ביטול עסקה</a></p>`
+      : '',
   ].join('');
 }
 
@@ -151,7 +155,13 @@ function renderContact(): string {
 
 function renderLegalLinks(): string {
   if (!LEGAL_PAGES_LIVE) return '';
-  return '<nav class="site-legal-links" aria-label="מסמכים"><a href="/terms/">תנאי שימוש ומנוי</a><a href="/privacy/">פרטיות ומידע</a><a href="/refunds/">מדיניות שירות וביטולים</a></nav>';
+  return [
+    '<nav class="site-legal-links" aria-label="מסמכים">',
+    `<a class="site-cancel-link" href="${CANCEL_PAGE_PATH}">ביטול עסקה</a>`,
+    '<a href="/terms/">תנאי שימוש ומנוי</a><a href="/privacy/">פרטיות ומידע</a><a href="/refunds/">מדיניות שירות וביטולים</a>',
+    `<a href="${ACCESSIBILITY_PAGE_PATH}">הצהרת נגישות</a>`,
+    '</nav>',
+  ].join('');
 }
 
 function renderFooter(): string {
@@ -194,6 +204,7 @@ export function buildSiteBlocks(readRepoText: ReadRepoText): Readonly<Record<str
     pricing: renderPricing,
     faq: renderFaq,
     contact: renderContact,
+    'privacy-more': () => (LEGAL_PAGES_LIVE ? ' <a href="/privacy/">למדיניות הפרטיות המלאה</a>' : ''),
     'email-link': () => `<a href="mailto:${CONTACT.email}" dir="ltr">${CONTACT.email}</a>`,
     footer: renderFooter,
     'legal-head': renderLegalHead,
@@ -201,5 +212,6 @@ export function buildSiteBlocks(readRepoText: ReadRepoText): Readonly<Record<str
     terms: () => markdownToHtml(extractMarkdownSection(readRepoText(TERMS_DOC_PATH), '## 1. תנאי שימוש')),
     privacy: renderPrivacy,
     refunds: () => markdownToHtml(stripTitle(readRepoText(REFUNDS_DOC_PATH))),
+    accessibility: () => markdownToHtml(stripTitle(readRepoText(ACCESSIBILITY_DOC_PATH))),
   };
 }

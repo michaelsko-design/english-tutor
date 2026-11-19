@@ -5,6 +5,7 @@ import { PRO_PRICES_AGOROT } from '../config/proTier';
 import { MAX_ACTIVE_LISTS } from '../data/customWordLists';
 import { PRIVACY_NOTICE_SECTIONS } from '../config/privacyNotice';
 import {
+  ACCESSIBILITY_DOC_PATH,
   buildSiteBlocks,
   escapeHtml,
   extractMarkdownSection,
@@ -17,6 +18,7 @@ import {
   BUSINESS,
   CONTACT,
   EXTRA_CHILD_MONTHLY,
+  FAQ,
   FREE_PLAN_FEATURES,
   PRO_PLAN_FEATURES,
   SHOW_PHONE_ON_SITE,
@@ -30,7 +32,7 @@ import {
 
 const REPO_ROOT = resolve(__dirname, '../..');
 const readRepoText = (path: string): string => readFileSync(resolve(REPO_ROOT, path), 'utf8');
-const SITE_PAGES = ['home', 'terms', 'privacy', 'refunds'] as const;
+const SITE_PAGES = ['home', 'terms', 'privacy', 'refunds', 'accessibility'] as const;
 const blocks = buildSiteBlocks(readRepoText);
 
 describe('siteContent', () => {
@@ -144,5 +146,28 @@ describe('renderSite', () => {
     expect(blocks.footer()).not.toContain('/terms/');
     expect(blocks['legal-head']()).toContain('noindex');
     expect(blocks['draft-banner']()).toContain('טיוטה');
+    expect(blocks.footer()).not.toContain('/accessibility/');
+    expect(blocks['privacy-more']()).toBe('');
+  });
+
+  it('publishes an accessibility statement with ways to get help', () => {
+    const statement = blocks.accessibility();
+    expect(statement).toContain('מה עוד לא נגיש');
+    expect(statement).toContain(CONTACT.email);
+    expect(statement).toContain('3 ימי עסקים');
+    expect(readRepoText(ACCESSIBILITY_DOC_PATH)).not.toMatch(/\[[^\]]*\](?!\()/);
+  });
+
+  it('says the prices are VAT-exempt and answers how to cancel with the refund rules', () => {
+    expect(blocks.pricing()).toContain('פטורים ממע״מ');
+    const cancelAnswer = FAQ.find((item) => item.questionHe === 'איך מבטלים מנוי?')?.answerHe ?? '';
+    expect(cancelAnswer).toContain('14 יום');
+    expect(cancelAnswer).toContain('בטלפון');
+    expect(CONTACT.responseHoursHe).toContain('3 ימי עסקים');
+  });
+
+  it('gives the refund page a cancellation anchor and a ready cancellation email', () => {
+    expect(blocks.refunds()).toContain('id="cancel"');
+    expect(blocks.refunds()).toContain('mailto:support@englishvibe.co.il?subject=');
   });
 });

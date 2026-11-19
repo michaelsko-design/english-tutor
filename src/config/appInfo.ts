@@ -17,6 +17,19 @@ export const LANDING_PAGE_PATH = '/home/';
 export const TERMS_PAGE_PATH = '/terms/';
 export const PRIVACY_PAGE_PATH = '/privacy/';
 
+/** The refund page's cancellation section (Consumer Protection Law §14ט: linked from the home page and the sign-in screens) */
+export const CANCEL_PAGE_PATH = '/refunds/#cancel';
+
+/** The accessibility statement (built from docs/legal/accessibility-statement.md) */
+export const ACCESSIBILITY_PAGE_PATH = '/accessibility/';
+
+/**
+ * Off until the owner approves the legal texts (legal audit Task 7). While off, the legal pages are
+ * built but not linked from the landing page or the app's sign-in screens, carry `noindex`, and show
+ * a draft banner.
+ */
+export const LEGAL_PAGES_LIVE = false;
+
 /**
  * The terms a parent accepts at checkout, saved on the checkout as `termsVersion`: the terms' "עודכן
  * לאחרונה" date. Change it with every change to the terms' text.

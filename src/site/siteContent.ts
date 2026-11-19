@@ -12,11 +12,8 @@ import {
   type ProSeatCount,
 } from '../config/proTier';
 
-/**
- * Off until the lawyer approves the drafts (backlog: "Pro legal texts"). While off, the legal pages
- * are built but not linked from the landing page, carry `noindex`, and show a draft banner.
- */
-export const LEGAL_PAGES_LIVE = false;
+/** The legal pages' go-live switch lives in config/appInfo.ts, so the app's links follow it too */
+export { LEGAL_PAGES_LIVE } from '../config/appInfo';
 
 /** The free tier never asks for a card: Pro is bought by a parent, in the parent portal only */
 export const FREE_START_LINE_HE = 'מתחילים חינם, ללא צורך בכרטיס אשראי';
@@ -133,7 +130,8 @@ export const FAQ: readonly FaqItem[] = [
   },
   {
     questionHe: 'איך מבטלים מנוי?',
-    answerHe: 'מנוי חודשי מבטלים בלחיצה אחת בפורטל ההורים, או באימייל אלינו. אחרי הביטול אין חיובים נוספים. מנוי שנתי משולם פעם אחת ולא מתחדש מעצמו.',
+    answerHe:
+      'בפורטל ההורים, בעמוד "ביטול עסקה", באימייל או בטלפון. בתוך 14 יום מהתשלום הראשון מקבלים החזר מלא. מנוי חודשי: אחרי הביטול אין חיובים נוספים, וה-Pro נשאר עד סוף החודש ששולם. מנוי שנתי לא מתחדש מעצמו, וביטול שלו אחרי 14 יום מחזיר את מה ששולם פחות המחיר החודשי הרגיל של כל חודש שהתחיל. כל הפרטים במדיניות השירות והביטולים.',
   },
   {
     questionHe: 'איך משלמים?',

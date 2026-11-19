@@ -19,6 +19,7 @@ import { ThemeDefinition } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
 import { normalizeIdentifierToEmail, usernameFromEmail } from '../utils/username';
 import { SignInPanel } from './auth/SignInPanel';
+import { LegalQuickLinks } from './LegalQuickLinks';
 import { CredentialMode, credentialErrorHe, validateCredentials } from './auth/credentialValidation';
 import { APP_NAME, LANDING_PAGE_PATH, TERMS_PAGE_PATH } from '../config/appInfo';
 import { AppLogo } from './AppLogo';
@@ -423,6 +424,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <a href={LANDING_PAGE_PATH} className="text-xs underline opacity-75 hover:opacity-100">
                   מה זה <bdi>{APP_NAME}</bdi>?
                 </a>
+                <LegalQuickLinks />
               </div>
 
               {!isMandatory && (
