@@ -62,7 +62,7 @@ Each route has a filter on `action`:
      - For a recurring payment, **Max or Custom** = **Custom** and **Payments Max Number** = map `maxCharges` (the server sends `GROW_MAKE_MAX_CHARGES`, default 36).
      - **A standing order can't run until cancelled through Make** (Grow, 2026-11-15). Grow refuses `1`. With Max or Custom = Max Payments, the module refuses anything above 12 ("Maximum value is 12", a Make-side check); **Custom takes up to 36** (checked in the sandbox, 2026-11-16).
      - One charge before a standing order runs out, the owner gets an **"Extend the standing order"** task: add the same number of charges to it in Grow's standing-orders area.
-   - **Payment methods:** set **Charge Type** = Regular Charge. Its nested **Transaction Type** field then appears; map it to `transactionTypes` (`[1]` monthly, `[6,13,14,1]` yearly: Bit and the wallets first). Grow still shows only what the account allows: check the yearly page for Bit and the wallets, and whether it keeps this order. The direct Grow API (`grow.ts`) sends no methods; there the page's own settings set them and their order.
+   - **Payment methods:** set **Charge Type** = Regular Charge. Its nested **Transaction Type** field then appears; map it to `transactionTypes` (`[1]` monthly, `[6,13,14,1]` yearly). The array picks which methods show, not their order: Grow sets the order, and it can depend on the payer's device (Grow, 2026-11-19). Grow still shows only what the account allows: check the yearly page for Bit and the wallets, and whether it keeps this order. The direct Grow API (`grow.ts`) sends no methods; there the page's own settings set them and their order.
    - **Product:**
      - name = `productName`;
      - price = `price` (whole shekels);
