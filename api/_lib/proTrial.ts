@@ -1,11 +1,12 @@
 /**
- * POST /api/pro-trial  {childUid}: a linked parent starts a child's free Pro week (docs/feature-pro-tier.md,
+ * POST /api/subscription  {action: 'startTrial', childUid} (routed here by api/subscription.ts, which
+ * keeps the app within Vercel's function limit): a linked parent starts a child's free Pro week (docs/feature-pro-tier.md,
  * "Pro week"). Once per child account: a child who ever had any entitlement (a plan, a comp grant or an
  * earlier week) gets none, and `proTrials/{childUid}` stays as the record. No payment, no card, nothing
  * renews: the week's entitlement ends on its day (no grace days) and the daily reconcile marks it expired.
  */
-import { ConflictError, createFirestoreAdmin } from './_lib/firestoreAdmin.js';
-import { AdminError, parseServiceAccount } from './_lib/googleAdmin.js';
+import { ConflictError, createFirestoreAdmin } from './firestoreAdmin.js';
+import { AdminError, parseServiceAccount } from './googleAdmin.js';
 import {
   authenticateParent,
   errorResponse,
@@ -13,10 +14,10 @@ import {
   jsonResponse,
   readJsonBody,
   type ParentRequestDeps,
-} from './_lib/parentRequest.js';
-import { createPaymentProvider } from './_lib/payments/index.js';
-import { UID_PATTERN } from './_lib/proBilling.js';
-import { PRO_TRIAL_DAYS } from '../src/config/proTier.js';
+} from './parentRequest.js';
+import { createPaymentProvider } from './payments/index.js';
+import { UID_PATTERN } from './proBilling.js';
+import { PRO_TRIAL_DAYS } from '../../src/config/proTier.js';
 
 const MAX_BODY_BYTES = 1024;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -84,11 +85,7 @@ export async function handleProTrialRequest(
   } catch (error) {
     if (error instanceof ConflictError) return refusal(409, 'This child already had a free Pro week', 'trial_used');
     // Only a status is logged: never uids or tokens
-    console.error(`pro-trial: failed (${error instanceof AdminError ? error.status : 'unexpected'})`);
+    console.error(`subscription startTrial: failed (${error instanceof AdminError ? error.status : 'unexpected'})`);
     return errorResponse(502, 'The free week could not be started');
   }
-}
-
-export function POST(request: Request): Promise<Response> {
-  return handleProTrialRequest(request, process.env);
 }

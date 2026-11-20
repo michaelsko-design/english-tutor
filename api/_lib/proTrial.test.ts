@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import { handleProTrialRequest } from './pro-trial';
-import { createFakeFirestore } from './_lib/testing/fakeFirestoreAdmin';
-import { linksFetch, parentRequest, SERVICE_ACCOUNT_JSON } from './_lib/testing/parentRequestFixtures';
+import { handleSubscriptionRequest as handleProTrialRequest } from '../subscription';
+import { createFakeFirestore } from './testing/fakeFirestoreAdmin';
+import { linksFetch, parentRequest, SERVICE_ACCOUNT_JSON } from './testing/parentRequestFixtures';
 
 const NOW = Date.UTC(2026, 10, 20);
 const DAY = 24 * 60 * 60 * 1000;
@@ -19,9 +19,10 @@ function setup({ linked = ['parent1_kid1'], hasProvider = true } = {}) {
   return { fake, deps };
 }
 
-const call = (body: Record<string, unknown> = { childUid: 'kid1' }, uid = 'parent1') => parentRequest('/api/pro-trial', body, uid);
+const call = (body: Record<string, unknown> = { childUid: 'kid1' }, uid = 'parent1') =>
+  parentRequest('/api/subscription', { action: 'startTrial', ...body }, uid);
 
-describe('handleProTrialRequest', () => {
+describe('starting a free Pro week (api/subscription, action startTrial)', () => {
   it('starts a 7-day Pro week for a linked child, with no grace and a record of the week', async () => {
     const { fake, deps } = setup();
 
