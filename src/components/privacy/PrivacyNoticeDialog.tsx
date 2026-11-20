@@ -2,7 +2,7 @@ import React from 'react';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { APP_NAME } from '../../config/appInfo';
-import { privacyNoticeSections } from '../../config/privacyNotice';
+import { privacyNoticeSections, splitNoticeLine } from '../../config/privacyNotice';
 import { IS_PRO_PLAN_VISIBLE } from '../../config/proTier';
 
 interface PrivacyNoticeDialogProps {
@@ -27,7 +27,17 @@ export const PrivacyNoticeDialog: React.FC<PrivacyNoticeDialogProps> = ({ theme,
           <h3 className="font-extrabold">{section.titleHe}</h3>
           <ul className="list-disc ps-5 space-y-1">
             {section.bodyHe.map((line) => (
-              <li key={line}>{line}</li>
+              <li key={line}>
+                {splitNoticeLine(line).map((part, index) =>
+                  part.kind === 'text' ? (
+                    <React.Fragment key={index}>{part.text}</React.Fragment>
+                  ) : (
+                    <a key={index} href={part.href} dir="ltr" target="_blank" rel="noopener noreferrer" className="underline font-bold">
+                      {part.href}
+                    </a>
+                  ),
+                )}
+              </li>
             ))}
           </ul>
         </section>
