@@ -33,13 +33,14 @@ test.describe('Pro', () => {
     const childUid = (await findUid(learner.username)) ?? '';
     expect(childUid).not.toBe('');
 
-    // A Pro mission on the map leads to "ask a parent", which makes a pairing code
+    // A Pro mission on the map leads to the neutral parents' info, whose shared link makes a pairing code
     const proStops = page.getByRole('button', { name: PRO_STOP });
     await expect(proStops.first()).toBeAttached({ timeout: CLOUD_TIMEOUT_MS });
     await proStops.first().click();
-    await page.getByRole('button', { name: /לבקש מהורה/ }).click();
-    const upsell = page.getByRole('dialog', { name: /להרפתקה הבאה/ });
-    await upsell.getByRole('button', { name: /לבקש מהורה/ }).click();
+    await page.getByRole('button', { name: 'לאזור ההורים' }).click();
+    const parentInfo = page.getByRole('dialog', { name: /מידע להורים/ });
+    await expect(parentInfo).not.toContainText(/לבקש|לשדרג/);
+    await parentInfo.getByRole('button', { name: 'שיתוף קישור לאזור ההורים' }).click();
     await expect.poll(() => findInviteCode(childUid), { timeout: CLOUD_TIMEOUT_MS }).not.toBe('');
     const code = await findInviteCode(childUid);
 
@@ -51,6 +52,8 @@ test.describe('Pro', () => {
       await parent.page.getByRole('checkbox', { name: /ההורה או האפוטרופוס/ }).check();
       await parent.page.getByRole('button', { name: 'אישור החיבור' }).click();
       await expect(parent.page.getByTestId('child-pro-status')).toContainText('חשבון חינמי', { timeout: CLOUD_TIMEOUT_MS });
+      // A child who never had Pro is offered the parent-started free week
+      await expect(parent.page.getByRole('button', { name: 'שבוע Pro חינם לנועה' })).toBeVisible();
 
       // One plan-and-pay screen: monthly for the one child, the payer's details, then the stand-in gateway's page
       const checkout = parent.page.getByRole('form', { name: /מנוי/ });
