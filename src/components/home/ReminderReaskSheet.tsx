@@ -9,7 +9,6 @@ import { trackReminderDeclined, trackReminderResult } from '../../services/push/
 import { getReminderFacts } from '../../hooks/useReminderSync';
 import { useDialog } from '../../hooks/useDialog';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
-import { applyReminderReward, REMINDER_REWARD_DIAMONDS } from '../../data/reminderReward';
 import { markReminderReaskSeen } from '../../data/reminderReask';
 import { toLocalDateStr } from '../../utils/dates';
 import { Companion } from '../companion/Companion';
@@ -90,7 +89,7 @@ export const ReminderReaskSheet: React.FC<ReminderReaskSheetProps> = ({ profile,
       setErrorHe(result.errorHe);
       return;
     }
-    finish(applyReminderReward(profile));
+    finish(profile);
   };
 
   const handleNotNow = () => {
@@ -132,7 +131,6 @@ export const ReminderReaskSheet: React.FC<ReminderReaskSheetProps> = ({ profile,
           <>
             <p className={`text-sm font-bold ${theme.mutedTextClass}`}>
               להורים: הודעה קטנה פעם ביום, רק אם עוד לא תרגלנו, כדי לשמור על הרצף. לא חובה, ואפשר לכבות בהגדרות.
-              {!profile.hasEarnedReminderReward && ` מתנה: ${REMINDER_REWARD_DIAMONDS} יהלומים 💎`}
             </p>
             {errorHe && (
               <p role="alert" className="text-xs font-bold text-red-600 dark:text-red-400">

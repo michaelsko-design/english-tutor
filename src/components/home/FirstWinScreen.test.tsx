@@ -72,12 +72,14 @@ describe('FirstWinScreen', () => {
     expect(await screen.findByRole('button', { name: 'כן, להפעיל תזכורת' })).toBeInTheDocument();
   });
 
-  it('turns the reminder on, pays the one-time gift and goes on', async () => {
+  it('offers the reminder as help for the streak, with no gift for turning it on, and goes on', async () => {
     const user = renderScreen();
+    expect(await screen.findByText(/עוזרת לשמור על הרצף/)).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'תזכורת יומית' })).not.toHaveTextContent(/יהלומים|💎/);
     await user.click(await screen.findByRole('button', { name: 'כן, להפעיל תזכורת' }));
 
     expect(push.enableReminder).toHaveBeenCalledWith('child-1', expect.objectContaining({ isShabbatObserver: expect.any(Boolean) }));
-    expect(onUpdateProfile).toHaveBeenCalledWith(expect.objectContaining({ hasEarnedReminderReward: true }));
+    expect(onUpdateProfile).not.toHaveBeenCalled();
     expect(analytics.trackEvent).toHaveBeenCalledWith('reminder_opt_in');
     expect(analytics.trackEvent).toHaveBeenCalledWith('reminder_opt_in_firstwin');
     expect(await screen.findByRole('heading', { name: /שלחו להורים/ })).toBeInTheDocument();

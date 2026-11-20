@@ -25,7 +25,6 @@ import { FeedbackCard } from './FeedbackCard';
 import { useTrackFeature } from '../../hooks/useTrackFeature';
 import { ParentLinkCard } from './ParentLinkCard';
 import { StreakReminderCard } from './StreakReminderCard';
-import { applyReminderReward } from '../../data/reminderReward';
 import { VoiceLabCard } from './VoiceLabCard';
 import { GradeSelect } from './GradeSelect';
 import { FriendsHubFields, GenderAgeFields, NameField, ShabbatToggle, ThemePicker } from './ProfileFields';
@@ -271,11 +270,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           />
           <div className="space-y-1.5">
             <span className="block text-xs sm:text-sm font-bold">תזכורת יומית:</span>
-            <StreakReminderCard
-              profile={profile}
-              theme={activeTheme}
-              onEnabled={() => onProfileChange(applyReminderReward(profileRef.current))}
-            />
+            <StreakReminderCard profile={profile} theme={activeTheme} />
           </div>
         </div>
 

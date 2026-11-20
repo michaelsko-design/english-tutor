@@ -1,5 +1,6 @@
 import { DailyActivityCounters, LearnerProfile } from '../types/learner';
 import { advanceStreak } from './streak';
+import { applyStreakReward } from './streakReward';
 
 /** Shared progress bookkeeping for activities that count toward daily quests and streaks. */
 
@@ -35,7 +36,8 @@ export function getTodayCounters(
 
 /**
  * Adds an activity to today's counters (resetting them and the claimed quests on a new day) and
- * extends the streak when this is the first completed mission of the day.
+ * extends the streak when this is the first completed mission of the day (paying the one-time streak
+ * reward once the streak reaches its goal, data/streakReward.ts).
  */
 export function recordDailyActivity(
   profile: LearnerProfile,
@@ -45,7 +47,7 @@ export function recordDailyActivity(
   const { counters, claimedQuestIds } = getTodayCounters(profile, todayStr);
   const isFirstMissionToday = counters.missionsCompletedToday === 0 && activity.missions > 0;
 
-  return {
+  const updated: LearnerProfile = {
     ...profile,
     claimedDailyQuestIds: claimedQuestIds,
     dailyCounters: {
@@ -56,6 +58,7 @@ export function recordDailyActivity(
     },
     stats: isFirstMissionToday ? advanceStreak(profile, todayStr) : profile.stats,
   };
+  return isFirstMissionToday ? applyStreakReward(updated, todayStr) : updated;
 }
 
 /** Vault words that earn XP and diamonds per day; each word earns once a day. */

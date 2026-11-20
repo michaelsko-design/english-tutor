@@ -8,14 +8,12 @@ import { isReminderCardDue } from '../../data/reminderReask';
 import { toLocalDateStr } from '../../utils/dates';
 import { trackReminderResult } from '../../services/push/reminderOptIn';
 import { getReminderFacts } from '../../hooks/useReminderSync';
-import { applyReminderReward, REMINDER_REWARD_DIAMONDS } from '../../data/reminderReward';
 import { Button } from '../ui/Button';
 import { dismissReminderNudge, isReminderNudgeDismissed } from './reminderNudge';
 
 interface ReminderNudgeCardProps {
   profile: LearnerProfile;
   theme: ThemeDefinition;
-  onUpdateProfile: (updated: LearnerProfile) => void;
 }
 
 /**
@@ -26,7 +24,7 @@ interface ReminderNudgeCardProps {
  * (data/reminderReask.ts). On iPhone/iPad outside the Home Screen app it explains how to install
  * first. A browser that blocks notifications never sees it. The same switch is always in the settings.
  */
-export const ReminderNudgeCard: React.FC<ReminderNudgeCardProps> = ({ profile, theme, onUpdateProfile }) => {
+export const ReminderNudgeCard: React.FC<ReminderNudgeCardProps> = ({ profile, theme }) => {
   const user = auth?.currentUser ?? null;
   const uid = user && !user.isAnonymous ? user.uid : null;
   const support = getReminderSupport();
@@ -69,7 +67,6 @@ export const ReminderNudgeCard: React.FC<ReminderNudgeCardProps> = ({ profile, t
     trackReminderResult('card', result);
     if (result.ok) {
       setIsVisible(false);
-      if (!profile.hasEarnedReminderReward) onUpdateProfile(applyReminderReward(profile));
     } else {
       setErrorHe(result.errorHe);
     }
@@ -91,8 +88,7 @@ export const ReminderNudgeCard: React.FC<ReminderNudgeCardProps> = ({ profile, t
           </p>
         ) : (
           <p className={`text-xs font-bold ${theme.mutedTextClass}`}>
-            הודעה פעם ביום אם עוד לא תרגלתם. לא חובה, ואפשר לכבות בהגדרות.
-            {!profile.hasEarnedReminderReward && ` מתנה: ${REMINDER_REWARD_DIAMONDS} יהלומים 💎`}
+            הודעה פעם ביום אם עוד לא תרגלתם, שעוזרת לשמור על הרצף. לא חובה, ואפשר לכבות בהגדרות.
           </p>
         )}
         {errorHe && (

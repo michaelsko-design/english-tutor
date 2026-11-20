@@ -30,6 +30,8 @@ const baseProfile: LearnerProfile = {
   gradeId: 'grade-4',
   preferredTier: 'challenger',
   themeId: 'cozy-studio',
+  // Already paid, so these tests count only their own rewards (data/streakReward.ts)
+  hasEarnedStreakReward: true,
   stats: {
     xp: 0,
     level: 1,

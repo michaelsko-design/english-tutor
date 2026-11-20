@@ -7,9 +7,12 @@ import { Flame, CheckCircle2, Gift, ShieldCheck } from 'lucide-react';
 import { addDays, toLocalDateStr } from '../utils/dates';
 import { Button } from './ui/Button';
 import { getElementCenter, launchDiamondFlight } from '../services/diamondFlight';
+import { STREAK_REWARD_DAYS, STREAK_REWARD_DIAMONDS } from '../data/streakReward';
 
 interface DailyQuestsCardProps {
   streakDays: number;
+  /** The one-time streak reward was paid (data/streakReward.ts); until then its goal is shown */
+  hasEarnedStreakReward?: boolean;
   /** Local dates with a finished session (from the activity log) */
   activeDates: string[];
   dailyCounters: DailyActivityCounters;
@@ -23,6 +26,7 @@ interface DailyQuestsCardProps {
 
 export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
   streakDays,
+  hasEarnedStreakReward = false,
   activeDates,
   dailyCounters,
   claimedQuestIds,
@@ -177,6 +181,11 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
           })}
         </div>
 
+        {!hasEarnedStreakReward && (
+          <p className="text-xs font-bold">
+            🎁 {STREAK_REWARD_DAYS} ימים ברצף: מתנה של {STREAK_REWARD_DIAMONDS} יהלומים 💎 (עכשיו: {Math.min(streakDays, STREAK_REWARD_DAYS)}/{STREAK_REWARD_DAYS})
+          </p>
+        )}
         <p className={`text-xs ${theme.mutedTextClass}`}>
           {isShabbatObserver
             ? 'בימי שישי ושבת הרצף שלך מוגן אוטומטית 🛡️'
