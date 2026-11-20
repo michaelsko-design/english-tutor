@@ -11,6 +11,8 @@ interface LocalStores {
   session: Storage | null;
   caches: Pick<CacheStorage, 'delete'> | null;
   indexedDb?: Pick<IDBFactory, 'databases' | 'deleteDatabase'> | null;
+  /** Starts the app afresh: Firestore stops working in a page whose offline copy is being deleted */
+  reload?: () => void;
 }
 
 function browserStores(): LocalStores {
@@ -26,6 +28,7 @@ function browserStores(): LocalStores {
     session: read(() => window.sessionStorage),
     caches: read(() => (typeof caches === 'undefined' ? null : caches)),
     indexedDb: read(() => (typeof indexedDB === 'undefined' ? null : indexedDB)),
+    reload: () => window.location.reload(),
   };
 }
 
@@ -44,18 +47,21 @@ function removeAppKeys(storage: Storage | null): void {
 /**
  * Removes what the app kept on this device (profile copy, device id, parent codes, sticker pictures,
  * read-aloud audio that may say the learner's name) after an account is deleted, as the privacy
- * notice promises. Best effort: blocked storage never fails the deletion.
+ * notice promises, then reloads the page so the app starts signed out with a fresh connection (a new
+ * sign-up in the same page would hang on the deleted offline copy). Best effort: blocked storage never
+ * fails the deletion.
  */
 export async function clearLocalAppData(stores: LocalStores = browserStores()): Promise<void> {
   removeAppKeys(stores.local);
   removeAppKeys(stores.session);
   await stores.caches?.delete(LIVE_CACHE_NAME).catch(() => false);
   await requestFirestoreCacheDeletion(stores.indexedDb ?? null);
+  stores.reload?.();
 }
 
 /**
  * Asks the browser to delete Firestore's offline copy (profile, parent data). Not awaited to the end:
- * the deletion waits until the open connection closes (the page is left or reloaded).
+ * the deletion waits until the open connection closes, which the reload that follows does.
  */
 async function requestFirestoreCacheDeletion(indexedDb: LocalStores['indexedDb']): Promise<void> {
   if (!indexedDb?.databases) return;

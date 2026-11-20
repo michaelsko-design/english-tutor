@@ -29,8 +29,9 @@ describe('clearLocalAppData', () => {
       databases: vi.fn(async () => [{ name: 'firestore/[DEFAULT]/demo/main' }, { name: 'firebaseLocalStorageDb' }]),
       deleteDatabase: vi.fn(),
     };
+    const reload = vi.fn();
 
-    await clearLocalAppData({ local, session, caches, indexedDb: indexedDb as never });
+    await clearLocalAppData({ local, session, caches, indexedDb: indexedDb as never, reload });
 
     expect(local.length).toBe(1);
     expect(local.getItem('firebase:authUser')).toBe('x');
@@ -38,6 +39,9 @@ describe('clearLocalAppData', () => {
     expect(session.getItem('other')).toBe('y');
     expect(caches.delete).toHaveBeenCalledWith('englishvibe-tts-live-v1');
     expect(indexedDb.deleteDatabase).toHaveBeenCalledExactlyOnceWith('firestore/[DEFAULT]/demo/main');
+    // Then the page starts afresh, after the deletion was asked for
+    expect(reload).toHaveBeenCalledTimes(1);
+    expect(reload.mock.invocationCallOrder[0]).toBeGreaterThan(indexedDb.deleteDatabase.mock.invocationCallOrder[0]);
   });
 
   it('never throws when storage or the cache is blocked', async () => {
@@ -48,6 +52,9 @@ describe('clearLocalAppData', () => {
     } as unknown as Storage;
     const caches = { delete: vi.fn(async () => Promise.reject(new Error('blocked'))) };
 
-    await expect(clearLocalAppData({ local: blocked, session: null, caches })).resolves.toBeUndefined();
+    const reload = vi.fn();
+
+    await expect(clearLocalAppData({ local: blocked, session: null, caches, reload })).resolves.toBeUndefined();
+    expect(reload).toHaveBeenCalledTimes(1);
   });
 });
