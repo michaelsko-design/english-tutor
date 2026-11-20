@@ -112,12 +112,12 @@ describe('ProCheckoutPanel plan and price', () => {
     expect(priceBox()).toHaveTextContent('מתחדש כל חודש עד שמבטלים');
   });
 
-  it('allows up to 4 children and offers WhatsApp to a parent with more', async () => {
+  it('allows up to 4 children and offers our email to a parent with more', async () => {
     const { user } = renderPanel({ initialChildUids: ['kid1', 'kid2', 'kid3', 'kid4', 'kid5'], children: FIVE_CHILDREN });
     expect(screen.getByRole('checkbox', { name: /שירה/ })).not.toBeChecked();
     expect(screen.getByRole('checkbox', { name: /שירה/ })).toBeDisabled();
-    const whatsApp = screen.getByRole('link', { name: /יותר מ-4 ילדים/ });
-    expect(decodeURIComponent(whatsApp.getAttribute('href') ?? '')).toContain('אשמח לקבל פרטים על חבילה מורחבת!');
+    const moreKids = screen.getByRole('link', { name: /יותר מ-4 ילדים/ });
+    expect(moreKids.getAttribute('href')).toMatch(/^mailto:support@englishvibe\.co\.il\?subject=/);
 
     await user.click(screen.getByRole('checkbox', { name: /נועה/ }));
     expect(screen.getByRole('checkbox', { name: /שירה/ })).toBeEnabled();
@@ -141,16 +141,38 @@ describe('ProCheckoutPanel payer and payment', () => {
     funnel.trackFunnel.mockReset();
   });
 
-  it('marks the name and phone as required, and not the email', () => {
+  it('marks the name, phone and email as required (the receipt and the summary go to the email)', () => {
     renderPanel();
-    for (const label of [PAYER_NAME_LABEL, PHONE_LABEL]) {
+    for (const label of [PAYER_NAME_LABEL, PHONE_LABEL, /אימייל לקבלה/]) {
       const input = screen.getByLabelText(label);
       expect(input).toHaveAttribute('aria-required', 'true');
       expect(input.closest('label')).toHaveTextContent('*');
     }
+  });
+
+  it('shows the cancellation rights and the policy link before the buy button, and names Grow', async () => {
+    const { user } = renderPanel();
+    const summary = screen.getByTestId('cancel-summary');
+    expect(summary).toHaveTextContent('ביטול בתוך 14 יום');
+    expect(screen.getByRole('link', { name: 'מדיניות שירות וביטולים' })).toHaveAttribute('href', '/refunds/');
+    expect(screen.getByRole('link', { name: 'ביטול עסקה' })).toHaveAttribute('href', '/refunds/#cancel');
+    expect(screen.getByText(/גרואו פיימנטס בע״מ \(Grow\)/)).toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: /שנתי/ }));
+    const yearly = screen.getByTestId('cancel-summary');
+    expect(yearly).toHaveTextContent(/פחות .*39.*המחיר החודשי הרגיל היום/);
+    expect(yearly).toHaveTextContent('העלאת מחיר אחר כך לא תקטין את ההחזר');
+  });
+
+  it('refuses to open the payment page without an email', async () => {
+    const { user } = renderPanel();
     const email = screen.getByLabelText(/אימייל לקבלה/);
-    expect(email).not.toHaveAttribute('aria-required');
-    expect(email.closest('label')).not.toHaveTextContent('*');
+    await user.clear(email);
+    await user.type(screen.getByLabelText(PAYER_NAME_LABEL), 'דנה כהן');
+    await user.type(screen.getByLabelText(PHONE_LABEL), '0501234567');
+    await user.click(screen.getByRole('checkbox', { name: /קראתי ואני מסכים/ }));
+    await user.click(payButton());
+    expect(screen.getByRole('alert')).toHaveTextContent('כדאי לכתוב אימייל');
+    expect(billing.startProCheckout).not.toHaveBeenCalled();
   });
 
   it('fills in the payer name from the Google account when it is a full name', () => {

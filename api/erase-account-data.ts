@@ -1,9 +1,9 @@
 /**
  * /api/erase-account-data: the server-only part of "delete my account". The app deletes the
- * learner's own documents itself; the usage counters, access record and comp entitlement can only
- * be removed with the service account. Feedback notes are KEPT (valuable to the owner) but cut loose
- * from the account: the uid is blanked and the tester's invite alias stays. The app calls this just before the
- * sign-in itself is deleted. A paid subscription's entitlement is kept (billing records).
+ * learner's (or parent's) own documents itself; the usage counters, feedback notes, reminder log,
+ * friend-request counter, redeemed invite, access record and comp entitlement can only be removed
+ * with the service account (api/_lib/eraseAccount.ts). The app calls this just before the sign-in
+ * itself is deleted. A paid subscription's entitlement is kept (billing records).
  *   POST → 200 { ok: true } | 401 | 503
  */
 import { eraseServerRecords } from './_lib/eraseAccount.js';

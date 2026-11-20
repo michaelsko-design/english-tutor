@@ -73,6 +73,16 @@ test.describe('parent', () => {
       // The parent can end the link, and then can't read the report any more
       await parent.page.getByRole('button', { name: 'ניתוק' }).click();
       await expect(parent.page.getByText(/עוד לא חובר אף לומד/)).toBeVisible();
+
+      // The parent can delete the parent account; it explains what goes and what stays, and can be closed
+      // (the deletion itself asks Google again in a popup, which the tests can't open)
+      await parent.page.getByRole('button', { name: 'מחיקת חשבון ההורה' }).click();
+      const deleteCard = parent.page.getByRole('region', { name: 'מחיקת חשבון ההורה' });
+      await expect(deleteCard).toContainText('החשבונות של הילדים וההתקדמות שלהם נשארים');
+      await expect(deleteCard.getByRole('button', { name: 'מחיקה לצמיתות' })).toBeEnabled();
+      await deleteCard.getByRole('button', { name: 'ביטול' }).click();
+      await expect(deleteCard).toBeHidden();
+      expect(await readDocument(`parents/${parentAccount.uid}`)).not.toBeNull();
     } finally {
       await parent.context.close();
     }

@@ -34,7 +34,7 @@ import type { SpeakOptions, TextToSpeechService, TtsEngine } from './types';
 export const LIVE_CACHE_NAME = 'englishvibe-tts-live-v1';
 const LIVE_TIMEOUT_MS = 3_000;
 const MANIFEST_TIMEOUT_MS = 5_000;
-/** The live cache keeps the newest answers; older ones are fetched again (from the CDN) if needed. */
+/** The live cache keeps the newest answers; older ones are fetched again if needed. */
 const LIVE_CACHE_MAX_ENTRIES = 300;
 const LIVE_PAUSE_MS = 10 * 60_000;
 const DEFAULT_RATE = 0.95;

@@ -3,16 +3,20 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TEST_THEME } from '../../test/fixtures';
 import { ProPaymentReturn } from './ProPaymentReturn';
+import type { PaidPlan } from './TransactionSummary';
 
 const SLOW_CONFIRMATION_MS = 60_000;
 
-function renderReturn(props: { isCancelled?: boolean; activatedNames?: readonly string[] | null; onDismiss?: () => void } = {}) {
+function renderReturn(
+  props: { isCancelled?: boolean; activatedNames?: readonly string[] | null; paidPlan?: PaidPlan | null; onDismiss?: () => void } = {}
+) {
   const onDismiss = props.onDismiss ?? vi.fn();
   render(
     <ProPaymentReturn
       theme={TEST_THEME}
       isCancelled={props.isCancelled ?? false}
       activatedNames={props.activatedNames ?? null}
+      paidPlan={props.paidPlan ?? null}
       onDismiss={onDismiss}
     />
   );
@@ -81,5 +85,32 @@ describe('ProPaymentReturn', () => {
     });
 
     expect(screen.getByRole('status')).not.toHaveTextContent('עדיין בבדיקה');
+  });
+
+  it('shows the transaction summary with the price, renewal and cancellation rights, to save or print', async () => {
+    const user = userEvent.setup();
+    const print = vi.spyOn(window, 'print').mockImplementation(() => {});
+    renderReturn({ activatedNames: ['נועה'], paidPlan: { period: 'monthly', seats: 1, periodEnd: Date.UTC(2026, 11, 19) } });
+
+    const summary = screen.getByTestId('transaction-summary');
+    expect(summary).toHaveTextContent('סיכום עסקה ופרטי ביטול');
+    expect(summary).toHaveTextContent('39');
+    expect(summary).toHaveTextContent('מתחדש כל חודש');
+    expect(summary).toHaveTextContent('ביטול בתוך 14 יום מהיום: החזר מלא');
+    expect(summary).toHaveTextContent('310720370');
+    expect(screen.getByRole('link', { name: 'ביטול עסקה' })).toHaveAttribute('href', '/refunds/#cancel');
+    await user.click(screen.getByRole('button', { name: 'שמירה או הדפסה' }));
+    expect(print).toHaveBeenCalled();
+    print.mockRestore();
+  });
+
+  it('names the monthly price of the day of purchase in a yearly summary', () => {
+    renderReturn({ activatedNames: ['נועה', 'איתי'], paidPlan: { period: 'yearly', seats: 2, periodEnd: Date.UTC(2027, 10, 20) } });
+    expect(screen.getByTestId('transaction-summary')).toHaveTextContent(/פחות .*64.*\(המחיר החודשי הרגיל ביום הרכישה/);
+  });
+
+  it('shows no summary until the plan is known', () => {
+    renderReturn({ activatedNames: ['נועה'] });
+    expect(screen.queryByTestId('transaction-summary')).not.toBeInTheDocument();
   });
 });

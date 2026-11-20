@@ -127,14 +127,14 @@ describe('owner-testers', () => {
   });
 
   describe('removing a tester completely', () => {
-    it('deletes every record and the sign-in, keeps the friend\'s data and an uid-less note', async () => {
+    it('deletes every record, the notes included, and the sign-in, and keeps the friend\'s data', async () => {
       const { fake, deps, auth } = setup();
       seedFullTester(fake);
       const response = await handleOwnerTestersRequest(call('DELETE', { uid: KID, erase: true, confirm: 'noa' }), ENV, deps);
       expect(response.status).toBe(200);
       for (const [collection, id] of REMOVED) expect(fake.get(collection, id), `${collection}/${id}`).toBeUndefined();
       expect(fake.get('friendships', 'f2')).toBeDefined();
-      expect(fake.get('feedback', 'n1')).toEqual({ uid: '', text: 'fun', testerLabel: 'noa' });
+      expect(fake.get('feedback', 'n1')).toBeUndefined();
       expect(auth.deleteUser).toHaveBeenCalledWith(KID);
     });
 

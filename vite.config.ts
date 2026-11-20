@@ -126,7 +126,7 @@ function swPrecachePlugin(): Plugin {
 }
 
 /** The public landing site's pages (static HTML next to the app; docs/architecture.md §4.32) */
-const SITE_PAGES = ['home', 'terms', 'privacy', 'refunds'] as const;
+const SITE_PAGES = ['home', 'terms', 'privacy', 'refunds', 'accessibility'] as const;
 
 /**
  * Fills the landing site's `<!--site:name-->` markers (prices, contact, legal texts) from

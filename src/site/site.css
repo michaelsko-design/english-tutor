@@ -422,6 +422,11 @@ p {
   gap: 8px 20px;
 }
 
+/* Consumer Protection Law §14ט: the cancellation link stands out */
+.site-cancel-link {
+  font-weight: 700;
+}
+
 /* ───────── Legal pages ───────── */
 .site-doc {
   max-width: 760px;

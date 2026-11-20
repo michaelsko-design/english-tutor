@@ -3,11 +3,14 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { TEST_THEME } from '../../test/fixtures';
 import type { ChildProStatus, OpenPlan } from '../../data/proPlanStatus';
+import type { CancelQuote } from '../../services/proBillingService';
 import { ChildProSection } from './ChildProSection';
 
 const PERIOD_END = Date.UTC(2026, 10, 28, 12);
 
 type PlanStatus = Extract<ChildProStatus, { kind: 'plan' }>;
+
+const MONTHLY_END: CancelQuote = { mode: 'monthly_end', refundAgorot: 0, accessUntil: PERIOD_END };
 
 const monthly = (overrides: Partial<PlanStatus> = {}): ChildProStatus => ({
   kind: 'plan',
@@ -24,8 +27,16 @@ const monthly = (overrides: Partial<PlanStatus> = {}): ChildProStatus => ({
   ...overrides,
 });
 
-function renderSection(status: ChildProStatus | undefined, openPlan: OpenPlan | null = null) {
-  const handlers = { onUpgrade: vi.fn(), onRenew: vi.fn(), onCancelRenewal: vi.fn(), onAddToPlan: vi.fn(), onRemoveFromPlan: vi.fn() };
+function renderSection(status: ChildProStatus | undefined, openPlan: OpenPlan | null = null, quote: CancelQuote | null = MONTHLY_END) {
+  const handlers = {
+    onUpgrade: vi.fn(),
+    onRenew: vi.fn(),
+    onCancelRenewal: vi.fn(),
+    onLoadCancelQuote: vi.fn(async (): Promise<CancelQuote | null> => quote),
+    onCancelWithRefund: vi.fn(),
+    onAddToPlan: vi.fn(),
+    onRemoveFromPlan: vi.fn(),
+  };
   render(<ChildProSection childName="נועה" status={status} openPlan={openPlan} theme={TEST_THEME} isBusy={false} {...handlers} />);
   return { ...handlers, user: userEvent.setup() };
 }
@@ -37,19 +48,64 @@ describe('ChildProSection', () => {
     expect(onUpgrade).toHaveBeenCalled();
   });
 
-  it('adds a free child to the open monthly plan, showing its new price', async () => {
+  it('adds a free child to the open monthly plan only after the parent confirms the new monthly charge', async () => {
     const { user, onAddToPlan } = renderSection({ kind: 'free' }, { subscriptionId: 'sub1', period: 'monthly', nextMonthlyAgorot: 6400 });
     await user.click(screen.getByRole('button', { name: /הוספה למנוי שלי \(.*64/ }));
+    expect(onAddToPlan).not.toHaveBeenCalled();
+    expect(screen.getByText(/החיוב החודשי בהוראת הקבע יהיה .*64/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /כן, להוסיף/ }));
     expect(onAddToPlan).toHaveBeenCalled();
   });
 
-  it('cancels a monthly renewal only after confirming', async () => {
-    const { user, onCancelRenewal } = renderSection(monthly());
+  it('fills a paid yearly seat without a price step', async () => {
+    const { user, onAddToPlan } = renderSection({ kind: 'free' }, { subscriptionId: 'sub1', period: 'yearly', nextMonthlyAgorot: null });
+    await user.click(screen.getByRole('button', { name: 'הוספה למנוי השנתי שלי' }));
+    expect(onAddToPlan).toHaveBeenCalled();
+  });
+
+  it('cancels a monthly renewal only after the quote and a confirmation', async () => {
+    const { user, onCancelRenewal, onLoadCancelQuote } = renderSection(monthly());
     expect(screen.getByTestId('child-pro-status')).toHaveTextContent('מנוי חודשי, מתחדש ב-28 בנובמבר 2026');
-    await user.click(screen.getByRole('button', { name: 'ביטול החידוש' }));
+    await user.click(screen.getByRole('button', { name: 'ביטול החידוש או המנוי' }));
+    expect(onLoadCancelQuote).toHaveBeenCalled();
     expect(onCancelRenewal).not.toHaveBeenCalled();
+    expect(await screen.findByText(/לא יהיו חיובים נוספים/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'כן, לבטל את החידוש' }));
     expect(onCancelRenewal).toHaveBeenCalled();
+  });
+
+  it('offers the full refund within 14 days, or stopping the renewal only', async () => {
+    const quote: CancelQuote = { mode: 'full_refund', refundAgorot: 3900, accessUntil: Date.now() };
+    const { user, onCancelWithRefund } = renderSection(monthly(), null, quote);
+    await user.click(screen.getByRole('button', { name: 'ביטול החידוש או המנוי' }));
+    expect(await screen.findByText(/יוחזר לכם כל הסכום, .*39/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'רק לבטל את החידוש, בלי החזר' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'ביטול והחזר מלא' }));
+    expect(onCancelWithRefund).toHaveBeenCalled();
+  });
+
+  it('lets the payer cancel a yearly plan, showing the refund by the formula', async () => {
+    const quote: CancelQuote = { mode: 'yearly_prorata', refundAgorot: 19300, accessUntil: PERIOD_END };
+    const { user, onCancelWithRefund } = renderSection(monthly({ period: 'yearly', isRenewing: false }), null, quote);
+    await user.click(screen.getByRole('button', { name: 'ביטול המנוי' }));
+    expect(await screen.findByText(/יוחזרו לכם .*193/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /לבטל את החידוש/ })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /ביטול והחזר של .*193/ }));
+    expect(onCancelWithRefund).toHaveBeenCalled();
+  });
+
+  it('explains that a yearly plan from its 9th month has no refund, with no cancel button', async () => {
+    const quote: CancelQuote = { mode: 'yearly_prorata', refundAgorot: 0, accessUntil: PERIOD_END };
+    const { user } = renderSection(monthly({ period: 'yearly', isRenewing: false }), null, quote);
+    await user.click(screen.getByRole('button', { name: 'ביטול המנוי' }));
+    expect(await screen.findByText(/מהחודש התשיעי/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /ביטול והחזר/ })).not.toBeInTheDocument();
+  });
+
+  it('closes the cancel panel when the quote cannot be loaded', async () => {
+    const { user } = renderSection(monthly(), null, null);
+    await user.click(screen.getByRole('button', { name: 'ביטול החידוש או המנוי' }));
+    expect(screen.queryByTestId('cancel-plan-panel')).not.toBeInTheDocument();
   });
 
   it('removes a child from a shared plan only after confirming', async () => {

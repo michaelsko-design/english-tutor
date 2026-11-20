@@ -88,11 +88,12 @@ EnglishVibe בנויה בעברית לכיתות א׳–י״ב:
 כל הערה, תקלה או רעיון אפשר לכתוב לי כאן, וגם מתוך האפליקציה בהגדרות. תודה! 🙏
 ```
 
-### Full version with consent wording (for people outside close friends; needs the lawyer review first)
+### Full version with consent wording (for people outside close friends)
 ```
 היי [שם ההורה] 👋
 
 תודה שהסכמת לעזור! EnglishVibe היא אפליקציה ללימוד אנגלית לילדים בכיתות א׳–י״ב, בעברית, עם משימות ומשחקים. היא עדיין בשלב בדיקה סגור, ורק ילדים שהוזמנו יכולים להשתמש בה. המטרה היא לראות איך ילדים אמיתיים משתמשים בה ולתקן מה שלא עובד.
+השירות מופעל על ידי מיכאל שקולניק, בעל העסק SHK טכנולוגיות (עוסק פטור 310720370).
 
 🔗 הקישור האישי של [שם הילד/ה]:
 [קישור]
@@ -105,24 +106,28 @@ EnglishVibe בנויה בעברית לכיתות א׳–י״ב:
 4. כדאי להוסיף את האפליקציה למסך הבית: בתפריט הדפדפן בוחרים "הוספה למסך הבית".
 
 🔒 מה נאסף, בקצרה:
-• התקדמות הלימוד של הילד/ה (משימות, כוכבים, זמן שימוש).
+• פרטי הלומד/ת: שם פרטי, מגדר וכיתה, והתקדמות הלימוד (משימות, כוכבים, זמן שימוש, רשימות מילים, חלומות וציורים).
 • מוני שימוש ודיווחי תקלות. הם מקושרים לחשבון, ללא שם מלא וללא תוכן שהילד/ה כותב.
-• הערות שהילד/ה בוחר/ת לשלוח בכפתור "הערה" בהגדרות.
-אנחנו לא שולחים מידע לגורמים אחרים ולא מפרסמים אותו.
+• הערות שהילד/ה בוחר/ת לשלוח בכפתור "הערה" בהגדרות, ותזכורות דחיפה אם הופעלו.
+המידע נשמר ומעובד אצל ספקי התשתית שלנו, רק כדי להפעיל את האפליקציה (Google Firebase, Microsoft Azure להקראה, ו-Vercel), גם בשרתים באירופה ובארה״ב. הוא לא נמכר ולא מועבר למפרסמים או לגורמים אחרים.
+מסירת המידע והשתתפות בבדיקה הן מרצון, ואין חובה חוקית לכך.
 
 ⚙️ אתם בשליטה:
 • אפשר לכבות את איסוף הסטטיסטיקות בהגדרות ← חשבון ← "סטטיסטיקות שימוש".
-• אפשר למחוק את החשבון בכל רגע בהגדרות. ההתקדמות והנתונים נמחקים. הערות שנשלחו נשמרות אצלנו בלי קישור לחשבון, ושם הכינוי שלכם בהזמנה נשאר איתן.
-• אם אתם ממשיכים, אתם מאשרים שאתם ההורים או האפוטרופוסים של הילד/ה, ושקראתם את הפרטים האלה.
+• אפשר למחוק את החשבון בכל רגע בהגדרות. במחיקה כל הנתונים האישיים נמחקים לצמיתות, כולל ההערות שנשלחו והכינוי בהזמנה.
+• יש לכם זכות לעיין במידע, ולבקש לתקן או למחוק אותו (סעיפים 13–14 לחוק הגנת הפרטיות).
+• הפרטים המלאים: מדיניות הפרטיות https://englishvibe.co.il/privacy/ ותנאי השימוש https://englishvibe.co.il/terms/
 
-💬 לשאלות, תקלות או רעיונות, אפשר לכתוב לי כאן או ל־[מייל/טלפון].
+✅ כדי לאשר שאתם ההורים או האפוטרופוסים של הילד/ה, ושקראתם והסכמתם למדיניות הפרטיות ולתנאי השימוש, השיבו להודעה הזאת במילה "מאשרים". נשלח את הקישור אחרי האישור.
+
+💬 לשאלות, תקלות או רעיונות, אפשר לכתוב לי כאן, ל־support@englishvibe.co.il או להתקשר ל־052-9282667.
 ממש יעזור לראות את הילד/ה משתמש/ת בפעם הראשונה ולשמוע מה היה קשה או מבלבל.
 
 תודה רבה! 🙏
-[השם שלך]
+מיכאל
 ```
-Note: the app has no parent consent screen before sign-up, so the consent sentence lives in the message itself.
-If the owner decides not to keep notes after deletion, remove that sentence from the full version.
+Send the link only after the parent replies "מאשרים" (or מאשר/ת) (that reply is the recorded consent; keep the chat). In the app, the signup screen also asks for consent (under 13: the parent; 13 and up: the learner, with the parents' knowledge).
+Deleting an account deletes the learner's feedback notes and invite alias too (legal audit PRIV-10; the code change is Task 5 of `docs/legal/legal-audit-implementation-plan.md`, so send this version only once that has shipped).
 
 ## Go-live order that was used (do not swap steps 1-3)
 1. `node scripts/allowExisting.mjs` lists every account. Then `--all --cohort existing` (every account that exists
@@ -150,12 +155,11 @@ Later app-only changes (API and client, no rules change) need just the push. A c
   (`PrivacyNoticeDialog`) says this honestly ("pseudonymous", not "anonymous").
 - Opt-out: *AnalyticsOptOutCard*; with it on, no counters or errors are sent.
 - **Account deletion** (Settings, with the PIN) calls `/api/erase-account-data` before deleting the Auth user. It
-  removes the learner's `analyticsDaily`, `missionStruggle`, `allowed` and comp `entitlements` (a paid subscription is kept).
-  **Feedback notes are deliberately kept**, because they are valuable: the uid is blanked and the invite alias
-  stays (`testerLabel`), so they show in the dashboard as "<alias> (account deleted)". The used invite record
-  (`invites/{code}`, with its alias) is kept too, without an account link. This is a privacy decision to put in
-  front of the lawyer (open item) and is stated in the notice. The call is best effort: if it fails, the
-  leftover rows are pseudonymous and can be removed by hand.
+  removes the learner's `analyticsDaily`, `missionStruggle`, `feedback` notes, `reminderSends`, `friendRequestCounts`,
+  the used invite (`invites/{code}`), `allowed` and comp `entitlements` (a paid subscription is kept), as the privacy
+  notice promises (legal audit, 2026-11-20). Notes from accounts deleted before that still show as
+  "<alias> (account deleted)" until removed by hand. The call is best effort: if it fails, the leftover rows are
+  pseudonymous and can be removed by hand.
 - Delete a tester's test account the same way: new invite, sign in, Settings > delete. Deleting only from the
   Firebase console leaves their `learners`, `analyticsDaily` and `feedback` rows behind.
 

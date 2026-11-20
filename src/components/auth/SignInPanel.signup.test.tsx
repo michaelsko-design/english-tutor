@@ -43,10 +43,14 @@ describe('SignInPanel: a new learner', () => {
     await startNew(user);
     await user.type(screen.getByPlaceholderText('למשל: נועה'), 'נועה');
     await user.click(screen.getByRole('button', { name: 'כיתה י׳' }));
+    // From 13 the learner agrees, with the parents' knowledge; the box is required
+    await user.click(screen.getByRole('button', { name: 'המשך' }));
+    expect(screen.getByText(/צריך לאשר את תנאי השימוש/)).toBeInTheDocument();
+    await user.click(screen.getByRole('checkbox'));
     await user.click(screen.getByRole('button', { name: 'המשך' }));
 
     expect((screen.getByLabelText(/שם משתמש/) as HTMLInputElement).value).toMatch(/^noa\d{2}$/);
-    expect(takeSignupDraft()).toEqual({ name: 'נועה', gender: 'girl', gradeId: 'grade-10', hasParentConsent: false });
+    expect(takeSignupDraft()).toEqual({ name: 'נועה', gender: 'girl', gradeId: 'grade-10', hasParentConsent: true });
   });
 
   it('waits for a parent in grades 1-7', async () => {
@@ -57,6 +61,7 @@ describe('SignInPanel: a new learner', () => {
     await user.click(screen.getByRole('button', { name: 'המשך' }));
 
     expect(screen.getByText(/מתחת לגיל 13/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'תנאי השימוש' })).toHaveAttribute('href', '/terms/');
     expect(screen.queryByLabelText(/שם משתמש/)).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('checkbox'));
@@ -70,6 +75,7 @@ describe('SignInPanel: a new learner', () => {
     await startNew(user);
     await user.type(screen.getByPlaceholderText('למשל: נועה'), 'Dan');
     await user.click(screen.getByRole('button', { name: 'כיתה י׳' }));
+    await user.click(screen.getByRole('checkbox'));
     await user.click(screen.getByRole('button', { name: 'המשך' }));
 
     await user.click(screen.getByRole('button', { name: 'שם אחר' }));
@@ -81,6 +87,7 @@ describe('SignInPanel: a new learner', () => {
     await startNew(user);
     await user.type(screen.getByPlaceholderText('למשל: נועה'), 'נועה');
     await user.click(screen.getByRole('button', { name: 'כיתה י׳' }));
+    await user.click(screen.getByRole('checkbox'));
     await user.click(screen.getByRole('button', { name: 'המשך' }));
     await user.click(screen.getByRole('button', { name: 'חזרה' }));
     await user.click(screen.getByRole('button', { name: 'חזרה' }));

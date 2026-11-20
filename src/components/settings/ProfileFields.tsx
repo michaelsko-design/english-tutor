@@ -217,16 +217,15 @@ export const ThemePicker: React.FC<ThemePickerProps> = ({
 };
 
 interface ShabbatToggleProps extends ThemedProps {
-  gender: LearnerGender;
   isOn: boolean;
   onToggle: () => void;
 }
 
-export const ShabbatToggle: React.FC<ShabbatToggleProps> = ({ gender, isOn, theme, onToggle }) => (
+export const ShabbatToggle: React.FC<ShabbatToggleProps> = ({ isOn, theme, onToggle }) => (
   <div className="space-y-1.5">
     <span className="flex items-center gap-1.5 text-xs sm:text-sm font-bold">
       <ShieldCheck className="w-4 h-4 text-emerald-500" />
-      <span>מגן שבת וחג:</span>
+      <span>מנוחה בסוף השבוע:</span>
     </span>
     <button
       type="button"
@@ -245,7 +244,7 @@ export const ShabbatToggle: React.FC<ShabbatToggleProps> = ({ gender, isOn, them
       </div>
       <div className="space-y-0.5 flex-1">
         <div className="font-extrabold text-xs sm:text-sm flex items-center gap-2">
-          <span>{gender === 'girl' ? 'שומרת שבת' : 'שומר שבת'}</span>
+          <span>שישי ושבת בלי לחץ</span>
           {isOn && (
             <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-bold">
               פעיל

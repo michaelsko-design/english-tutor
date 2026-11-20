@@ -9,6 +9,7 @@ import { IS_PRO_PLAN_VISIBLE } from '../../config/proTier';
 import { parseParentProRoute } from '../../data/parentProRoute';
 import { trackFunnel } from '../../services/analytics/funnel';
 import { ParentHome } from './ParentHome';
+import { LegalQuickLinks } from '../LegalQuickLinks';
 
 interface ParentPortalProps {
   /** The code from the link (`/?parent=CODE`), when there is one */
@@ -142,6 +143,9 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({ initialCode }) => {
         <a href="/" className="block text-xs underline opacity-75">
           חזרה לאפליקציה
         </a>
+        <div className="flex flex-wrap justify-center gap-x-4 empty:hidden">
+          <LegalQuickLinks />
+        </div>
       </section>
     );
   }

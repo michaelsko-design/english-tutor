@@ -2,6 +2,7 @@ import { GradeId, LearnerProfile, ProficiencyTier, ThemeId, getAgeForGrade } fro
 import type { SignupDraft } from '../data/signupDraft';
 import { buildSavedProfile } from './buildSavedProfile';
 import { DEFAULT_VOICE_PREFERENCE } from './ttsVoice';
+import { buildTermsConsent } from './termsConsent';
 
 /**
  * English starts in 3rd grade in Israel, so a new learner in grades 1–3 practises grade 1 until a
@@ -22,7 +23,8 @@ export function getStartingGradeId(schoolGradeId: GradeId): GradeId {
  * The onboarded profile a learner gets from the basics they gave (name, gender, grade, consent).
  * The age follows from the grade; theme and Shabbat are not asked, so the saved or default choice
  * stays and the settings change it later. A learner onboarding for the first time starts on the
- * starting grade and the easiest tier.
+ * starting grade and the easiest tier. Ticking the consent box records the agreement to the terms
+ * and the privacy notice, with their versions (`termsConsent`).
  */
 export function applyBasicsToProfile(initialProfile: LearnerProfile, basics: SignupDraft, now: Date): LearnerProfile {
   const themeId: ThemeId = initialProfile.themeId || 'cozy-studio';
@@ -42,9 +44,12 @@ export function applyBasicsToProfile(initialProfile: LearnerProfile, basics: Sig
     },
     now
   );
-  if (initialProfile.isOnboarded) return saved;
+  const withConsent: LearnerProfile = basics.hasParentConsent
+    ? { ...saved, termsConsent: buildTermsConsent(now, getAgeForGrade(basics.gradeId)) }
+    : saved;
+  if (initialProfile.isOnboarded) return withConsent;
   return {
-    ...saved,
+    ...withConsent,
     schoolGradeId: basics.gradeId,
     gradeId: getStartingGradeId(basics.gradeId),
     preferredTier: STARTING_TIER,

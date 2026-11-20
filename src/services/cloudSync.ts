@@ -31,6 +31,7 @@ import { mergeActivityLog } from '../data/activityLog';
 import { toLocalDateStr } from '../utils/dates';
 import { getLedgerBalance, mergeDiamondLedgers } from '../data/diamondLedger';
 import { mergeStreakStats } from '../data/streak';
+import { mergeTermsConsent } from '../utils/termsConsent';
 
 const LEARNERS_COLLECTION = 'learners';
 
@@ -182,6 +183,7 @@ export function mergeLearnerProfiles(
     : local.schoolGradeId ?? cloud.schoolGradeId;
   // The first consent stays (an earlier ISO time sorts first)
   const resolvedConsent = [local.parentalConsentAt, cloud.parentalConsentAt].filter(Boolean).sort()[0];
+  const resolvedTermsConsent = mergeTermsConsent(local.termsConsent, cloud.termsConsent);
 
   const resolvedCompanion = preferCloudPrefs
     ? cloud.companionId ?? local.companionId
@@ -217,6 +219,7 @@ export function mergeLearnerProfiles(
     ...(resolvedVoice ? { voicePreference: resolvedVoice } : {}),
     ...(resolvedSchoolGrade ? { schoolGradeId: resolvedSchoolGrade } : {}),
     ...(resolvedConsent ? { parentalConsentAt: resolvedConsent } : {}),
+    ...(resolvedTermsConsent ? { termsConsent: resolvedTermsConsent } : {}),
     ...(resolvedAnalyticsOptOut !== undefined ? { isAnalyticsOptedOut: resolvedAnalyticsOptOut } : {}),
     ...(resolvedAvatar ? { equippedAvatarEmoji: resolvedAvatar } : {}),
     ...(resolvedPlacement ? { placementResult: resolvedPlacement } : {}),

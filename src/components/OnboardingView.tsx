@@ -3,6 +3,7 @@ import { GradeId, LearnerGender, LearnerProfile, getRecommendedGradeForAge } fro
 import { resolveTheme, THEME_IDS } from '../themes/themeRegistry';
 import { getHebrewCopy } from '../utils/hebrewGender';
 import { applyBasicsToProfile } from '../utils/applyBasicsToProfile';
+import { hasCurrentTermsConsent } from '../utils/termsConsent';
 import { APP_NAME } from '../config/appInfo';
 import { AppLogo } from './AppLogo';
 import { preloadCompanion } from './companion/Companion';
@@ -27,7 +28,8 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, 
     name: initialProfile.name || '',
     gender: initialProfile.gender || 'girl',
     gradeId: (initialProfile.gradeId || getRecommendedGradeForAge(12)) as GradeId,
-    hasParentConsent: Boolean(initialProfile.parentalConsentAt),
+    // Ticked only if this profile already agreed to the texts shown now
+    hasParentConsent: hasCurrentTermsConsent(initialProfile),
   };
 
   useEffect(() => {

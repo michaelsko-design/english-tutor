@@ -21,7 +21,9 @@ function plan(overrides: Partial<Subscription> = {}): Subscription {
 function setup(sub: Subscription = plan(), linked = ['parent1_kid1', 'parent1_kid2', 'parent1_kid3'], canChangeRecurring = true) {
   const fake = createFakeFirestore();
   fake.seed('subscriptions', SUB_ID, subscriptionFields(sub, NOW));
-  fake.seed('checkouts', SUB_ID, { parentUid: 'parent1', payerName: 'ישראל ישראלי', payerPhone: '0501234567', payerEmail: '' });
+  fake.seed('checkouts', SUB_ID, {
+    parentUid: 'parent1', amountAgorot: sub.amountAgorot, payerName: 'ישראל ישראלי', payerPhone: '0501234567', payerEmail: '',
+  });
   const gateway = {
     id: 'grow',
     canChangeRecurring,
@@ -84,7 +86,7 @@ describe('handleSubscriptionRequest', () => {
   it('leaves the owner a task to change the amount when the gateway cannot (Make)', async () => {
     const { fake, gateway, deps } = setup(plan(), undefined, false);
 
-    const response = await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps);
+    const response = await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3', confirmedAmountAgorot: 8900 }), ENV, deps);
 
     expect(await response.json()).toEqual({ ok: true, amountAgorot: 8900, seatLimit: 3 });
     expect(gateway.updateRecurring).not.toHaveBeenCalled();
@@ -95,7 +97,7 @@ describe('handleSubscriptionRequest', () => {
   it('closes the amount task when the price goes back to what Grow still charges (Make)', async () => {
     const { fake, deps } = setup(plan(), undefined, false);
 
-    await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps);
+    await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3', confirmedAmountAgorot: 8900 }), ENV, deps);
     expect((await handleSubscriptionRequest(call({ action: 'removeChild', childUid: 'kid3' }), ENV, deps)).status).toBe(200);
 
     expect(fake.get('subscriptions', SUB_ID)).toMatchObject({ amountAgorot: 6400 });
@@ -105,7 +107,7 @@ describe('handleSubscriptionRequest', () => {
   it('keeps what Grow charges across several changes before the owner makes one (Make)', async () => {
     const { fake, deps } = setup(plan(), undefined, false);
 
-    await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps);
+    await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3', confirmedAmountAgorot: 8900 }), ENV, deps);
     await handleSubscriptionRequest(call({ action: 'removeChild', childUid: 'kid2' }), ENV, deps);
     await handleSubscriptionRequest(call({ action: 'removeChild', childUid: 'kid3' }), ENV, deps);
 
@@ -125,7 +127,7 @@ describe('handleSubscriptionRequest', () => {
   it('closes an open amount task when the plan is cancelled (Make)', async () => {
     const { fake, deps } = setup(plan(), undefined, false);
 
-    await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps);
+    await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3', confirmedAmountAgorot: 8900 }), ENV, deps);
     expect((await handleSubscriptionRequest(call({ action: 'cancel' }), ENV, deps)).status).toBe(200);
 
     expect(fake.get('gatewayTasks', `${SUB_ID}_amount`)).toMatchObject({ doneAt: NOW });
@@ -147,7 +149,7 @@ describe('handleSubscriptionRequest', () => {
   it('adds a linked child, re-pricing the next monthly charge', async () => {
     const { fake, gateway, deps } = setup();
 
-    const response = await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps);
+    const response = await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3', confirmedAmountAgorot: 8900 }), ENV, deps);
 
     expect(await response.json()).toEqual({ ok: true, amountAgorot: 8900, seatLimit: 3 });
     expect(gateway.updateRecurring).toHaveBeenCalledWith('BILLING', { amountAgorot: 8900 });
@@ -156,16 +158,16 @@ describe('handleSubscriptionRequest', () => {
 
   it('refuses an unlinked child or one who holds a seat on another plan', async () => {
     const unlinked = setup(plan(), ['parent1_kid1', 'parent1_kid2']);
-    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, unlinked.deps)).status).toBe(403);
+    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3', confirmedAmountAgorot: 8900 }), ENV, unlinked.deps)).status).toBe(403);
     const taken = setup();
     taken.fake.seed('entitlements', 'kid3', { status: 'active', periodEnd: NOW + DAY, subscriptionId: 'other' });
-    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, taken.deps)).status).toBe(409);
+    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3', confirmedAmountAgorot: 8900 }), ENV, taken.deps)).status).toBe(409);
     expect(taken.gateway.updateRecurring).not.toHaveBeenCalled();
   });
 
   it('enforces the swap cooldown', async () => {
     const { deps } = setup(plan({ childUids: ['kid1'], lastRemovalAt: NOW - DAY, lastSwapAt: NOW - 5 * DAY }));
-    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps)).status).toBe(429);
+    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3', confirmedAmountAgorot: 8900 }), ENV, deps)).status).toBe(429);
   });
 
   it('removes a child, who keeps Pro until periodEnd without a seat', async () => {
@@ -193,7 +195,7 @@ describe('handleSubscriptionRequest', () => {
       return commit(writes);
     };
 
-    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps)).status).toBe(409);
+    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3', confirmedAmountAgorot: 8900 }), ENV, deps)).status).toBe(409);
     expect(gateway.updateRecurring).toHaveBeenNthCalledWith(2, 'BILLING', { amountAgorot: 6400 });
   });
 
@@ -205,7 +207,7 @@ describe('handleSubscriptionRequest', () => {
       return commit(writes);
     };
 
-    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps)).status).toBe(409);
+    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3', confirmedAmountAgorot: 8900 }), ENV, deps)).status).toBe(409);
     expect(fake.get('entitlements', 'kid3')).toMatchObject({ subscriptionId: 'other' });
     expect(fake.get('subscriptions', SUB_ID)).toMatchObject({ childUids: ['kid1', 'kid2'] });
     expect(gateway.updateRecurring).toHaveBeenNthCalledWith(2, 'BILLING', { amountAgorot: 6400 });
@@ -215,9 +217,126 @@ describe('handleSubscriptionRequest', () => {
     const { fake, gateway, deps } = setup();
     gateway.updateRecurring.mockRejectedValueOnce(new Error('down'));
     const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps)).status).toBe(502);
+    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3', confirmedAmountAgorot: 8900 }), ENV, deps)).status).toBe(502);
     errors.mockRestore();
     expect(fake.get('entitlements', 'kid3')).toBeUndefined();
+  });
+
+  it('asks the parent to confirm a higher monthly charge, and saves the confirmation', async () => {
+    const { fake, gateway, deps } = setup();
+
+    const unconfirmed = await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps);
+    expect(unconfirmed.status).toBe(409);
+    expect(await unconfirmed.json()).toMatchObject({ code: 'confirm_price', amountAgorot: 8900 });
+    expect(gateway.updateRecurring).not.toHaveBeenCalled();
+    const wrongAmount = call({ action: 'addChild', childUid: 'kid3', confirmedAmountAgorot: 6400 });
+    expect((await handleSubscriptionRequest(wrongAmount, ENV, deps)).status).toBe(409);
+
+    const confirmed = call({ action: 'addChild', childUid: 'kid3', confirmedAmountAgorot: 8900 });
+    expect((await handleSubscriptionRequest(confirmed, ENV, deps)).status).toBe(200);
+    expect(fake.get('planConsents', `${SUB_ID}_add_${NOW}`)).toMatchObject({
+      parentUid: 'parent1', kind: 'add_child', childUid: 'kid3', fromAgorot: 6400, toAgorot: 8900, acceptedAt: NOW,
+    });
+  });
+
+  it('needs no confirmation to fill a paid yearly seat', async () => {
+    const { deps } = setup(plan({ period: 'yearly', amountAgorot: 79900, seatLimit: 3, periodEnd: NOW + 300 * DAY }));
+    expect((await handleSubscriptionRequest(call({ action: 'addChild', childUid: 'kid3' }), ENV, deps)).status).toBe(200);
+  });
+
+  it('quotes a full refund within 14 days, changing nothing', async () => {
+    const { fake, deps } = setup();
+    const response = await handleSubscriptionRequest(call({ action: 'quoteCancel' }), ENV, deps);
+    expect(await response.json()).toEqual({ ok: true, mode: 'full_refund', refundAgorot: 6400, accessUntil: NOW });
+    expect(fake.get('subscriptions', SUB_ID)).toMatchObject({ status: 'active' });
+  });
+
+  it('cancels with a full refund within 14 days: Pro closes now, charges stop, the owner gets the refund task', async () => {
+    const { fake, gateway, deps } = setup(plan(), undefined, false);
+
+    const response = await handleSubscriptionRequest(call({ action: 'cancelWithRefund' }), ENV, deps);
+
+    expect(await response.json()).toEqual({ ok: true, mode: 'full_refund', refundAgorot: 6400, accessUntil: NOW });
+    expect(gateway.updateRecurring).not.toHaveBeenCalled();
+    expect(fake.get('subscriptions', SUB_ID)).toMatchObject({ status: 'canceled', periodEnd: NOW });
+    expect(fake.get('entitlements', 'kid1')).toMatchObject({ status: 'expired', periodEnd: NOW });
+    expect(fake.get('gatewayTasks', `${SUB_ID}_cancel`)).toMatchObject({ kind: 'cancel', doneAt: 0 });
+    expect(fake.get('gatewayTasks', `${SUB_ID}_refund_cancel`)).toMatchObject({
+      kind: 'refund', amountAgorot: 6400, dueAt: NOW + 14 * DAY, payerPhone: '0501234567',
+    });
+    expect(fake.get('refundRequests', SUB_ID)).toMatchObject({ parentUid: 'parent1', mode: 'full_refund', amountAgorot: 6400 });
+    // A plan is refunded once
+    expect((await handleSubscriptionRequest(call({ action: 'cancelWithRefund' }), ENV, deps)).status).toBe(409);
+  });
+
+  it('stops two plans of one family from both taking the full refund at the same moment', async () => {
+    const { fake, deps } = setup();
+    // The other plan's request landed between this quote and this save: only the family record shows it
+    const commit = fake.admin.commit;
+    fake.admin.commit = async (writes) => {
+      fake.seed('refundRequests', 'family_parent1', { parentUid: 'parent1', mode: 'full_refund' });
+      return commit(writes);
+    };
+    const response = await handleSubscriptionRequest(call({ action: 'cancelWithRefund' }), ENV, deps);
+    expect(response.status).toBe(409);
+    expect(fake.get('subscriptions', SUB_ID)).toMatchObject({ status: 'active' });
+    expect(fake.get('refundRequests', SUB_ID)).toBeUndefined();
+  });
+
+  it('cancels the gateway only after the records are saved, and leaves a task when the gateway refuses', async () => {
+    const { fake, gateway, deps } = setup();
+    gateway.updateRecurring.mockRejectedValueOnce(new Error('down'));
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect((await handleSubscriptionRequest(call({ action: 'cancelWithRefund' }), ENV, deps)).status).toBe(200);
+    expect(fake.get('refundRequests', SUB_ID)).toMatchObject({ mode: 'full_refund' });
+    expect(fake.get('gatewayTasks', `${SUB_ID}_cancel`)).toMatchObject({ kind: 'cancel', doneAt: 0 });
+    logged.mockRestore();
+  });
+
+  it('refunds nothing here when the plan has no recorded payment', async () => {
+    const { fake, deps } = setup();
+    fake.seed('checkouts', SUB_ID, { parentUid: 'parent1' });
+    expect((await handleSubscriptionRequest(call({ action: 'cancelWithRefund' }), ENV, deps)).status).toBe(409);
+  });
+
+  it('refunds a yearly renewal not yet begun without taking the year already paid before it', async () => {
+    const oldEnd = NOW + 20 * DAY;
+    const renewal = plan({ period: 'yearly', amountAgorot: 56900, createdAt: NOW - 30 * DAY, periodEnd: Date.UTC(2027, 10, 17) });
+    const { fake, deps } = setup({ ...renewal, periodEnd: Date.UTC(2027, 10, 17) });
+    // The renewal's year starts at the old end (2026-11-17), after now
+    const response = await handleSubscriptionRequest(call({ action: 'cancelWithRefund' }), ENV, deps);
+    expect(await response.json()).toMatchObject({ mode: 'yearly_prorata', refundAgorot: 56900, accessUntil: oldEnd });
+    expect(fake.get('entitlements', 'kid1')).toMatchObject({ status: 'canceled', periodEnd: oldEnd });
+  });
+
+  it('gives the full refund once per family', async () => {
+    const { fake, deps } = setup(plan({ period: 'yearly', amountAgorot: 56900, periodEnd: NOW + 355 * DAY }));
+    fake.seed('refundRequests', 'b'.repeat(32), { parentUid: 'parent1', mode: 'full_refund' });
+    const response = await handleSubscriptionRequest(call({ action: 'quoteCancel' }), ENV, deps);
+    // A 2-child yearly plan in its first month: ₪569 − 1 × ₪64
+    expect(await response.json()).toMatchObject({ mode: 'yearly_prorata', refundAgorot: 56900 - 6400 });
+  });
+
+  it('cancels a yearly plan after 14 days by the formula, keeping Pro to the end of the plan month', async () => {
+    const createdAt = NOW - 100 * DAY;
+    const periodEnd = Date.UTC(2027, 6, 20); // started 2026-07-20: the 4th month began 2026-10-20
+    const { fake, gateway, deps } = setup(plan({ period: 'yearly', amountAgorot: 56900, createdAt, periodEnd }));
+
+    const response = await handleSubscriptionRequest(call({ action: 'cancelWithRefund' }), ENV, deps);
+
+    expect(await response.json()).toEqual({
+      ok: true, mode: 'yearly_prorata', refundAgorot: 56900 - 4 * 6400, accessUntil: Date.UTC(2026, 10, 20),
+    });
+    expect(gateway.updateRecurring).not.toHaveBeenCalled();
+    expect(fake.get('entitlements', 'kid2')).toMatchObject({ status: 'canceled', periodEnd: Date.UTC(2026, 10, 20) });
+  });
+
+  it('refuses a refund when the formula leaves nothing', async () => {
+    const periodEnd = Date.UTC(2027, 1, 20); // started 2026-02-20: in its 9th month
+    const { deps } = setup(plan({ period: 'yearly', amountAgorot: 56900, createdAt: NOW - 250 * DAY, periodEnd }));
+    const response = await handleSubscriptionRequest(call({ action: 'cancelWithRefund' }), ENV, deps);
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({ code: 'no_refund' });
   });
 
   it('rejects malformed requests', async () => {

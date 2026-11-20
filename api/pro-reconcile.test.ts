@@ -180,4 +180,20 @@ describe('handleProReconcileRequest', () => {
     expect(response.status).toBe(502);
     expect(fake.get('entitlements', 'kid1')).toBeDefined();
   });
+
+  it("blanks the payer details of a plan that ended more than 90 days ago, and keeps a recent plan's", async () => {
+    const { fake, deps, seedPlan } = setup(['parent1', 'kid1', 'kid2']);
+    const payer = { payerName: 'Dana Cohen', payerPhone: '0521234567', payerEmail: 'dana@example.com' };
+    seedPlan(plan('old', { status: 'expired', periodEnd: NOW - 91 * DAY }));
+    seedPlan(plan('recent', { status: 'expired', periodEnd: NOW - 30 * DAY }));
+    fake.seed('checkouts', 'old', { status: 'paid', period: 'monthly', createdAt: NOW - 400 * DAY, ...payer });
+    fake.seed('checkouts', 'recent', { status: 'paid', period: 'monthly', createdAt: NOW - 200 * DAY, ...payer });
+    fake.seed('gatewayTasks', 'old_cancel', { kind: 'cancel', subscriptionId: 'old', createdAt: NOW - 120 * DAY, doneAt: NOW - 119 * DAY, ...payer });
+
+    expect(await (await handleProReconcileRequest(cron(), ENV, deps)).json()).toMatchObject({ purged: 2, failed: 0 });
+
+    expect(fake.get('checkouts', 'old')).toMatchObject({ payerName: '', payerPhone: '', payerEmail: '', status: 'paid' });
+    expect(fake.get('gatewayTasks', 'old_cancel')).toMatchObject({ payerName: '', kind: 'cancel' });
+    expect(fake.get('checkouts', 'recent')).toMatchObject(payer);
+  });
 });

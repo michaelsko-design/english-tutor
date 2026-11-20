@@ -27,7 +27,7 @@ const PRE_AUTH_LABELS: Record<string, string> = {
   gate_view: 'Saw the sign-in screen',
   signup_started: 'Chose "new here"',
   signup_basics_done: 'Answered name, gender and grade',
-  consent_ticked: "Parent's consent ticked",
+  consent_ticked: "Terms consent ticked (parent under 13, learner from 13; every age since 2026-11-19)",
   signup_done: 'Account created',
   signup_name_taken: 'Username was taken',
   signup_error: 'Sign-up failed',

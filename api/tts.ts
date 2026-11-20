@@ -1,8 +1,8 @@
 /**
  * GET /api/tts?a=<version>&v=<female|male|he-female>&s=<normal|slow>&t=<text>: Azure Neural speech for text that has no
- * rendered clip (word lists, sticker names, dreams, the male voice, Hebrew with the learner's name). The CDN caches each answer by
- * URL for a year, so a phrase is synthesized once for everyone. The F0 key can't be billed: over
- * quota Azure answers 429 and the app uses the device voice.
+ * rendered clip (word lists, sticker names, dreams, the male voice, Hebrew with the learner's name). The text may be something a
+ * learner typed or their name, so no shared cache keeps the answer (privacy notice); the app keeps it on the device only
+ * (CacheStorage). The F0 key can't be billed: over quota Azure answers 429 and the app uses the device voice.
  */
 // Explicit .js extensions: the package is ESM ("type": "module"), so Node needs them at runtime.
 import { AzureTtsError, readAzureConfig, synthesize } from './_lib/azureTts.js';
@@ -15,8 +15,8 @@ const AZURE_TIMEOUT_MS = 8_000;
 const DEFAULT_FIREBASE_PROJECT_ID = 'english-tutor-il-7';
 /** App Check tokens name the project by number (the first part of the web appId) */
 const DEFAULT_FIREBASE_PROJECT_NUMBER = '1003230297590';
-// s-maxage lets the Vercel CDN share the answer; max-age lets the browser keep it.
-const AUDIO_CACHE_CONTROL = 'public, max-age=31536000, s-maxage=31536000, immutable';
+// Never in the CDN or a proxy: the text sits in the URL and may be typed or include a name. The app's own CacheStorage still keeps it.
+const AUDIO_CACHE_CONTROL = 'private, no-store';
 /**
  * Calls that reach Azure (CDN hits never get here). A learner meets a few dozen new phrases an
  * hour at most; a guest account is free to create, so the address is limited too, higher because
@@ -52,7 +52,7 @@ function errorResponse(status: number, message: string): Response {
 
 /**
  * Only signed-in learners reach Azure: without that, anyone could use up the free quota for every
- * learner. A phrase already in the CDN cache is served without reaching this function at all.
+ * learner. A phrase already in the device's CacheStorage is never requested again.
  * `TTS_AUTH=off` turns the check off for the local dev server, whose emulator tokens aren't signed.
  */
 export async function handleTtsRequest(

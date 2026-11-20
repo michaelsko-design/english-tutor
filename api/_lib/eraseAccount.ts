@@ -1,14 +1,14 @@
 /**
  * Server-side account erasure, with the service account.
- *  - eraseServerRecords: the part only the server can delete (usage counters, access record, comp
- *    entitlement). Feedback notes are KEPT but cut loose from the account. Shared by
- *    /api/erase-account-data (the learner deleting themself) and the owner's full removal.
+ *  - eraseServerRecords: the part only the server can delete (usage counters, feedback notes, the
+ *    reminder log, the friend-request counter, the redeemed invite, access record, comp entitlement),
+ *    as the privacy notice promises. Shared by /api/erase-account-data (the learner deleting themself)
+ *    and the owner's full removal. A paid subscription's entitlement stays (tax records, payments).
  *  - eraseLearnerData: everything the learner owns in Firestore (mirrors `deleteLearnerData` in
  *    src/services/accountService.ts), for the owner removing a tester who cannot do it themself.
  */
 import type { FirestoreAdmin, PlainDocument } from './firestoreAdmin.js';
 
-const FORMER_TESTER_ALIAS = 'former tester';
 const SHARED_COLLECTIONS = ['friendships', 'contests'] as const;
 
 const idsOf = (rows: PlainDocument[]): string[] => rows.map((row) => row.id);
@@ -18,31 +18,23 @@ async function deleteAll(admin: FirestoreAdmin, collection: string, ids: string[
 }
 
 export async function eraseServerRecords(admin: FirestoreAdmin, uid: string): Promise<void> {
-  const [counters, struggles, notes, entitlement, allowed] = await Promise.all([
+  const [counters, struggles, notes, reminders, invites, entitlement] = await Promise.all([
     admin.queryDocuments('analyticsDaily', 'uid', uid),
     admin.queryDocuments('missionStruggle', 'uid', uid),
     admin.queryDocuments('feedback', 'uid', uid),
+    admin.queryDocuments('reminderSends', 'uid', uid),
+    // A deleted invite can't be redeemed again (unknown code)
+    admin.queryDocuments('invites', 'usedByUid', uid),
     admin.getDocument('entitlements', uid),
-    admin.getDocument('allowed', uid),
   ]);
-  const alias = typeof allowed?.fields.label === 'string' && allowed.fields.label ? allowed.fields.label : FORMER_TESTER_ALIAS;
   const isPaid = entitlement?.fields.source === 'subscription';
   await Promise.all([
     deleteAll(admin, 'analyticsDaily', idsOf(counters)),
     deleteAll(admin, 'missionStruggle', idsOf(struggles)),
-    // The note stays, without any link to the deleted account
-    ...(notes.length > 0
-      ? [
-          admin.commit(
-            notes.map((row) => ({
-              collection: 'feedback',
-              id: row.id,
-              fields: { uid: '', testerLabel: alias },
-              mergeFields: ['uid', 'testerLabel'],
-            }))
-          ),
-        ]
-      : []),
+    deleteAll(admin, 'feedback', idsOf(notes)),
+    deleteAll(admin, 'reminderSends', idsOf(reminders)),
+    deleteAll(admin, 'invites', idsOf(invites)),
+    admin.deleteDocument('friendRequestCounts', uid),
     admin.deleteDocument('allowed', uid),
     // Where the account came from (the `?src=` tag)
     admin.deleteDocument('signups', uid),

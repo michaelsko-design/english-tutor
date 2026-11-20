@@ -251,6 +251,7 @@ async function handleProcessNotification(
     lastRemovalAt: 0,
     lastSwapAt: 0,
     createdAt: nowMs,
+    ...(checkout.monthlyRateAgorot > 0 ? { monthlyRateAgorot: checkout.monthlyRateAgorot } : {}),
   };
   // The renewed children leave their old plan, or a later change to it would rewrite their entitlement
   const oldPlanWrites: DocumentWrite[] = [];
@@ -416,6 +417,33 @@ async function handleAccountEvent(
   }
   const paymentId = `grow_${event.paymentId}`;
   if (await admin.getDocument('payments', paymentId)) return ignored('already recorded');
+  // A plan refunded at cancellation (api/_lib/cancellation.ts) stays closed: the standing order was still
+  // running in Grow, so the charge is recorded and refunded, and no child gets Pro from it
+  if (await admin.getDocument('refundRequests', sub.id)) {
+    console.error('payment-webhook: a refunded plan was charged, refund needed');
+    const refundTask = gatewayTaskWrite({
+      id: `refund_${paymentId}`,
+      kind: 'refund',
+      subscriptionId: sub.id,
+      amountAgorot: event.amountAgorot,
+      dueAt: 0,
+      note: 'Charged after the plan was cancelled with a refund: refund this charge and cancel the standing order in Grow',
+      ...(await readPayer(admin, sub.id)),
+    }, nowMs);
+    const payment: DocumentWrite = {
+      collection: 'payments',
+      id: paymentId,
+      precondition: { exists: false },
+      fields: { subscriptionId: sub.id, kind: 'renewal_after_refund', amountAgorot: event.amountAgorot, at: nowMs },
+    };
+    try {
+      await admin.commit([refundTask, payment]);
+    } catch (error) {
+      if (!(error instanceof ConflictError)) throw error;
+      return ignored('already recorded');
+    }
+    return jsonResponse(200, { ok: true });
+  }
   if (nowMs < sub.periodEnd - RENEWAL_WINDOW_DAYS * DAY_MS) return ignored('renewal not due');
   if (event.amountAgorot < sub.amountAgorot) {
     // A 503 makes Grow retry: a seat upgrade can land here just before the gateway's own price update

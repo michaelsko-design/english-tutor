@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { PRIVACY_NOTICE_SECTIONS, privacyNoticeSections, PRO_PAYMENTS_SECTION_TITLE_HE } from './privacyNotice';
+import { PRIVACY_UPDATED_HE, SUPPORT_PHONE_DISPLAY, SUPPORT_WHATSAPP_NUMBER } from './appInfo';
+import {
+  PRIVACY_CONTROLLER_SECTION_TITLE_HE,
+  PRIVACY_NOTICE_SECTIONS,
+  privacyNoticeSections,
+  PRO_PAYMENTS_SECTION_TITLE_HE,
+} from './privacyNotice';
 
 const titles = (sections: ReturnType<typeof privacyNoticeSections>) => sections.map((section) => section.titleHe);
 
@@ -12,6 +18,28 @@ describe('privacyNoticeSections', () => {
 
   it('leaves the payments section out while Pro cannot be bought', () => {
     expect(titles(privacyNoticeSections(false))).not.toContain(PRO_PAYMENTS_SECTION_TITLE_HE);
+  });
+
+  it('opens with the controller, the date, voluntary disclosure and the §13–14 rights', () => {
+    const [first] = PRIVACY_NOTICE_SECTIONS;
+    const opening = first.bodyHe.join(' ');
+    expect(first.titleHe).toBe(PRIVACY_CONTROLLER_SECTION_TITLE_HE);
+    expect(opening).toContain(PRIVACY_UPDATED_HE);
+    expect(opening).toContain('310720370');
+    expect(opening).toContain('אין חובה חוקית');
+    const rights = PRIVACY_NOTICE_SECTIONS.find((section) => section.titleHe === 'הזכויות שלכם')?.bodyHe.join(' ') ?? '';
+    expect(rights).toMatch(/סעיף 13.*סעיף 14/);
+  });
+
+  it('shows no draft brackets, no religious wording and no false "no device id" claim', () => {
+    const all = PRIVACY_NOTICE_SECTIONS.flatMap((section) => section.bodyHe).join(' ');
+    expect(all).not.toMatch(/[[\]]/);
+    expect(all).not.toContain('שומר שבת');
+    expect(all).not.toContain('בלי מזהה מכשיר');
+  });
+
+  it('keeps the support phone in step with the WhatsApp number', () => {
+    expect(SUPPORT_WHATSAPP_NUMBER.slice(3)).toBe(SUPPORT_PHONE_DISPLAY.replace(/\D/g, '').slice(1));
   });
 
   it('names who handles the payment details, and shows no draft brackets', () => {

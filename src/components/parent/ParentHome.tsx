@@ -19,11 +19,13 @@ import {
   unlinkParent,
 } from '../../services/parentService';
 import { getTtsService } from '../../services/tts';
+import { deleteParentAccount } from '../../services/accountService';
 import { toLocalDateStr } from '../../utils/dates';
 import { lazyNamed } from '../../utils/lazyNamed';
 import { ScreenLoading } from '../ScreenLoading';
 import { IS_PRO_PLAN_VISIBLE } from '../../config/proTier';
 import { ChildCard } from './ChildCard';
+import { DeleteParentAccount } from './DeleteParentAccount';
 import { ResetPinForm } from './ResetPinForm';
 import { useParentPro } from './useParentPro';
 
@@ -302,6 +304,8 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
       <button type="button" onClick={onSignOut} className={`${buttonClass} w-full ${theme.secondaryBtnClass}`}>
         התנתקות
       </button>
+
+      <DeleteParentAccount theme={theme} hasRenewingPlan={pro.hasRenewingPlan} onDelete={deleteParentAccount} />
 
       {openReport?.profile && (
         <Suspense fallback={<ScreenLoading />}>

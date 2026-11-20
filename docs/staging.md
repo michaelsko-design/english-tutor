@@ -24,6 +24,8 @@ Admin scripts (`setAccess`, `createInvite`, `grantPro`, `resetLearnerPin`, `allo
 production unless `FIREBASE_TARGET=staging` is set (with the staging service-account key in
 `GOOGLE_APPLICATION_CREDENTIALS`); each prints the project it is about to use.
 
+Staging-only commit: `2d7446ec` (on the `staging` branch only) turns the Pro limits on in staging builds (`IS_PRO_GATING_ON = IS_STAGING_BUILD` in `src/config/proTier.ts`), so the Pro ask, the resend card and the checkout can be tried with sandbox payments. Keep it when moving work onto staging, and never bring it to `main`.
+
 What staging does not run: the Vercel crons (production only), real payments (Grow sandbox only).
 Read-aloud clips come from the same R2 bucket as production (read only).
 

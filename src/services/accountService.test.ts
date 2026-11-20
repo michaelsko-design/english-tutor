@@ -8,13 +8,22 @@ const mocks = vi.hoisted(() => ({
   deleteUser: vi.fn(),
   reauthenticateWithCredential: vi.fn(),
   deleteLearnerParentData: vi.fn(),
+  deleteParentAccountData: vi.fn(),
+  reauthenticateWithPopup: vi.fn(),
+  eraseServerAccountData: vi.fn(),
   deleteAllStickerImages: vi.fn(),
+  clearLocalAppData: vi.fn(),
 }));
 
 vi.mock('./firebase', () => ({ auth: mocks.auth, db: {}, googleProvider: {} }));
-vi.mock('./parentService', () => ({ deleteLearnerParentData: mocks.deleteLearnerParentData }));
+vi.mock('./parentService', () => ({
+  deleteLearnerParentData: mocks.deleteLearnerParentData,
+  deleteParentAccountData: mocks.deleteParentAccountData,
+}));
+vi.mock('./accessService', () => ({ eraseServerAccountData: mocks.eraseServerAccountData }));
 vi.mock('./stickerImages', () => ({ deleteAllStickerImages: mocks.deleteAllStickerImages, loadAllStickerImages: vi.fn() }));
 vi.mock('./entitlementService', () => ({ readEntitlementOnce: vi.fn() }));
+vi.mock('../utils/clearLocalData', () => ({ clearLocalAppData: mocks.clearLocalAppData }));
 vi.mock('firebase/firestore', () => ({
   collection: (_db: unknown, name: string) => name,
   doc: (_db: unknown, ...path: string[]) => ({ path: path.join('/') }),
@@ -31,12 +40,12 @@ vi.mock('firebase/auth', () => ({
   linkWithCredential: vi.fn(),
   linkWithPopup: vi.fn(),
   reauthenticateWithCredential: mocks.reauthenticateWithCredential,
-  reauthenticateWithPopup: vi.fn(),
+  reauthenticateWithPopup: mocks.reauthenticateWithPopup,
   updatePassword: vi.fn(),
   updateProfile: vi.fn(),
 }));
 
-const { deleteAccount } = await import('./accountService');
+const { deleteAccount, deleteParentAccount } = await import('./accountService');
 
 const USER = {
   uid: 'kid1',
@@ -56,6 +65,10 @@ beforeEach(() => {
   mocks.reauthenticateWithCredential.mockReset().mockResolvedValue(undefined);
   mocks.deleteLearnerParentData.mockReset().mockResolvedValue(undefined);
   mocks.deleteAllStickerImages.mockReset().mockResolvedValue(undefined);
+  mocks.clearLocalAppData.mockReset().mockResolvedValue(undefined);
+  mocks.deleteParentAccountData.mockReset().mockResolvedValue(undefined);
+  mocks.reauthenticateWithPopup.mockReset().mockResolvedValue(undefined);
+  mocks.eraseServerAccountData.mockReset().mockResolvedValue(true);
 });
 
 describe('deleteAccount', () => {
@@ -100,6 +113,13 @@ describe('deleteAccount', () => {
     expect(await deleteAccount(undefined, 'wrong1')).toEqual({ ok: false, errorHe: 'הקוד הסודי לא נכון.' });
     expect(mocks.deleteDoc).not.toHaveBeenCalled();
     expect(mocks.deleteUser).not.toHaveBeenCalled();
+    expect(mocks.clearLocalAppData).not.toHaveBeenCalled();
+  });
+
+  it("clears what the app kept on this device once the account is gone", async () => {
+    await deleteAccount(undefined, '123456');
+    expect(mocks.clearLocalAppData).toHaveBeenCalledTimes(1);
+    expect(mocks.clearLocalAppData.mock.invocationCallOrder[0]).toBeGreaterThan(mocks.deleteUser.mock.invocationCallOrder[0]);
   });
 
   it('leaves the reminder alone for a guest, whom the rules give none', async () => {
@@ -109,9 +129,56 @@ describe('deleteAccount', () => {
     expect(deletedPaths()).not.toContain('pushSubscriptions/guest1');
   });
 
+  it('keeps the sign-in, so the deletion can be retried, when the server part fails', async () => {
+    mocks.eraseServerAccountData.mockResolvedValue(false);
+    expect(await deleteAccount(undefined, '123456')).toEqual({ ok: false, errorHe: expect.stringContaining('כדאי לנסות שוב') });
+    expect(mocks.deleteUser).not.toHaveBeenCalled();
+    expect(mocks.clearLocalAppData).not.toHaveBeenCalled();
+  });
+
   it('needs a signed-in account', async () => {
     mocks.auth.currentUser = null;
     expect((await deleteAccount(undefined, '123456')).ok).toBe(false);
     expect(mocks.deleteDoc).not.toHaveBeenCalled();
+  });
+});
+
+const PARENT = { uid: 'p1', email: 'dad@example.com', isAnonymous: false, providerData: [{ providerId: 'google.com' }] };
+
+describe('deleteParentAccount', () => {
+  it('asks Google again, then deletes the links, the server records, the sign-in and what this device kept, in that order', async () => {
+    mocks.auth.currentUser = PARENT;
+    expect(await deleteParentAccount()).toEqual({ ok: true });
+
+    expect(mocks.reauthenticateWithPopup).toHaveBeenCalledTimes(1);
+    expect(mocks.deleteParentAccountData).toHaveBeenCalledWith('p1');
+    const order = [mocks.reauthenticateWithPopup, mocks.deleteParentAccountData, mocks.eraseServerAccountData, mocks.deleteUser, mocks.clearLocalAppData].map(
+      (fn) => fn.mock.invocationCallOrder[0]
+    );
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+  });
+
+  it('deletes nothing when the Google check is closed', async () => {
+    mocks.auth.currentUser = PARENT;
+    mocks.reauthenticateWithPopup.mockRejectedValue({ code: 'auth/popup-closed-by-user' });
+
+    expect(await deleteParentAccount()).toEqual({ ok: false, errorHe: 'החלון נסגר לפני סיום הפעולה.' });
+    expect(mocks.deleteParentAccountData).not.toHaveBeenCalled();
+    expect(mocks.deleteUser).not.toHaveBeenCalled();
+  });
+
+  it('keeps the parent sign-in when the server part fails', async () => {
+    mocks.auth.currentUser = PARENT;
+    mocks.eraseServerAccountData.mockResolvedValue(false);
+    expect((await deleteParentAccount()).ok).toBe(false);
+    expect(mocks.deleteUser).not.toHaveBeenCalled();
+  });
+
+  it('needs a signed-in parent', async () => {
+    mocks.auth.currentUser = null;
+    expect((await deleteParentAccount()).ok).toBe(false);
+    mocks.auth.currentUser = USER;
+    expect((await deleteParentAccount()).ok).toBe(false);
+    expect(mocks.deleteParentAccountData).not.toHaveBeenCalled();
   });
 });

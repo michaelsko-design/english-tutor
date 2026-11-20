@@ -126,4 +126,30 @@ describe('useActiveTimeTracker', () => {
     expect(first).not.toHaveBeenCalled();
     expect(second).toHaveBeenCalledTimes(1);
   });
+
+  it('counts nothing while a parent has turned statistics off', () => {
+    const onFlush = vi.fn();
+    const { unmount } = renderHook(() => useActiveTimeTracker(onFlush, false));
+
+    runActive(10);
+    window.dispatchEvent(new Event('pagehide'));
+    unmount();
+
+    expect(onFlush).not.toHaveBeenCalled();
+  });
+
+  it('drops the seconds not yet saved when statistics are turned off, and counts again when turned back on', () => {
+    const onFlush = vi.fn();
+    const { rerender, unmount } = renderHook(({ isOn }) => useActiveTimeTracker(onFlush, isOn), { initialProps: { isOn: true } });
+
+    runActive(3);
+    rerender({ isOn: false });
+    runActive(3);
+    expect(onFlush).not.toHaveBeenCalled();
+
+    rerender({ isOn: true });
+    runActive(2);
+    unmount();
+    expect(onFlush).toHaveBeenCalledExactlyOnceWith(10);
+  });
 });

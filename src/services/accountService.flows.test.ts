@@ -18,6 +18,7 @@ vi.mock('./firebase', () => ({ auth: mocks.auth, db: {}, googleProvider: { id: '
 vi.mock('./parentService', () => ({ deleteLearnerParentData: vi.fn() }));
 vi.mock('./stickerImages', () => ({ deleteAllStickerImages: vi.fn(), loadAllStickerImages: mocks.loadAllStickerImages }));
 vi.mock('./entitlementService', () => ({ readEntitlementOnce: mocks.readEntitlementOnce }));
+vi.mock('../utils/clearLocalData', () => ({ clearLocalAppData: vi.fn(async () => undefined) }));
 vi.mock('firebase/firestore', () => ({
   collection: vi.fn(),
   deleteDoc: vi.fn(),

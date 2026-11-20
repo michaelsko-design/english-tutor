@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { APP_NAME, LANDING_PAGE_PATH, PRIVACY_PAGE_PATH, SUPPORT_WHATSAPP_NUMBER, TERMS_PAGE_PATH } from '../../config/appInfo';
-import { MAX_PRO_SEATS, quoteProPrice, type BillingPeriod } from '../../config/proTier';
+import { APP_NAME, CANCEL_PAGE_PATH, LANDING_PAGE_PATH, PRIVACY_CONTACT_EMAIL, PRIVACY_PAGE_PATH, TERMS_PAGE_PATH } from '../../config/appInfo';
+import { MAX_PRO_SEATS, proPriceAgorot, quoteProPrice, type BillingPeriod } from '../../config/proTier';
 import type { ParentLink } from '../../data/parentLink';
 import { buildExamHeadlineHe, pickExamLead, type ExamPitch } from '../../data/examPitch';
 import { toLocalDateStr } from '../../utils/dates';
 import { startProCheckout } from '../../services/proBillingService';
 import { trackFunnel } from '../../services/analytics/funnel';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
-import { buildWhatsAppChatUrl, ProPriceBox } from './proPlanParts';
+import { formatShekels, ProPriceBox } from './proPlanParts';
 
 interface ProCheckoutPanelProps {
   theme: ThemeDefinition;
@@ -30,6 +30,7 @@ interface ProCheckoutPanelProps {
 /** First and last name, letters only (the gateway refuses other characters) */
 const PAYER_NAME_PATTERN = /^\p{L}+(?:['-]\p{L}+)*(?: \p{L}+(?:['-]\p{L}+)*)+$/u;
 const PAYER_PHONE_PATTERN = /^05\d{8}$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const fieldClass = 'mt-1 w-full px-3 py-2.5 rounded-xl text-base font-bold outline-none';
 const buttonClass = 'min-h-11 px-4 rounded-2xl text-sm font-extrabold';
@@ -37,7 +38,20 @@ const segmentClass = 'flex-1 min-h-11 px-3 rounded-2xl text-sm font-extrabold tr
 
 /** Grow's terms (§13.1.5.11) allow retrying a failed recurring charge only with the payer's consent in advance */
 const RETRY_CONSENT_HE = ' אם חיוב חודשי ייכשל, אני מסכים/ה שחברת התשלומים תנסה לחייב את הכרטיס שוב במשך עד 10 ימים.';
-const MORE_KIDS_MESSAGE_HE = `היי, אני מעוניין/ת במנוי ל-${APP_NAME} עבור יותר מ-4 ילדים. אשמח לקבל פרטים על חבילה מורחבת!`;
+const MORE_KIDS_MAILTO = `mailto:${PRIVACY_CONTACT_EMAIL}?subject=${encodeURIComponent(`מנוי ${APP_NAME} ליותר מ-4 ילדים`)}`;
+
+/**
+ * Before the buy button: the cancellation rights in short (Consumer Protection Law §14ג; terms §9).
+ * A yearly plan names the monthly price its refund will deduct: today's, saved with the purchase.
+ */
+function cancelSummaryHe(period: BillingPeriod, seats: number): string {
+  if (period === 'monthly') {
+    return 'ביטול בתוך 14 יום מהתשלום הראשון: החזר מלא. אחר כך אפשר לבטל בכל עת, בלי חיובים נוספים, ו-Pro נשאר עד סוף החודש ששולם.';
+  }
+  const monthly = proPriceAgorot(seats, 'monthly');
+  const rate = monthly === null ? 'המחיר החודשי הרגיל' : `${formatShekels(monthly)}, המחיר החודשי הרגיל היום,`;
+  return `ביטול בתוך 14 יום מהתשלום: החזר מלא. אחר כך: החזר של הסכום ששולם פחות ${rate} לכל חודש שהתחיל. המחיר הזה נשמר עם הרכישה, כך שהעלאת מחיר אחר כך לא תקטין את ההחזר.`;
+}
 
 const normalizeName = (value: string) => value.trim().replace(/\s+/g, ' ');
 const normalizePhone = (value: string) => value.replace(/[\s-]/g, '');
@@ -117,6 +131,10 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
       setErrorHe('כדאי לכתוב מספר נייד ישראלי, למשל 0501234567.');
       return;
     }
+    if (!EMAIL_PATTERN.test(payerEmail.trim())) {
+      setErrorHe('כדאי לכתוב אימייל: אליו נשלחים הקבלה וסיכום העסקה.');
+      return;
+    }
     trackFunnel('pro_checkout_submit');
     setIsBusy(true);
     setErrorHe(null);
@@ -189,13 +207,8 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
           );
         })}
         {eligibleChildren.length > MAX_PRO_SEATS && (
-          <a
-            href={buildWhatsAppChatUrl(SUPPORT_WHATSAPP_NUMBER, MORE_KIDS_MESSAGE_HE)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`block min-h-11 px-3 py-2.5 rounded-2xl text-center text-sm font-bold ${theme.secondaryBtnClass}`}
-          >
-            צריכים מנוי ליותר מ-4 ילדים? דברו איתנו בוואטסאפ 💬
+          <a href={MORE_KIDS_MAILTO} className={`block min-h-11 px-3 py-2.5 rounded-2xl text-center text-sm font-bold ${theme.secondaryBtnClass}`}>
+            צריכים מנוי ליותר מ-4 ילדים? כתבו לנו לאימייל ✉️
           </a>
         )}
       </fieldset>
@@ -220,9 +233,10 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
         />
       </label>
       <label className="block text-sm font-bold">
-        אימייל לקבלה (לא חובה)
+        אימייל לקבלה ולסיכום העסקה <RequiredMark />
         <input
           type="email"
+          aria-required="true"
           dir="ltr"
           autoComplete="email"
           value={payerEmail}
@@ -230,6 +244,17 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
           className={`${fieldClass} ${theme.inputBgClass}`}
         />
       </label>
+
+      <p className="text-xs font-bold leading-relaxed" data-testid="cancel-summary">
+        {cancelSummaryHe(period, selected.length)}{' '}
+        <a href="/refunds/" target="_blank" rel="noopener" className="underline">
+          מדיניות שירות וביטולים
+        </a>
+        {' · '}
+        <a href={CANCEL_PAGE_PATH} target="_blank" rel="noopener" className="underline">
+          ביטול עסקה
+        </a>
+      </p>
 
       <label className={`flex items-start gap-2 p-2.5 rounded-2xl text-xs font-bold leading-relaxed ${theme.inputBgClass}`}>
         <input
@@ -262,7 +287,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
         {isBusy ? 'פותחים את דף התשלום…' : 'המשך לתשלום'}
       </button>
 
-      <p className={`text-xs font-bold text-center ${theme.mutedTextClass}`}>התשלום בדף המאובטח של חברת הסליקה.</p>
+      <p className={`text-xs font-bold text-center ${theme.mutedTextClass}`}>התשלום בדף המאובטח של גרואו פיימנטס בע״מ (Grow). פרטי הכרטיס לא מגיעים אלינו.</p>
       <p className={`text-xs text-center ${theme.mutedTextClass}`}>
         <a href={`${LANDING_PAGE_PATH}#pricing`} target="_blank" rel="noopener" className="underline">
           כל המחירים, שאלות נפוצות ופרטי התקשרות

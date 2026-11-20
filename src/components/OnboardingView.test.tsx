@@ -37,6 +37,7 @@ describe('OnboardingView', () => {
     const { onComplete, user } = setup({ ...DEFAULT_PROFILE, name: '' });
     await user.type(screen.getByPlaceholderText('למשל: נועה'), 'מיה');
     await user.click(gradeChip('כיתה י׳'));
+    await user.click(screen.getByRole('checkbox'));
     await user.click(submit());
     expect(onComplete).toHaveBeenCalledTimes(1);
     expect(onComplete.mock.calls[0][0]).toMatchObject({
@@ -52,6 +53,7 @@ describe('OnboardingView', () => {
     await user.type(screen.getByPlaceholderText('למשל: נועה'), 'דן');
     await user.click(screen.getByRole('button', { name: /בן/ }));
     await user.click(gradeChip('כיתה ט׳'));
+    await user.click(screen.getByRole('checkbox'));
     await user.click(submit());
     expect(onComplete.mock.calls[0][0]).toMatchObject({ gender: 'boy' });
   });
@@ -69,6 +71,19 @@ describe('OnboardingView', () => {
     expect(onComplete.mock.calls[0][0]).toMatchObject({ gradeId: 'grade-4', age: 9 });
   });
 
+  it("clears a teen's tick when the grade changes to under 13, so a parent must agree", async () => {
+    const { user } = setup({ ...DEFAULT_PROFILE, name: 'דן' });
+    await user.click(gradeChip('כיתה י׳'));
+    await user.click(screen.getByRole('checkbox'));
+    expect(screen.getByRole('checkbox')).toBeChecked();
+    await user.click(gradeChip('כיתה ב׳'));
+    expect(screen.getByRole('checkbox')).not.toBeChecked();
+    // Within the same bracket the tick stays
+    await user.click(screen.getByRole('checkbox'));
+    await user.click(gradeChip('כיתה ג׳'));
+    expect(screen.getByRole('checkbox')).toBeChecked();
+  });
+
   it('opens the privacy notice from the consent box', async () => {
     const { user } = setup();
     await user.click(gradeChip('כיתה ב׳'));
@@ -76,9 +91,17 @@ describe('OnboardingView', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 
-  it('shows no consent box from grade 8 (age 13)', async () => {
-    const { user } = setup({ ...DEFAULT_PROFILE, name: 'דן' });
+  it("from grade 8 (age 13) asks the learner to agree, with the parents' knowledge, and records it", async () => {
+    const { onComplete, user } = setup({ ...DEFAULT_PROFILE, name: 'דן' });
     await user.click(gradeChip('כיתה ח׳'));
-    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+    expect(screen.getByRole('checkbox').closest('label')).toHaveTextContent('בידיעת ההורים שלי ובהסכמתם');
+    expect(screen.getByRole('link', { name: 'תנאי השימוש' })).toHaveAttribute('href', '/terms/');
+    await user.click(submit());
+    expect(onComplete).not.toHaveBeenCalled();
+    expect(screen.getByText(/צריך לאשר את תנאי השימוש/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('checkbox'));
+    await user.click(submit());
+    expect(onComplete.mock.calls[0][0].termsConsent).toMatchObject({ isParentConsent: false });
   });
 });

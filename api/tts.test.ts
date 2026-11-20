@@ -173,12 +173,12 @@ describe('handleTtsRequest', () => {
     expect(response.headers.get('Cache-Control')).toBe('no-store');
   });
 
-  it('returns cacheable MP3 audio', async () => {
+  it('returns MP3 audio that no shared cache keeps, since the text may be something a learner typed', async () => {
     const fetchImpl = vi.fn(async () => new Response(new Uint8Array([9, 9]), { status: 200 }));
     const response = await handleTtsRequest(canonical('hello', 'male', 'slow'), ENV, fetchImpl as typeof fetch);
     expect(response.status).toBe(200);
     expect(response.headers.get('Content-Type')).toBe('audio/mpeg');
-    expect(response.headers.get('Cache-Control')).toContain('s-maxage=31536000');
+    expect(response.headers.get('Cache-Control')).toBe('private, no-store');
     expect((await response.arrayBuffer()).byteLength).toBe(2);
   });
 

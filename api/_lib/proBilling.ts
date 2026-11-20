@@ -39,6 +39,8 @@ export interface Checkout {
   provider: string;
   processId: string;
   processToken: string;
+  /** The regular monthly price for these seats on the day of purchase (0: not recorded) */
+  monthlyRateAgorot: number;
 }
 
 export interface Subscription {
@@ -56,6 +58,11 @@ export interface Subscription {
   lastRemovalAt: number;
   lastSwapAt: number;
   createdAt: number;
+  /**
+   * The regular monthly price for the plan's seats on the day it was bought: a yearly refund is
+   * worked out with it (api/_lib/cancellation.ts), so a later price rise can't shrink it. Missing on older plans.
+   */
+  monthlyRateAgorot?: number;
   /** Firestore's version, for optimistic writes */
   updateTime?: string;
 }
@@ -79,6 +86,7 @@ export function readCheckout(doc: PlainDocument | null): Checkout | null {
     provider: str(f.provider),
     processId: str(f.processId),
     processToken: str(f.processToken),
+    monthlyRateAgorot: num(f.monthlyRateAgorot),
   };
 }
 
@@ -102,6 +110,7 @@ export function readSubscription(doc: PlainDocument | null): Subscription | null
     lastRemovalAt: num(f.lastRemovalAt),
     lastSwapAt: num(f.lastSwapAt),
     createdAt: num(f.createdAt),
+    ...(num(f.monthlyRateAgorot) > 0 ? { monthlyRateAgorot: num(f.monthlyRateAgorot) } : {}),
     ...(doc.updateTime ? { updateTime: doc.updateTime } : {}),
   };
 }
@@ -121,6 +130,7 @@ export function subscriptionFields(sub: Subscription, nowMs: number): Record<str
     lastRemovalAt: sub.lastRemovalAt,
     lastSwapAt: sub.lastSwapAt,
     createdAt: sub.createdAt,
+    ...(sub.monthlyRateAgorot ? { monthlyRateAgorot: sub.monthlyRateAgorot } : {}),
     updatedAt: nowMs,
   };
 }

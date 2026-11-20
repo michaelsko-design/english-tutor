@@ -3,6 +3,7 @@ import { makeProfile } from '../test/fixtures';
 import type { GradeId } from '../types/learner';
 import type { SignupDraft } from '../data/signupDraft';
 import { applyBasicsToProfile, getStartingGradeId } from './applyBasicsToProfile';
+import { PRIVACY_VERSION, TERMS_VERSION } from '../config/appInfo';
 
 const NOW = new Date('2026-11-11T10:00:00.000Z');
 const newProfile = () => makeProfile({ isOnboarded: false, preferredTier: 'challenger' });
@@ -19,6 +20,25 @@ describe('getStartingGradeId', () => {
 });
 
 describe('applyBasicsToProfile', () => {
+  it("records the agreement to the terms and privacy notice, a parent's under 13 and the learner's from 13", () => {
+    const child = applyBasicsToProfile(newProfile(), basics('grade-2'), NOW);
+    expect(child.termsConsent).toEqual({
+      acceptedAt: NOW.toISOString(),
+      termsVersion: TERMS_VERSION,
+      privacyVersion: PRIVACY_VERSION,
+      isParentConsent: true,
+    });
+    expect(child.parentalConsentAt).toBe(NOW.toISOString());
+    const teen = applyBasicsToProfile(newProfile(), basics('grade-10'), NOW);
+    expect(teen.termsConsent).toMatchObject({ isParentConsent: false, termsVersion: TERMS_VERSION });
+    expect(teen.parentalConsentAt).toBeUndefined();
+  });
+
+  it('records no agreement when the box was not ticked', () => {
+    const saved = applyBasicsToProfile(newProfile(), { ...basics('grade-10'), hasParentConsent: false }, NOW);
+    expect(saved.termsConsent).toBeUndefined();
+  });
+
   it.each<GradeId>(['grade-1', 'grade-2', 'grade-3'])(
     'puts a new %s learner on grade 1 and keeps the picked grade as the school grade',
     (gradeId) => {

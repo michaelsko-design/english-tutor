@@ -60,7 +60,7 @@ test.describe('onboarding', () => {
     await gate.getByRole('button', { name: GRADE_LABELS[0] }).click();
     await gate.getByRole('button', { name: 'המשך' }).click();
     await expect(gate.getByText(/צריך שהורה יאשר/)).toBeVisible();
-    await gate.getByRole('checkbox', { name: /אני הורה וקראתי/ }).check();
+    await gate.getByRole('checkbox', { name: /קראתי ואני מסכים/ }).check();
     await gate.getByRole('button', { name: 'המשך' }).click();
 
     // A username made from the name is offered; the learner picks the secret code

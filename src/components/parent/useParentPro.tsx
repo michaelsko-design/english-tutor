@@ -6,7 +6,13 @@ import type { ExamPitch } from '../../data/examPitch';
 import { parseParentProRoute } from '../../data/parentProRoute';
 import { canJoinCheckout, childrenOnSamePlan, findOpenPlan, getChildProStatus, type ChildProStatus } from '../../data/proPlanStatus';
 import { useChildEntitlements } from '../../hooks/useChildEntitlements';
-import { changeProPlan, type PlanAction } from '../../services/proBillingService';
+import {
+  changeProPlan,
+  quoteProCancellation,
+  type CancelQuote,
+  type PlanAction,
+  type PlanChangeOptions,
+} from '../../services/proBillingService';
 import { trackFunnel } from '../../services/analytics/funnel';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 import { ChildProSection } from './ChildProSection';
@@ -35,6 +41,7 @@ interface PlanStart {
 
 const PLAN_DONE_HE: Record<PlanAction, string> = {
   cancel: 'החידוש בוטל. Pro ממשיך עד סוף התקופה ששולמה.',
+  cancelWithRefund: 'הביטול נקלט. ההחזר יגיע לאמצעי התשלום בתוך 14 יום (ואם אי אפשר, נתאם איתכם העברה בנקאית).',
   addChild: 'הילד/ה נוסף/ה למנוי. Pro פעיל עכשיו.',
   removeChild: 'הילד/ה הוצא/ה מהמנוי.',
 };
@@ -68,6 +75,11 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
   );
   const eligible = (links ?? []).filter((link) => canJoinCheckout(statuses[link.childUid]));
   const openPlan = findOpenPlan(user.uid, entitlements, nowMs);
+  /** A monthly plan this parent pays that will charge again (the parent account can't be deleted under it); null while loading */
+  const hasRenewingPlan =
+    links === null || Object.values(statuses).some((status) => status === undefined)
+      ? null
+      : Object.values(statuses).some((status) => status?.kind === 'plan' && status.isPayer && status.isRenewing);
 
   const showPlans = (childUids: string[], period: BillingPeriod) => {
     onError(null);
@@ -75,13 +87,21 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
     plansRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const changePlan = async (action: PlanAction, subscriptionId: string, childUid?: string) => {
+  const changePlan = async (action: PlanAction, subscriptionId: string, options: PlanChangeOptions = {}) => {
     setIsBusy(true);
     onError(null);
-    const result = await changeProPlan(action, subscriptionId, childUid);
+    const result = await changeProPlan(action, subscriptionId, options);
     setIsBusy(false);
     if (result.ok) onNotice(PLAN_DONE_HE[action]);
     else onError(result.errorHe);
+  };
+
+  const loadCancelQuote = async (subscriptionId: string): Promise<CancelQuote | null> => {
+    onError(null);
+    const result = await quoteProCancellation(subscriptionId);
+    if (result.ok) return result.value;
+    onError(result.errorHe);
+    return null;
   };
 
   const renderChildSection = (link: ParentLink): React.ReactNode => {
@@ -101,17 +121,30 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
         onCancelRenewal={() => {
           if (status?.kind === 'plan') void changePlan('cancel', status.subscriptionId);
         }}
+        onLoadCancelQuote={() => (status?.kind === 'plan' ? loadCancelQuote(status.subscriptionId) : Promise.resolve(null))}
+        onCancelWithRefund={() => {
+          if (status?.kind === 'plan') void changePlan('cancelWithRefund', status.subscriptionId);
+        }}
         onAddToPlan={() => {
-          if (openPlan) void changePlan('addChild', openPlan.subscriptionId, link.childUid);
+          if (!openPlan) return;
+          void changePlan('addChild', openPlan.subscriptionId, {
+            childUid: link.childUid,
+            ...(openPlan.nextMonthlyAgorot != null ? { confirmedAmountAgorot: openPlan.nextMonthlyAgorot } : {}),
+          });
         }}
         onRemoveFromPlan={() => {
-          if (status?.kind === 'plan') void changePlan('removeChild', status.subscriptionId, link.childUid);
+          if (status?.kind === 'plan') void changePlan('removeChild', status.subscriptionId, { childUid: link.childUid });
         }}
       />
     );
   };
 
   const paidId = route.paidCheckoutId;
+  const paidEntitlement = paidId ? Object.values(entitlements).find((e) => e?.subscriptionId === paidId) ?? null : null;
+  const paidPlan =
+    paidEntitlement?.billingPeriod && paidEntitlement.seatLimit
+      ? { period: paidEntitlement.billingPeriod, seats: paidEntitlement.seatLimit, periodEnd: paidEntitlement.periodEnd }
+      : null;
   const activatedNames = paidId
     ? (links ?? []).filter((l) => entitlements[l.childUid]?.subscriptionId === paidId).map((l) => l.childName)
     : [];
@@ -124,6 +157,7 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
             theme={theme}
             isCancelled={route.isPaymentCancelled}
             activatedNames={activatedNames.length > 0 ? activatedNames : null}
+            paidPlan={paidPlan}
             onDismiss={() => {
               clearProAddress();
               setRoute(parseParentProRoute(''));
@@ -166,5 +200,5 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
     </div>
   ) : null;
 
-  return { renderChildSection, topArea, plansArea };
+  return { renderChildSection, topArea, plansArea, hasRenewingPlan };
 }

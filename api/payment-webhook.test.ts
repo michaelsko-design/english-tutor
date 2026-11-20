@@ -27,7 +27,7 @@ function setup(payment: ConfirmedPayment | null = PAID, canChangeRecurring = tru
   const clock = { now: NOW };
   const deps = { nowMs: () => clock.now, createAdmin: vi.fn(() => fake.admin) as never, createProvider: vi.fn(() => gateway) as never };
   fake.seed('checkouts', CHECKOUT_ID, {
-    parentUid: 'parent1', childUids: ['kid1', 'kid2'], period: 'monthly', seatLimit: 2, amountAgorot: 6400,
+    parentUid: 'parent1', childUids: ['kid1', 'kid2'], period: 'monthly', seatLimit: 2, amountAgorot: 6400, monthlyRateAgorot: 6400,
     status: 'pending', provider: 'grow', processId: 'P-REAL', processToken: 'TOK-REAL', createdAt: NOW - 60000,
     payerName: 'ישראל ישראלי', payerPhone: '0501234567', payerEmail: 'parent@example.com',
   });
@@ -68,7 +68,7 @@ describe('handlePaymentWebhook: payment page notifications', () => {
     expect(gateway.confirmPayment).toHaveBeenCalledWith('monthly', { processId: 'P-REAL', processToken: 'TOK-REAL' }, expect.objectContaining({ processId: 'P-FORGED' }));
     expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({
       payerParentUid: 'parent1', childUids: ['kid1', 'kid2'], status: 'active', periodEnd: Date.UTC(2026, 10, 28, 12),
-      amountAgorot: 6400, recurringRef: 'DD7',
+      amountAgorot: 6400, recurringRef: 'DD7', monthlyRateAgorot: 6400,
     });
     for (const kid of ['kid1', 'kid2']) {
       expect(fake.get('entitlements', kid)).toMatchObject({ plan: 'pro', status: 'active', subscriptionId: CHECKOUT_ID, payerParentUid: 'parent1' });
@@ -149,6 +149,21 @@ describe('handlePaymentWebhook: Grow account webhooks', () => {
     expect(fake.get('entitlements', 'kid2')).toMatchObject({ periodEnd: Date.UTC(2026, 11, 28, 12) });
     expect(fake.get('payments', 'grow_R1')).toMatchObject({ kind: 'renewal', amountAgorot: 6400 });
     expect(fake.get('gatewayTasks', `${CHECKOUT_ID}_extend_1`)).toBeUndefined();
+  });
+
+  it('never re-opens Pro for a plan refunded at cancellation: the charge is recorded and refunded', async () => {
+    const { fake, deps } = await activated();
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const entitlementBefore = fake.get('entitlements', 'kid1');
+    fake.seed('refundRequests', CHECKOUT_ID, { parentUid: 'parent1', mode: 'full_refund' });
+    const renewal = { webhookKey: 'GROWKEY', transactionCode: 'R9', paymentSum: 64, directDebitId: 'DD7', paymentType: 'הוראת קבע' };
+
+    expect((await handlePaymentWebhook(accountWebhook(renewal), ENV, deps)).status).toBe(200);
+
+    expect(fake.get('entitlements', 'kid1')).toEqual(entitlementBefore);
+    expect(fake.get('payments', 'grow_R9')).toMatchObject({ kind: 'renewal_after_refund', amountAgorot: 6400 });
+    expect(fake.get('gatewayTasks', 'refund_grow_R9')).toMatchObject({ kind: 'refund', amountAgorot: 6400, doneAt: 0 });
+    logged.mockRestore();
   });
 
   it('refuses a renewal charged for less than the plan, and logs it', async () => {

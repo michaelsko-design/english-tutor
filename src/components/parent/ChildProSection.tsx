@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import type { ChildProStatus, OpenPlan } from '../../data/proPlanStatus';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
+import type { CancelQuote } from '../../services/proBillingService';
 import { formatShekels } from './proPlanParts';
+import { CancelPlanPanel } from './CancelPlanPanel';
 
 interface ChildProSectionProps {
   childName: string;
@@ -14,6 +16,9 @@ interface ChildProSectionProps {
   onUpgrade: () => void;
   onRenew: () => void;
   onCancelRenewal: () => void;
+  /** What cancelling gives back (null when it could not be loaded; the hook shows the error) */
+  onLoadCancelQuote: () => Promise<CancelQuote | null>;
+  onCancelWithRefund: () => void;
   onAddToPlan: () => void;
   onRemoveFromPlan: () => void;
 }
@@ -48,11 +53,22 @@ export const ChildProSection: React.FC<ChildProSectionProps> = ({
   onUpgrade,
   onRenew,
   onCancelRenewal,
+  onLoadCancelQuote,
+  onCancelWithRefund,
   onAddToPlan,
   onRemoveFromPlan,
 }) => {
-  const [confirming, setConfirming] = useState<'cancel' | 'remove' | null>(null);
+  const [confirming, setConfirming] = useState<'cancel' | 'remove' | 'add' | null>(null);
+  const [quote, setQuote] = useState<CancelQuote | null>(null);
   if (status === undefined) return null;
+
+  const openCancel = async () => {
+    setQuote(null);
+    setConfirming('cancel');
+    const loaded = await onLoadCancelQuote();
+    if (loaded) setQuote(loaded);
+    else setConfirming(null);
+  };
 
   if (status.kind === 'comp') {
     return (
@@ -63,15 +79,38 @@ export const ChildProSection: React.FC<ChildProSectionProps> = ({
   }
 
   if (status.kind === 'free') {
+    const nextMonthly = openPlan?.nextMonthlyAgorot ?? null;
     const addLabel =
-      openPlan?.nextMonthlyAgorot != null
-        ? `הוספה למנוי שלי (${formatShekels(openPlan.nextMonthlyAgorot)} לחודש מהחיוב הבא)`
-        : 'הוספה למנוי השנתי שלי';
+      nextMonthly != null ? `הוספה למנוי שלי (${formatShekels(nextMonthly)} לחודש מהחיוב הבא)` : 'הוספה למנוי השנתי שלי';
+    // A higher monthly charge is confirmed first (the server saves the confirmation)
+    const onAddClick = () => (nextMonthly != null ? setConfirming('add') : onAddToPlan());
     return (
       <div className="space-y-2" data-testid="child-pro-status">
         <p className={`text-sm font-bold ${theme.mutedTextClass}`}>חשבון חינמי</p>
-        {openPlan ? (
-          <button type="button" disabled={isBusy} onClick={onAddToPlan} className={`${actionClass} w-full ${theme.secondaryBtnClass}`}>
+        {openPlan && confirming === 'add' && nextMonthly != null ? (
+          <div className={`p-2.5 rounded-2xl space-y-2 ${theme.inputBgClass}`}>
+            <p className="text-xs sm:text-sm font-bold">
+              {`להוסיף את ${childName} למנוי? מהחיוב הבא החיוב החודשי בהוראת הקבע יהיה ${formatShekels(nextMonthly)}, עד שמבטלים.`}
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                disabled={isBusy}
+                onClick={() => {
+                  setConfirming(null);
+                  onAddToPlan();
+                }}
+                className={`${actionClass} flex-1 ${theme.primaryBtnClass}`}
+              >
+                {`כן, להוסיף (${formatShekels(nextMonthly)} לחודש)`}
+              </button>
+              <button type="button" onClick={() => setConfirming(null)} className={`${actionClass} ${theme.secondaryBtnClass}`}>
+                חזרה
+              </button>
+            </div>
+          </div>
+        ) : openPlan ? (
+          <button type="button" disabled={isBusy} onClick={onAddClick} className={`${actionClass} w-full ${theme.secondaryBtnClass}`}>
             {addLabel}
           </button>
         ) : (
@@ -102,12 +141,29 @@ export const ChildProSection: React.FC<ChildProSectionProps> = ({
           </button>
         </div>
       )}
-      {confirming && status.isPayer && (
+      {confirming === 'cancel' && status.isPayer && (
+        <CancelPlanPanel
+          quote={quote}
+          period={status.period}
+          isRenewing={status.isRenewing}
+          theme={theme}
+          isBusy={isBusy}
+          formatDate={formatDateHe}
+          onCancelWithRefund={() => {
+            setConfirming(null);
+            onCancelWithRefund();
+          }}
+          onStopRenewal={() => {
+            setConfirming(null);
+            onCancelRenewal();
+          }}
+          onBack={() => setConfirming(null)}
+        />
+      )}
+      {confirming === 'remove' && status.isPayer && (
         <div className={`p-2.5 rounded-2xl space-y-2 ${theme.inputBgClass}`}>
           <p className="text-xs sm:text-sm font-bold">
-            {confirming === 'cancel'
-              ? `לבטל את החידוש? לא יהיו חיובים נוספים, וכל הילדים במנוי ימשיכו עם Pro עד ${formatDateHe(status.periodEnd)}.`
-              : `להוציא את ${childName} מהמנוי? ל${childName} יישאר Pro לכל היותר עוד חודש, והמקום במנוי יתפנה.`}
+            {`להוציא את ${childName} מהמנוי? ל${childName} יישאר Pro לכל היותר עוד חודש, והמקום במנוי יתפנה.`}
           </p>
           <div className="flex gap-2">
             <button
@@ -115,12 +171,11 @@ export const ChildProSection: React.FC<ChildProSectionProps> = ({
               disabled={isBusy}
               onClick={() => {
                 setConfirming(null);
-                if (confirming === 'cancel') onCancelRenewal();
-                else onRemoveFromPlan();
+                onRemoveFromPlan();
               }}
               className={`${actionClass} flex-1 border border-rose-500/50 text-rose-700 dark:text-rose-300`}
             >
-              {confirming === 'cancel' ? 'כן, לבטל את החידוש' : 'כן, להוציא'}
+              כן, להוציא
             </button>
             <button type="button" onClick={() => setConfirming(null)} className={`${actionClass} ${theme.secondaryBtnClass}`}>
               חזרה
@@ -128,13 +183,11 @@ export const ChildProSection: React.FC<ChildProSectionProps> = ({
           </div>
         </div>
       )}
-      {!confirming && status.isPayer && (status.isRenewing || status.canRemove) && (
+      {!confirming && status.isPayer && !status.hasLeftPlan && (
         <div className="flex flex-wrap gap-x-4 gap-y-1">
-          {status.isRenewing && (
-            <button type="button" disabled={isBusy} onClick={() => setConfirming('cancel')} className={`${linkClass} ${theme.mutedTextClass}`}>
-              ביטול החידוש
-            </button>
-          )}
+          <button type="button" disabled={isBusy} onClick={() => void openCancel()} className={`${linkClass} ${theme.mutedTextClass}`}>
+            {status.isRenewing ? 'ביטול החידוש או המנוי' : 'ביטול המנוי'}
+          </button>
           {status.canRemove && (
             <button type="button" disabled={isBusy} onClick={() => setConfirming('remove')} className={`${linkClass} ${theme.mutedTextClass}`}>
               הוצאה מהמנוי

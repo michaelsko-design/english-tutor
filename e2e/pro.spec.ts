@@ -59,6 +59,8 @@ test.describe('Pro', () => {
       await expect(checkout.getByTestId('pro-checkout-total')).toContainText('39');
       await checkout.getByLabel('שם מלא של המשלם/ת').fill('דנה כהן');
       await checkout.getByLabel('טלפון נייד').fill('050-1234567');
+      await checkout.getByLabel(/אימייל לקבלה/).fill('dana@example.com');
+      await expect(checkout.getByTestId('cancel-summary')).toContainText('ביטול בתוך 14 יום');
       await checkout.getByRole('checkbox', { name: /תנאי השימוש/ }).check();
       await checkout.getByRole('button', { name: 'המשך לתשלום' }).click();
       await expect(parent.page).toHaveURL(/[?&]mockpay=[a-f0-9]{32}/, { timeout: CLOUD_TIMEOUT_MS });
@@ -67,6 +69,7 @@ test.describe('Pro', () => {
       // Back in the portal: confirmed once the entitlement is written
       await expect(parent.page).toHaveURL(/[?&]paid=[a-f0-9]{32}/);
       await expect(parent.page.getByTestId('pro-payment-return')).toContainText('פעיל עכשיו עבור נועה', { timeout: CLOUD_TIMEOUT_MS });
+      await expect(parent.page.getByTestId('transaction-summary')).toContainText('סיכום עסקה ופרטי ביטול');
       await expect(parent.page.getByTestId('child-pro-status')).toContainText('מנוי חודשי, מתחדש');
       expect(await readDocument(`entitlements/${childUid}`)).toMatchObject({ plan: 'pro', status: 'active', billingPeriod: 'monthly' });
 
@@ -75,10 +78,17 @@ test.describe('Pro', () => {
       await expect(page.getByRole('button', { name: /פתיחת החנות/ })).toBeVisible({ timeout: CLOUD_TIMEOUT_MS });
       await expect(proStops).toHaveCount(0, { timeout: CLOUD_TIMEOUT_MS });
 
-      // The paying parent cancels the renewal; Pro stays on until the period ends
-      await parent.page.getByRole('button', { name: 'ביטול החידוש' }).click();
-      await parent.page.getByRole('button', { name: 'כן, לבטל את החידוש' }).click();
+      // The paying parent first stops the renewal only (within 14 days a full refund is offered too)
+      await parent.page.getByRole('button', { name: 'ביטול החידוש או המנוי' }).click();
+      await expect(parent.page.getByTestId('cancel-plan-panel')).toContainText('יוחזר לכם כל הסכום', { timeout: CLOUD_TIMEOUT_MS });
+      await parent.page.getByRole('button', { name: 'רק לבטל את החידוש, בלי החזר' }).click();
       await expect(parent.page.getByTestId('child-pro-status')).toContainText('המנוי בוטל, בתוקף עד', { timeout: CLOUD_TIMEOUT_MS });
+
+      // Then asks for the full refund: Pro closes now, and the owner gets the refund task
+      await parent.page.getByRole('button', { name: 'ביטול המנוי' }).click();
+      await parent.page.getByRole('button', { name: 'ביטול והחזר מלא' }).click();
+      await expect(parent.page.getByTestId('child-pro-status')).toContainText('חשבון חינמי', { timeout: CLOUD_TIMEOUT_MS });
+      expect(await readDocument(`entitlements/${childUid}`)).toMatchObject({ status: 'expired' });
     } finally {
       await parent.context.close();
     }

@@ -137,8 +137,9 @@ test.describe('early testers (closed access)', () => {
     expect(await readDocument(`allowed/${uid}`)).toMatchObject({ label: 'kid-3-again' });
   });
 
-  test('a tester sends a note to the team; deleting the account erases the tester records but keeps the note', async ({ page, learner }) => {
-    const uid = await joinWithLink(page, learner, await createInviteCode('kid-4'));
+  test('a tester sends a note to the team; deleting the account erases the tester records, the note and the invite', async ({ page, learner }) => {
+    const inviteCode = await createInviteCode('kid-4');
+    const uid = await joinWithLink(page, learner, inviteCode);
     await finishOnboarding(page);
 
     // The note goes to the server-only collection with the tester's uid
@@ -147,7 +148,7 @@ test.describe('early testers (closed access)', () => {
     await page.getByLabel('ההודעה שלכם').fill('אפשר עוד משחקים?');
     await page.getByRole('button', { name: 'שליחה', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'תודה' })).toBeVisible({ timeout: CLOUD_TIMEOUT_MS });
-    // Notes are kept after deletion, so earlier runs may have left theirs: find this tester's own
+    // Other tests may have left notes: find this tester's own
     const noteIds: string[] = [];
     for (const id of await listDocumentIds('feedback')) {
       if ((await readDocument(`feedback/${id}`))?.uid === uid) noteIds.push(id);
@@ -169,8 +170,9 @@ test.describe('early testers (closed access)', () => {
     expect(await readDocument(`learners/${uid}`)).toBeNull();
     expect(await readDocument(`allowed/${uid}`)).toBeNull();
     expect(await readDocument(`entitlements/${uid}`)).toBeNull();
-    // The note stays for the owner, cut loose from the deleted account
-    expect(await readDocument(`feedback/${noteIds[0]}`)).toMatchObject({ uid: '', testerLabel: 'kid-4', text: 'אפשר עוד משחקים?' });
+    // The note and the used invite go too (privacy notice)
+    expect(await readDocument(`feedback/${noteIds[0]}`)).toBeNull();
+    expect(await readDocument(`invites/${inviteCode}`)).toBeNull();
     expect(await readDocument(`analyticsDaily/${today}_${uid}`)).toBeNull();
   });
 

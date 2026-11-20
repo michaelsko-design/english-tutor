@@ -667,6 +667,14 @@ describe('mergeLearnerProfiles fields added by the audit', () => {
     expect(merged.schoolGradeId).toBe('grade-5');
   });
 
+  it('keeps the newer agreement to the terms and privacy notice', () => {
+    const older = { acceptedAt: '2026-11-19T10:00:00.000Z', termsVersion: '2026-11-19', privacyVersion: '2026-11-19', isParentConsent: false };
+    const newer = { ...older, acceptedAt: '2026-12-19T10:00:00.000Z', termsVersion: '2026-12-19' };
+    expect(mergeLearnerProfiles({ ...baseProfile, termsConsent: older }, { ...baseProfile, termsConsent: newer }).termsConsent).toEqual(newer);
+    expect(mergeLearnerProfiles({ ...baseProfile, termsConsent: older }, baseProfile).termsConsent).toEqual(older);
+    expect(mergeLearnerProfiles(baseProfile, baseProfile).termsConsent).toBeUndefined();
+  });
+
   it('keeps the analytics opt-out from the newer side', () => {
     const merged = mergeLearnerProfiles(
       { ...baseProfile, isAnalyticsOptedOut: true, updatedAt: '2026-11-02T00:00:00.000Z' },

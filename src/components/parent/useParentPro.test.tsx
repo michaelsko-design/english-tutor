@@ -12,11 +12,15 @@ import { useParentPro } from './useParentPro';
 const mocks = vi.hoisted(() => ({
   entitlements: {} as Record<string, unknown>,
   changeProPlan: vi.fn(),
+  quoteProCancellation: vi.fn(),
   trackFunnel: vi.fn(),
 }));
 vi.mock('../../services/analytics/funnel', () => ({ trackFunnel: mocks.trackFunnel }));
 vi.mock('../../hooks/useChildEntitlements', () => ({ useChildEntitlements: () => mocks.entitlements }));
-vi.mock('../../services/proBillingService', () => ({ changeProPlan: mocks.changeProPlan }));
+vi.mock('../../services/proBillingService', () => ({
+  changeProPlan: mocks.changeProPlan,
+  quoteProCancellation: mocks.quoteProCancellation,
+}));
 
 // Stand-ins that expose the props the hook passes down as buttons and text
 vi.mock('./ChildProSection', () => ({
@@ -26,6 +30,8 @@ vi.mock('./ChildProSection', () => ({
     onUpgrade: () => void;
     onRenew: () => void;
     onCancelRenewal: () => void;
+    onLoadCancelQuote: () => Promise<unknown>;
+    onCancelWithRefund: () => void;
     onAddToPlan: () => void;
     onRemoveFromPlan: () => void;
   }) => (
@@ -34,6 +40,8 @@ vi.mock('./ChildProSection', () => ({
       <button type="button" onClick={p.onUpgrade}>{`upgrade ${p.childName}`}</button>
       <button type="button" onClick={p.onRenew}>{`renew ${p.childName}`}</button>
       <button type="button" onClick={p.onCancelRenewal}>{`cancel ${p.childName}`}</button>
+      <button type="button" onClick={() => void p.onLoadCancelQuote()}>{`quote ${p.childName}`}</button>
+      <button type="button" onClick={p.onCancelWithRefund}>{`refund ${p.childName}`}</button>
       <button type="button" onClick={p.onAddToPlan}>{`add ${p.childName}`}</button>
       <button type="button" onClick={p.onRemoveFromPlan}>{`remove ${p.childName}`}</button>
     </div>
@@ -89,6 +97,7 @@ function Harness({ links, isEnabled = true }: { links: ParentLink[] | null; isEn
       {pro.topArea}
       {links?.map((l) => <div key={l.childUid}>{pro.renderChildSection(l)}</div>)}
       {pro.plansArea}
+      <span>renewing:{String(pro.hasRenewingPlan)}</span>
     </div>
   );
 }
@@ -126,6 +135,23 @@ describe('useParentPro visibility', () => {
     render(<Harness links={[NOA, ITAY]} />);
 
     expect(screen.getByText('plans:yearly:c1,c2:parent@example.com')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['a monthly plan this parent pays', plan(), true],
+    ['a monthly plan whose renewal was cancelled', plan({ status: 'canceled' }), false],
+    ['a yearly plan, which never renews by itself', plan({ billingPeriod: 'yearly', seatLimit: 1 }), false],
+    ["another parent's monthly plan", plan({ payerParentUid: 'parent-2' }), false],
+  ])('knows whether the parent has a plan that charges again: %s', (_label, entitlement, expected) => {
+    mocks.entitlements = { c1: entitlement };
+    render(<Harness links={[NOA]} />);
+    expect(screen.getByText(`renewing:${expected}`)).toBeInTheDocument();
+  });
+
+  it('does not know about renewing plans while a child\'s plan is still loading', () => {
+    mocks.entitlements = { c1: null };
+    render(<Harness links={[NOA, ITAY]} />);
+    expect(screen.getByText('renewing:null')).toBeInTheDocument();
   });
 
   it('offers no plans once every child has Pro', () => {
@@ -198,7 +224,7 @@ describe('useParentPro plan changes', () => {
 
     await user.click(screen.getByRole('button', { name: 'cancel נועה' }));
 
-    expect(mocks.changeProPlan).toHaveBeenCalledWith('cancel', 's1', undefined);
+    expect(mocks.changeProPlan).toHaveBeenCalledWith('cancel', 's1', {});
     expect(onNotice).toHaveBeenCalledWith(expect.stringContaining('החידוש בוטל'));
   });
 
@@ -210,7 +236,8 @@ describe('useParentPro plan changes', () => {
 
     await user.click(screen.getByRole('button', { name: 'add איתי' }));
 
-    expect(mocks.changeProPlan).toHaveBeenCalledWith('addChild', 's1', 'c2');
+    // The monthly price the parent confirmed goes with it (the server checks it)
+    expect(mocks.changeProPlan).toHaveBeenCalledWith('addChild', 's1', { childUid: 'c2', confirmedAmountAgorot: 6400 });
     expect(onNotice).toHaveBeenCalledWith(expect.stringContaining('נוסף/ה למנוי'));
   });
 
@@ -222,8 +249,32 @@ describe('useParentPro plan changes', () => {
 
     await user.click(screen.getByRole('button', { name: 'remove איתי' }));
 
-    expect(mocks.changeProPlan).toHaveBeenCalledWith('removeChild', 's1', 'c2');
+    expect(mocks.changeProPlan).toHaveBeenCalledWith('removeChild', 's1', { childUid: 'c2' });
     expect(onNotice).toHaveBeenCalledWith(expect.stringContaining('הוצא/ה מהמנוי'));
+  });
+
+  it('cancels with a refund and says when the money comes back', async () => {
+    const user = userEvent.setup();
+    mocks.entitlements = { c1: plan() };
+    mocks.changeProPlan.mockResolvedValue({ ok: true, value: undefined });
+    render(<Harness links={[NOA]} />);
+
+    await user.click(screen.getByRole('button', { name: 'refund נועה' }));
+
+    expect(mocks.changeProPlan).toHaveBeenCalledWith('cancelWithRefund', 's1', {});
+    expect(onNotice).toHaveBeenCalledWith(expect.stringContaining('בתוך 14 יום'));
+  });
+
+  it('loads the cancellation quote, and shows the error when it fails', async () => {
+    const user = userEvent.setup();
+    mocks.entitlements = { c1: plan() };
+    mocks.quoteProCancellation.mockResolvedValue({ ok: false, errorHe: 'אין חיבור' });
+    render(<Harness links={[NOA]} />);
+
+    await user.click(screen.getByRole('button', { name: 'quote נועה' }));
+
+    expect(mocks.quoteProCancellation).toHaveBeenCalledWith('s1');
+    expect(onError).toHaveBeenLastCalledWith('אין חיבור');
   });
 
   it('passes the server\'s error on to the parent', async () => {

@@ -3,12 +3,12 @@ import { handleCheckoutRequest, MAX_PENDING_CHECKOUTS_PER_DAY } from './checkout
 import { createFakeFirestore } from './_lib/testing/fakeFirestoreAdmin';
 import { linksFetch, parentRequest, SERVICE_ACCOUNT_JSON } from './_lib/testing/parentRequestFixtures';
 import type { PaymentProvider } from './_lib/payments/provider';
-import { TERMS_VERSION } from '../src/config/appInfo';
+import { PRIVACY_VERSION, TERMS_VERSION } from '../src/config/appInfo';
 
 const NOW = Date.UTC(2026, 9, 28);
 const CHECKOUT_ID = 'c'.repeat(32);
 const ENV = { FIREBASE_SERVICE_ACCOUNT_JSON: SERVICE_ACCOUNT_JSON, PAYMENT_WEBHOOK_SECRET: 'hook-secret', APP_ORIGIN: 'https://app.example' };
-const PAYER = { payerName: 'ישראל ישראלי', payerPhone: '050-123-4567', acceptedTerms: true };
+const PAYER = { payerName: 'ישראל ישראלי', payerPhone: '050-123-4567', payerEmail: 'payer@example.com', acceptedTerms: true };
 
 function setup({ linked = ['parent1_kid1', 'parent1_kid2'], provider = true, canChangeRecurring = true } = {}) {
   const fake = createFakeFirestore();
@@ -66,12 +66,23 @@ describe('handleCheckoutRequest', () => {
     expect(fake.get('checkouts', CHECKOUT_ID)).not.toHaveProperty('payerPhone');
   });
 
-  it('records which terms the parent accepted, and when', async () => {
+  it('records which terms and privacy notice the parent accepted, when, and the consent to retried monthly charges', async () => {
     const { fake, deps } = setup();
 
     await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER }), ENV, deps);
 
-    expect(fake.get('checkouts', CHECKOUT_ID)).toMatchObject({ termsVersion: TERMS_VERSION, acceptedAt: NOW });
+    expect(fake.get('checkouts', CHECKOUT_ID)).toMatchObject({
+      termsVersion: TERMS_VERSION,
+      privacyVersion: PRIVACY_VERSION,
+      acceptedAt: NOW,
+      acceptedRetryConsent: true,
+    });
+  });
+
+  it('records no retry consent on a yearly plan, and the monthly price of the day for its refunds', async () => {
+    const { fake, deps } = setup();
+    await handleCheckoutRequest(checkout({ childUids: ['kid1', 'kid2'], period: 'yearly', ...PAYER }), ENV, deps);
+    expect(fake.get('checkouts', CHECKOUT_ID)).toMatchObject({ acceptedRetryConsent: false, monthlyRateAgorot: 6400 });
   });
 
   it('refuses a payment page when the parent did not accept the terms', async () => {
@@ -165,15 +176,14 @@ describe('handleCheckoutRequest', () => {
     expect((await handleCheckoutRequest(both(), ENV, onePlan.deps)).status).toBe(200);
   });
 
-  it('refuses a parent linked to more than six children', async () => {
+  it('lets a parent linked to many children buy for up to four (no hidden limit on links)', async () => {
     const { fake, gateway, deps } = setup();
     for (let i = 1; i <= 7; i += 1) fake.seed('parentLinks', `parent1_kid${i}`, { parentUid: 'parent1', childUid: `kid${i}` });
 
     const response = await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'monthly', ...PAYER }), ENV, deps);
 
-    expect(response.status).toBe(409);
-    expect(await response.json()).toMatchObject({ code: 'too_many_children' });
-    expect(gateway.createPaymentPage).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(gateway.createPaymentPage).toHaveBeenCalled();
   });
 
   it('caps the unpaid payment pages a parent opens in a day', async () => {
@@ -201,6 +211,8 @@ describe('handleCheckoutRequest', () => {
     ['a one-word name', { childUids: ['kid1'], period: 'monthly', payerName: 'ישראל', payerPhone: '0501234567' }],
     ['a name with symbols', { childUids: ['kid1'], period: 'monthly', payerName: 'Dan <b>Cohen</b>', payerPhone: '0501234567' }],
     ['a landline', { childUids: ['kid1'], period: 'monthly', payerName: 'Dan Cohen', payerPhone: '031234567' }],
+    ['no email', { childUids: ['kid1'], period: 'monthly', ...PAYER, payerEmail: '' }],
+    ['a broken email', { childUids: ['kid1'], period: 'monthly', ...PAYER, payerEmail: 'payer@' }],
   ])('rejects %s', async (_label, body) => {
     const { deps } = setup();
     expect((await handleCheckoutRequest(checkout(body), ENV, deps)).status).toBe(400);
