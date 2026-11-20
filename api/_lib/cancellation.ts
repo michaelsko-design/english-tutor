@@ -3,7 +3,8 @@
  * TOS-17/18/19, REF-02/04). Pure functions; api/subscription.ts reads, quotes and writes.
  * - Within FULL_REFUND_DAYS of the payment, once per family: the whole payment back, Pro closes now.
  * - A yearly plan after that: paid − (months started, this one included × the regular monthly price),
- *   never below 0; with a refund, Pro closes at the end of the current plan month.
+ *   never below 0; with a refund, Pro closes at the end of the current plan month. The monthly price is
+ *   the one on the day of purchase, or today's when that is lower, so a later price rise never shrinks it.
  * - A monthly plan after that: no more charges, Pro until the end of the paid month.
  * `refundRequests/{subscriptionId}` (server only) records each request, so one plan is refunded once
  * and a family's full refund can be found.
@@ -42,10 +43,20 @@ export function monthsStarted(startMs: number, nowMs: number): number {
   return months;
 }
 
-/** The yearly refund after the full-refund window: paid − months started × the regular monthly price */
-export function yearlyProrataRefund(paidAgorot: number, seats: number, months: number): number {
-  const monthly = proPriceAgorot(seats, 'monthly') ?? 0;
-  return Math.max(0, paidAgorot - months * monthly);
+/**
+ * The monthly price a yearly refund deducts: the one saved at purchase, or today's when that is lower
+ * (a price cut helps the parent; a rise never hurts them). Older plans without one use today's.
+ */
+export function refundMonthlyRate(sub: Pick<Subscription, 'seatLimit' | 'monthlyRateAgorot'>): number {
+  const today = proPriceAgorot(sub.seatLimit, 'monthly') ?? 0;
+  const atPurchase = sub.monthlyRateAgorot ?? 0;
+  if (atPurchase <= 0) return today;
+  return today > 0 ? Math.min(atPurchase, today) : atPurchase;
+}
+
+/** The yearly refund after the full-refund window: paid − months started × the monthly price */
+export function yearlyProrataRefund(paidAgorot: number, monthlyRateAgorot: number, months: number): number {
+  return Math.max(0, paidAgorot - months * monthlyRateAgorot);
 }
 
 export interface QuoteInput {
@@ -75,7 +86,7 @@ export function quoteCancellation({ sub, paidAgorot, nowMs, hasRequest, hasUsedF
     return { mode: 'monthly_end', refundAgorot: 0, accessUntil: sub.periodEnd };
   }
   const months = monthsStarted(yearStart, nowMs);
-  const refundAgorot = yearlyProrataRefund(paidAgorot, sub.seatLimit, months);
+  const refundAgorot = yearlyProrataRefund(paidAgorot, refundMonthlyRate(sub), months);
   // Before the renewed year begins (0 months), Pro runs to its start: the year before it was paid separately
   const accessUntil = refundAgorot > 0 ? Math.min(sub.periodEnd, addPeriods(yearStart, 'monthly', months)) : sub.periodEnd;
   return { mode: 'yearly_prorata', refundAgorot, accessUntil };

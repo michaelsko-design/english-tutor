@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { addPeriods, type Subscription } from './proBilling';
-import { hasFullRefund, monthsStarted, quoteCancellation, yearlyPlanStart, yearlyProrataRefund } from './cancellation';
+import { hasFullRefund, monthsStarted, quoteCancellation, refundMonthlyRate, yearlyPlanStart, yearlyProrataRefund } from './cancellation';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const START = Date.UTC(2026, 0, 10, 12);
@@ -38,10 +38,26 @@ describe('monthsStarted', () => {
 });
 
 describe('yearlyProrataRefund', () => {
-  it('takes the regular monthly price for each month started, never below 0', () => {
-    expect(yearlyProrataRefund(34900, 1, 4)).toBe(34900 - 4 * 3900); // ₪193, the example in the terms
-    expect(yearlyProrataRefund(34900, 1, 9)).toBe(0); // 9 × ₪39 = ₪351 > ₪349
-    expect(yearlyProrataRefund(99900, 4, 3)).toBe(99900 - 3 * 11400);
+  it('takes the monthly price for each month started, never below 0', () => {
+    expect(yearlyProrataRefund(34900, 3900, 4)).toBe(34900 - 4 * 3900); // ₪193, the example in the terms
+    expect(yearlyProrataRefund(34900, 3900, 9)).toBe(0); // 9 × ₪39 = ₪351 > ₪349
+    expect(yearlyProrataRefund(99900, 11400, 3)).toBe(99900 - 3 * 11400);
+  });
+});
+
+describe('refundMonthlyRate', () => {
+  it('keeps the price of the day of purchase when the price has gone up since', () => {
+    // Bought when a month cost ₪29; today it costs ₪39: the ₪29 of the day of purchase counts
+    expect(refundMonthlyRate({ seatLimit: 1, monthlyRateAgorot: 2900 })).toBe(2900);
+  });
+
+  it("uses today's price when it is lower than the saved one", () => {
+    expect(refundMonthlyRate({ seatLimit: 1, monthlyRateAgorot: 4900 })).toBe(3900);
+  });
+
+  it("uses today's price for an older plan with none saved", () => {
+    expect(refundMonthlyRate({ seatLimit: 2 })).toBe(6400);
+    expect(refundMonthlyRate({ seatLimit: 2, monthlyRateAgorot: 0 })).toBe(6400);
   });
 });
 
@@ -64,6 +80,12 @@ describe('quoteCancellation', () => {
       refundAgorot: 19300,
       accessUntil: addPeriods(START, 'monthly', 4),
     });
+  });
+
+  it('refunds by the price of the day of purchase after a price rise', () => {
+    // Bought at ₪29 a month; the price list now says ₪39: the parent still gets 349 − 4 × 29
+    const now = addPeriods(START, 'monthly', 3) + DAY_MS;
+    expect(quote(plan({ monthlyRateAgorot: 2900 }), now).refundAgorot).toBe(34900 - 4 * 2900);
   });
 
   it('keeps Pro to the year end when the formula leaves nothing (from the 9th month)', () => {

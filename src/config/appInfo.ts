@@ -34,7 +34,7 @@ export const LEGAL_PAGES_LIVE = false;
  * The terms a parent accepts at checkout, saved on the checkout as `termsVersion`: the terms' "עודכן
  * לאחרונה" date. Change it with every change to the terms' text.
  */
-export const TERMS_VERSION = '2026-11-19';
+export const TERMS_VERSION = '2026-11-20';
 
 /**
  * The privacy notice's version (config/privacyNotice.ts), saved next to `TERMS_VERSION` wherever

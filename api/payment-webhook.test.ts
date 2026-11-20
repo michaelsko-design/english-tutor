@@ -27,7 +27,7 @@ function setup(payment: ConfirmedPayment | null = PAID, canChangeRecurring = tru
   const clock = { now: NOW };
   const deps = { nowMs: () => clock.now, createAdmin: vi.fn(() => fake.admin) as never, createProvider: vi.fn(() => gateway) as never };
   fake.seed('checkouts', CHECKOUT_ID, {
-    parentUid: 'parent1', childUids: ['kid1', 'kid2'], period: 'monthly', seatLimit: 2, amountAgorot: 6400,
+    parentUid: 'parent1', childUids: ['kid1', 'kid2'], period: 'monthly', seatLimit: 2, amountAgorot: 6400, monthlyRateAgorot: 6400,
     status: 'pending', provider: 'grow', processId: 'P-REAL', processToken: 'TOK-REAL', createdAt: NOW - 60000,
     payerName: 'ישראל ישראלי', payerPhone: '0501234567', payerEmail: 'parent@example.com',
   });
@@ -68,7 +68,7 @@ describe('handlePaymentWebhook: payment page notifications', () => {
     expect(gateway.confirmPayment).toHaveBeenCalledWith('monthly', { processId: 'P-REAL', processToken: 'TOK-REAL' }, expect.objectContaining({ processId: 'P-FORGED' }));
     expect(fake.get('subscriptions', CHECKOUT_ID)).toMatchObject({
       payerParentUid: 'parent1', childUids: ['kid1', 'kid2'], status: 'active', periodEnd: Date.UTC(2026, 10, 28, 12),
-      amountAgorot: 6400, recurringRef: 'DD7',
+      amountAgorot: 6400, recurringRef: 'DD7', monthlyRateAgorot: 6400,
     });
     for (const kid of ['kid1', 'kid2']) {
       expect(fake.get('entitlements', kid)).toMatchObject({ plan: 'pro', status: 'active', subscriptionId: CHECKOUT_ID, payerParentUid: 'parent1' });

@@ -79,10 +79,10 @@ describe('handleCheckoutRequest', () => {
     });
   });
 
-  it('records no retry consent on a yearly plan (one payment, nothing to retry)', async () => {
+  it('records no retry consent on a yearly plan, and the monthly price of the day for its refunds', async () => {
     const { fake, deps } = setup();
-    await handleCheckoutRequest(checkout({ childUids: ['kid1'], period: 'yearly', ...PAYER }), ENV, deps);
-    expect(fake.get('checkouts', CHECKOUT_ID)).toMatchObject({ acceptedRetryConsent: false });
+    await handleCheckoutRequest(checkout({ childUids: ['kid1', 'kid2'], period: 'yearly', ...PAYER }), ENV, deps);
+    expect(fake.get('checkouts', CHECKOUT_ID)).toMatchObject({ acceptedRetryConsent: false, monthlyRateAgorot: 6400 });
   });
 
   it('refuses a payment page when the parent did not accept the terms', async () => {

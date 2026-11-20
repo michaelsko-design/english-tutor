@@ -104,6 +104,11 @@ describe('ProPaymentReturn', () => {
     print.mockRestore();
   });
 
+  it('names the monthly price of the day of purchase in a yearly summary', () => {
+    renderReturn({ activatedNames: ['נועה', 'איתי'], paidPlan: { period: 'yearly', seats: 2, periodEnd: Date.UTC(2027, 10, 20) } });
+    expect(screen.getByTestId('transaction-summary')).toHaveTextContent(/פחות .*64.*\(המחיר החודשי הרגיל ביום הרכישה/);
+  });
+
   it('shows no summary until the plan is known', () => {
     renderReturn({ activatedNames: ['נועה'] });
     expect(screen.queryByTestId('transaction-summary')).not.toBeInTheDocument();

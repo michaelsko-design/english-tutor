@@ -158,7 +158,9 @@ describe('ProCheckoutPanel payer and payment', () => {
     expect(screen.getByRole('link', { name: 'ביטול עסקה' })).toHaveAttribute('href', '/refunds/#cancel');
     expect(screen.getByText(/גרואו פיימנטס בע״מ \(Grow\)/)).toBeInTheDocument();
     await user.click(screen.getByRole('radio', { name: /שנתי/ }));
-    expect(screen.getByTestId('cancel-summary')).toHaveTextContent('פחות המחיר החודשי הרגיל לכל חודש שהתחיל');
+    const yearly = screen.getByTestId('cancel-summary');
+    expect(yearly).toHaveTextContent(/פחות .*39.*המחיר החודשי הרגיל היום/);
+    expect(yearly).toHaveTextContent('העלאת מחיר אחר כך לא תקטין את ההחזר');
   });
 
   it('refuses to open the payment page without an email', async () => {

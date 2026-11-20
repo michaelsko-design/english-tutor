@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { APP_NAME, CANCEL_PAGE_PATH, LANDING_PAGE_PATH, PRIVACY_CONTACT_EMAIL, PRIVACY_PAGE_PATH, TERMS_PAGE_PATH } from '../../config/appInfo';
-import { MAX_PRO_SEATS, quoteProPrice, type BillingPeriod } from '../../config/proTier';
+import { MAX_PRO_SEATS, proPriceAgorot, quoteProPrice, type BillingPeriod } from '../../config/proTier';
 import type { ParentLink } from '../../data/parentLink';
 import { buildExamHeadlineHe, pickExamLead, type ExamPitch } from '../../data/examPitch';
 import { toLocalDateStr } from '../../utils/dates';
 import { startProCheckout } from '../../services/proBillingService';
 import { trackFunnel } from '../../services/analytics/funnel';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
-import { ProPriceBox } from './proPlanParts';
+import { formatShekels, ProPriceBox } from './proPlanParts';
 
 interface ProCheckoutPanelProps {
   theme: ThemeDefinition;
@@ -40,12 +40,18 @@ const segmentClass = 'flex-1 min-h-11 px-3 rounded-2xl text-sm font-extrabold tr
 const RETRY_CONSENT_HE = ' אם חיוב חודשי ייכשל, אני מסכים/ה שחברת התשלומים תנסה לחייב את הכרטיס שוב במשך עד 10 ימים.';
 const MORE_KIDS_MAILTO = `mailto:${PRIVACY_CONTACT_EMAIL}?subject=${encodeURIComponent(`מנוי ${APP_NAME} ליותר מ-4 ילדים`)}`;
 
-/** Before the buy button: the cancellation rights in short (Consumer Protection Law §14ג; terms §9) */
-const CANCEL_SUMMARY_HE: Record<BillingPeriod, string> = {
-  monthly: 'ביטול בתוך 14 יום מהתשלום הראשון: החזר מלא. אחר כך אפשר לבטל בכל עת, בלי חיובים נוספים, ו-Pro נשאר עד סוף החודש ששולם.',
-  yearly:
-    'ביטול בתוך 14 יום מהתשלום: החזר מלא. אחר כך: החזר של הסכום ששולם פחות המחיר החודשי הרגיל לכל חודש שהתחיל (מהחודש התשיעי אין החזר).',
-};
+/**
+ * Before the buy button: the cancellation rights in short (Consumer Protection Law §14ג; terms §9).
+ * A yearly plan names the monthly price its refund will deduct: today's, saved with the purchase.
+ */
+function cancelSummaryHe(period: BillingPeriod, seats: number): string {
+  if (period === 'monthly') {
+    return 'ביטול בתוך 14 יום מהתשלום הראשון: החזר מלא. אחר כך אפשר לבטל בכל עת, בלי חיובים נוספים, ו-Pro נשאר עד סוף החודש ששולם.';
+  }
+  const monthly = proPriceAgorot(seats, 'monthly');
+  const rate = monthly === null ? 'המחיר החודשי הרגיל' : `${formatShekels(monthly)}, המחיר החודשי הרגיל היום,`;
+  return `ביטול בתוך 14 יום מהתשלום: החזר מלא. אחר כך: החזר של הסכום ששולם פחות ${rate} לכל חודש שהתחיל. המחיר הזה נשמר עם הרכישה, כך שהעלאת מחיר אחר כך לא תקטין את ההחזר.`;
+}
 
 const normalizeName = (value: string) => value.trim().replace(/\s+/g, ' ');
 const normalizePhone = (value: string) => value.replace(/[\s-]/g, '');
@@ -240,7 +246,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
       </label>
 
       <p className="text-xs font-bold leading-relaxed" data-testid="cancel-summary">
-        {CANCEL_SUMMARY_HE[period]}{' '}
+        {cancelSummaryHe(period, selected.length)}{' '}
         <a href="/refunds/" target="_blank" rel="noopener" className="underline">
           מדיניות שירות וביטולים
         </a>

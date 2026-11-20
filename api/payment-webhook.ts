@@ -251,6 +251,7 @@ async function handleProcessNotification(
     lastRemovalAt: 0,
     lastSwapAt: 0,
     createdAt: nowMs,
+    ...(checkout.monthlyRateAgorot > 0 ? { monthlyRateAgorot: checkout.monthlyRateAgorot } : {}),
   };
   // The renewed children leave their old plan, or a later change to it would rewrite their entitlement
   const oldPlanWrites: DocumentWrite[] = [];

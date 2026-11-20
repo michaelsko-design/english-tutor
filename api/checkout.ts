@@ -156,6 +156,8 @@ async function openPaymentPage(
       period: body.period,
       seatLimit: body.childUids.length,
       amountAgorot,
+      // The regular monthly price today: a yearly plan's refund after 14 days is worked out with it
+      monthlyRateAgorot: proPriceAgorot(body.childUids.length, 'monthly') ?? 0,
       status: 'pending',
       provider: provider.id,
       processId: '',
