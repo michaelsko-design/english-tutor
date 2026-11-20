@@ -94,14 +94,15 @@ describe('renderSite', () => {
     expect(() => extractMarkdownSection(markdown, '## C')).toThrow();
   });
 
-  it("covers Grow's site check on the home page: every price, address, and no phone while it is off", () => {
+  it("covers Grow's site check on the home page: every price, address and the phone", () => {
     const home = fillSiteMarkers(readRepoText('home/index.html'), blocks);
     for (const row of PRICE_ROWS) {
       expect(home).toContain(row.monthly);
       expect(home).toContain(row.yearly);
     }
-    expect(SHOW_PHONE_ON_SITE).toBe(false);
-    expect(home).not.toContain(CONTACT.phoneDisplay);
+    expect(SHOW_PHONE_ON_SITE).toBe(true);
+    expect(home).toContain(CONTACT.phoneDisplay);
+    expect(home).toContain(CONTACT.phoneHref);
     expect(home).toContain(CONTACT.email);
     expect(home).toContain(BUSINESS.addressHe);
     expect(home).toContain(BUSINESS.registrationHe);
@@ -141,13 +142,14 @@ describe('renderSite', () => {
     expect(readRepoText(REFUNDS_DOC_PATH).length).toBeGreaterThan(0);
   });
 
-  it('keeps draft legal pages unlinked and out of search until approved', () => {
-    if (LEGAL_PAGES_LIVE) return;
-    expect(blocks.footer()).not.toContain('/terms/');
-    expect(blocks['legal-head']()).toContain('noindex');
-    expect(blocks['draft-banner']()).toContain('טיוטה');
-    expect(blocks.footer()).not.toContain('/accessibility/');
-    expect(blocks['privacy-more']()).toBe('');
+  it('links the approved legal pages from the footer, with no draft banner and open to search', () => {
+    expect(LEGAL_PAGES_LIVE).toBe(true);
+    for (const path of ['/terms/', '/privacy/', '/refunds/', '/accessibility/', '/refunds/#cancel']) {
+      expect(blocks.footer(), path).toContain(`href="${path}"`);
+    }
+    expect(blocks['legal-head']()).toBe('');
+    expect(blocks['draft-banner']()).toBe('');
+    expect(blocks['privacy-more']()).toContain('href="/privacy/"');
   });
 
   it('publishes an accessibility statement with ways to get help', () => {

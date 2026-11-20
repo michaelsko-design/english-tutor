@@ -39,8 +39,8 @@ export function formatIsraeliPhone(internationalDigits: string): string {
   return `${local.slice(0, 3)}-${local.slice(3)}`;
 }
 
-/** The phone is left off the site for now (owner, 2026-11-12); true puts it back in the footer */
-export const SHOW_PHONE_ON_SITE = false;
+/** The phone is in the footer for Grow's site check (legal audit Task 7, 2026-11-20); false takes it off */
+export const SHOW_PHONE_ON_SITE = true;
 
 export const CONTACT = {
   email: PRIVACY_CONTACT_EMAIL,
