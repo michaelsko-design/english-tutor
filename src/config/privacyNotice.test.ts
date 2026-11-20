@@ -5,6 +5,7 @@ import {
   PRIVACY_NOTICE_SECTIONS,
   privacyNoticeSections,
   PRO_PAYMENTS_SECTION_TITLE_HE,
+  splitNoticeLine,
 } from './privacyNotice';
 
 const titles = (sections: ReturnType<typeof privacyNoticeSections>) => sections.map((section) => section.titleHe);
@@ -48,5 +49,29 @@ describe('privacyNoticeSections', () => {
     expect(text).toContain('Grow');
     expect(text).toContain('Make');
     expect(text).not.toMatch(/[[\]]/);
+  });
+
+  it('says the statistics switch is in the learner settings, not in the parent portal', () => {
+    const stats = PRIVACY_NOTICE_SECTIONS.find((section) => section.titleHe === 'סטטיסטיקות שימוש')?.bodyHe.join(' ') ?? '';
+    expect(stats).toContain('בהגדרות של הלומד/ת באפליקציה, בלשונית ״חשבון״');
+    expect(stats).toContain('לפורטל ההורים אין הגדרה כזו');
+  });
+});
+
+describe('splitNoticeLine', () => {
+  it('turns a web address into a link and keeps the text around it', () => {
+    expect(splitNoticeLine('מדיניות הפרטיות של Grow: https://grow.business/privacy-policy/')).toEqual([
+      { kind: 'text', text: 'מדיניות הפרטיות של Grow: ' },
+      { kind: 'link', href: 'https://grow.business/privacy-policy/' },
+    ]);
+  });
+
+  it('leaves a final full stop out of the link, and a line with no address as text', () => {
+    expect(splitNoticeLine('ראו https://example.com/a.')).toEqual([
+      { kind: 'text', text: 'ראו ' },
+      { kind: 'link', href: 'https://example.com/a' },
+      { kind: 'text', text: '.' },
+    ]);
+    expect(splitNoticeLine('בלי קישור')).toEqual([{ kind: 'text', text: 'בלי קישור' }]);
   });
 });

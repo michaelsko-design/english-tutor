@@ -83,7 +83,7 @@ export const PRIVACY_NOTICE_SECTIONS: readonly PrivacyNoticeSection[] = [
       'אין עוגיות פרסום או מעקב של צד שלישי. שירותי הכניסה, האבטחה והסנכרון משתמשים באחסון המקומי של הדפדפן, ובמזהה מכשיר פנימי שמשמש לסנכרון היהלומים בין מכשירים.',
       'כשנפתח חשבון חדש אנחנו שומרים גם מאיזה קישור הגעתם (למשל מדף הבית או מהודעת וואטסאפ), כמילה אחת מתוך רשימה קבועה, כדי לדעת מאיפה שומעים עלינו. בדרך להרשמה אנחנו סופרים גם כמה אנשים הגיעו לכל שלב, כמספר כולל ליום שלא מקושר לאף אחד.',
       'המספרים נשמרים ב-Google Firebase, מופיעים לנו רק כסיכום, ולא נמסרים לאף גורם אחר.',
-      'הורה יכול לכבות את הסטטיסטיקות בכל רגע בהגדרות, בלשונית החשבון. הכיבוי עוצר את מוני הפעולות, דוחות הקושי, דוחות השגיאות ומדידת זמן השימוש. מחיקת החשבון מוחקת גם את המספרים האלה.',
+      'אפשר לכבות את הסטטיסטיקות בכל רגע בהגדרות של הלומד/ת באפליקציה, בלשונית ״חשבון״ (המתג ״סטטיסטיקות שימוש״). לפורטל ההורים אין הגדרה כזו. הכיבוי עוצר את מוני הפעולות, דוחות הקושי, דוחות השגיאות ומדידת זמן השימוש. מחיקת החשבון מוחקת גם את המספרים האלה.',
       'בשלב הבדיקות הסגורות, אם הילד/ה קיבלו הזמנה מאיתנו, נשמרת גם רשומת גישה (כינוי שנתנו להזמנה) והודעות שהילד/ה בוחרים לשלוח לנו מההגדרות. במחיקת החשבון נמחקים גם הם.',
     ],
   },
@@ -102,6 +102,25 @@ export const PRIVACY_NOTICE_SECTIONS: readonly PrivacyNoticeSection[] = [
     ],
   },
 ];
+
+/** A piece of a notice line: plain text, or a web address to show as a link */
+export type NoticeLinePart = { readonly kind: 'text'; readonly text: string } | { readonly kind: 'link'; readonly href: string };
+
+const WEB_ADDRESS = /https:\/\/\S*[^\s.,;:)]/g;
+
+/** Splits a notice line so its web addresses can be links, on the site and in the app */
+export function splitNoticeLine(line: string): readonly NoticeLinePart[] {
+  const parts: NoticeLinePart[] = [];
+  let last = 0;
+  for (const match of line.matchAll(WEB_ADDRESS)) {
+    const start = match.index ?? 0;
+    if (start > last) parts.push({ kind: 'text', text: line.slice(last, start) });
+    parts.push({ kind: 'link', href: match[0] });
+    last = start + match[0].length;
+  }
+  if (last < line.length) parts.push({ kind: 'text', text: line.slice(last) });
+  return parts;
+}
 
 /** The sections the app shows: the payments section only once parents can buy Pro (`IS_PRO_PLAN_VISIBLE`) */
 export function privacyNoticeSections(isProBuyable: boolean): readonly PrivacyNoticeSection[] {

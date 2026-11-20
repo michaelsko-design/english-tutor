@@ -6,7 +6,7 @@
  */
 import { marked } from 'marked';
 import { ACCESSIBILITY_PAGE_PATH, APP_NAME, CANCEL_PAGE_PATH } from '../config/appInfo';
-import { PRIVACY_NOTICE_SECTIONS } from '../config/privacyNotice';
+import { PRIVACY_NOTICE_SECTIONS, splitNoticeLine } from '../config/privacyNotice';
 import {
   APP_ENTRY_URL,
   BUSINESS,
@@ -185,10 +185,21 @@ function renderDraftBanner(): string {
     : '<p class="site-draft" role="note">טיוטה לבדיקה משפטית. הנוסח עוד עשוי להשתנות.</p>';
 }
 
+/** A notice line with its web addresses as links (left to right inside the Hebrew) */
+function renderNoticeLine(line: string): string {
+  return splitNoticeLine(line)
+    .map((part) =>
+      part.kind === 'text'
+        ? escapeHtml(part.text)
+        : `<a href="${escapeHtml(part.href)}" dir="ltr" target="_blank" rel="noopener noreferrer">${escapeHtml(part.href)}</a>`,
+    )
+    .join('');
+}
+
 function renderPrivacy(): string {
   return PRIVACY_NOTICE_SECTIONS.map(
     (section) =>
-      `<h2>${escapeHtml(section.titleHe)}</h2>${section.bodyHe.map((line) => `<p>${escapeHtml(line)}</p>`).join('')}`,
+      `<h2>${escapeHtml(section.titleHe)}</h2>${section.bodyHe.map((line) => `<p>${renderNoticeLine(line)}</p>`).join('')}`,
   ).join('');
 }
 

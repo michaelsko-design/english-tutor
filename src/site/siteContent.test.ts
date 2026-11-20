@@ -138,6 +138,7 @@ describe('renderSite', () => {
     expect(blocks.terms()).toContain('href="/privacy/"');
     expect(blocks.refunds()).not.toContain('<h1>');
     for (const section of PRIVACY_NOTICE_SECTIONS) expect(blocks.privacy()).toContain(section.titleHe);
+    expect(blocks.privacy()).toContain('<a href="https://grow.business/privacy-policy/" dir="ltr" target="_blank" rel="noopener noreferrer">');
     expect(readRepoText(TERMS_DOC_PATH).length).toBeGreaterThan(0);
     expect(readRepoText(REFUNDS_DOC_PATH).length).toBeGreaterThan(0);
   });
