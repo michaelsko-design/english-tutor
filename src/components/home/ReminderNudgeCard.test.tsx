@@ -29,10 +29,7 @@ beforeEach(() => {
   push.isReminderOn.mockResolvedValue(false);
   push.enableReminder.mockResolvedValue({ ok: true });
   push.getNotificationPermission.mockReturnValue('default');
-  onUpdateProfile.mockReset();
 });
-
-const onUpdateProfile = vi.fn();
 
 /** A learner who has practised on two days, so the card is due */
 function dueProfile(overrides: Partial<LearnerProfile> = {}): LearnerProfile {
@@ -41,19 +38,20 @@ function dueProfile(overrides: Partial<LearnerProfile> = {}): LearnerProfile {
 }
 
 function renderCard(isOnboarded = true, profile = dueProfile({ isOnboarded })) {
-  render(<ReminderNudgeCard profile={profile} theme={TEST_THEME} onUpdateProfile={onUpdateProfile} />);
+  render(<ReminderNudgeCard profile={profile} theme={TEST_THEME} />);
 }
 
 describe('ReminderNudgeCard', () => {
-  it('turns the reminder on and goes away', async () => {
+  it('turns the reminder on and goes away, with no gift for it', async () => {
     const user = userEvent.setup();
     renderCard();
+    expect(await screen.findByText(/עוזרת לשמור על הרצף/)).toBeInTheDocument();
+    expect(screen.queryByText(/יהלומים/)).not.toBeInTheDocument();
 
     await user.click(await screen.findByRole('button', { name: 'להפעיל תזכורת' }));
 
     expect(push.enableReminder).toHaveBeenCalledWith('child-1', expect.objectContaining({ isShabbatObserver: expect.any(Boolean) }));
     expect(screen.queryByRole('region', { name: 'תזכורת יומית' })).not.toBeInTheDocument();
-    expect(onUpdateProfile).toHaveBeenCalledWith(expect.objectContaining({ hasEarnedReminderReward: true }));
   });
 
   it('shows the reason when the browser blocks notifications', async () => {
@@ -64,7 +62,6 @@ describe('ReminderNudgeCard', () => {
     await user.click(await screen.findByRole('button', { name: 'להפעיל תזכורת' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('ההתראות חסומות');
-    expect(onUpdateProfile).not.toHaveBeenCalled();
   });
 
   it('stays away after it is closed on this device', async () => {

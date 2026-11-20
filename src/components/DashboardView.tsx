@@ -622,7 +622,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         <ParentNudgeCard profile={profile} theme={theme} />
 
         {/* AN OPTIONAL, CLOSABLE OFFER OF THE DAILY REMINDER */}
-        <ReminderNudgeCard profile={profile} theme={theme} onUpdateProfile={onUpdateProfile} />
+        <ReminderNudgeCard profile={profile} theme={theme} />
 
         {/* FEATURE 27: MAP PEEK, THEN THE FULL MAP (wide screens show the map beside it, no peek) */}
         {mapPeek && (
@@ -756,6 +756,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
           <div className="p-3 sm:p-4">
             <DailyQuestsCard
               streakDays={currentStreak}
+              hasEarnedStreakReward={profile.hasEarnedStreakReward === true}
               activeDates={(profile.activityLog || []).filter((e) => e.sessions > 0).map((e) => e.dateStr)}
               dailyCounters={dailyCounters}
               claimedQuestIds={claimedQuestIds}

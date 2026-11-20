@@ -394,8 +394,13 @@ export interface LearnerProfile {
   isAnalyticsOptedOut?: boolean;
   /** Whether the new user has seen and acknowledged the complimentary welcome diamonds modal */
   hasSeenWelcomeGiftModal?: boolean;
-  /** Whether the one-time diamonds for turning on the daily reminder were paid (data/reminderReward.ts) */
+  /**
+   * Old: the one-time diamonds for turning on the daily reminder were paid. No longer paid (a gift for
+   * a permission; the streak reward replaced it); kept so old profiles still merge.
+   */
   hasEarnedReminderReward?: boolean;
+  /** Whether the one-time diamonds for a few days in a row were paid (data/streakReward.ts) */
+  hasEarnedStreakReward?: boolean;
   /** Whether the one-time day-2 "welcome back" gift was claimed (data/welcomeBack.ts) */
   hasClaimedWelcomeBack?: boolean;
   /** Whether the first-week summary card was shown and closed (data/weekOne.ts) */

@@ -39,12 +39,14 @@ function renderSheet(profile = makeProfile({ reminderDeclinedAtStr: '2026-11-01'
 }
 
 describe('ReminderReaskSheet', () => {
-  it('turns the reminder on, pays the gift and is never shown again', async () => {
+  it('turns the reminder on, pays no gift and is never shown again', async () => {
     const user = renderSheet();
     await user.click(await screen.findByRole('button', { name: 'כן, להפעיל תזכורת' }));
 
     expect(analytics.trackEvent).toHaveBeenCalledWith('reminder_opt_in_reask');
-    expect(onUpdateProfile).toHaveBeenCalledWith(expect.objectContaining({ hasEarnedReminderReward: true, hasSeenReminderReask: true }));
+    expect(screen.queryByText(/יהלומים/)).not.toBeInTheDocument();
+    expect(onUpdateProfile).toHaveBeenCalledWith(expect.objectContaining({ hasSeenReminderReask: true }));
+    expect(onUpdateProfile).not.toHaveBeenCalledWith(expect.objectContaining({ hasEarnedReminderReward: true }));
     expect(onClose).toHaveBeenCalled();
   });
 

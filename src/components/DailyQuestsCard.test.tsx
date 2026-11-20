@@ -18,10 +18,11 @@ const counters = (over: Partial<{ missionsCompletedToday: number; voiceWordsPrac
   ...over,
 });
 
-function setup(props: { counters?: ReturnType<typeof counters>; claimed?: string[]; activeDates?: string[]; isShabbatObserver?: boolean; gender?: 'girl' | 'boy' } = {}) {
+function setup(props: { counters?: ReturnType<typeof counters>; claimed?: string[]; activeDates?: string[]; isShabbatObserver?: boolean; gender?: 'girl' | 'boy'; streakDays?: number; hasEarnedStreakReward?: boolean } = {}) {
   render(
     <DailyQuestsCard
-      streakDays={3}
+      streakDays={props.streakDays ?? 3}
+      hasEarnedStreakReward={props.hasEarnedStreakReward}
       activeDates={props.activeDates ?? []}
       dailyCounters={props.counters ?? counters()}
       claimedQuestIds={props.claimed ?? []}
@@ -37,6 +38,16 @@ function setup(props: { counters?: ReturnType<typeof counters>; claimed?: string
 beforeEach(() => onClaimQuest.mockClear());
 
 describe('DailyQuestsCard', () => {
+  it('shows the streak goal and its gift until it was paid', () => {
+    setup({ streakDays: 1 });
+    expect(screen.getByText(/3 ימים ברצף: מתנה של 10 יהלומים/)).toHaveTextContent('1/3');
+  });
+
+  it('hides the streak goal once it was paid', () => {
+    setup({ hasEarnedStreakReward: true });
+    expect(screen.queryByText(/ימים ברצף: מתנה/)).not.toBeInTheDocument();
+  });
+
   it('lists every quest with its progress and the streak', () => {
     setup();
     for (const quest of quests) expect(screen.getByText(quest.titleHe)).toBeInTheDocument();

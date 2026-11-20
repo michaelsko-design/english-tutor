@@ -52,10 +52,10 @@ A review by Claude, standing in for a lawyer's review, which the owner chose not
 
 - **Diamond reward for daily reminders.** `FirstWinScreen.tsx` offers "מתנה: N יהלומים 💎" for turning on the daily reminder. The text is addressed "להורים:", but the reward goes to the child. The Privacy Protection Authority warns against design that improperly influences consent, and here a reward is tied to a notifications permission. Risk: low to medium.
   - Option: keep the reminder offer and drop the diamond reward, or give the reward for the next practice day instead of for the permission.
-  - **Recommendation:** remove the reward from the permission step before launch. Not changed here: it's outside this work.
+  - **Resolved (2026-11-20):** the reminder asks no longer offer diamonds; they say only that a daily reminder helps keep the streak. The 10 💎 are now paid once for practising 3 days in a row (`data/streakReward.ts`), whether reminders are on or not, and the goal is shown on the streak panel, not next to the reminder switch. The reward pays for practice, not for a permission.
 - **"Show off to your parents" bonus (`showOff.ts`, 20 diamonds) and the first-win "שלחו להורים מה עשיתם היום!".** These reward the child for sharing progress, not for buying, and the link carries no `pro=1`. **OK** under s.3(4) and s.3(5).
 - **Friend-invite rewards (planned, "after launch").** Rewarding a child for bringing in other children is marketing through minors. If such a reward is ever tied to Pro or a purchase, it falls under s.3(4) and s.3(5). **Recommendation:** give such rewards only for free activity, never for a purchase, and with no Pro in the invite message.
 
 ## Conclusion
 
-The child-facing Pro wording as of commit 82d1134a meets the 1991 regulations as read here. The Pro week is legal as built. One change is recommended before launch, outside Pro: the diamond reward for turning on reminders. A guard test (`src/data/proAsk.test.ts`) fails the build if "לבקש מהורה", "לשדרג" or "לקנות" comes back into the child-facing Pro files.
+The child-facing Pro wording as of commit 82d1134a meets the 1991 regulations as read here. The Pro week is legal as built. The one change recommended outside Pro, the diamond reward for turning on reminders, is done: the reward now pays for a 3-day streak instead. A guard test (`src/data/proAsk.test.ts`) fails the build if "לבקש מהורה", "לשדרג" or "לקנות" comes back into the child-facing Pro files.

@@ -16,11 +16,8 @@ const push = vi.hoisted(() => ({
 }));
 vi.mock('../../services/push/pushSubscription', () => push);
 
-const onEnabled = vi.fn();
-
 beforeEach(() => {
   Object.values(push).forEach((fn) => fn.mockReset());
-  onEnabled.mockReset();
   push.getReminderSupport.mockReturnValue('supported');
   push.isReminderOn.mockResolvedValue(false);
   push.enableReminder.mockResolvedValue({ ok: true });
@@ -28,33 +25,21 @@ beforeEach(() => {
   push.getNotificationPermission.mockReturnValue('default');
 });
 
-function renderCard(hasEarnedReminderReward?: boolean) {
-  render(
-    <StreakReminderCard profile={makeProfile({ hasEarnedReminderReward })} theme={TEST_THEME} onEnabled={onEnabled} />
-  );
+function renderCard() {
+  render(<StreakReminderCard profile={makeProfile()} theme={TEST_THEME} />);
 }
 
-describe('StreakReminderCard gift', () => {
-  it('names the gift and reports when reminders are turned on', async () => {
+describe('StreakReminderCard', () => {
+  it('says the reminder helps keep the streak, offers no gift, and turns reminders on', async () => {
     const user = userEvent.setup();
     renderCard();
 
-    expect(screen.getByText(/מתנה: 10 יהלומים/)).toBeInTheDocument();
+    expect(screen.getByText(/עוזרת לשמור על הרצף/)).toBeInTheDocument();
+    expect(screen.queryByText(/מתנה|יהלומים/)).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'הפעלת תזכורות' }));
 
-    expect(onEnabled).toHaveBeenCalledTimes(1);
-    expect(screen.queryByText(/מתנה/)).not.toBeInTheDocument();
-  });
-
-  it('does not mention the gift once it was paid, and turning off pays nothing', async () => {
-    push.isReminderOn.mockResolvedValue(true);
-    const user = userEvent.setup();
-    renderCard(true);
-
-    expect(screen.queryByText(/מתנה/)).not.toBeInTheDocument();
-    await user.click(await screen.findByRole('button', { name: 'כיבוי תזכורות' }));
-
-    expect(onEnabled).not.toHaveBeenCalled();
+    expect(push.enableReminder).toHaveBeenCalledTimes(1);
+    expect(await screen.findByRole('button', { name: 'כיבוי תזכורות' })).toBeInTheDocument();
   });
 });
 

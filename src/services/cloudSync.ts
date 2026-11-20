@@ -264,6 +264,7 @@ export function mergeLearnerProfiles(
       local.hasSeenWelcomeGiftModal || cloud.hasSeenWelcomeGiftModal
     ),
     ...(local.hasEarnedReminderReward || cloud.hasEarnedReminderReward ? { hasEarnedReminderReward: true } : {}),
+    ...(local.hasEarnedStreakReward || cloud.hasEarnedStreakReward ? { hasEarnedStreakReward: true } : {}),
     ...(local.hasClaimedWelcomeBack || cloud.hasClaimedWelcomeBack ? { hasClaimedWelcomeBack: true } : {}),
     ...(local.hasSeenWeekOneSummary || cloud.hasSeenWeekOneSummary ? { hasSeenWeekOneSummary: true } : {}),
     ...(local.hasEarnedShowOffReward || cloud.hasEarnedShowOffReward ? { hasEarnedShowOffReward: true } : {}),

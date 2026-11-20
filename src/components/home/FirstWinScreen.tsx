@@ -7,7 +7,6 @@ import { enableReminder, getNotificationPermission, getReminderSupport, isRemind
 import { trackReminderDeclined, trackReminderResult } from '../../services/push/reminderOptIn';
 import { trackEvent } from '../../services/analytics';
 import { getReminderFacts } from '../../hooks/useReminderSync';
-import { applyReminderReward, REMINDER_REWARD_DIAMONDS } from '../../data/reminderReward';
 import { applyShowOffReward, buildFirstWinSummaryHe, SHOW_OFF_DIAMONDS } from '../../data/showOff';
 import { playsHebrewAloud } from '../../data/hebrewAudio';
 import { WELCOME_BACK_DIAMONDS } from '../../data/welcomeBack';
@@ -81,7 +80,6 @@ export const FirstWinScreen: React.FC<FirstWinScreenProps> = ({ profile, theme, 
       setErrorHe(result.errorHe);
       return;
     }
-    if (!profile.hasEarnedReminderReward) onUpdateProfile(applyReminderReward(profile));
     goToShowOff();
   };
 
@@ -131,8 +129,7 @@ export const FirstWinScreen: React.FC<FirstWinScreenProps> = ({ profile, theme, 
               להורים: רוצים תזכורת קטנה פעם ביום?
             </h2>
             <p className={`text-xs font-bold ${theme.mutedTextClass}`}>
-              הודעה אם עוד לא תרגלנו. לא חובה, ואפשר לכבות בהגדרות.
-              {!profile.hasEarnedReminderReward && ` מתנה: ${REMINDER_REWARD_DIAMONDS} יהלומים 💎`}
+              הודעה אם עוד לא תרגלנו, שעוזרת לשמור על הרצף. לא חובה, ואפשר לכבות בהגדרות.
             </p>
             {errorHe && (
               <p role="alert" className="text-xs font-bold text-red-600 dark:text-red-400">
