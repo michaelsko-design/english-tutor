@@ -75,6 +75,11 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
   );
   const eligible = (links ?? []).filter((link) => canJoinCheckout(statuses[link.childUid]));
   const openPlan = findOpenPlan(user.uid, entitlements, nowMs);
+  /** A monthly plan this parent pays that will charge again (the parent account can't be deleted under it); null while loading */
+  const hasRenewingPlan =
+    links === null || Object.values(statuses).some((status) => status === undefined)
+      ? null
+      : Object.values(statuses).some((status) => status?.kind === 'plan' && status.isPayer && status.isRenewing);
 
   const showPlans = (childUids: string[], period: BillingPeriod) => {
     onError(null);
@@ -195,5 +200,5 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
     </div>
   ) : null;
 
-  return { renderChildSection, topArea, plansArea };
+  return { renderChildSection, topArea, plansArea, hasRenewingPlan };
 }

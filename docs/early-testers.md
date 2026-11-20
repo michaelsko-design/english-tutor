@@ -155,12 +155,11 @@ Later app-only changes (API and client, no rules change) need just the push. A c
   (`PrivacyNoticeDialog`) says this honestly ("pseudonymous", not "anonymous").
 - Opt-out: *AnalyticsOptOutCard*; with it on, no counters or errors are sent.
 - **Account deletion** (Settings, with the PIN) calls `/api/erase-account-data` before deleting the Auth user. It
-  removes the learner's `analyticsDaily`, `missionStruggle`, `allowed` and comp `entitlements` (a paid subscription is kept).
-  **Feedback notes are deliberately kept**, because they are valuable: the uid is blanked and the invite alias
-  stays (`testerLabel`), so they show in the dashboard as "<alias> (account deleted)". The used invite record
-  (`invites/{code}`, with its alias) is kept too, without an account link. This is a privacy decision to put in
-  front of the lawyer (open item) and is stated in the notice. The call is best effort: if it fails, the
-  leftover rows are pseudonymous and can be removed by hand.
+  removes the learner's `analyticsDaily`, `missionStruggle`, `feedback` notes, `reminderSends`, `friendRequestCounts`,
+  the used invite (`invites/{code}`), `allowed` and comp `entitlements` (a paid subscription is kept), as the privacy
+  notice promises (legal audit, 2026-11-20). Notes from accounts deleted before that still show as
+  "<alias> (account deleted)" until removed by hand. The call is best effort: if it fails, the leftover rows are
+  pseudonymous and can be removed by hand.
 - Delete a tester's test account the same way: new invite, sign in, Settings > delete. Deleting only from the
   Firebase console leaves their `learners`, `analyticsDaily` and `feedback` rows behind.
 

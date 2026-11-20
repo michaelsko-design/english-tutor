@@ -17,6 +17,12 @@ function setup(entitlement: Record<string, string | number>) {
   fake.seed('missionStruggle', `2026-11-08_${KID}_m1_explorer`, { uid: KID, day: '2026-11-08' });
   fake.seed('missionStruggle', `2026-11-08_${OTHER}_m1_explorer`, { uid: OTHER, day: '2026-11-08' });
   fake.seed('feedback', 'n1', { uid: KID, text: 'hi' });
+  fake.seed('feedback', 'n2', { uid: OTHER, text: 'yo' });
+  fake.seed('reminderSends', `2026-11-08_${KID}`, { uid: KID, dateStr: '2026-11-08', kind: 'streak' });
+  fake.seed('reminderSends', `2026-11-08_${OTHER}`, { uid: OTHER, dateStr: '2026-11-08', kind: 'streak' });
+  fake.seed('friendRequestCounts', KID, { day: '2026-11-08', count: 2 });
+  fake.seed('invites', 'ABC123', { usedByUid: KID, label: 'noa', cohort: 'tester' });
+  fake.seed('invites', 'DEF456', { usedByUid: OTHER, label: 'dan', cohort: 'tester' });
   fake.seed('allowed', KID, { cohort: 'tester', label: 'noa' });
   fake.seed('signups', KID, { uid: KID, day: '2026-11-08', src: 'landing' });
   fake.seed('entitlements', KID, entitlement);
@@ -24,13 +30,19 @@ function setup(entitlement: Record<string, string | number>) {
 }
 
 describe('erase-account-data', () => {
-  it('removes the counters, access record and comp entitlement, and keeps the notes without the account link', async () => {
+  it('removes the counters, notes, reminder log, invite, access record and comp entitlement, and nobody else\'s', async () => {
     const { fake, deps } = setup({ plan: 'pro', source: 'comp' });
     expect((await handleEraseAccountDataRequest(call(), ENV, deps)).status).toBe(200);
     expect(fake.get('analyticsDaily', `2026-11-08_${KID}`)).toBeUndefined();
     expect(fake.get('missionStruggle', `2026-11-08_${KID}_m1_explorer`)).toBeUndefined();
     expect(fake.get('missionStruggle', `2026-11-08_${OTHER}_m1_explorer`)).toBeDefined();
-    expect(fake.get('feedback', 'n1')).toMatchObject({ uid: '', testerLabel: 'noa', text: 'hi' });
+    expect(fake.get('feedback', 'n1')).toBeUndefined();
+    expect(fake.get('feedback', 'n2')).toBeDefined();
+    expect(fake.get('reminderSends', `2026-11-08_${KID}`)).toBeUndefined();
+    expect(fake.get('reminderSends', `2026-11-08_${OTHER}`)).toBeDefined();
+    expect(fake.get('friendRequestCounts', KID)).toBeUndefined();
+    expect(fake.get('invites', 'ABC123')).toBeUndefined();
+    expect(fake.get('invites', 'DEF456')).toBeDefined();
     expect(fake.get('allowed', KID)).toBeUndefined();
     expect(fake.get('signups', KID)).toBeUndefined();
     expect(fake.get('entitlements', KID)).toBeUndefined();

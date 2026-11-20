@@ -6,7 +6,8 @@
  * missing, and only the gateway can say whether it was charged. A gateway that can't change a
  * standing order (Grow through Make) gets an owner task instead; open tasks older than two days are
  * counted (`overdueTasks`), logged, and sent to the owner again as a reminder (`_lib/ownerAlerts.ts`).
- * Last, it checks Make's monthly credits and warns the owner at 70% and 90% (`_lib/makeCredits.ts`;
+ * It blanks the payer's name, phone and email 90 days after a plan ended and was handled
+ * (`_lib/payerPurge.ts`, `purged`). Last, it checks Make's monthly credits and warns the owner at 70% and 90% (`_lib/makeCredits.ts`;
  * `makeCreditsPercent`, null when not configured). That check never fails the reconcile.
  */
 import { ConflictError, createFirestoreAdmin, type DocumentWrite, type FirestoreAdmin, type PlainDocument } from './_lib/firestoreAdmin.js';
@@ -14,7 +15,8 @@ import { AdminError, createAuthAdmin, parseServiceAccount } from './_lib/googleA
 import { firebaseProjectId, jsonResponse } from './_lib/parentRequest.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
 import { changesRecurringByApi, PaymentError, safeEqual, type PaymentProvider } from './_lib/payments/provider.js';
-import { manualRecurringWrites, openGatewayTasks } from './_lib/gatewayTasks.js';
+import { manualRecurringWrites, openGatewayTasks, readGatewayTask, type GatewayTask } from './_lib/gatewayTasks.js';
+import { payerPurgeWrites } from './_lib/payerPurge.js';
 import { createOwnerAlerter, createOwnerNotifier, withOwnerAlerts } from './_lib/ownerAlerts.js';
 import { checkMakeCredits, MakeApiError } from './_lib/makeCredits.js';
 import { entitlementFields, readSubscription, subscriptionFields, type Subscription } from './_lib/proBilling.js';
@@ -34,11 +36,23 @@ interface Tally {
   deleted: number;
   missedRenewals: number;
   overdueTasks: number;
+  purged: number;
   failed: number;
 }
 
 /** An owner task still open after this long is reported */
 const TASK_OVERDUE_MS = 2 * 24 * 60 * 60 * 1000;
+/** Firestore takes up to 500 writes in one commit */
+const MAX_WRITES_PER_COMMIT = 400;
+
+/** Blanks old payer details; returns how many records changed */
+async function purgePayerDetails(admin: FirestoreAdmin, tasks: readonly GatewayTask[], subscriptions: readonly Subscription[], nowMs: number): Promise<number> {
+  const writes = payerPurgeWrites(await admin.listDocuments('checkouts'), tasks, subscriptions, nowMs);
+  for (let start = 0; start < writes.length; start += MAX_WRITES_PER_COMMIT) {
+    await admin.commit(writes.slice(start, start + MAX_WRITES_PER_COMMIT));
+  }
+  return writes.length;
+}
 
 const subscriptionWrite = (sub: Subscription, nowMs: number): DocumentWrite => ({
   collection: 'subscriptions',
@@ -152,7 +166,7 @@ export async function handleProReconcileRequest(
   const { fetchImpl = fetch, nowMs = Date.now, createAdmin = createFirestoreAdmin, createProvider = createPaymentProvider } = deps;
   const projectId = firebaseProjectId(env);
   const findExistingUids = deps.findExistingUids ?? ((uids: string[]) => createAuthAdmin(account, projectId, { fetchImpl }).findExistingUids(uids));
-  const tally: Tally = { released: 0, expired: 0, deleted: 0, missedRenewals: 0, overdueTasks: 0, failed: 0 };
+  const tally: Tally = { released: 0, expired: 0, deleted: 0, missedRenewals: 0, overdueTasks: 0, purged: 0, failed: 0 };
 
   try {
     const alert = createOwnerAlerter(env, fetchImpl);
@@ -175,10 +189,13 @@ export async function handleProReconcileRequest(
 
     for (const sub of subscriptions) await reconcileSubscription(admin, provider, sub, missingUids, tally, now);
     for (const doc of entitlements) await reconcileEntitlement(admin, doc, missingUids, tally, now);
-    const overdue = openGatewayTasks(await admin.listDocuments('gatewayTasks')).filter((task) => now - task.createdAt > TASK_OVERDUE_MS);
+    const taskDocs = await admin.listDocuments('gatewayTasks');
+    const overdue = openGatewayTasks(taskDocs).filter((task) => now - task.createdAt > TASK_OVERDUE_MS);
     tally.overdueTasks = overdue.length;
     // A daily reminder by email and Telegram until the owner marks it done
     await alert(overdue, { reminder: true });
+    const tasks = taskDocs.map(readGatewayTask).filter((task): task is GatewayTask => task !== null);
+    tally.purged = await purgePayerDetails(admin, tasks, subscriptions, now);
   } catch (error) {
     // Only a status or gateway code is logged: never ids, tokens or keys
     const detail = error instanceof AdminError ? error.status : error instanceof PaymentError ? `gateway ${error.code}` : 'unexpected';

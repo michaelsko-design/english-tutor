@@ -11,17 +11,23 @@ const INTERACTION_EVENTS = ['pointerdown', 'keydown', 'touchstart', 'scroll'] as
  * Counts how long the app is in active use (tab visible, learner interacted in the last minute)
  * and hands the seconds to `onFlush` in batches. Owner analytics only: nothing here is shown to
  * the learner, and `onFlush` stores the time in `activityLog[].activeSeconds`.
+ * With `isEnabled` false (a parent turned statistics off) nothing is counted, and seconds not yet
+ * handed over when it turns off are dropped (privacy notice; legal audit PRIV-09).
  */
-export function useActiveTimeTracker(onFlush: (seconds: number) => void): void {
+export function useActiveTimeTracker(onFlush: (seconds: number) => void, isEnabled = true): void {
   const onFlushRef = useRef(onFlush);
   onFlushRef.current = onFlush;
+  // Read by the cleanup: turning off drops the pending seconds, unmounting while on hands them over
+  const isEnabledRef = useRef(isEnabled);
+  isEnabledRef.current = isEnabled;
 
   useEffect(() => {
+    if (!isEnabled) return undefined;
     let pendingSeconds = 0;
     let lastInteractionAt = Date.now();
 
     const flush = () => {
-      if (pendingSeconds <= 0) return;
+      if (pendingSeconds <= 0 || !isEnabledRef.current) return;
       const seconds = pendingSeconds;
       pendingSeconds = 0;
       onFlushRef.current(seconds);
@@ -53,5 +59,5 @@ export function useActiveTimeTracker(onFlush: (seconds: number) => void): void {
       window.removeEventListener('pagehide', flush);
       flush();
     };
-  }, []);
+  }, [isEnabled]);
 }

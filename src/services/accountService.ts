@@ -14,8 +14,9 @@ import { collection, deleteDoc, doc, getDoc, getDocs, query, where } from 'fireb
 import { auth, db, googleProvider } from './firebase';
 import { readEntitlementOnce } from './entitlementService';
 import { eraseServerAccountData } from './accessService';
-import { deleteLearnerParentData } from './parentService';
+import { deleteLearnerParentData, deleteParentAccountData } from './parentService';
 import { deleteAllStickerImages, loadAllStickerImages } from './stickerImages';
+import { clearLocalAppData } from '../utils/clearLocalData';
 import { LearnerProfile } from '../types/learner';
 import { MIN_PIN_LENGTH, normalizeIdentifierToEmail, toUsernameSlug, usernameFromEmail } from '../utils/username';
 
@@ -39,6 +40,9 @@ function describeAuthError(error: unknown): string {
   if (code === 'auth/network-request-failed' || code === 'unavailable') return 'אין חיבור לאינטרנט. כדאי לנסות שוב בעוד רגע.';
   return 'משהו השתבש. כדאי לנסות שוב.';
 }
+
+/** The server part of a deletion failed: nothing of the sign-in is gone yet, so trying again finishes it */
+const SERVER_ERASE_FAILED_HE = 'לא הצלחנו למחוק את כל המידע. החשבון עדיין קיים, כדאי לנסות שוב בעוד רגע.';
 
 /** How the signed-in account proves it is its owner before it is deleted. */
 export type AccountKind = 'guest' | 'google' | 'password';
@@ -119,9 +123,32 @@ export async function deleteAccount(friendCode: string | undefined, pin: string)
   try {
     await reauthenticate(user, pin);
     await deleteLearnerData(user, friendCode);
-    // Needs the sign-in, so it runs before the account itself is deleted
-    await eraseServerAccountData();
+    // Needs the sign-in, so it runs before the account itself is deleted; on failure the sign-in stays so it can be retried
+    if (!(await eraseServerAccountData())) return { ok: false, errorHe: SERVER_ERASE_FAILED_HE };
     await deleteUser(user);
+    await clearLocalAppData();
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, errorHe: describeAuthError(error) };
+  }
+}
+
+/**
+ * Deletes a parent's account from the parent portal (privacy notice: "a parent can delete the parent
+ * account in the parent portal"): Google proves it is the owner first, then the links to the
+ * children, the parent marker, the server records and the sign-in go, and this device is cleared.
+ * The children's accounts stay. Payment records stay with the account id only (tax law).
+ */
+export async function deleteParentAccount(): Promise<AccountResult> {
+  const user = auth?.currentUser;
+  if (!user || getAccountKind(user) !== 'google') return { ok: false, errorHe: 'צריך להיות מחוברים לחשבון ההורה.' };
+  try {
+    await reauthenticate(user, '');
+    await deleteParentAccountData(user.uid);
+    // Needs the sign-in, so it runs before the account itself is deleted; on failure the sign-in stays so it can be retried
+    if (!(await eraseServerAccountData())) return { ok: false, errorHe: SERVER_ERASE_FAILED_HE };
+    await deleteUser(user);
+    await clearLocalAppData();
     return { ok: true };
   } catch (error) {
     return { ok: false, errorHe: describeAuthError(error) };

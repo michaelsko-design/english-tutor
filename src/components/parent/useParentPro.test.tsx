@@ -97,6 +97,7 @@ function Harness({ links, isEnabled = true }: { links: ParentLink[] | null; isEn
       {pro.topArea}
       {links?.map((l) => <div key={l.childUid}>{pro.renderChildSection(l)}</div>)}
       {pro.plansArea}
+      <span>renewing:{String(pro.hasRenewingPlan)}</span>
     </div>
   );
 }
@@ -134,6 +135,23 @@ describe('useParentPro visibility', () => {
     render(<Harness links={[NOA, ITAY]} />);
 
     expect(screen.getByText('plans:yearly:c1,c2:parent@example.com')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['a monthly plan this parent pays', plan(), true],
+    ['a monthly plan whose renewal was cancelled', plan({ status: 'canceled' }), false],
+    ['a yearly plan, which never renews by itself', plan({ billingPeriod: 'yearly', seatLimit: 1 }), false],
+    ["another parent's monthly plan", plan({ payerParentUid: 'parent-2' }), false],
+  ])('knows whether the parent has a plan that charges again: %s', (_label, entitlement, expected) => {
+    mocks.entitlements = { c1: entitlement };
+    render(<Harness links={[NOA]} />);
+    expect(screen.getByText(`renewing:${expected}`)).toBeInTheDocument();
+  });
+
+  it('does not know about renewing plans while a child\'s plan is still loading', () => {
+    mocks.entitlements = { c1: null };
+    render(<Harness links={[NOA, ITAY]} />);
+    expect(screen.getByText('renewing:null')).toBeInTheDocument();
   });
 
   it('offers no plans once every child has Pro', () => {

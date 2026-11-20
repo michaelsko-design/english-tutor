@@ -313,11 +313,11 @@ export function App() {
     }
   };
 
-  // Owner analytics: active time is logged into today's activityLog entry, never shown
+  // Owner analytics: active time is logged into today's activityLog entry, never shown; off when a parent turned statistics off
   useActiveTimeTracker((seconds) => {
-    if (!authUser || !isFirebaseConfigured || !isCloudLoadedRef.current) return;
+    if (!authUser || !isFirebaseConfigured || !isCloudLoadedRef.current || profileRef.current.isAnalyticsOptedOut) return;
     handleUpdateProfile(addActiveSeconds(profileRef.current, seconds, new Date()));
-  });
+  }, !profile.isAnalyticsOptedOut);
 
   // Anonymous usage counters (docs/architecture.md, product analytics): one session_start per sign-in
   const analyticsUid = authUser?.uid;
