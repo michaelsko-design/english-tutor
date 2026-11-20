@@ -56,9 +56,10 @@ vi.mock('./ProCheckoutPanel', () => ({
   ),
 }));
 vi.mock('./ProPaymentReturn', () => ({
-  ProPaymentReturn: (p: { isCancelled: boolean; activatedNames: readonly string[] | null; onDismiss: () => void }) => (
+  ProPaymentReturn: (p: { isCancelled: boolean; activatedNames: readonly string[] | null; hasFullRefund?: boolean | null; onDismiss: () => void }) => (
     <div>
       <span>{`return:${p.isCancelled}:${p.activatedNames ? p.activatedNames.join('|') : 'waiting'}`}</span>
+      <span>{`full-refund:${String(p.hasFullRefund ?? null)}`}</span>
       <button type="button" onClick={p.onDismiss}>dismiss</button>
     </div>
   ),
@@ -313,6 +314,31 @@ describe('useParentPro after payment', () => {
     rerender(<Harness links={[NOA, ITAY]} />);
 
     expect(screen.getByText('return:false:נועה|איתי')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['full_refund', 'true'],
+    ['yearly_prorata', 'false'],
+  ])('asks the server once whether the family still has its full refund (%s)', async (mode, shown) => {
+    window.history.replaceState(null, '', paymentReturnUrl(CHECKOUT_ID));
+    mocks.quoteProCancellation.mockResolvedValue({ ok: true, value: { mode, refundAgorot: 34900, accessUntil: 0 } });
+    mocks.entitlements = { c1: plan({ subscriptionId: CHECKOUT_ID, billingPeriod: 'yearly', seatLimit: 1 }) };
+    const { rerender } = render(<Harness links={[NOA]} />);
+    rerender(<Harness links={[NOA]} />);
+
+    expect(await screen.findByText(`full-refund:${shown}`)).toBeInTheDocument();
+    expect(mocks.quoteProCancellation).toHaveBeenCalledExactlyOnceWith(CHECKOUT_ID);
+  });
+
+  it('keeps the plain summary when the refund check fails', async () => {
+    window.history.replaceState(null, '', paymentReturnUrl(CHECKOUT_ID));
+    mocks.quoteProCancellation.mockResolvedValue({ ok: false, errorHe: 'אין חיבור' });
+    mocks.entitlements = { c1: plan({ subscriptionId: CHECKOUT_ID, billingPeriod: 'yearly', seatLimit: 1 }) };
+    render(<Harness links={[NOA]} />);
+
+    await vi.waitFor(() => expect(mocks.quoteProCancellation).toHaveBeenCalled());
+    expect(screen.getByText('full-refund:null')).toBeInTheDocument();
+    expect(onError).not.toHaveBeenCalledWith('אין חיבור');
   });
 
   it('shows a canceled payment, and dismissing it clears the address', async () => {

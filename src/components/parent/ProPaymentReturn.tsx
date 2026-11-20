@@ -11,6 +11,8 @@ interface ProPaymentReturnProps {
   activatedNames: readonly string[] | null;
   /** The plan just bought, once known: shows the transaction summary to save or print */
   paidPlan?: PaidPlan | null;
+  /** The family's one full refund is still open (false: already used; null: not known yet) */
+  hasFullRefund?: boolean | null;
   onDismiss: () => void;
 }
 
@@ -24,7 +26,7 @@ function joinNamesHe(names: readonly string[]): string {
 }
 
 /** Back from the payment page: cancelled, still being confirmed, or Pro is on. */
-export const ProPaymentReturn: React.FC<ProPaymentReturnProps> = ({ theme, isCancelled, activatedNames, paidPlan = null, onDismiss }) => {
+export const ProPaymentReturn: React.FC<ProPaymentReturnProps> = ({ theme, isCancelled, activatedNames, paidPlan = null, hasFullRefund = null, onDismiss }) => {
   const [isSlow, setIsSlow] = useState(false);
   const isWaiting = !isCancelled && activatedNames === null;
 
@@ -47,7 +49,7 @@ export const ProPaymentReturn: React.FC<ProPaymentReturnProps> = ({ theme, isCan
         {text}
       </p>
       {activatedNames && paidPlan && (
-        <TransactionSummary plan={paidPlan} childNames={activatedNames} theme={theme} formatDate={formatDateHe} />
+        <TransactionSummary plan={paidPlan} childNames={activatedNames} theme={theme} formatDate={formatDateHe} hasFullRefund={hasFullRefund} />
       )}
       {(!isWaiting || isSlow) && (
         <button type="button" onClick={onDismiss} className={`min-h-11 px-4 rounded-2xl text-sm font-extrabold ${theme.secondaryBtnClass}`}>

@@ -173,6 +173,10 @@ describe('ProCheckoutPanel payer and payment', () => {
     await user.click(payButton());
     expect(screen.getByRole('alert')).toHaveTextContent('כדאי לכתוב אימייל');
     expect(billing.startProCheckout).not.toHaveBeenCalled();
+
+    // Putting the email right takes the error away at once, not only at the next click
+    await user.type(email, 'dana@example.com');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('fills in the payer name from the Google account when it is a full name', () => {

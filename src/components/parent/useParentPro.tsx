@@ -62,6 +62,9 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
   /** Null: yearly, with every child who can join ticked */
   const [planStart, setPlanStart] = useState<PlanStart | null>(null);
   const [isBusy, setIsBusy] = useState(false);
+  /** After a payment: the family's one full refund is still open (by plan id), so the summary states the rule that applies */
+  const [fullRefundByPlan, setFullRefundByPlan] = useState<Readonly<Record<string, boolean>>>({});
+  const fullRefundAskedRef = useRef<string | null>(null);
   const plansRef = useRef<HTMLDivElement>(null);
   const childUids = useMemo(() => (isEnabled && links ? links.map((l) => l.childUid) : []), [isEnabled, links]);
   const entitlements = useChildEntitlements(childUids);
@@ -145,6 +148,17 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
     paidEntitlement?.billingPeriod && paidEntitlement.seatLimit
       ? { period: paidEntitlement.billingPeriod, seats: paidEntitlement.seatLimit, periodEnd: paidEntitlement.periodEnd }
       : null;
+  const isPaidPlanKnown = paidPlan !== null;
+  useEffect(() => {
+    if (!paidId || !isPaidPlanKnown || fullRefundAskedRef.current === paidId) return;
+    fullRefundAskedRef.current = paidId;
+    // A failed check leaves the summary's plain wording (the rule, once per family), so no error is shown
+    void quoteProCancellation(paidId).then((result) => {
+      if (!result.ok || result.value.mode === 'none') return;
+      const isFullRefund = result.value.mode === 'full_refund';
+      setFullRefundByPlan((prev) => ({ ...prev, [paidId]: isFullRefund }));
+    });
+  }, [paidId, isPaidPlanKnown]);
   const activatedNames = paidId
     ? (links ?? []).filter((l) => entitlements[l.childUid]?.subscriptionId === paidId).map((l) => l.childName)
     : [];
@@ -158,6 +172,7 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
             isCancelled={route.isPaymentCancelled}
             activatedNames={activatedNames.length > 0 ? activatedNames : null}
             paidPlan={paidPlan}
+            hasFullRefund={fullRefundByPlan[paidId] ?? null}
             onDismiss={() => {
               clearProAddress();
               setRoute(parseParentProRoute(''));
