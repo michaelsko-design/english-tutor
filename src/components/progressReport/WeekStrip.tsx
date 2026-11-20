@@ -6,7 +6,7 @@ const DAY_LETTERS = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
 const STATUS_META: Record<ReportDayStatus, { icon: string; labelHe: string; className: string }> = {
   active: { icon: '🔥', labelHe: 'היה תרגול', className: 'bg-orange-500/20 border-orange-400/50' },
   missed: { icon: '·', labelHe: 'לא היה תרגול', className: 'bg-black/5 dark:bg-white/5 border-current/10 opacity-70' },
-  shabbat: { icon: '🛡️', labelHe: 'שבת, הרצף מוגן', className: 'bg-emerald-500/10 border-emerald-400/40' },
+  shabbat: { icon: '🛡️', labelHe: 'סוף השבוע, הרצף מוגן', className: 'bg-emerald-500/10 border-emerald-400/40' },
   future: { icon: '', labelHe: 'עוד לא הגיע', className: 'border-dashed border-current/20 opacity-50' },
 };
 

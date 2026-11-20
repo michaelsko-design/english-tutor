@@ -35,8 +35,8 @@ $env:APP_ORIGIN = "https://<production-domain>"
 - **Allowed accounts**: everyone who can use the app, with the heading count. *Lock out* deletes `allowed/{uid}`
   and a comp entitlement, so the child is cut off on the next open (also when the profile is cached on the device).
   Their learner data is untouched; a new invite brings them back to the same profile.
-- *Remove completely* (red, next to *Lock out*) deletes the sign-in and all of the tester's data for good (notes stay,
-  without a link to the account; a paid entitlement stays). It only opens a dialog: type the alias to enable
+- *Remove completely* (red, next to *Lock out*) deletes the sign-in and all of the tester's data for good, including
+  the notes they sent and the invite alias (a paid entitlement stays). It only opens a dialog: type the alias to enable
   *Delete forever*. For an account that is already locked out (no longer listed) use *Remove a locked-out account by
   username* under the list. If it fails halfway, press it again: the sign-in is deleted last.
 - A used link cannot work for a second account. The invite screen also takes a code typed by hand.
@@ -95,8 +95,7 @@ EnglishVibe בנויה בעברית לכיתות א׳–י״ב:
 תודה שהסכמת לעזור! EnglishVibe היא אפליקציה ללימוד אנגלית לילדים בכיתות א׳–י״ב, בעברית, עם משימות ומשחקים. היא עדיין בשלב בדיקה סגור, ורק ילדים שהוזמנו יכולים להשתמש בה. המטרה היא לראות איך ילדים אמיתיים משתמשים בה ולתקן מה שלא עובד.
 השירות מופעל על ידי מיכאל שקולניק, בעל העסק SHK טכנולוגיות (עוסק פטור 310720370).
 
-🔗 הקישור האישי של [שם הילד/ה]:
-[קישור]
+🔗 אחרי האישור (בסוף ההודעה) נשלח קישור אישי ל[שם הילד/ה].
 הקישור הוא לשימוש חד־פעמי ותקף ל־14 יום. אפשר לפתוח אותו במכשיר של הילד/ה (טלפון או טאבלט) ולא להעביר הלאה.
 
 📝 איך נכנסים:
@@ -118,7 +117,7 @@ EnglishVibe בנויה בעברית לכיתות א׳–י״ב:
 • יש לכם זכות לעיין במידע, ולבקש לתקן או למחוק אותו (סעיפים 13–14 לחוק הגנת הפרטיות).
 • הפרטים המלאים: מדיניות הפרטיות https://englishvibe.co.il/privacy/ ותנאי השימוש https://englishvibe.co.il/terms/
 
-✅ כדי לאשר שאתם ההורים או האפוטרופוסים של הילד/ה, ושקראתם והסכמתם למדיניות הפרטיות ולתנאי השימוש, השיבו להודעה הזאת במילה "מאשרים". נשלח את הקישור אחרי האישור.
+✅ כדי לאשר שאתם ההורים או האפוטרופוסים של הילד/ה, ושקראתם והסכמתם למדיניות הפרטיות ולתנאי השימוש, השיבו להודעה הזאת במילה "מאשרים", ונשלח את הקישור.
 
 💬 לשאלות, תקלות או רעיונות, אפשר לכתוב לי כאן, ל־support@englishvibe.co.il או להתקשר ל־055-2903310.
 ממש יעזור לראות את הילד/ה משתמש/ת בפעם הראשונה ולשמוע מה היה קשה או מבלבל.
@@ -126,8 +125,13 @@ EnglishVibe בנויה בעברית לכיתות א׳–י״ב:
 תודה רבה! 🙏
 מיכאל
 ```
+After the parent replies, send the link as a second message:
+```
+תודה! 🙏 זה הקישור האישי של [שם הילד/ה]:
+[קישור]
+```
 Send the link only after the parent replies "מאשרים" (or מאשר/ת) (that reply is the recorded consent; keep the chat). In the app, the signup screen also asks for consent (under 13: the parent; 13 and up: the learner, with the parents' knowledge).
-Deleting an account deletes the learner's feedback notes and invite alias too (legal audit PRIV-10; the code change is Task 5 of `docs/legal/legal-audit-implementation-plan.md`, so send this version only once that has shipped).
+Deleting an account deletes the learner's feedback notes and invite alias too (legal audit PRIV-10, shipped).
 
 ## Go-live order that was used (do not swap steps 1-3)
 1. `node scripts/allowExisting.mjs` lists every account. Then `--all --cohort existing` (every account that exists

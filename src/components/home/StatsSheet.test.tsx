@@ -50,12 +50,12 @@ describe('StatsSheet', () => {
 
   it('shows the Shabbat shield for a learner who observes Shabbat', () => {
     setup(makeProfile({ isShabbatObserver: true }));
-    expect(screen.getByText(/מגן שבת פעיל/)).toBeInTheDocument();
+    expect(screen.getByText(/מגן סוף השבוע פעיל/)).toBeInTheDocument();
   });
 
   it('hides the Shabbat shield for a learner who does not observe Shabbat', () => {
     setup(makeProfile({ isShabbatObserver: false }));
-    expect(screen.queryByText(/מגן שבת פעיל/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/מגן סוף השבוע פעיל/)).not.toBeInTheDocument();
   });
 
   it('offers the placement test, the tour and the settings', async () => {

@@ -15,7 +15,7 @@ export interface DeckCopy {
 export function getDeckCopy(gender: LearnerGender): DeckCopy {
   const he = hebrewTemplate(gender);
   return {
-    sectionTitleHe: '📘 ערכות המילים של משרד החינוך',
+    sectionTitleHe: '📘 ערכות מילים לפי רשימות משרד החינוך',
     sectionHintHe: he`בחרי ערכה ותרגלי: מילה שעונים עליה נכון בניסיון הראשון ביומיים שונים נחשבת מילה שנשלטה.`,
     startHe: he`תרגלי את הערכה`,
     showWordsHe: 'הצגת המילים',

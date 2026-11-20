@@ -181,7 +181,7 @@ export const StatsSheet: React.FC<StatsSheetProps> = ({
         {profile.isShabbatObserver !== false && (
           <p className={`inline-flex px-3 py-1 rounded-full text-xs font-bold items-center gap-1 ${theme.badgeClass}`}>
             <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-            מגן שבת פעיל: שישי ושבת לא שוברים את הרצף
+            מגן סוף השבוע פעיל: שישי ושבת לא שוברים את הרצף
           </p>
         )}
 
