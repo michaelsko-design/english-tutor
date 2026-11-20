@@ -71,6 +71,7 @@ import { lazyNamed } from '../utils/lazyNamed';
 import { useEntitlement, useProAccess } from '../hooks/useProAccess';
 import { getProWeekState } from '../data/proWeek';
 import { ProWeekCard } from './pro/ProWeekCards';
+import { StreakRewardCard } from './home/StreakRewardCard';
 import { getPackAccess, getPlayableUnits, hasFinishedFreeMissions, hasFullAccess, resolveLearnerTheme } from '../data/proGate';
 import { ProUpsellContext, type ProUpsellFocus } from './pro/proUpsellContext';
 import { ParentInfoSheet } from './pro/ParentInfoSheet';
@@ -609,6 +610,14 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
         {/* ONE FIRST-USE TIP AT A TIME (replaces the app tour at first launch) */}
         <HomeTipCard profile={profile} uid={authUser?.uid ?? null} theme={theme} onOpenPlacement={() => setIsPlacementOpen(true)} />
+
+        {/* THE ONE-TIME STREAK REWARD WAS PAID (data/streakReward.ts) */}
+        <StreakRewardCard
+          accountKey={authUser?.uid ?? 'guest'}
+          hasEarnedStreakReward={profile.hasEarnedStreakReward === true}
+          theme={theme}
+          readsHebrewAloud={playsHebrewAloud(profile.gradeId)}
+        />
 
         {/* A PARENT JOINED, OR RESET THE PIN: THE LEARNER IS TOLD */}
         <ParentNoticeCard profile={profile} theme={theme} />
