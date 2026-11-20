@@ -46,11 +46,11 @@ const MORE_KIDS_MAILTO = `mailto:${PRIVACY_CONTACT_EMAIL}?subject=${encodeURICom
  */
 function cancelSummaryHe(period: BillingPeriod, seats: number): string {
   if (period === 'monthly') {
-    return 'ביטול בתוך 14 יום מהתשלום הראשון: החזר מלא. אחר כך אפשר לבטל בכל עת, בלי חיובים נוספים, ו-Pro נשאר עד סוף החודש ששולם.';
+    return 'ביטול בתוך 14 יום מהתשלום הראשון: החזר מלא (פעם אחת לכל משפחה). אחר כך אפשר לבטל בכל עת, בלי חיובים נוספים, ו-Pro נשאר עד סוף החודש ששולם.';
   }
   const monthly = proPriceAgorot(seats, 'monthly');
   const rate = monthly === null ? 'המחיר החודשי הרגיל' : `${formatShekels(monthly)}, המחיר החודשי הרגיל היום,`;
-  return `ביטול בתוך 14 יום מהתשלום: החזר מלא. אחר כך: החזר של הסכום ששולם פחות ${rate} לכל חודש שהתחיל. המחיר הזה נשמר עם הרכישה, כך שהעלאת מחיר אחר כך לא תקטין את ההחזר.`;
+  return `ביטול בתוך 14 יום מהתשלום: החזר מלא (פעם אחת לכל משפחה). אחר כך: החזר של הסכום ששולם פחות ${rate} לכל חודש שהתחיל. המחיר הזה נשמר עם הרכישה, כך שהעלאת מחיר אחר כך לא תקטין את ההחזר.`;
 }
 
 const normalizeName = (value: string) => value.trim().replace(/\s+/g, ' ');
@@ -139,7 +139,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
       return;
     }
     if (!EMAIL_PATTERN.test(payerEmail.trim())) {
-      setErrorHe('כדאי לכתוב אימייל: אליו נשלחים הקבלה וסיכום העסקה.');
+      setErrorHe('כדאי לכתוב אימייל: אליו נשלחים הקבלה ועדכונים על המנוי.');
       return;
     }
     trackFunnel('pro_checkout_submit');
@@ -240,7 +240,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
         />
       </label>
       <label className="block text-sm font-bold">
-        אימייל לקבלה ולסיכום העסקה <RequiredMark />
+        אימייל לקבלה ולעדכונים על המנוי <RequiredMark />
         <input
           type="email"
           aria-required="true"

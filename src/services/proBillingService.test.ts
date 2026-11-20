@@ -44,6 +44,13 @@ describe('plan changes', () => {
       ok: true,
       value: { mode: 'yearly_prorata', refundAgorot: 19300, accessUntil: 123 },
     });
+    answer(200, { ok: true, mode: 'none', refundAgorot: 0, accessUntil: 123, reason: 'already_requested' });
+    expect(await quoteProCancellation('a'.repeat(32))).toEqual({
+      ok: true,
+      value: { mode: 'none', refundAgorot: 0, accessUntil: 123, reason: 'already_requested' },
+    });
+    answer(200, { ok: true, mode: 'none', refundAgorot: 0, accessUntil: 123, reason: 'bogus' });
+    expect(await quoteProCancellation('a'.repeat(32))).toEqual({ ok: true, value: { mode: 'none', refundAgorot: 0, accessUntil: 123 } });
     answer(200, { ok: true, mode: 'bogus' });
     expect((await quoteProCancellation('a'.repeat(32))).ok).toBe(false);
   });

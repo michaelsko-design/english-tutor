@@ -122,11 +122,26 @@ describe('ChildProSection', () => {
     expect(onCancelWithRefund).toHaveBeenCalled();
   });
 
-  it('explains that a yearly plan from its 9th month has no refund, with no cancel button', async () => {
+  it('explains that a yearly plan with nothing left to refund gets no refund, with no cancel button', async () => {
     const quote: CancelQuote = { mode: 'yearly_prorata', refundAgorot: 0, accessUntil: PERIOD_END };
     const { user } = renderSection(monthly({ period: 'yearly', isRenewing: false }), null, quote);
     await user.click(screen.getByRole('button', { name: 'ביטול המנוי' }));
-    expect(await screen.findByText(/מהחודש התשיעי/)).toBeInTheDocument();
+    expect(await screen.findByText(/אין סכום להחזר/)).toBeInTheDocument();
+    expect(screen.queryByText(/התשיעי/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /ביטול והחזר/ })).not.toBeInTheDocument();
+  });
+
+  it('shows a yearly plan cancelled mid-year as cancelled, until its end', () => {
+    renderSection(monthly({ period: 'yearly', isRenewing: false, hasSeat: false }));
+    expect(screen.getByTestId('child-pro-status')).toHaveTextContent('המנוי השנתי בוטל, בתוקף עד');
+  });
+
+  it('tells a parent who cancels again that the refund was already requested', async () => {
+    const quote: CancelQuote = { mode: 'none', refundAgorot: 0, accessUntil: PERIOD_END, reason: 'already_requested' };
+    const { user } = renderSection(monthly({ period: 'yearly', isRenewing: false, hasSeat: false }), null, quote);
+    await user.click(screen.getByRole('button', { name: 'ביטול המנוי' }));
+    expect(await screen.findByText(/המנוי כבר בוטל, וביקשתם החזר/)).toBeInTheDocument();
+    expect(screen.queryByText(/אין במנוי הזה מה לבטל/)).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /ביטול והחזר/ })).not.toBeInTheDocument();
   });
 

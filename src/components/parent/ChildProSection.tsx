@@ -43,7 +43,9 @@ function planLineHe(status: Extract<ChildProStatus, { kind: 'plan' }>): string {
   const date = formatDateHe(status.periodEnd);
   if (status.isRenewing) return `מנוי חודשי, מתחדש ב-${date}`;
   if (status.hasLeftPlan) return `יצא/ה מהמנוי, בתוקף עד ${date}`;
-  return status.period === 'yearly' ? `מנוי שנתי, בתוקף עד ${date}` : `המנוי בוטל, בתוקף עד ${date}`;
+  if (status.period === 'monthly') return `המנוי בוטל, בתוקף עד ${date}`;
+  // A yearly plan holds its seat until it is cancelled (or ends)
+  return status.hasSeat ? `מנוי שנתי, בתוקף עד ${date}` : `המנוי השנתי בוטל, בתוקף עד ${date}`;
 }
 
 /** A child's Pro line in the parent portal: the plan, and the paying parent's controls. */

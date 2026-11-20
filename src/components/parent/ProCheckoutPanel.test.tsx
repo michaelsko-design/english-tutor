@@ -154,6 +154,7 @@ describe('ProCheckoutPanel payer and payment', () => {
     const { user } = renderPanel();
     const summary = screen.getByTestId('cancel-summary');
     expect(summary).toHaveTextContent('ביטול בתוך 14 יום');
+    expect(summary).toHaveTextContent('פעם אחת לכל משפחה');
     expect(screen.getByRole('link', { name: 'מדיניות שירות וביטולים' })).toHaveAttribute('href', '/refunds/');
     expect(screen.getByRole('link', { name: 'ביטול עסקה' })).toHaveAttribute('href', '/refunds/#cancel');
     expect(screen.getByText(/גרואו פיימנטס בע״מ \(Grow\)/)).toBeInTheDocument();
@@ -161,6 +162,9 @@ describe('ProCheckoutPanel payer and payment', () => {
     const yearly = screen.getByTestId('cancel-summary');
     expect(yearly).toHaveTextContent(/פחות .*39.*המחיר החודשי הרגיל היום/);
     expect(yearly).toHaveTextContent('העלאת מחיר אחר כך לא תקטין את ההחזר');
+    expect(yearly).toHaveTextContent('פעם אחת לכל משפחה');
+    expect(screen.getByLabelText(/אימייל לקבלה ולעדכונים על המנוי/)).toBeInTheDocument();
+    expect(screen.queryByText(/סיכום העסקה/)).not.toBeInTheDocument();
   });
 
   it('refuses to open the payment page without an email', async () => {
@@ -171,7 +175,7 @@ describe('ProCheckoutPanel payer and payment', () => {
     await user.type(screen.getByLabelText(PHONE_LABEL), '0501234567');
     await user.click(screen.getByRole('checkbox', { name: /קראתי ואני מסכים/ }));
     await user.click(payButton());
-    expect(screen.getByRole('alert')).toHaveTextContent('כדאי לכתוב אימייל');
+    expect(screen.getByRole('alert')).toHaveTextContent('כדאי לכתוב אימייל: אליו נשלחים הקבלה ועדכונים על המנוי.');
     expect(billing.startProCheckout).not.toHaveBeenCalled();
 
     // Putting the email right takes the error away at once, not only at the next click
