@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { APP_NAME } from '../../config/appInfo';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
+import { formatDateHe } from './ChildProSection';
+import { TransactionSummary, type PaidPlan } from './TransactionSummary';
 
 interface ProPaymentReturnProps {
   theme: ThemeDefinition;
   isCancelled: boolean;
   /** The children's names once their entitlement shows this checkout's plan; null until then */
   activatedNames: readonly string[] | null;
+  /** The plan just bought, once known: shows the transaction summary to save or print */
+  paidPlan?: PaidPlan | null;
   onDismiss: () => void;
 }
 
@@ -20,7 +24,7 @@ function joinNamesHe(names: readonly string[]): string {
 }
 
 /** Back from the payment page: cancelled, still being confirmed, or Pro is on. */
-export const ProPaymentReturn: React.FC<ProPaymentReturnProps> = ({ theme, isCancelled, activatedNames, onDismiss }) => {
+export const ProPaymentReturn: React.FC<ProPaymentReturnProps> = ({ theme, isCancelled, activatedNames, paidPlan = null, onDismiss }) => {
   const [isSlow, setIsSlow] = useState(false);
   const isWaiting = !isCancelled && activatedNames === null;
 
@@ -32,7 +36,7 @@ export const ProPaymentReturn: React.FC<ProPaymentReturnProps> = ({ theme, isCan
 
   let text: string;
   if (isCancelled) text = 'התשלום בוטל ולא בוצע חיוב. אפשר לנסות שוב בכל זמן.';
-  else if (activatedNames) text = `תודה! ${APP_NAME} Pro פעיל עכשיו עבור ${joinNamesHe(activatedNames)}. הקבלה תישלח למייל.`;
+  else if (activatedNames) text = `תודה! ${APP_NAME} Pro פעיל עכשיו עבור ${joinNamesHe(activatedNames)}. הקבלה תישלח לאימייל, וסיכום העסקה ופרטי הביטול מופיעים כאן.`;
   else if (isSlow) text = 'התשלום עדיין בבדיקה. אם חויבתם, Pro ייפתח תוך כמה דקות, אין צורך לשלם שוב.';
   else text = 'מאשרים את התשלום…';
 
@@ -42,6 +46,9 @@ export const ProPaymentReturn: React.FC<ProPaymentReturnProps> = ({ theme, isCan
         {activatedNames && '🎉 '}
         {text}
       </p>
+      {activatedNames && paidPlan && (
+        <TransactionSummary plan={paidPlan} childNames={activatedNames} theme={theme} formatDate={formatDateHe} />
+      )}
       {(!isWaiting || isSlow) && (
         <button type="button" onClick={onDismiss} className={`min-h-11 px-4 rounded-2xl text-sm font-extrabold ${theme.secondaryBtnClass}`}>
           סגירה

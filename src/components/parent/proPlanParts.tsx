@@ -2,11 +2,6 @@ import React from 'react';
 import type { BillingPeriod, ProPriceQuote } from '../../config/proTier';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 
-/** A click-to-chat link with the message filled in (wa.me with our number, or a chat picker without one). */
-export function buildWhatsAppChatUrl(phoneDigits: string, message: string): string {
-  return `https://wa.me/${phoneDigits.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
-}
-
 /** Shekels from agorot: whole shekels for charges, agorot kept for per-month figures. */
 export function formatShekels(agorot: number, hasAgorot = false): string {
   return new Intl.NumberFormat('he-IL', {

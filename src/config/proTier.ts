@@ -12,13 +12,10 @@ export const BILLING_PERIODS: readonly BillingPeriod[] = ['monthly', 'yearly'];
 /** Most children one subscription covers; families with more contact us */
 export const MAX_PRO_SEATS = 4;
 
-/** A parent account can buy Pro only while linked to at most this many children (seat sharing stays family-sized) */
-export const MAX_LINKED_CHILDREN = 6;
-
 export type ProSeatCount = 1 | 2 | 3 | 4;
 
 /**
- * VAT included, in agorot. Monthly: ₪39 for the first child and ₪25 for each more. Yearly: about
+ * In agorot. The business is an osek patur, so there is no VAT: these are the final prices. Monthly: ₪39 for the first child and ₪25 for each more. Yearly: about
  * 9 months' price (3 months free), rounded down to end in 9.
  */
 export const PRO_PRICES_AGOROT: Record<ProSeatCount, Record<BillingPeriod, number>> = {

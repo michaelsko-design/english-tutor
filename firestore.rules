@@ -552,6 +552,16 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Cancellations with a refund, one per plan (api/_lib/cancellation.ts); server only
+    match /refundRequests/{subscriptionId} {
+      allow read, write: if false;
+    }
+
+    // A parent's confirmation of a higher monthly charge (api/subscription.ts, addChild); server only
+    match /planConsents/{consentId} {
+      allow read, write: if false;
+    }
+
     // What the owner was last warned about (Make credits running low, api/_lib/makeCredits.ts); server only
     match /ownerNotices/{noticeId} {
       allow read, write: if false;

@@ -1,9 +1,10 @@
 /**
- * POST /api/checkout  {childUids, period, payerName, payerPhone, payerEmail?, acceptedTerms, dryRun?}: a paired
+ * POST /api/checkout  {childUids, period, payerName, payerPhone, payerEmail, acceptedTerms, dryRun?}: a paired
  * parent starts EnglishVibe Pro for 1–4 of their children (docs/feature-pro-tier.md). Every child's
  * pairing is checked as the parent; the price comes from `config/proTier.ts`, never from the client.
  * `dryRun` only returns the price. Otherwise the parent must have accepted the terms (`acceptedTerms`:
- * the version and time are saved on the checkout); it records `checkouts/{id}`, opens the gateway's payment
+ * the terms and privacy versions, the time, and on a monthly plan the consent to retried charges are
+ * saved on the checkout) and given an email (the receipt goes there); it records `checkouts/{id}`, opens the gateway's payment
  * page and returns its URL; the payment itself is confirmed later by /api/payment-webhook.
  */
 import { createFirestoreAdmin, type FirestoreAdmin } from './_lib/firestoreAdmin.js';
@@ -20,8 +21,8 @@ import {
 import { createPaymentProvider } from './_lib/payments/index.js';
 import { changesRecurringByApi, PaymentError, type PaymentProvider } from './_lib/payments/provider.js';
 import { holdsLiveSeat, renewableSeatEnd, UID_PATTERN } from './_lib/proBilling.js';
-import { TERMS_VERSION } from '../src/config/appInfo.js';
-import { isBillingPeriod, MAX_LINKED_CHILDREN, MAX_PRO_SEATS, proPriceAgorot, type BillingPeriod } from '../src/config/proTier.js';
+import { PRIVACY_VERSION, TERMS_VERSION } from '../src/config/appInfo.js';
+import { isBillingPeriod, MAX_PRO_SEATS, proPriceAgorot, type BillingPeriod } from '../src/config/proTier.js';
 
 const MAX_BODY_BYTES = 2048;
 const MAX_NAME_LENGTH = 60;
@@ -67,7 +68,8 @@ function readPayer(body: Record<string, unknown>): Pick<CheckoutBody, 'payerName
   const payerEmail = typeof body.payerEmail === 'string' ? body.payerEmail.trim() : '';
   if (payerName.length > MAX_NAME_LENGTH || !PAYER_NAME_PATTERN.test(payerName)) return null;
   if (!PAYER_PHONE_PATTERN.test(payerPhone)) return null;
-  if (payerEmail && (payerEmail.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.test(payerEmail))) return null;
+  // Required: the receipt and the transaction summary go to it (legal audit TOS-13, CHK-03)
+  if (payerEmail.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.test(payerEmail)) return null;
   return { payerName, payerPhone, payerEmail };
 }
 
@@ -82,12 +84,6 @@ async function readBody(request: Request): Promise<CheckoutBody | null> {
   if (body.acceptedTerms !== true) return null;
   const payer = readPayer(body);
   return payer ? { childUids, period: body.period, dryRun, ...payer } : null;
-}
-
-/** Whether the parent is linked to more children than one family's plan is meant for */
-async function hasTooManyLinks(admin: FirestoreAdmin, parentUid: string): Promise<boolean> {
-  const links = await admin.queryDocuments('parentLinks', 'parentUid', parentUid);
-  return links.length > MAX_LINKED_CHILDREN;
 }
 
 async function countRecentPendingCheckouts(admin: FirestoreAdmin, parentUid: string, nowMs: number): Promise<number> {
@@ -166,7 +162,10 @@ async function openPaymentPage(
       processToken: '',
       createdAt: input.nowMs,
       termsVersion: TERMS_VERSION,
+      privacyVersion: PRIVACY_VERSION,
       acceptedAt: input.nowMs,
+      // The consent box's monthly line: the gateway may retry a failed charge for up to 10 days (Grow §13.1.5.11)
+      acceptedRetryConsent: body.period === 'monthly',
       ...payer,
     },
   }]);
@@ -229,7 +228,6 @@ export async function handleCheckoutRequest(
     }
     const admin = createAdmin(account, caller.projectId, { fetchImpl });
     const now = nowMs();
-    if (await hasTooManyLinks(admin, caller.parentUid)) return refusal(409, 'Too many linked children', 'too_many_children');
     if ((await countRecentPendingCheckouts(admin, caller.parentUid, now)) >= MAX_PENDING_CHECKOUTS_PER_DAY) {
       return refusal(429, 'Too many payment pages today', 'too_many_checkouts');
     }

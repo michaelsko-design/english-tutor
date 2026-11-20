@@ -151,6 +151,21 @@ describe('handlePaymentWebhook: Grow account webhooks', () => {
     expect(fake.get('gatewayTasks', `${CHECKOUT_ID}_extend_1`)).toBeUndefined();
   });
 
+  it('never re-opens Pro for a plan refunded at cancellation: the charge is recorded and refunded', async () => {
+    const { fake, deps } = await activated();
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const entitlementBefore = fake.get('entitlements', 'kid1');
+    fake.seed('refundRequests', CHECKOUT_ID, { parentUid: 'parent1', mode: 'full_refund' });
+    const renewal = { webhookKey: 'GROWKEY', transactionCode: 'R9', paymentSum: 64, directDebitId: 'DD7', paymentType: 'הוראת קבע' };
+
+    expect((await handlePaymentWebhook(accountWebhook(renewal), ENV, deps)).status).toBe(200);
+
+    expect(fake.get('entitlements', 'kid1')).toEqual(entitlementBefore);
+    expect(fake.get('payments', 'grow_R9')).toMatchObject({ kind: 'renewal_after_refund', amountAgorot: 6400 });
+    expect(fake.get('gatewayTasks', 'refund_grow_R9')).toMatchObject({ kind: 'refund', amountAgorot: 6400, doneAt: 0 });
+    logged.mockRestore();
+  });
+
   it('refuses a renewal charged for less than the plan, and logs it', async () => {
     const { fake, deps } = await activated();
     const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
