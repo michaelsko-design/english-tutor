@@ -24,11 +24,11 @@ export const CANCEL_PAGE_PATH = '/refunds/#cancel';
 export const ACCESSIBILITY_PAGE_PATH = '/accessibility/';
 
 /**
- * Off until the owner approves the legal texts (legal audit Task 7). While off, the legal pages are
- * built but not linked from the landing page or the app's sign-in screens, carry `noindex`, and show
- * a draft banner.
+ * On since the owner approved the legal texts (legal audit Task 7, 2026-11-20): the legal pages are
+ * linked from the landing page and the app's sign-in screens and can be indexed. Turned off, they are
+ * built but unlinked, carry `noindex`, and show a draft banner.
  */
-export const LEGAL_PAGES_LIVE = false;
+export const LEGAL_PAGES_LIVE = true;
 
 /**
  * The terms a parent accepts at checkout, saved on the checkout as `termsVersion`: the terms' "עודכן
