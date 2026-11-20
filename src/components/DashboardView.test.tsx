@@ -15,7 +15,7 @@ const roomReward = vi.hoisted(() => ({ value: null as unknown }));
 const vocabResult = vi.hoisted(() => ({ lastReturn: null as boolean | null }));
 
 vi.mock('../hooks/useGradeCurricula', () => ({ useGradeCurricula: () => curricula }));
-vi.mock('../hooks/useProAccess', () => ({ useProAccess: () => ({ isPro: true, isGatingOn: false }) }));
+vi.mock('../hooks/useProAccess', () => ({ useProAccess: () => ({ isPro: true, isGatingOn: false }), useEntitlement: () => null }));
 vi.mock('../hooks/useStickerImages', () => ({ useStickerImages: () => undefined }));
 vi.mock('./companion/Companion', () => ({ Companion: () => null, preloadCompanion: vi.fn() }));
 vi.mock('../data/contentPacks', async (importOriginal) => {
@@ -166,8 +166,8 @@ vi.mock('./PlacementTest', () => ({
 }));
 vi.mock('./tutorial/ProfileTour', () => ({ ProfileTour: (p: { onDone: () => void }) => btn('tour-done', p.onDone) }));
 vi.mock('./AuthModal', () => ({ AuthModal: (p: { onClose: () => void }) => btn('close-auth', p.onClose) }));
-vi.mock('./pro/ProUpsellSheet', () => ({
-  ProUpsellSheet: (p: { focus: string; onClose: () => void }) => <div>{btn('close-upsell', p.onClose)}<span>{`upsell:${p.focus}`}</span></div>,
+vi.mock('./pro/ParentInfoSheet', () => ({
+  ParentInfoSheet: (p: { focus: string; onClose: () => void }) => <div>{btn('close-upsell', p.onClose)}<span>{`upsell:${p.focus}`}</span></div>,
 }));
 
 const AUTH_USER = { uid: 'me', email: 'me@x.test', displayName: 'נועה', isAnonymous: false };

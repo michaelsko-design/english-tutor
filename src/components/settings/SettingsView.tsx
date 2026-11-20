@@ -4,7 +4,7 @@ import { getRecommendedGradeForAge, type CompanionId, type LearnerProfile, type 
 import { resolveTheme } from '../../themes/themeRegistry';
 import { canUseCompanion, canUseTheme, resolveAllowedLook } from '../../data/proGate';
 import { useProAccess } from '../../hooks/useProAccess';
-import { ProUpsellSheet } from '../pro/ProUpsellSheet';
+import { ParentInfoSheet } from '../pro/ParentInfoSheet';
 import { ThemePreviewSheet } from './ThemePreviewSheet';
 import { getHebrewCopy } from '../../utils/hebrewGender';
 import { DEFAULT_VOICE_PREFERENCE } from '../../utils/ttsVoice';
@@ -352,7 +352,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         />
       )}
       {isUpsellOpen && auth?.currentUser && (
-        <ProUpsellSheet
+        <ParentInfoSheet
           learner={{
             uid: auth.currentUser.uid,
             name: draft.name,

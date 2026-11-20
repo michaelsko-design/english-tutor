@@ -4,7 +4,7 @@ import { CONTENT_PACKS, IS_PACK_PREVIEW, RELEASED_CONTENT_PACKS } from './curric
 import type { ContentPack, ContentPackId, ReleasedPack } from './curriculum/packs/types';
 import { daysBetween } from '../utils/dates';
 import { isolateLtr } from '../utils/bidi';
-import { ASK_PARENT_LABEL_HE, PRO_SPOKEN_HE } from './proAsk';
+import { PARENTS_AREA_LABEL_HE, PRO_SPOKEN_HE } from './proAsk';
 
 /** How long a released pack's units show "חדש!" on the map and the home card is offered */
 export const NEW_PACK_DAYS = 14;
@@ -78,13 +78,13 @@ export function getNewPackCopy(pack: ContentPack, unitCount: number, gender: Lea
   const titleHe = `חדש! ${pack.titleHe}`;
   const isOne = unitCount === 1;
   if (isProLocked) {
-    const waitingHe = isOne ? 'יחידה חדשה מחכה במפה' : `${unitCount} יחידות חדשות מחכות במפה`;
-    const askHe = isOne ? 'אפשר לבקש מהורה לפתוח אותה.' : 'אפשר לבקש מהורה לפתוח אותן.';
+    const addedHe = isOne ? 'יחידה חדשה נוספה למפה' : `${unitCount} יחידות חדשות נוספו למפה`;
+    const inProHe = (pro: string) => `${isOne ? 'היא כלולה' : 'הן כלולות'} במסלול ${pro}. מידע להורים באזור ההורים.`;
     return {
       titleHe,
-      bodyHe: `${waitingHe}, עם ${isolateLtr('Pro')}. ${askHe}`,
-      buttonHe: ASK_PARENT_LABEL_HE,
-      spokenHe: `${titleHe}. ${waitingHe}, עם ${PRO_SPOKEN_HE}. ${askHe}`,
+      bodyHe: `${addedHe}. ${inProHe(isolateLtr('Pro'))}`,
+      buttonHe: PARENTS_AREA_LABEL_HE,
+      spokenHe: `${titleHe}. ${addedHe}. ${inProHe(PRO_SPOKEN_HE)}`,
     };
   }
   const bodyHe = isOne ? 'יחידה חדשה נוספה למפה שלך.' : `${unitCount} יחידות חדשות נוספו למפה שלך.`;

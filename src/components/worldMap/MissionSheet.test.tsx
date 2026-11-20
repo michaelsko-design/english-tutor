@@ -59,12 +59,12 @@ describe('MissionSheet', () => {
     expect(onStart).not.toHaveBeenCalled();
   });
 
-  it('a Pro mission asks a parent instead of starting', async () => {
+  it('a Pro mission offers the parents info instead of starting', async () => {
     const user = userEvent.setup();
     expect(proStops[0].status).toBe('pro');
     const { onStart, onAskParent } = renderSheet({ state: proStops[0], position: { x: 0.5, y: 0.5 } });
 
-    await user.click(screen.getByRole('button', { name: /לבקש מהורה/ }));
+    await user.click(screen.getByRole('button', { name: 'לאזור ההורים' }));
 
     expect(onAskParent).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole('button', { name: /התחילי את המשימה/ })).not.toBeInTheDocument();

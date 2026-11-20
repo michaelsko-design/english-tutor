@@ -21,6 +21,9 @@
     "api/subscription.ts": {
       "maxDuration": 15
     },
+    "api/pro-trial.ts": {
+      "maxDuration": 10
+    },
     "api/streak-reminder.ts": {
       "maxDuration": 60
     },

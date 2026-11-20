@@ -36,6 +36,7 @@ const PRE_AUTH_LABELS: Record<string, string> = {
   parent_pro_signin_done: 'A parent signed in from a Pro ask link',
   pro_plans_view: 'A parent saw the Pro plans',
   pro_checkout_submit: 'A parent pressed pay',
+  pro_trial_start: 'A parent started a free Pro week',
 };
 
 const FEATURE_LABELS: Record<string, string> = {

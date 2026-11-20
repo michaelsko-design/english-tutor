@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CurriculumUnit, MissionNode } from './curriculum/types';
 import { CONTENT_PACKS, RELEASED_CONTENT_PACKS } from './curriculum/packs/registry';
-import { ASK_PARENT_LABEL_HE, PRO_SPOKEN_HE } from './proAsk';
+import { PARENTS_AREA_LABEL_HE, PRO_SPOKEN_HE } from './proAsk';
 import { isHebrewSpeakable } from '../services/tts/ttsText';
 import { getNewPackCopy, getNewPackOffer, isPackNew, NEW_PACK_DAYS, type PackReleaseState } from './contentPacks';
 
@@ -69,14 +69,15 @@ describe('getNewPackCopy', () => {
     const pack = CONTENT_PACKS['holidays-autumn'];
     expect(getNewPackCopy(pack, 1, 'girl').bodyHe).toBe('יחידה חדשה נוספה למפה שלך.');
     expect(getNewPackCopy(pack, 2, 'girl').bodyHe).toBe('2 יחידות חדשות נוספו למפה שלך.');
-    expect(getNewPackCopy(pack, 1, 'girl', true).bodyHe).toContain('אותה.');
+    expect(getNewPackCopy(pack, 1, 'girl', true).bodyHe).toContain('היא כלולה');
   });
 
-  it('asks a parent for a Pro pack the learner cannot play yet, and says "Pro" in Hebrew letters', () => {
+  it('says a Pro pack is in the full plan, with info for parents and no ask to buy, and says "Pro" in Hebrew letters', () => {
     const copy = getNewPackCopy(CONTENT_PACKS['holidays-autumn'], 1, 'girl', true);
-    expect(copy.buttonHe).toBe(ASK_PARENT_LABEL_HE);
+    expect(copy.buttonHe).toBe(PARENTS_AREA_LABEL_HE);
     expect(copy.bodyHe).toContain('Pro');
-    expect(copy.bodyHe).toContain('אפשר לבקש מהורה');
+    expect(copy.bodyHe).toContain('מידע להורים באזור ההורים');
+    expect(copy.bodyHe).not.toMatch(/לבקש|לשדרג/);
     expect(copy.spokenHe).not.toMatch(/[A-Za-z]/);
     expect(copy.spokenHe).toContain(PRO_SPOKEN_HE);
     expect(isHebrewSpeakable(copy.spokenHe)).toBe(true);

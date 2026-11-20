@@ -294,6 +294,7 @@ await seedAsServer(`entitlements/${ua.uid}`, {
   plan: { stringValue: 'pro' }, status: { stringValue: 'active' }, payerParentUid: { stringValue: ub.uid },
 });
 await seedAsServer(`subscriptions/${'x'.repeat(32)}`, { payerParentUid: { stringValue: ub.uid } });
+await seedAsServer(`proTrials/${ua.uid}`, { parentUid: { stringValue: ub.uid } });
 await seedAsServer(`checkouts/${'x'.repeat(32)}`, { parentUid: { stringValue: ub.uid }, processToken: { stringValue: 'secret' } });
 
 await expect('a learner can read their own entitlement', true, () => getDoc(doc(a.db, 'entitlements', ua.uid)));
@@ -302,6 +303,9 @@ await expect('a learner cannot write their own entitlement', false, () =>
   setDoc(doc(a.db, 'entitlements', ua.uid), entitlement()));
 await expect('a learner cannot delete their own entitlement', false, () => deleteDoc(doc(a.db, 'entitlements', ua.uid)));
 await expect('a parent cannot give a learner Pro', false, () => setDoc(doc(b.db, 'entitlements', ua.uid), entitlement()));
+await expect('a learner cannot read their Pro week record', false, () => getDoc(doc(a.db, 'proTrials', ua.uid)));
+await expect('a parent cannot start a Pro week by writing it', false, () =>
+  setDoc(doc(b.db, 'proTrials', ua.uid), { parentUid: ub.uid, startedAt: Date.now(), endsAt: Date.now() }));
 await deleteDoc(doc(b.db, 'parentLinks', linkId)).catch(() => {});
 await deleteDoc(doc(a.db, 'parentInvites', CODE)).catch(() => {});
 await setDoc(doc(a.db, 'parentInvites', CODE), invite());
@@ -412,7 +416,7 @@ await expect('a learner cannot read feedback notes', false, () => getDoc(doc(a.d
 await expect('a learner cannot edit a sent feedback note', false, () => setDoc(doc(a.db, 'feedback', 'note-a1'), feedbackNote(ua.uid, { text: 'changed' })));
 await expect('a learner cannot read client errors', false, () => getDoc(doc(a.db, 'clientErrors', `${today}_abc`)));
 await deleteDoc(doc(b.db, 'parentLinks', linkId)).catch(() => {});
-for (const path of [`entitlements/${ua.uid}`, `subscriptions/${'x'.repeat(32)}`, `checkouts/${'x'.repeat(32)}`, `gatewayTasks/${'x'.repeat(32)}_cancel`]) {
+for (const path of [`entitlements/${ua.uid}`, `proTrials/${ua.uid}`, `subscriptions/${'x'.repeat(32)}`, `checkouts/${'x'.repeat(32)}`, `gatewayTasks/${'x'.repeat(32)}_cancel`]) {
   await fetch(ownerDoc(path), { method: 'DELETE', headers: { Authorization: 'Bearer owner' } }).catch(() => {});
 }
 

@@ -1,15 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { describe, expect, it } from 'vitest';
 import {
-  ASK_RESEND_AFTER_MS,
-  buildProAskMessageHe,
+  PARENT_INFO_BODY_HE,
+  PARENT_INFO_SPOKEN_HE,
+  PARENT_INFO_TITLE_HE,
+  buildParentsAreaMessageHe,
   buildProAskUrl,
-  dismissAskResend,
-  getProSheetSpokenHe,
-  getProSheetTitleHe,
-  getUnansweredAsk,
-  hasAskedToday,
-  readLastAsk,
-  rememberAsk,
 } from './proAsk';
 import { isHebrewSpeakable } from '../services/tts/ttsText';
 
@@ -20,103 +17,42 @@ describe('buildProAskUrl', () => {
   });
 });
 
-describe('buildProAskMessageHe', () => {
-  it('speaks as the learner, by gender, with the link last', () => {
-    const message = buildProAskMessageHe('נועה', 'girl', 'https://x');
-    expect(message).toContain('כאן נועה');
-    expect(message).toContain('לומדת');
+describe('buildParentsAreaMessageHe', () => {
+  it('is an informational hand-off with the link last, not a request to upgrade', () => {
+    const message = buildParentsAreaMessageHe('https://x');
+    expect(message).toContain('קישור לאזור ההורים');
     expect(message.endsWith('https://x')).toBe(true);
-    expect(buildProAskMessageHe(' ', 'boy', 'https://x')).toContain('לומד ');
+    expect(message).not.toMatch(/לשדרג|לבקש|רוצה/);
   });
 });
 
-describe('one ask a day', () => {
-  beforeEach(() => {
-    const store = new Map<string, string>();
-    vi.stubGlobal('localStorage', {
-      getItem: (key: string) => store.get(key) ?? null,
-      setItem: (key: string, value: string) => store.set(key, value),
-    });
-  });
-
-  afterEach(() => vi.unstubAllGlobals());
-
-  it('remembers today\'s ask per learner', () => {
-    expect(hasAskedToday('u1', '2026-10-28')).toBe(false);
-    rememberAsk('u1', '2026-10-28');
-    expect(hasAskedToday('u1', '2026-10-28')).toBe(true);
-    expect(hasAskedToday('u1', '2026-10-29')).toBe(false);
-    expect(hasAskedToday('u2', '2026-10-28')).toBe(false);
-  });
-
-  it('still reads an ask stored by an older version (the day only)', () => {
-    localStorage.setItem('english_tutor_pro_ask_u1', '2026-10-28');
-    expect(hasAskedToday('u1', '2026-10-28')).toBe(true);
-    expect(readLastAsk('u1')).toMatchObject({ dateStr: '2026-10-28', focus: 'missions', resends: 0 });
-  });
-
-  it('ignores a broken stored value', () => {
-    localStorage.setItem('english_tutor_pro_ask_u1', '{not json');
-    expect(readLastAsk('u1')).toBeNull();
-    expect(hasAskedToday('u1', '2026-10-28')).toBe(false);
+describe('the parents info copy', () => {
+  it('is factual and has a speakable read-aloud line', () => {
+    expect(PARENT_INFO_TITLE_HE).toContain('מידע להורים');
+    expect(PARENT_INFO_BODY_HE).toContain('כלול במסלול Pro');
+    expect(isHebrewSpeakable(PARENT_INFO_SPOKEN_HE)).toBe(true);
   });
 });
 
-describe('sending an unanswered ask again', () => {
-  const ASKED_AT = Date.UTC(2026, 10, 1, 12);
-  const LATER = ASKED_AT + ASK_RESEND_AFTER_MS;
+/**
+ * Marketing to minors (Consumer Protection regulations, 1991, s.3(4)-(6)): nothing a learner sees may
+ * urge them to buy or to get a parent to buy. Parent-only screens (src/components/parent) are exempt.
+ */
+describe('child-facing Pro copy', () => {
+  const CHILD_FACING_FILES = [
+    'src/data/proAsk.ts',
+    'src/data/contentPacks.ts',
+    'src/components/pro/ParentInfoSheet.tsx',
+    'src/components/pro/FreeMissionsDoneCard.tsx',
+    'src/components/pro/ProWeekCards.tsx',
+    'src/components/worldMap/MissionSheet.tsx',
+    'src/components/wordLists/WordListsCard.tsx',
+    'src/components/settings/ThemePreviewSheet.tsx',
+  ];
+  const BANNED = [/לבקש מהורה/, /לבקש מההורים/, /לשדרג/, /לקנות/, /בקשי? מהורה/, /לפתוח אות[םן]/];
 
-  beforeEach(() => {
-    const store = new Map<string, string>();
-    vi.stubGlobal('localStorage', {
-      getItem: (key: string) => store.get(key) ?? null,
-      setItem: (key: string, value: string) => store.set(key, value),
-    });
-  });
-
-  afterEach(() => vi.unstubAllGlobals());
-
-  it('offers the resend 48 hours after the ask, with the same focus', () => {
-    rememberAsk('u1', '2026-11-01', { focus: 'exam', nowMs: ASKED_AT });
-    expect(getUnansweredAsk('u1', LATER - 1, false)).toBeNull();
-    expect(getUnansweredAsk('u1', LATER, false)).toMatchObject({ focus: 'exam' });
-  });
-
-  it('never offers it once Pro is on, or with no ask', () => {
-    rememberAsk('u1', '2026-11-01', { nowMs: ASKED_AT });
-    expect(getUnansweredAsk('u1', LATER, true)).toBeNull();
-    expect(getUnansweredAsk('u2', LATER, false)).toBeNull();
-  });
-
-  it('allows two resends per ask, and a new ask starts over', () => {
-    rememberAsk('u1', '2026-11-01', { nowMs: ASKED_AT });
-    rememberAsk('u1', '2026-11-03', { isResend: true, nowMs: LATER });
-    expect(getUnansweredAsk('u1', LATER + ASK_RESEND_AFTER_MS, false)).not.toBeNull();
-    rememberAsk('u1', '2026-11-05', { isResend: true, nowMs: LATER + ASK_RESEND_AFTER_MS });
-    expect(getUnansweredAsk('u1', LATER + 3 * ASK_RESEND_AFTER_MS, false)).toBeNull();
-
-    rememberAsk('u1', '2026-11-10', { nowMs: LATER + 4 * ASK_RESEND_AFTER_MS });
-    expect(readLastAsk('u1')?.resends).toBe(0);
-  });
-
-  it('stays away after the card is closed, until the next ask', () => {
-    rememberAsk('u1', '2026-11-01', { nowMs: ASKED_AT });
-    dismissAskResend('u1', LATER);
-    expect(getUnansweredAsk('u1', LATER + ASK_RESEND_AFTER_MS, false)).toBeNull();
-    rememberAsk('u1', '2026-11-04', { nowMs: LATER + 1 });
-    expect(getUnansweredAsk('u1', LATER + 1 + ASK_RESEND_AFTER_MS, false)).not.toBeNull();
-  });
-});
-
-describe('the Pro sheet read aloud', () => {
-  it('starts with the heading, by gender, and fits one Hebrew clip with no English in it', () => {
-    for (const gender of ['girl', 'boy'] as const) {
-      const spoken = getProSheetSpokenHe(gender);
-      expect(spoken.startsWith(getProSheetTitleHe(gender))).toBe(true);
-      expect(spoken).not.toMatch(/[A-Za-z]/);
-      expect(isHebrewSpeakable(spoken)).toBe(true);
-    }
-    expect(getProSheetTitleHe('girl')).toContain('בואי');
-    expect(getProSheetTitleHe('boy')).toContain('בוא ');
+  it.each(CHILD_FACING_FILES)('%s has no ask-a-parent or buy wording', (file) => {
+    const text = readFileSync(path.resolve(file), 'utf8');
+    for (const pattern of BANNED) expect(text).not.toMatch(pattern);
   });
 });

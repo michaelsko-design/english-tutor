@@ -4,18 +4,19 @@ import type { BillingPeriod } from '../../config/proTier';
 import type { ParentLink } from '../../data/parentLink';
 import type { ExamPitch } from '../../data/examPitch';
 import { parseParentProRoute } from '../../data/parentProRoute';
-import { canJoinCheckout, childrenOnSamePlan, findOpenPlan, getChildProStatus, type ChildProStatus } from '../../data/proPlanStatus';
+import { canJoinCheckout, canStartTrial, childrenOnSamePlan, findOpenPlan, getChildProStatus, type ChildProStatus } from '../../data/proPlanStatus';
 import { useChildEntitlements } from '../../hooks/useChildEntitlements';
 import {
   changeProPlan,
   quoteProCancellation,
+  startProTrial,
   type CancelQuote,
   type PlanAction,
   type PlanChangeOptions,
 } from '../../services/proBillingService';
 import { trackFunnel } from '../../services/analytics/funnel';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
-import { ChildProSection } from './ChildProSection';
+import { ChildProSection, formatDateHe } from './ChildProSection';
 import { MockPaymentPage } from './MockPaymentPage';
 import { ProCheckoutPanel } from './ProCheckoutPanel';
 import { ProPaymentReturn } from './ProPaymentReturn';
@@ -99,6 +100,19 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
     else onError(result.errorHe);
   };
 
+  const startTrial = async (link: ParentLink) => {
+    setIsBusy(true);
+    onError(null);
+    const result = await startProTrial(link.childUid);
+    setIsBusy(false);
+    if (!result.ok) {
+      onError(result.errorHe);
+      return;
+    }
+    trackFunnel('pro_trial_start');
+    onNotice(`שבוע Pro חינם פעיל עבור ${link.childName} עד ${formatDateHe(result.value)}.`);
+  };
+
   const loadCancelQuote = async (subscriptionId: string): Promise<CancelQuote | null> => {
     onError(null);
     const result = await quoteProCancellation(subscriptionId);
@@ -117,6 +131,8 @@ export function useParentPro({ user, theme, links, isEnabled, examByChild, onNot
         openPlan={openPlan}
         theme={theme}
         isBusy={isBusy}
+        canStartTrial={canStartTrial(entitlements[link.childUid])}
+        onStartTrial={() => void startTrial(link)}
         onUpgrade={() => showPlans([link.childUid], 'yearly')}
         onRenew={() => {
           if (status?.kind === 'plan') showPlans(childrenOnSamePlan(status.subscriptionId, entitlements, nowMs), 'yearly');

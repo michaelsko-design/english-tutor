@@ -78,7 +78,7 @@ export const WordListsCard: React.FC<WordListsCardProps> = ({
             <>
               , או{' '}
               <button type="button" onClick={onAskPro} className="underline font-extrabold">
-                {isGirl ? 'בקשי' : 'בקש'} מהורה עוד רשימות עם <bdi dir="ltr" lang="en">Pro</bdi>
+                עוד רשימות כלולות במסלול <bdi dir="ltr" lang="en">Pro</bdi> (מידע להורים)
               </button>
               .
             </>

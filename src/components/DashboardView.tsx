@@ -57,9 +57,7 @@ import { ParentNoticeCard } from './home/ParentNoticeCard';
 import { ParentNudgeCard } from './home/ParentNudgeCard';
 import { ReminderNudgeCard } from './home/ReminderNudgeCard';
 import { ReminderReaskSheet } from './home/ReminderReaskSheet';
-import { ProAskReminderCard } from './home/ProAskReminderCard';
 import { shouldReaskReminder } from '../data/reminderReask';
-import { getExamPitch } from '../data/examPitch';
 import { WelcomeBackCard } from './home/WelcomeBackCard';
 import { HomeTipCard } from './home/HomeTipCard';
 import { WeekOneCard } from './home/WeekOneCard';
@@ -70,10 +68,12 @@ import { StatsSheet } from './home/StatsSheet';
 import { FeedbackCard } from './settings/FeedbackCard';
 import { BookOpen, Home, Map as MapIcon, Settings, ShoppingBag } from 'lucide-react';
 import { lazyNamed } from '../utils/lazyNamed';
-import { useProAccess } from '../hooks/useProAccess';
+import { useEntitlement, useProAccess } from '../hooks/useProAccess';
+import { getProWeekState } from '../data/proWeek';
+import { ProWeekCard } from './pro/ProWeekCards';
 import { getPackAccess, getPlayableUnits, hasFinishedFreeMissions, hasFullAccess, resolveLearnerTheme } from '../data/proGate';
 import { ProUpsellContext, type ProUpsellFocus } from './pro/proUpsellContext';
-import { ProUpsellSheet } from './pro/ProUpsellSheet';
+import { ParentInfoSheet } from './pro/ParentInfoSheet';
 import { FreeMissionsDoneCard } from './pro/FreeMissionsDoneCard';
 import { ScreenLoading } from './ScreenLoading';
 import { trackEvent, trackMissionFinish, trackMissionSignal } from '../services/analytics';
@@ -205,9 +205,9 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   }, [isQuestNudgeOpen]);
 
   const proAccess = useProAccess();
+  // A free Pro week a parent started: a calm line on home while it runs, one note when it ends
+  const proWeek = getProWeekState(useEntitlement(authUser && !authUser.isAnonymous ? authUser.uid : undefined), Date.now());
   const [upsellFocus, setUpsellFocus] = useState<ProUpsellFocus | null>(null);
-  // The ask sheet was opened from the "send again" card (counted as a resend)
-  const [isAskResend, setIsAskResend] = useState(false);
   const theme = resolveLearnerTheme(profile.themeId, profile.companionId, proAccess);
 
   // The companion's idle pose is the first one a mission shows (Feature 25).
@@ -544,9 +544,9 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
           onPlay={() => handleLaunchMission(todaysMission)}
         />
 
-        {/* EVERY FREE MISSION OF THE GRADE IS DONE: ASK A PARENT FOR PRO */}
+        {/* EVERY FREE MISSION OF THE GRADE IS DONE: THE NEXT UNITS ARE IN PRO (info for parents) */}
         {isFreeMissionsDone && (
-          <FreeMissionsDoneCard theme={theme} onAsk={() => setUpsellFocus('missions')} />
+          <FreeMissionsDoneCard theme={theme} onOpenParentInfo={() => setUpsellFocus('missions')} />
         )}
 
         {/* FEATURE 5: DAILY QUESTS AS RINGS (the full card opens in a sheet) */}
@@ -613,17 +613,9 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         {/* A PARENT JOINED, OR RESET THE PIN: THE LEARNER IS TOLD */}
         <ParentNoticeCard profile={profile} theme={theme} />
 
-        {/* A PRO ASK A PARENT HAS NOT ANSWERED IN 48 HOURS: SEND IT AGAIN */}
-        {authUser && !authUser.isAnonymous && (
-          <ProAskReminderCard
-            uid={authUser.uid}
-            theme={theme}
-            hasPro={hasFullAccess(proAccess)}
-            onResend={(focus) => {
-              setIsAskResend(true);
-              setUpsellFocus(focus);
-            }}
-          />
+        {/* A FREE PRO WEEK A PARENT STARTED */}
+        {authUser && proWeek && (
+          <ProWeekCard uid={authUser.uid} state={proWeek} theme={theme} readsHebrewAloud={playsHebrewAloud(profile.gradeId)} />
         )}
 
         {/* AN OPTIONAL, CLOSABLE INVITE FOR A PARENT */}
@@ -952,23 +944,18 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
       )}
 
       {upsellFocus && authUser && (
-        <ProUpsellSheet
+        <ParentInfoSheet
           learner={{
             uid: authUser.uid,
             name: profile.name,
             gender: profile.gender,
             avatarEmoji: activeAvatarEmoji,
             isGuest: authUser.isAnonymous,
-            exam: getExamPitch(profile, todayStr),
           }}
           focus={upsellFocus}
           theme={theme}
           readsHebrewAloud={playsHebrewAloud(profile.gradeId)}
-          isResend={isAskResend}
-          onClose={() => {
-            setUpsellFocus(null);
-            setIsAskResend(false);
-          }}
+          onClose={() => setUpsellFocus(null)}
         />
       )}
     </div>

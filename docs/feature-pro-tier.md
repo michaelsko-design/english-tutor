@@ -31,7 +31,7 @@ Status (2026-10-29): **server payments layer, Phase 1, Phase 2 and Phase 3a buil
 Most of the app stays free. A paid **EnglishVibe Pro** subscription (monthly or yearly) unlocks the full curriculum and the Pro content packs, full exam prep, more word lists and every theme and mascot. The learner never pays and never sees a checkout. They ask a parent, and the paired parent pays from the parent portal. Only the server decides who has Pro.
 
 ## Principles
-- **Kid-safe.** The learner app shows no prices, no card form and no payment page. It shows what Pro unlocks and one button that asks a parent.
+- **No marketing to the child (the law, decided 2026-11-20).** The Consumer Protection regulations on marketing aimed at minors (1991) bar urging a minor to buy (s.3(4)), to persuade a parent to buy (s.3(5)), or to feel deprived without the product (s.3(6)). So the learner app shows no prices, perks, offers, urgency or "ask a parent" pitch: a Pro part says, factually, that it is in the full plan, with "info for parents" and a link to the parent area to share ("The learner's side" below). All conversion copy (benefits, prices, exam urgency, the Pro week, launch offers) lives only on parent surfaces: `/home/`, the parent area (`/?parent`) and parent emails. A lawyer reviews the child-facing copy before Pro is switched on.
 - **The payer is the paired parent.** Payment builds on parent pairing (§4.21): the parent's own Google account, `parentLinks/{parent}_{child}`. Links carry a parent code, never a learner uid.
 - **The server owns entitlements.** `entitlements/{childUid}` is written only by Vercel Functions with the service account. Clients can read it but never write it.
 - **Nothing is taken away mid-progress.** A mission that already has stars stays playable without Pro, and so do exam plans and word lists that already exist. Gating only stops *new* paid content.
@@ -126,7 +126,7 @@ Families with more than 4 children contact us on WhatsApp (a button on the plan-
 | :--- | :--- | :--- |
 | `plan` | `'pro'` | Room for a future pass. |
 | `status` | `'active' \| 'past_due' \| 'canceled' \| 'expired'` | `canceled` = won't renew, still Pro until `periodEnd`. |
-| `source` | `'subscription' \| 'comp' \| 'coupon'` | `comp` = free grant (family, testers). `coupon` = 100% coupon, no payment. |
+| `source` | `'subscription' \| 'comp' \| 'coupon' \| 'trial'` | `comp` = free grant (family, testers). `coupon` = 100% coupon, no payment. `trial` = the free Pro week (no grace days). |
 | `billingPeriod` | `'monthly' \| 'yearly' \| null` | `null` for `comp`. |
 | `periodEnd` | number (ms) | Pro until this time (plus `PRO_GRACE_DAYS`). A far-future value for open-ended `comp`. |
 | `payerParentUid` | string \| null | The parent who pays. Shown to that parent only. |
@@ -194,7 +194,23 @@ One pure, tested module. It takes the entitlement and returns decisions; the UI 
 **Home.**
 - The Play button never points at a Pro mission. Today's mission (`getSuggestedMission`, `data/milestones.ts`) skips Pro-locked missions. When every free mission is done, the hero shows a gentle "you finished the free missions" card that asks a parent.
 
-## The kid-safe "ask a parent" flow
+## The learner's side (changed 2026-11-20)
+
+Replaced the "ask a parent" pitch, for the law above:
+- **The parents' info sheet** (`components/pro/ParentInfoSheet.tsx`, opened from every Pro part): heading "תוכן במסלול המלא — מידע להורים", one factual line (read aloud for grades 1–2), and "שיתוף קישור לאזור ההורים". The shared message is informational ("קישור לאזור ההורים ב-EnglishVibe (דוח שבועי ומידע על המסלול המלא): {url}"), not in the child's voice. The link is still `?parent=CODE&pro=1` (or `?parent&pro=1` for a paired parent), so the parent lands on the plans.
+- No mascot pitch, perks list, exam pitch or spoken sales line; the 48-hour "send again" card is gone. Other Pro parts (mission sheet, free-missions-done card, word lists, theme preview, Pro pack card) say "כלול במסלול Pro. מידע להורים באזור ההורים." with a "לאזור ההורים" button. `src/data/proAsk.test.ts` fails on "לבקש מהורה", "לשדרג" or "לקנות" in those files.
+- Events keep their names: `pro_wall_view` (opened the parents' info), `pro_ask_sent` (shared the parents-area link). `pro_ask_resent` no longer fires.
+
+## Pro week (built 2026-11-20)
+
+A free 7-day Pro week replaces the launch coupon (Grow can't start a standing order with a cheaper first charge, and its coupons don't work on standing orders).
+- **The parent starts it**, in the parent area, on a child's card: "שבוע Pro חינם" (7 days, no card, no commitment, back to free by itself). Once per child account: only a child with no entitlement document at all is offered it, and `api/pro-trial.ts` checks again (`proTrials/{childUid}`, server only, created once with `exists: false`). Always on, no campaign dates.
+- **The entitlement:** `source: 'trial'`, `periodEnd` = start + `PRO_TRIAL_DAYS` (7), `payerParentUid` = the parent. `graceDaysFor(status, 'trial')` is 0, so the week ends on its day; the daily reconcile marks it expired. A trial is no seat (`holdsLiveSeat`), so the parent can buy during it and the paid plan replaces it.
+- **The parent area** shows "Pro · שבוע חינם, עד {date}" and, after it ends, "שבוע ה-Pro החינמי הסתיים", each with "שדרוג ל-Pro"; the plan-and-pay screen ticks trial children (`canJoinCheckout`). The end-of-week prompt is the parent's only.
+- **The learner** sees a calm home line, "יש לך Pro לשבוע, במתנה מההורים. (עד {date})", and once after it ends "שבוע ה-Pro הסתיים. כל ההתקדמות שלך נשמרה, והיחידות החינמיות ממשיכות כרגיל." (`components/pro/ProWeekCards.tsx`, `data/proWeek.ts`): no countdown, offer or ask. Both are read aloud for grades 1–2.
+- Funnel: `pro_trial_start` (the parent started a week).
+
+## The kid-safe "ask a parent" flow (before 2026-11-20, replaced by "The learner's side")
 ```mermaid
 sequenceDiagram
   participant L as Learner app
@@ -343,7 +359,7 @@ interface PaymentProvider {
   - Seasonal: back to school (late August–September), before exams and the Bagrut (April–May), Hanukkah, summer.
   - Teachers: a class code, 20% off, one per teacher.
   - Win-back: a one-time ₪19 first month for a parent who canceled at least 30 days ago.
-  - No free trial: the free tier already works as one.
+  - A free Pro week, started by the parent ("Pro week" above), replaced the launch coupon on 2026-11-20.
 - **Comp grants:** `scripts/grantPro.mjs <username> [--until YYYY-MM-DD]` looks the uid up through `usernames/{slug}` and writes `source: 'comp'`. This is how the developer's own children get Pro.
 
 ## Referrals
