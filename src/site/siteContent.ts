@@ -30,7 +30,7 @@ export const BUSINESS = {
 
 const PHONE_LOCAL_DIGITS_START = 3; // 972|52...: the country code is three digits
 
-/** 972529282667 → 052-9282667 */
+/** 972552903310 → 055-2903310 */
 export function formatIsraeliPhone(internationalDigits: string): string {
   if (!/^972\d{8,9}$/.test(internationalDigits)) {
     throw new Error(`formatIsraeliPhone: expected 972 and 8-9 digits, got "${internationalDigits}"`);

@@ -19,7 +19,7 @@ Status (2026-10-29): **server payments layer, Phase 1, Phase 2 and Phase 3a buil
 - **Owner, now:**
   - Build the Make sandbox scenario (`docs/grow-make-setup.md`, steps 1–2).
   - Send Grow the open questions: how to trigger a renewal and a failed charge in the sandbox; whether a payment-link standing order runs until cancelled; what Get Payment Link Info returns; the notice format; webhook keys; קבלה with `vatType` 3; where to cancel or change a standing order.
-- The contact phone is decided: 052-9282667, the number already in Grow's customer details and `SUPPORT_WHATSAPP_NUMBER`. It must appear on the site's home or contact page. Still needed: the §4.3 site clearing approval for `englishvibe.co.il` once the landing site and legal texts are live.
+- The contact phone is decided: 055-2903310, the business line (replaced 052-9282667 on 2026-11-20; Grow's customer details must show it too), in `SUPPORT_WHATSAPP_NUMBER`. It must appear on the site's home or contact page. Still needed: the §4.3 site clearing approval for `englishvibe.co.il` once the landing site and legal texts are live.
 
 **Next, in order**
 1. **Phase 3a is done.** Left for the owner: listen to the 4 new Hebrew clips, approve the legal drafts (`docs/legal/pro-legal-drafts.md`) and get them a short legal review. The security review's open items are listed under "Phase 3a". `CRON_SECRET` must be set in Vercel for the reconcile (the streak reminder already uses it).

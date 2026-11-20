@@ -8,7 +8,7 @@ export const VIBE_CHEER_HE = 'יש לך וייב טוב!';
  * the Pro plan picker's "more than 4 children" button. Empty: the button opens WhatsApp with the
  * message and lets the parent pick the chat.
  */
-export const SUPPORT_WHATSAPP_NUMBER = '972529282667';
+export const SUPPORT_WHATSAPP_NUMBER = '972552903310';
 
 /** The public landing site (home/index.html, static, next to the app; docs/architecture.md §4.32) */
 export const LANDING_PAGE_PATH = '/home/';
@@ -40,16 +40,16 @@ export const TERMS_VERSION = '2026-11-20';
  * The privacy notice's version (config/privacyNotice.ts), saved next to `TERMS_VERSION` wherever
  * consent is recorded. Change it, and `PRIVACY_UPDATED_HE`, with every change to the notice's text.
  */
-export const PRIVACY_VERSION = '2026-11-19';
+export const PRIVACY_VERSION = '2026-11-20';
 
 /** `PRIVACY_VERSION` as the notice's "עודכן לאחרונה" line shows it */
-export const PRIVACY_UPDATED_HE = '19 בנובמבר 2026';
+export const PRIVACY_UPDATED_HE = '20 בנובמבר 2026';
 
 /** Where parents send privacy questions and requests (shown in the privacy notice). */
 export const PRIVACY_CONTACT_EMAIL = 'support@englishvibe.co.il';
 
 /** The support phone as people read it (the same number as `SUPPORT_WHATSAPP_NUMBER`) */
-export const SUPPORT_PHONE_DISPLAY = '052-9282667';
+export const SUPPORT_PHONE_DISPLAY = '055-2903310';
 
 /** The person behind the business, as the terms and the privacy notice name the data controller */
 export const BUSINESS_OWNER_HE = 'מיכאל שקולניק, בעל העסק "SHK טכנולוגיות", עוסק פטור מס׳ 310720370, החיטה 323, מאור';
