@@ -100,6 +100,30 @@
 
 - [ ] **Shop depth follow-ups**: if the expanded shop (~90 items, ~16k diamonds) still runs dry, add collectible pets, buyable app themes, more seasonal items (Purim, Lag BaOmer, Shavuot) and per-item art beyond the shared emoji icons.
 
+### Experiment: 3D home map (local branch `experiment/3d-map`, not pushed, never merged into main without a decision)
+A trial of a game-like home screen: the mission map becomes a real-time 3D world (three.js) that fills the child's home, and the chosen mascot drives between the missions.
+
+**Done (2026-11-19/20; latest commit `c4fe1f59`):**
+- [x] **Look chosen** - Mock-up videos of three styles (sky islands, toy town, grown-up city map; renderer and pages in `marketing/map3d/`). The owner picked **Toy Town** for kids and the **City Map** for older learners. The low-poly and blocky looks were rejected as too simple.
+- [x] **Phone prototype** - `marketing/map3d/play.html`: a tap-to-drive Toy Town with a performance panel. It held ~91 FPS on a OnePlus 13.
+- [x] **3D home in the real app** (turned on per device with `?home3d=1`, off with `?home3d=0`):
+  - **The map:** the Toy Town map is built from the learner's real grade (grade 3 tested): units, coins with stars, boss castles and unit signs. Tapping a coin drives the car there and opens the mission. After a mission, the car drives on to the next one. The camera follows the mascot.
+  - **Around it, like a game:** a HUD (level, streak, gems, sound, settings) and a Play button. The side buttons are grouped into fold-out menus: 🎯 challenges, 📚 learning (word vault, word lists, exam prep), 🛍️ shop and room, and ☰ more (notices, friends, report, graphics).
+  - **Code:** `src/components/home3d/` and `src/three3d/`. The engine is a lazy chunk (~166 KB gzipped). Without WebGL2 the classic home shows. Covered by e2e `e2e/home3d.spec.ts`.
+- [x] **Mid-range phone performance** - The Redmi Note 12 Pro went from 9-25 FPS to a steady 60 FPS. How:
+  - Graphics levels (High / Medium / Low) are picked from the graphics chip. Auto steps down and remembers a lighter world for the device, and there is a manual picker under ☰ → גרפיקה.
+  - Off-screen map blocks are skipped, and still objects are merged.
+  - The backdrop blur over the 3D view was removed.
+- [x] **Wi-Fi testing on a real phone** - The `vite-lan` launch config (port 5175, `--mode lan`, no live-reload socket) and an optional fixed App Check debug token (`VITE_APPCHECK_DEBUG_TOKEN` in `.env.local`). It signs in to the live project with username sign-in only (test account Bdika3d). Google sign-in doesn't work on a LAN IP, and invites must be redeemed on production.
+
+**Next:**
+- [ ] **Polish the 3D home** - A smaller unit sign, keep the next coin clear of the menus and the Play button, and a richer look on Low (it has no shadows today).
+- [ ] **Real 3D mascots (free)** - Today the mascots are built in code. Make glTF models from the existing 2D mascot art with a free image-to-3D tool (TRELLIS / Hunyuan3D on Hugging Face), check the look and size on the Redmi, then do the other mascots. Uploading the art to an outside service needs the owner's OK first.
+- [ ] **Sound and motion** - Engine and arrival sounds while driving, and a short celebration at the new stop.
+- [ ] **City Map for older grades** - The grown-up look from the mock-ups (dusk city, districts, landmarks, labels), with the same controls and performance levels as Toy Town.
+- [ ] **Before any release** - Test all grades and themes; test on more phones, including low-end Android and iPhone Safari; a reduced-motion version; unit tests for the engine's React side beyond `toyTownStops`. Then decide whether it ships: a setting, a beta for some testers, or the default. Merge into main only on that decision.
+- [ ] **Clean up after testing** - Remove the App Check debug token from the Firebase console, and delete the test account Bdika3d if it's no longer needed.
+
 ## Probably never to implement Features
 - [ ] **Arabic for Arabic-speaking learners** - Move the inline Hebrew copy into a string catalogue first, then add Arabic. this is a feature that may never be implemented, leave it for later.
 
