@@ -37,6 +37,8 @@ const MANIFEST_TIMEOUT_MS = 5_000;
 /** The live cache keeps the newest answers; older ones are fetched again if needed. */
 const LIVE_CACHE_MAX_ENTRIES = 300;
 const LIVE_PAUSE_MS = 10 * 60_000;
+/** Server answers that mean the online voice is down or out of quota; 400/401 are request problems, not outages. */
+const LIVE_PAUSE_STATUSES: readonly number[] = [429, 502, 503];
 const DEFAULT_RATE = 0.95;
 const MIN_PLAYBACK_RATE = 0.5;
 /** Words loaded ahead for the queue; older ones are dropped (and fetched again if still needed). */
@@ -194,7 +196,7 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
         ...(appCheckToken ? { [APP_CHECK_HEADER]: appCheckToken } : {}),
       };
       response = await deps.fetch(url, { signal, ...(Object.keys(headers).length > 0 ? { headers } : {}) });
-      if (response.status === 429 || response.status === 503) livePausedUntil = deps.now() + LIVE_PAUSE_MS;
+      if (LIVE_PAUSE_STATUSES.includes(response.status)) livePausedUntil = deps.now() + LIVE_PAUSE_MS;
       if (!isAudioResponse(response)) return null;
       // Storing is best effort: a full or blocked cache just means fetching again next time.
       if (cache) {

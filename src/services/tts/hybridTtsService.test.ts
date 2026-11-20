@@ -244,6 +244,26 @@ describe('hybrid read-aloud service', () => {
     expect(liveCalls(fetchMock)).toBe(2);
   });
 
+  it('pauses the online voice for 10 minutes after the server reports the voice failed (502)', async () => {
+    const { service, fetchMock, advance } = setup({ liveStatus: 502 });
+    expect(await engineOf(service, 'first try')).toBe('device');
+    expect(await engineOf(service, 'second try')).toBe('device');
+    expect(liveCalls(fetchMock)).toBe(1);
+    advance(10 * 60_000 - 1);
+    await engineOf(service, 'still paused');
+    expect(liveCalls(fetchMock)).toBe(1);
+    advance(2);
+    await engineOf(service, 'third try');
+    expect(liveCalls(fetchMock)).toBe(2);
+  });
+
+  it('keeps trying the online voice after an auth error (401)', async () => {
+    const { service, fetchMock } = setup({ liveStatus: 401 });
+    expect(await engineOf(service, 'first try')).toBe('device');
+    expect(await engineOf(service, 'second try')).toBe('device');
+    expect(liveCalls(fetchMock)).toBe(2);
+  });
+
   it('falls back to the device voice when the browser blocks playback', async () => {
     const { service, audio } = setup({ clipKeys: [getClipKey('cat', 'normal')] });
     audio.shouldReject = true;
