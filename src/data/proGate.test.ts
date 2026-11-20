@@ -79,6 +79,13 @@ describe('isPro', () => {
     expect(isPro(ent, NOW + PAST_DUE_GRACE_DAYS * DAY_MS)).toBe(false);
   });
 
+  it('ends a free Pro week on its day, with no grace days', () => {
+    const ent = entitlement({ periodEnd: NOW, source: 'trial', billingPeriod: null });
+    expect(parseEntitlement(ent)?.source).toBe('trial');
+    expect(isPro(ent, NOW - 1)).toBe(true);
+    expect(isPro(ent, NOW)).toBe(false);
+  });
+
   it('keeps a canceled plan until its end, but never an expired one or no document', () => {
     expect(isPro(entitlement({ status: 'canceled' }), NOW)).toBe(true);
     expect(isPro(entitlement({ status: 'expired' }), NOW)).toBe(false);

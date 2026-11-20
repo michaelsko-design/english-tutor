@@ -74,6 +74,11 @@ describe('entitlementAction', () => {
     expect(entitlementAction(doc('kid1', { status: 'expired', periodEnd: NOW - 40 * DAY }), new Set(), NOW)).toBeNull();
   });
 
+  it('expires a free Pro week as soon as it ends', () => {
+    expect(entitlementAction(doc('kid1', { status: 'active', source: 'trial', periodEnd: NOW - 1 }), new Set(), NOW)).toBe('expire');
+    expect(entitlementAction(doc('kid1', { status: 'active', source: 'trial', periodEnd: NOW + 1 }), new Set(), NOW)).toBeNull();
+  });
+
   it("keeps a past-due seat through Grow's 10 days of retries", () => {
     expect(entitlementAction(doc('kid1', { status: 'past_due', periodEnd: NOW - 9 * DAY }), new Set(), NOW)).toBeNull();
     expect(entitlementAction(doc('kid1', { status: 'past_due', periodEnd: NOW - 10 * DAY }), new Set(), NOW)).toBe('expire');

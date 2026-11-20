@@ -13,6 +13,9 @@ interface ChildProSectionProps {
   openPlan: OpenPlan | null;
   theme: ThemeDefinition;
   isBusy: boolean;
+  /** A child who never had Pro can get one free Pro week, which the parent starts (api/pro-trial.ts) */
+  canStartTrial: boolean;
+  onStartTrial: () => void;
   onUpgrade: () => void;
   onRenew: () => void;
   onCancelRenewal: () => void;
@@ -50,6 +53,8 @@ export const ChildProSection: React.FC<ChildProSectionProps> = ({
   openPlan,
   theme,
   isBusy,
+  canStartTrial,
+  onStartTrial,
   onUpgrade,
   onRenew,
   onCancelRenewal,
@@ -78,6 +83,30 @@ export const ChildProSection: React.FC<ChildProSectionProps> = ({
     );
   }
 
+  if (status.kind === 'trial') {
+    return (
+      <div className="space-y-2" data-testid="child-pro-status">
+        <p className="text-sm font-extrabold">
+          {status.hasEnded ? (
+            <>
+              שבוע ה-<bdi dir="ltr" lang="en">Pro</bdi> החינמי הסתיים ב-{formatDateHe(status.endsAt)}
+            </>
+          ) : (
+            <>
+              <ProLabel /> · שבוע חינם, עד {formatDateHe(status.endsAt)}
+            </>
+          )}
+        </p>
+        <p className={`text-xs font-bold ${theme.mutedTextClass}`}>
+          {status.hasEnded ? 'החשבון חזר לחינמי, וכל ההתקדמות נשמרה.' : 'בסוף השבוע החשבון חוזר לחינמי לבד, בלי חיוב.'}
+        </p>
+        <button type="button" disabled={isBusy} onClick={onUpgrade} className={`${actionClass} w-full ${theme.primaryBtnClass}`}>
+          שדרוג ל-<ProLabel />
+        </button>
+      </div>
+    );
+  }
+
   if (status.kind === 'free') {
     const nextMonthly = openPlan?.nextMonthlyAgorot ?? null;
     const addLabel =
@@ -87,6 +116,16 @@ export const ChildProSection: React.FC<ChildProSectionProps> = ({
     return (
       <div className="space-y-2" data-testid="child-pro-status">
         <p className={`text-sm font-bold ${theme.mutedTextClass}`}>חשבון חינמי</p>
+        {canStartTrial && (
+          <div className={`p-2.5 rounded-2xl space-y-2 ${theme.inputBgClass}`}>
+            <p className="text-xs sm:text-sm font-bold">
+              שבוע <bdi dir="ltr" lang="en">Pro</bdi> חינם: 7 ימים, בלי כרטיס אשראי ובלי התחייבות. בסוף השבוע החשבון חוזר לחינמי לבד.
+            </p>
+            <button type="button" disabled={isBusy} onClick={onStartTrial} className={`${actionClass} w-full ${theme.primaryBtnClass}`}>
+              {`שבוע Pro חינם ל${childName}`}
+            </button>
+          </div>
+        )}
         {openPlan && confirming === 'add' && nextMonthly != null ? (
           <div className={`p-2.5 rounded-2xl space-y-2 ${theme.inputBgClass}`}>
             <p className="text-xs sm:text-sm font-bold">

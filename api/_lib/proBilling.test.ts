@@ -83,6 +83,10 @@ describe('holdsLiveSeat', () => {
     expect(holdsLiveSeat(doc({ status: 'active', periodEnd: NOW - 4 * DAY }), NOW)).toBe(false);
   });
 
+  it('never counts a free Pro week as a seat, so a parent can buy during it', () => {
+    expect(holdsLiveSeat(doc({ status: 'active', source: 'trial', periodEnd: NOW + 3 * DAY }), NOW)).toBe(false);
+  });
+
   it('ignores a left seat, no entitlement, and the plan being changed', () => {
     expect(holdsLiveSeat(doc({ status: 'canceled', periodEnd: NOW + DAY }), NOW)).toBe(false);
     expect(holdsLiveSeat(null, NOW)).toBe(false);

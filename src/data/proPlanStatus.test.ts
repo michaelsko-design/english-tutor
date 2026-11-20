@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Entitlement } from './proGate';
-import { canJoinCheckout, childrenOnSamePlan, findOpenPlan, getChildProStatus } from './proPlanStatus';
+import { canJoinCheckout, canStartTrial, childrenOnSamePlan, findOpenPlan, getChildProStatus } from './proPlanStatus';
 
 const DAY = 24 * 60 * 60 * 1000;
 const NOW = Date.UTC(2026, 9, 28, 12);
@@ -95,5 +95,26 @@ describe('children on a plan and checkout', () => {
   it('lets a child taken off a plan that goes on for others into a new checkout', () => {
     const plans = { a: plan(), b: plan({ status: 'canceled' }) };
     expect(canJoinCheckout(getChildProStatus(plans.b, 'me', plans, NOW))).toBe(true);
+  });
+});
+
+describe('the free Pro week', () => {
+  const trial = (periodEnd: number) => plan({ source: 'trial', billingPeriod: null, subscriptionId: undefined, periodEnd });
+
+  it('shows a running week with its end, and an ended one as ended (no grace days)', () => {
+    expect(getChildProStatus(trial(NOW + DAY), 'parent1', {}, NOW)).toEqual({ kind: 'trial', endsAt: NOW + DAY, hasEnded: false });
+    expect(getChildProStatus(trial(NOW), 'parent1', {}, NOW)).toEqual({ kind: 'trial', endsAt: NOW, hasEnded: true });
+  });
+
+  it('lets the parent buy for a child during or after the week', () => {
+    expect(canJoinCheckout({ kind: 'trial', endsAt: NOW + DAY, hasEnded: false })).toBe(true);
+    expect(canJoinCheckout({ kind: 'trial', endsAt: NOW, hasEnded: true })).toBe(true);
+  });
+
+  it('is offered only to a child who never had any Pro', () => {
+    expect(canStartTrial(null)).toBe(true);
+    expect(canStartTrial(undefined)).toBe(false);
+    expect(canStartTrial(trial(NOW - DAY))).toBe(false);
+    expect(canStartTrial(plan({ status: 'expired' }))).toBe(false);
   });
 });

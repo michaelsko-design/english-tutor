@@ -51,7 +51,7 @@ export type EntitlementAction = 'delete' | 'expire' | null;
 /** A deleted learner's entitlement goes; one whose Pro ended is marked expired. */
 export function entitlementAction(doc: PlainDocument, missingUids: ReadonlySet<string>, nowMs: number): EntitlementAction {
   if (missingUids.has(doc.id)) return 'delete';
-  const { status, periodEnd } = doc.fields;
+  const { status, periodEnd, source } = doc.fields;
   if (status === 'expired' || typeof periodEnd !== 'number') return null;
-  return isLapsed(periodEnd, nowMs, status) ? 'expire' : null;
+  return isLapsed(periodEnd, nowMs, status, source) ? 'expire' : null;
 }

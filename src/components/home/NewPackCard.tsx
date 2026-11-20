@@ -13,7 +13,7 @@ interface NewPackCardProps {
   theme: ThemeDefinition;
   /** Grades 1–2 hear the card in Hebrew (Feature 47) */
   readsHebrewAloud: boolean;
-  /** A Pro pack the learner can't play yet: the button asks a parent instead of opening the map */
+  /** A Pro pack the learner can't play yet: the button opens the parents' info instead of the map */
   isProLocked?: boolean;
   onOpen: () => void;
   onClose: () => void;

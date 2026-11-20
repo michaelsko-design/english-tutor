@@ -26,10 +26,10 @@ import { MAX_ACTIVE_LISTS } from './customWordLists';
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export type EntitlementStatus = 'active' | 'past_due' | 'canceled' | 'expired';
-export type EntitlementSource = 'subscription' | 'comp' | 'coupon';
+export type EntitlementSource = 'subscription' | 'comp' | 'coupon' | 'trial';
 
 const ENTITLEMENT_STATUSES: readonly EntitlementStatus[] = ['active', 'past_due', 'canceled', 'expired'];
-const ENTITLEMENT_SOURCES: readonly EntitlementSource[] = ['subscription', 'comp', 'coupon'];
+const ENTITLEMENT_SOURCES: readonly EntitlementSource[] = ['subscription', 'comp', 'coupon', 'trial'];
 
 /** The learner app's view of `entitlements/{uid}` (only the server writes it) */
 export interface Entitlement {
@@ -69,7 +69,7 @@ export function parseEntitlement(data: unknown): Entitlement | null {
 /** Pro now: not expired, and before the period's end plus a few days' grace. No document means free. */
 export function isPro(entitlement: Entitlement | null, nowMs: number): boolean {
   if (!entitlement || entitlement.status === 'expired') return false;
-  return nowMs < entitlement.periodEnd + graceDaysFor(entitlement.status) * DAY_MS;
+  return nowMs < entitlement.periodEnd + graceDaysFor(entitlement.status, entitlement.source) * DAY_MS;
 }
 
 /** What the learner may open: Pro, or everything while gating is switched off */

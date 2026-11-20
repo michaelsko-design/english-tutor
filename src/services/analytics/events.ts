@@ -122,6 +122,7 @@ export const FUNNEL_EVENTS = [
   'parent_pro_signin_done',
   'pro_plans_view',
   'pro_checkout_submit',
+  'pro_trial_start',
 ] as const;
 
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[number];

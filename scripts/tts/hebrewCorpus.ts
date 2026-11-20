@@ -27,7 +27,8 @@ import { BLEND_WORDS } from '../../src/data/blendingWords';
 import { getSpeechErrorTextHe, type SpeechErrorKind } from '../../src/hooks/useSpeechRecognition';
 import { CONTENT_PACKS, PACK_UNIT_COUNT } from '../../src/data/curriculum/packs/registry';
 import { getNewPackCopy } from '../../src/data/contentPacks';
-import { getProSheetSpokenHe } from '../../src/data/proAsk';
+import { PARENT_INFO_SPOKEN_HE } from '../../src/data/proAsk';
+import { PRO_WEEK_ENDED_SPOKEN_HE, PRO_WEEK_ON_SPOKEN_HE } from '../../src/data/proWeek';
 import { CorpusBuilder } from './corpusBuilder';
 import { addDeckHebrew } from './deckCorpus';
 import { ALL_WORD_DECKS } from '../../src/data/wordDecks/all';
@@ -162,8 +163,8 @@ function addFixedFeedback(corpus: CorpusBuilder): void {
       corpus.add(getNewPackCopy(pack, PACK_UNIT_COUNT, gender, true).spokenHe);
     });
   }
-  // The Pro "ask a parent" sheet
-  GENDERS.forEach((gender) => corpus.add(getProSheetSpokenHe(gender)));
+  // The parents' info at a Pro part, and the Pro week's home lines
+  [PARENT_INFO_SPOKEN_HE, PRO_WEEK_ON_SPOKEN_HE, PRO_WEEK_ENDED_SPOKEN_HE].forEach((line) => corpus.add(line));
   BLEND_WORDS.forEach((word) => corpus.add(getWordBuiltHe(word.word)));
 }
 

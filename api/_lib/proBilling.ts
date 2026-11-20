@@ -167,14 +167,16 @@ export function addPeriods(ms: number, period: BillingPeriod, count = 1): number
 export function holdsLiveSeat(doc: PlainDocument | null, nowMs: number, exceptSubscriptionId = ''): boolean {
   if (!doc) return false;
   const f = doc.fields;
+  // A free Pro week is no seat: the parent can buy during it, and the paid plan replaces it
+  if (f.source === 'trial') return false;
   if (f.status !== 'active' && f.status !== 'past_due') return false;
   if (exceptSubscriptionId && f.subscriptionId === exceptSubscriptionId) return false;
   return !isLapsed(num(f.periodEnd), nowMs, f.status);
 }
 
 /** Whether Pro bought until `periodEnd` has ended, grace days included (longer while a charge is past due) */
-export const isLapsed = (periodEnd: number, nowMs: number, status?: unknown): boolean =>
-  periodEnd + graceDaysFor(status) * DAY_MS <= nowMs;
+export const isLapsed = (periodEnd: number, nowMs: number, status?: unknown, source?: unknown): boolean =>
+  periodEnd + graceDaysFor(status, source) * DAY_MS <= nowMs;
 
 /**
  * The end of a yearly seat this parent pays for, when it is in its renew window (the last

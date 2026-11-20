@@ -16,8 +16,7 @@ import { WorldMapStyle } from './worldMapStyles';
 import { Button } from '../ui/Button';
 import { VibeAmount } from '../ui/VibeAmount';
 import { SHEET_OVERLAY_CLASS, SHEET_PANEL_WIDE_CLASS } from '../ui/sheetLayout';
-import { ASK_PARENT_LABEL_HE } from '../../data/proAsk';
-import { APP_NAME } from '../../config/appInfo';
+import { PARENTS_AREA_LABEL_HE } from '../../data/proAsk';
 import { EmojiIcon } from '../art/EmojiIcon';
 import { getMissionPictureId } from '../art/mapPictures';
 
@@ -158,7 +157,7 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
 
           {status === 'pro' ? (
             <p className="p-3.5 rounded-2xl bg-violet-500/15 border-2 border-violet-400/60 text-sm font-extrabold leading-relaxed">
-              👑 המשימה הזו היא חלק מ-<bdi dir="ltr" lang="en">{APP_NAME} Pro</bdi>. רוצה להמשיך? אפשר לבקש מהורה לפתוח את כל המשימות.
+              👑 המשימה הזו כלולה במסלול <bdi dir="ltr" lang="en">Pro</bdi>. מידע להורים באזור ההורים.
             </p>
           ) : status === 'locked' ? (
             <p className="p-3.5 rounded-2xl bg-amber-400/15 border-2 border-amber-400/60 text-sm font-extrabold leading-relaxed">
@@ -242,8 +241,8 @@ export const MissionSheet: React.FC<MissionSheetProps> = ({
 
         {status === 'pro' && (
           <div className={`sticky bottom-0 px-4 sm:px-6 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))] ${style.sheetBgClass}`}>
-            <Button theme={theme} size="lg" className="btn-chunky w-full" onClick={onAskParent}>
-              {ASK_PARENT_LABEL_HE}
+            <Button theme={theme} variant="secondary" className="w-full" onClick={onAskParent}>
+              {PARENTS_AREA_LABEL_HE}
             </Button>
           </div>
         )}

@@ -27,9 +27,10 @@ const monthly = (overrides: Partial<PlanStatus> = {}): ChildProStatus => ({
   ...overrides,
 });
 
-function renderSection(status: ChildProStatus | undefined, openPlan: OpenPlan | null = null, quote: CancelQuote | null = MONTHLY_END) {
+function renderSection(status: ChildProStatus | undefined, openPlan: OpenPlan | null = null, quote: CancelQuote | null = MONTHLY_END, canStartTrial = false) {
   const handlers = {
     onUpgrade: vi.fn(),
+    onStartTrial: vi.fn(),
     onRenew: vi.fn(),
     onCancelRenewal: vi.fn(),
     onLoadCancelQuote: vi.fn(async (): Promise<CancelQuote | null> => quote),
@@ -37,11 +38,38 @@ function renderSection(status: ChildProStatus | undefined, openPlan: OpenPlan | 
     onAddToPlan: vi.fn(),
     onRemoveFromPlan: vi.fn(),
   };
-  render(<ChildProSection childName="נועה" status={status} openPlan={openPlan} theme={TEST_THEME} isBusy={false} {...handlers} />);
+  render(<ChildProSection childName="נועה" status={status} openPlan={openPlan} theme={TEST_THEME} isBusy={false} canStartTrial={canStartTrial} {...handlers} />);
   return { ...handlers, user: userEvent.setup() };
 }
 
 describe('ChildProSection', () => {
+  it('offers a child who never had Pro a free week, and starts it', async () => {
+    const { user, onStartTrial } = renderSection({ kind: 'free' }, null, MONTHLY_END, true);
+    expect(screen.getByText(/בלי כרטיס אשראי ובלי התחייבות/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'שבוע Pro חינם לנועה' }));
+    expect(onStartTrial).toHaveBeenCalled();
+  });
+
+  it('offers no free week to a child who had Pro', () => {
+    renderSection({ kind: 'free' });
+    expect(screen.queryByRole('button', { name: /שבוע Pro חינם/ })).toBeNull();
+  });
+
+  it('shows a running free week with its end, and the upgrade', async () => {
+    const { user, onUpgrade } = renderSection({ kind: 'trial', endsAt: PERIOD_END, hasEnded: false });
+    expect(screen.getByTestId('child-pro-status')).toHaveTextContent('שבוע חינם, עד');
+    expect(screen.getByTestId('child-pro-status')).toHaveTextContent('בלי חיוב');
+    await user.click(screen.getByRole('button', { name: /שדרוג ל-/ }));
+    expect(onUpgrade).toHaveBeenCalled();
+  });
+
+  it('tells the parent, not the child, that the week ended, with the upgrade', () => {
+    renderSection({ kind: 'trial', endsAt: PERIOD_END, hasEnded: true });
+    expect(screen.getByTestId('child-pro-status')).toHaveTextContent('החינמי הסתיים');
+    expect(screen.getByRole('button', { name: /שדרוג ל-/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /שבוע Pro חינם/ })).toBeNull();
+  });
+
   it('offers a free child an upgrade', async () => {
     const { user, onUpgrade } = renderSection({ kind: 'free' });
     await user.click(screen.getByRole('button', { name: /שדרוג ל-/ }));

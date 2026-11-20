@@ -12,6 +12,7 @@ import type { ParentResult } from './parentService';
 
 const CHECKOUT_URL = '/api/checkout';
 const SUBSCRIPTION_URL = '/api/subscription';
+const PRO_TRIAL_URL = '/api/pro-trial';
 const MOCK_PAY_URL = '/api/mock-pay';
 
 const GENERIC_ERROR_HE = 'משהו השתבש. כדאי לנסות שוב.';
@@ -150,6 +151,22 @@ export async function quoteProCancellation(subscriptionId: string): Promise<Pare
   if (!response.ok) return { ok: false, errorHe: await planErrorHe(response) };
   const quote = readCancelQuote(await response.json().catch(() => null));
   return quote ? { ok: true, value: quote } : { ok: false, errorHe: GENERIC_ERROR_HE };
+}
+
+const TRIAL_ERRORS_HE: Record<number, string> = {
+  401: SIGN_IN_ERROR_HE,
+  403: 'הילד הזה כבר לא מחובר לחשבון ההורה הזה.',
+  409: 'שבוע Pro חינם ניתן פעם אחת לכל ילד, והילד הזה כבר קיבל אותו או שיש לו Pro.',
+  503: 'שבוע Pro חינם עדיין לא זמין. כדאי לנסות שוב מאוחר יותר.',
+};
+
+/** Starts a linked child's free Pro week (once per child); the value is when it ends (ms). */
+export async function startProTrial(childUid: string): Promise<ParentResult<number>> {
+  const response = await postAsParent(PRO_TRIAL_URL, { childUid });
+  if (!(response instanceof Response)) return response;
+  if (!response.ok) return { ok: false, errorHe: TRIAL_ERRORS_HE[response.status] ?? GENERIC_ERROR_HE };
+  const body = (await response.json().catch(() => null)) as { endsAt?: unknown } | null;
+  return typeof body?.endsAt === 'number' ? { ok: true, value: body.endsAt } : { ok: false, errorHe: GENERIC_ERROR_HE };
 }
 
 /** The stand-in gateway's "pay" (emulator runs only): tells the server the checkout was paid. */

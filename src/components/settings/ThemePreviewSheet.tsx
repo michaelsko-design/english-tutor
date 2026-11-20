@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
-import { ASK_PARENT_LABEL_HE } from '../../data/proAsk';
+import { PARENTS_AREA_LABEL_HE } from '../../data/proAsk';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 import type { LearnerGender } from '../../types/learner';
 import { useDialog } from '../../hooks/useDialog';
@@ -60,13 +60,13 @@ export const ThemePreviewSheet: React.FC<ThemePreviewSheetProps> = ({ previewThe
             </bdi>
           </p>
           <p className={`text-xs font-bold ${theme.mutedTextClass}`}>
-            ככה תיראה המפה שלך עם <bdi dir="ltr" lang="en">Pro</bdi>
+            ערכת העיצוב הזו כלולה במסלול <bdi dir="ltr" lang="en">Pro</bdi>
           </p>
         </div>
         <ThemeMapPreview theme={previewTheme} gender={gender} />
         <div className="grid grid-cols-2 gap-2">
-          <Button theme={theme} size="sm" onClick={onAskParent}>
-            {ASK_PARENT_LABEL_HE}
+          <Button theme={theme} variant="secondary" size="sm" onClick={onAskParent}>
+            {PARENTS_AREA_LABEL_HE}
           </Button>
           <Button theme={theme} variant="secondary" size="sm" onClick={onClose}>
             חזרה לעיצוב שלי

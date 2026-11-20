@@ -47,11 +47,11 @@ describe('NewPackCard', () => {
     expect(screen.getByRole('button', { name: 'הקשבה להודעה' })).toBeInTheDocument();
   });
 
-  it('asks a parent for a Pro pack the learner cannot play yet', async () => {
+  it('says a Pro pack is in the full plan and offers the parents info, not an ask', async () => {
     const user = userEvent.setup();
     const handlers = renderCard(false, true);
-    expect(screen.getByText(/יחידה חדשה מחכה במפה/)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: /לבקש מהורה/ }));
+    expect(screen.getByText(/יחידה חדשה נוספה למפה. היא כלולה במסלול/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'לאזור ההורים' }));
     expect(handlers.onOpen).toHaveBeenCalledTimes(1);
   });
 });

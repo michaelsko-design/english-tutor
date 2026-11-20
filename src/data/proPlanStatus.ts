@@ -12,6 +12,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 export type ChildProStatus =
   | { kind: 'free' }
   | { kind: 'comp' }
+  /** A free Pro week a parent started (once per child); it stays shown after it ended */
+  | { kind: 'trial'; endsAt: number; hasEnded: boolean }
   | {
       kind: 'plan';
       subscriptionId: string;
@@ -62,6 +64,7 @@ export function getChildProStatus(
   entitlements: Entitlements,
   nowMs: number
 ): ChildProStatus {
+  if (entitlement?.source === 'trial') return { kind: 'trial', endsAt: entitlement.periodEnd, hasEnded: !isPro(entitlement, nowMs) };
   if (!entitlement || !isPro(entitlement, nowMs)) return { kind: 'free' };
   if (entitlement.source !== 'subscription' || !entitlement.subscriptionId || !entitlement.billingPeriod) return { kind: 'comp' };
   const period = entitlement.billingPeriod;
@@ -105,9 +108,15 @@ export function findOpenPlan(parentUid: string, entitlements: Entitlements, nowM
 }
 
 /**
- * A child a new checkout can include: free, taken off a plan that goes on for others, or on this
+ * A parent can start a free Pro week only for a child who never had any Pro (no entitlement at all);
+ * undefined (still loading) is not that. The server checks it again (api/pro-trial.ts).
+ */
+export const canStartTrial = (entitlement: Entitlement | null | undefined): boolean => entitlement === null;
+
+/**
+ * A child a new checkout can include: free, on a Pro week (running or ended), taken off a plan that goes on for others, or on this
  * parent's yearly plan near its end. A child of a cancelled plan keeps Pro to the period's end and
  * is not offered a new plan before it (they show as free then).
  */
 export const canJoinCheckout = (status: ChildProStatus | undefined): boolean =>
-  status?.kind === 'free' || (status?.kind === 'plan' && (status.hasLeftPlan || status.shouldOfferRenewal));
+  status?.kind === 'free' || status?.kind === 'trial' || (status?.kind === 'plan' && (status.hasLeftPlan || status.shouldOfferRenewal));

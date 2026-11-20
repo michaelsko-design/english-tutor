@@ -535,6 +535,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // A child's free Pro week, started once by a linked parent (api/pro-trial.ts); server only
+    match /proTrials/{childUid} {
+      allow read, write: if false;
+    }
+
     match /checkouts/{checkoutId} {
       allow read, write: if false;
     }
