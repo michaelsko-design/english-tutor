@@ -48,8 +48,8 @@ describe('siteContent', () => {
   });
 
   it('formats the support number as a local Israeli phone', () => {
-    expect(formatIsraeliPhone('972529282667')).toBe('052-9282667');
-    expect(() => formatIsraeliPhone('0529282667')).toThrow();
+    expect(formatIsraeliPhone('972552903310')).toBe('055-2903310');
+    expect(() => formatIsraeliPhone('0552903310')).toThrow();
   });
 
   it('shows exactly the prices the checkout charges', () => {

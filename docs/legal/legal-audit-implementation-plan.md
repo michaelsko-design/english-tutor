@@ -2,7 +2,7 @@
 
 - **Audit Date:** 2026-11-19
 - **Business Identity:** מיכאל שקולניק, בעל העסק "SHK טכנולוגיות" (עוסק פטור `310720370`), החיטה 323, מאור
-- **Contact & Business Hours:** `support@englishvibe.co.il` | `052-9282667` | ימים א׳–ה׳, 09:00–17:00
+- **Contact & Business Hours:** `support@englishvibe.co.il` | `055-2903310` | ימים א׳–ה׳, 09:00–17:00
 - **Audit Scope Covered:** All **67** findings marked `"מאשר שינוי — לתקן לפני השקה"` in the owner's exported review + the **6** previously finalized items (`TOS-03`, `TOS-08`, `TOS-12`, `TOS-19`, `CHK-01`, `LAND-02`), using conservative Israeli-law defaults because this soft launch proceeds without formal legal counsel sign-off.
 - **Execution Rules:** Implement **one task at a time**, wait for verification on each task before proceeding, and do not mark items off in `backlog.md` without explicit approval.
 
@@ -13,7 +13,7 @@
 ### A. Identity, Contacts & Response SLA (`TOS-01`–`TOS-03`, `PRIV-01`, `REF-01`, `LAND-05`, `Q-11`)
 - **Legal Entity Disclosure:** Terms §1 (`TOS-03`) and Privacy Notice header (`PRIV-01`) identify **"מיכאל שקולניק, בעל העסק SHK טכנולוגיות, עוסק פטור מס׳ 310720370, מרחוב החיטה 323, מאור"**. Marketing footer on `/home/` may retain the trade name (`SHK טכנולוגיות`).
 - **Response SLA:** Unified across `docs/legal/pro-legal-drafts.md`, `docs/legal/Service and Refund Policy.md`, `src/site/siteContent.ts`, and `home/index.html` to **3 business days (`3 ימי עסקים — ימים א׳–ה׳, בין השעות 09:00–17:00, לא כולל שבתות וחגי ישראל`)**.
-- **Contact Consistency:** `052-9282667` stays as the statutory/Grow phone number (`SHOW_PHONE_ON_SITE = true` at pre-check gate in Task 7). Support queries and 4+ child inquiries standardize on `support@englishvibe.co.il` when WhatsApp buttons are removed.
+- **Contact Consistency:** `055-2903310` stays as the statutory/Grow phone number (`SHOW_PHONE_ON_SITE = true` at pre-check gate in Task 7). Support queries and 4+ child inquiries standardize on `support@englishvibe.co.il` when WhatsApp buttons are removed.
 
 ### B. Cancellation, Refunds & Grow Mechanics (`TOS-13`–`TOS-19`, `REF-01`–`REF-05`, `Q-01`–`Q-03`, `Q-07`, `Q-09`, `MISS-03`)
 - **14-Day Full Refund (`Q-01`, `REF-02`, `TOS-17`, `TOS-18`):** 100% full refund with **no cancellation fee**, once per family/account, with the 14-day clock starting from payment OR receipt of the written transaction disclosure document (whichever is later, §14ג(ג)).
