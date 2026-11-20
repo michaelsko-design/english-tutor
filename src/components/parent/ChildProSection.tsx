@@ -13,7 +13,7 @@ interface ChildProSectionProps {
   openPlan: OpenPlan | null;
   theme: ThemeDefinition;
   isBusy: boolean;
-  /** A child who never had Pro can get one free Pro week, which the parent starts (api/pro-trial.ts) */
+  /** A child who never had Pro can get one free Pro week, which the parent starts (api/_lib/proTrial.ts, through /api/subscription) */
   canStartTrial: boolean;
   onStartTrial: () => void;
   onUpgrade: () => void;

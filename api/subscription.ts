@@ -10,6 +10,7 @@
  *   new price applies from its next charge. A removed child keeps Pro until periodEnd, at most a month.
  *   A child who raises a monthly charge needs the parent's confirmation of the new amount
  *   (`confirmedAmountAgorot`), saved in `planConsents` (legal audit TOS-16).
+ * - `startTrial` {childUid}: a linked parent starts a child's free Pro week (`_lib/proTrial.ts`).
  * The gateway is changed first and the records after, so a refused gateway call changes nothing.
  * A gateway that can't change a standing order (Grow through Make) gets an owner task instead, saved
  * in the same write as the plan.
@@ -26,6 +27,7 @@ import {
   type ParentRequestDeps,
 } from './_lib/parentRequest.js';
 import { createPaymentProvider } from './_lib/payments/index.js';
+import { handleProTrialRequest } from './_lib/proTrial.js';
 import { changesRecurringByApi, PaymentError, type PaymentProvider } from './_lib/payments/provider.js';
 import { gatewayTaskWrite, manualRecurringWrites, readPayer } from './_lib/gatewayTasks.js';
 import { familyRefundId, FULL_REFUND_DAYS, hasFullRefund, quoteCancellation, type CancelQuote } from './_lib/cancellation.js';
@@ -319,6 +321,9 @@ export async function handleSubscriptionRequest(
   deps: SubscriptionDeps = {}
 ): Promise<Response> {
   if (request.method !== 'POST') return errorResponse(405, 'Method not allowed');
+  // The free Pro week shares this function (Vercel's limit on functions): it has no plan yet
+  const peek = (await request.clone().json().catch(() => null)) as { action?: unknown } | null;
+  if (peek?.action === 'startTrial') return handleProTrialRequest(request, env, deps);
   const { fetchImpl = fetch, nowMs = Date.now, createAdmin = createFirestoreAdmin, createProvider = createPaymentProvider } = deps;
   const caller = await authenticateParent(request, env, deps);
   if (caller instanceof Response) return caller;

@@ -12,7 +12,6 @@ import type { ParentResult } from './parentService';
 
 const CHECKOUT_URL = '/api/checkout';
 const SUBSCRIPTION_URL = '/api/subscription';
-const PRO_TRIAL_URL = '/api/pro-trial';
 const MOCK_PAY_URL = '/api/mock-pay';
 
 const GENERIC_ERROR_HE = 'משהו השתבש. כדאי לנסות שוב.';
@@ -162,7 +161,7 @@ const TRIAL_ERRORS_HE: Record<number, string> = {
 
 /** Starts a linked child's free Pro week (once per child); the value is when it ends (ms). */
 export async function startProTrial(childUid: string): Promise<ParentResult<number>> {
-  const response = await postAsParent(PRO_TRIAL_URL, { childUid });
+  const response = await postAsParent(SUBSCRIPTION_URL, { action: 'startTrial', childUid });
   if (!(response instanceof Response)) return response;
   if (!response.ok) return { ok: false, errorHe: TRIAL_ERRORS_HE[response.status] ?? GENERIC_ERROR_HE };
   const body = (await response.json().catch(() => null)) as { endsAt?: unknown } | null;

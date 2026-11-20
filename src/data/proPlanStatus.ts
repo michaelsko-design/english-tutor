@@ -109,7 +109,7 @@ export function findOpenPlan(parentUid: string, entitlements: Entitlements, nowM
 
 /**
  * A parent can start a free Pro week only for a child who never had any Pro (no entitlement at all);
- * undefined (still loading) is not that. The server checks it again (api/pro-trial.ts).
+ * undefined (still loading) is not that. The server checks it again (api/_lib/proTrial.ts, through /api/subscription).
  */
 export const canStartTrial = (entitlement: Entitlement | null | undefined): boolean => entitlement === null;
 
