@@ -147,7 +147,7 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
           {isShabbatObserver && (
             <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>שבת שמורה</span>
+              <span>סופ״ש מוגן</span>
             </span>
           )}
         </div>

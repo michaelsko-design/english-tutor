@@ -79,13 +79,13 @@ describe('DailyQuestsCard', () => {
 
   it('protects Friday and Saturday for a Shabbat observer', () => {
     setup({ isShabbatObserver: true });
-    expect(screen.getByText('שבת שמורה')).toBeInTheDocument();
+    expect(screen.getByText('סופ״ש מוגן')).toBeInTheDocument();
     expect(screen.getAllByLabelText(/יום מוגן|יום למידה/).length).toBeGreaterThan(0);
   });
 
   it('shows no protection for a learner who does not observe Shabbat', () => {
     setup({ isShabbatObserver: false });
-    expect(screen.queryByText('שבת שמורה')).not.toBeInTheDocument();
+    expect(screen.queryByText('סופ״ש מוגן')).not.toBeInTheDocument();
     expect(screen.getByText(/השלימו משימה קצרה מדי יום/)).toBeInTheDocument();
   });
 });

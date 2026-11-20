@@ -80,15 +80,22 @@ export interface CancelQuote {
   refundAgorot: number;
   /** Pro stays on until this time (ms) */
   accessUntil: number;
+  /** Why there is nothing to cancel (mode `none`): no payment on record, or a refund already requested */
+  reason?: CancelReason;
 }
 
+export type CancelReason = 'not_live' | 'already_requested';
+
 const CANCEL_MODES: readonly CancelMode[] = ['full_refund', 'yearly_prorata', 'monthly_end', 'none'];
+const CANCEL_REASONS: readonly CancelReason[] = ['not_live', 'already_requested'];
 
 function readCancelQuote(body: unknown): CancelQuote | null {
-  const value = body as { mode?: unknown; refundAgorot?: unknown; accessUntil?: unknown } | null;
+  const value = body as { mode?: unknown; refundAgorot?: unknown; accessUntil?: unknown; reason?: unknown } | null;
   const mode = CANCEL_MODES.find((m) => m === value?.mode);
   if (!mode || typeof value?.refundAgorot !== 'number' || typeof value?.accessUntil !== 'number') return null;
-  return { mode, refundAgorot: value.refundAgorot, accessUntil: value.accessUntil };
+  const quote: CancelQuote = { mode, refundAgorot: value.refundAgorot, accessUntil: value.accessUntil };
+  const reason = CANCEL_REASONS.find((r) => r === value.reason);
+  return reason ? { ...quote, reason } : quote;
 }
 
 export interface PlanChangeOptions {

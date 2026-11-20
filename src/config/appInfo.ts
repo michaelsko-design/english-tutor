@@ -4,9 +4,8 @@ export const APP_NAME = 'EnglishVibe';
 export const VIBE_CHEER_HE = 'יש לך וייב טוב!';
 
 /**
- * The WhatsApp number parents reach us on (international, digits only, e.g. 972501234567), used by
- * the Pro plan picker's "more than 4 children" button. Empty: the button opens WhatsApp with the
- * message and lets the parent pick the chat.
+ * The business phone (international, digits only, e.g. 972501234567): the landing site's footer
+ * phone link (`tel:`). The Pro picker's "more than 4 children" button is an email (mailto) now.
  */
 export const SUPPORT_WHATSAPP_NUMBER = '972552903310';
 

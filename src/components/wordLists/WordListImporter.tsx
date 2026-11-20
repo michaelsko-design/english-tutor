@@ -95,7 +95,7 @@ export const WordListImporter: React.FC<WordListImporterProps> = ({ gender, them
                     <span className="opacity-75">
                       · {item.translationHe}
                       {item.isTranslationFromBank && (
-                        <span title="התרגום נלקח ממאגר המילים של משרד החינוך"> 📚</span>
+                        <span title="התרגום נלקח ממאגר המילים לפי רשימות משרד החינוך"> 📚</span>
                       )}
                     </span>
                   )}
@@ -103,7 +103,7 @@ export const WordListImporter: React.FC<WordListImporterProps> = ({ gender, them
               ))}
             </ul>
             {parsed.items.some((i) => i.isTranslationFromBank) && (
-              <p className={`text-xs ${theme.mutedTextClass}`}>📚 = תרגום ממאגר המילים של משרד החינוך</p>
+              <p className={`text-xs ${theme.mutedTextClass}`}>📚 = תרגום ממאגר המילים לפי רשימות משרד החינוך</p>
             )}
           </div>
         )}

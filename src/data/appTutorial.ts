@@ -52,7 +52,7 @@ export function getTutorialSlides({ currencyNameHe, hasFriends, isShabbatObserve
     { emoji: '🎯', labelHe: 'אתגרים יומיים', textHe: '3 אתגרים חדשים כל יום, עם עוד פרסים.' },
   ];
   if (isShabbatObserver) {
-    streakPoints.push({ emoji: '🛡️', labelHe: 'מגן שבת', textHe: 'שישי ושבת לא שוברים את הרצף.' });
+    streakPoints.push({ emoji: '🛡️', labelHe: 'מגן סוף השבוע', textHe: 'שישי ושבת לא שוברים את הרצף.' });
   }
 
   const dockPoints: TutorialPoint[] = [

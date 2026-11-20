@@ -50,8 +50,8 @@ export const RemoveTesterDialog: React.FC<RemoveTesterDialogProps> = ({ expected
           Remove {expected} completely?
         </h2>
         <p id="remove-tester-text" className="mt-2 text-sm text-slate-700 dark:text-slate-200">
-          This deletes the sign-in and all of this tester&apos;s data (progress, friends, parent links, usage counters). Notes they sent
-          stay, without a link to them. This cannot be undone.
+          This deletes the sign-in and all of this tester&apos;s data (progress, friends, parent links, usage counters, the notes they sent
+          and the invite alias). This cannot be undone.
         </p>
         <label className="mt-3 block text-xs font-bold text-slate-600 dark:text-slate-300">
           Type {expected} to confirm

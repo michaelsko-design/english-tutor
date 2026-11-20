@@ -496,7 +496,7 @@ export const SUPPORTED_GRADES: GradeMetadata[] = [
     labelHe: 'כיתה ז׳',
     ministryBand: 'Band II (Intermediate Entry)',
     recommendedAge: 12,
-    descriptionHe: 'תוכנית משרד החינוך: Present Simple/Prog, Past Simple V2, Band II וקטעי Unseen',
+    descriptionHe: 'לפי תוכנית הלימודים של משרד החינוך: Present Simple/Prog, Past Simple V2, Band II וקטעי Unseen',
   },
   {
     id: 'grade-8',
