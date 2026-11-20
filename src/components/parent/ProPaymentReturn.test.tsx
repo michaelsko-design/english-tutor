@@ -8,7 +8,13 @@ import type { PaidPlan } from './TransactionSummary';
 const SLOW_CONFIRMATION_MS = 60_000;
 
 function renderReturn(
-  props: { isCancelled?: boolean; activatedNames?: readonly string[] | null; paidPlan?: PaidPlan | null; onDismiss?: () => void } = {}
+  props: {
+    isCancelled?: boolean;
+    activatedNames?: readonly string[] | null;
+    paidPlan?: PaidPlan | null;
+    hasFullRefund?: boolean | null;
+    onDismiss?: () => void;
+  } = {}
 ) {
   const onDismiss = props.onDismiss ?? vi.fn();
   render(
@@ -17,6 +23,7 @@ function renderReturn(
       isCancelled={props.isCancelled ?? false}
       activatedNames={props.activatedNames ?? null}
       paidPlan={props.paidPlan ?? null}
+      hasFullRefund={props.hasFullRefund ?? null}
       onDismiss={onDismiss}
     />
   );
@@ -107,6 +114,26 @@ describe('ProPaymentReturn', () => {
   it('names the monthly price of the day of purchase in a yearly summary', () => {
     renderReturn({ activatedNames: ['נועה', 'איתי'], paidPlan: { period: 'yearly', seats: 2, periodEnd: Date.UTC(2027, 10, 20) } });
     expect(screen.getByTestId('transaction-summary')).toHaveTextContent(/פחות .*64.*\(המחיר החודשי הרגיל ביום הרכישה/);
+  });
+
+  it.each([
+    ['yearly' as const, /לכן בביטול יוחזר הסכום ששולם פחות/],
+    ['monthly' as const, /לכן אפשר לבטל בכל עת: לא יהיו חיובים נוספים/],
+  ])('tells a family that already had its full refund which %s rule applies instead', (period, rule) => {
+    renderReturn({ activatedNames: ['נועה'], paidPlan: { period, seats: 1, periodEnd: Date.UTC(2027, 10, 20) }, hasFullRefund: false });
+    const summary = screen.getByTestId('transaction-summary');
+    expect(summary).toHaveTextContent('ההחזר המלא בתוך 14 יום ניתן פעם אחת לכל משפחה, וכבר נוצל');
+    expect(summary).toHaveTextContent(rule);
+    expect(summary).not.toHaveTextContent('ביטול בתוך 14 יום מהיום: החזר מלא');
+  });
+
+  it('promises the full refund when it is still open, and while that is not known yet', () => {
+    const plan = { period: 'yearly' as const, seats: 1, periodEnd: Date.UTC(2027, 10, 20) };
+    const { unmount } = render(<ProPaymentReturn theme={TEST_THEME} isCancelled={false} activatedNames={['נועה']} paidPlan={plan} hasFullRefund onDismiss={vi.fn()} />);
+    expect(screen.getByTestId('transaction-summary')).toHaveTextContent('ביטול בתוך 14 יום מהיום: החזר מלא');
+    unmount();
+    renderReturn({ activatedNames: ['נועה'], paidPlan: plan, hasFullRefund: null });
+    expect(screen.getByTestId('transaction-summary')).toHaveTextContent('ביטול בתוך 14 יום מהיום: החזר מלא, פעם אחת לכל משפחה');
   });
 
   it('shows no summary until the plan is known', () => {

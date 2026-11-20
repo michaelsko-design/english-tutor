@@ -24,6 +24,8 @@ interface TransactionSummaryProps {
   childNames: readonly string[];
   theme: ThemeDefinition;
   formatDate: (ms: number) => string;
+  /** The family's one full refund within 14 days is still open; false: already used; null: not known yet */
+  hasFullRefund?: boolean | null;
 }
 
 function priceLineHe(plan: PaidPlan, formatDate: (ms: number) => string): string {
@@ -34,21 +36,25 @@ function priceLineHe(plan: PaidPlan, formatDate: (ms: number) => string): string
     : `${price} לשנה (פטור ממע״מ), תשלום אחד. המנוי לא מתחדש מעצמו ומסתיים ב-${formatDate(plan.periodEnd)}.`;
 }
 
-function cancelLineHe(plan: PaidPlan): string {
+function cancelLineHe(plan: PaidPlan, hasFullRefund: boolean | null): string {
   const monthly = proPriceAgorot(plan.seats, 'monthly');
   const rate = monthly === null ? 'המחיר החודשי הרגיל ביום הרכישה' : `${formatShekels(monthly)} (המחיר החודשי הרגיל ביום הרכישה, או המחיר באותו יום אם ירד)`;
-  const after =
+  const rule =
     plan.period === 'monthly'
-      ? 'אחר כך אפשר לבטל בכל עת: לא יהיו חיובים נוספים, ו-Pro נשאר עד סוף החודש ששולם (ולפי בקשה, סיום בתוך 3 ימי עסקים עם החזר יחסי).'
-      : `אחר כך יוחזר הסכום ששולם פחות ${rate} לכל חודש שהתחיל.`;
-  return `ביטול בתוך 14 יום מהיום: החזר מלא, פעם אחת לכל משפחה. ${after} אזרח ותיק, אדם עם מוגבלות ועולה חדש רשאים לבטל בתוך 4 חודשים כשהעסקה כללה שיחה איתנו.`;
+      ? 'אפשר לבטל בכל עת: לא יהיו חיובים נוספים, ו-Pro נשאר עד סוף החודש ששולם (ולפי בקשה, סיום בתוך 3 ימי עסקים עם החזר יחסי).'
+      : `יוחזר הסכום ששולם פחות ${rate} לכל חודש שהתחיל.`;
+  const refundLine =
+    hasFullRefund === false
+      ? `ההחזר המלא בתוך 14 יום ניתן פעם אחת לכל משפחה, וכבר נוצל. לכן ${plan.period === 'monthly' ? rule : `בביטול ${rule}`}`
+      : `ביטול בתוך 14 יום מהיום: החזר מלא, פעם אחת לכל משפחה. אחר כך ${rule}`;
+  return `${refundLine} אזרח ותיק, אדם עם מוגבלות ועולה חדש רשאים לבטל בתוך 4 חודשים כשהעסקה כללה שיחה איתנו.`;
 }
 
 /**
  * The written summary of the purchase and the cancellation rights, shown right after payment so the
  * parent can save or print it (Consumer Protection Law §14ג(ב)–(ג); legal audit MISS-03).
  */
-export const TransactionSummary: React.FC<TransactionSummaryProps> = ({ plan, childNames, theme, formatDate }) => (
+export const TransactionSummary: React.FC<TransactionSummaryProps> = ({ plan, childNames, theme, formatDate, hasFullRefund = null }) => (
   <article className={`p-3 rounded-2xl space-y-2 text-xs sm:text-sm ${theme.inputBgClass}`} aria-labelledby="transaction-summary-title" data-testid="transaction-summary">
     <h3 id="transaction-summary-title" className="text-sm font-extrabold">
       סיכום עסקה ופרטי ביטול
@@ -58,7 +64,7 @@ export const TransactionSummary: React.FC<TransactionSummaryProps> = ({ plan, ch
       והבוסים, הכנה מלאה למבחן, עד 10 רשימות מילים פעילות, וכל ערכות העיצוב והדמויות.
     </p>
     <p>{priceLineHe(plan, formatDate)}</p>
-    <p>{cancelLineHe(plan)}</p>
+    <p>{cancelLineHe(plan, hasFullRefund)}</p>
     <p>
       דרכי ביטול: בפורטל ההורים, בעמוד{' '}
       <a href={CANCEL_PAGE_PATH} target="_blank" rel="noopener" className="underline font-bold">

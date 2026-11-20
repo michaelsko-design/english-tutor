@@ -94,6 +94,13 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const [errorHe, setErrorHe] = useState<string | null>(null);
+  /** A change to any field takes the last error away, so it never stays after it was put right */
+  const editField =
+    <T,>(setValue: (value: T) => void) =>
+    (value: T) => {
+      setErrorHe(null);
+      setValue(value);
+    };
   const quote = quoteProPrice(selected.length, period);
   const isSeatLimitReached = selected.length >= MAX_PRO_SEATS;
   // Parents pay for a date: the soonest exam (or school lists) of the ticked children leads
@@ -159,7 +166,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
       type="button"
       role="radio"
       aria-checked={period === value}
-      onClick={() => setPeriod(value)}
+      onClick={() => editField(setPeriod)(value)}
       className={`${segmentClass} ${period === value ? theme.primaryBtnClass : theme.secondaryBtnClass}`}
     >
       {label}
@@ -217,7 +224,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
 
       <label className="block text-sm font-bold">
         שם מלא של המשלם/ת <RequiredMark />
-        <input type="text" autoComplete="name" aria-required="true" value={payerName} onChange={(e) => setPayerName(e.target.value)} className={`${fieldClass} ${theme.inputBgClass}`} />
+        <input type="text" autoComplete="name" aria-required="true" value={payerName} onChange={(e) => editField(setPayerName)(e.target.value)} className={`${fieldClass} ${theme.inputBgClass}`} />
       </label>
       <label className="block text-sm font-bold">
         טלפון נייד <RequiredMark />
@@ -228,7 +235,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
           dir="ltr"
           autoComplete="tel-national"
           value={payerPhone}
-          onChange={(e) => setPayerPhone(e.target.value)}
+          onChange={(e) => editField(setPayerPhone)(e.target.value)}
           className={`${fieldClass} ${theme.inputBgClass}`}
         />
       </label>
@@ -240,7 +247,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
           dir="ltr"
           autoComplete="email"
           value={payerEmail}
-          onChange={(e) => setPayerEmail(e.target.value)}
+          onChange={(e) => editField(setPayerEmail)(e.target.value)}
           className={`${fieldClass} ${theme.inputBgClass}`}
         />
       </label>
@@ -260,7 +267,7 @@ export const ProCheckoutPanel: React.FC<ProCheckoutPanelProps> = ({
         <input
           type="checkbox"
           checked={hasAcceptedTerms}
-          onChange={(e) => setHasAcceptedTerms(e.target.checked)}
+          onChange={(e) => editField(setHasAcceptedTerms)(e.target.checked)}
           className="w-5 h-5 shrink-0 mt-0.5"
         />
         <span>
