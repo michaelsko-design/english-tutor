@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Lightbulb, X } from 'lucide-react';
 import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
-import { dismissHomeTip, getActiveHomeTip, HomeTipId, isHomeTipDismissed } from '../../data/homeTips';
+import { dismissHomeTip, getActiveHomeTip, isHomeTipDismissed } from '../../data/homeTips';
 import { Button } from '../ui/Button';
 import { useHomeCardTurn } from './HomeCardSlot';
 
@@ -17,18 +17,19 @@ interface HomeTipCardProps {
 /**
  * Home: one short first-use tip at a time (stars, the placement test, the shop, the streak), each
  * shown when it becomes useful. It replaces the app tour at first launch; the tour is still on the ❓
- * button. A tip is closed for good on this device and never blocks anything.
+ * button. A tip is closed for good on this device and never blocks anything. One tip per visit: the next one waits
+ * for the next visit (the dashboard remounts the card with a new `key` each visit, data/homeCards.ts).
  */
 export const HomeTipCard: React.FC<HomeTipCardProps> = ({ profile, uid, theme, onOpenPlacement }) => {
-  // Tips closed in this visit (storage is the memory across visits, this makes the card react at once)
-  const [closedNow, setClosedNow] = useState<readonly HomeTipId[]>([]);
-  const tip = uid ? getActiveHomeTip(profile, (id) => closedNow.includes(id) || isHomeTipDismissed(uid, id)) : null;
-  const isMyTurn = useHomeCardTurn('home-tip', tip !== null);
+  // A tip closed in this visit hides the card until the next visit (storage remembers which tips are closed)
+  const [isClosedThisVisit, setIsClosedThisVisit] = useState(false);
+  const tip = uid ? getActiveHomeTip(profile, (id) => isHomeTipDismissed(uid, id)) : null;
+  const isMyTurn = useHomeCardTurn('home-tip', tip !== null && !isClosedThisVisit);
   if (!uid || !tip || !isMyTurn) return null;
 
   const close = () => {
     dismissHomeTip(uid, tip.id);
-    setClosedNow((ids) => [...ids, tip.id]);
+    setIsClosedThisVisit(true);
   };
 
   const handleAction = () => {

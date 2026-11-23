@@ -11,8 +11,11 @@ function setup(stats: Record<string, number> = { missionsCompleted: 1, streakDay
   const onOpenPlacement = vi.fn();
   const base = makeProfile({});
   const profile = makeProfile({ stats: { ...base.stats, ...stats } });
-  render(<HomeTipCard profile={profile} uid={uid} theme={TEST_THEME} onOpenPlacement={onOpenPlacement} />);
-  return { onOpenPlacement, user: userEvent.setup() };
+  const card = (visit: number) => (
+    <HomeTipCard key={visit} profile={profile} uid={uid} theme={TEST_THEME} onOpenPlacement={onOpenPlacement} />
+  );
+  const { rerender } = render(card(0));
+  return { onOpenPlacement, user: userEvent.setup(), nextVisit: () => rerender(card(1)) };
 }
 
 describe('HomeTipCard', () => {
@@ -27,10 +30,13 @@ describe('HomeTipCard', () => {
     expect(screen.queryByRole('region', { name: 'טיפ' })).not.toBeInTheDocument();
   });
 
-  it('closes the tip for good, and the next one takes its place', async () => {
-    const { user } = setup();
+  it('closes the tip for good, and the next one waits for the next visit', async () => {
+    const { user, nextVisit } = setup();
     await user.click(screen.getByRole('button', { name: 'הבנתי' }));
     expect(isHomeTipDismissed('kid-1', 'stars')).toBe(true);
+    expect(screen.queryByRole('region', { name: 'טיפ' })).not.toBeInTheDocument();
+
+    nextVisit();
     expect(screen.getByText(/רוצים שנתאים את הרמה/)).toBeInTheDocument();
   });
 
