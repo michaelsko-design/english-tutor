@@ -1,4 +1,5 @@
-import { DailyActivityCounters, LearnerProfile } from '../types/learner';
+import { DailyActivityCounters, DailyActivityKind, LearnerProfile } from '../types/learner';
+import { pickDailyQuestIds } from './dailyQuests';
 import { advanceStreak } from './streak';
 import { applyStreakReward } from './streakReward';
 
@@ -15,6 +16,8 @@ export interface DailyActivity {
   missions: number;
   voiceWords: number;
   threeStarMissions: number;
+  /** What the session was, for the rotating daily quests; counted only when it is a session */
+  kind?: DailyActivityKind;
 }
 
 /**
@@ -34,10 +37,18 @@ export function getTodayCounters(
   };
 }
 
+/** Today's session counts by kind with one more session of `kind` (none added for a non-session). */
+function addKindCount(counters: DailyActivityCounters, activity: DailyActivity): DailyActivityCounters['kindCounts'] {
+  if (!activity.kind || activity.missions <= 0) return counters.kindCounts;
+  const kindCounts = counters.kindCounts ?? {};
+  return { ...kindCounts, [activity.kind]: (kindCounts[activity.kind] ?? 0) + activity.missions };
+}
+
 /**
  * Adds an activity to today's counters (resetting them and the claimed quests on a new day) and
  * extends the streak when this is the first completed mission of the day (paying the one-time streak
- * reward once the streak reaches its goal, data/streakReward.ts).
+ * reward once the streak reaches its goal, data/streakReward.ts). The day's quests are frozen at its
+ * first recorded activity (data/dailyQuests.ts), picked from the profile as it was before it.
  */
 export function recordDailyActivity(
   profile: LearnerProfile,
@@ -46,6 +57,8 @@ export function recordDailyActivity(
 ): LearnerProfile {
   const { counters, claimedQuestIds } = getTodayCounters(profile, todayStr);
   const isFirstMissionToday = counters.missionsCompletedToday === 0 && activity.missions > 0;
+  const kindCounts = addKindCount(counters, activity);
+  const questIds = counters.questIds && counters.questIds.length > 0 ? counters.questIds : pickDailyQuestIds(profile, todayStr);
 
   const updated: LearnerProfile = {
     ...profile,
@@ -55,6 +68,8 @@ export function recordDailyActivity(
       missionsCompletedToday: counters.missionsCompletedToday + activity.missions,
       voiceWordsPracticedToday: counters.voiceWordsPracticedToday + activity.voiceWords,
       threeStarMissionsToday: counters.threeStarMissionsToday + activity.threeStarMissions,
+      ...(kindCounts ? { kindCounts } : {}),
+      questIds,
     },
     stats: isFirstMissionToday ? advanceStreak(profile, todayStr) : profile.stats,
   };

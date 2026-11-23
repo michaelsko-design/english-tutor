@@ -7,6 +7,7 @@ import {
   levelForXp,
   recordDailyActivity,
 } from './progressRewards';
+import { pickDailyQuestIds } from './dailyQuests';
 
 const TODAY = '2026-10-18';
 const YESTERDAY = '2026-10-17';
@@ -53,6 +54,27 @@ describe('levelForXp', () => {
 });
 
 describe('recordDailyActivity', () => {
+  it('counts a session by its kind for the rotating quests', () => {
+    const once = recordDailyActivity(baseProfile, { missions: 1, voiceWords: 0, threeStarMissions: 0, kind: 'word-game' }, TODAY);
+    const twice = recordDailyActivity(once, { missions: 1, voiceWords: 0, threeStarMissions: 0, kind: 'word-game' }, TODAY);
+    expect(twice.dailyCounters.kindCounts).toEqual({ 'word-game': 2 });
+  });
+
+  it('does not count a kind for something that is not a session', () => {
+    const result = recordDailyActivity(baseProfile, { missions: 0, voiceWords: 1, threeStarMissions: 0, kind: 'map-mission' }, TODAY);
+    expect(result.dailyCounters.kindCounts?.['map-mission'] ?? 0).toBe(0);
+  });
+
+  it("freezes the day's quests at the first session and keeps them for the rest of the day", () => {
+    const profile = { ...baseProfile, dailyCounters: { ...baseProfile.dailyCounters, dateStr: YESTERDAY, questIds: ['quest-old'] } };
+    const first = recordDailyActivity(profile, { missions: 1, voiceWords: 0, threeStarMissions: 0 }, TODAY);
+    expect(first.dailyCounters.questIds).toEqual(pickDailyQuestIds(profile, TODAY));
+
+    const frozen = { ...first, dailyCounters: { ...first.dailyCounters, questIds: ['quest-daily-mission', 'quest-quick-review'] } };
+    const second = recordDailyActivity(frozen, { missions: 1, voiceWords: 0, threeStarMissions: 0 }, TODAY);
+    expect(second.dailyCounters.questIds).toEqual(['quest-daily-mission', 'quest-quick-review']);
+  });
+
   it('extends the streak on the first mission of a new day', () => {
     const profile = { ...baseProfile, dailyCounters: { ...baseProfile.dailyCounters, dateStr: YESTERDAY } };
 
@@ -63,6 +85,7 @@ describe('recordDailyActivity', () => {
       missionsCompletedToday: 1,
       voiceWordsPracticedToday: 0,
       threeStarMissionsToday: 0,
+      questIds: pickDailyQuestIds(profile, TODAY),
     });
     expect(result.stats.streakDays).toBe(5);
     expect(result.stats.streakLastDateStr).toBe(TODAY);
@@ -117,7 +140,7 @@ describe('applyVocabPracticeReward', () => {
   it('adds a voice word to today’s counter, plus the XP and diamonds', () => {
     const result = applyVocabPracticeReward(baseProfile, 'apple', 10, 1, TODAY).profile;
 
-    expect(result.dailyCounters).toEqual({ ...baseProfile.dailyCounters, voiceWordsPracticedToday: 3 });
+    expect(result.dailyCounters).toMatchObject({ ...baseProfile.dailyCounters, voiceWordsPracticedToday: 3 });
     expect(result.vaultPractice).toEqual({ dateStr: TODAY, words: ['apple'] });
     expect(result.stats.xp).toBe(150);
     expect(result.stats.level).toBe(2);
@@ -129,7 +152,7 @@ describe('applyVocabPracticeReward', () => {
 
     const result = applyVocabPracticeReward(profile, 'apple', 10, 1, TODAY).profile;
 
-    expect(result.dailyCounters).toEqual({
+    expect(result.dailyCounters).toMatchObject({
       dateStr: TODAY,
       missionsCompletedToday: 0,
       voiceWordsPracticedToday: 1,

@@ -1,6 +1,6 @@
 import { CurriculumUnit } from './curriculum/types';
 import { getUnitPicture } from '../components/art/mapPictures';
-import { DailyQuestDefinition } from './rewardShop';
+import { DailyQuestDefinition } from './dailyQuests';
 import { BossGate } from './milestones';
 import { DailyActivityCounters, LearnerGender } from '../types/learner';
 

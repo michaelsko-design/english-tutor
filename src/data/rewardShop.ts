@@ -1,4 +1,4 @@
-import { DailyActivityCounters, LearnerGender } from '../types/learner';
+import { LearnerGender } from '../types/learner';
 import { inflectHebrew } from '../utils/hebrewGender';
 
 import { EXTRA_AVATARS, EXTRA_WEAR } from './shopExtraCatalog';
@@ -20,50 +20,6 @@ export interface RewardShopItem {
   /** Limited-time item: can only be bought inside the season's window */
   season?: SeasonId;
 }
-
-export interface DailyQuestDefinition {
-  id: string;
-  icon: string;
-  titleEn: string;
-  titleHe: string;
-  targetCount: number;
-  rewardDiamonds: number;
-  rewardXp: number;
-  getCurrentCount: (counters: DailyActivityCounters) => number;
-}
-
-export const DAILY_QUESTS: DailyQuestDefinition[] = [
-  {
-    id: 'quest-daily-mission',
-    icon: '🎯',
-    titleEn: 'Complete 1 Mission Today',
-    titleHe: 'השלימי משימה אחת היום',
-    targetCount: 1,
-    rewardDiamonds: 20,
-    rewardXp: 30,
-    getCurrentCount: (c) => c.missionsCompletedToday,
-  },
-  {
-    id: 'quest-voice-words',
-    icon: '🎙️',
-    titleEn: 'Practice Speaking 2 Words or Sentences',
-    titleHe: 'תרגלי הגייה של 2 מילים או משפטים במיקרופון',
-    targetCount: 2,
-    rewardDiamonds: 15,
-    rewardXp: 25,
-    getCurrentCount: (c) => c.voiceWordsPracticedToday,
-  },
-  {
-    id: 'quest-three-stars',
-    icon: '⭐',
-    titleEn: 'Finish a Mission with 3 Stars',
-    titleHe: 'סיימי משימה עם 3 כוכבים מלאים',
-    targetCount: 1,
-    rewardDiamonds: 25,
-    rewardXp: 40,
-    getCurrentCount: (c) => c.threeStarMissionsToday,
-  },
-];
 
 export type MysteryBoxTier = 'bronze' | 'silver' | 'gold';
 
@@ -270,13 +226,6 @@ export const REWARD_SHOP_ITEMS: RewardShopItem[] = [
     })
   ),
 ];
-
-export function getDailyQuests(gender: LearnerGender): DailyQuestDefinition[] {
-  return DAILY_QUESTS.map((q) => ({
-    ...q,
-    titleHe: inflectHebrew(q.titleHe, gender),
-  }));
-}
 
 export function getRewardShopItems(gender: LearnerGender): RewardShopItem[] {
   return REWARD_SHOP_ITEMS.map((item) => ({

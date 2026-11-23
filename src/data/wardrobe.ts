@@ -166,7 +166,7 @@ export function putOnWardrobeItem(
   const finalProfile = isDailyRewardEarned
     ? grantDailyActivityReward(
         named.profile,
-        { xp: DRESS_UP_REWARD_XP, diamonds: DRESS_UP_REWARD_DIAMONDS, voiceWords: day.voiceCount },
+        { xp: DRESS_UP_REWARD_XP, diamonds: DRESS_UP_REWARD_DIAMONDS, voiceWords: day.voiceCount, kind: 'dress-up' },
         now
       )
     : named.profile;

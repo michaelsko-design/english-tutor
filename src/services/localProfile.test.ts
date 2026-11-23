@@ -79,6 +79,17 @@ describe('parseStoredProfile', () => {
     expect(result.missionProgress).toEqual({ m1: 3 });
   });
 
+  it("keeps today's activity kinds and frozen quests, dropping anything malformed", () => {
+    const counters = { ...DEFAULT_PROFILE.dailyCounters, kindCounts: { contest: 2, 'word-game': 'x', bogus: 3 }, questIds: ['quest-daily-mission', 'quest-contest'] };
+    const result = parse({ ...good, dailyCounters: counters });
+    expect(result.dailyCounters.kindCounts).toEqual({ contest: 2 });
+    expect(result.dailyCounters.questIds).toEqual(['quest-daily-mission', 'quest-contest']);
+
+    const broken = parse({ ...good, dailyCounters: { ...DEFAULT_PROFILE.dailyCounters, kindCounts: [1], questIds: 'x' } });
+    expect(broken.dailyCounters.kindCounts).toBeUndefined();
+    expect(broken.dailyCounters.questIds).toBeUndefined();
+  });
+
   it('never aliases the default profile objects', () => {
     const result = parse({});
     expect(result.stats).not.toBe(DEFAULT_PROFILE.stats);

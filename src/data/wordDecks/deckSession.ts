@@ -107,7 +107,7 @@ export function applyDeckResultToProfile(
   const todayStr = toLocalDateStr(now);
   const score = scoreWordListAnswers(answers);
   const reward = getDeckReward(profile, deck.id, score.scorePercent, todayStr);
-  const rewarded = applyPracticeSessionReward(profile, answers, reward, score, todayStr);
+  const rewarded = applyPracticeSessionReward(profile, answers, reward, score, todayStr, 'word-list');
   const missedIds = getMissedSessionItemIds(answers);
   const missedWords = recordMissedWords(
     profile.missedWords,

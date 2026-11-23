@@ -1,6 +1,7 @@
 import { LearnerProfile } from '../types/learner';
 import { toLocalDateStr } from './examPrep';
 import { levelForXp, recordDailyActivity } from './progressRewards';
+import type { DailyActivityKind } from '../types/learner';
 import { getRoom } from './room';
 
 /**
@@ -31,12 +32,12 @@ export interface RoomActivityReward {
 /** Adds XP and diamonds and credits the activity to today's quests and streak as one mission. */
 export function grantDailyActivityReward(
   profile: LearnerProfile,
-  reward: { xp: number; diamonds: number; voiceWords: number },
+  reward: { xp: number; diamonds: number; voiceWords: number; kind: DailyActivityKind },
   now: Date
 ): LearnerProfile {
   const withActivity = recordDailyActivity(
     profile,
-    { missions: 1, voiceWords: reward.voiceWords, threeStarMissions: 0 },
+    { missions: 1, voiceWords: reward.voiceWords, threeStarMissions: 0, kind: reward.kind },
     toLocalDateStr(now)
   );
   const xp = withActivity.stats.xp + reward.xp;
@@ -66,6 +67,11 @@ export function applyRepeatActivityXp(profile: LearnerProfile): RoomActivityRewa
   };
 }
 
+/** The phone and journal are writing; the rest are the word games */
+function getActivityKind(activityId: RoomActivityId): DailyActivityKind {
+  return activityId === 'phone' || activityId === 'journal' ? 'room-writing' : 'word-game';
+}
+
 /** Rewards a finished room activity: the full reward once a day per activity, a little XP after. */
 export function applyRoomActivityReward(
   profile: LearnerProfile,
@@ -86,7 +92,7 @@ export function applyRoomActivityReward(
   return {
     profile: grantDailyActivityReward(
       marked,
-      { xp: ROOM_ACTIVITY_XP, diamonds: ROOM_ACTIVITY_DIAMONDS, voiceWords },
+      { xp: ROOM_ACTIVITY_XP, diamonds: ROOM_ACTIVITY_DIAMONDS, voiceWords, kind: getActivityKind(activityId) },
       now
     ),
     xpEarned: ROOM_ACTIVITY_XP,

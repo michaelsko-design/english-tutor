@@ -19,7 +19,8 @@ import { getLoadedGrade, gradesInMissionIds } from '../data/curriculum/loader';
 import { useGradeCurricula } from '../hooks/useGradeCurricula';
 import { countCompletedMissions, getSuggestedMission } from '../data/milestones';
 import { getVictoryNextStep, VictoryNextStep } from '../data/victoryNextStep';
-import { DailyQuestDefinition, REWARD_SHOP_ITEMS, RewardShopItem, getDailyQuests } from '../data/rewardShop';
+import { REWARD_SHOP_ITEMS, RewardShopItem } from '../data/rewardShop';
+import { DailyQuestDefinition, getDailyQuests } from '../data/dailyQuests';
 import { MYSTERY_BOX_TIER_BY_ID, rollMysteryBox } from '../data/mysteryBox';
 import { getHomeGreetingHe, getMapPeek, getQuestRings, getReadyQuestCount } from '../data/homeBase';
 import { MissionMap } from './MissionMap';
@@ -121,7 +122,7 @@ const ROOM_TOAST_MS = 6000;
 /** Completed daily quests whose reward is not yet claimed (today's counters only). */
 function readyQuestCountForNudge(profile: LearnerProfile, todayStr: string): number {
   const { counters, claimedQuestIds } = getTodayCounters(profile, todayStr);
-  return getReadyQuestCount(getQuestRings(getDailyQuests(profile.gender), counters, claimedQuestIds));
+  return getReadyQuestCount(getQuestRings(getDailyQuests(profile, todayStr), counters, claimedQuestIds));
 }
 /** The size the mission runner first shows the companion at (the peek over the question card) */
 const COMPANION_PRELOAD_SIZE = 64;
@@ -265,7 +266,8 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   // Counters from an earlier day (a tab left open past midnight) count as zero
   const { counters: dailyCounters, claimedQuestIds } = getTodayCounters(profile, todayStr);
   const currentStreak = getCurrentStreak(profile, todayStr);
-  const questRings = getQuestRings(getDailyQuests(profile.gender), dailyCounters, claimedQuestIds);
+  const dailyQuests = getDailyQuests(profile, todayStr);
+  const questRings = getQuestRings(dailyQuests, dailyCounters, claimedQuestIds);
   const mapPeek = getMapPeek(gradeCurriculum.units, profile.missionProgress || {});
   const newPackOffer = getNewPackOffer(gradeCurriculum.units, todayStr, seenPackIds);
   const isNewPackProLocked = newPackOffer !== null && getPackAccess(newPackOffer.pack.id) === 'pro' && !hasFullAccess(proAccess);
@@ -386,6 +388,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         // A skipped voice step earns no voice-word credit
         voiceWords: result.isVoiceSkipped ? 0 : 1,
         threeStarMissions: result.isFullReward && result.starsEarned === 3 ? 1 : 0,
+        kind: 'map-mission',
       },
       missionTodayStr
     );
@@ -828,7 +831,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
               activeDates={(profile.activityLog || []).filter((e) => e.sessions > 0).map((e) => e.dateStr)}
               dailyCounters={dailyCounters}
               claimedQuestIds={claimedQuestIds}
-              gender={profile.gender}
+              quests={dailyQuests}
               theme={theme}
               isShabbatObserver={profile.isShabbatObserver !== false}
               onClaimQuest={handleClaimDailyQuest}
