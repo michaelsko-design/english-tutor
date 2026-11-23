@@ -18,6 +18,7 @@ import type { GradeCurriculumPack, MissionNode } from '../data/curriculum';
 import { getLoadedGrade, gradesInMissionIds } from '../data/curriculum/loader';
 import { useGradeCurricula } from '../hooks/useGradeCurricula';
 import { countCompletedMissions, getSuggestedMission } from '../data/milestones';
+import { getVictoryNextStep, VictoryNextStep } from '../data/victoryNextStep';
 import { DailyQuestDefinition, REWARD_SHOP_ITEMS, RewardShopItem, getDailyQuests } from '../data/rewardShop';
 import { MYSTERY_BOX_TIER_BY_ID, rollMysteryBox } from '../data/mysteryBox';
 import { getHomeGreetingHe, getMapPeek, getQuestRings, getReadyQuestCount } from '../data/homeBase';
@@ -56,8 +57,10 @@ import { NewPackCard } from './home/NewPackCard';
 import { ParentNoticeCard } from './home/ParentNoticeCard';
 import { ParentNudgeCard } from './home/ParentNudgeCard';
 import { ReminderNudgeCard } from './home/ReminderNudgeCard';
-import { ReminderReaskSheet } from './home/ReminderReaskSheet';
-import { shouldReaskReminder } from '../data/reminderReask';
+import { ReminderAskScreen } from './home/ReminderAskScreen';
+import { getReminderAskCount, isReminderAskDue, MAX_REMINDER_ASKS } from '../data/reminderAsk';
+import { isInstalledAppAskDue, markInstalledAppAsked } from '../services/push/installedAppAsk';
+import type { ReminderAskScreenSource } from '../services/push/reminderOptIn';
 import { WelcomeBackCard } from './home/WelcomeBackCard';
 import { HomeTipCard } from './home/HomeTipCard';
 import { WeekOneCard } from './home/WeekOneCard';
@@ -176,8 +179,16 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   const [isPlacementOpen, setIsPlacementOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [roomRewardToast, setRoomRewardToast] = useState<RoomRewardItem | null>(null);
-  // The one-time second reminder ask, after a mission on a later day (data/reminderReask.ts)
-  const [isReminderReaskPending, setIsReminderReaskPending] = useState(false);
+  // The full-screen reminder ask: after a mission (asks 2 and 3, data/reminderAsk.ts), or on the first
+  // open of the iPhone Home Screen app (services/push/installedAppAsk.ts)
+  const [reminderAskSource, setReminderAskSource] = useState<ReminderAskScreenSource | null>(null);
+  const reminderAskUid = authUser && !authUser.isAnonymous ? authUser.uid : null;
+  useEffect(() => {
+    if (!reminderAskUid || !profile.isOnboarded || !isInstalledAppAskDue(reminderAskUid)) return;
+    markInstalledAppAsked(reminderAskUid);
+    setReminderAskSource('installed');
+    // Once per account and device, on the first home render of the installed app (the flag stops repeats)
+  }, [reminderAskUid, profile.isOnboarded]);
   const [isRoomOpen, setIsRoomOpen] = useState(false);
   useTrackFeature('feature_room', isRoomOpen);
   const [openSheet, setOpenSheet] = useState<HomeSheet | null>(null);
@@ -272,9 +283,12 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
   // A mission started from the map's sheet already has its tier, so its intro is skipped
   const [isMissionFromMap, setIsMissionFromMap] = useState(false);
+  // A new run id remounts the runner, so a next mission (even the same one) starts fresh
+  const [missionRunId, setMissionRunId] = useState(0);
   const handleLaunchMission = (mission: MissionNode, isFromMap = false) => {
     setIsMissionFromMap(isFromMap);
     setActivePracticeMission(mission);
+    setMissionRunId((id) => id + 1);
     isMissionFinishedRef.current = false;
     trackEvent('mission_start');
     trackMissionSignal(mission.id, profile.preferredTier, 'start');
@@ -310,6 +324,17 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // The victory screen's next step: the next mission, or a kind "done for today" (data/victoryNextStep.ts)
+  const getMissionNextStep = (missionId: string, starsEarned: number): VictoryNextStep => {
+    const progress = profile.missionProgress || {};
+    return getVictoryNextStep({
+      units: getPlayableUnits(gradeCurriculum.units, proAccess),
+      progressAfter: { ...progress, [missionId]: Math.max(progress[missionId] || 0, starsEarned) },
+      missionsTodayAfter: dailyCounters.missionsCompletedToday + 1,
+      isFirstMission: isFirstMissionPendingRef.current,
+    });
+  };
+
   const handleCompleteMission = (result: {
     missionId: string;
     tier: ProficiencyTier;
@@ -319,7 +344,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     wordsLearnedCount: number;
     isFullReward: boolean;
     isVoiceSkipped: boolean;
-  }) => {
+  }, nextMission?: MissionNode) => {
     isMissionFinishedRef.current = true;
     trackMissionFinish(result.tier, result.starsEarned);
     const legacyLadder = getMissionLadder(profile, result.missionId);
@@ -377,9 +402,16 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
       },
     });
 
-    setActivePracticeMission(null);
-    if (roomReward) setRoomRewardToast(roomReward);
-    if (authUser && shouldReaskReminder(withActivity, missionTodayStr)) setIsReminderReaskPending(true);
+    if (nextMission) {
+      // The room item waits in the room (its dock dot); the toast would only flash behind the mission
+      handleLaunchMission(nextMission);
+    } else {
+      setActivePracticeMission(null);
+      if (roomReward) setRoomRewardToast(roomReward);
+    }
+    if (reminderAskUid && isReminderAskDue(withActivity, missionTodayStr)) {
+      setReminderAskSource(getReminderAskCount(withActivity) >= MAX_REMINDER_ASKS - 1 ? 'ask3' : 'ask2');
+    }
     reportFirstMission(true);
   };
 
@@ -783,6 +815,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
       {activePracticeMission && (
         <Suspense fallback={<ScreenLoading />}>
           <MissionRunner
+            key={missionRunId}
             mission={activePracticeMission}
             tier={profile.preferredTier}
             onChangeTier={handleSelectTier}
@@ -793,6 +826,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             onQueueEnglish={queueEnglish}
             ladder={getMissionLadder(profile, activePracticeMission.id)}
             onCompleteMission={handleCompleteMission}
+            getNextStep={(starsEarned) => getMissionNextStep(activePracticeMission.id, starsEarned)}
             onClose={handleCloseMission}
             roomRewardPreview={
               (profile.missionProgress?.[activePracticeMission.id] || 0) < 3 ? getNextRoomReward(profile) : null
@@ -892,16 +926,17 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
       {/* DAILY QUEST REWARD WAITING: NUDGE TOAST */}
       {/* THE SECOND REMINDER ASK: after the room toast, before the quest nudge */}
-      {isReminderReaskPending && !roomRewardToast && (
-        <ReminderReaskSheet
+      {reminderAskSource && !roomRewardToast && !activePracticeMission && (
+        <ReminderAskScreen
           profile={profile}
           theme={theme}
+          source={reminderAskSource}
           onUpdateProfile={onUpdateProfile}
-          onClose={() => setIsReminderReaskPending(false)}
+          onClose={() => setReminderAskSource(null)}
         />
       )}
 
-      {isQuestNudgeOpen && !roomRewardToast && !isReminderReaskPending && openSheet !== 'quests' && (
+      {isQuestNudgeOpen && !roomRewardToast && !reminderAskSource && !activePracticeMission && openSheet !== 'quests' && (
         <div className="fixed inset-x-0 bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6 z-40 flex justify-center px-4 pointer-events-none">
           <button
             type="button"

@@ -273,6 +273,14 @@ export function mergeLearnerProfiles(
       const reminderDeclinedAtStr = latestIso(local.reminderDeclinedAtStr, cloud.reminderDeclinedAtStr);
       return reminderDeclinedAtStr ? { reminderDeclinedAtStr } : {};
     })(),
+    ...(() => {
+      const counts = [local.reminderAskCount, cloud.reminderAskCount].filter((n): n is number => typeof n === 'number');
+      return counts.length > 0 ? { reminderAskCount: Math.max(...counts) } : {};
+    })(),
+    ...(() => {
+      const reminderLastAskedAtStr = latestIso(local.reminderLastAskedAtStr, cloud.reminderLastAskedAtStr);
+      return reminderLastAskedAtStr ? { reminderLastAskedAtStr } : {};
+    })(),
     createdAt: cloud.createdAt || local.createdAt || new Date().toISOString(),
     // The later of the two, so a stale cloud copy can't make a newer local save look older
     updatedAt: (localTime > cloudTime ? local.updatedAt : cloud.updatedAt) || local.updatedAt || new Date().toISOString(),

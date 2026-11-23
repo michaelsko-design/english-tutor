@@ -407,10 +407,14 @@ export interface LearnerProfile {
   hasSeenWeekOneSummary?: boolean;
   /** Whether the one-time diamonds for sharing the first win with a parent were paid (data/showOff.ts) */
   hasEarnedShowOffReward?: boolean;
-  /** The local day the learner last said "not now" to the daily reminder (data/reminderReask.ts) */
+  /** The local day the learner last said "not now" to the daily reminder (data/reminderAsk.ts) */
   reminderDeclinedAtStr?: string;
-  /** Whether the one-time second reminder ask (streak day 2+) was shown (data/reminderReask.ts) */
+  /** Old: the one-time second reminder ask was shown. Replaced by reminderAskCount; kept so old profiles merge. */
   hasSeenReminderReask?: boolean;
+  /** How many times the daily reminder was asked for, at most 3 (data/reminderAsk.ts) */
+  reminderAskCount?: number;
+  /** The local day of the last reminder ask (data/reminderAsk.ts) */
+  reminderLastAskedAtStr?: string;
   /** Latest diagnostic placement test result, if the learner has taken it */
   placementResult?: PlacementResult;
   /** Active exam preparation plan, if the learner created one */

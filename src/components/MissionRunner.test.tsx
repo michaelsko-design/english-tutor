@@ -9,10 +9,15 @@ import { TIER_FIXTURE_MISSION } from '../data/testing/tierFixture';
 import { answerCorrectly, answerWrongly } from '../test/drillAnswers';
 import { TEST_THEME } from '../test/fixtures';
 import { MissionRunner } from './MissionRunner';
+import type { VictoryNextStep } from '../data/victoryNextStep';
 
 const firstMission = (gradeId: GradeId): MissionNode => CURRICULUM_BY_GRADE[gradeId].units[0].missions[0];
 
-function renderRunner(mission: MissionNode, tier: ProficiencyTier = 'challenger') {
+function renderRunner(
+  mission: MissionNode,
+  tier: ProficiencyTier = 'challenger',
+  getNextStep?: (starsEarned: number) => VictoryNextStep
+) {
   const handlers = { onCompleteMission: vi.fn(), onClose: vi.fn(), onChangeTier: vi.fn() };
   render(
     <MissionRunner
@@ -27,10 +32,18 @@ function renderRunner(mission: MissionNode, tier: ProficiencyTier = 'challenger'
       previousStars={1}
       startXp={0}
       startLevel={1}
+      getNextStep={getNextStep}
       {...handlers}
     />
   );
   return handlers;
+}
+
+async function playToVictory(user: ReturnType<typeof userEvent.setup>, mission: MissionNode) {
+  for (const step of getExercisesForMission(mission, 'challenger', 'girl', 0)) {
+    await answerCorrectly(user, step);
+    await user.click(screen.getByRole('button', { name: /לשלב הבא|סיום משימה/ }));
+  }
 }
 
 describe('MissionRunner', () => {
@@ -148,5 +161,51 @@ describe('MissionRunner', () => {
 
     expect(onClose).toHaveBeenCalledTimes(2);
     expect(onCompleteMission).not.toHaveBeenCalled();
+  });
+
+  describe('victory next step', () => {
+    it('offers the next mission as the main button and hands it over with the result', async () => {
+      const user = userEvent.setup();
+      const mission = firstMission('grade-1');
+      const nextMission = CURRICULUM_BY_GRADE['grade-1'].units[0].missions[1];
+      const getNextStep = vi.fn(() => ({ kind: 'next', mission: nextMission, isReplay: false }) as const);
+      const { onCompleteMission } = renderRunner(mission, 'challenger', getNextStep);
+
+      await playToVictory(user, mission);
+      await user.click(await screen.findByRole('button', { name: /למשימה הבאה/ }));
+
+      expect(getNextStep).toHaveBeenCalledWith(3);
+      expect(onCompleteMission).toHaveBeenCalledWith(
+        expect.objectContaining({ missionId: mission.id, starsEarned: 3 }),
+        nextMission
+      );
+    });
+
+    it('collecting rewards still goes home without a next mission', async () => {
+      const user = userEvent.setup();
+      const mission = firstMission('grade-1');
+      const nextMission = CURRICULUM_BY_GRADE['grade-1'].units[0].missions[1];
+      const { onCompleteMission } = renderRunner(mission, 'challenger', () => ({
+        kind: 'next',
+        mission: nextMission,
+        isReplay: false,
+      }));
+
+      await playToVictory(user, mission);
+      await user.click(await screen.findByRole('button', { name: /איסוף פרסים/ }));
+
+      expect(onCompleteMission).toHaveBeenCalledWith(expect.objectContaining({ missionId: mission.id }));
+    });
+
+    it('after the daily goal it closes the day kindly, with no next-mission button', async () => {
+      const user = userEvent.setup();
+      const mission = firstMission('grade-1');
+      renderRunner(mission, 'challenger', () => ({ kind: 'rest' }));
+
+      await playToVictory(user, mission);
+
+      expect(await screen.findByText(/סיימת את היעד של היום/)).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /למשימה הבאה/ })).not.toBeInTheDocument();
+    });
   });
 });

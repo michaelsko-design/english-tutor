@@ -35,7 +35,8 @@ export function isIosDevice(userAgent: string): boolean {
   return /iPad|iPhone|iPod/.test(userAgent);
 }
 
-function isStandalone(): boolean {
+/** The app was opened from the Home Screen (installed), not in a browser tab */
+export function isStandalone(): boolean {
   return window.matchMedia?.('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone === true;
 }
 

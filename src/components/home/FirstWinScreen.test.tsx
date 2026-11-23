@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { makeProfile, TEST_THEME } from '../../test/fixtures';
@@ -56,6 +56,13 @@ function renderScreen(profile = makeProfile({ name: 'נועה' })) {
   return userEvent.setup();
 }
 
+type User = ReturnType<typeof userEvent.setup>;
+const openAsk = (user: User) => user.click(screen.getByRole('button', { name: 'ממשיכים' }));
+async function declineAsk(user: User) {
+  await openAsk(user);
+  await user.click(await screen.findByRole('button', { name: 'לא עכשיו' }));
+}
+
 describe('FirstWinScreen', () => {
   it("tells a new learner about tomorrow's gift, and not one who already claimed it", async () => {
     const { unmount } = renderScreenWith(makeProfile({ name: 'נועה' }));
@@ -65,48 +72,75 @@ describe('FirstWinScreen', () => {
     expect(screen.queryByText(/מחר מחכה לכם מתנה/)).not.toBeInTheDocument();
   });
 
-  it('celebrates the first lesson and the first streak day', async () => {
-    renderScreen();
+  it('celebrates first, then opens the reminder ask screen', async () => {
+    const user = renderScreen();
     expect(screen.getByRole('heading', { name: /כל הכבוד/ })).toBeInTheDocument();
     expect(screen.getByText(/יום 1 ברצף/)).toBeInTheDocument();
-    expect(await screen.findByRole('button', { name: 'כן, להפעיל תזכורת' })).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    await openAsk(user);
+    const ask = await screen.findByRole('dialog', { name: /רוצה שאזכיר לך מחר/ });
+    expect(ask).not.toHaveTextContent(/להורים:|יהלומים|💎/);
+    expect(ask).toHaveTextContent(/עוזרת ללמוד טוב יותר ולשמור על הרצף/);
   });
 
-  it('offers the reminder as help for the streak, with no gift for turning it on, and goes on', async () => {
+  it('turns the reminder on with no gift, counts it as ask 1 and goes on to the parent share', async () => {
     const user = renderScreen();
-    expect(await screen.findByText(/עוזרת לשמור על הרצף/)).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: 'תזכורת יומית' })).not.toHaveTextContent(/יהלומים|💎/);
-    await user.click(await screen.findByRole('button', { name: 'כן, להפעיל תזכורת' }));
-
+    await openAsk(user);
+    await user.click(await screen.findByRole('button', { name: 'כן, תזכירו לי' }));
     expect(push.enableReminder).toHaveBeenCalledWith('child-1', expect.objectContaining({ isShabbatObserver: expect.any(Boolean) }));
-    expect(onUpdateProfile).not.toHaveBeenCalled();
     expect(analytics.trackEvent).toHaveBeenCalledWith('reminder_opt_in');
     expect(analytics.trackEvent).toHaveBeenCalledWith('reminder_opt_in_firstwin');
+
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'ממשיכים' }));
+    const updated = onUpdateProfile.mock.calls[0][0];
+    expect(updated).toMatchObject({ reminderAskCount: 1 });
+    expect(updated.reminderDeclinedAtStr).toBeUndefined();
+    expect(updated.stats.diamonds).toBe(makeProfile().stats.diamonds);
     expect(await screen.findByRole('heading', { name: /שלחו להורים/ })).toBeInTheDocument();
     expect(onContinue).not.toHaveBeenCalled();
   });
 
   it('remembers a "not now" and moves on to the parent share', async () => {
     const user = renderScreen();
-    await user.click(await screen.findByRole('button', { name: 'לא עכשיו' }));
+    await declineAsk(user);
     expect(push.enableReminder).not.toHaveBeenCalled();
     expect(analytics.trackEvent).toHaveBeenCalledWith('reminder_ask_declined');
-    expect(onUpdateProfile).toHaveBeenCalledWith(expect.objectContaining({ reminderDeclinedAtStr: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) }));
+    expect(onUpdateProfile).toHaveBeenCalledWith(
+      expect.objectContaining({ reminderAskCount: 1, reminderDeclinedAtStr: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) })
+    );
     expect(await screen.findByRole('heading', { name: /שלחו להורים/ })).toBeInTheDocument();
   });
 
-  it('does not ask for the reminder when the browser already blocks notifications', async () => {
+  it('skips the ask where it cannot work and goes straight to the parent share', async () => {
     push.getNotificationPermission.mockReturnValue('denied');
-    renderScreen();
-    expect(await screen.findByRole('button', { name: 'ממשיכים' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'כן, להפעיל תזכורת' })).not.toBeInTheDocument();
+    const user = renderScreen();
+    await openAsk(user);
+    expect(await screen.findByRole('heading', { name: /שלחו להורים/ })).toBeInTheDocument();
     expect(push.isReminderOn).not.toHaveBeenCalled();
+    expect(onUpdateProfile).not.toHaveBeenCalled();
+  });
+
+  it('skips the ask when the reminder is already on', async () => {
+    push.isReminderOn.mockResolvedValue(true);
+    const user = renderScreen();
+    await openAsk(user);
+    expect(await screen.findByRole('heading', { name: /שלחו להורים/ })).toBeInTheDocument();
+  });
+
+  it('shows the install steps on iPhone outside the Home Screen app', async () => {
+    push.getReminderSupport.mockReturnValue('needs-install');
+    const user = renderScreen();
+    await openAsk(user);
+    expect(await screen.findByRole('list', { name: 'שלבי ההוספה למסך הבית' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'הבנתי' }));
+    expect(await screen.findByRole('heading', { name: /שלחו להורים/ })).toBeInTheDocument();
   });
 
   it('shares the first win with a parent link and pays the gift once', async () => {
     const profile = makeProfile({ name: 'נועה', gradeId: 'grade-4' });
     const user = renderScreen(profile);
-    await user.click(await screen.findByRole('button', { name: 'לא עכשיו' }));
+    await declineAsk(user);
     await user.click(await screen.findByRole('button', { name: 'שליחה להורים' }));
 
     expect(navigator.share).toHaveBeenCalledWith(
@@ -121,7 +155,7 @@ describe('FirstWinScreen', () => {
 
   it('does not pay the share gift twice', async () => {
     const user = renderScreen(makeProfile({ name: 'נועה', hasEarnedShowOffReward: true }));
-    await user.click(await screen.findByRole('button', { name: 'לא עכשיו' }));
+    await declineAsk(user);
     onUpdateProfile.mockReset();
     expect(screen.queryByText(/מתנה על השליחה/)).not.toBeInTheDocument();
     await user.click(await screen.findByRole('button', { name: 'שליחה להורים' }));
@@ -130,7 +164,7 @@ describe('FirstWinScreen', () => {
 
   it('lets the learner skip the share', async () => {
     const user = renderScreen();
-    await user.click(await screen.findByRole('button', { name: 'לא עכשיו' }));
+    await declineAsk(user);
     await user.click(await screen.findByRole('button', { name: 'אולי אחר כך' }));
     expect(onContinue).toHaveBeenCalledTimes(1);
   });
@@ -138,55 +172,17 @@ describe('FirstWinScreen', () => {
   it('shows a retry when the parent link cannot be made', async () => {
     parents.listParentsOfChild.mockRejectedValue(new Error('offline'));
     const user = renderScreen();
-    await user.click(await screen.findByRole('button', { name: 'לא עכשיו' }));
+    await declineAsk(user);
     expect(await screen.findByRole('alert')).toHaveTextContent('לא הצלחנו להכין את ההודעה');
     expect(screen.getByRole('button', { name: 'אולי אחר כך' })).toBeInTheDocument();
   });
 
-  it('stays, with the reason, when the browser blocks notifications', async () => {
-    push.enableReminder.mockResolvedValue({ ok: false, errorHe: 'ההתראות חסומות' });
-    const user = renderScreen();
-    await user.click(await screen.findByRole('button', { name: 'כן, להפעיל תזכורת' }));
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('ההתראות חסומות');
-    expect(onContinue).not.toHaveBeenCalled();
-    expect(onUpdateProfile).not.toHaveBeenCalled();
-  });
-
-  it('only celebrates when the reminder is already on', async () => {
-    push.isReminderOn.mockResolvedValue(true);
-    renderScreen();
-    expect(await screen.findByRole('button', { name: 'ממשיכים' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'כן, להפעיל תזכורת' })).not.toBeInTheDocument();
-  });
-
-  it('does not hold the learner when it cannot tell whether the reminder is on', async () => {
-    push.isReminderOn.mockRejectedValue(new Error('offline'));
-    renderScreen();
-    expect(await screen.findByRole('button', { name: 'ממשיכים' })).toBeInTheDocument();
-  });
-
-  it('only celebrates where reminders are impossible', async () => {
-    push.getReminderSupport.mockReturnValue('unsupported');
-    renderScreen();
-    expect(await screen.findByRole('button', { name: 'ממשיכים' })).toBeInTheDocument();
-    expect(screen.queryByText(/תזכורת קטנה/)).not.toBeInTheDocument();
-  });
-
-  it('explains the Home Screen step on iPhone instead of asking', async () => {
-    push.getReminderSupport.mockReturnValue('needs-install');
-    renderScreen();
-    expect(await screen.findByText(/Add to Home Screen/)).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'כן, להפעיל תזכורת' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'ממשיכים' })).toBeInTheDocument();
-  });
-
   it('does not ask a guest, who cannot receive reminders', async () => {
     firebase.auth.currentUser = { uid: 'guest-1', isAnonymous: true };
-    renderScreen();
-    expect(await screen.findByRole('button', { name: 'ממשיכים' })).toBeInTheDocument();
+    const user = renderScreen();
+    await openAsk(user);
     expect(push.enableReminder).not.toHaveBeenCalled();
-    await userEvent.setup().click(screen.getByRole('button', { name: 'ממשיכים' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(onContinue).toHaveBeenCalledTimes(1);
   });
 });

@@ -4,6 +4,10 @@
  */
 import { isStreakProtectedDay } from '../../src/data/streak.js';
 import { addDays } from '../../src/utils/dates.js';
+import type { ReminderKind } from '../../src/data/reminderMessage.js';
+
+// The text lives in src so the app's ask screen previews the same message
+export { buildReminderMessage, type ReminderKind, type ReminderMessage } from '../../src/data/reminderMessage.js';
 
 export const REMINDER_TIME_ZONE = 'Asia/Jerusalem';
 
@@ -62,37 +66,10 @@ export function isReminderDue(subscriber: ReminderSubscriber, todayStr: string):
   return !isStreakProtectedDay(todayStr, subscriber.isShabbatObserver);
 }
 
-export type ReminderKind = 'streak' | 'comeback';
-
 /** 'streak' while the streak is alive and can still be saved today, otherwise 'comeback'. */
 export function getReminderKind(subscriber: ReminderSubscriber, todayStr: string): ReminderKind {
   const { streakDays, streakLastDateStr, isShabbatObserver } = subscriber;
   return streakDays >= 1 && streakLastDateStr && isStreakAlive(streakLastDateStr, todayStr, isShabbatObserver)
     ? 'streak'
     : 'comeback';
-}
-
-export interface ReminderMessage {
-  title: string;
-  body: string;
-}
-
-/** Gender-aware Hebrew text; the streak count is only a number so there is no English to isolate. */
-export function buildReminderMessage(subscriber: ReminderSubscriber, kind: ReminderKind): ReminderMessage {
-  const isGirl = subscriber.gender === 'girl';
-  const title = 'EnglishVibe 🔥';
-  if (kind === 'streak') {
-    return {
-      title,
-      body: isGirl
-        ? `המשיכי כך! הרצף שלך של ${subscriber.streakDays} ימים מחכה לך. תרגלי קצת היום ותשמרי עליו.`
-        : `המשך כך! הרצף שלך של ${subscriber.streakDays} ימים מחכה לך. תרגל קצת היום ותשמור עליו.`,
-    };
-  }
-  return {
-    title,
-    body: isGirl
-      ? 'עבר קצת זמן מאז שתרגלת. בואי נחזור לזה, רק 5 דקות!'
-      : 'עבר קצת זמן מאז שתרגלת. בוא נחזור לזה, רק 5 דקות!',
-  };
 }

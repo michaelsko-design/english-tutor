@@ -607,6 +607,7 @@ service cloud.firestore {
           'feature_room', 'feature_shop', 'feature_settings',
           'pro_wall_view', 'pro_ask_sent',
           'reminder_opt_in_firstwin', 'reminder_opt_in_card', 'reminder_opt_in_settings', 'reminder_opt_in_reask',
+          'reminder_opt_in_ask2', 'reminder_opt_in_ask3', 'reminder_opt_in_installed', 'reminder_ask_shown',
           'reminder_ask_declined', 'reminder_permission_denied',
           'show_off_shared', 'placement_shared', 'pro_ask_resent'])
         && request.resource.data.counts.get('session_start', 0) <= 1000000

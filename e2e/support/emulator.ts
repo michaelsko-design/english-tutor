@@ -71,6 +71,15 @@ export async function setMissionProgress(uid: string, stars: Record<string, numb
   });
 }
 
+/** Sets one number in a learner's `stats` (e.g. totalActiveDays), leaving the rest of the profile as it is. */
+export async function setLearnerStat(uid: string, stat: string, value: number): Promise<void> {
+  await request(`${DOCUMENTS}/learners/${uid}?updateMask.fieldPaths=stats.${stat}`, {
+    method: 'PATCH',
+    headers: OWNER_HEADERS,
+    body: JSON.stringify({ fields: { stats: { mapValue: { fields: { [stat]: toFirestore(value) } } } } }),
+  });
+}
+
 export async function deleteDocument(path: string): Promise<void> {
   await request(`${DOCUMENTS}/${path}`, { method: 'DELETE', headers: OWNER_HEADERS });
 }

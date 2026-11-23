@@ -31,9 +31,9 @@ beforeEach(() => {
   push.getNotificationPermission.mockReturnValue('default');
 });
 
-/** A learner who has practised on two days, so the card is due */
+/** A learner who has practised on two days and had ask 2 on an earlier day, so the card is due */
 function dueProfile(overrides: Partial<LearnerProfile> = {}): LearnerProfile {
-  const base = makeProfile(overrides);
+  const base = makeProfile({ reminderAskCount: 2, reminderLastAskedAtStr: '2026-01-01', ...overrides });
   return { ...base, stats: { ...base.stats, totalActiveDays: 2 } };
 }
 
@@ -78,7 +78,7 @@ describe('ReminderNudgeCard', () => {
     push.getReminderSupport.mockReturnValue('needs-install');
     renderCard();
 
-    expect(await screen.findByText(/מסך הבית/)).toBeInTheDocument();
+    expect(await screen.findByRole('list', { name: 'שלבי ההוספה למסך הבית' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'להפעיל תזכורת' })).not.toBeInTheDocument();
   });
 
@@ -108,12 +108,12 @@ describe('ReminderNudgeCard', () => {
     expect(push.isReminderOn).not.toHaveBeenCalled();
   });
 
-  it('stays away after a "not now" until the second ask was shown', async () => {
-    renderCard(true, dueProfile({ reminderDeclinedAtStr: '2026-11-01' }));
+  it('stays away while the full-screen ask is due, and shows once it was had', async () => {
+    renderCard(true, dueProfile({ reminderAskCount: 1, reminderDeclinedAtStr: '2026-01-01', reminderLastAskedAtStr: '2026-01-01' }));
     await Promise.resolve();
     expect(push.isReminderOn).not.toHaveBeenCalled();
 
-    renderCard(true, dueProfile({ reminderDeclinedAtStr: '2026-11-01', hasSeenReminderReask: true }));
+    renderCard(true, dueProfile({ reminderDeclinedAtStr: '2026-01-01', hasSeenReminderReask: true, reminderAskCount: undefined }));
     expect(await screen.findByRole('button', { name: 'להפעיל תזכורת' })).toBeInTheDocument();
   });
 
