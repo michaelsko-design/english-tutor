@@ -6,6 +6,7 @@ import { trackEvent } from '../../services/analytics';
 import { getWeekOneSummary, markWeekOneSeen } from '../../data/weekOne';
 import { formatDayCountHe } from '../../data/progressReport';
 import { Button } from '../ui/Button';
+import { useHomeCardTurn } from './HomeCardSlot';
 
 interface WeekOneCardProps {
   profile: LearnerProfile;
@@ -21,7 +22,8 @@ interface WeekOneCardProps {
  */
 export const WeekOneCard: React.FC<WeekOneCardProps> = ({ profile, theme, todayStr, onUpdateProfile }) => {
   const summary = getWeekOneSummary(profile, todayStr);
-  if (!summary) return null;
+  const isMyTurn = useHomeCardTurn('week-one', summary !== null);
+  if (!summary || !isMyTurn) return null;
 
   const handleClose = () => {
     trackEvent('week_one_seen');

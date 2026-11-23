@@ -10,6 +10,7 @@ import {
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 import { HebrewSpeakButton } from '../drills/HebrewSpeakButton';
 import { Button } from '../ui/Button';
+import { useHomeCardTurn } from './HomeCardSlot';
 
 interface StreakRewardCardProps {
   /** The account's uid, or a fixed key for a guest; the card shows once per account on this device */
@@ -23,7 +24,8 @@ interface StreakRewardCardProps {
 /** Home: tells the learner once that the streak reward was paid (data/streakReward.ts). */
 export const StreakRewardCard: React.FC<StreakRewardCardProps> = ({ accountKey, hasEarnedStreakReward, theme, readsHebrewAloud }) => {
   const [isClosed, setIsClosed] = useState(() => hasSeenStreakRewardNotice(accountKey));
-  if (!hasEarnedStreakReward || isClosed) return null;
+  const isMyTurn = useHomeCardTurn('streak-reward', hasEarnedStreakReward && !isClosed);
+  if (!isMyTurn) return null;
 
   const close = () => {
     markStreakRewardNoticeSeen(accountKey);

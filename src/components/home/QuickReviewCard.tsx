@@ -3,6 +3,7 @@ import { Timer } from 'lucide-react';
 import type { MissedWord } from '../../types/learner';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
 import { Button } from '../ui/Button';
+import { useHomeCardTurn } from './HomeCardSlot';
 
 interface QuickReviewCardProps {
   /** Today's review words (data/missedWords.ts `getQuickReviewWords`); the card hides when empty */
@@ -16,7 +17,8 @@ interface QuickReviewCardProps {
  * a few words wait; nothing is lost by skipping it (no countdown, no streak warning).
  */
 export const QuickReviewCard: React.FC<QuickReviewCardProps> = ({ words, theme, onStart }) => {
-  if (!words.length) return null;
+  const isMyTurn = useHomeCardTurn('quick-review', words.length > 0);
+  if (!isMyTurn) return null;
 
   return (
     <section

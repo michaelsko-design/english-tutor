@@ -14,6 +14,7 @@ import type { ThemeDefinition } from '../../themes/themeRegistry';
 import { toLocalDateStr } from '../../utils/dates';
 import { HebrewSpeakButton } from '../drills/HebrewSpeakButton';
 import { Button } from '../ui/Button';
+import { useHomeCardTurn } from '../home/HomeCardSlot';
 
 interface ProWeekCardProps {
   uid: string;
@@ -29,7 +30,8 @@ interface ProWeekCardProps {
  */
 export const ProWeekCard: React.FC<ProWeekCardProps> = ({ uid, state, theme, readsHebrewAloud }) => {
   const [isEndedClosed, setIsEndedClosed] = useState(() => hasSeenProWeekEnded(uid));
-  if (!state) return null;
+  const isMyTurn = useHomeCardTurn('pro-week', state !== null && (state.kind === 'on' || !isEndedClosed));
+  if (!state || !isMyTurn) return null;
 
   if (state.kind === 'on') {
     return (

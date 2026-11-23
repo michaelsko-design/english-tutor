@@ -4,6 +4,7 @@ import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { dismissHomeTip, getActiveHomeTip, HomeTipId, isHomeTipDismissed } from '../../data/homeTips';
 import { Button } from '../ui/Button';
+import { useHomeCardTurn } from './HomeCardSlot';
 
 interface HomeTipCardProps {
   profile: LearnerProfile;
@@ -21,10 +22,9 @@ interface HomeTipCardProps {
 export const HomeTipCard: React.FC<HomeTipCardProps> = ({ profile, uid, theme, onOpenPlacement }) => {
   // Tips closed in this visit (storage is the memory across visits, this makes the card react at once)
   const [closedNow, setClosedNow] = useState<readonly HomeTipId[]>([]);
-  if (!uid) return null;
-
-  const tip = getActiveHomeTip(profile, (id) => closedNow.includes(id) || isHomeTipDismissed(uid, id));
-  if (!tip) return null;
+  const tip = uid ? getActiveHomeTip(profile, (id) => closedNow.includes(id) || isHomeTipDismissed(uid, id)) : null;
+  const isMyTurn = useHomeCardTurn('home-tip', tip !== null);
+  if (!uid || !tip || !isMyTurn) return null;
 
   const close = () => {
     dismissHomeTip(uid, tip.id);

@@ -6,6 +6,7 @@ import { LearnerGender } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { HebrewSpeakButton } from '../drills/HebrewSpeakButton';
 import { Button } from '../ui/Button';
+import { useHomeCardTurn } from './HomeCardSlot';
 
 interface NewPackCardProps {
   offer: NewPackOffer;
@@ -21,7 +22,10 @@ interface NewPackCardProps {
 
 /** A newly released content pack: shown once on the home screen, it takes the learner to its first unit on the map. */
 export const NewPackCard: React.FC<NewPackCardProps> = ({ offer, gender, theme, readsHebrewAloud, isProLocked = false, onOpen, onClose }) => {
+  // Mounted only while there is an offer; the slot decides whether it is this visit's card
+  const isMyTurn = useHomeCardTurn('new-pack', true);
   const copy = getNewPackCopy(offer.pack, offer.unitCount, gender, isProLocked);
+  if (!isMyTurn) return null;
   return (
     <section
       aria-label={copy.titleHe}
