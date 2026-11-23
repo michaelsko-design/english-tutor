@@ -67,7 +67,7 @@ export function applyQuickReviewResult(
   const todayStr = toLocalDateStr(now);
   const score = scoreWordListAnswers(answers);
   const reward = getQuickReviewReward(profile, todayStr);
-  const rewarded = applyPracticeSessionReward(profile, answers, reward, score, todayStr);
+  const rewarded = applyPracticeSessionReward(profile, answers, reward, score, todayStr, 'quick-review');
   const missedWords = clearReviewedWords(profile.missedWords, answers, todayStr);
   return {
     reward,

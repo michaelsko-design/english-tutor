@@ -67,11 +67,26 @@ export interface LearnerStats {
   missionsCompleted: number;
 }
 
+/** What kind of activity a session was, for the rotating daily quests (data/dailyQuests.ts) */
+export type DailyActivityKind =
+  | 'map-mission'
+  | 'quick-review'
+  | 'word-list'
+  | 'exam-prep'
+  | 'contest'
+  | 'word-game'
+  | 'room-writing'
+  | 'dress-up';
+
 export interface DailyActivityCounters {
   dateStr: string;
   missionsCompletedToday: number;
   voiceWordsPracticedToday: number;
   threeStarMissionsToday: number;
+  /** Today's sessions by kind (devices merge by the max per kind) */
+  kindCounts?: Partial<Record<DailyActivityKind, number>>;
+  /** Today's quests, frozen at the day's first session so they never change under a learner */
+  questIds?: string[];
 }
 
 /** Diamonds earned and spent on one device. Both only grow, so devices merge by taking the max. */

@@ -59,6 +59,35 @@ const baseProfile: LearnerProfile = {
   updatedAt: '2026-10-10T00:00:00.000Z',
 };
 
+describe('mergeLearnerProfiles daily quest counters', () => {
+  const today = toLocalDateStr(new Date());
+  const withCounters = (counters: Partial<LearnerProfile['dailyCounters']>): LearnerProfile => ({
+    ...baseProfile,
+    dailyCounters: { ...baseProfile.dailyCounters, dateStr: today, missionsCompletedToday: 1, ...counters },
+  });
+
+  it('keeps the higher count of each activity kind', () => {
+    const merged = mergeLearnerProfiles(
+      withCounters({ kindCounts: { 'word-game': 2, contest: 1 } }),
+      withCounters({ kindCounts: { 'word-game': 1, 'dress-up': 1 } })
+    );
+    expect(merged.dailyCounters.kindCounts).toEqual({ 'word-game': 2, contest: 1, 'dress-up': 1 });
+  });
+
+  it("keeps today's frozen quests from whichever device has them", () => {
+    const quests = ['quest-daily-mission', 'quest-word-game', 'quest-contest'];
+    expect(mergeLearnerProfiles(withCounters({}), withCounters({ questIds: quests })).dailyCounters.questIds).toEqual(quests);
+    expect(mergeLearnerProfiles(withCounters({ questIds: quests }), withCounters({})).dailyCounters.questIds).toEqual(quests);
+  });
+
+  it("drops an earlier day's kinds and quests", () => {
+    const old = { ...baseProfile, dailyCounters: { ...baseProfile.dailyCounters, dateStr: '2026-01-01', kindCounts: { contest: 3 }, questIds: ['quest-contest'] } };
+    const merged = mergeLearnerProfiles(old, old);
+    expect(merged.dailyCounters.kindCounts).toBeUndefined();
+    expect(merged.dailyCounters.questIds).toBeUndefined();
+  });
+});
+
 describe('mergeLearnerProfiles placementResult', () => {
   const older = makePlacement('2026-10-05T00:00:00.000Z', 'grade-4');
   const newer = makePlacement('2026-10-15T00:00:00.000Z', 'grade-6');

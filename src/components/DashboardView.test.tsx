@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MissionNode } from '../data/curriculum';
 import { getLoadedGrade, loadGradeCurriculum } from '../data/curriculum/loader';
-import { getDailyQuests } from '../data/rewardShop';
+import { ANCHOR_QUEST } from '../data/dailyQuests';
 import { makeProfile } from '../test/fixtures';
 import type { LearnerProfile } from '../types/learner';
 import { toLocalDateStr } from '../utils/dates';
@@ -385,7 +385,7 @@ describe('DashboardView quests', () => {
   });
 
   it('claims a finished quest once, adding its diamonds', async () => {
-    const quest = getDailyQuests('girl')[0];
+    const quest = ANCHOR_QUEST;
     const user = setup(makeProfile({ gender: 'girl', dailyCounters: finishedCounters() }));
     await click(user, 'open-quests');
     const before = makeProfile({}).stats.diamonds;

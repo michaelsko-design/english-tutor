@@ -14,6 +14,8 @@ import { db } from './firebase';
 import {
   ContestRecord,
   CustomWordList,
+  DailyActivityCounters,
+  DailyActivityKind,
   DrawnSticker,
   DreamEntry,
   DressUpDay,
@@ -41,6 +43,19 @@ const LEARNERS_COLLECTION = 'learners';
  * so that first-time login migration or multi-device offline play NEVER loses earned stars,
  * XP, diamonds, streak days, or unlocked rewards.
  */
+/** Today's session counts by kind (the max per kind) and frozen quests (either device's) for the rotating quests. */
+function mergeDailyQuestFields(
+  local: Partial<DailyActivityCounters>,
+  cloud: Partial<DailyActivityCounters>
+): Pick<DailyActivityCounters, 'kindCounts' | 'questIds'> {
+  const kinds = new Set([...Object.keys(local.kindCounts ?? {}), ...Object.keys(cloud.kindCounts ?? {})]) as Set<DailyActivityKind>;
+  const kindCounts = Object.fromEntries(
+    [...kinds].map((kind) => [kind, Math.max(local.kindCounts?.[kind] ?? 0, cloud.kindCounts?.[kind] ?? 0)])
+  ) as DailyActivityCounters['kindCounts'];
+  const questIds = local.questIds?.length ? local.questIds : cloud.questIds?.length ? cloud.questIds : undefined;
+  return { ...(kinds.size > 0 ? { kindCounts } : {}), ...(questIds ? { questIds } : {}) };
+}
+
 export function mergeLearnerProfiles(
   local: LearnerProfile,
   cloud: Partial<LearnerProfile> | null | undefined
@@ -117,6 +132,7 @@ export function mergeLearnerProfiles(
       localDaily.threeStarMissionsToday,
       cloudDaily.threeStarMissionsToday
     ),
+    ...mergeDailyQuestFields(localDaily, cloudDaily),
   };
 
   const mergedClaimedQuests = Array.from(

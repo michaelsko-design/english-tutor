@@ -1,14 +1,31 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getDailyQuests } from '../data/rewardShop';
+import { getDailyQuests } from '../data/dailyQuests';
+import { DEFAULT_PROFILE } from '../data/defaultProfile';
 import { TEST_THEME } from '../test/fixtures';
 import { toLocalDateStr } from '../utils/dates';
 import { DailyQuestsCard } from './DailyQuestsCard';
 
 const onClaimQuest = vi.fn();
-const quests = getDailyQuests('girl');
 const todayStr = toLocalDateStr(new Date());
+/** A day with the three classic quests, frozen so the test doesn't depend on the date */
+const questsFor = (gender: 'girl' | 'boy') =>
+  getDailyQuests(
+    {
+      ...DEFAULT_PROFILE,
+      gender,
+      dailyCounters: {
+        dateStr: todayStr,
+        missionsCompletedToday: 0,
+        voiceWordsPracticedToday: 0,
+        threeStarMissionsToday: 0,
+        questIds: ['quest-daily-mission', 'quest-voice-words', 'quest-three-stars'],
+      },
+    },
+    todayStr
+  );
+const quests = questsFor('girl');
 
 const counters = (over: Partial<{ missionsCompletedToday: number; voiceWordsPracticedToday: number; threeStarMissionsToday: number }> = {}) => ({
   dateStr: todayStr,
@@ -26,7 +43,7 @@ function setup(props: { counters?: ReturnType<typeof counters>; claimed?: string
       activeDates={props.activeDates ?? []}
       dailyCounters={props.counters ?? counters()}
       claimedQuestIds={props.claimed ?? []}
-      gender={props.gender ?? 'girl'}
+      quests={questsFor(props.gender ?? 'girl')}
       theme={TEST_THEME}
       isShabbatObserver={props.isShabbatObserver}
       onClaimQuest={onClaimQuest}

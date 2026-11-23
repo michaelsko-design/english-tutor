@@ -6,6 +6,7 @@ import {
   CustomItemKind,
   CustomWordItem,
   CustomWordList,
+  DailyActivityKind,
   LearnerGender,
   LearnerProfile,
 } from '../types/learner';
@@ -473,7 +474,7 @@ export function applyWordListResultToProfile(
     lastPracticedAt: nowIso,
     ...(reward.isFullReward ? { lastRewardedDateStr: todayStr } : {}),
   };
-  const rewarded = applyPracticeSessionReward(profile, answers, reward, score, todayStr);
+  const rewarded = applyPracticeSessionReward(profile, answers, reward, score, todayStr, 'word-list');
 
   return {
     reward,
@@ -495,7 +496,8 @@ export function applyPracticeSessionReward(
   answers: readonly WordListAnswer[],
   reward: WordListReward,
   score: WordListScore,
-  todayStr: string
+  todayStr: string,
+  kind: DailyActivityKind
 ): LearnerProfile {
   const withActivity = recordDailyActivity(
     profile,
@@ -503,6 +505,7 @@ export function applyPracticeSessionReward(
       missions: 1,
       voiceWords: reward.isFullReward ? answers.filter((a) => a.type === 'voice-speak' && !a.isSkipped).length : 0,
       threeStarMissions: reward.isFullReward && score.scorePercent >= WORD_LIST_HIGH_SCORE ? 1 : 0,
+      kind,
     },
     todayStr
   );

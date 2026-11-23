@@ -1,6 +1,6 @@
 import { DEFAULT_PROFILE } from '../data/defaultProfile';
 import { isThemeId } from '../themes/themeRegistry';
-import { LearnerProfile, SUPPORTED_GRADES } from '../types/learner';
+import { DailyActivityCounters, DailyActivityKind, LearnerProfile, SUPPORTED_GRADES } from '../types/learner';
 
 type Obj = Record<string, unknown>;
 
@@ -8,6 +8,16 @@ const MAX_MISSION_STARS = 3;
 const TIERS = ['explorer', 'challenger', 'master'];
 const GENDERS = ['girl', 'boy'];
 const VOICES = ['female', 'male'];
+const ACTIVITY_KINDS: readonly DailyActivityKind[] = [
+  'map-mission',
+  'quick-review',
+  'word-list',
+  'exam-prep',
+  'contest',
+  'word-game',
+  'room-writing',
+  'dress-up',
+];
 
 const isObject = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
@@ -29,6 +39,24 @@ function mergeFlat<T extends object>(value: unknown, defaults: T): T {
     else if (typeof v === 'boolean' && typeof base === 'boolean') out[key] = v;
   }
   return out as T;
+}
+
+/** Today's counters: the numbers, plus the session counts by known kind and the frozen quest ids */
+function cleanDailyCounters(value: unknown, defaults: DailyActivityCounters): DailyActivityCounters {
+  // mergeFlat would keep a stray string here; these two are rebuilt below from valid values only
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { kindCounts: _kinds, questIds: _quests, ...counters } = mergeFlat(value, defaults);
+  const src = isObject(value) ? value : {};
+  const kindCounts = isObject(src.kindCounts)
+    ? Object.fromEntries(
+        ACTIVITY_KINDS.filter((kind) => isNum((src.kindCounts as Obj)[kind])).map((kind) => [kind, (src.kindCounts as Obj)[kind]])
+      )
+    : undefined;
+  return {
+    ...counters,
+    ...(kindCounts ? { kindCounts } : {}),
+    ...(isStringArray(src.questIds) ? { questIds: src.questIds } : {}),
+  };
 }
 
 function cleanMissionProgress(value: unknown): Record<string, number> {
@@ -91,7 +119,7 @@ export function parseStoredProfile(raw: string | null): LearnerProfile {
     missionProgress: cleanMissionProgress(parsed.missionProgress),
     unlockedRewardIds: pick(parsed.unlockedRewardIds, isStringArray, base.unlockedRewardIds),
     claimedDailyQuestIds: pick(parsed.claimedDailyQuestIds, isStringArray, base.claimedDailyQuestIds),
-    dailyCounters: mergeFlat(parsed.dailyCounters, base.dailyCounters),
+    dailyCounters: cleanDailyCounters(parsed.dailyCounters, base.dailyCounters),
   };
 
   if (parsed.voicePreference !== undefined && !VOICES.includes(parsed.voicePreference as string)) {

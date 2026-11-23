@@ -1,7 +1,7 @@
 import React from 'react';
 import { celebrate } from '../utils/celebrate';
-import { getDailyQuests, DailyQuestDefinition } from '../data/rewardShop';
-import { DailyActivityCounters, LearnerGender } from '../types/learner';
+import { DailyQuestDefinition } from '../data/dailyQuests';
+import { DailyActivityCounters } from '../types/learner';
 import { ThemeDefinition } from '../themes/themeRegistry';
 import { Flame, CheckCircle2, Gift, ShieldCheck } from 'lucide-react';
 import { addDays, toLocalDateStr } from '../utils/dates';
@@ -17,7 +17,8 @@ interface DailyQuestsCardProps {
   activeDates: string[];
   dailyCounters: DailyActivityCounters;
   claimedQuestIds: string[];
-  gender: LearnerGender;
+  /** Today's quests in the learner's gender (data/dailyQuests.ts) */
+  quests: DailyQuestDefinition[];
   theme: ThemeDefinition;
   isShabbatObserver?: boolean;
   onClaimQuest: (quest: DailyQuestDefinition) => void;
@@ -30,12 +31,11 @@ export const DailyQuestsCard: React.FC<DailyQuestsCardProps> = ({
   activeDates,
   dailyCounters,
   claimedQuestIds,
-  gender,
+  quests,
   theme,
   isShabbatObserver = true,
   onClaimQuest,
 }) => {
-  const quests = getDailyQuests(gender);
   const today = new Date();
   const todayDayIdx = today.getDay();
   const todayStr = toLocalDateStr(today);

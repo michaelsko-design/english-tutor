@@ -8,7 +8,10 @@ import {
   getReadyQuestCount,
   getRingDash,
 } from './homeBase';
-import { DAILY_QUESTS } from './rewardShop';
+import { ANCHOR_QUEST, ROTATING_QUESTS } from './dailyQuests';
+
+/** The three classic quests: a mission, voice words, 3 stars */
+const DAILY_QUESTS = [ANCHOR_QUEST, ...ROTATING_QUESTS.slice(0, 2)];
 import { CurriculumUnit, MissionNode } from './curriculum';
 import { DailyActivityCounters } from '../types/learner';
 

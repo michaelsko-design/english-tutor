@@ -265,7 +265,7 @@ export function applyContestFinish(profile: LearnerProfile, now: Date): ContestF
       isFullReward: false,
     };
   }
-  const rewarded = grantDailyActivityReward(profile, { xp: CONTEST_FINISH_XP, diamonds: 0, voiceWords: 0 }, now);
+  const rewarded = grantDailyActivityReward(profile, { xp: CONTEST_FINISH_XP, diamonds: 0, voiceWords: 0, kind: 'contest' }, now);
   return {
     profile: { ...rewarded, friendsHub: { ...hub, contestFinishDay: { dateStr: today, count: countToday + 1 } } },
     xpEarned: CONTEST_FINISH_XP,

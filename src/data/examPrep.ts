@@ -438,7 +438,7 @@ export function applyExamResultToProfile(
 
   const withActivity = recordDailyActivity(
     profile,
-    { missions: 1, voiceWords: 0, threeStarMissions: scorePercent >= THREE_STAR_SCORE ? 1 : 0 },
+    { missions: 1, voiceWords: 0, threeStarMissions: scorePercent >= THREE_STAR_SCORE ? 1 : 0, kind: 'exam-prep' },
     toLocalDateStr(now)
   );
   const xp = withActivity.stats.xp + xpGain;

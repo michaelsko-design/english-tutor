@@ -96,5 +96,17 @@ test.describe('the 1-minute review', () => {
         };
       })
       .toEqual({ isDoneToday: true, clearedCount: 4 });
+
+    // The review counts for today's rotating quests: its kind is counted and the day's 3 quests are frozen
+    await expect
+      .poll(async () => {
+        const counters = ((await readDocument(`learners/${uid}`))?.dailyCounters ?? {}) as {
+          kindCounts?: Record<string, number>;
+          questIds?: string[];
+        };
+        return { reviews: counters.kindCounts?.['quick-review'], quests: counters.questIds?.length, first: counters.questIds?.[0] };
+      })
+      .toEqual({ reviews: 1, quests: 3, first: 'quest-daily-mission' });
+    await expect(page.getByRole('button', { name: /^אתגרים יומיים: [1-3] מתוך 3 הושלמו/ })).toBeVisible();
   });
 });
