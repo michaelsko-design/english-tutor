@@ -62,6 +62,9 @@ import { getReminderAskCount, isReminderAskDue, MAX_REMINDER_ASKS } from '../dat
 import { isInstalledAppAskDue, markInstalledAppAsked } from '../services/push/installedAppAsk';
 import type { ReminderAskScreenSource } from '../services/push/reminderOptIn';
 import { WelcomeBackCard } from './home/WelcomeBackCard';
+import { QuickReviewCard } from './home/QuickReviewCard';
+import { getQuickReviewWords, recordMissedWords, type MissedWordInput } from '../data/missedWords';
+import type { MissedWord } from '../types/learner';
 import { HomeTipCard } from './home/HomeTipCard';
 import { WeekOneCard } from './home/WeekOneCard';
 import { dismissHomeTip } from '../data/homeTips';
@@ -87,6 +90,7 @@ import { FIRST_TIER_CLEAR_DIAMONDS, getMissionLadder, recordTierStars } from '..
 const MissionRunner = lazyNamed(() => import('./MissionRunner'), 'MissionRunner');
 const VocabularyVaultModal = lazyNamed(() => import('./VocabularyVaultModal'), 'VocabularyVaultModal');
 const WordDeckSession = lazyNamed(() => import('./wordDecks/WordDeckSession'), 'WordDeckSession');
+const QuickReviewSession = lazyNamed(() => import('./quickReview/QuickReviewSession'), 'QuickReviewSession');
 const RewardShopModal = lazyNamed(() => import('./RewardShopModal'), 'RewardShopModal');
 const PlacementTest = lazyNamed(() => import('./PlacementTest'), 'PlacementTest');
 const ProfileTour = lazyNamed(() => import('./tutorial/ProfileTour'), 'ProfileTour');
@@ -168,6 +172,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   const [isVocabVaultOpen, setIsVocabVaultOpen] = useState(false);
   // A Ministry deck session replaces the Vault while it runs, and goes back to it when it ends
   const [deckRun, setDeckRun] = useState<{ deck: WordDeck; runId: number } | null>(null);
+  const [quickReviewRun, setQuickReviewRun] = useState<{ words: MissedWord[]; runId: number } | null>(null);
   const [isRewardShopOpen, setIsRewardShopOpen] = useState(false);
   useTrackFeature('feature_shop', isRewardShopOpen);
   // Opening the shop answers the "you have gems to spend" tip
@@ -248,6 +253,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   const calculatedDiamonds = todaysMission.baseDiamonds + activeTier.diamondBonus;
 
   const todayStr = toLocalDateStr(new Date());
+  const quickReviewWords = getQuickReviewWords(profile.missedWords, profile.quickReviewDoneOn, todayStr);
   // Counters from an earlier day (a tab left open past midnight) count as zero
   const { counters: dailyCounters, claimedQuestIds } = getTodayCounters(profile, todayStr);
   const currentStreak = getCurrentStreak(profile, todayStr);
@@ -344,6 +350,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     wordsLearnedCount: number;
     isFullReward: boolean;
     isVoiceSkipped: boolean;
+    missedWords?: MissedWordInput[];
   }, nextMission?: MissionNode) => {
     isMissionFinishedRef.current = true;
     trackMissionFinish(result.tier, result.starsEarned);
@@ -376,6 +383,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     );
     const newXp = withActivity.stats.xp + result.xpEarned;
     const roomReward = getRoomRewardForMission(profile, result.missionId, result.starsEarned);
+    const missedWords = recordMissedWords(profile.missedWords, result.missedWords ?? [], missionTodayStr);
 
     onUpdateProfile({
       ...withActivity,
@@ -387,6 +395,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         [result.missionId]: updatedMissionStars,
       },
       missionTierStars: tierStars,
+      ...(missedWords ? { missedWords } : {}),
       ...(result.isFullReward
         ? { missionRewardDates: { ...(profile.missionRewardDates || {}), [result.missionId]: missionTodayStr } }
         : {}),
@@ -636,6 +645,13 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
         {/* A ONE-TIME GIFT FOR A NEW LEARNER COMING BACK AFTER THEIR FIRST DAY */}
         <WelcomeBackCard profile={profile} theme={theme} todayStr={todayStr} onUpdateProfile={onUpdateProfile} />
+
+        {/* A SHORT REVIEW OF WORDS MISSED ON THE FIRST TRY, ONCE A DAY (data/missedWords.ts) */}
+        <QuickReviewCard
+          words={quickReviewWords}
+          theme={theme}
+          onStart={() => setQuickReviewRun({ words: quickReviewWords, runId: Date.now() })}
+        />
 
         {/* A ONE-TIME LOOK BACK AT THE FIRST WEEK */}
         <WeekOneCard profile={profile} theme={theme} todayStr={todayStr} onUpdateProfile={onUpdateProfile} />
@@ -901,6 +917,21 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             onUpdateProfile={onUpdateProfile}
             onRetry={() => startDeckSession(deckRun.deck)}
             onClose={closeDeckSession}
+          />
+        </Suspense>
+      )}
+
+      {quickReviewRun && (
+        <Suspense fallback={<ScreenLoading />}>
+          <QuickReviewSession
+            key={quickReviewRun.runId}
+            words={quickReviewRun.words}
+            profile={profile}
+            theme={theme}
+            onSpeakEnglish={speakEnglish}
+            onUpdateProfile={onUpdateProfile}
+            onRetry={() => setQuickReviewRun({ words: quickReviewRun.words, runId: Date.now() })}
+            onClose={() => setQuickReviewRun(null)}
           />
         </Suspense>
       )}

@@ -1,5 +1,6 @@
 import { mergeTierStars } from '../data/tierProgress';
 import { mergeDeckWordMastery } from '../data/wordDecks/deckMastery';
+import { mergeMissedWords } from '../data/missedWords';
 import {
   deleteField,
   doc,
@@ -173,6 +174,11 @@ export function mergeLearnerProfiles(
   const resolvedVaultPractice = mergeVaultPractice(local.vaultPractice, cloud.vaultPractice);
   const resolvedDeckMastery = mergeDeckWordMastery(local.deckWordMastery, cloud.deckWordMastery);
   const resolvedDeckRewardDates = mergeLatestDates(local.deckRewardDates, cloud.deckRewardDates);
+  const resolvedMissedWords = mergeMissedWords(local.missedWords, cloud.missedWords);
+  const resolvedQuickReviewDoneOn = [local.quickReviewDoneOn, cloud.quickReviewDoneOn]
+    .filter((d): d is string => Boolean(d))
+    .sort()
+    .pop();
 
   const resolvedAvatar = preferCloudPrefs
     ? cloud.equippedAvatarEmoji || local.equippedAvatarEmoji
@@ -234,6 +240,8 @@ export function mergeLearnerProfiles(
     ...(resolvedVaultPractice ? { vaultPractice: resolvedVaultPractice } : {}),
     ...(resolvedDeckMastery ? { deckWordMastery: resolvedDeckMastery } : {}),
     ...(resolvedDeckRewardDates ? { deckRewardDates: resolvedDeckRewardDates } : {}),
+    ...(resolvedMissedWords ? { missedWords: resolvedMissedWords } : {}),
+    ...(resolvedQuickReviewDoneOn ? { quickReviewDoneOn: resolvedQuickReviewDoneOn } : {}),
     stats: {
       xp: mergedXp,
       level: mergedLevel,

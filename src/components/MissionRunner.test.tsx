@@ -10,6 +10,7 @@ import { answerCorrectly, answerWrongly } from '../test/drillAnswers';
 import { TEST_THEME } from '../test/fixtures';
 import { MissionRunner } from './MissionRunner';
 import type { VictoryNextStep } from '../data/victoryNextStep';
+import { getMissionMissedWords } from '../data/missedWords';
 
 const firstMission = (gradeId: GradeId): MissionNode => CURRICULUM_BY_GRADE[gradeId].units[0].missions[0];
 
@@ -70,7 +71,7 @@ describe('MissionRunner', () => {
 
     expect(onCompleteMission).toHaveBeenCalledTimes(1);
     expect(onCompleteMission).toHaveBeenCalledWith(
-      expect.objectContaining({ missionId: mission.id, starsEarned: 3, isVoiceSkipped: true })
+      expect.objectContaining({ missionId: mission.id, starsEarned: 3, isVoiceSkipped: true, missedWords: [] })
     );
   });
 
@@ -88,8 +89,10 @@ describe('MissionRunner', () => {
     }
     await user.click(await screen.findByRole('button', { name: /איסוף פרסים/ }));
 
-    const [result] = onCompleteMission.mock.calls[0] as [{ starsEarned: number }];
+    const [result] = onCompleteMission.mock.calls[0] as [{ starsEarned: number; missedWords: unknown }];
     expect(result.starsEarned).toBeLessThan(3);
+    // The words of the missed step wait for the 1-minute review
+    expect(result.missedWords).toEqual(getMissionMissedWords(mission.vocabulary, [steps[0]]));
   });
 
   it('a wrong answer shows the try-again sheet, and the step can be answered again', async () => {
