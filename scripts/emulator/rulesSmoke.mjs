@@ -268,6 +268,18 @@ await expect('a subscription to a push-service lookalike host is denied', false,
   setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ endpoint: 'https://fcm.googleapis.com.evil.example/x' })));
 await expect('a subscription with a stray remindHour is denied', false, () =>
   setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ remindHour: 18 })));
+await expect('a subscription with a chosen hour and what waits is allowed', true, () =>
+  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({
+    reminderHour: 18,
+    waitingHints: ['quick-review', 'next-mission'],
+    nextMissionHookHe: 'הכלב, הביצה והדג מחכים לכם!',
+  })));
+await expect('a reminder hour outside the offered hours is denied', false, () =>
+  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ reminderHour: 3 })));
+await expect('an unknown waiting hint is denied', false, () =>
+  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ waitingHints: ['buy-pro'] })));
+await expect('a too-long mission hook is denied', false, () =>
+  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ nextMissionHookHe: 'א'.repeat(161) })));
 await expect('another user cannot read a subscription', false, () => getDoc(doc(b.db, 'pushSubscriptions', ua.uid)));
 await expect('another user cannot write a subscription', false, () =>
   setDoc(doc(b.db, 'pushSubscriptions', ua.uid), pushSub()));

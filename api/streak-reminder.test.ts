@@ -9,10 +9,10 @@ const ENV = {
   VAPID_PRIVATE_KEY: 'priv',
   VAPID_SUBJECT: 'mailto:owner@englishvibe.test',
 };
-// Tuesday 2026-10-27, 14:00 Israel time (UTC+2 after the clocks went back)
-const NOW_MS = Date.UTC(2026, 9, 27, 12, 0);
+// Tuesday 2026-10-27, 15:20 Israel time (UTC+2 after the clocks went back): the default reminder hour
+const NOW_MS = Date.UTC(2026, 9, 27, 13, 20);
 
-function subscription(id: string, overrides: Record<string, string | number | boolean> = {}): PlainDocument {
+function subscription(id: string, overrides: Record<string, string | number | boolean | string[]> = {}): PlainDocument {
   return {
     id,
     fields: {
@@ -28,10 +28,14 @@ function subscription(id: string, overrides: Record<string, string | number | bo
   };
 }
 
-function setup(docs: PlainDocument[], sendPush = vi.fn().mockResolvedValue(undefined)) {
+function setup(docs: PlainDocument[], sendPush = vi.fn().mockResolvedValue(undefined), sentTodayIds: string[] = []) {
   const deleteDocument = vi.fn().mockResolvedValue(undefined);
   const commit = vi.fn().mockResolvedValue(undefined);
-  const admin = { listDocuments: vi.fn().mockResolvedValue(docs), deleteDocument, commit } as unknown as FirestoreAdmin;
+  // reminderSends/{date}_{uid}: present for the learners already reminded today
+  const getDocument = vi.fn(async (_collection: string, id: string) =>
+    sentTodayIds.some((uid) => id === `2026-10-27_${uid}`) ? { id, fields: {} } : null
+  );
+  const admin = { listDocuments: vi.fn().mockResolvedValue(docs), deleteDocument, commit, getDocument } as unknown as FirestoreAdmin;
   const run = (headers: Record<string, string> = { authorization: 'Bearer cron-secret' }, env: Record<string, string | undefined> = ENV) =>
     handleStreakReminderRequest(new Request('https://x/api/streak-reminder', { headers }), env, {
       nowMs: () => NOW_MS,
@@ -101,5 +105,28 @@ describe('streak-reminder cron', () => {
     ]);
     expect(await (await run()).json()).toEqual({ sent: 1, removed: 0, failed: 0 });
     expect(sendPush.mock.calls.map(([target]) => target.endpoint)).toEqual(['https://fcm.googleapis.com/fcm/send/ok']);
+  });
+
+  it("sends only to the learners whose chosen hour it is now (the default hour when none)", async () => {
+    const { run, sendPush } = setup([
+      subscription('default'),
+      subscription('chose15', { reminderHour: 15 }),
+      subscription('chose18', { reminderHour: 18 }),
+    ]);
+    expect(await (await run()).json()).toEqual({ sent: 2, removed: 0, failed: 0 });
+    expect(sendPush.mock.calls.map(([target]) => target.endpoint)).not.toContain('https://fcm.googleapis.com/fcm/send/chose18');
+  });
+
+  it('names what waits in the app instead of the streak', async () => {
+    const hook = 'הכלב, הביצה והדג מחכים לכם!';
+    const { run, sendPush } = setup([subscription('u1', { waitingHints: ['next-mission'], nextMissionHookHe: hook })]);
+    await run();
+    expect(JSON.parse(sendPush.mock.calls[0][1]).body).toBe(hook);
+  });
+
+  it('skips a learner already reminded today (Vercel may run a job twice)', async () => {
+    const { run, sendPush } = setup([subscription('done'), subscription('fresh')], undefined, ['done']);
+    expect(await (await run()).json()).toEqual({ sent: 1, removed: 0, failed: 0 });
+    expect(sendPush.mock.calls.map(([target]) => target.endpoint)).toEqual(['https://fcm.googleapis.com/fcm/send/fresh']);
   });
 });

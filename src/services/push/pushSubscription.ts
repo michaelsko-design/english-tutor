@@ -1,10 +1,12 @@
-import { deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { LearnerGender } from '../../types/learner';
+import type { ReminderHint, ReminderHour } from '../../data/reminderSchedule';
 
 /**
  * The learner's streak reminder: a Web Push subscription kept in `pushSubscriptions/{uid}` together
- * with the streak facts the daily cron (api/streak-reminder.ts) needs. Everything here is optional:
+ * with the facts the daily cron (api/streak-reminder.ts) needs: the streak, what waits in the app
+ * (`getReminderWaiting`) and the hour the learner usually plays (`getUsualReminderHour`). Everything here is optional:
  * the app works the same without it.
  */
 
@@ -17,6 +19,9 @@ export interface ReminderFacts {
   streakLastDateStr?: string;
   isShabbatObserver: boolean;
   gender?: LearnerGender;
+  waitingHints: ReminderHint[];
+  nextMissionHookHe?: string;
+  reminderHour: ReminderHour;
 }
 
 /** Why turning the reminder on failed: the browser refused permission, or something else broke */
@@ -80,6 +85,9 @@ function buildDocument(subscription: PushSubscription, facts: ReminderFacts) {
     ...(facts.streakLastDateStr ? { streakLastDateStr: facts.streakLastDateStr } : {}),
     isShabbatObserver: facts.isShabbatObserver,
     ...(facts.gender ? { gender: facts.gender } : {}),
+    waitingHints: facts.waitingHints,
+    ...(facts.nextMissionHookHe ? { nextMissionHookHe: facts.nextMissionHookHe } : {}),
+    reminderHour: facts.reminderHour,
     updatedAt: new Date().toISOString(),
   };
 }
@@ -124,6 +132,9 @@ export async function syncReminder(uid: string, facts: ReminderFacts): Promise<v
       ...(facts.streakLastDateStr ? { streakLastDateStr: facts.streakLastDateStr } : {}),
       isShabbatObserver: facts.isShabbatObserver,
       ...(facts.gender ? { gender: facts.gender } : {}),
+      waitingHints: facts.waitingHints,
+      nextMissionHookHe: facts.nextMissionHookHe ?? deleteField(),
+      reminderHour: facts.reminderHour,
       updatedAt: new Date().toISOString(),
     });
   } catch {

@@ -497,11 +497,13 @@ service cloud.firestore {
       allow delete: if isRealAccount() && request.auth.uid == childUid;
     }
 
-    // Streak reminder: the learner's Web Push subscription plus the streak facts the daily cron needs
-    // (src/services/push/pushSubscription.ts). Only the cron (service account) reads it besides the owner.
+    // Streak reminder: the learner's Web Push subscription plus the facts the daily cron needs: the
+    // streak, the chosen Israel hour, and what waits in the app (src/data/reminderSchedule.ts has the
+    // same hours, hints and hook length; src/services/push/pushSubscription.ts writes it). Only the
+    // cron (service account) reads it besides the owner.
     function isPushSubscription(data) {
       return data.keys().hasOnly(['endpoint', 'p256dh', 'auth', 'streakDays', 'streakLastDateStr',
-          'isShabbatObserver', 'gender', 'updatedAt'])
+          'isShabbatObserver', 'gender', 'reminderHour', 'waitingHints', 'nextMissionHookHe', 'updatedAt'])
         && data.keys().hasAll(['endpoint', 'p256dh', 'auth', 'streakDays', 'isShabbatObserver', 'updatedAt'])
         && data.endpoint is string && data.endpoint.size() <= 600
         // Browser push services only (api/_lib/streakReminder.ts has the same list): the cron posts to this URL
@@ -512,6 +514,10 @@ service cloud.firestore {
         && (!('streakLastDateStr' in data) || data.streakLastDateStr.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}'))
         && data.isShabbatObserver is bool
         && (!('gender' in data) || data.gender in ['girl', 'boy'])
+        && (!('reminderHour' in data) || data.reminderHour in [14, 15, 16, 17, 18, 19, 20])
+        && (!('waitingHints' in data) || (data.waitingHints is list && data.waitingHints.size() <= 3
+            && data.waitingHints.toSet().hasOnly(['quick-review', 'room-item', 'next-mission'])))
+        && (!('nextMissionHookHe' in data) || isShortString(data.nextMissionHookHe, 160))
         && isIsoTime(data.updatedAt);
     }
 

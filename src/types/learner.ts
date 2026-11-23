@@ -132,6 +132,11 @@ export interface ActivityLogEntry {
    * left out of the parent report snapshot (`toReportSnapshot`).
    */
   activeSeconds?: number;
+  /**
+   * Local hour (0-23) -> sessions finished in it that day. Only for the daily reminder's hour
+   * (`getUsualReminderHour`); left out of the parent report snapshot.
+   */
+  sessionHours?: Record<string, number>;
 }
 
 export interface TodaysMissionSuggestion {

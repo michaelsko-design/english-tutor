@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_PROFILE } from '../data/defaultProfile';
+import { getProAccess } from '../data/proGate';
 import type { AuthUserSummary, LearnerProfile } from '../types/learner';
 import { getReminderFacts, useReminderSync } from './useReminderSync';
 
@@ -21,7 +22,7 @@ interface Props {
   isSynced: boolean;
 }
 const render = (props: Partial<Props> = {}) =>
-  renderHook((p: Props) => useReminderSync(p), {
+  renderHook((p: Props) => useReminderSync({ ...p, proAccess: getProAccess(false) }), {
     initialProps: { authUser: USER, profile: ONBOARDED, isSynced: true, ...props },
   });
 
@@ -40,6 +41,10 @@ describe('getReminderFacts', () => {
       streakLastDateStr: '2026-03-03',
       isShabbatObserver: true,
       gender: ONBOARDED.gender,
+      // The default profile has no missed words, no room items to place and no grade loaded yet
+      waitingHints: [],
+      // No session hours yet: the default 15:00
+      reminderHour: 15,
     });
     expect(getReminderFacts({ ...ONBOARDED, isShabbatObserver: false }).isShabbatObserver).toBe(false);
   });

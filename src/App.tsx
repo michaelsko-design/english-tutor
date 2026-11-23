@@ -395,7 +395,7 @@ export function App() {
   });
 
   useReportSnapshotPublisher({ authUser, profile, isSynced: !isAuthInitializing && syncStatus === 'synced' });
-  useReminderSync({ authUser, profile, isSynced: !isAuthInitializing && syncStatus === 'synced' });
+  useReminderSync({ authUser, profile, isSynced: !isAuthInitializing && syncStatus === 'synced', proAccess });
 
   if (isAuthInitializing) {
     return (
