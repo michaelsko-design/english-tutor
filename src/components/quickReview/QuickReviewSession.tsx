@@ -9,6 +9,11 @@ import { WordListSessionRunner, type WordListSessionNext } from '../wordLists/Wo
 /** The note shown when the review was already done today and pays only the repeat XP */
 export const QUICK_REVIEW_REPEAT_NOTE_HE = 'הפרס המלא של החזרה ניתן פעם ביום';
 
+/** The result headline for a high score: the review is about missed words, not a school list */
+export function getQuickReviewGreatHeadline(name: string): string {
+  return `${name}, המילים האלה כבר יושבות טוב יותר! 🎉`;
+}
+
 interface QuickReviewSessionProps {
   words: MissedWord[];
   profile: LearnerProfile;
@@ -45,6 +50,7 @@ export const QuickReviewSession: React.FC<QuickReviewSessionProps> = ({
       theme={theme}
       getReward={() => getQuickReviewReward(profile, toLocalDateStr(new Date()))}
       repeatRewardNoteHe={QUICK_REVIEW_REPEAT_NOTE_HE}
+      greatHeadlineHe={getQuickReviewGreatHeadline(profile.name)}
       buildSteps={buildQuickReviewSteps}
       onSpeakEnglish={onSpeakEnglish}
       onFinish={handleFinish}

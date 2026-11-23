@@ -46,6 +46,8 @@ interface WordListSessionRunnerProps {
   getReward?: (scorePercent: number) => WordListReward;
   /** The note shown when only the repeat reward is given */
   repeatRewardNoteHe?: string;
+  /** The result screen's headline for a high score, when it isn't a school list's */
+  greatHeadlineHe?: string;
   /** Builds the steps when they aren't a school list's (a deck words its prompts its own way) */
   buildSteps?: (list: CustomWordList, gender: LearnerGender, salt: number) => WordListStep[];
 }
@@ -72,6 +74,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
   salt: fixedSalt,
   getReward,
   repeatRewardNoteHe,
+  greatHeadlineHe,
   buildSteps = buildWordListSteps,
 }) => {
   useStopSpeechOnLeave();
@@ -196,6 +199,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
           theme={theme}
           getReward={getReward}
           repeatRewardNoteHe={repeatRewardNoteHe}
+          greatHeadlineHe={greatHeadlineHe}
           onSave={() => onFinish(answers, 'lists')}
           onSaveAndRetry={() => onFinish(answers, 'retry')}
         />
