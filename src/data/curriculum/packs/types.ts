@@ -8,7 +8,7 @@ import type { GradeCurriculumPack } from '../types';
  * and switched on later as an update or a seasonal special (`registry.ts`). One unit per pack, so
  * new content can ship a little at a time.
  */
-export type ContentPackId = 'season2-1' | 'season2-2' | 'core-3' | 'holidays-autumn' | 'holidays-spring';
+export type ContentPackId = 'season2-1' | 'season2-2' | 'core-3' | 'holidays-autumn' | 'holidays-spring' | 'core-4';
 
 /**
  * `core` packs continue the grade's path and enrich it toward the Ministry curriculum, one after

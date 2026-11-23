@@ -110,6 +110,23 @@ describe('tier steps: three genuinely different missions', () => {
     expect(s5.contextPassageHe).toBeTruthy();
   });
 
+  it('Challenger: a blank that opens the sentence shows capitalized options that still read as written', () => {
+    const vocabulary = TIER_FIXTURE_MISSION.vocabulary.map((word, index) =>
+      index === 1 ? { ...word, wordEn: 'good night', exampleEn: 'good night, sleep well.' } : word
+    );
+    const [s1] = stepsFor('challenger', { ...TIER_FIXTURE_MISSION, vocabulary });
+    expect(s1.questionEn.startsWith('___')).toBe(true);
+    const correct = s1.options!.find((o) => o.isCorrect)!;
+    expect(correct.textEn).toBe('Good night');
+    expect(correct.speakEn).toBe('good night');
+    expect(s1.options!.every((o) => /^[A-Z]/.test(o.textEn))).toBe(true);
+  });
+
+  it('Challenger: a mid-sentence blank leaves options and their reading unchanged', () => {
+    const [s1] = stepsFor('challenger');
+    expect(s1.options!.every((o) => o.speakEn === undefined)).toBe(true);
+  });
+
   it('Challenger: the Hebrew sentence is held back as a hint until the first wrong answer', () => {
     const [s1] = stepsFor('challenger');
     const word = TIER_FIXTURE_MISSION.vocabulary[1];

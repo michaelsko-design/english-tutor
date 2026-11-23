@@ -28,6 +28,7 @@
     "review:cloze-report": "vite-node scripts/review/clozeAuditReport.ts",
     "review:cloze-apply": "vite-node scripts/review/clozeAuditApply.ts --",
     "review:he-tiers": "vite-node scripts/review/hebrewTierReview.ts --",
+    "review:pack-he": "vite-node scripts/review/packHebrewSheet.ts --",
     "tts:upload": "vite-node scripts/tts/uploadClips.ts --",
     "review:coverage": "vite-node scripts/review/curriculumCoverage.ts --"
   },

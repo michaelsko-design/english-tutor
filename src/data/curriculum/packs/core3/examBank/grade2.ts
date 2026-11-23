@@ -9,7 +9,7 @@ export const CORE_3_GRADE_2_EXAM_BANK: ExamBankPack = {
   23: {
     vocabulary: [
       {
-        clozeEn: 'Grandma gives me a gift. I say, ____!',
+        clozeEn: 'Grandma gives me a gift. I say, "____!"',
         clozeHe: 'סבתא נותנת לי מתנה. אני אומר/ת: תודה!',
         answer: 'Thank you',
         wrong: ['Sit down', 'Come back'],
@@ -54,7 +54,7 @@ export const CORE_3_GRADE_2_EXAM_BANK: ExamBankPack = {
         hintHe: 'איזו בקשה מנומסת, ובאיזו מהן המילים בסדר הנכון?',
       },
       {
-        questionEn: 'You give Mom a flower. She says, Thank you! What do you say?',
+        questionEn: 'You give Mom a flower. She says, "Thank you!" What do you say?',
         correct: 'You\'re welcome!',
         wrong: ['I\'m sorry!', 'Excuse me!'],
         explainHe: 'על תודה עונים You\'re welcome (בבקשה, אין בעד מה).',
@@ -100,7 +100,7 @@ export const CORE_3_GRADE_2_EXAM_BANK: ExamBankPack = {
     passages: [
       {
         passageEn:
-          'Lior is at the park. His ball is lost. He asks a girl, Excuse me, can you help me, please? The girl finds the ball under a tree. Lior says, Thank you! The girl says, You\'re welcome.',
+          'Lior is at the park. His ball is lost. He asks a girl, "Excuse me, can you help me, please?" The girl finds the ball under a tree. Lior says, "Thank you!" The girl says, "You\'re welcome."',
         passageHe:
           'ליאור בפארק. הכדור שלו הלך לאיבוד. הוא שואל ילדה: סליחה, את יכולה לעזור לי, בבקשה? הילדה מוצאת את הכדור מתחת לעץ. ליאור אומר: תודה! הילדה אומרת: בבקשה.',
         questions: [
@@ -126,7 +126,7 @@ export const CORE_3_GRADE_2_EXAM_BANK: ExamBankPack = {
       },
       {
         passageEn:
-          'It is Dana\'s birthday. Grandpa says, Happy birthday, Dana! Dana says, Thank you! Then Dana\'s friends come. Dana says, I\'m ready. Let\'s go to the park!',
+          'It is Dana\'s birthday. Grandpa says, "Happy birthday, Dana!" Dana says, "Thank you!" Then Dana\'s friends come. Dana says, "I\'m ready. Let\'s go to the park!"',
         passageHe:
           'זה יום ההולדת של דנה. סבא אומר: יום הולדת שמח, דנה! דנה אומרת: תודה! אחר כך החברים של דנה באים. דנה אומרת: אני מוכנה. בואו נלך לפארק!',
         questions: [

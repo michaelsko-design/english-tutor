@@ -7,6 +7,8 @@ export const ENRICHMENT_WORDS_PER_MISSION: WordsPerMission = { upToGrade3: 6, fr
 const LAST_LOWER_GRADE = 3;
 /** core-3 serves grades 2–12: grade 1 is skipped (complete at 12 units) */
 const CORE_3_GRADES: readonly number[] = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+/** core-4 serves the same grades as core-3 (grade 1 is complete) */
+const CORE_4_GRADES: readonly number[] = CORE_3_GRADES;
 
 export const CONTENT_PACKS: Record<ContentPackId, ContentPack> = {
   'season2-1': {
@@ -62,6 +64,19 @@ export const CONTENT_PACKS: Record<ContentPackId, ContentPack> = {
     idUnitNumber: 32,
     xpUnitNumber: 8,
     wordsPerMission: LEGACY_WORDS_PER_MISSION,
+  },
+  // Listed last so the written packs keep their unit numbers in the preview and the map pictures
+  'core-4': {
+    id: 'core-4',
+    titleHe: 'עונה 4',
+    titleEn: 'Season 4',
+    unlock: 'sequence',
+    kind: 'core',
+    after: 'core-3',
+    idUnitNumber: 24,
+    xpUnitNumber: 10,
+    wordsPerMission: ENRICHMENT_WORDS_PER_MISSION,
+    grades: CORE_4_GRADES,
   },
 };
 

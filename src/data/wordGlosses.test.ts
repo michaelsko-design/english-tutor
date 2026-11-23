@@ -6,7 +6,7 @@ import { getWordGlossKey } from '../utils/hints';
 
 /** People's names in the sentences: nothing to translate */
 const NAMES = new Set([
-  'dana', "dana's", 'dan', 'hana', 'shani', "ben's", 'noa', 'graham', 'alexander', 'bell', 'george', 'levi', 'maya', 'adi', 'gal',
+  'dana', "dana's", 'dan', 'hana', 'shani', "ben's", 'noa', 'graham', 'alexander', 'bell', 'george', 'levi', 'maya', 'adi', 'gal', 'marie', 'curie',
 ]);
 const TIERS = ['explorer', 'challenger', 'master'] as const;
 

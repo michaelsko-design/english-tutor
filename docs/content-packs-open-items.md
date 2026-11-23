@@ -1,6 +1,6 @@
 # Content packs: open items for the owner (2026-11-09)
 
-Everything below is written and passes the tests (4,142), typecheck and build. Nothing here is committed, uploaded or released. This is the list of what needs a human decision, approval or check before the work ships. Plan: `docs/content-packs-roadmap.md`.
+Everything below was written and passed the tests, typecheck and build; it was committed, uploaded and pushed to production on 2026-11-11, hidden until released. This is the list of what needed a human decision, approval or check; what is still open is the lint item (§1) and the two review tools (§3). Plan: `docs/content-packs-roadmap.md`.
 
 ## 1. Commit and release mechanics
 - [x] **Commit the work** (380408e0, 2026-11-10). The Season 2 decks, the word-track engine, the pack-system changes and all of `core-3` are uncommitted in the working tree. Commit only these files: `scripts/tts/hebrewReview.json`, `marketing/`, `room-*.html` and `scripts/review/*Audit*.json` belong to other work.
@@ -170,3 +170,36 @@ The owner wants an independent agent to check all of core-3, facts included: the
 - [x] **Spelling:** US everywhere (owner, 2026-11-10).
 - **Grammar later than the Ministry's grade:** the past perfect continuous (grade 11) and adverbs of sequencing (grade 12) have missions after the Ministry's grade 10.
 - **Small decks:** grade 5 Weather has 13 words and grade 4 Body & Health has 15, because Band I has few untaught words on those topics.
+
+## core-4 "עונה 4": owner review (stage 2, opened 2026-11-23)
+All 11 units and 9 decks are written and pass the tests except clip coverage (clips come after this review). Nothing is committed.
+
+### How to review
+- [ ] **Mission Hebrew:** `npm run review:he-tiers` (`review-out/he-tiers.html`). core-4 is unit 10 in grades 2–12 in the page's "where" column (about 1,000 rows, with the rest of the queue). Mark OK or type a fix, export, then `npm run review:he-tiers -- import <file>`.
+- [ ] **Lessons, exam banks and decks:** `npm run review:pack-he -- core-4` (`review-out/core-4-hebrew.html`, 883 numbered rows). Send fixes by row number.
+- [x] **Independent audit** (2026-11-23): `docs/core-4-content-audit.md`, 182 findings (15 must, 89 should, 78 consider). Must, should and (at the owner's request) all "consider" fixes applied 2026-11-23 (fix logs at the end of the report). Waiting on a picture: the grade 6 "helicopter" stays ✈️ until a 🚁 map icon is drawn. Glosses changed by the fixes: grade 6 "double" → "זוגי / כפול" (order only), grade 9 "female" → "נשית / (ממין) נקבה".
+- [x] **Owner's three audit decisions, applied 2026-11-23:** (1A) grade 3 stories stay in the past, but no question or answer option tests the past (present questions, short-phrase answers). (2A) Grade 8 follows the Band II descriptor: say / tell + that with a pronoun change, no tense shift required; no item marks a tense-only choice wrong. (3A) Straight double quotes around direct speech in core-3 and core-4 English (core-3: 26 lines, most of it was already quoted; core-4: 36). The 27 core-3 lines whose text changed need their clips re-rendered before core-3 is released.
+- Was open (kept for the record): (1) grade 3 stories and exam passages use the past simple (lived, came, ran…), which the Ministry places at grade 7; keep them (stories need the past) or rewrite in the present. (2) Grade 8 makes backshift the core rule, but the Ministry's Band II descriptor for reported speech says "no tense shift"; keep, or teach "said that" without backshift. (3) Direct speech in English passages has no quotation marks (grades 9, 10, 12, and core-3); keep the house style or add them everywhere.
+- [x] Challenger fill-in distractors: `npm run review:cloze` flags no weak option in core-4.
+
+### Hebrew judgment calls to confirm
+- **Pack name:** "עונה 4" / "Season 4" is a placeholder (core-3 is "עונה 3").
+- **Grade 2:** "Where do you live?" → "איפה אתם גרים?" (plural); "I live in" → "אני גר/ה ב..."; "in front of" → "מול / לפני"; "kid" → "ילד / ילדה".
+- **Grade 3:** "go away" → "ללכת מכאן", example "דבורה, לכי מכאן בבקשה!" (feminine, to a bee); "It's not fair" → "זה לא הוגן"; "fifth" → "חמישי".
+- **Grade 4:** "wait a minute" → "רגע אחד"; "heavy" (rain) → "כבד / חזק (גשם)".
+- **Grade 5:** "enjoy yourself" → "תיהנו!"; "either" → "גם (במשפט שלילי)"; "a.m." → "בבוקר (לפני הצהריים)"; "I don't mind" → "לא אכפת לי / זה בסדר מבחינתי".
+- **Grade 6:** "the ground floor" → "קומת הקרקע"; "double" (room) → "כפול / זוגי"; "notice" → "לשים לב".
+- **Grade 7:** "director" → "במאי / מנהל"; "realize" → "להבין / לקלוט"; "information technology" → "טכנולוגיית מידע (IT)".
+- **Grade 8:** "supposed to" → "אמור ל..."; "recent" → "שנערך לאחרונה / אחרון"; "duty" → "חובה / תורנות".
+- **Grade 9:** "end up" → "למצוא את עצמכם / להגיע בסוף"; "take up" → "להתחיל (תחביב / עיסוק)"; "female" → "אישה / נקבה" (example: "טייסות"); deck "give birth" → "ללדת", example about a cat "המליטה".
+- **Grade 10:** "nasty" (cut) → "קשה / מגעיל"; "in charge" → "אחראי"; "not until" → "לא לפני ש...".
+- **Grade 11:** "input" → "תרומה (רעיונות) / קלט"; "regards" → "דרישת שלום / בברכה"; "occasional" → "מזדמן / מדי פעם". The Boss letter story's Hebrew is written as a first-person letter ("מכתב לעצמי בעתיד…"), not word for word, to avoid a singular "you".
+- **Grade 12:** "fool" → "טיפש"; "gentleman" → "ג׳נטלמן"; deck "thus" → "לכן / כך"; "fair enough" → "הוגן / בסדר, מקובל".
+
+### Content choices to confirm
+- **"queue" (grade 10)** is a British word, but it is the Ministry's 4-point list entry; the app is US everywhere. Keep it (the list wins), or swap it for another 4-point word.
+- **Grade 6 deck topic:** "Ideas & Opinions" instead of the planned "Habitats" (Band I has too few untaught nature words).
+- **Grade 12 Ethics** mentions a weapon left where children can find it, a bribe to lose a game (in a novel), cheating and lying. Is this fine for grades 11–12?
+- **Grade 10 safety** gives real first-aid advice (cold water on a burn, no ice; 101; leave the house if you smell gas). Is it right to teach this in an English app, and is the advice correct? (The audit checks the facts.)
+- **Saturday:** grade 5 "Weekend Plans" has Omer going to the beach on Saturday (a normal weekend activity, not a religious reference).
+- **Grade 11** mentions army service in a 16-year-old's ten-year plan.

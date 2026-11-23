@@ -100,7 +100,7 @@ export const CORE_3_GRADE_3_EXAM_BANK: ExamBankPack = {
     passages: [
       {
         passageEn:
-          'Yael has a new pet. It is a little white rabbit. Her friend Tom asks, Do you like your rabbit? Yael says, Yes, I do! It is soft and fun. Tom asks, Do you have a dog too? Yael says, No, I don\'t.',
+          'Yael has a new pet. It is a little white rabbit. Her friend Tom asks, "Do you like your rabbit?" Yael says, "Yes, I do! It is soft and fun." Tom asks, "Do you have a dog too?" Yael says, "No, I don\'t."',
         passageHe:
           'ליעל יש חיית מחמד חדשה. זה ארנב לבן קטן. החבר שלה תום שואל: את אוהבת את הארנב שלך? יעל אומרת: כן! הוא רך וכיפי. תום שואל: יש לך גם כלב? יעל אומרת: לא.',
         questions: [
@@ -126,7 +126,7 @@ export const CORE_3_GRADE_3_EXAM_BANK: ExamBankPack = {
       },
       {
         passageEn:
-          'Today is game day. Ido and Omer both like soccer. Ido asks, Do you have a ball? Omer says, Yes, I do. Ido says, I have a net at home! At the end of the day, they are hot and happy.',
+          'Today is game day. Ido and Omer both like soccer. Ido asks, "Do you have a ball?" Omer says, "Yes, I do." Ido says, "I have a net at home!" At the end of the day, they are hot and happy.',
         passageHe:
           'היום יום משחקים. עידו ועומר אוהבים שניהם כדורגל. עידו שואל: יש לך כדור? עומר אומר: כן. עידו אומר: יש לי רשת בבית! בסוף היום חם להם והם שמחים.',
         questions: [
@@ -137,7 +137,7 @@ export const CORE_3_GRADE_3_EXAM_BANK: ExamBankPack = {
             wrong: ['Swimming.', 'Pets.'],
           },
           {
-            questionEn: 'Who says, Yes, I do?',
+            questionEn: 'Who says, "Yes, I do"?',
             questionHe: 'מי אומר: כן?',
             correct: 'Omer.',
             wrong: ['Ido.', 'Nobody.'],

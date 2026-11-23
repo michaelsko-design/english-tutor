@@ -196,4 +196,21 @@ export const EXTRA_WORD_TRANSLATIONS_HE: Readonly<Record<string, string>> = {
   question: 'שאלה', explain: 'להסביר', suggest: 'להציע', problem: 'בעיה', then: 'אז / אחר כך',
   solution: 'פתרון', also: 'גם', learn: 'ללמוד', distract: 'להסיח את הדעת', sum: 'לסכם (sum up)',
   agree: 'מסכימים', benefits: 'יתרונות', media: 'תקשורת (social media: רשתות חברתיות)', wisely: 'בחוכמה',
+  // core-4 grades 2–3
+  come: 'לבוא', fox: 'שועל', once: 'פעם', upon: 'על (היה היה פעם)', tired: 'עייף', picture: 'תמונה',
+  "let's": 'בואו נ...', race: 'מרוץ', luck: 'מזל',
+  // core-4 grades 4–6
+  inside: 'בפנים', coming: 'בא / מגיע', snowing: 'יורד שלג', hello: 'שלום', weekend: 'סוף שבוע', hotel: 'מלון',
+  stayed: 'נשאר / נשארנו', weeks: 'שבועות',
+  // core-4 grades 7–9
+  talks: 'מדבר', invention: 'המצאה', nobel: 'נובל', prizes: 'פרסים', fair: 'תערוכה / יריד / הוגן', lab: 'מעבדה',
+  wins: 'מנצח', reporter: 'כתב / כתבת', game: 'משחק', doctor: 'רופא', editor: 'עורך / עורכת', write: 'לכתוב',
+  rains: 'יורד גשם', vet: 'וטרינר', animals: 'בעלי חיים', trucks: 'משאיות', fire: 'אש / שריפה', close: 'לסגור / קרוב',
+  // core-4 grades 10–12
+  faints: 'מתעלף', call: 'להתקשר / לקרוא', lay: 'להשכיב', '101': 'מד״א (מספר חירום)', calm: 'רגוע', slowed: 'האט',
+  icy: 'קפוא', floor: 'רצפה', hurt: 'פצוע / לפגוע', end: 'סוף', rome: 'רומא', canceled: 'בוטל', hope: 'לקוות',
+  least: 'הכי פחות (at least = לפחות)', wrong: 'לא נכון', lie: 'לשקר', owner: 'בעלים', return: 'להחזיר', lost: 'אבוד',
+  off: 'כבוי / מכובה', supermarkets: 'סופרמרקטים', banned: 'אסור / נאסר', bags: 'שקיות / תיקים', job: 'עבודה', lose: 'להפסיד / לאבד',
+  debate: 'ויכוח / דיון',
+  proud: 'גאה',
 };
