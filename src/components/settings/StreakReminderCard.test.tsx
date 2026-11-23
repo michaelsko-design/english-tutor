@@ -43,6 +43,16 @@ describe('StreakReminderCard', () => {
   });
 });
 
+describe('StreakReminderCard on iPhone outside the Home Screen app', () => {
+  it('shows the three install steps instead of the switch', () => {
+    push.getReminderSupport.mockReturnValue('needs-install');
+    renderCard();
+
+    expect(screen.getByRole('list', { name: 'שלבי ההוספה למסך הבית' }).children).toHaveLength(3);
+    expect(screen.queryByRole('button', { name: 'הפעלת תזכורות' })).not.toBeInTheDocument();
+  });
+});
+
 describe('StreakReminderCard with notifications blocked', () => {
   it('explains how to allow notifications instead of offering a switch that cannot work', () => {
     push.getNotificationPermission.mockReturnValue('denied');

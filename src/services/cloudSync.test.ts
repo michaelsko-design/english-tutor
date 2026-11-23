@@ -792,10 +792,22 @@ describe('mergeLearnerProfiles growth-ask fields', () => {
     expect(mergeLearnerProfiles({ ...baseProfile, reminderDeclinedAtStr: '2026-11-18' }, baseProfile).reminderDeclinedAtStr).toBe('2026-11-18');
   });
 
+  it('keeps the higher reminder ask count and the later ask day', () => {
+    const merged = mergeLearnerProfiles(
+      { ...baseProfile, reminderAskCount: 2, reminderLastAskedAtStr: '2026-11-18' },
+      { ...baseProfile, reminderAskCount: 1, reminderLastAskedAtStr: '2026-11-20' }
+    );
+    expect(merged.reminderAskCount).toBe(2);
+    expect(merged.reminderLastAskedAtStr).toBe('2026-11-20');
+    expect(mergeLearnerProfiles(baseProfile, { ...baseProfile, reminderAskCount: 1 }).reminderAskCount).toBe(1);
+  });
+
   it('leaves the fields out when neither side has them', () => {
     const merged = mergeLearnerProfiles(baseProfile, baseProfile);
     expect('hasEarnedShowOffReward' in merged).toBe(false);
     expect('hasSeenReminderReask' in merged).toBe(false);
     expect('reminderDeclinedAtStr' in merged).toBe(false);
+    expect('reminderAskCount' in merged).toBe(false);
+    expect('reminderLastAskedAtStr' in merged).toBe(false);
   });
 });

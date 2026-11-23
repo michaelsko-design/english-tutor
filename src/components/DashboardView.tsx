@@ -57,8 +57,10 @@ import { NewPackCard } from './home/NewPackCard';
 import { ParentNoticeCard } from './home/ParentNoticeCard';
 import { ParentNudgeCard } from './home/ParentNudgeCard';
 import { ReminderNudgeCard } from './home/ReminderNudgeCard';
-import { ReminderReaskSheet } from './home/ReminderReaskSheet';
-import { shouldReaskReminder } from '../data/reminderReask';
+import { ReminderAskScreen } from './home/ReminderAskScreen';
+import { getReminderAskCount, isReminderAskDue, MAX_REMINDER_ASKS } from '../data/reminderAsk';
+import { isInstalledAppAskDue, markInstalledAppAsked } from '../services/push/installedAppAsk';
+import type { ReminderAskScreenSource } from '../services/push/reminderOptIn';
 import { WelcomeBackCard } from './home/WelcomeBackCard';
 import { HomeTipCard } from './home/HomeTipCard';
 import { WeekOneCard } from './home/WeekOneCard';
@@ -177,8 +179,16 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   const [isPlacementOpen, setIsPlacementOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [roomRewardToast, setRoomRewardToast] = useState<RoomRewardItem | null>(null);
-  // The one-time second reminder ask, after a mission on a later day (data/reminderReask.ts)
-  const [isReminderReaskPending, setIsReminderReaskPending] = useState(false);
+  // The full-screen reminder ask: after a mission (asks 2 and 3, data/reminderAsk.ts), or on the first
+  // open of the iPhone Home Screen app (services/push/installedAppAsk.ts)
+  const [reminderAskSource, setReminderAskSource] = useState<ReminderAskScreenSource | null>(null);
+  const reminderAskUid = authUser && !authUser.isAnonymous ? authUser.uid : null;
+  useEffect(() => {
+    if (!reminderAskUid || !profile.isOnboarded || !isInstalledAppAskDue(reminderAskUid)) return;
+    markInstalledAppAsked(reminderAskUid);
+    setReminderAskSource('installed');
+    // Once per account and device, on the first home render of the installed app (the flag stops repeats)
+  }, [reminderAskUid, profile.isOnboarded]);
   const [isRoomOpen, setIsRoomOpen] = useState(false);
   useTrackFeature('feature_room', isRoomOpen);
   const [openSheet, setOpenSheet] = useState<HomeSheet | null>(null);
@@ -399,7 +409,9 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
       setActivePracticeMission(null);
       if (roomReward) setRoomRewardToast(roomReward);
     }
-    if (authUser && shouldReaskReminder(withActivity, missionTodayStr)) setIsReminderReaskPending(true);
+    if (reminderAskUid && isReminderAskDue(withActivity, missionTodayStr)) {
+      setReminderAskSource(getReminderAskCount(withActivity) >= MAX_REMINDER_ASKS - 1 ? 'ask3' : 'ask2');
+    }
     reportFirstMission(true);
   };
 
@@ -914,16 +926,17 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
       {/* DAILY QUEST REWARD WAITING: NUDGE TOAST */}
       {/* THE SECOND REMINDER ASK: after the room toast, before the quest nudge */}
-      {isReminderReaskPending && !roomRewardToast && !activePracticeMission && (
-        <ReminderReaskSheet
+      {reminderAskSource && !roomRewardToast && !activePracticeMission && (
+        <ReminderAskScreen
           profile={profile}
           theme={theme}
+          source={reminderAskSource}
           onUpdateProfile={onUpdateProfile}
-          onClose={() => setIsReminderReaskPending(false)}
+          onClose={() => setReminderAskSource(null)}
         />
       )}
 
-      {isQuestNudgeOpen && !roomRewardToast && !isReminderReaskPending && !activePracticeMission && openSheet !== 'quests' && (
+      {isQuestNudgeOpen && !roomRewardToast && !reminderAskSource && !activePracticeMission && openSheet !== 'quests' && (
         <div className="fixed inset-x-0 bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6 z-40 flex justify-center px-4 pointer-events-none">
           <button
             type="button"

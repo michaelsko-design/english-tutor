@@ -13,6 +13,7 @@ import {
 import { trackReminderResult } from '../../services/push/reminderOptIn';
 import { CALENDAR_REMINDER_HOUR, buildGoogleCalendarUrl, downloadReminderIcs } from '../../utils/reminderIcs';
 import { getReminderFacts } from '../../hooks/useReminderSync';
+import { IosInstallGuide } from '../push/IosInstallGuide';
 
 interface StreakReminderCardProps {
   profile: LearnerProfile;
@@ -26,7 +27,7 @@ const buttonClass = 'w-full min-h-11 p-2.5 rounded-2xl text-xs sm:text-sm font-e
  * (never on Friday/Shabbat for Shabbat observers), and a calendar
  * reminder that needs no permission. On iPhone/iPad the app must be added to the Home Screen first.
  */
-export const StreakReminderCard: React.FC<StreakReminderCardProps> = ({ profile }) => {
+export const StreakReminderCard: React.FC<StreakReminderCardProps> = ({ profile, theme }) => {
   const user = auth?.currentUser ?? null;
   const uid = user && !user.isAnonymous ? user.uid : null;
   const support = getReminderSupport();
@@ -87,12 +88,7 @@ export const StreakReminderCard: React.FC<StreakReminderCardProps> = ({ profile 
       )}
 
       {support === 'needs-install' && (
-        <p className="text-xs sm:text-sm font-bold">
-          באייפון ובאייפד צריך קודם להוסיף את האפליקציה למסך הבית: לוחצים על כפתור השיתוף בדפדפן, ובוחרים
-          {' '}
-          <bdi dir="ltr" lang="en">Add to Home Screen</bdi>
-          . אחרי זה פותחים אותה משם וחוזרים לכאן.
-        </p>
+        <IosInstallGuide theme={theme} title="באייפון ובאייפד צריך קודם להוסיף את האפליקציה למסך הבית:" />
       )}
 
       {support === 'unsupported' && (

@@ -353,6 +353,8 @@ await expect('a learner can count the growth asks (reminder by place, declines, 
   setDoc(dayDoc(ua.uid), dayData(ua.uid, {
     reminder_opt_in_firstwin: increment(1), reminder_opt_in_card: increment(1), reminder_opt_in_settings: increment(1),
     reminder_opt_in_reask: increment(1), reminder_ask_declined: increment(1), reminder_permission_denied: increment(1),
+    reminder_opt_in_ask2: increment(1), reminder_opt_in_ask3: increment(1), reminder_opt_in_installed: increment(1),
+    reminder_ask_shown: increment(1),
     show_off_shared: increment(1), placement_shared: increment(1), pro_ask_resent: increment(1),
   }), { merge: true }));
 // Where a new account came from (the `?src=` tag): written once, never read or changed

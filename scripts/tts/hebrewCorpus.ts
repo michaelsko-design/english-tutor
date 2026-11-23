@@ -30,6 +30,7 @@ import { getNewPackCopy } from '../../src/data/contentPacks';
 import { PARENT_INFO_SPOKEN_HE } from '../../src/data/proAsk';
 import { PRO_WEEK_ENDED_SPOKEN_HE, PRO_WEEK_ON_SPOKEN_HE } from '../../src/data/proWeek';
 import { STREAK_REWARD_SPOKEN_HE } from '../../src/data/streakReward';
+import { REMINDER_ASK_COPY } from '../../src/data/reminderAskCopy';
 import { CorpusBuilder } from './corpusBuilder';
 import { addDeckHebrew } from './deckCorpus';
 import { ALL_WORD_DECKS } from '../../src/data/wordDecks/all';
@@ -165,7 +166,9 @@ function addFixedFeedback(corpus: CorpusBuilder): void {
     });
   }
   // The parents' info at a Pro part, and the Pro week's home lines
-  [PARENT_INFO_SPOKEN_HE, PRO_WEEK_ON_SPOKEN_HE, PRO_WEEK_ENDED_SPOKEN_HE, STREAK_REWARD_SPOKEN_HE].forEach((line) => corpus.add(line));
+  [PARENT_INFO_SPOKEN_HE, PRO_WEEK_ON_SPOKEN_HE, PRO_WEEK_ENDED_SPOKEN_HE, STREAK_REWARD_SPOKEN_HE, REMINDER_ASK_COPY.spokenHe].forEach((line) =>
+    corpus.add(line)
+  );
   BLEND_WORDS.forEach((word) => corpus.add(getWordBuiltHe(word.word)));
 }
 

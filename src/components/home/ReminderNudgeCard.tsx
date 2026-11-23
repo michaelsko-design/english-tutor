@@ -4,11 +4,12 @@ import { LearnerProfile } from '../../types/learner';
 import { ThemeDefinition } from '../../themes/themeRegistry';
 import { auth } from '../../services/firebase';
 import { enableReminder, getNotificationPermission, getReminderSupport, isReminderOn } from '../../services/push/pushSubscription';
-import { isReminderCardDue } from '../../data/reminderReask';
+import { isReminderCardDue } from '../../data/reminderAsk';
 import { toLocalDateStr } from '../../utils/dates';
 import { trackReminderResult } from '../../services/push/reminderOptIn';
 import { getReminderFacts } from '../../hooks/useReminderSync';
 import { Button } from '../ui/Button';
+import { IosInstallGuide } from '../push/IosInstallGuide';
 import { dismissReminderNudge, isReminderNudgeDismissed } from './reminderNudge';
 
 interface ReminderNudgeCardProps {
@@ -20,9 +21,8 @@ interface ReminderNudgeCardProps {
  * A small, closable home card offering the daily practice reminder. It shows only for a signed-in
  * (not guest) learner on a device that can receive it and has not turned it on, never gates
  * anything, and stays away once closed on this device. It waits until the learner practised on two
- * days, and after a "not now" on the first-win screen until the second ask was shown
- * (data/reminderReask.ts). On iPhone/iPad outside the Home Screen app it explains how to install
- * first. A browser that blocks notifications never sees it. The same switch is always in the settings.
+ * days, and never shows on a day of a full-screen ask or while one is due (data/reminderAsk.ts).
+ * On iPhone/iPad outside the Home Screen app it shows the install steps first. A browser that blocks notifications never sees it. The same switch is always in the settings.
  */
 export const ReminderNudgeCard: React.FC<ReminderNudgeCardProps> = ({ profile, theme }) => {
   const user = auth?.currentUser ?? null;
@@ -81,11 +81,9 @@ export const ReminderNudgeCard: React.FC<ReminderNudgeCardProps> = ({ profile, t
       <div className="flex-1 min-w-0 space-y-0.5">
         <h2 className="font-extrabold text-sm">רוצים תזכורת קטנה לתרגל?</h2>
         {support === 'needs-install' ? (
-          <p className={`text-xs font-bold ${theme.mutedTextClass}`}>
-            באייפון ובאייפד צריך קודם להוסיף את האפליקציה למסך הבית (כפתור השיתוף, ואז{' '}
-            <bdi dir="ltr" lang="en">Add to Home Screen</bdi>
-            ), ולפתוח אותה משם.
-          </p>
+          <div className="pt-1">
+            <IosInstallGuide theme={theme} />
+          </div>
         ) : (
           <p className={`text-xs font-bold ${theme.mutedTextClass}`}>
             הודעה פעם ביום אם עוד לא תרגלתם, שעוזרת לשמור על הרצף. לא חובה, ואפשר לכבות בהגדרות.
