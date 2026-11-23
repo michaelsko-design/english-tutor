@@ -101,6 +101,18 @@ export interface DeckWordMastery {
   masteredOn?: string;
 }
 
+/**
+ * A word the learner got wrong on the first try (data/missedWords.ts), waiting for the 1-minute
+ * review: the local day (`YYYY-MM-DD`) it was last missed and the day it was last reviewed right.
+ * It waits while `missedOn` is later than `clearedOn`.
+ */
+export interface MissedWord {
+  wordEn: string;
+  translationHe: string;
+  missedOn: string;
+  clearedOn?: string;
+}
+
 /** One local day of learning activity, kept for the weekly parent report (Feature 9). */
 export interface ActivityLogEntry {
   /** Local date, YYYY-MM-DD */
@@ -437,6 +449,10 @@ export interface LearnerProfile {
   deckWordMastery?: Record<string, DeckWordMastery>;
   /** Deck id -> local date of its last full reward, so a deck pays in full once a day */
   deckRewardDates?: Record<string, string>;
+  /** Words missed on the first try by `deckWordKey`, for the 1-minute review (data/missedWords.ts) */
+  missedWords?: Record<string, MissedWord>;
+  /** Local date of the last finished 1-minute review: once a day, then the card rests */
+  quickReviewDoneOn?: string;
   createdAt: string;
   /** ISO timestamp of the latest profile update for conflict resolution */
   updatedAt?: string;

@@ -15,6 +15,7 @@ import {
 import { toLocalDateStr } from '../../utils/dates';
 import type { CustomItemKind, CustomWordList, LearnerGender, LearnerProfile } from '../../types/learner';
 import { deckWordKey, recordDeckMastery } from './deckMastery';
+import { getMissedSessionItemIds, recordMissedWords } from '../missedWords';
 import type { WordDeck, WordDeckItem } from './types';
 
 /**
@@ -25,7 +26,7 @@ import type { WordDeck, WordDeckItem } from './types';
 /** Up to this many words is a word (letter magnets); longer items are phrases (word magnets) */
 const MAX_WORD_ITEM_WORDS = 2;
 
-function itemKind(wordEn: string): CustomItemKind {
+export function getWordItemKind(wordEn: string): CustomItemKind {
   return wordEn.trim().split(/\s+/).length <= MAX_WORD_ITEM_WORDS ? 'word' : 'sentence';
 }
 
@@ -48,7 +49,7 @@ export function deckToWordList(deck: WordDeck): CustomWordList {
       id: deckWordKey(item.wordEn),
       textEn: item.wordEn,
       translationHe: item.translationHe,
-      kind: itemKind(item.wordEn),
+      kind: getWordItemKind(item.wordEn),
     })),
   };
 }
@@ -107,11 +108,18 @@ export function applyDeckResultToProfile(
   const score = scoreWordListAnswers(answers);
   const reward = getDeckReward(profile, deck.id, score.scorePercent, todayStr);
   const rewarded = applyPracticeSessionReward(profile, answers, reward, score, todayStr);
+  const missedIds = getMissedSessionItemIds(answers);
+  const missedWords = recordMissedWords(
+    profile.missedWords,
+    deck.items.filter((item) => missedIds.has(deckWordKey(item.wordEn))),
+    todayStr
+  );
   return {
     reward,
     score,
     profile: {
       ...rewarded,
+      ...(missedWords ? { missedWords } : {}),
       deckWordMastery: recordDeckMastery(profile.deckWordMastery, deck.items, answers, todayStr),
       ...(reward.isFullReward ? { deckRewardDates: { ...(profile.deckRewardDates ?? {}), [deck.id]: todayStr } } : {}),
     },

@@ -64,6 +64,7 @@ import {
   getWordBuiltHe,
 } from '../data/missionFeedbackHe';
 import { spellSlots } from '../utils/letterSlots';
+import { getMissionMissedWords, type MissedWordInput } from '../data/missedWords';
 
 /** The companion peeking over the question card */
 const PEEK_COMPANION_SIZE = 64;
@@ -102,6 +103,8 @@ interface MissionRunnerProps {
     isFullReward: boolean;
     /** The learner skipped the voice step ("quiet place") */
     isVoiceSkipped: boolean;
+    /** Mission words in the steps missed on the first try, for the 1-minute review (data/missedWords.ts) */
+    missedWords?: MissedWordInput[];
   }, nextMission?: MissionNode) => void;
   onClose: () => void;
   /** What the victory screen offers next, given this run's stars (data/victoryNextStep.ts) */
@@ -182,6 +185,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   const [firstTryCorrectCount, setFirstTryCorrectCount] = useState(0);
   // Steps skipped without an answer (the voice step in a quiet place) are left out of the score
   const [skippedStepCount, setSkippedStepCount] = useState(0);
+  // Steps answered wrong at least once, for the missed words of the 1-minute review
+  const [missedStepIds, setMissedStepIds] = useState<ReadonlySet<string>>(() => new Set());
   const session = useDrillSession<true, MissionFeedback>();
   const {
     stepIdx: currentStepIdx,
@@ -315,6 +320,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
 
   const registerWrongAttempt = (explanationHe: string) => {
     setCombo(0);
+    const missedId = currentStep.id;
+    setMissedStepIds((prev) => (prev.has(missedId) ? prev : new Set([...prev, missedId])));
     session.miss({ isCorrect: false, text: explanationHe, xpGain: 0 });
   };
 
@@ -447,6 +454,10 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
       wordsLearnedCount: mission.vocabulary.length,
       isFullReward,
       isVoiceSkipped: skippedStepCount > 0,
+      missedWords: getMissionMissedWords(
+        mission.vocabulary,
+        steps.filter((step) => missedStepIds.has(step.id))
+      ),
     };
     const finishMission = (nextMission?: MissionNode) =>
       nextMission ? onCompleteMission(result, nextMission) : onCompleteMission(result);
