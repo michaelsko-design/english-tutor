@@ -1,10 +1,13 @@
 /**
- * GET /api/streak-reminder: the daily Vercel Cron job (vercel.json; once a day works on the Hobby
- * plan). For every learner who turned on streak reminders it sends a Web Push every day they have not
- * practised yet (never on Friday/Shabbat for Shabbat observers): "keep your streak" while the streak
- * is alive, otherwise a short "come back, just 5 minutes" nudge. Vercel Cron
- * authenticates with `Authorization: Bearer $CRON_SECRET`. Subscriptions the push service reports
- * as gone (404/410) are deleted.
+ * GET /api/streak-reminder: the daily reminder, run by Vercel Cron once a day for each hour a
+ * learner can choose (vercel.json; the Hobby plan allows daily jobs only, run somewhere inside
+ * their hour). Each run sends to the learners whose chosen Israel hour it is now
+ * (`reminderHour`, `DEFAULT_REMINDER_HOUR` when none), on a day they have not practised yet (never
+ * on Friday/Shabbat for Shabbat observers). The text names something waiting in the app (missed
+ * words, a room item, the next mission's story hook; a different one each day), or else "keep your
+ * streak" / "come back, just 5 minutes". A learner already reminded today is skipped, since Vercel
+ * may run a job twice. Vercel Cron authenticates with `Authorization: Bearer $CRON_SECRET`.
+ * Subscriptions the push service reports as gone (404/410) are deleted.
  */
 import webpush from 'web-push';
 import { createFirestoreAdmin, type FirestoreAdmin, type PlainDocument } from './_lib/firestoreAdmin.js';
@@ -13,12 +16,15 @@ import { safeEqual } from './_lib/payments/provider.js';
 import {
   buildReminderMessage,
   getReminderKind,
+  getIsraelHour,
   getIsraelToday,
   isPushServiceEndpoint,
   isReminderDue,
+  isReminderHourNow,
   type ReminderKind,
   type ReminderSubscriber,
 } from './_lib/streakReminder.js';
+import { MISSION_HOOK_MAX_LENGTH, isReminderHint, isReminderHour, pickReminderHint } from '../src/data/reminderSchedule.js';
 
 const DEFAULT_FIREBASE_PROJECT_ID = 'english-tutor-il-7';
 const COLLECTION = 'pushSubscriptions';
@@ -55,7 +61,8 @@ async function defaultSendPush(
 }
 
 function toSubscriber(doc: PlainDocument): (ReminderSubscriber & PushTarget) | null {
-  const { endpoint, p256dh, auth, streakDays, streakLastDateStr, isShabbatObserver, gender } = doc.fields;
+  const { endpoint, p256dh, auth, streakDays, streakLastDateStr, isShabbatObserver, gender, reminderHour, waitingHints, nextMissionHookHe } =
+    doc.fields;
   if (typeof endpoint !== 'string' || typeof p256dh !== 'string' || typeof auth !== 'string') return null;
   if (!isPushServiceEndpoint(endpoint)) return null;
   if (typeof streakDays !== 'number') return null;
@@ -67,6 +74,10 @@ function toSubscriber(doc: PlainDocument): (ReminderSubscriber & PushTarget) | n
     streakLastDateStr: typeof streakLastDateStr === 'string' ? streakLastDateStr : undefined,
     isShabbatObserver: isShabbatObserver !== false,
     gender: gender === 'girl' || gender === 'boy' ? gender : undefined,
+    reminderHour: isReminderHour(reminderHour) ? reminderHour : undefined,
+    waitingHints: Array.isArray(waitingHints) ? waitingHints.filter(isReminderHint) : undefined,
+    nextMissionHookHe:
+      typeof nextMissionHookHe === 'string' && nextMissionHookHe.length <= MISSION_HOOK_MAX_LENGTH ? nextMissionHookHe : undefined,
   };
 }
 
@@ -74,6 +85,11 @@ function statusOf(error: unknown): number | undefined {
   return typeof error === 'object' && error !== null && 'statusCode' in error
     ? Number((error as { statusCode: unknown }).statusCode)
     : undefined;
+}
+
+/** True when this learner was already reminded today (a second run of the same job). */
+async function wasSentToday(admin: FirestoreAdmin, uid: string, dateStr: string): Promise<boolean> {
+  return (await admin.getDocument(SENDS_COLLECTION, `${dateStr}_${uid}`)) !== null;
 }
 
 /** Records the push for the owner dashboard's effectiveness numbers; a failure here never stops the run. */
@@ -104,6 +120,7 @@ export async function handleStreakReminderRequest(
 
   const admin = createAdmin(account, env.FIREBASE_PROJECT_ID || DEFAULT_FIREBASE_PROJECT_ID);
   const today = getIsraelToday(nowMs());
+  const israelHour = getIsraelHour(nowMs());
   let sent = 0;
   let removed = 0;
   let failed = 0;
@@ -111,12 +128,16 @@ export async function handleStreakReminderRequest(
   try {
     const subscribers = (await admin.listDocuments(COLLECTION))
       .map(toSubscriber)
-      .filter((s): s is ReminderSubscriber & PushTarget => s !== null && isReminderDue(s, today));
+      .filter(
+        (s): s is ReminderSubscriber & PushTarget => s !== null && isReminderHourNow(s, israelHour) && isReminderDue(s, today)
+      );
 
     for (const subscriber of subscribers) {
       try {
+        if (await wasSentToday(admin, subscriber.id, today)) continue;
         const kind = getReminderKind(subscriber, today);
-        await sendPush(subscriber, JSON.stringify(buildReminderMessage(subscriber, kind)), vapid);
+        const hint = pickReminderHint(subscriber.waitingHints ?? [], today);
+        await sendPush(subscriber, JSON.stringify(buildReminderMessage({ ...subscriber, hint }, kind)), vapid);
         sent += 1;
         await logSend(admin, subscriber.id, today, kind);
       } catch (error) {

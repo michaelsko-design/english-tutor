@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildReminderMessage,
+  getIsraelHour,
   getIsraelToday,
   getReminderKind,
   isPushServiceEndpoint,
@@ -15,6 +16,14 @@ const base: ReminderSubscriber = {
   isShabbatObserver: false,
 };
 const tuesday = '2026-10-27';
+
+describe('getIsraelHour', () => {
+  it('reads the Israel hour in winter (UTC+2), summer (UTC+3) and at midnight', () => {
+    expect(getIsraelHour(Date.UTC(2026, 10, 23, 13, 59))).toBe(15);
+    expect(getIsraelHour(Date.UTC(2026, 6, 1, 13, 10))).toBe(16);
+    expect(getIsraelHour(Date.UTC(2026, 10, 23, 22, 30))).toBe(0);
+  });
+});
 
 describe('getIsraelToday', () => {
   it('uses Israel standard time in winter and daylight time in summer', () => {

@@ -24,6 +24,8 @@ interface WordListSessionResultProps {
   /** Another reward rule than a school list's (a Ministry deck's) */
   getReward?: (scorePercent: number) => WordListReward;
   repeatRewardNoteHe?: string;
+  /** The headline for a high score when it isn't a school list's ("…שולטת ברשימה!") */
+  greatHeadlineHe?: string;
 }
 
 /** Score and rewards at the end of a word-list session; saving applies them. */
@@ -35,6 +37,7 @@ export const WordListSessionResult: React.FC<WordListSessionResultProps> = ({
   onSave,
   onSaveAndRetry,
   getReward,
+  greatHeadlineHe,
   repeatRewardNoteHe = `הפרס המלא ניתן פעם ביום לכל רשימה (עד ${WORD_LIST_DAILY_REWARD_LIMIT} רשימות ביום)`,
 }) => {
   const isGirl = profile.gender === 'girl';
@@ -46,9 +49,9 @@ export const WordListSessionResult: React.FC<WordListSessionResultProps> = ({
   const skippedCount = answers.filter((a) => a.isSkipped).length;
 
   const headline = isGreat
-    ? isGirl
+    ? greatHeadlineHe ?? (isGirl
       ? `${profile.name}, את שולטת ברשימה! 🎉`
-      : `${profile.name}, אתה שולט ברשימה! 🎉`
+      : `${profile.name}, אתה שולט ברשימה! 🎉`)
     : isGirl
     ? 'עוד סיבוב אחד ואת שם 💪'
     : 'עוד סיבוב אחד ואתה שם 💪';

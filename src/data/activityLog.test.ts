@@ -84,8 +84,30 @@ describe('recordActivityLog', () => {
         starsGained: 3,
         missionStars: { 'g5-u1-m1': 3, 'g5-u1-m2': 2 },
         firstCompletedIds: ['g5-u1-m2'],
+        // The local hour the session finished in, for the daily reminder's hour
+        sessionHours: { '12': 1 },
       }),
     ]);
+  });
+
+  it('adds up the session hours of the day and merges two devices by the busier hour', () => {
+    const playAt = (hour: number, missions: number, prev: LearnerProfile) =>
+      recordActivityLog(
+        prev,
+        { ...prev, dailyCounters: { ...baseProfile.dailyCounters!, missionsCompletedToday: missions } },
+        new Date(2026, 9, 15, hour, 30)
+      );
+    const afternoon = playAt(16, 2, baseProfile);
+    const evening = playAt(18, 4, afternoon);
+    expect(evening.activityLog?.[0].sessionHours).toEqual({ '16': 1, '18': 2 });
+
+    const merged = mergeActivityLog(
+      [entry(TODAY, { sessionHours: { '16': 1, '18': 2 } })],
+      [entry(TODAY, { sessionHours: { '16': 3 } })],
+      TODAY
+    );
+    expect(merged?.[0].sessionHours).toEqual({ '16': 3, '18': 2 });
+    expect(stripOwnerFields(merged ?? [])[0]).not.toHaveProperty('sessionHours');
   });
 
   it('counts all of the new counters when the counter day changed', () => {

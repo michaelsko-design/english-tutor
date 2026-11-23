@@ -77,6 +77,11 @@ export function pruneActivityLog(log: ActivityLogEntry[], todayStr: string): Act
     .sort((a, b) => a.dateStr.localeCompare(b.dateStr));
 }
 
+function addSessionHour(hours: Record<string, number> | undefined, hour: number, sessions: number): Record<string, number> {
+  const key = String(hour);
+  return { ...hours, [key]: (hours?.[key] || 0) + sessions };
+}
+
 /** Adds what changed between two versions of the profile to today's log entry. */
 export function recordActivityLog(
   prev: LearnerProfile,
@@ -103,6 +108,7 @@ export function recordActivityLog(
     starsGained: today.starsGained + stars.starsGained,
     missionStars: { ...today.missionStars, ...stars.missionStars },
     firstCompletedIds: Array.from(new Set([...today.firstCompletedIds, ...stars.firstCompletedIds])),
+    ...(counters.sessions > 0 ? { sessionHours: addSessionHour(today.sessionHours, now.getHours(), counters.sessions) } : {}),
   };
   const others = log.filter((entry) => entry.dateStr !== todayStr);
   return { ...next, activityLog: pruneActivityLog([...others, updatedToday], todayStr) };
@@ -127,20 +133,29 @@ export function addActiveSeconds(profile: LearnerProfile, seconds: number, now: 
   return { ...profile, activityLog: pruneActivityLog([...others, updatedToday], todayStr) };
 }
 
-/** The log without owner-only fields, for anything a learner or parent can see. */
+/** The log without owner-only fields (active time, session hours), for anything a learner or parent can see. */
 export function stripOwnerFields(log: ActivityLogEntry[]): ActivityLogEntry[] {
   return log.map((entry) => {
     const visible = { ...entry };
     delete visible.activeSeconds;
+    delete visible.sessionHours;
     return visible;
   });
+}
+
+function mergeSessionHours(a?: Record<string, number>, b?: Record<string, number>): Record<string, number> | undefined {
+  if (!a || !b) return a || b;
+  const hours = Array.from(new Set([...Object.keys(a), ...Object.keys(b)]));
+  return Object.fromEntries(hours.map((hour) => [hour, Math.max(a[hour] || 0, b[hour] || 0)]));
 }
 
 function mergeEntries(a: ActivityLogEntry, b: ActivityLogEntry): ActivityLogEntry {
   const missionIds = Array.from(new Set([...Object.keys(a.missionStars), ...Object.keys(b.missionStars)]));
   const activeSeconds = Math.max(a.activeSeconds || 0, b.activeSeconds || 0);
+  const sessionHours = mergeSessionHours(a.sessionHours, b.sessionHours);
   return {
     ...(activeSeconds > 0 ? { activeSeconds } : {}),
+    ...(sessionHours ? { sessionHours } : {}),
     dateStr: a.dateStr,
     sessions: Math.max(a.sessions, b.sessions),
     voiceWords: Math.max(a.voiceWords, b.voiceWords),

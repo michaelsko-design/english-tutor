@@ -81,6 +81,7 @@ test.describe('the 1-minute review', () => {
       await expect(page.getByRole('alert')).toContainText('נכון');
       await next.click();
     }
+    await expect(page.getByRole('heading', { name: /המילים האלה כבר יושבות טוב יותר/ })).toBeVisible();
     await page.getByRole('button', { name: 'שמירה וחזרה לדשבורד' }).click();
 
     await expectDashboard(page);

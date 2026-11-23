@@ -5,6 +5,7 @@
 import { isStreakProtectedDay } from '../../src/data/streak.js';
 import { addDays } from '../../src/utils/dates.js';
 import type { ReminderKind } from '../../src/data/reminderMessage.js';
+import { DEFAULT_REMINDER_HOUR, type ReminderHint } from '../../src/data/reminderSchedule.js';
 
 // The text lives in src so the app's ask screen previews the same message
 export { buildReminderMessage, type ReminderKind, type ReminderMessage } from '../../src/data/reminderMessage.js';
@@ -38,6 +39,10 @@ export interface ReminderSubscriber {
   streakLastDateStr?: string;
   isShabbatObserver: boolean;
   gender?: 'girl' | 'boy';
+  /** The Israel hour the learner chose; the default hour when none */
+  reminderHour?: number;
+  waitingHints?: ReminderHint[];
+  nextMissionHookHe?: string;
 }
 
 /** The calendar day (YYYY-MM-DD) in Israel at the given instant. */
@@ -50,6 +55,19 @@ export function getIsraelToday(nowMs: number): string {
   }).formatToParts(new Date(nowMs));
   const get = (type: string): string => parts.find((p) => p.type === type)?.value ?? '';
   return `${get('year')}-${get('month')}-${get('day')}`;
+}
+
+/** The hour (0-23) in Israel at the given instant. */
+export function getIsraelHour(nowMs: number): number {
+  const hour = new Intl.DateTimeFormat('en-GB', { timeZone: REMINDER_TIME_ZONE, hour: '2-digit', hourCycle: 'h23' }).format(
+    new Date(nowMs)
+  );
+  return Number(hour);
+}
+
+/** True when this run's Israel hour is the learner's reminder hour. */
+export function isReminderHourNow(subscriber: Pick<ReminderSubscriber, 'reminderHour'>, israelHour: number): boolean {
+  return (subscriber.reminderHour ?? DEFAULT_REMINDER_HOUR) === israelHour;
 }
 
 /** True when every day between the last practice and today needed no session (Shabbat for observers). */
