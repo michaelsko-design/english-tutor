@@ -667,7 +667,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         <WeekOneCard profile={profile} theme={theme} todayStr={todayStr} onUpdateProfile={onUpdateProfile} />
 
         {/* ONE FIRST-USE TIP AT A TIME (replaces the app tour at first launch) */}
-        <HomeTipCard profile={profile} uid={authUser?.uid ?? null} theme={theme} onOpenPlacement={() => setIsPlacementOpen(true)} />
+        <HomeTipCard key={homeVisit} profile={profile} uid={authUser?.uid ?? null} theme={theme} onOpenPlacement={() => setIsPlacementOpen(true)} />
 
         {/* THE ONE-TIME STREAK REWARD WAS PAID (data/streakReward.ts) */}
         <StreakRewardCard
