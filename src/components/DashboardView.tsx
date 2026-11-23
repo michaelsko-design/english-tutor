@@ -51,6 +51,7 @@ import { preloadCompanion } from './companion/Companion';
 import { DiamondFlightLayer } from './hud/DiamondFlightLayer';
 import { HomeHud } from './home/HomeHud';
 import { HomeHero } from './home/HomeHero';
+import { HomeCardSlot } from './home/HomeCardSlot';
 import { QuestRings } from './home/QuestRings';
 import { MapPeek } from './home/MapPeek';
 import { NewPackCard } from './home/NewPackCard';
@@ -173,6 +174,13 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
   // A Ministry deck session replaces the Vault while it runs, and goes back to it when it ends
   const [deckRun, setDeckRun] = useState<{ deck: WordDeck; runId: number } | null>(null);
   const [quickReviewRun, setQuickReviewRun] = useState<{ words: MissedWord[]; runId: number } | null>(null);
+  // At most one optional home card per visit (data/homeCards.ts); coming back from a mission starts a new visit
+  const [homeVisit, setHomeVisit] = useState(0);
+  const wasInMissionRef = useRef(false);
+  useEffect(() => {
+    if (wasInMissionRef.current && !activePracticeMission) setHomeVisit((visit) => visit + 1);
+    wasInMissionRef.current = activePracticeMission !== null;
+  }, [activePracticeMission]);
   const [isRewardShopOpen, setIsRewardShopOpen] = useState(false);
   useTrackFeature('feature_shop', isRewardShopOpen);
   // Opening the shop answers the "you have gems to spend" tip
@@ -622,6 +630,8 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
           <ProgressReportHub profile={profile} theme={theme} onSpeakEnglish={speakEnglish} />
         </nav>
 
+        {/* OPTIONAL CARDS: AT MOST ONE PER VISIT (data/homeCards.ts; the parent notice always shows) */}
+        <HomeCardSlot visitKey={homeVisit}>
         {/* A NEWLY RELEASED CONTENT PACK, ONCE PER DEVICE */}
         {newPackOffer && (
           <NewPackCard
@@ -680,6 +690,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
         {/* AN OPTIONAL, CLOSABLE OFFER OF THE DAILY REMINDER */}
         <ReminderNudgeCard profile={profile} theme={theme} />
+        </HomeCardSlot>
 
         {/* FEATURE 27: MAP PEEK, THEN THE FULL MAP (wide screens show the map beside it, no peek) */}
         {mapPeek && (

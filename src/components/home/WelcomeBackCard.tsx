@@ -5,6 +5,7 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { trackEvent } from '../../services/analytics';
 import { applyWelcomeBack, isWelcomeBackDue, WELCOME_BACK_DIAMONDS } from '../../data/welcomeBack';
 import { Button } from '../ui/Button';
+import { useHomeCardTurn } from './HomeCardSlot';
 
 interface WelcomeBackCardProps {
   profile: LearnerProfile;
@@ -19,7 +20,8 @@ interface WelcomeBackCardProps {
  * day, or later after a gap). It shows until claimed, never gates anything, and is not shown again.
  */
 export const WelcomeBackCard: React.FC<WelcomeBackCardProps> = ({ profile, theme, todayStr, onUpdateProfile }) => {
-  if (!isWelcomeBackDue(profile, todayStr)) return null;
+  const isMyTurn = useHomeCardTurn('welcome-back', isWelcomeBackDue(profile, todayStr));
+  if (!isMyTurn) return null;
 
   const handleClaim = () => {
     trackEvent('welcome_back_claimed');

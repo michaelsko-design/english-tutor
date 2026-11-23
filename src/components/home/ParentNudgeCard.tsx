@@ -7,6 +7,7 @@ import { listParentsOfChild } from '../../services/parentService';
 import { ExamModalShell } from '../examPrep/ExamModalShell';
 import { ParentLinkCard } from '../settings/ParentLinkCard';
 import { Button } from '../ui/Button';
+import { useHomeCardTurn } from './HomeCardSlot';
 import { dismissParentNudge, isParentNudgeDismissed } from './parentNudge';
 
 interface ParentNudgeCardProps {
@@ -40,7 +41,8 @@ export const ParentNudgeCard: React.FC<ParentNudgeCardProps> = ({ profile, theme
     };
   }, [uid, profile.isOnboarded]);
 
-  if (!uid || !isVisible) return null;
+  const isMyTurn = useHomeCardTurn('parent-nudge', uid !== null && isVisible);
+  if (!uid || !isMyTurn) return null;
 
   const close = () => {
     dismissParentNudge(uid);

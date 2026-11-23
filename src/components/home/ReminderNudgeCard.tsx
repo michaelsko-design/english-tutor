@@ -9,6 +9,7 @@ import { toLocalDateStr } from '../../utils/dates';
 import { trackReminderResult } from '../../services/push/reminderOptIn';
 import { getReminderFacts } from '../../hooks/useReminderSync';
 import { Button } from '../ui/Button';
+import { useHomeCardTurn } from './HomeCardSlot';
 import { IosInstallGuide } from '../push/IosInstallGuide';
 import { dismissReminderNudge, isReminderNudgeDismissed } from './reminderNudge';
 
@@ -52,7 +53,8 @@ export const ReminderNudgeCard: React.FC<ReminderNudgeCardProps> = ({ profile, t
     };
   }, [uid, profile.isOnboarded, support, isDue, isBlocked]);
 
-  if (!uid || !isVisible) return null;
+  const isMyTurn = useHomeCardTurn('reminder-nudge', uid !== null && isVisible);
+  if (!uid || !isMyTurn) return null;
 
   const close = () => {
     dismissReminderNudge(uid);
