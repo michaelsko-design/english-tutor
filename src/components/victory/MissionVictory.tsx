@@ -19,6 +19,7 @@ import { Companion } from '../companion/Companion';
 import { Button } from '../ui/Button';
 import { VIBE_CHEER_HE } from '../../config/appInfo';
 import { VibeAmount } from '../ui/VibeAmount';
+import type { VictoryNextStep } from '../../data/victoryNextStep';
 
 interface MissionVictoryProps {
   mission: MissionNode;
@@ -40,7 +41,11 @@ interface MissionVictoryProps {
   learnerName: string;
   currencyNameHe: string;
   theme: ThemeDefinition;
+  /** What to offer after collecting: the next mission, a kind "done for today", or nothing */
+  nextStep?: VictoryNextStep;
   onCollect: () => void;
+  /** Collect the rewards and start the next mission */
+  onPlayNext?: (mission: MissionNode) => void;
 }
 
 const STAR_SLOTS = [0, 1, 2];
@@ -92,7 +97,9 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
   learnerName,
   currencyNameHe,
   theme,
+  nextStep = { kind: 'none' },
   onCollect,
+  onPlayNext,
 }) => {
   const hasRoomItem = roomReward !== null;
   const { elapsedMs, skip } = useAnimationClock(getVictoryDurationMs(hasRoomItem));
@@ -130,6 +137,37 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
     launchDiamondFlight(diamondsEarned, getElementCenter(gemTileRef.current));
     onCollect();
   };
+  const nextMission = nextStep.kind === 'next' && onPlayNext ? nextStep.mission : null;
+  const handlePlayNext = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (!nextMission) return;
+    launchDiamondFlight(diamondsEarned, getElementCenter(gemTileRef.current));
+    onPlayNext?.(nextMission);
+  };
+  // A new room item pulls toward the room, so then going home stays the main button
+  const isNextPrimary = nextMission !== null && !hasRoomItem;
+  const collectButton = (
+    <Button
+      theme={theme}
+      size="lg"
+      variant={isNextPrimary ? 'secondary' : 'primary'}
+      className="w-full shadow-lg"
+      onClick={handleCollect}
+    >
+      <span>איסוף פרסים וחזרה לדשבורד 🚀</span>
+    </Button>
+  );
+  const nextButton = nextMission && (
+    <Button
+      theme={theme}
+      size="lg"
+      variant={isNextPrimary ? 'primary' : 'secondary'}
+      className="w-full shadow-lg"
+      onClick={handlePlayNext}
+    >
+      <span>{nextStep.kind === 'next' && nextStep.isReplay ? 'לשפר כוכבים במשימה הבאה ⭐' : 'למשימה הבאה ▶'}</span>
+    </Button>
+  );
 
   return (
     <ModalPortal>
@@ -290,10 +328,17 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
         )}
 
         {/* Pinned to the bottom of the screen when a level-up and a room item make the card too tall */}
-        <div className="sticky bottom-2 z-10">
-          <Button theme={theme} size="lg" className="w-full shadow-lg" onClick={handleCollect}>
-            <span>איסוף פרסים וחזרה לדשבורד 🚀</span>
-          </Button>
+        {nextStep.kind === 'rest' && (
+          <p className="text-sm font-bold text-center">סיימת את היעד של היום! 🌙 מחר מחכה הרפתקה חדשה</p>
+        )}
+        <div className="sticky bottom-2 z-10 space-y-2">
+          {nextMission && (
+            <p className={`text-xs ${theme.mutedTextClass}`}>
+              הבאה: משימה {nextMission.unitNumber}.{nextMission.missionNumber} · {nextMission.titleHe}
+            </p>
+          )}
+          {isNextPrimary ? nextButton : collectButton}
+          {isNextPrimary ? collectButton : nextButton}
         </div>
 
         <p className={`text-xs ${theme.mutedTextClass} ${frame.isDone ? 'invisible' : ''}`} aria-hidden="true">

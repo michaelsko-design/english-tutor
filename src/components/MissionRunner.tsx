@@ -30,6 +30,7 @@ import {
   VoiceSpeakDrill,
 } from './drills';
 import { MissionVictory, VICTORY_COMPANION_SIZE } from './victory/MissionVictory';
+import type { VictoryNextStep } from '../data/victoryNextStep';
 import { Companion, preloadCompanion } from './companion/Companion';
 import { MissionIntro, INTRO_COMPANION_SIZE, LessonOffer } from './mission/MissionIntro';
 import { MiniLesson, LESSON_COMPANION_SIZE } from './mission/MiniLesson';
@@ -101,8 +102,10 @@ interface MissionRunnerProps {
     isFullReward: boolean;
     /** The learner skipped the voice step ("quiet place") */
     isVoiceSkipped: boolean;
-  }) => void;
+  }, nextMission?: MissionNode) => void;
   onClose: () => void;
+  /** What the victory screen offers next, given this run's stars (data/victoryNextStep.ts) */
+  getNextStep?: (starsEarned: 1 | 2 | 3) => VictoryNextStep;
   /** The tier was already chosen (on the map's mission sheet): start without the intro */
   isTierChosen?: boolean;
   /** Read each question aloud when it opens (grades 1–3, who may not read yet) */
@@ -138,6 +141,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   onQueueEnglish = onSpeakEnglish,
   onCompleteMission,
   onClose,
+  getNextStep,
   roomRewardPreview,
   startXp,
   startLevel,
@@ -433,6 +437,19 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   );
 
   if (isMissionFinished) {
+    const nextStep: VictoryNextStep = getNextStep?.(starsEarned) ?? { kind: 'none' };
+    const result = {
+      missionId: mission.id,
+      tier,
+      starsEarned,
+      xpEarned: totalXpEarned,
+      diamondsEarned: totalDiamondsEarned,
+      wordsLearnedCount: mission.vocabulary.length,
+      isFullReward,
+      isVoiceSkipped: skippedStepCount > 0,
+    };
+    const finishMission = (nextMission?: MissionNode) =>
+      nextMission ? onCompleteMission(result, nextMission) : onCompleteMission(result);
     return (
       <MissionVictory
         mission={mission}
@@ -451,18 +468,9 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
         learnerName={learnerName}
         currencyNameHe={theme.currencyNameHe}
         theme={theme}
-        onCollect={() =>
-          onCompleteMission({
-            missionId: mission.id,
-            tier,
-            starsEarned,
-            xpEarned: totalXpEarned,
-            diamondsEarned: totalDiamondsEarned,
-            wordsLearnedCount: mission.vocabulary.length,
-            isFullReward,
-            isVoiceSkipped: skippedStepCount > 0,
-          })
-        }
+        nextStep={nextStep}
+        onCollect={() => finishMission()}
+        onPlayNext={(nextMission) => finishMission(nextMission)}
       />
     );
   }
