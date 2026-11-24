@@ -4,6 +4,7 @@ import {
   getIsraelHour,
   getIsraelToday,
   getReminderKind,
+  getReminderNewPackId,
   isPushServiceEndpoint,
   isReminderDue,
   type ReminderSubscriber,
@@ -110,5 +111,30 @@ describe('isPushServiceEndpoint', () => {
     'not a url',
   ])('refuses %s', (endpoint) => {
     expect(isPushServiceEndpoint(endpoint)).toBe(false);
+  });
+});
+
+describe('getReminderNewPackId', () => {
+  const RELEASED = [{ id: 'holidays-autumn' as const, releasedAt: '2026-11-25', access: 'free' as const, newUntil: '2026-12-12' }];
+
+  it('takes the pack the app synced', () => {
+    expect(getReminderNewPackId({ waitingHints: ['new-pack'], newPackId: 'holidays-autumn' }, '2026-11-26', [])).toBe('holidays-autumn');
+  });
+
+  it('names a new free pack to a learner whose app has not written since it shipped', () => {
+    expect(getReminderNewPackId({ waitingHints: [], updatedAt: '2026-11-20T12:00:00.000Z' }, '2026-11-30', RELEASED)).toBe('holidays-autumn');
+  });
+
+  it('leaves it to the app once the app wrote after the release, and stops after the new window', () => {
+    expect(getReminderNewPackId({ waitingHints: [], updatedAt: '2026-11-26T12:00:00.000Z' }, '2026-11-30', RELEASED)).toBeUndefined();
+    expect(getReminderNewPackId({ waitingHints: [], updatedAt: '2026-11-20T12:00:00.000Z' }, '2026-12-13', RELEASED)).toBeUndefined();
+  });
+
+  it('never names a Pro pack or a pack some grades lack on its own', () => {
+    const pro = [{ ...RELEASED[0], access: 'pro' as const }];
+    const someGrades = [{ id: 'core-3' as const, releasedAt: '2026-11-25', access: 'free' as const }];
+    const old = { waitingHints: [], updatedAt: '2026-11-20T12:00:00.000Z' };
+    expect(getReminderNewPackId(old, '2026-11-30', pro)).toBeUndefined();
+    expect(getReminderNewPackId(old, '2026-11-30', someGrades)).toBeUndefined();
   });
 });

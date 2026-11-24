@@ -174,6 +174,7 @@ One pure, tested module. It takes the entitlement and returns decisions; the UI 
 
 **Content packs.**
 - `ReleasedPack` (`data/curriculum/packs/types.ts`) gains `access: 'free' | 'pro'`, set when the pack is added to `RELEASED_CONTENT_PACKS` (`registry.ts`).
+- A Pro pack can be part free with `freeMissions: N`: its unit's first N missions are free (`isFreeMission`, `data/proGate.ts`) and the rest are Pro stops. Such a pack counts as `free` for `getPackAccess` (a free learner can start it), so its new-pack card leads to the map and its word decks are free.
 - Pro-only pack units appear on every learner's map as `'pro'` stops, so free learners can see what they would get.
 - For a free learner, the one-time `NewPackCard` says the pack is part of Pro and offers the ask-a-parent button instead of "start".
 - The "חדש!" banner tag is unchanged.

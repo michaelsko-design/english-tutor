@@ -92,13 +92,22 @@ export function getFreeCoreUnits(gradeNumber: number): readonly number[] {
 }
 
 /**
- * Who plays a pack: a released pack is Pro only unless its entry says free (`DEFAULT_PACK_ACCESS`).
- * A pack shown before its release (the packs preview) counts as free.
+ * How many of a pack's missions (from the first) every learner plays: all of a free pack (or one
+ * shown before its release, in the packs preview), a Pro pack's `freeMissions`, else none.
+ */
+function getFreeMissionCount(packId: string, released: readonly ReleasedPack[]): number {
+  const entry = released.find((pack) => pack.id === packId);
+  if (!entry || (entry.access ?? DEFAULT_PACK_ACCESS) === 'free') return Number.POSITIVE_INFINITY;
+  return Math.max(0, Math.floor(entry.freeMissions ?? 0));
+}
+
+/**
+ * Who can start a pack: `free` when a free learner plays at least its first mission (a free pack, or
+ * a Pro pack with `freeMissions`), else `pro`. A released pack is Pro only unless its entry says free
+ * (`DEFAULT_PACK_ACCESS`); a pack shown before its release (the packs preview) counts as free.
  */
 export function getPackAccess(packId: string, released: readonly ReleasedPack[] = RELEASED_CONTENT_PACKS): PackAccess {
-  const entry = released.find((pack) => pack.id === packId);
-  if (!entry) return 'free';
-  return entry.access ?? DEFAULT_PACK_ACCESS;
+  return getFreeMissionCount(packId, released) > 0 ? 'free' : 'pro';
 }
 
 /** The grade of a unit, from its mission ids (g7-u3-m2 → 7), or null when they don't say. */
@@ -107,26 +116,55 @@ const gradeOfUnit = (unit: CurriculumUnit): number | null => {
   return match ? Number(match[1]) : null;
 };
 
-/** A unit every learner plays: one of the grade's free core units, or a unit of a free pack. */
+/** A unit every learner plays in full: one of the grade's free core units, or a unit of a free pack. */
 export function isFreeUnit(unit: CurriculumUnit, released: readonly ReleasedPack[] = RELEASED_CONTENT_PACKS): boolean {
-  if (unit.packId) return getPackAccess(unit.packId, released) === 'free';
+  if (unit.packId) return getFreeMissionCount(unit.packId, released) >= unit.missions.length;
   const grade = gradeOfUnit(unit);
   return grade === null || getFreeCoreUnits(grade).includes(unit.unitNumber);
 }
 
-/** Whether a learner can play a mission: Pro, a free unit, or a mission that already has stars. */
+/**
+ * A mission every learner plays: one in a free unit, or one of the first `freeMissions` of a pack
+ * that is otherwise Pro.
+ */
+export function isFreeMission(
+  unit: CurriculumUnit,
+  missionId: string,
+  released: readonly ReleasedPack[] = RELEASED_CONTENT_PACKS
+): boolean {
+  if (isFreeUnit(unit, released)) return true;
+  if (!unit.packId) return false;
+  const index = unit.missions.findIndex((mission) => mission.id === missionId);
+  return index >= 0 && index < getFreeMissionCount(unit.packId, released);
+}
+
+/** Whether a learner can play a mission: Pro, a free mission, or a mission that already has stars. */
 export function canPlayMission(
   unit: CurriculumUnit,
   missionId: string,
   progress: Record<string, number>,
   access: ProAccess
 ): boolean {
-  return hasFullAccess(access) || isFreeUnit(unit) || (progress[missionId] || 0) > 0;
+  return hasFullAccess(access) || isFreeMission(unit, missionId) || (progress[missionId] || 0) > 0;
 }
 
-/** The units a learner can play missions in now (the next-mission suggestion only looks here). */
-export function getPlayableUnits(units: CurriculumUnit[], access: ProAccess): CurriculumUnit[] {
-  return hasFullAccess(access) ? units : units.filter((unit) => isFreeUnit(unit));
+/**
+ * The units a learner can play missions in now, each with only its free missions (new objects; a
+ * partly free pack keeps its free missions). The next-mission suggestion only looks here.
+ */
+export function getPlayableUnits(
+  units: CurriculumUnit[],
+  access: ProAccess,
+  released: readonly ReleasedPack[] = RELEASED_CONTENT_PACKS
+): CurriculumUnit[] {
+  if (hasFullAccess(access)) return units;
+  return units
+    .map((unit) =>
+      isFreeUnit(unit, released)
+        ? unit
+        : { ...unit, missions: unit.missions.filter((mission) => isFreeMission(unit, mission.id, released)) }
+    )
+    .filter((unit) => unit.missions.length > 0);
 }
 
 /** A free learner has finished every free mission of the grade, and Pro units are still ahead. */
@@ -137,7 +175,8 @@ export function hasFinishedFreeMissions(
 ): boolean {
   if (hasFullAccess(access)) return false;
   const playable = getPlayableUnits(units, access);
-  if (playable.length === units.length) return false;
+  const missionCount = (list: CurriculumUnit[]) => list.reduce((sum, unit) => sum + unit.missions.length, 0);
+  if (missionCount(playable) === missionCount(units)) return false;
   return playable.every((unit) => unit.missions.every((mission) => (progress[mission.id] || 0) > 0));
 }
 

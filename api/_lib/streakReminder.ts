@@ -6,6 +6,9 @@ import { isStreakProtectedDay } from '../../src/data/streak.js';
 import { addDays } from '../../src/utils/dates.js';
 import type { ReminderKind } from '../../src/data/reminderMessage.js';
 import { DEFAULT_REMINDER_HOUR, type ReminderHint } from '../../src/data/reminderSchedule.js';
+import { CONTENT_PACKS, RELEASED_CONTENT_PACKS } from '../../src/data/curriculum/packs/registry.js';
+import { isReleaseNew } from '../../src/data/curriculum/packs/newWindow.js';
+import type { ContentPackId, ReleasedPack } from '../../src/data/curriculum/packs/types.js';
 
 // The text lives in src so the app's ask screen previews the same message
 export { buildReminderMessage, type ReminderKind, type ReminderMessage } from '../../src/data/reminderMessage.js';
@@ -43,6 +46,42 @@ export interface ReminderSubscriber {
   reminderHour?: number;
   waitingHints?: ReminderHint[];
   nextMissionHookHe?: string;
+  /** The new pack the app found waiting (`new-pack` hint) */
+  newPackId?: string;
+  /** When the app last wrote the document (ISO) */
+  updatedAt?: string;
+}
+
+const isPackId = (id: string): id is ContentPackId => id in CONTENT_PACKS;
+
+/**
+ * The new pack to name, if any: the one the app synced, or, for a learner whose app has not written
+ * since a pack shipped (so it never saw it), a free pack new today that every grade gets. Pro packs
+ * are left to the app, which knows who is Pro.
+ */
+export function getReminderNewPackId(
+  subscriber: Pick<ReminderSubscriber, 'waitingHints' | 'newPackId' | 'updatedAt'>,
+  todayStr: string,
+  released: readonly ReleasedPack[] = RELEASED_CONTENT_PACKS
+): ContentPackId | undefined {
+  if (subscriber.waitingHints?.includes('new-pack') && subscriber.newPackId && isPackId(subscriber.newPackId)) {
+    return subscriber.newPackId;
+  }
+  const lastWriteDay = subscriber.updatedAt?.slice(0, 10);
+  if (!lastWriteDay) return undefined;
+  const unseen = released.find(
+    (release) =>
+      release.access === 'free' &&
+      CONTENT_PACKS[release.id].grades === undefined &&
+      isReleaseNew(release, todayStr) &&
+      lastWriteDay < release.releasedAt
+  );
+  return unseen?.id;
+}
+
+/** The Hebrew title the `new-pack` reminder names */
+export function getPackTitleHe(packId: ContentPackId): string {
+  return CONTENT_PACKS[packId].titleHe;
 }
 
 /** The calendar day (YYYY-MM-DD) in Israel at the given instant. */

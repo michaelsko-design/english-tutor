@@ -280,6 +280,13 @@ await expect('an unknown waiting hint is denied', false, () =>
   setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ waitingHints: ['buy-pro'] })));
 await expect('a too-long mission hook is denied', false, () =>
   setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ nextMissionHookHe: 'א'.repeat(161) })));
+await expect('a new pack waiting, with its id, is allowed', true, () =>
+  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({
+    waitingHints: ['quick-review', 'room-item', 'next-mission', 'new-pack'],
+    newPackId: 'holidays-autumn',
+  })));
+await expect('a pack id that is not an id is denied', false, () =>
+  setDoc(doc(a.db, 'pushSubscriptions', ua.uid), pushSub({ newPackId: 'Hello <b>there</b>' })));
 await expect('another user cannot read a subscription', false, () => getDoc(doc(b.db, 'pushSubscriptions', ua.uid)));
 await expect('another user cannot write a subscription', false, () =>
   setDoc(doc(b.db, 'pushSubscriptions', ua.uid), pushSub()));

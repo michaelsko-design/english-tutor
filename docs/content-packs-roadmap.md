@@ -246,7 +246,7 @@ Each grade gets built-in **decks of Ministry words** in the Vocabulary Vault. Le
 | ~2 Jun 2027 | `core-8` + decks: **curriculum complete** for the school year that ends ~20 Jun |
 | ~25 Jun / ~1 Aug 2027 | `summer-lookback`, `summer-ready` (seasonal) |
 
-Each release gets the 14-day "חדש!" tag and the NewPackCard. Telling parents through the portal or the weekly report is a later follow-up.
+Each release gets the 14-day "חדש!" tag, the NewPackCard and the `new-pack` reminder line. A seasonal pack can stay new longer (`newUntil`) and have its own card line (`announceBodyHe`): `holidays-autumn` ships free, new through 12 Dec 2026 (the end of Hanukkah), with a Hanukkah line. Telling parents through the portal or the weekly report is a later follow-up.
 
 **Writing pace, and the risk:**
 - `core-3` and the word-track feature must be ready by mid-February. That's about 14 weeks from now.

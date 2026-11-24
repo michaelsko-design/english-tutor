@@ -10,8 +10,15 @@ const HOOK = 'הכלב, הביצה והדג מחכים לכם!';
 
 describe('pickReminderHint', () => {
   it('names a different waiting thing on each of the next days', () => {
-    const days = ['2026-11-23', '2026-11-24', '2026-11-25'].map((day) => pickReminderHint(REMINDER_HINTS, day));
+    const rotating = REMINDER_HINTS.filter((hint) => hint !== 'new-pack');
+    const days = ['2026-11-23', '2026-11-24', '2026-11-25'].map((day) => pickReminderHint(rotating, day));
     expect(new Set(days).size).toBe(3);
+  });
+
+  it('names a new pack every day while it waits', () => {
+    ['2026-11-23', '2026-11-24', '2026-11-25'].forEach((day) =>
+      expect(pickReminderHint(['quick-review', 'new-pack', 'room-item'], day)).toBe('new-pack')
+    );
   });
 
   it('keeps the only hint, and has none when nothing waits', () => {
@@ -39,6 +46,11 @@ describe('getReminderWaiting', () => {
     const waiting = getReminderWaiting(profile, { storyHookHe: HOOK });
     expect(waiting.nextMissionHookHe).toBe(HOOK);
     expect(waiting.waitingHints).toEqual(['quick-review', 'room-item', 'next-mission']);
+  });
+
+  it('adds the new pack with its id', () => {
+    const waiting = getReminderWaiting(makeProfile({ unlockedRewardIds: [], missedWords: undefined }), null, 'holidays-autumn');
+    expect(waiting).toEqual({ waitingHints: ['new-pack'], newPackId: 'holidays-autumn' });
   });
 
   it('leaves out the starter plant, too few missed words and a missing mission', () => {
@@ -92,6 +104,13 @@ describe('buildReminderMessage with something waiting', () => {
     expect(buildReminderMessage({ streakDays: 4, gender: 'girl', hint: 'quick-review' }, 'streak').body).toContain('בואי');
     expect(buildReminderMessage({ streakDays: 4, gender: 'boy', hint: 'room-item' }, 'comeback').body).toContain('בוא ');
     expect(buildReminderMessage({ streakDays: 4, hint: 'next-mission', nextMissionHookHe: HOOK }, 'streak').body).toBe(HOOK);
+  });
+
+  it("names a new pack by its title, in the learner's gender", () => {
+    const girl = buildReminderMessage({ streakDays: 4, gender: 'girl', hint: 'new-pack', newPackTitleHe: 'חגי הסתיו והחורף' }, 'streak').body;
+    const boy = buildReminderMessage({ streakDays: 4, gender: 'boy', hint: 'new-pack' }, 'comeback').body;
+    expect(girl).toBe('חדש באפליקציה: חגי הסתיו והחורף! בואי לראות את המשימות החדשות.');
+    expect(boy).toBe('משימות חדשות נוספו למפה שלך. בוא לראות!');
   });
 
   it('never warns about losing the streak or carries an offer', () => {

@@ -29,21 +29,28 @@ export interface ReminderMessageFacts {
   hint?: ReminderTopic;
   /** The next mission's story hook from the curriculum (gender-neutral plural Hebrew) */
   nextMissionHookHe?: string;
+  /** The new pack's Hebrew title, for the `new-pack` hint */
+  newPackTitleHe?: string;
 }
 
-function buildHintBody(hint: ReminderTopic, isGirl: boolean, nextMissionHookHe?: string): string {
+function buildHintBody(hint: ReminderTopic, isGirl: boolean, facts: ReminderMessageFacts): string {
   const come = isGirl ? 'בואי' : 'בוא';
   if (hint === 'quick-review') return `כמה מילים מחכות לחזרה של דקה. ${come} נסדר אותן!`;
   // No friend's name: the push shows on a lock screen
   if (hint === 'friend-contest') return `תחרות עם חבר או חברה מחכה לך. ${come} לשחק!`;
   if (hint === 'room-item') return `פריט חדש מחכה לך בחדר. ${come} למצוא לו מקום!`;
-  return nextMissionHookHe ?? `המשימה הבאה שלך מחכה. ${come} נצא לדרך!`;
+  if (hint === 'new-pack') {
+    return facts.newPackTitleHe
+      ? `חדש באפליקציה: ${facts.newPackTitleHe}! ${come} לראות את המשימות החדשות.`
+      : `משימות חדשות נוספו למפה שלך. ${come} לראות!`;
+  }
+  return facts.nextMissionHookHe ?? `המשימה הבאה שלך מחכה. ${come} נצא לדרך!`;
 }
 
 /** Gender-aware Hebrew text; the streak count is only a number so there is no English to isolate. */
 export function buildReminderMessage(facts: ReminderMessageFacts, kind: ReminderKind): ReminderMessage {
   const isGirl = facts.gender === 'girl';
-  if (facts.hint) return { title: REMINDER_TITLE, body: buildHintBody(facts.hint, isGirl, facts.nextMissionHookHe) };
+  if (facts.hint) return { title: REMINDER_TITLE, body: buildHintBody(facts.hint, isGirl, facts) };
   if (kind === 'streak') {
     // "של 1 ימים" is not Hebrew: a one-day streak is named without a count
     const streakHe = facts.streakDays > 1 ? `הרצף שלך של ${facts.streakDays} ימים` : 'הרצף שלך';

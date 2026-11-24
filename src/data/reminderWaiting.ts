@@ -54,17 +54,27 @@ export function getUsualReminderHour(log: readonly ActivityLogEntry[] | undefine
 export interface ReminderWaiting {
   waitingHints: ReminderHint[];
   nextMissionHookHe?: string;
+  /** The new pack behind the `new-pack` hint (`getWaitingNewPackId`) */
+  newPackId?: string;
 }
 
-/** What waits for the learner now: missed words to review, a room item to place, the next mission. */
-export function getReminderWaiting(profile: LearnerProfile, nextMission: Pick<MissionNode, 'storyHookHe'> | null): ReminderWaiting {
+/**
+ * What waits for the learner now: missed words to review, a room item to place, the next mission,
+ * a newly released pack not started yet.
+ */
+export function getReminderWaiting(
+  profile: LearnerProfile,
+  nextMission: Pick<MissionNode, 'storyHookHe'> | null,
+  newPackId: string | null = null
+): ReminderWaiting {
   const hook = nextMission?.storyHookHe.trim();
   const nextMissionHookHe = hook && hook.length <= MISSION_HOOK_MAX_LENGTH ? hook : undefined;
   const waitingHints = REMINDER_HINTS.filter((hint) => {
     if (hint === 'quick-review') return getWaitingMissedWords(profile.missedWords).length >= QUICK_REVIEW_MIN_WORDS;
     // An item the learner earned or bought, not the starter plant every room begins with
     if (hint === 'room-item') return getUnplacedRoomItems(profile).some((item) => !ROOM_STARTER_ITEM_IDS.includes(item.id));
+    if (hint === 'new-pack') return newPackId !== null;
     return nextMission !== null;
   });
-  return { waitingHints, ...(nextMissionHookHe ? { nextMissionHookHe } : {}) };
+  return { waitingHints, ...(nextMissionHookHe ? { nextMissionHookHe } : {}), ...(newPackId ? { newPackId } : {}) };
 }

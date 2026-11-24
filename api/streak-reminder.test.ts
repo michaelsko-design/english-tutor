@@ -138,6 +138,14 @@ describe('streak-reminder cron', () => {
     expect(JSON.parse(sendPush.mock.calls[0][1]).body).toBe(hook);
   });
 
+  it('names a synced new pack by its title, ahead of the other hints', async () => {
+    const { run, sendPush } = setup([
+      subscription('u1', { waitingHints: ['quick-review', 'new-pack'], newPackId: 'holidays-autumn', updatedAt: '2026-10-27T10:00:00.000Z' }),
+    ]);
+    await run();
+    expect(JSON.parse(sendPush.mock.calls[0][1]).body).toBe('חדש באפליקציה: חגי הסתיו והחורף! בואי לראות את המשימות החדשות.');
+  });
+
   it("names a friend's contest that waits for the learner's turn, without the friend's name", async () => {
     const hook = 'הכלב, הביצה והדג מחכים לכם!';
     const open = { uids: ['f1', 'u1'], status: 'invited', expiresAtMs: NOW_MS + 3600_000, results: { f1: { correctCount: 5 } } };
@@ -164,6 +172,15 @@ describe('streak-reminder cron', () => {
         { id: 'c', fields: { ...base, status: 'declined' } },
       ]
     );
+    await run();
+    expect(JSON.parse(sendPush.mock.calls[0][1]).body).toBe(hook);
+  });
+
+  it('ignores a pack id that is not in the registry', async () => {
+    const hook = 'הכלב, הביצה והדג מחכים לכם!';
+    const { run, sendPush } = setup([
+      subscription('u1', { waitingHints: ['new-pack', 'next-mission'], newPackId: 'no-such-pack', nextMissionHookHe: hook }),
+    ]);
     await run();
     expect(JSON.parse(sendPush.mock.calls[0][1]).body).toBe(hook);
   });

@@ -22,10 +22,10 @@ function renderCard(readsHebrewAloud: boolean, isProLocked = false) {
 }
 
 describe('NewPackCard', () => {
-  it("names the pack and how many units it adds", () => {
+  it("names the pack and says its own seasonal line", () => {
     renderCard(false);
     expect(screen.getByRole('heading', { name: 'חדש! חגי הסתיו והחורף' })).toBeInTheDocument();
-    expect(screen.getByText('יחידה חדשה נוספה למפה שלך.')).toBeInTheDocument();
+    expect(screen.getByText('משימות חג חדשות מחכות במפה שלך, בדיוק בזמן לחנוכה!')).toBeInTheDocument();
   });
 
   it('opens the pack or closes the card', async () => {

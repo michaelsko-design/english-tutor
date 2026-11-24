@@ -12,11 +12,22 @@ export type ReminderHour = (typeof REMINDER_HOURS)[number];
 /** The hour for a learner who never chose one (the calendar reminder's hour too) */
 export const DEFAULT_REMINDER_HOUR: ReminderHour = 15;
 
-/** Something real waiting in the app; the reminder names one of them instead of the streak */
-export const REMINDER_HINTS = ['quick-review', 'room-item', 'next-mission'] as const;
+/**
+ * Something real waiting in the app; the reminder names one of them instead of the streak.
+ * `new-pack`: a newly released content pack the learner can play and hasn't started (`newPackId`).
+ */
+export const REMINDER_HINTS = ['quick-review', 'room-item', 'next-mission', 'new-pack'] as const;
 export type ReminderHint = (typeof REMINDER_HINTS)[number];
+/** Named every day while it waits, ahead of the daily rotation: new content is news only for a while */
+const PRIORITY_HINT: ReminderHint = 'new-pack';
 /** Longest mission story hook kept for the reminder (firestore.rules has the same limit) */
 export const MISSION_HOOK_MAX_LENGTH = 160;
+/** A content pack id as stored for the reminder (firestore.rules checks the same pattern) */
+const PACK_ID_PATTERN = /^[a-z0-9-]{1,24}$/;
+
+export function isStoredPackId(value: unknown): value is string {
+  return typeof value === 'string' && PACK_ID_PATTERN.test(value);
+}
 
 export function isReminderHour(value: unknown): value is ReminderHour {
   return typeof value === 'number' && (REMINDER_HOURS as readonly number[]).includes(value);
@@ -37,8 +48,12 @@ function dayNumber(dateStr: string): number {
   return Math.floor(Date.UTC(year, month - 1, day) / 86_400_000);
 }
 
-/** One hint a day, a different one each day when several wait, so no reminder repeats itself. */
+/**
+ * One hint a day: a new pack while it waits, else a different one each day when several wait, so no
+ * reminder repeats itself.
+ */
 export function pickReminderHint(hints: readonly ReminderHint[], dateStr: string): ReminderHint | undefined {
+  if (hints.includes(PRIORITY_HINT)) return PRIORITY_HINT;
   if (hints.length === 0) return undefined;
   return hints[((dayNumber(dateStr) % hints.length) + hints.length) % hints.length];
 }

@@ -4,8 +4,9 @@
  * their hour). Each run sends to the learners whose chosen Israel hour it is now
  * (`reminderHour`, `DEFAULT_REMINDER_HOUR` when none), on a day they have not practised yet (never
  * on Friday/Shabbat for Shabbat observers). The text names something waiting in the app (missed
- * words, a room item, the next mission's story hook; a different one each day; a friend's contest
- * waiting for the learner's turn first), or else "keep your
+ * words, a room item, the next mission's story hook; a different one each day; a newly released pack
+ * first, also for a learner whose app has not run since it shipped; then a friend's contest waiting
+ * for the learner's turn), or else "keep your
  * streak" / "come back, just 5 minutes". A learner already reminded today is skipped, since Vercel
  * may run a job twice. Vercel Cron authenticates with `Authorization: Bearer $CRON_SECRET`.
  * Subscriptions the push service reports as gone (404/410) are deleted.
@@ -22,10 +23,19 @@ import {
   isPushServiceEndpoint,
   isReminderDue,
   isReminderHourNow,
+  getPackTitleHe,
+  getReminderNewPackId,
   type ReminderKind,
   type ReminderSubscriber,
 } from './_lib/streakReminder.js';
-import { MISSION_HOOK_MAX_LENGTH, isReminderHint, isReminderHour, pickReminderHint } from '../src/data/reminderSchedule.js';
+import {
+  MISSION_HOOK_MAX_LENGTH,
+  isReminderHint,
+  isReminderHour,
+  isStoredPackId,
+  pickReminderHint,
+  type ReminderHint,
+} from '../src/data/reminderSchedule.js';
 import { isContestWaitingFor } from '../src/data/contestReminder.js';
 import type { ReminderTopic } from '../src/data/reminderMessage.js';
 
@@ -65,8 +75,20 @@ async function defaultSendPush(
 }
 
 function toSubscriber(doc: PlainDocument): (ReminderSubscriber & PushTarget) | null {
-  const { endpoint, p256dh, auth, streakDays, streakLastDateStr, isShabbatObserver, gender, reminderHour, waitingHints, nextMissionHookHe } =
-    doc.fields;
+  const {
+    endpoint,
+    p256dh,
+    auth,
+    streakDays,
+    streakLastDateStr,
+    isShabbatObserver,
+    gender,
+    reminderHour,
+    waitingHints,
+    nextMissionHookHe,
+    newPackId,
+    updatedAt,
+  } = doc.fields;
   if (typeof endpoint !== 'string' || typeof p256dh !== 'string' || typeof auth !== 'string') return null;
   if (!isPushServiceEndpoint(endpoint)) return null;
   if (typeof streakDays !== 'number') return null;
@@ -82,7 +104,25 @@ function toSubscriber(doc: PlainDocument): (ReminderSubscriber & PushTarget) | n
     waitingHints: Array.isArray(waitingHints) ? waitingHints.filter(isReminderHint) : undefined,
     nextMissionHookHe:
       typeof nextMissionHookHe === 'string' && nextMissionHookHe.length <= MISSION_HOOK_MAX_LENGTH ? nextMissionHookHe : undefined,
+    newPackId: isStoredPackId(newPackId) ? newPackId : undefined,
+    updatedAt: typeof updatedAt === 'string' ? updatedAt : undefined,
   };
+}
+
+/**
+ * The day's message: a new pack (synced, or one the app never saw) comes first, then a friend's
+ * contest that waits for the learner's turn (it closes at midnight), else today's hint.
+ */
+function buildMessageFor(subscriber: ReminderSubscriber, kind: ReminderKind, today: string, hasContestWaiting: boolean): string {
+  const newPackId = getReminderNewPackId(subscriber, today);
+  const hints: ReminderHint[] = (subscriber.waitingHints ?? []).filter((hint) => hint !== 'new-pack');
+  const hint: ReminderTopic | undefined = newPackId
+    ? 'new-pack'
+    : hasContestWaiting
+      ? 'friend-contest'
+      : pickReminderHint(hints, today);
+  const newPackTitleHe = newPackId ? getPackTitleHe(newPackId) : undefined;
+  return JSON.stringify(buildReminderMessage({ ...subscriber, hint, newPackTitleHe }, kind));
 }
 
 function statusOf(error: unknown): number | undefined {
@@ -151,11 +191,8 @@ export async function handleStreakReminderRequest(
       try {
         if (await wasSentToday(admin, subscriber.id, today)) continue;
         const kind = getReminderKind(subscriber, today);
-        // A friend's contest closes at midnight, so it comes ahead of the daily rotation
-        const hint: ReminderTopic | undefined = (await hasContestWaiting(admin, subscriber.id, nowMs()))
-          ? 'friend-contest'
-          : pickReminderHint(subscriber.waitingHints ?? [], today);
-        await sendPush(subscriber, JSON.stringify(buildReminderMessage({ ...subscriber, hint }, kind)), vapid);
+        const isContestWaiting = await hasContestWaiting(admin, subscriber.id, nowMs());
+        await sendPush(subscriber, buildMessageFor(subscriber, kind, today, isContestWaiting), vapid);
         sent += 1;
         await logSend(admin, subscriber.id, today, kind);
       } catch (error) {
