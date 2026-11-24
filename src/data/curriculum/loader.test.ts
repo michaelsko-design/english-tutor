@@ -25,7 +25,8 @@ describe('loadGradeCurriculum', () => {
 
     const pack = await loadGradeCurriculum('grade-3');
 
-    expect(pack.units).toEqual(BASE_CURRICULUM_BY_GRADE['grade-3'].units);
+    // The grade's own units first, released packs' units after them
+    expect(pack.units.filter((u) => !u.packId)).toEqual(BASE_CURRICULUM_BY_GRADE['grade-3'].units);
     expect(getLoadedGrade('grade-3')).toBe(pack);
     expect(await loadGradeCurriculum('grade-3')).toBe(pack);
   });

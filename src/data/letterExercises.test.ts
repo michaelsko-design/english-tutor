@@ -10,7 +10,8 @@ import { LearnerGender, ProficiencyTier } from '../types/learner';
 
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
 const GENDERS: LearnerGender[] = ['girl', 'boy'];
-const GRADE_1 = CURRICULUM_BY_GRADE['grade-1'];
+// The grade's own units; released content packs come after them
+const GRADE_1 = { ...CURRICULUM_BY_GRADE['grade-1'], units: CURRICULUM_BY_GRADE['grade-1'].units.filter((u) => !u.packId) };
 const PHONICS_MISSIONS: MissionNode[] = GRADE_1.units.filter(isPhonicsUnit).flatMap((u) => u.missions);
 const LETTER_MISSIONS = PHONICS_MISSIONS.filter((m) => m.phonics?.kind === 'letters');
 const BLEND_MISSIONS = PHONICS_MISSIONS.filter((m) => m.phonics?.kind === 'blending');

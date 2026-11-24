@@ -21,6 +21,7 @@ import { getSentenceOrderHintHe, isolateLtr } from '../utils/hints';
 import { hebrewTemplate } from '../utils/hebrewGender';
 import { loadGradeCurriculum } from './curriculum/loader';
 import { ALL_PACK_EXAM_BANK_LOADERS } from './curriculum/packs';
+import { HOLIDAYS_EXAM_BANK_LOADERS } from './curriculum/packs/holidays';
 import { mergeExamBank, packLoadersInGrade } from './curriculum/packs/merge';
 import { IS_PACK_PREVIEW } from './curriculum/packs/registry';
 import type { ContentPackId, PackExamBankLoaders } from './curriculum/packs/types';
@@ -59,7 +60,9 @@ function getGradeNumber(gradeId: GradeId): number {
  * The released content packs' bank loaders. When a pack ships, add its loaders here
  * (`./curriculum/packs/<id>`) next to its entry in `RELEASED_CONTENT_PACKS`.
  */
-const RELEASED_PACK_EXAM_BANK_LOADERS: Partial<Record<ContentPackId, PackExamBankLoaders>> = {};
+const RELEASED_PACK_EXAM_BANK_LOADERS: Partial<Record<ContentPackId, PackExamBankLoaders>> = {
+  'holidays-autumn': HOLIDAYS_EXAM_BANK_LOADERS,
+};
 
 const PACK_EXAM_BANK_LOADERS: Partial<Record<ContentPackId, PackExamBankLoaders>> = IS_PACK_PREVIEW
   ? ALL_PACK_EXAM_BANK_LOADERS

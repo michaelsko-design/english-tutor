@@ -5,6 +5,7 @@
  */
 import type { GradeId } from '../../types/learner';
 import { ALL_PACK_CURRICULA } from './packs';
+import { HOLIDAYS_AUTUMN_CURRICULUM } from './packs/holidays';
 import { getPackUnits, mergeCurriculum } from './packs/merge';
 import { CONTENT_PACK_IDS, IS_PACK_PREVIEW, RELEASED_CONTENT_PACKS } from './packs/registry';
 import type { ContentPackId, PackCurriculum } from './packs/types';
@@ -30,7 +31,9 @@ export const GRADE_CURRICULUM_LOADERS: Record<GradeId, () => Promise<GradeCurric
  * The released content packs' units. When a pack ships, import its curriculum here
  * (`./packs/<id>`) next to its entry in `RELEASED_CONTENT_PACKS`.
  */
-const RELEASED_PACK_CURRICULA: Partial<Record<ContentPackId, PackCurriculum>> = {};
+const RELEASED_PACK_CURRICULA: Partial<Record<ContentPackId, PackCurriculum>> = {
+  'holidays-autumn': HOLIDAYS_AUTUMN_CURRICULUM,
+};
 
 const PACK_IDS: readonly ContentPackId[] = IS_PACK_PREVIEW
   ? CONTENT_PACK_IDS

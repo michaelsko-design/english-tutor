@@ -32,6 +32,7 @@ import { ExamPrepPlan, ExamSkill, LearnerProfile } from '../types/learner';
 import { GRADE_7_EXAM_BANK } from './curriculum/examBank/grade7';
 import { EXAM_MOCK_RESERVED_PER_LIST, EXAM_BANK_ITEMS_PER_LIST } from './curriculum/examBank/types';
 import { preloadCurriculum } from '../test/curriculum';
+import { RELEASED_CONTENT_PACKS } from './curriculum/packs/registry';
 
 // These tests read the loaded grades (the app loads them per grade, see the loader)
 await preloadCurriculum();
@@ -201,7 +202,8 @@ describe('getUnitOptions', () => {
   it('lists the grade units with their grammar topics', () => {
     const units = getUnitOptions('grade-7');
 
-    expect(units).toHaveLength(4);
+    // The grade's 4 units, then one per released pack
+    expect(units).toHaveLength(4 + RELEASED_CONTENT_PACKS.length);
     expect(units[0].unitNumber).toBe(1);
     expect(units[0].topics.length).toBeGreaterThan(0);
   });
