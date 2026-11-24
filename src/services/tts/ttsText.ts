@@ -158,6 +158,23 @@ export function splitHebrewCloser(text: string): { body: string; closer: string 
   return null;
 }
 
+/**
+ * Hebrew sentences said after an English word in many lines ("card היא מילה אחרת מהרשימה."). Inside
+ * one Gemini clip the word took a Hebrew accent, so the word is its own clip, read by the same
+ * Gemini voice with no Hebrew around it, and the sentence after it is one shared clip (a picked take).
+ */
+export const HEBREW_SHARED_MIDDLES = ['היא מילה אחרת מהרשימה.'] as const;
+
+/** A line that is an English word (or words) and then a shared middle: the word and the middle. */
+export function splitEnglishLead(text: string): { lead: string; middle: string } | null {
+  for (const middle of HEBREW_SHARED_MIDDLES) {
+    if (!text.endsWith(` ${middle}`)) continue;
+    const lead = text.slice(0, -middle.length).trim();
+    if (/^[A-Za-z]/.test(lead) && !HEBREW_LETTER.test(lead)) return { lead, middle };
+  }
+  return null;
+}
+
 /** One clip of a line said in parts: 'he' is the Hebrew voice, 'en' the English voice. */
 export interface HebrewLinePart {
   text: string;
@@ -166,7 +183,8 @@ export interface HebrewLinePart {
 
 /**
  * The parts a Hebrew line is said in, one clip each, back to back: its shared opener, its own text
- * and its shared closer. Null for a line said as one clip.
+ * and its shared closer. Null for a line said as one clip. An English word before a shared middle
+ * is a part of its own (splitEnglishLead), still in the Hebrew (Gemini) voice.
  * Only an opener line whose rest is an English sentence switches to the English voice.
  */
 export function hebrewLineParts(text: string): HebrewLinePart[] | null {
@@ -176,9 +194,10 @@ export function hebrewLineParts(text: string): HebrewLinePart[] | null {
   const body = closed?.body ?? afterOpener;
   if (!opened && !closed) return null;
   const english = opened && !closed ? englishRestOf(body) : null;
+  const led = opened ? null : splitEnglishLead(body);
   const he = (part: string): HebrewLinePart => ({ text: part, voice: 'he' });
-  const bodyPart: HebrewLinePart = english ? { text: english, voice: 'en' } : he(body);
-  return [...(opened ? [he(opened.opener)] : []), bodyPart, ...(closed ? [he(closed.closer)] : [])];
+  const bodyParts: HebrewLinePart[] = english ? [{ text: english, voice: 'en' }] : led ? [he(led.lead), he(led.middle)] : [he(body)];
+  return [...(opened ? [he(opened.opener)] : []), ...bodyParts, ...(closed ? [he(closed.closer)] : [])];
 }
 
 /**

@@ -15,9 +15,18 @@ describe('partsOfLine', () => {
   });
 
   it('is the line, then the shared closer', () => {
+    const parts = partsOfLine('[to:boy] כמעט. אמור את המילה לאט ונסה שוב!');
+    expect(parts).toEqual([
+      { voice: 'he', key: getClipKey('כמעט.', 'normal') },
+      { voice: 'he', key: getClipKey('אמור את המילה לאט ונסה שוב!', 'normal') },
+    ]);
+  });
+
+  it('is the English lead word, the shared middle, then the closer', () => {
     const parts = partsOfLine('[to:boy] card היא מילה אחרת מהרשימה. נסה שוב!');
     expect(parts).toEqual([
-      { voice: 'he', key: getClipKey('card היא מילה אחרת מהרשימה.', 'normal') },
+      { voice: 'he', key: getClipKey('card', 'normal') },
+      { voice: 'he', key: '1rvtrnh60e' },
       { voice: 'he', key: getClipKey('נסה שוב!', 'normal') },
     ]);
   });

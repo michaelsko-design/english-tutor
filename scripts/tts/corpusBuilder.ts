@@ -7,10 +7,13 @@ import {
   getSpeedBucket,
   MAX_CLIP_CHARS,
   hebrewLineParts,
+  isCloudSpeakable,
   toSpeakableText,
   type TtsSpeed,
 } from '../../src/services/tts/ttsText';
 import { dropWrongGender } from './wrongGender';
+
+const HEBREW_LETTER_TEST = /[א-ת]/;
 
 export interface CorpusPhrase {
   key: string;
@@ -47,7 +50,11 @@ export class CorpusBuilder {
     const parts = this.isAddressed && this.isSplittingLines ? hebrewLineParts(text) : null;
     if (parts) {
       // An English part is the English corpus's clip (addEnglishOpenerRests), read by the English voice
-      parts.filter((part) => part.voice === 'he').forEach((part) => this.add(part.text, rate));
+      parts.filter((part) => part.voice === 'he').forEach((part) => {
+        // An English lead word (splitEnglishLead) is read by the Hebrew voice, alone, so it is checked as English
+        if (HEBREW_LETTER_TEST.test(part.text)) this.add(part.text, rate);
+        else this.addClip(getClipText(part.text), rate, isCloudSpeakable);
+      });
       return;
     }
     const girl = this.isAddressed ? voiceForListener(text, 'girl') : text;
@@ -60,8 +67,8 @@ export class CorpusBuilder {
     this.addClip(text, rate);
   }
 
-  private addClip(text: string, rate: number): void {
-    if (!this.isSpeakable(text, MAX_CLIP_CHARS)) {
+  private addClip(text: string, rate: number, isSpeakable = this.isSpeakable): void {
+    if (!isSpeakable(text, MAX_CLIP_CHARS)) {
       this.skipped.push(text);
       return;
     }

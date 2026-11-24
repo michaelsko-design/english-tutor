@@ -5,6 +5,8 @@
  *   npm run tts:render:he -- submit general [--skip "<text>"]   only the lines every learner meets
  *                                      (feedback, cards, decks, the 1-minute review), not a unit's
  *                                      lines; --skip leaves out the lines containing <text>
+ *   npm run tts:render:he -- submit lead   only the English lead words said alone (splitEnglishLead);
+ *                                      collect trims the quiet after them
  *   npm run tts:render:he -- status    shows how the submitted batches are doing
  *   npm run tts:render:he -- regenerate   sends the clips marked "regenerate" in the review (npm run tts:review:he)
  *                                      as new takes; collect saves them to .tts-candidates, the originals stay
@@ -32,8 +34,8 @@ import {
   GEMINI_TTS_MODEL,
   joinPcm,
   encodeMp3,
-  responseToMp3,
   responseToPcm,
+  trimTrailingSilence,
   type GeminiResponse,
   type Pcm,
 } from './geminiTts';
@@ -55,6 +57,8 @@ const STATE_FILE = join(process.cwd(), '.tts-gemini-batches.json');
 /** Requests per batch: a batch's answer holds all its audio inline, so it stays tens of MB. */
 const BATCH_SIZE = 300;
 const LAB_PER_CLASS = 4;
+/** Quiet kept after a lone English word: the owner picked the tight takes by ear (2026-11-24). */
+const LEAD_WORD_TAIL_MS = 80;
 const DONE_STATES = new Set(['BATCH_STATE_SUCCEEDED', 'BATCH_STATE_FAILED', 'BATCH_STATE_CANCELLED', 'BATCH_STATE_EXPIRED']);
 
 /** 'lab': pieces of lines in several ways (geminiLab.ts), stitched into candidate takes. */
@@ -105,12 +109,12 @@ function missingPhrases(): CorpusPhrase[] {
 }
 
 async function submit(apiKey: string, scope?: string, skipText?: string): Promise<void> {
-  if (scope !== undefined && scope !== 'general') throw new Error(`Unknown submit scope "${scope}"; use general.`);
+  if (scope !== undefined && scope !== 'general' && scope !== 'lead') throw new Error(`Unknown submit scope "${scope}"; use general or lead.`);
   const missing = missingPhrases();
   const general = scope === 'general' ? new Set(buildGeneralHebrewCorpus().list().map((phrase) => phrase.key)) : null;
-  const todo = missing.filter(
-    (phrase) => (!general || general.has(phrase.key)) && (!skipText || !phrase.text.includes(skipText))
-  );
+  // 'lead': only the English lead words said alone (splitEnglishLead)
+  const isInScope = (phrase: CorpusPhrase) => (scope === 'lead' ? !/[א-ת]/.test(phrase.text) : !general || general.has(phrase.key));
+  const todo = missing.filter((phrase) => isInScope(phrase) && (!skipText || !phrase.text.includes(skipText)));
   console.log(`${missing.length} Hebrew phrases without a clip; sending ${todo.length}.`);
   return submitPhrases(apiKey, todo, 'clip');
 }
@@ -234,6 +238,8 @@ async function collect(apiKey: string, isDryRun: boolean): Promise<void> {
   let failed = 0;
   mkdirSync(getVoiceDir(HEBREW_VOICE), { recursive: true });
   mkdirSync(CANDIDATE_DIR, { recursive: true });
+  // A line's English lead word (splitEnglishLead): its tail is cut so the shared middle follows closely
+  const loneEnglish = new Set(collectCorpus(HEBREW_VOICE).filter((phrase) => !/[א-ת]/.test(phrase.text)).map((phrase) => phrase.key));
   for (const batch of readState()) {
     const status = await gemini<BatchStatus>(apiKey, batch.name);
     const state = status.metadata?.state ?? 'unknown';
@@ -255,7 +261,8 @@ async function collect(apiKey: string, isDryRun: boolean): Promise<void> {
     }
     for (const item of await batchItems(apiKey, status)) {
       const key = item.metadata?.key;
-      const mp3 = item.response ? responseToMp3(item.response) : null;
+      const pcm = item.response ? responseToPcm(item.response) : null;
+      const mp3 = pcm ? encodeMp3(key && loneEnglish.has(key) ? trimTrailingSilence(pcm, LEAD_WORD_TAIL_MS) : pcm) : null;
       if (!key || !mp3) {
         failed += 1;
         console.error(`No audio for ${key ?? '?'}: ${item.error?.message ?? 'empty answer'}`);

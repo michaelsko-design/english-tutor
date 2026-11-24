@@ -99,7 +99,8 @@ function main(): void {
     const clips = hebrewLineClips(text, gender);
     // Only lines with a shared closer: the opener-only lines are tts:cut:he's
     const hasCloser = parts?.some((part, index) => index > 0 && SHARED_TEXTS.has(getClipText(part.text)));
-    if (!parts || !clips || !hasCloser || parts.some((part) => part.voice === 'en')) continue;
+    // An English lead word is rendered on its own (splitEnglishLead): cut from the line it had the accent
+    if (!parts || !clips || !hasCloser || parts.some((part) => part.voice === 'en') || !/[א-ת]/.test(parts[0]?.text ?? '')) continue;
     const pieces = parts.map((part, index) => ({ text: part.text, key: (clips[index] as { key: string }).key }));
     const isShared = (piece: Piece) => SHARED_TEXTS.has(getClipText(piece.text));
     const isWanted = (piece: Piece) => !isShared(piece) && !rendered.has(piece.key) && !made.has(piece.key);

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   addListenerGender,
   splitHebrewCloser,
+  splitEnglishLead,
   hebrewLineParts,
   splitHebrewOpener,
   parseListenerGender,
@@ -214,6 +215,20 @@ describe('splitHebrewCloser', () => {
   });
 });
 
+describe('splitEnglishLead', () => {
+  it('splits an English word off a shared middle', () => {
+    expect(splitEnglishLead('card היא מילה אחרת מהרשימה.')).toEqual({ lead: 'card', middle: 'היא מילה אחרת מהרשימה.' });
+    expect(splitEnglishLead('Of course! היא מילה אחרת מהרשימה.')).toEqual({ lead: 'Of course!', middle: 'היא מילה אחרת מהרשימה.' });
+  });
+
+  it('leaves other lines alone: other Hebrew after the word, Hebrew in the lead, or no lead', () => {
+    expect(splitEnglishLead('J כמו מיץ')).toBeNull();
+    expect(splitEnglishLead('ב-card היא מילה אחרת מהרשימה.')).toBeNull();
+    expect(splitEnglishLead('היא מילה אחרת מהרשימה.')).toBeNull();
+    expect(splitEnglishLead('fox היא מילה אחרת מהרשימה. עוד')).toBeNull();
+  });
+});
+
 describe('hebrewLineParts', () => {
   it('says an opener line as the opener, its own text and the closer', () => {
     expect(hebrewLineParts('לא בדיוק — cat פירושו "חתול". נסה שוב!')).toEqual([
@@ -224,10 +239,19 @@ describe('hebrewLineParts', () => {
   });
 
   it('says a line with only a closer as its own text, then the closer', () => {
+    expect(hebrewLineParts('כמעט. אמרי את המילה לאט ונסי שוב!')).toEqual([
+      { text: 'כמעט.', voice: 'he' },
+      { text: 'אמרי את המילה לאט ונסי שוב!', voice: 'he' },
+    ]);
+  });
+
+  it('says an English lead word on its own, in the Hebrew voice, before a shared middle and the closer', () => {
     expect(hebrewLineParts('card היא מילה אחרת מהרשימה. נסי שוב!')).toEqual([
-      { text: 'card היא מילה אחרת מהרשימה.', voice: 'he' },
+      { text: 'card', voice: 'he' },
+      { text: 'היא מילה אחרת מהרשימה.', voice: 'he' },
       { text: 'נסי שוב!', voice: 'he' },
     ]);
+    expect(hebrewLineParts('happy birthday היא מילה אחרת מהרשימה. נסה שוב!')?.map((part) => part.text)[0]).toBe('happy birthday');
   });
 
   it('keeps the English voice only for an English rest after an opener', () => {

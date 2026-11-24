@@ -14,7 +14,7 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { join } from 'node:path';
-import { getClipText, HEBREW_CLOSERS, HEBREW_OPENERS, HEBREW_VOICE } from '../../src/services/tts/ttsText';
+import { getClipText, HEBREW_CLOSERS, HEBREW_OPENERS, HEBREW_SHARED_MIDDLES, HEBREW_VOICE } from '../../src/services/tts/ttsText';
 import { bumpClipRevisions, unbumpClipRevisions } from './clipRevisions';
 import { collectCorpus } from './corpus';
 import { toGeminiText } from './geminiSpelling';
@@ -57,7 +57,7 @@ const knownKeys = new Set(phrases.map((phrase) => phrase.key));
 const spokenByKey = new Map(phrases.map((phrase) => [phrase.key, toGeminiText(phrase.text)]));
 /** The shared openers and closers ("מעולה!", "נסי שוב!", …) are heard in hundreds of lines, so they get their own group, first in the walk. */
 const OPENER_TEXTS: ReadonlySet<string> = new Set(
-  [...HEBREW_OPENERS, ...HEBREW_CLOSERS].map((part) => getClipText(part)),
+  [...HEBREW_OPENERS, ...HEBREW_SHARED_MIDDLES, ...HEBREW_CLOSERS].map((part) => getClipText(part)),
 );
 const OPENER_RANK = -1;
 const isOpenerClip = (text: string): boolean => OPENER_TEXTS.has(getClipText(text.replace(/^\[to:(?:girl|boy)\] /, '')));
