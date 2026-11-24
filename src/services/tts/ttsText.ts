@@ -128,6 +128,60 @@ export function splitHebrewOpener(text: string): { opener: string; rest: string 
 }
 
 /**
+ * Sentences that close many lines ("נסי שוב!" ends about 300). Like the openers, each is its own clip,
+ * rendered once, played after the rest of the line. The text already has the learner's form
+ * (נסי / נסה / נסו), so no gender tag is needed. Longest first, so a longer ending wins.
+ */
+export const HEBREW_CLOSERS = [
+  'לחצי על כפתור הרמקול, הקשיבי שוב ונסי שוב!',
+  'לחץ על כפתור הרמקול, הקשב שוב ונסה שוב!',
+  'קראו שוב אות אחרי אות ונסו שוב!',
+  'אמרי את המילה לאט ונסי שוב!',
+  'אמור את המילה לאט ונסה שוב!',
+  'הסתכלי על כל האותיות ונסי שוב!',
+  'הסתכל על כל האותיות ונסה שוב!',
+  'נסי שוב!',
+  'נסה שוב!',
+  'נסו שוב!',
+] as const;
+
+/** The end of a sentence: the closer follows a full stop, so the split falls on a natural pause. */
+const SENTENCE_END = /[.!?]["”)]?$/;
+
+/** A line that goes on and ends with a closer: the line before it and the closer. */
+export function splitHebrewCloser(text: string): { body: string; closer: string } | null {
+  for (const closer of HEBREW_CLOSERS) {
+    if (!text.endsWith(` ${closer}`)) continue;
+    const body = text.slice(0, -closer.length).trim();
+    if (body && SENTENCE_END.test(body)) return { body, closer };
+  }
+  return null;
+}
+
+/** One clip of a line said in parts: 'he' is the Hebrew voice, 'en' the English voice. */
+export interface HebrewLinePart {
+  text: string;
+  voice: 'he' | 'en';
+}
+
+/**
+ * The parts a Hebrew line is said in, one clip each, back to back: its shared opener, its own text
+ * and its shared closer. Null for a line said as one clip.
+ * Only an opener line whose rest is an English sentence switches to the English voice.
+ */
+export function hebrewLineParts(text: string): HebrewLinePart[] | null {
+  const opened = splitHebrewOpener(text);
+  const afterOpener = opened?.rest ?? text;
+  const closed = splitHebrewCloser(afterOpener);
+  const body = closed?.body ?? afterOpener;
+  if (!opened && !closed) return null;
+  const english = opened && !closed ? englishRestOf(body) : null;
+  const he = (part: string): HebrewLinePart => ({ text: part, voice: 'he' });
+  const bodyPart: HebrewLinePart = english ? { text: english, voice: 'en' } : he(body);
+  return [...(opened ? [he(opened.opener)] : []), bodyPart, ...(closed ? [he(closed.closer)] : [])];
+}
+
+/**
  * The rest of an opener line when it is an English sentence only (`"The king has a gold crown."`):
  * that sentence without its quotes, to be read by the English voice (the clip the app already has
  * for it), not by the Hebrew one. Null when the rest has Hebrew in it.

@@ -19,13 +19,12 @@ import { VOICE_MESSAGES } from '../../src/data/voiceMessages';
 import { DREAM_FRAMES } from '../../src/data/dreamJournal';
 import { DEMO_SENTENCE, DEMO_SENTENCE_RATE } from '../../src/services/tts/demoPhrases';
 import {
-  englishRestOf,
+  hebrewLineParts,
   HEBREW_VOICE,
   isCloudSpeakable,
   letterToken,
   parseLetterToken,
   parseListenerGender,
-  splitHebrewOpener,
   type ClipVoice,
 } from '../../src/services/tts/ttsText';
 import { ALPHABET } from '../../src/data/alphabet';
@@ -144,9 +143,8 @@ function addRoom(corpus: CorpusBuilder): void {
 /** The English sentence after a Hebrew opener ("מעולה! "The king has a gold crown.""): the English voice reads it. */
 function addEnglishOpenerRests(corpus: CorpusBuilder): void {
   for (const phrase of buildHebrewCorpus(false).list()) {
-    const split = splitHebrewOpener(parseListenerGender(phrase.text).text);
-    const english = split ? englishRestOf(split.rest) : null;
-    if (english) corpus.add(english);
+    const parts = hebrewLineParts(parseListenerGender(phrase.text).text) ?? [];
+    parts.filter((part) => part.voice === 'en').forEach((part) => corpus.add(part.text));
   }
 }
 

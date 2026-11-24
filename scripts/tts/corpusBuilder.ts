@@ -6,8 +6,7 @@ import {
   getClipText,
   getSpeedBucket,
   MAX_CLIP_CHARS,
-  englishRestOf,
-  splitHebrewOpener,
+  hebrewLineParts,
   toSpeakableText,
   type TtsSpeed,
 } from '../../src/services/tts/ttsText';
@@ -36,20 +35,19 @@ export class CorpusBuilder {
   constructor(
     private readonly isSpeakable: (text: string, maxChars: number) => boolean,
     private readonly isAddressed = false,
-    /** Off: a line that opens with a shared opener stays one clip (the lines before the split, to cut their clips). */
-    private readonly isSplittingOpeners = true,
+    /** Off: a line with a shared opener or closer stays one clip (the lines before the split, to cut their clips). */
+    private readonly isSplittingLines = true,
   ) {}
 
   add(rawText: string | undefined, rate = NORMAL_RATE): void {
     if (!rawText) return;
     const text = getClipText(toSpeakableText(rawText));
     if (!text) return;
-    // A line that opens with "מעולה!" is two clips, the opener (a girl and a boy form) and the rest
-    const split = this.isAddressed && this.isSplittingOpeners ? splitHebrewOpener(text) : null;
-    if (split) {
-      this.add(split.opener, rate);
-      // An English rest is the English corpus's clip (collectEnglishOpenerRests), read by the English voice
-      if (!englishRestOf(split.rest)) this.add(split.rest, rate);
+    // A line said in parts ("מעולה!" + the rest + "נסי שוב!"): a clip per part, the shared ones rendered once
+    const parts = this.isAddressed && this.isSplittingLines ? hebrewLineParts(text) : null;
+    if (parts) {
+      // An English part is the English corpus's clip (addEnglishOpenerRests), read by the English voice
+      parts.filter((part) => part.voice === 'he').forEach((part) => this.add(part.text, rate));
       return;
     }
     const girl = this.isAddressed ? voiceForListener(text, 'girl') : text;

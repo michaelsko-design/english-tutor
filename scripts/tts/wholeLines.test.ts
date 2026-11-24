@@ -14,7 +14,15 @@ describe('partsOfLine', () => {
     expect(parts?.[1]).toEqual({ voice: 'en', key: getClipKey('The king has a gold crown.', 'normal') });
   });
 
-  it('is null for a line without an opener', () => {
+  it('is the line, then the shared closer', () => {
+    const parts = partsOfLine('[to:boy] card היא מילה אחרת מהרשימה. נסה שוב!');
+    expect(parts).toEqual([
+      { voice: 'he', key: getClipKey('card היא מילה אחרת מהרשימה.', 'normal') },
+      { voice: 'he', key: getClipKey('נסה שוב!', 'normal') },
+    ]);
+  });
+
+  it('is null for a line without an opener or a closer', () => {
     expect(partsOfLine('שלום לכולם')).toBeNull();
   });
 });
@@ -22,10 +30,10 @@ describe('partsOfLine', () => {
 const CORPUS_TIMEOUT_MS = 60_000;
 
 describe('buildWholeLines', () => {
-  it('finds the lines of the corpus that start with an opener', () => {
+  it('finds the lines of the corpus said in parts', () => {
     const lines = buildWholeLines();
     expect(lines.length).toBeGreaterThan(100);
-    expect(lines.every((line) => line.parts.length === 2)).toBe(true);
+    expect(lines.every((line) => line.parts.length >= 2 && line.parts.length <= 3)).toBe(true);
     // Builds the whole Hebrew corpus: about 2 s alone, much longer while the full suite runs
   }, CORPUS_TIMEOUT_MS);
 });

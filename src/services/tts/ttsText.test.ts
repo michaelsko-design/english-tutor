@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   addListenerGender,
+  splitHebrewCloser,
+  hebrewLineParts,
   splitHebrewOpener,
   parseListenerGender,
   buildLiveTtsQuery,
@@ -193,6 +195,52 @@ describe('splitHebrewOpener', () => {
     expect(splitHebrewOpener('מעולה!')).toBeNull();
     expect(splitHebrewOpener('אמרו מעולה! cat')).toBeNull();
     expect(splitHebrewOpener('כל הכבוד!')).toBeNull();
+  });
+});
+
+describe('splitHebrewCloser', () => {
+  it('splits a shared ending off a line', () => {
+    expect(splitHebrewCloser('card היא מילה אחרת מהרשימה. נסה שוב!')).toEqual({ body: 'card היא מילה אחרת מהרשימה.', closer: 'נסה שוב!' });
+  });
+
+  it('prefers the longer ending', () => {
+    expect(splitHebrewCloser('כמעט. אמרי את המילה לאט ונסי שוב!')?.closer).toBe('אמרי את המילה לאט ונסי שוב!');
+  });
+
+  it('leaves the ending alone when it is not its own sentence or the whole line', () => {
+    expect(splitHebrewCloser('נסי שוב!')).toBeNull();
+    expect(splitHebrewCloser('הקשיבי ונסי שוב!')).toBeNull();
+    expect(splitHebrewCloser('בואו נסו שוב!')).toBeNull();
+  });
+});
+
+describe('hebrewLineParts', () => {
+  it('says an opener line as the opener, its own text and the closer', () => {
+    expect(hebrewLineParts('לא בדיוק — cat פירושו "חתול". נסה שוב!')).toEqual([
+      { text: 'לא בדיוק —', voice: 'he' },
+      { text: 'cat פירושו "חתול".', voice: 'he' },
+      { text: 'נסה שוב!', voice: 'he' },
+    ]);
+  });
+
+  it('says a line with only a closer as its own text, then the closer', () => {
+    expect(hebrewLineParts('card היא מילה אחרת מהרשימה. נסי שוב!')).toEqual([
+      { text: 'card היא מילה אחרת מהרשימה.', voice: 'he' },
+      { text: 'נסי שוב!', voice: 'he' },
+    ]);
+  });
+
+  it('keeps the English voice only for an English rest after an opener', () => {
+    expect(hebrewLineParts('כל הכבוד! "The king has a gold crown."')).toEqual([
+      { text: 'כל הכבוד!', voice: 'he' },
+      { text: 'The king has a gold crown.', voice: 'en' },
+    ]);
+    expect(hebrewLineParts('לא בדיוק — "The cat." נסו שוב!')?.map((part) => part.voice)).toEqual(['he', 'he', 'he']);
+  });
+
+  it('is null for a line said as one clip', () => {
+    expect(hebrewLineParts('שלום לכולם')).toBeNull();
+    expect(hebrewLineParts('הקשיבי ונסי שוב!')).toBeNull();
   });
 });
 
