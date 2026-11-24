@@ -5,6 +5,8 @@
  *   npm run tts:render:he -- submit general [--skip "<text>"]   only the lines every learner meets
  *                                      (feedback, cards, decks, the 1-minute review), not a unit's
  *                                      lines; --skip leaves out the lines containing <text>
+ *   npm run tts:render:he -- submit --only "<text>" [--only "<text>"]   only the missing lines that
+ *                                      start with one of the texts (a few clips, e.g. "run פירושו")
  *   npm run tts:render:he -- submit lead   only the English lead words said alone (splitEnglishLead);
  *                                      collect trims the quiet after them
  *   npm run tts:render:he -- status    shows how the submitted batches are doing
@@ -108,13 +110,14 @@ function missingPhrases(): CorpusPhrase[] {
   return collectCorpus(HEBREW_VOICE).filter((phrase) => !rendered.has(phrase.key));
 }
 
-async function submit(apiKey: string, scope?: string, skipText?: string): Promise<void> {
+async function submit(apiKey: string, scope?: string, skipText?: string, onlyStarts: readonly string[] = []): Promise<void> {
   if (scope !== undefined && scope !== 'general' && scope !== 'lead') throw new Error(`Unknown submit scope "${scope}"; use general or lead.`);
   const missing = missingPhrases();
   const general = scope === 'general' ? new Set(buildGeneralHebrewCorpus().list().map((phrase) => phrase.key)) : null;
   // 'lead': only the English lead words said alone (splitEnglishLead)
   const isInScope = (phrase: CorpusPhrase) => (scope === 'lead' ? !/[א-ת]/.test(phrase.text) : !general || general.has(phrase.key));
-  const todo = missing.filter((phrase) => isInScope(phrase) && (!skipText || !phrase.text.includes(skipText)));
+  const isPicked = (phrase: CorpusPhrase) => onlyStarts.length === 0 || onlyStarts.some((start) => phrase.text.startsWith(start));
+  const todo = missing.filter((phrase) => isInScope(phrase) && isPicked(phrase) && (!skipText || !phrase.text.includes(skipText)));
   console.log(`${missing.length} Hebrew phrases without a clip; sending ${todo.length}.`);
   return submitPhrases(apiKey, todo, 'clip');
 }
@@ -304,7 +307,9 @@ async function main(): Promise<void> {
   const apiKey = readApiKey();
   if (command === 'submit') {
     const skipIndex = process.argv.indexOf('--skip');
-    return submit(apiKey, argument === '--skip' ? undefined : argument, skipIndex >= 0 ? process.argv[skipIndex + 1] : undefined);
+    const onlyStarts = process.argv.flatMap((arg, index) => (process.argv[index - 1] === '--only' ? [arg] : []));
+    const scope = argument?.startsWith('--') ? undefined : argument;
+    return submit(apiKey, scope, skipIndex >= 0 ? process.argv[skipIndex + 1] : undefined, onlyStarts);
   }
   if (command === 'regenerate') return regenerate(apiKey, argument);
   if (command === 'lab') return lab(apiKey, process.argv.includes('dry'), process.argv.includes('models'));
