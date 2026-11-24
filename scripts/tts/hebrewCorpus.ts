@@ -33,6 +33,7 @@ import { STREAK_REWARD_SPOKEN_HE } from '../../src/data/streakReward';
 import { REMINDER_ASK_COPY } from '../../src/data/reminderAskCopy';
 import { CorpusBuilder } from './corpusBuilder';
 import { addDeckHebrew } from './deckCorpus';
+import { addQuickReviewHebrew } from './quickReviewCorpus';
 import { ALL_WORD_DECKS } from '../../src/data/wordDecks/all';
 
 const TIERS: ProficiencyTier[] = ['explorer', 'challenger', 'master'];
@@ -195,6 +196,7 @@ export function buildHebrewCorpus(isSplittingOpeners = true): CorpusBuilder {
   addLessons(corpus);
   addExamBanks(corpus);
   addWordDecks(corpus);
+  addQuickReviewHebrew(corpus);
   return corpus;
 }
 
@@ -212,6 +214,7 @@ export function buildGeneralHebrewCorpus(): CorpusBuilder {
   const corpus = new CorpusBuilder(isHebrewSpeakable, true);
   addFixedFeedback(corpus);
   addWordDecks(corpus);
+  addQuickReviewHebrew(corpus);
   for (const gradeId of HEBREW_AUDIO_GRADES) {
     const bossRecap = buildBossRecap(Object.values(ALL_LESSON_PACKS[gradeIdToNumber(gradeId)] ?? {}).slice(0, 1));
     addHebrew(corpus, bossRecap?.titleHe);

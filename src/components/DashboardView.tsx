@@ -31,6 +31,7 @@ import { AuthModal } from './AuthModal';
 
 import { applyPlacementToProfile, gradeIdToNumber } from '../data/placementTest';
 import type { WordDeck } from '../data/wordDecks/types';
+import { rollMissionSurprise } from '../data/victorySurprise';
 import { applyVocabPracticeReward, getTodayCounters, levelForXp, recordDailyActivity } from '../data/progressRewards';
 import { STREAK_SHIELD_ITEM_ID, addStreakShield, getCurrentStreak, getStreakShieldsLeft } from '../data/streak';
 import { toLocalDateStr } from '../utils/dates';
@@ -357,6 +358,8 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
     starsEarned: 1 | 2 | 3;
     xpEarned: number;
     diamondsEarned: number;
+    /** A victory-screen bonus (data/victorySurprise.ts); missing means none */
+    surpriseDiamonds?: number;
     wordsLearnedCount: number;
     isFullReward: boolean;
     isVoiceSkipped: boolean;
@@ -392,12 +395,17 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
       },
       missionTodayStr
     );
+    const surpriseDiamonds = result.surpriseDiamonds ?? 0;
+    const counters = surpriseDiamonds > 0
+      ? { ...withActivity.dailyCounters, surprisesToday: (withActivity.dailyCounters.surprisesToday ?? 0) + 1 }
+      : withActivity.dailyCounters;
     const newXp = withActivity.stats.xp + result.xpEarned;
     const roomReward = getRoomRewardForMission(profile, result.missionId, result.starsEarned);
     const missedWords = recordMissedWords(profile.missedWords, result.missedWords ?? [], missionTodayStr);
 
     onUpdateProfile({
       ...withActivity,
+      dailyCounters: counters,
       unlockedRewardIds: roomReward
         ? [...(profile.unlockedRewardIds || []), roomReward.id]
         : profile.unlockedRewardIds,
@@ -416,7 +424,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         level: levelForXp(newXp, withActivity.stats.level),
         stars: profile.stats.stars + starDelta,
         maxPossibleStars: totalGradeStarsPossible,
-        diamonds: withActivity.stats.diamonds + result.diamondsEarned + firstClearDiamonds,
+        diamonds: withActivity.stats.diamonds + result.diamondsEarned + surpriseDiamonds + firstClearDiamonds,
         wordsMastered: profile.stats.wordsMastered + result.wordsLearnedCount,
         missionsCompleted: profile.stats.missionsCompleted + 1,
       },
@@ -663,6 +671,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         <QuickReviewCard
           words={quickReviewWords}
           theme={theme}
+          readsHebrewAloud={playsHebrewAloud(profile.gradeId)}
           onStart={() => setQuickReviewRun({ words: quickReviewWords, runId: Date.now() })}
         />
 
@@ -857,6 +866,9 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             ladder={getMissionLadder(profile, activePracticeMission.id)}
             onCompleteMission={handleCompleteMission}
             getNextStep={(starsEarned) => getMissionNextStep(activePracticeMission.id, starsEarned)}
+            getSurpriseDiamonds={(isFullReward) =>
+              rollMissionSurprise({ isFullReward, todayCounters: dailyCounters, learnerSeed: profile.createdAt, todayStr })
+            }
             onClose={handleCloseMission}
             roomRewardPreview={
               (profile.missionProgress?.[activePracticeMission.id] || 0) < 3 ? getNextRoomReward(profile) : null

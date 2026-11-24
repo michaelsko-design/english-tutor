@@ -4,6 +4,7 @@ import { celebrate } from '../../utils/celebrate';
 import { MagnetChange } from '../../utils/magnetOrder';
 import {
   ExamAnswer,
+  getExamStepMissedWords,
   ExamSessionStep,
   buildMockExamSteps,
   buildSessionSteps,
@@ -88,7 +89,13 @@ export const ExamSessionRunner: React.FC<ExamSessionRunnerProps> = ({
   /** Records the answer once: practice scores the first try, the mock exam the only try. */
   const resolveStep = (isCorrect: boolean, text: string) => {
     // Written by step index, so a step can never be counted twice.
-    const answer: ExamAnswer = { skill: step.skill, isCorrect: isCorrect && !hasMissed };
+    const isRightFirstTry = isCorrect && !hasMissed;
+    const missedWords = isRightFirstTry ? [] : getExamStepMissedWords(plan.gradeId, step);
+    const answer: ExamAnswer = {
+      skill: step.skill,
+      isCorrect: isRightFirstTry,
+      ...(missedWords.length > 0 ? { missedWords } : {}),
+    };
     session.resolve(answer, { isCorrect, text });
   };
 

@@ -19,6 +19,7 @@ import {
   buildSessionSteps,
   getConfidenceTips,
   getDayStatus,
+  getExamStepMissedWords,
   getNextSession,
   getStudyDates,
   getUnitOptions,
@@ -333,6 +334,21 @@ describe('scoring', () => {
 describe('applyExamResultToProfile', () => {
   const now = new Date('2026-10-18T10:00:00.000Z');
 
+  it('sends the words of wrong vocabulary questions to the 1-minute review', () => {
+    const profile = { ...baseProfile, examPrep: makePlan() };
+    const updated = applyExamResultToProfile(
+      profile,
+      0,
+      [
+        { skill: 'vocabulary', isCorrect: false, missedWords: [{ wordEn: 'invent', translationHe: 'להמציא' }] },
+        { skill: 'grammar', isCorrect: true },
+      ],
+      now
+    );
+    expect(updated.missedWords?.invent).toMatchObject({ wordEn: 'invent', missedOn: '2026-10-18' });
+    expect(applyExamResultToProfile(profile, 0, answers('grammar', 4, 5), now).missedWords).toBeUndefined();
+  });
+
   it('records the first practice session with rewards and daily activity', () => {
     const plan = makePlan();
     const profile = { ...baseProfile, examPrep: plan };
@@ -439,5 +455,19 @@ describe('plan progress helpers', () => {
     const plan = makePlan();
 
     expect(isMockUnlocked(plan, '2026-10-22')).toBe(true);
+  });
+});
+
+describe('getExamStepMissedWords', () => {
+  it("names the unit words a vocabulary question was about, and none for other skills", () => {
+    const plan = makePlan({ skills: ['vocabulary', 'grammar'] });
+    const steps = buildSessionSteps(plan, plan.days[0], 'challenger', 'girl', 7);
+    const vocab = steps.find((s) => s.skill === 'vocabulary');
+    const grammar = steps.find((s) => s.skill === 'grammar');
+    expect(vocab).toBeDefined();
+    const words = getExamStepMissedWords(plan.gradeId, vocab!);
+    expect(words.length).toBeGreaterThan(0);
+    words.forEach((w) => expect(w.translationHe.trim()).not.toBe(''));
+    if (grammar) expect(getExamStepMissedWords(plan.gradeId, grammar)).toEqual([]);
   });
 });

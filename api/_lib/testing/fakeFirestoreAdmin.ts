@@ -41,6 +41,14 @@ export function createFakeFirestore(): FakeFirestore {
         return Array.isArray(list) && list.includes(value);
       });
     },
+    async queryArrayContainsFields(collection: string, field: string, value: string) {
+      return inCollection(collection)
+        .filter((doc) => {
+          const list = doc.fields[field];
+          return Array.isArray(list) && list.includes(value);
+        })
+        .map((doc) => ({ id: doc.id, fields: doc.fields as Record<string, unknown> }));
+    },
     async getDocument(collection: string, id: string) {
       return docs.get(key(collection, id)) ?? null;
     },

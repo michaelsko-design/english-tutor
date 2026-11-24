@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MissionNode } from '../data/curriculum';
@@ -119,6 +119,19 @@ vi.mock('./MissionRunner', () => ({
           starsEarned: 3,
           xpEarned: 40,
           diamondsEarned: 5,
+          wordsLearnedCount: 4,
+          isFullReward: true,
+          isVoiceSkipped: false,
+        })
+      )}
+      {btn('complete-mission-surprise', () =>
+        p.onCompleteMission({
+          missionId: p.mission.id,
+          tier: 'explorer',
+          starsEarned: 3,
+          xpEarned: 40,
+          diamondsEarned: 5,
+          surpriseDiamonds: 20,
           wordsLearnedCount: 4,
           isFullReward: true,
           isVoiceSkipped: false,
@@ -265,6 +278,20 @@ describe('DashboardView missions', () => {
     expect(saved.missionTierStars?.[firstMission.id]).toBeDefined();
     expect(saved.missionRewardDates?.[firstMission.id]).toBe(toLocalDateStr(new Date()));
     expect(screen.queryByText(/^runner:/)).not.toBeInTheDocument();
+  });
+
+  it('adds an earned surprise to the diamonds and counts it for today', async () => {
+    const user = setup();
+    await click(user, 'map-start');
+    await click(user, 'complete-mission');
+    const without = lastUpdate().stats.diamonds;
+    cleanup();
+    const user2 = setup();
+    await click(user2, 'map-start');
+    await click(user2, 'complete-mission-surprise');
+    const saved = lastUpdate();
+    expect(saved.stats.diamonds).toBe(without + 20);
+    expect(saved.dailyCounters.surprisesToday).toBe(1);
   });
 
   it('shows the new room item toast after a mission and opens the room from it', async () => {

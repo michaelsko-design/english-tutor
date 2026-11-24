@@ -11,6 +11,7 @@ import {
   LearnerProfile,
 } from '../types/learner';
 import { seededShuffle, seededShuffleNotIdentity } from '../utils/shuffle';
+import { getMissedSessionItemIds, recordMissedWords } from './missedWords';
 import {
   getPronunciationTipHe,
   getSentenceOrderHintHe,
@@ -307,11 +308,11 @@ function buildMeaningStep(
 
   const options: MultipleChoiceOption[] = seededShuffle(
     [
-      { textEn: item.textEn, isCorrect: true, explanationHe: `נכון! ${item.textEn} = ${item.translationHe} ✅` },
+      { textEn: item.textEn, isCorrect: true, explanationHe: getMeaningRightHe(item.textEn, item.translationHe) },
       ...distractors.map((d) => ({
         textEn: d.textEn,
         isCorrect: false,
-        explanationHe: `${d.textEn} היא מילה אחרת מהרשימה. ${byGender(gender, 'נסי שוב!', 'נסה שוב!')}`,
+        explanationHe: getMeaningWrongHe(d.textEn, gender),
       })),
     ],
     `${seed}|options`
@@ -323,11 +324,19 @@ function buildMeaningStep(
     textEn: item.textEn,
     translationHe: item.translationHe,
     badgeLabelHe: '🔤 מה הפירוש?',
-    promptHe: `איזו מילה באנגלית פירושה "${item.translationHe}"?`,
+    promptHe: getMeaningPromptHe(item.translationHe),
     hintHe: getWordShapeHintHe(item.textEn, distractors.map((d) => d.textEn)),
     options,
   };
 }
+
+/** A meaning-match step's fixed Hebrew; the read-aloud corpus builds the same lines (scripts/tts/hebrewCorpus.ts) */
+export const getMeaningPromptHe = (translationHe: string): string => `איזו מילה באנגלית פירושה "${translationHe}"?`;
+export const getMeaningRightHe = (textEn: string, translationHe: string): string => `נכון! ${textEn} = ${translationHe} ✅`;
+export const getMeaningWrongHe = (textEn: string, gender: LearnerGender): string =>
+  `${textEn} היא מילה אחרת מהרשימה. ${byGender(gender, 'נסי שוב!', 'נסה שוב!')}`;
+export const getMagnetPromptHe = (gender: LearnerGender): string =>
+  byGender(gender, 'האזיני למילה וסדרי את האותיות לפי הסדר.', 'האזן למילה וסדר את האותיות לפי הסדר.');
 
 function buildMagnetStep(item: CustomWordItem, gender: LearnerGender, seed: string): WordListStep | null {
   if (item.kind === 'word') {
@@ -340,7 +349,7 @@ function buildMagnetStep(item: CustomWordItem, gender: LearnerGender, seed: stri
       textEn: item.textEn,
       translationHe: item.translationHe,
       badgeLabelHe: '🧲 מגנטי אותיות',
-      promptHe: byGender(gender, 'האזיני למילה וסדרי את האותיות לפי הסדר.', 'האזן למילה וסדר את האותיות לפי הסדר.'),
+      promptHe: getMagnetPromptHe(gender),
       hintHe: getSpellingHintHe(letters),
       letterTiles: seededShuffleNotIdentity(letters, `${seed}|letters`),
     };
@@ -475,12 +484,22 @@ export function applyWordListResultToProfile(
     ...(reward.isFullReward ? { lastRewardedDateStr: todayStr } : {}),
   };
   const rewarded = applyPracticeSessionReward(profile, answers, reward, score, todayStr, 'word-list');
+  // Single words missed on the first try wait for the 1-minute review; sentences don't fit its steps
+  const missedIds = getMissedSessionItemIds(answers);
+  const missedWords = recordMissedWords(
+    profile.missedWords,
+    list.items
+      .filter((item) => item.kind === 'word' && missedIds.has(item.id) && item.translationHe)
+      .map((item) => ({ wordEn: item.textEn, translationHe: item.translationHe ?? '' })),
+    todayStr
+  );
 
   return {
     reward,
     score,
     profile: {
       ...rewarded,
+      ...(missedWords ? { missedWords } : {}),
       customWordLists: (profile.customWordLists || []).map((l) => (l.id === listId ? updatedList : l)),
     },
   };

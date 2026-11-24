@@ -4,7 +4,8 @@
  * their hour). Each run sends to the learners whose chosen Israel hour it is now
  * (`reminderHour`, `DEFAULT_REMINDER_HOUR` when none), on a day they have not practised yet (never
  * on Friday/Shabbat for Shabbat observers). The text names something waiting in the app (missed
- * words, a room item, the next mission's story hook; a different one each day), or else "keep your
+ * words, a room item, the next mission's story hook; a different one each day; a friend's contest
+ * waiting for the learner's turn first), or else "keep your
  * streak" / "come back, just 5 minutes". A learner already reminded today is skipped, since Vercel
  * may run a job twice. Vercel Cron authenticates with `Authorization: Bearer $CRON_SECRET`.
  * Subscriptions the push service reports as gone (404/410) are deleted.
@@ -25,10 +26,13 @@ import {
   type ReminderSubscriber,
 } from './_lib/streakReminder.js';
 import { MISSION_HOOK_MAX_LENGTH, isReminderHint, isReminderHour, pickReminderHint } from '../src/data/reminderSchedule.js';
+import { isContestWaitingFor } from '../src/data/contestReminder.js';
+import type { ReminderTopic } from '../src/data/reminderMessage.js';
 
 const DEFAULT_FIREBASE_PROJECT_ID = 'english-tutor-il-7';
 const COLLECTION = 'pushSubscriptions';
 const SENDS_COLLECTION = 'reminderSends';
+const CONTESTS_COLLECTION = 'contests';
 const GONE_STATUSES = [404, 410];
 const PUSH_TTL_S = 3600;
 // Sends run one after another inside the function's time limit: a push service that never answers must not stall the rest
@@ -87,6 +91,17 @@ function statusOf(error: unknown): number | undefined {
     : undefined;
 }
 
+/** True when a friend's contest waits for this learner's turn; a failed read only drops the hint. */
+async function hasContestWaiting(admin: FirestoreAdmin, uid: string, nowMs: number): Promise<boolean> {
+  try {
+    const contests = await admin.queryArrayContainsFields(CONTESTS_COLLECTION, 'uids', uid);
+    return contests.some((contest) => isContestWaitingFor(contest.fields, uid, nowMs));
+  } catch (error) {
+    console.error(`streak-reminder: could not read contests (${error instanceof AdminError ? error.status : 'unexpected'})`);
+    return false;
+  }
+}
+
 /** True when this learner was already reminded today (a second run of the same job). */
 async function wasSentToday(admin: FirestoreAdmin, uid: string, dateStr: string): Promise<boolean> {
   return (await admin.getDocument(SENDS_COLLECTION, `${dateStr}_${uid}`)) !== null;
@@ -136,7 +151,10 @@ export async function handleStreakReminderRequest(
       try {
         if (await wasSentToday(admin, subscriber.id, today)) continue;
         const kind = getReminderKind(subscriber, today);
-        const hint = pickReminderHint(subscriber.waitingHints ?? [], today);
+        // A friend's contest closes at midnight, so it comes ahead of the daily rotation
+        const hint: ReminderTopic | undefined = (await hasContestWaiting(admin, subscriber.id, nowMs()))
+          ? 'friend-contest'
+          : pickReminderHint(subscriber.waitingHints ?? [], today);
         await sendPush(subscriber, JSON.stringify(buildReminderMessage({ ...subscriber, hint }, kind)), vapid);
         sent += 1;
         await logSend(admin, subscriber.id, today, kind);

@@ -24,6 +24,11 @@ function mulberry32(seed: number): () => number {
   };
 }
 
+/** A repeatable random-number source: the same `seed` always gives the same numbers in [0, 1). */
+export function seededRandom(seed: string | number): () => number {
+  return mulberry32(hashString(String(seed)));
+}
+
 /** Returns a new array shuffled with a Fisher–Yates pass driven by `seed`. */
 export function seededShuffle<T>(items: readonly T[], seed: string | number): T[] {
   const rand = mulberry32(hashString(String(seed)));

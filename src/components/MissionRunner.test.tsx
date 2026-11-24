@@ -17,7 +17,8 @@ const firstMission = (gradeId: GradeId): MissionNode => CURRICULUM_BY_GRADE[grad
 function renderRunner(
   mission: MissionNode,
   tier: ProficiencyTier = 'challenger',
-  getNextStep?: (starsEarned: number) => VictoryNextStep
+  getNextStep?: (starsEarned: number) => VictoryNextStep,
+  getSurpriseDiamonds?: (isFullReward: boolean) => number
 ) {
   const handlers = { onCompleteMission: vi.fn(), onClose: vi.fn(), onChangeTier: vi.fn() };
   render(
@@ -34,6 +35,7 @@ function renderRunner(
       startXp={0}
       startLevel={1}
       getNextStep={getNextStep}
+      getSurpriseDiamonds={getSurpriseDiamonds}
       {...handlers}
     />
   );
@@ -210,5 +212,18 @@ describe('MissionRunner', () => {
       expect(await screen.findByText(/סיימת את היעד של היום/)).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: /למשימה הבאה/ })).not.toBeInTheDocument();
     });
+  });
+
+  it('shows an earned surprise and hands its diamonds over with the result', async () => {
+    const user = userEvent.setup();
+    const mission = firstMission('grade-1');
+    const getSurpriseDiamonds = vi.fn(() => 20);
+    const { onCompleteMission } = renderRunner(mission, 'challenger', undefined, getSurpriseDiamonds);
+
+    await playToVictory(user, mission);
+
+    expect(await screen.findByText(/הפתעה! עוד/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /איסוף פרסים/ }));
+    expect(onCompleteMission).toHaveBeenCalledWith(expect.objectContaining({ surpriseDiamonds: 20 }));
   });
 });

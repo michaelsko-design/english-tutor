@@ -87,6 +87,8 @@ export interface DailyActivityCounters {
   kindCounts?: Partial<Record<DailyActivityKind, number>>;
   /** Today's quests, frozen at the day's first session so they never change under a learner */
   questIds?: string[];
+  /** Victory-screen bonus-diamond surprises earned today (data/victorySurprise.ts) */
+  surprisesToday?: number;
 }
 
 /** Diamonds earned and spent on one device. Both only grow, so devices merge by taking the max. */
