@@ -423,6 +423,8 @@ From Grow's general terms (`TERMSNEW.pdf`) and the signed commercial terms (2026
    - cancellation under the 1981 law.
 
    Review takes 1 to 7 business days.
+
+   **Not needed for us (Grow, 2026-11-24):** Grow told the owner that englishvibe.co.il needs no site check, so it is off the launch gate. The site still meets every point above, and the consumer-protection rules ask for most of them anyway, so keep them.
 4. **§11.2.7, §13.8.5.5:** never charge the owner's card or a first-degree relative's card, not even as a test. Grow can reverse the charge. The live test charge follows Grow's guidance.
 5. **Recurring charges are card only** (see "Payment methods").
 6. **§16.19.3:** there's no 3DS on recurring charges, so chargebacks on monthly plans are ours. Under §16.16, fees are not refunded when a charge is cancelled.

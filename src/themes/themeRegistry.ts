@@ -78,7 +78,7 @@ export const THEME_BASES: Record<ThemeId, ThemeBase> = {
     hudBgClass:
       'bg-white/85 backdrop-blur-md border-b border-purple-200/80 shadow-sm',
     primaryBtnClass:
-      'bg-gradient-to-r from-purple-500 via-fuchsia-500 to-rose-400 text-white shadow-lg shadow-purple-300/60 hover:brightness-105 active:scale-[0.99]',
+      'bg-gradient-to-r from-purple-600 via-fuchsia-600 to-rose-600 text-white shadow-lg shadow-purple-300/60 hover:brightness-95 active:scale-[0.99]',
     secondaryBtnClass:
       'bg-purple-100/80 hover:bg-purple-200/80 text-purple-900 border border-purple-200',
     badgeClass:
@@ -113,7 +113,7 @@ export const THEME_BASES: Record<ThemeId, ThemeBase> = {
     hudBgClass:
       'bg-white/10 backdrop-blur-md border-b border-white/15',
     primaryBtnClass:
-      'bg-gradient-to-r from-pink-500 to-violet-500 text-white shadow-lg shadow-pink-500/30 hover:brightness-110 active:scale-[0.99]',
+      'bg-gradient-to-r from-pink-600 to-violet-600 text-white shadow-lg shadow-pink-500/30 hover:brightness-95 active:scale-[0.99]',
     secondaryBtnClass:
       'bg-white/10 hover:bg-white/20 text-white border border-white/20',
     badgeClass:
@@ -148,7 +148,7 @@ export const THEME_BASES: Record<ThemeId, ThemeBase> = {
     hudBgClass:
       'bg-slate-900/85 backdrop-blur-md border-b border-cyan-500/30',
     primaryBtnClass:
-      'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 hover:brightness-110 active:scale-[0.99]',
+      'bg-gradient-to-r from-cyan-700 to-blue-600 text-white shadow-lg shadow-cyan-500/30 hover:brightness-95 active:scale-[0.99]',
     secondaryBtnClass:
       'bg-slate-800/80 hover:bg-slate-700/80 text-cyan-100 border border-cyan-500/30',
     badgeClass:

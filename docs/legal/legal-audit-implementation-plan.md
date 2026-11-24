@@ -118,7 +118,7 @@
 - **Covers:** `LAND-02`, `TOS-02` *(executed only after Tasks 1–6 pass verification)*.
 - **Target Files:**
   - `src/site/siteContent.ts` (`LEGAL_PAGES_LIVE = true`, `SHOW_PHONE_ON_SITE = true`)
-- **Post-Launch Gate Reminder (after Grow Site Check + first live PROD charge):** Complete `TOS-12` Stage B + `CHK-01` exact credit-card statement descriptor before enabling `IS_PRO_PLAN_VISIBLE = true`.
+- **Post-Launch Gate Reminder (after the first live PROD charge; Grow said on 2026-11-24 that no site check is needed):** Complete `TOS-12` Stage B + `CHK-01` exact credit-card statement descriptor before enabling `IS_PRO_PLAN_VISIBLE = true`.
 
 ---
 
