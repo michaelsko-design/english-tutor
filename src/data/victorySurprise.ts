@@ -18,7 +18,7 @@ export interface SurpriseRollInput {
   isFullReward: boolean;
   /** Today's counters before this mission is recorded */
   todayCounters: DailyActivityCounters;
-  /** Fixed per learner (the profile's createdAt), so siblings on one day get different rolls */
+  /** Fixed per learner (the account uid; old profiles can share a default createdAt), so siblings on one day get different rolls */
   learnerSeed: string;
   todayStr: string;
 }
