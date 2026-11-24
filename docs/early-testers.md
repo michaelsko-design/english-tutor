@@ -175,13 +175,11 @@ Do these in order. Steps 1-4 are code or console work and can be done days befor
    the notice if the review changes what is kept.
 2. **Business and payments readiness** (`backlog.md` Business section, `docs/feature-pro-tier.md`): Osek Patur, bank
    account, Grow (Meshulam) account and live ids (`GROW_ENV=production`, see `.env.example`).
-3. **Decide Pro.** Pro gating is off for everyone (`IS_PRO_GATING_ON = false` in `src/config/proTier.ts`), so
-   "full access" needs nothing. Testers hold a comp Pro entitlement (`source: 'comp'`). Before switching gating
-   on, decide: keep it lifetime as a "founding member" thank-you, or give it an expiry (`entitlements` supports
-   both; `scripts/grantPro.mjs`). Phase plan: `docs/feature-pro-tier.md`.
-4. **Harden the billed endpoints.** Set `VITE_APPCHECK_SITE_KEY` (reCAPTCHA Enterprise) in Vercel, wait until the
-   Firebase console shows the web app sending valid App Check tokens, then set `APPCHECK_ENFORCE=on` in Vercel
-   Production and redeploy. `/api/tts` already needs a signed-in account and has per-uid and per-IP rate limits
+3. **Decide Pro.** Done (2026-11-10): testers keep their comp Pro (`source: 'comp'`) for good. Checked on
+   2026-11-24: all 16 testers' entitlements run to 2100-01-01, so switching gating on cuts nobody off. Phase plan:
+   `docs/feature-pro-tier.md`.
+4. **Harden the billed endpoints.** Done: `VITE_APPCHECK_SITE_KEY` (reCAPTCHA Enterprise) and `APPCHECK_ENFORCE=on`
+   are set in Vercel Production (checked 2026-11-24). `/api/tts` already needs a signed-in account and has per-uid and per-IP rate limits
    but does not check `allowed/{uid}`; once access is open that is fine, App Check is the extra protection.
 5. **Open the gate.**
    - `node scripts/setAccess.mjs --open` (instant, no deploy, reversible with `--closed`).
