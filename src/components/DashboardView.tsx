@@ -867,7 +867,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             onCompleteMission={handleCompleteMission}
             getNextStep={(starsEarned) => getMissionNextStep(activePracticeMission.id, starsEarned)}
             getSurpriseDiamonds={(isFullReward) =>
-              rollMissionSurprise({ isFullReward, todayCounters: dailyCounters, learnerSeed: profile.createdAt, todayStr })
+              rollMissionSurprise({ isFullReward, todayCounters: dailyCounters, learnerSeed: authUser?.uid ?? profile.createdAt, todayStr })
             }
             onClose={handleCloseMission}
             roomRewardPreview={
