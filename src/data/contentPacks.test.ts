@@ -128,7 +128,9 @@ describe('getNewPackCopy', () => {
 });
 
 describe('released packs', () => {
-  it('ships no pack yet (a release updates this test)', () => {
-    expect(RELEASED_CONTENT_PACKS).toEqual([]);
+  it('ships holidays-autumn, free and new through Hanukkah (a release updates this test)', () => {
+    expect(RELEASED_CONTENT_PACKS).toEqual([
+      { id: 'holidays-autumn', releasedAt: '2026-11-24', access: 'free', newUntil: '2026-12-12' },
+    ]);
   });
 });

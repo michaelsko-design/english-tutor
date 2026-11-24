@@ -8,6 +8,7 @@
 import type { MissionNode } from './curriculum';
 import type { LessonPack, MiniLesson } from './curriculum/lessons/types';
 import { ALL_PACK_LESSON_LOADERS } from './curriculum/packs';
+import { HOLIDAYS_LESSON_LOADERS } from './curriculum/packs/holidays';
 import { mergeLessonPacks, packLoadersInGrade } from './curriculum/packs/merge';
 import { IS_PACK_PREVIEW } from './curriculum/packs/registry';
 import type { ContentPackId, PackLessonLoaders } from './curriculum/packs/types';
@@ -34,7 +35,9 @@ export const LESSON_PACK_LOADERS: Partial<Record<number, () => Promise<LessonPac
  * The released content packs' lesson loaders. When a pack ships, add its loaders here
  * (`./curriculum/packs/<id>`) next to its entry in `RELEASED_CONTENT_PACKS`.
  */
-const RELEASED_PACK_LESSON_LOADERS: Partial<Record<ContentPackId, PackLessonLoaders>> = {};
+const RELEASED_PACK_LESSON_LOADERS: Partial<Record<ContentPackId, PackLessonLoaders>> = {
+  'holidays-autumn': HOLIDAYS_LESSON_LOADERS,
+};
 
 const PACK_LESSON_LOADERS: Partial<Record<ContentPackId, PackLessonLoaders>> = IS_PACK_PREVIEW
   ? ALL_PACK_LESSON_LOADERS

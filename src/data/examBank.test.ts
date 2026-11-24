@@ -99,9 +99,10 @@ function hebrewInstructions(bank: ExamBankPack): string[] {
 describe('exam question bank (Feature 43)', () => {
   it('has a loader for every bank in the index, and an index entry for every loader', async () => {
     expect(Object.keys(EXAM_BANK_LOADERS).sort()).toEqual(Object.keys(ALL_EXAM_BANKS).sort());
-    // No content pack is released, so the app loads each grade's own bank
+    // Each grade's own units load from its own bank; a released pack only adds its units
     for (const { grade, gradeId } of BANKS) {
-      expect(await loadExamBank(gradeId)).toBe(ALL_EXAM_BANKS[grade]);
+      const bank = await loadExamBank(gradeId);
+      for (const [unit, questions] of Object.entries(ALL_EXAM_BANKS[grade] ?? {})) expect(bank?.[Number(unit)]).toBe(questions);
     }
     expect(await loadExamBank('grade-13' as GradeId)).toBeNull();
   });

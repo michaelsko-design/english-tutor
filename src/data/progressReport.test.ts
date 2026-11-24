@@ -14,6 +14,12 @@ import {
   getWeekStart,
 } from './progressReport';
 import { preloadCurriculum } from '../test/curriculum';
+import { RELEASED_CONTENT_PACKS } from './curriculum/packs/registry';
+import { ALL_PACK_CURRICULA } from './curriculum/packs';
+
+/** Grade 5's 12 missions plus the released packs' grade 5 missions, 3 stars each */
+const GRADE_5_PACK_MISSIONS = RELEASED_CONTENT_PACKS.flatMap(({ id }) => ALL_PACK_CURRICULA[id]['grade-5']?.units ?? []).flatMap((u) => u.missions).length;
+const GRADE_5_STARS_POSSIBLE = (12 + GRADE_5_PACK_MISSIONS) * 3;
 
 // These tests read the loaded grades (the app loads them per grade, see the loader)
 await preloadCurriculum();
@@ -227,8 +233,8 @@ describe('getOverallProgress', () => {
       totalStars: 7,
       averageStars: 2.3,
       gradeStarsEarned: 5,
-      gradeStarsPossible: 36,
-      gradeStarPercent: 14,
+      gradeStarsPossible: GRADE_5_STARS_POSSIBLE,
+      gradeStarPercent: Math.round((5 / GRADE_5_STARS_POSSIBLE) * 100),
       masteredWordCount: 3,
     });
   });

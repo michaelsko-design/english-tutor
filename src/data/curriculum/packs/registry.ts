@@ -115,7 +115,10 @@ export const CONTENT_PACK_IDS = Object.keys(CONTENT_PACKS) as ContentPackId[];
  * (`curriculum/loader.ts`), `RELEASED_PACK_LESSON_LOADERS` (`miniLessons.ts`) and
  * `RELEASED_PACK_EXAM_BANK_LOADERS` (`examBank.ts`). See docs/architecture.md §4.26.
  */
-export const RELEASED_CONTENT_PACKS: readonly ReleasedPack[] = [];
+export const RELEASED_CONTENT_PACKS: readonly ReleasedPack[] = [
+  // Free for everyone, and new (badge, home card, reminder) through the last day of Hanukkah
+  { id: 'holidays-autumn', releasedAt: '2026-11-24', access: 'free', newUntil: '2026-12-12' },
+];
 
 /** `vite --mode packs` (`npm run dev:packs`) shows every pack, released or not */
 export const IS_PACK_PREVIEW = import.meta.env?.MODE === 'packs';
