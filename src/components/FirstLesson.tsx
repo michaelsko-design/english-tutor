@@ -8,6 +8,8 @@ import { MiniLesson } from './mission/MiniLesson';
 
 interface FirstLessonProps {
   theme: ThemeDefinition;
+  /** Hebrew instructions play by themselves (`playsHebrewAloud`); an older beginner reads them */
+  readsHebrewAloud: boolean;
   /** `isFinished` is false when the learner closed the lesson before the end */
   onDone: (isFinished: boolean) => void;
 }
@@ -17,7 +19,7 @@ interface FirstLessonProps {
  * with each letter and its picture words read aloud and nothing to answer. Finishing it is the
  * learner's first win (App starts the streak and shows the first-win screen).
  */
-export const FirstLesson: React.FC<FirstLessonProps> = ({ theme, onDone }) => {
+export const FirstLesson: React.FC<FirstLessonProps> = ({ theme, readsHebrewAloud, onDone }) => {
   useStopSpeechOnLeave();
   const lesson = useMemo(getFirstLesson, []);
 
@@ -38,7 +40,7 @@ export const FirstLesson: React.FC<FirstLessonProps> = ({ theme, onDone }) => {
           theme={theme}
           onSpeakEnglish={speakEnglish}
           readsAloud
-          readsHebrewAloud
+          readsHebrewAloud={readsHebrewAloud}
           doneLabel="סיימנו! 🎉"
           onDone={() => onDone(true)}
           onClose={() => onDone(false)}

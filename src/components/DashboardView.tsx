@@ -649,7 +649,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             offer={newPackOffer}
             gender={profile.gender}
             theme={theme}
-            readsHebrewAloud={playsHebrewAloud(profile.gradeId)}
+            readsHebrewAloud={playsHebrewAloud(profile)}
             isProLocked={isNewPackProLocked}
             onOpen={() => {
               if (isNewPackProLocked) {
@@ -671,7 +671,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
         <QuickReviewCard
           words={quickReviewWords}
           theme={theme}
-          readsHebrewAloud={playsHebrewAloud(profile.gradeId)}
+          readsHebrewAloud={playsHebrewAloud(profile)}
           onStart={() => setQuickReviewRun({ words: quickReviewWords, runId: Date.now() })}
         />
 
@@ -686,7 +686,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
           accountKey={authUser?.uid ?? 'guest'}
           hasEarnedStreakReward={profile.hasEarnedStreakReward === true}
           theme={theme}
-          readsHebrewAloud={playsHebrewAloud(profile.gradeId)}
+          readsHebrewAloud={playsHebrewAloud(profile)}
         />
 
         {/* A PARENT JOINED, OR RESET THE PIN: THE LEARNER IS TOLD */}
@@ -694,7 +694,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
 
         {/* A FREE PRO WEEK A PARENT STARTED */}
         {authUser && proWeek && (
-          <ProWeekCard uid={authUser.uid} state={proWeek} theme={theme} readsHebrewAloud={playsHebrewAloud(profile.gradeId)} />
+          <ProWeekCard uid={authUser.uid} state={proWeek} theme={theme} readsHebrewAloud={playsHebrewAloud(profile)} />
         )}
 
         {/* AN OPTIONAL, CLOSABLE INVITE FOR A PARENT */}
@@ -878,7 +878,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
             previousStars={profile.missionProgress?.[activePracticeMission.id] || 0}
           isTierChosen={isMissionFromMap}
           readsQuestionsAloud={EARLY_READER_GRADES.includes(profile.gradeId)}
-          readsHebrewAloud={playsHebrewAloud(profile.gradeId)}
+          readsHebrewAloud={playsHebrewAloud(profile)}
           onSpeakParts={speakParts}
             lastRewardDateStr={profile.missionRewardDates?.[activePracticeMission.id]}
           />
@@ -1056,7 +1056,7 @@ const LoadedDashboardView: React.FC<LoadedDashboardViewProps> = ({
           }}
           focus={upsellFocus}
           theme={theme}
-          readsHebrewAloud={playsHebrewAloud(profile.gradeId)}
+          readsHebrewAloud={playsHebrewAloud(profile)}
           onClose={() => setUpsellFocus(null)}
         />
       )}

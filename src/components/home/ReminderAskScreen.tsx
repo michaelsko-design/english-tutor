@@ -135,7 +135,7 @@ export const ReminderAskScreen: React.FC<ReminderAskScreenProps> = ({ profile, t
               {view === 'done' ? copy.doneHe : copy.titleHe}
             </h2>
             {view !== 'done' && (
-              <HebrewAudioContext.Provider value={playsHebrewAloud(profile.gradeId)}>
+              <HebrewAudioContext.Provider value={playsHebrewAloud(profile)}>
                 <HebrewSpeakButton text={copy.spokenHe} label="הקשבה" />
               </HebrewAudioContext.Provider>
             )}
