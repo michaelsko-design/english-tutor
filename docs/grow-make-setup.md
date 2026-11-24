@@ -135,7 +135,8 @@ Use this address for both:
 ```
 
 - **On a Vercel Preview:** add `&x-vercel-protection-bypass=<the Protection Bypass for Automation secret>`.
-- **If Grow shows a webhook key:** put it in `GROW_WEBHOOK_KEY`, and the server then checks it too.
+- **Grow shows a webhook key for each webhook, and the two differ:** put both in `GROW_WEBHOOK_KEY`, comma-separated, and the server then accepts a message only with one of them.
+- **Live settings (created 2026-11-24):** "EnglishVibe renewals" with type עדכון לאחר ביצוע עסקה and only the ריצות הוראת קבע report ticked ("all transactions" would report each first charge a second time, which already arrives through the link's own notify URL), and "EnglishVibe failed renewals" with the failed-standing-order type; both JSON, no identifier parameter.
 - **Don't** set the per-link "קישור לעדכון מערכות מידע (שרת)" field by hand. Every link our server creates carries its own notify URL.
 
 **Don't create these webhooks until the server is deployed with `PAYMENT_PROVIDER=grow-make`.** Until then every charge would be answered with an error.
@@ -150,7 +151,7 @@ Use this address for both:
 | `GROW_MAKE_MAX_CHARGES` | unset (36) | unset (36) |
 | `PAYMENT_WEBHOOK_SECRET` | long random string | a different long random string |
 | `APP_ORIGIN` | the Preview URL | `https://englishvibe.co.il` |
-| `GROW_WEBHOOK_KEY` | only if Grow shows one | only if Grow shows one |
+| `GROW_WEBHOOK_KEY` | unset (the sandbox has no dashboard webhooks) | both webhooks' keys, comma-separated |
 | `CRON_SECRET`, `FIREBASE_SERVICE_ACCOUNT_JSON`, `OWNER_UID` | as today | as today |
 | `MAKE_API_TOKEN` | unset | a Make API token with only the `organizations:read` scope |
 | `MAKE_ORGANIZATION_ID` | unset | the Make organization's id (in the address bar of the organization page) |
