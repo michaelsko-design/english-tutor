@@ -17,7 +17,7 @@ interface StickersLockedSheetProps {
 /** What the sticker button says when the learner has no stickers yet: where to get them. Read aloud for grades 1-2. */
 export const StickersLockedSheet: React.FC<StickersLockedSheetProps> = ({ profile, theme, onOpenShop, onClose }) => {
   const copy = getHebrewCopy(profile.gender, profile.name);
-  const isReadAloud = playsHebrewAloud(profile.gradeId);
+  const isReadAloud = playsHebrewAloud(profile);
   const spoken = `${copy.stickersLockedTitle}. ${copy.stickersLockedBody}`;
 
   useEffect(() => {

@@ -22,7 +22,7 @@ const theme = resolveTheme('cozy-studio');
 
 function setup() {
   const onDone = vi.fn();
-  render(<FirstLesson theme={theme} onDone={onDone} />);
+  render(<FirstLesson theme={theme} readsHebrewAloud onDone={onDone} />);
   return { onDone, user: userEvent.setup() };
 }
 

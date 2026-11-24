@@ -36,7 +36,7 @@ import { isAccessDeniedError } from './services/accessService';
 import { ScreenLoading } from './components/ScreenLoading';
 import { lazyNamed } from './utils/lazyNamed';
 import { setListenerGender } from './services/tts';
-import { HebrewAudioContext, playsHebrewAloud } from './data/hebrewAudio';
+import { HebrewAudioContext, playsHebrewAloud, startsWithLettersLesson } from './data/hebrewAudio';
 import { AccountResult, deleteAccount } from './services/accountService';
 import { DEFAULT_PROFILE, WELCOME_GIFT_DIAMONDS } from './data/defaultProfile';
 import { setAnalyticsContext, trackEvent } from './services/analytics';
@@ -513,7 +513,7 @@ export function App() {
         name={profile.name}
         welcomeGems={WELCOME_GIFT_DIAMONDS}
         nextStep={
-          playsHebrewAloud(profile.gradeId)
+          startsWithLettersLesson(profile.gradeId)
             ? 'lesson'
             : Object.keys(profile.missionProgress ?? {}).length === 0
             ? 'mission'
@@ -525,7 +525,7 @@ export function App() {
           // Grades 1–2 are not expected to know the English letters: they start with a letters lesson.
           // Everyone else who has not played yet starts on their first mission.
           const isNewPlayer = Object.keys(profileRef.current.missionProgress ?? {}).length === 0;
-          const isEarlyGrade = playsHebrewAloud(profileRef.current.gradeId);
+          const isEarlyGrade = startsWithLettersLesson(profileRef.current.gradeId);
           setIsOfferingFirstLesson(isEarlyGrade);
           setIsOfferingFirstMission(!isEarlyGrade && isNewPlayer);
         }}
@@ -536,10 +536,11 @@ export function App() {
 
   if (firstLaunchSteps[0] === 'firstLesson') {
     return (
-      <HebrewAudioContext.Provider value={playsHebrewAloud(profile.gradeId)}>
+      <HebrewAudioContext.Provider value={playsHebrewAloud(profile)}>
         <Suspense fallback={<ScreenLoading />}>
           <FirstLesson
             theme={activeTheme}
+            readsHebrewAloud={playsHebrewAloud(profile)}
             onDone={(isFinished) => {
               if (isFinished) {
                 // Finishing the lesson is the first win: it starts the streak
@@ -572,7 +573,7 @@ export function App() {
 
   return (
     <ProAccessContext.Provider value={proAccess}>
-    <HebrewAudioContext.Provider value={playsHebrewAloud(profile.gradeId)}>
+    <HebrewAudioContext.Provider value={playsHebrewAloud(profile)}>
     <DashboardView
       profile={profile}
       authUser={authUser}

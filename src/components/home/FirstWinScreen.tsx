@@ -5,7 +5,7 @@ import { ThemeDefinition } from '../../themes/themeRegistry';
 import { auth } from '../../services/firebase';
 import { trackEvent } from '../../services/analytics';
 import { applyShowOffReward, buildFirstWinSummaryHe, SHOW_OFF_DIAMONDS } from '../../data/showOff';
-import { playsHebrewAloud } from '../../data/hebrewAudio';
+import { startsWithLettersLesson } from '../../data/hebrewAudio';
 import { WELCOME_BACK_DIAMONDS } from '../../data/welcomeBack';
 import { Companion } from '../companion/Companion';
 import { ParentShareBlock } from '../parent/ParentShareBlock';
@@ -92,7 +92,7 @@ const ShowOffStep: React.FC<ShowOffStepProps> = ({ uid, profile, theme, streakDa
     name: profile.name,
     gender: profile.gender,
     streakDays,
-    isLesson: playsHebrewAloud(profile.gradeId),
+    isLesson: startsWithLettersLesson(profile.gradeId),
   });
 
   const handleShared = () => {
