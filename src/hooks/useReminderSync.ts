@@ -3,7 +3,8 @@ import { AuthUserSummary, LearnerProfile } from '../types/learner';
 import { ReminderFacts, syncReminder } from '../services/push/pushSubscription';
 import { getLoadedGrade } from '../data/curriculum/loader';
 import { getSuggestedMission } from '../data/milestones';
-import { getPlayableUnits, getProAccess, type ProAccess } from '../data/proGate';
+import { canPlayMission, getPlayableUnits, getProAccess, type ProAccess } from '../data/proGate';
+import { getWaitingNewPackId } from '../data/contentPacks';
 import { getReminderWaiting, getUsualReminderHour } from '../data/reminderWaiting';
 import { toLocalDateStr } from '../utils/dates';
 
@@ -24,11 +25,20 @@ function getNextMission(profile: LearnerProfile, proAccess: ProAccess) {
   return getSuggestedMission(getPlayableUnits(grade.units, proAccess), profile.missionProgress || {}).mission ?? null;
 }
 
+/** A new pack in the learner's grade they can play and haven't started, once the grade has loaded. */
+function getNewPackId(profile: LearnerProfile, proAccess: ProAccess, todayStr: string): string | null {
+  const grade = getLoadedGrade(profile.gradeId);
+  if (!grade) return null;
+  const progress = profile.missionProgress || {};
+  return getWaitingNewPackId(grade.units, progress, todayStr, (unit, missionId) => canPlayMission(unit, missionId, progress, proAccess));
+}
+
 /** The facts the reminder cron needs, taken from the profile: the streak, what waits and the usual play hour. */
 export function getReminderFacts(profile: LearnerProfile, proAccess: ProAccess = getProAccess(false)): ReminderFacts {
+  const todayStr = toLocalDateStr(new Date());
   return {
-    ...getReminderWaiting(profile, getNextMission(profile, proAccess)),
-    reminderHour: getUsualReminderHour(profile.activityLog, toLocalDateStr(new Date())),
+    ...getReminderWaiting(profile, getNextMission(profile, proAccess), getNewPackId(profile, proAccess, todayStr)),
+    reminderHour: getUsualReminderHour(profile.activityLog, todayStr),
     streakDays: profile.stats.streakDays,
     streakLastDateStr: profile.stats.streakLastDateStr,
     isShabbatObserver: profile.isShabbatObserver ?? true,

@@ -44,6 +44,11 @@ export interface ContentPack {
    * pack may skip a grade that is already complete (grade 1 has no core-3 to core-8).
    */
   grades?: readonly number[];
+  /**
+   * The home card's body while the pack is new, in place of the generic "a new unit was added" line
+   * (a seasonal pack's timing). Gender-neutral Hebrew; read aloud in grades 1–2 (the Hebrew corpus).
+   */
+  announceBodyHe?: string;
 }
 
 /**
@@ -76,4 +81,15 @@ export interface ReleasedPack {
   id: ContentPackId;
   releasedAt: string;
   access?: PackAccess;
+  /**
+   * A Pro pack's first missions that every learner plays (the rest of its unit stays Pro); ignored
+   * for a free pack. Leave out for an all-Pro pack.
+   */
+  freeMissions?: number;
+  /**
+   * The last local day (`YYYY-MM-DD`, inclusive) the pack counts as new (map badge, home card,
+   * reminder), in place of `NEW_PACK_DAYS` from `releasedAt`: a seasonal pack stays new through
+   * its holiday.
+   */
+  newUntil?: string;
 }

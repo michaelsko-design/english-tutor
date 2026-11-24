@@ -503,7 +503,7 @@ service cloud.firestore {
     // cron (service account) reads it besides the owner.
     function isPushSubscription(data) {
       return data.keys().hasOnly(['endpoint', 'p256dh', 'auth', 'streakDays', 'streakLastDateStr',
-          'isShabbatObserver', 'gender', 'reminderHour', 'waitingHints', 'nextMissionHookHe', 'updatedAt'])
+          'isShabbatObserver', 'gender', 'reminderHour', 'waitingHints', 'nextMissionHookHe', 'newPackId', 'updatedAt'])
         && data.keys().hasAll(['endpoint', 'p256dh', 'auth', 'streakDays', 'isShabbatObserver', 'updatedAt'])
         && data.endpoint is string && data.endpoint.size() <= 600
         // Browser push services only (api/_lib/streakReminder.ts has the same list): the cron posts to this URL
@@ -515,9 +515,11 @@ service cloud.firestore {
         && data.isShabbatObserver is bool
         && (!('gender' in data) || data.gender in ['girl', 'boy'])
         && (!('reminderHour' in data) || data.reminderHour in [14, 15, 16, 17, 18, 19, 20])
-        && (!('waitingHints' in data) || (data.waitingHints is list && data.waitingHints.size() <= 3
-            && data.waitingHints.toSet().hasOnly(['quick-review', 'room-item', 'next-mission'])))
+        && (!('waitingHints' in data) || (data.waitingHints is list && data.waitingHints.size() <= 4
+            && data.waitingHints.toSet().hasOnly(['quick-review', 'room-item', 'next-mission', 'new-pack'])))
         && (!('nextMissionHookHe' in data) || isShortString(data.nextMissionHookHe, 160))
+        // A content pack id; the cron looks its title up in the pack registry
+        && (!('newPackId' in data) || (data.newPackId is string && data.newPackId.matches('[a-z0-9-]{1,24}')))
         && isIsoTime(data.updatedAt);
     }
 

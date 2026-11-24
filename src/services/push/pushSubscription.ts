@@ -21,6 +21,8 @@ export interface ReminderFacts {
   gender?: LearnerGender;
   waitingHints: ReminderHint[];
   nextMissionHookHe?: string;
+  /** The new pack behind the `new-pack` hint; the cron reads its title from the pack registry */
+  newPackId?: string;
   reminderHour: ReminderHour;
 }
 
@@ -87,6 +89,7 @@ function buildDocument(subscription: PushSubscription, facts: ReminderFacts) {
     ...(facts.gender ? { gender: facts.gender } : {}),
     waitingHints: facts.waitingHints,
     ...(facts.nextMissionHookHe ? { nextMissionHookHe: facts.nextMissionHookHe } : {}),
+    ...(facts.newPackId ? { newPackId: facts.newPackId } : {}),
     reminderHour: facts.reminderHour,
     updatedAt: new Date().toISOString(),
   };
@@ -134,6 +137,7 @@ export async function syncReminder(uid: string, facts: ReminderFacts): Promise<v
       ...(facts.gender ? { gender: facts.gender } : {}),
       waitingHints: facts.waitingHints,
       nextMissionHookHe: facts.nextMissionHookHe ?? deleteField(),
+      newPackId: facts.newPackId ?? deleteField(),
       reminderHour: facts.reminderHour,
       updatedAt: new Date().toISOString(),
     });

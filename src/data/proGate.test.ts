@@ -13,6 +13,7 @@ import {
   getPlayableUnits,
   getProAccess,
   hasFinishedFreeMissions,
+  isFreeMission,
   isFreeUnit,
   isPro,
   maxWordLists,
@@ -122,6 +123,29 @@ describe('missions', () => {
     expect(canPlayMission(proUnit, 'g5-u3-m1', { 'g5-u3-m1': 1 }, FREE)).toBe(true);
     expect(canPlayMission(proUnit, 'g5-u3-m1', {}, PRO)).toBe(true);
     expect(canPlayMission(proUnit, 'g5-u3-m1', {}, GATING_OFF)).toBe(true);
+  });
+
+  it("plays a part-free pack's first missions free and the rest as Pro", () => {
+    const partFree: ReleasedPack[] = [{ id: 'core-3', releasedAt: '2027-02-17', freeMissions: 1 }];
+    const packUnit = unit(5, 23, { packId: 'core-3' });
+    expect(getPackAccess('core-3', partFree)).toBe('free');
+    expect(isFreeUnit(packUnit, partFree)).toBe(false);
+    expect(isFreeMission(packUnit, 'g5-u23-m1', partFree)).toBe(true);
+    expect(isFreeMission(packUnit, 'g5-u23-m2', partFree)).toBe(false);
+    expect(isFreeMission(packUnit, 'g5-u23-m9', partFree)).toBe(false);
+    const playable = getPlayableUnits([unit(5, 1), unit(5, 3), packUnit], FREE, partFree);
+    expect(playable.map((u) => [u.unitNumber, u.missions.map((m) => m.id)])).toEqual([
+      [1, ['g5-u1-m1', 'g5-u1-m2']],
+      [23, ['g5-u23-m1']],
+    ]);
+    expect(packUnit.missions).toHaveLength(2);
+  });
+
+  it('ignores freeMissions on a free pack and reads freeMissions: 0 as all Pro', () => {
+    const free: ReleasedPack[] = [{ id: 'holidays-autumn', releasedAt: '2026-11-25', access: 'free', freeMissions: 1 }];
+    const none: ReleasedPack[] = [{ id: 'core-3', releasedAt: '2027-02-17', freeMissions: 0 }];
+    expect(isFreeUnit(unit(5, 31, { packId: 'holidays-autumn' }), free)).toBe(true);
+    expect(getPackAccess('core-3', none)).toBe('pro');
   });
 
   it('knows when a free learner has played every free mission', () => {

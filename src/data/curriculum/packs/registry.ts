@@ -54,6 +54,7 @@ export const CONTENT_PACKS: Record<ContentPackId, ContentPack> = {
     idUnitNumber: 31,
     xpUnitNumber: 7,
     wordsPerMission: LEGACY_WORDS_PER_MISSION,
+    announceBodyHe: 'משימות חג חדשות מחכות במפה שלך, בדיוק בזמן לחנוכה!',
   },
   'holidays-spring': {
     id: 'holidays-spring',

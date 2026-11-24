@@ -3,7 +3,7 @@ import type { CurriculumUnit, MissionNode } from './curriculum/types';
 import { CONTENT_PACKS, RELEASED_CONTENT_PACKS } from './curriculum/packs/registry';
 import { PARENTS_AREA_LABEL_HE, PRO_SPOKEN_HE } from './proAsk';
 import { isHebrewSpeakable } from '../services/tts/ttsText';
-import { getNewPackCopy, getNewPackOffer, isPackNew, NEW_PACK_DAYS, type PackReleaseState } from './contentPacks';
+import { getNewPackCopy, getNewPackOffer, getWaitingNewPackId, isPackNew, NEW_PACK_DAYS, type PackReleaseState } from './contentPacks';
 
 const RELEASED: PackReleaseState = { released: [{ id: 'holidays-autumn', releasedAt: '2026-12-01', access: 'free' }], isPreview: false };
 const NOTHING_RELEASED: PackReleaseState = { released: [], isPreview: false };
@@ -40,6 +40,24 @@ describe('isPackNew', () => {
   });
 });
 
+describe('isPackNew with newUntil', () => {
+  const UNTIL: PackReleaseState = {
+    released: [{ id: 'holidays-autumn', releasedAt: '2026-11-25', access: 'free', newUntil: '2026-12-12' }],
+    isPreview: false,
+  };
+
+  it('stays new through its newUntil day, past NEW_PACK_DAYS', () => {
+    expect(isPackNew('holidays-autumn', '2026-11-25', UNTIL)).toBe(true);
+    expect(isPackNew('holidays-autumn', '2026-12-09', UNTIL)).toBe(true);
+    expect(isPackNew('holidays-autumn', '2026-12-12', UNTIL)).toBe(true);
+    expect(isPackNew('holidays-autumn', '2026-12-13', UNTIL)).toBe(false);
+  });
+
+  it('is not new before its release day', () => {
+    expect(isPackNew('holidays-autumn', '2026-11-24', UNTIL)).toBe(false);
+  });
+});
+
 describe('getNewPackOffer', () => {
   it("offers the new pack's first unit with its unit count", () => {
     const offer = getNewPackOffer(UNITS, '2026-12-03', [], RELEASED);
@@ -55,6 +73,20 @@ describe('getNewPackOffer', () => {
   });
 });
 
+describe('getWaitingNewPackId', () => {
+  const canPlayAll = () => true;
+
+  it('names the new pack the learner can play and has not started', () => {
+    expect(getWaitingNewPackId(UNITS, {}, '2026-12-03', canPlayAll, RELEASED)).toBe('holidays-autumn');
+  });
+
+  it('names nothing once a mission has stars, when it is locked, or after the window', () => {
+    expect(getWaitingNewPackId(UNITS, { 'g3-u31-m1': 1 }, '2026-12-03', canPlayAll, RELEASED)).toBeNull();
+    expect(getWaitingNewPackId(UNITS, {}, '2026-12-03', () => false, RELEASED)).toBeNull();
+    expect(getWaitingNewPackId(UNITS, {}, '2027-01-03', canPlayAll, RELEASED)).toBeNull();
+  });
+});
+
 describe('getNewPackCopy', () => {
   it('addresses the learner by gender and reads title and body as one clip', () => {
     const girl = getNewPackCopy(CONTENT_PACKS['holidays-autumn'], 1, 'girl');
@@ -66,10 +98,21 @@ describe('getNewPackCopy', () => {
   });
 
   it('speaks of one unit in the singular and of more in the plural', () => {
-    const pack = CONTENT_PACKS['holidays-autumn'];
+    const pack = CONTENT_PACKS['holidays-spring'];
     expect(getNewPackCopy(pack, 1, 'girl').bodyHe).toBe('יחידה חדשה נוספה למפה שלך.');
     expect(getNewPackCopy(pack, 2, 'girl').bodyHe).toBe('2 יחידות חדשות נוספו למפה שלך.');
     expect(getNewPackCopy(pack, 1, 'girl', true).bodyHe).toContain('היא כלולה');
+  });
+
+  it("says a seasonal pack's own line instead of the generic one, gender-neutral and read aloud", () => {
+    const pack = CONTENT_PACKS['holidays-autumn'];
+    const girl = getNewPackCopy(pack, 1, 'girl');
+    const boy = getNewPackCopy(pack, 1, 'boy');
+    expect(pack.announceBodyHe).toBeDefined();
+    expect(girl.bodyHe).toBe(pack.announceBodyHe);
+    expect(boy.bodyHe).toBe(girl.bodyHe);
+    expect(girl.spokenHe).toBe(`${girl.titleHe}. ${pack.announceBodyHe}`);
+    expect(isHebrewSpeakable(girl.spokenHe)).toBe(true);
   });
 
   it('says a Pro pack is in the full plan, with info for parents and no ask to buy, and says "Pro" in Hebrew letters', () => {
