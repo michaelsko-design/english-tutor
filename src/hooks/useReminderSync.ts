@@ -6,6 +6,7 @@ import { getSuggestedMission } from '../data/milestones';
 import { canPlayMission, getPlayableUnits, getProAccess, type ProAccess } from '../data/proGate';
 import { getWaitingNewPackId } from '../data/contentPacks';
 import { getReminderWaiting, getUsualReminderHour } from '../data/reminderWaiting';
+import { useGradeCurriculum } from './useGradeCurricula';
 import { toLocalDateStr } from '../utils/dates';
 
 interface ReminderSyncOptions {
@@ -49,10 +50,15 @@ export function getReminderFacts(profile: LearnerProfile, proAccess: ProAccess =
 /**
  * Keeps the stored reminder facts in step with the profile, so the cron stops reminding once the
  * learner has practised. Does nothing when reminders are off (there is no document to update).
+ * It waits for the learner's grade: the next mission and a new pack come from it, and the grade
+ * loads on the home screen, a child of App, so without its own load App would not re-render when
+ * it arrives and the first sync would leave them out.
  */
 export function useReminderSync({ authUser, profile, isSynced, proAccess }: ReminderSyncOptions): void {
   const uid = authUser && !authUser.isAnonymous ? authUser.uid : null;
   const sentKeyRef = useRef<string | null>(null);
+  const { status: gradeStatus } = useGradeCurriculum(profile.gradeId);
+  const isGradeSettled = gradeStatus !== 'loading';
   const facts = getReminderFacts(profile, proAccess);
   const key = JSON.stringify(facts);
 
@@ -61,11 +67,11 @@ export function useReminderSync({ authUser, profile, isSynced, proAccess }: Remi
   }, [uid]);
 
   useEffect(() => {
-    if (!uid || !isSynced || !profile.isOnboarded || key === sentKeyRef.current) return undefined;
+    if (!uid || !isSynced || !isGradeSettled || !profile.isOnboarded || key === sentKeyRef.current) return undefined;
     const timer = window.setTimeout(() => {
       sentKeyRef.current = key;
       void syncReminder(uid, JSON.parse(key) as ReminderFacts);
     }, SYNC_DELAY_MS);
     return () => window.clearTimeout(timer);
-  }, [uid, isSynced, profile.isOnboarded, key]);
+  }, [uid, isSynced, isGradeSettled, profile.isOnboarded, key]);
 }

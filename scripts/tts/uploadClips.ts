@@ -1,6 +1,6 @@
 /**
  * Uploads the clips the manifest lists (public/tts/v<N>/<voice>/<key>.mp3) to the Cloudflare R2 bucket that
- * serves them: `npm run tts:upload -- [--force | --revised] [--dry-run]`. The object key equals the URL path
+ * serves them: `npm run tts:upload -- [--force | --revised] [--voice <voice>] [--dry-run]` (`--voice` sends only that voice's clips). The object key equals the URL path
  * (`tts/v1/female/<key>.mp3`), so the app only needs the bucket's public base URL
  * (VITE_TTS_CLIP_BASE_URL). Clips already in the bucket are skipped unless --force (a `redo`
  * re-render needs --force, or --revised to replace only the clips listed in clipRevisions.ts). Needs R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY and
@@ -91,6 +91,8 @@ async function main(): Promise<void> {
   const force = args.includes('--force');
   const isRevisedOnly = args.includes('--revised');
   const dryRun = args.includes('--dry-run');
+  const voiceIndex = args.indexOf('--voice');
+  const onlyVoice = voiceIndex >= 0 ? args[voiceIndex + 1] : undefined;
   const config = readR2Config();
   const client = new S3Client({
     region: 'auto',
@@ -102,7 +104,8 @@ async function main(): Promise<void> {
   const remote = force ? new Set<string>() : await listRemoteKeys(client, config.bucket);
   // --revised: the clips re-rendered after they shipped (a revision entry) are sent again, the rest skipped as usual
   const isRevised = (clip: LocalClip): boolean => isRevisedOnly && /^tts\/v\d+\/([^/]+\/[^/]+)\.mp3$/.test(clip.key) && (clip.key.replace(/^tts\/v\d+\//, '').replace(/\.mp3$/, '') in CLIP_REVISIONS);
-  const pending = local.filter((clip) => !remote.has(clip.key) || isRevised(clip));
+  const isWantedVoice = (clip: LocalClip): boolean => !onlyVoice || clip.key.split('/')[2] === onlyVoice;
+  const pending = local.filter((clip) => isWantedVoice(clip) && (!remote.has(clip.key) || isRevised(clip)));
   console.log(`${local.length} local clips, ${local.length - pending.length} already uploaded, ${pending.length} to upload.`);
   if (dryRun || pending.length === 0) return;
 

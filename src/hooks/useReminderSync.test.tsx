@@ -7,6 +7,10 @@ import { getReminderFacts, useReminderSync } from './useReminderSync';
 
 const { syncReminder } = vi.hoisted(() => ({ syncReminder: vi.fn() }));
 vi.mock('../services/push/pushSubscription', () => ({ syncReminder }));
+const { gradeLoad } = vi.hoisted(() => ({ gradeLoad: { status: 'ready' as 'loading' | 'ready' | 'error' } }));
+vi.mock('./useGradeCurricula', () => ({
+  useGradeCurriculum: () => ({ status: gradeLoad.status, pack: undefined, retry: () => undefined }),
+}));
 
 const SYNC_DELAY_MS = 15_000;
 const USER: AuthUserSummary = { uid: 'u1', displayName: null, email: null, isAnonymous: false };
@@ -28,6 +32,7 @@ const render = (props: Partial<Props> = {}) =>
 
 beforeEach(() => {
   vi.useFakeTimers();
+  gradeLoad.status = 'ready';
 });
 
 afterEach(() => {
@@ -72,6 +77,25 @@ describe('useReminderSync', () => {
     vi.advanceTimersByTime(SYNC_DELAY_MS * 2);
 
     expect(syncReminder).not.toHaveBeenCalled();
+  });
+
+  it("waits for the learner's grade, so the first sync has the next mission and a new pack", () => {
+    gradeLoad.status = 'loading';
+    const { rerender } = render();
+    vi.advanceTimersByTime(SYNC_DELAY_MS * 2);
+    expect(syncReminder).not.toHaveBeenCalled();
+
+    gradeLoad.status = 'ready';
+    rerender({ authUser: USER, isSynced: true, profile: ONBOARDED });
+    vi.advanceTimersByTime(SYNC_DELAY_MS);
+    expect(syncReminder).toHaveBeenCalledTimes(1);
+  });
+
+  it('still syncs the streak when the grade fails to load', () => {
+    gradeLoad.status = 'error';
+    render();
+    vi.advanceTimersByTime(SYNC_DELAY_MS);
+    expect(syncReminder).toHaveBeenCalledTimes(1);
   });
 
   it('does not resend unchanged facts, but sends changed ones', () => {

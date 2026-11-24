@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { AzureTtsError, buildSsml, escapeXml, readAzureConfig, synthesize } from './azureTts';
+import { AzureTtsError, buildSsml, escapeXml, hasEnglishLexiconWord, readAzureConfig, synthesize } from './azureTts';
 
 describe('escapeXml', () => {
   it('escapes every XML special character', () => {
@@ -47,6 +47,14 @@ describe('buildSsml', () => {
   it('says the letter Z as "zed", alone and inside English, and other letters as before', () => {
     expect(buildSsml('[letter:z]', 'female', 'normal')).toContain('<phoneme alphabet="ipa" ph="zɛd">Z</phoneme>');
     expect(buildSsml('Z is for zebra.', 'female', 'normal')).toContain('<phoneme alphabet="ipa" ph="zɛd">Z</phoneme> is for zebra.');
+  });
+
+  it('says sukkah the Israeli way, in English and inside Hebrew', () => {
+    expect(buildSsml('Where is the Sukkah?', 'female', 'normal')).toContain('the <phoneme alphabet="ipa" ph="suːˈkɑː">Sukkah</phoneme>?');
+    expect(buildSsml('two sukkahs', 'male', 'slow')).toContain('<phoneme alphabet="ipa" ph="suːˈkɑːz">sukkahs</phoneme>');
+    expect(buildSsml('המילה היא sukkah', 'he-female', 'normal')).toContain('ph="suːˈkɑː">sukkah</phoneme>');
+    expect(hasEnglishLexiconWord('We sat in the Sukkah.')).toBe(true);
+    expect(hasEnglishLexiconWord('Sukkot is a holiday.')).toBe(false);
     expect(buildSsml('[letter:b]', 'female', 'normal')).toContain('<say-as interpret-as="characters">B</say-as>');
     expect(buildSsml('zebra and Zz', 'female', 'normal')).not.toContain('<phoneme');
   });

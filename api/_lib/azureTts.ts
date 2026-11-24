@@ -64,7 +64,7 @@ export function escapeXml(text: string): string {
 
 /** A Hebrew run with its misread words spelled out in IPA (hebrewPronunciation.ts); English as it is. */
 function buildRunText(text: string, lang: 'en' | 'he', gender: ListenerGender | null): string {
-  if (lang === 'en') return withLetterNames(escapeXml(text));
+  if (lang === 'en') return withEnglishPronunciations(escapeXml(text));
   return markPronunciations(text, gender)
     .map((segment) =>
       segment.ipa
@@ -103,13 +103,37 @@ function withLetterNames(escaped: string): string {
   return escaped.replace(LONE_CAPITAL, (letter) => sayLetterName(letter));
 }
 
+/**
+ * Hebrew words used in English sentences, said the Israeli way where the American voice says them
+ * otherwise: "sukkah" is soo-KAH, not SUK-uh. A change here re-renders every clip with the word
+ * (`npm run tts:render -- --redo <word>`).
+ */
+const ENGLISH_WORD_IPA: Readonly<Record<string, string>> = {
+  sukkah: 'suːˈkɑː',
+  sukkahs: 'suːˈkɑːz',
+};
+const LEXICON_WORD = new RegExp(`\\b(${Object.keys(ENGLISH_WORD_IPA).join('|')})\\b`, 'gi');
+
+/** Words read aloud by `ENGLISH_WORD_IPA`, so a re-render can find their clips. */
+export function hasEnglishLexiconWord(text: string): boolean {
+  return new RegExp(LEXICON_WORD.source, 'i').test(text);
+}
+
+/** English (already XML-escaped) with taught letter names and the lexicon's words in IPA. */
+function withEnglishPronunciations(escaped: string): string {
+  return withLetterNames(escaped).replace(
+    LEXICON_WORD,
+    (word) => `<phoneme alphabet="ipa" ph="${ENGLISH_WORD_IPA[word.toLowerCase()]}">${word}</phoneme>`,
+  );
+}
+
 export function buildSsml(text: string, voice: TtsVoiceId, speed: TtsSpeed): string {
   const isHebrew = voice === 'he-female';
   const letters = parseLetterToken(text);
   const letterName = letters && LETTER_NAME_IPA[letters] ? sayLetterName(letters) : null;
   const english = letters
     ? (letterName ?? `<say-as interpret-as="characters">${letters}</say-as>`)
-    : `<prosody rate="${PROSODY_RATE[speed]}">${withLetterNames(escapeXml(text))}</prosody>`;
+    : `<prosody rate="${PROSODY_RATE[speed]}">${withEnglishPronunciations(escapeXml(text))}</prosody>`;
   const body = isHebrew ? buildHebrewBody(text, speed) : english;
   return (
     `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${isHebrew ? XML_LANG.he : XML_LANG.en}">` +

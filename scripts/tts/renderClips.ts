@@ -2,7 +2,9 @@
  * Renders the read-aloud clips with Azure Neural voices into public/tts/<voice>/<key>.mp3 and
  * writes public/tts/manifest.json: `npm run tts:render -- [--voice female|male] [--limit N]`. The Hebrew
  * voice is rendered with Gemini instead: `npm run tts:render:he` (renderGeminiBatch.ts).
- * It skips clips already on disk, so a stopped run continues where it left off. Needs
+ * It skips clips already on disk, so a stopped run continues where it left off. `--redo <word>`
+ * renders again every clip with that word (after a pronunciation change in azureTts.ts) and bumps
+ * their revisions in src/services/tts/clipRevisions.ts; then `npm run tts:upload -- --force`. Needs
  * AZURE_SPEECH_KEY and AZURE_SPEECH_REGION in .env.local.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -12,6 +14,7 @@ import { AzureTtsError, readAzureConfig, synthesize, type AzureConfig } from '..
 import { HEBREW_VOICE, isTtsVoice, type ClipVoice } from '../../src/services/tts/ttsText';
 import { collectCorpus, type CorpusPhrase } from './corpus';
 import { getVoiceDir, listRenderedKeys, writeManifest } from './clipManifest';
+import { bumpClipRevisions } from './clipRevisions';
 
 const CONCURRENCY = 2;
 const REQUEST_TIMEOUT_MS = 20_000;
@@ -65,7 +68,12 @@ async function main(): Promise<void> {
   };
   mkdirSync(getVoiceDir(voice), { recursive: true });
   const existing = listRenderedKeys(voice);
-  const todo = corpus.filter((phrase) => !existing.has(phrase.key)).slice(0, limit);
+  const redoWord = readArg('redo');
+  const redoPattern = redoWord ? new RegExp(`\\b${redoWord.replace(/[^a-z]/gi, '')}\\b`, 'i') : null;
+  const todo = corpus
+    .filter((phrase) => (redoPattern ? redoPattern.test(phrase.text) : !existing.has(phrase.key)))
+    .slice(0, limit);
+  const redone: string[] = [];
   const todoChars = todo.reduce((sum, phrase) => sum + phrase.text.length, 0);
   console.log(`${voice}: ${existing.size} clips on disk, rendering ${todo.length} (${todoChars} characters).`);
 
@@ -79,6 +87,7 @@ async function main(): Promise<void> {
       next += 1;
       if (await renderOne(phrase, voice, config)) {
         done += 1;
+        if (redoPattern) redone.push(phrase.key);
         chars += phrase.text.length;
       } else {
         failed += 1;
@@ -91,6 +100,10 @@ async function main(): Promise<void> {
   };
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
+  if (redone.length > 0) {
+    bumpClipRevisions(voice, redone);
+    console.log(`Bumped ${redone.length} clip revisions; upload them with npm run tts:upload -- --force.`);
+  }
   const manifest = writeManifest(corpusKeys);
   console.log(`Rendered ${done}, failed ${failed}, ${chars} characters used.`);
   console.log(`Manifest: ${Object.entries(manifest.voices).map(([v, keys]) => `${v} ${keys?.length ?? 0}`).join(', ')}`);
