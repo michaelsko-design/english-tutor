@@ -30,7 +30,10 @@ interface MissionVictoryProps {
   starsEarned: 1 | 2 | 3;
   xpEarned: number;
   maxCombo: number;
+  /** Every diamond this mission pays, the surprise included */
   diamondsEarned: number;
+  /** The bonus-diamond surprise inside diamondsEarned, 0 for none */
+  surpriseDiamonds?: number;
   wordsLearned: number;
   /** The learner's XP and level before this mission, for the XP bar */
   startXp: number;
@@ -89,6 +92,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
   xpEarned,
   maxCombo,
   diamondsEarned,
+  surpriseDiamonds = 0,
   wordsLearned,
   startXp,
   startLevel,
@@ -209,6 +213,7 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
         <p className="sr-only">
           {`${starsEarned} מתוך 3 כוכבים, ${xpEarned} נקודות Vibe, ${diamondsEarned} ${currencyNameHe}, ${wordsLearned} מילים`}
           {frame.hasLeveledUp ? `, עלייה לרמה ${frame.level}` : ''}
+          {surpriseDiamonds > 0 ? `, כולל הפתעה של ${surpriseDiamonds} ${currencyNameHe}` : ''}
         </p>
 
         {/* Stars land one by one; a missed star lands grey */}
@@ -302,6 +307,18 @@ export const MissionVictory: React.FC<MissionVictoryProps> = ({
 
         {/* A full prize (it pays diamonds; repeats don't) gets the cheer */}
         {diamondsEarned > 0 && xpEarned > 0 && (<p className="text-sm font-extrabold text-center">{VIBE_CHEER_HE}</p>)}
+
+        {/* Now and then a full prize brings a bonus gift (never bought, never promised) */}
+        {surpriseDiamonds > 0 && (
+          <div
+            className={`p-3 rounded-2xl bg-amber-400/20 border border-amber-400/60 text-center text-sm font-extrabold ${
+              frame.isDone ? 'animate-reward-pop' : 'invisible'
+            }`}
+            aria-hidden={!frame.isDone}
+          >
+            🎁 הפתעה! עוד <bdi dir="ltr" lang="en">+{surpriseDiamonds}</bdi> {currencyNameHe} במתנה
+          </div>
+        )}
 
         {/* The room item is revealed last; its space is kept so nothing jumps */}
         {roomReward && (

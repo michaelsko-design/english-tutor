@@ -105,6 +105,17 @@ export function toExactClozeSentence(sentenceEn: string, wordEn: string): string
   return regex.test(sentenceEn) ? sentenceEn.replace(regex, BLANK) : null;
 }
 
+/**
+ * Fill-in options cased to fit the blank: when the blank opens the sentence, every option starts
+ * with a capital, so the right answer ("nobody") doesn't stand out next to "Tomorrow" / "Think".
+ * Mid-sentence options are left as written ("I am", names).
+ */
+export function caseOptionsForCloze(cloze: string, options: readonly string[]): string[] {
+  const isSentenceStart = /^[^A-Za-z0-9]*____/.test(cloze);
+  if (!isSentenceStart) return [...options];
+  return options.map((option) => option.charAt(0).toUpperCase() + option.slice(1));
+}
+
 function stripEdgePunctuation(word: string): string {
   return word.replace(/^[^A-Za-z0-9']+|[^A-Za-z0-9']+$/g, '');
 }
@@ -244,7 +255,8 @@ export function getPronunciationTipHe(sentenceEn: string): string {
 const ABBREVIATION_END = /\b(?:dr|mr|mrs|ms|prof|st|jr|sr|vs|etc|e\.g|i\.e|no)\.$/i;
 
 function splitSentences(passageEn: string): string[] {
-  const fragments = (passageEn.match(/[^.!?]+[.!?]*/g) ?? []).map((s) => s.trim()).filter(Boolean);
+  // A closing quotation mark stays with its sentence (He said, "Stop!" Then…)
+  const fragments = (passageEn.match(/[^.!?]+[.!?]*["”]?/g) ?? []).map((s) => s.trim()).filter(Boolean);
   const sentences: string[] = [];
   let pending = '';
   for (const fragment of fragments) {

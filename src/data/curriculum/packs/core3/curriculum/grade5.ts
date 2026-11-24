@@ -161,7 +161,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         tiers: {
           explorer: {
             rule: {
-              questionEn: 'Someone asks, Will you come to my party? You want to come. What do you say?',
+              questionEn: 'Someone asks, "Will you come to my party?" You want to come. What do you say?',
               correct: 'Yes, I will.',
               wrong: ['Yes, I do.'],
               explainHe: 'על שאלה עם Will עונים בקצרה עם will: Yes, I will או No, I won\'t.',

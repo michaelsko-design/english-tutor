@@ -47,7 +47,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         },
         story: {
           passageEn:
-            'Ron has a pet dog. The dog is soft and fun. Ron asks Maya, Do you like dogs? Maya says, Yes, I do! Ron asks, Do you like snakes? Maya says, No, I don\'t!',
+            'Ron has a pet dog. The dog is soft and fun. Ron asks Maya, "Do you like dogs?" Maya says, "Yes, I do!" Ron asks, "Do you like snakes?" Maya says, "No, I don\'t!"',
           passageHe:
             'לרון יש כלב. הכלב רך וכיפי. רון שואל את מאיה: את אוהבת כלבים? מאיה אומרת: כן! רון שואל: את אוהבת נחשים? מאיה אומרת: לא!',
           questionEn: 'What pet does Ron have?',
@@ -58,7 +58,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         tiers: {
           explorer: {
             rule: {
-              questionEn: 'You like apples. Someone asks, Do you like apples? What do you say?',
+              questionEn: 'You like apples. Someone asks, "Do you like apples?" What do you say?',
               correct: 'Yes, I do.',
               wrong: ['Yes, I like.'],
               explainHe: 'על שאלה עם Do עונים בקצרה: Yes, I do או No, I don\'t.',
@@ -98,7 +98,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
             },
             story: {
               passageEn:
-                'Gal and Shir want a pet. Gal asks, Do you like dogs? Shir says, No, I don\'t. Dogs are too big and loud. Do you like cats? Gal says, Yes, I do! So they get a soft little cat.',
+                'Gal and Shir want a pet. Gal asks, "Do you like dogs?" Shir says, "No, I don\'t. Dogs are too big and loud. Do you like cats?" Gal says, "Yes, I do!" So they get a soft little cat.',
               passageHe: '',
               questionEn: 'Why do they get a cat and not a dog?',
               questionHe: '',
@@ -143,7 +143,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         },
         story: {
           passageEn:
-            'Tal and Ido play soccer. Tal asks, Do you have a ball? Ido says, Yes, I do. Ido asks, Do you have a net? Tal says, No, I don\'t. They play with the ball and two bags.',
+            'Tal and Ido play soccer. Tal asks, "Do you have a ball?" Ido says, "Yes, I do." Ido asks, "Do you have a net?" Tal says, "No, I don\'t." They play with the ball and two bags.',
           passageHe:
             'טל ועידו משחקים כדורגל. טל שואל: יש לך כדור? עידו אומר: כן. עידו שואל: יש לך רשת? טל אומר: לא. הם משחקים עם הכדור ושני תיקים.',
           questionEn: 'Who has a ball?',
@@ -194,7 +194,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
             },
             story: {
               passageEn:
-                'It is a hot day at the beach. Omer and Dana want to play ball. Omer asks, Do you have a net? Dana says, No, I don\'t, but I have a long rope. They put the rope between two chairs and play.',
+                'It is a hot day at the beach. Omer and Dana want to play ball. Omer asks, "Do you have a net?" Dana says, "No, I don\'t, but I have a long rope." They put the rope between two chairs and play.',
               passageHe: '',
               questionEn: 'What do they use as a net?',
               questionHe: '',
@@ -232,7 +232,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         shortSentenceEn: 'Do you know Dan?',
         shortSentenceHe: 'אתם מכירים את דן?',
         rule: {
-          questionEn: 'You have no dog. Someone asks, Do you have a dog? Which answer is correct?',
+          questionEn: 'You have no dog. Someone asks, "Do you have a dog?" Which answer is correct?',
           correct: 'No, I don\'t. I have a cat.',
           wrong: ['No, I doesn\'t. I have a cat.', 'No, I am not. I have a cat.'],
           explainHe: 'על שאלה עם Do you…? עונים בקצרה: Yes, I do או No, I don\'t.',
@@ -240,7 +240,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         },
         story: {
           passageEn:
-            'Our class plays a question game. Noa asks Ben, Do you like soccer? Ben says, Yes, I do. I am a big fan! Noa asks, Do you have a ball? Ben says, No, I don\'t.',
+            'Our class plays a question game. Noa asks Ben, "Do you like soccer?" Ben says, "Yes, I do. I am a big fan!" Noa asks, "Do you have a ball?" Ben says, "No, I don\'t."',
           passageHe:
             'הכיתה שלנו משחקת משחק שאלות. נועה שואלת את בן: אתה אוהב כדורגל? בן אומר: כן. אני אוהד גדול! נועה שואלת: יש לך כדור? בן אומר: לא.',
           questionEn: 'Does Ben have a ball?',
@@ -291,7 +291,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
             },
             story: {
               passageEn:
-                'A new girl comes to our class. Her name is Emma, and she is from England. I ask her, Do you like soccer? She says, Yes, I do! At the end of the day, Emma and I play soccer. Now she is my friend.',
+                'A new girl comes to our class. Her name is Emma, and she is from England. I ask her, "Do you like soccer?" She says, "Yes, I do!" At the end of the day, Emma and I play soccer. Now she is my friend.',
               passageHe: '',
               questionEn: 'Why do Emma and I play soccer?',
               questionHe: '',

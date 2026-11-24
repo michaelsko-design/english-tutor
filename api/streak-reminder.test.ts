@@ -28,14 +28,28 @@ function subscription(id: string, overrides: Record<string, string | number | bo
   };
 }
 
-function setup(docs: PlainDocument[], sendPush = vi.fn().mockResolvedValue(undefined), sentTodayIds: string[] = []) {
+function setup(
+  docs: PlainDocument[],
+  sendPush = vi.fn().mockResolvedValue(undefined),
+  sentTodayIds: string[] = [],
+  contests: Array<{ id: string; fields: Record<string, unknown> }> = []
+) {
   const deleteDocument = vi.fn().mockResolvedValue(undefined);
   const commit = vi.fn().mockResolvedValue(undefined);
   // reminderSends/{date}_{uid}: present for the learners already reminded today
   const getDocument = vi.fn(async (_collection: string, id: string) =>
     sentTodayIds.some((uid) => id === `2026-10-27_${uid}`) ? { id, fields: {} } : null
   );
-  const admin = { listDocuments: vi.fn().mockResolvedValue(docs), deleteDocument, commit, getDocument } as unknown as FirestoreAdmin;
+  const queryArrayContainsFields = vi.fn(async (_collection: string, _field: string, uid: string) =>
+    contests.filter((contest) => (contest.fields.uids as string[]).includes(uid))
+  );
+  const admin = {
+    listDocuments: vi.fn().mockResolvedValue(docs),
+    deleteDocument,
+    commit,
+    getDocument,
+    queryArrayContainsFields,
+  } as unknown as FirestoreAdmin;
   const run = (headers: Record<string, string> = { authorization: 'Bearer cron-secret' }, env: Record<string, string | undefined> = ENV) =>
     handleStreakReminderRequest(new Request('https://x/api/streak-reminder', { headers }), env, {
       nowMs: () => NOW_MS,
@@ -120,6 +134,36 @@ describe('streak-reminder cron', () => {
   it('names what waits in the app instead of the streak', async () => {
     const hook = 'הכלב, הביצה והדג מחכים לכם!';
     const { run, sendPush } = setup([subscription('u1', { waitingHints: ['next-mission'], nextMissionHookHe: hook })]);
+    await run();
+    expect(JSON.parse(sendPush.mock.calls[0][1]).body).toBe(hook);
+  });
+
+  it("names a friend's contest that waits for the learner's turn, without the friend's name", async () => {
+    const hook = 'הכלב, הביצה והדג מחכים לכם!';
+    const open = { uids: ['f1', 'u1'], status: 'invited', expiresAtMs: NOW_MS + 3600_000, results: { f1: { correctCount: 5 } } };
+    const { run, sendPush } = setup(
+      [subscription('u1', { waitingHints: ['next-mission'], nextMissionHookHe: hook })],
+      undefined,
+      [],
+      [{ id: 'f1_u1_2026-10-27', fields: open }]
+    );
+    await run();
+    expect(JSON.parse(sendPush.mock.calls[0][1]).body).toBe('תחרות עם חבר או חברה מחכה לך. בואי לשחק!');
+  });
+
+  it("doesn't name a contest the learner already played, one that closed, or a declined one", async () => {
+    const hook = 'הכלב, הביצה והדג מחכים לכם!';
+    const base = { uids: ['f1', 'u1'], status: 'accepted', expiresAtMs: NOW_MS + 3600_000 };
+    const { run, sendPush } = setup(
+      [subscription('u1', { waitingHints: ['next-mission'], nextMissionHookHe: hook })],
+      undefined,
+      [],
+      [
+        { id: 'a', fields: { ...base, results: { u1: { correctCount: 3 } } } },
+        { id: 'b', fields: { ...base, expiresAtMs: NOW_MS - 1 } },
+        { id: 'c', fields: { ...base, status: 'declined' } },
+      ]
+    );
     await run();
     expect(JSON.parse(sendPush.mock.calls[0][1]).body).toBe(hook);
   });

@@ -10,7 +10,26 @@ import {
   getWordShapeHintHe,
   toClozeSentence,
   toExactClozeSentence,
+  caseOptionsForCloze,
 } from './hints';
+
+describe('caseOptionsForCloze', () => {
+  it('capitalizes every option when the blank opens the sentence', () => {
+    expect(caseOptionsForCloze('____ is playing outside.', ['nobody', 'Tomorrow', 'think'])).toEqual([
+      'Nobody',
+      'Tomorrow',
+      'Think',
+    ]);
+  });
+
+  it('leaves mid-sentence options as written', () => {
+    expect(caseOptionsForCloze('Thank you, ____ today.', ['I feel well', 'I am', 'nobody'])).toEqual([
+      'I feel well',
+      'I am',
+      'nobody',
+    ]);
+  });
+});
 
 describe('getWordShapeHintHe', () => {
   it('gives only the letter count when no other option has the same length', () => {
@@ -171,6 +190,13 @@ describe('findAnswerSentenceNumber', () => {
     expect(findAnswerSentenceNumber(withTitle, 'glowing crystals', 'What did she find?')).toBe(2);
     const withNumber = 'The shop opens at 9. It sold 2.5 kilos of apples. Then it closed.';
     expect(findAnswerSentenceNumber(withNumber, 'apples', 'What did it sell?')).toBe(2);
+  });
+
+  it('keeps a closing quotation mark with its sentence', () => {
+    const quoted = 'Dad smiled. He said, "We can go to the zoo." "Can we see the lions?" asked Noa. They went on Sunday.';
+    expect(findAnswerSentenceNumber(quoted, 'the zoo', 'Where can they go?')).toBe(2);
+    expect(findAnswerSentenceNumber(quoted, 'the lions', 'What does Noa want to see?')).toBe(3);
+    expect(findAnswerSentenceNumber(quoted, 'on Sunday', 'When did they go?')).toBe(4);
   });
 
   it('returns null for a one-sentence passage or no match', () => {

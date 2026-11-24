@@ -64,6 +64,8 @@ export function recordDailyActivity(
     ...profile,
     claimedDailyQuestIds: claimedQuestIds,
     dailyCounters: {
+      // Keeps today's other counters (the surprises) as they are
+      ...counters,
       dateStr: todayStr,
       missionsCompletedToday: counters.missionsCompletedToday + activity.missions,
       voiceWordsPracticedToday: counters.voiceWordsPracticedToday + activity.voiceWords,

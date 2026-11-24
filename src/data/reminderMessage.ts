@@ -1,6 +1,9 @@
 import type { LearnerGender } from '../types/learner';
 import type { ReminderHint } from './reminderSchedule';
 
+/** What a reminder can name: a hint the app stored, or a friend's contest the cron found */
+export type ReminderTopic = ReminderHint | 'friend-contest';
+
 /**
  * The daily reminder's text, sent by the cron (api/_lib/streakReminder.ts). Kept in src so app code
  * and tests can read it.
@@ -22,15 +25,17 @@ export interface ReminderMessage {
 export interface ReminderMessageFacts {
   streakDays: number;
   gender?: LearnerGender;
-  /** Today's pick of what waits (`pickReminderHint`) */
-  hint?: ReminderHint;
+  /** Today's pick of what waits (`pickReminderHint`), or a friend's contest */
+  hint?: ReminderTopic;
   /** The next mission's story hook from the curriculum (gender-neutral plural Hebrew) */
   nextMissionHookHe?: string;
 }
 
-function buildHintBody(hint: ReminderHint, isGirl: boolean, nextMissionHookHe?: string): string {
+function buildHintBody(hint: ReminderTopic, isGirl: boolean, nextMissionHookHe?: string): string {
   const come = isGirl ? 'בואי' : 'בוא';
   if (hint === 'quick-review') return `כמה מילים מחכות לחזרה של דקה. ${come} נסדר אותן!`;
+  // No friend's name: the push shows on a lock screen
+  if (hint === 'friend-contest') return `תחרות עם חבר או חברה מחכה לך. ${come} לשחק!`;
   if (hint === 'room-item') return `פריט חדש מחכה לך בחדר. ${come} למצוא לו מקום!`;
   return nextMissionHookHe ?? `המשימה הבאה שלך מחכה. ${come} נצא לדרך!`;
 }

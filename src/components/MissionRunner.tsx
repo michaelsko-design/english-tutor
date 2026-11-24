@@ -98,6 +98,8 @@ interface MissionRunnerProps {
     starsEarned: 1 | 2 | 3;
     xpEarned: number;
     diamondsEarned: number;
+    /** A bonus-diamond surprise on top of diamondsEarned, 0 for none (data/victorySurprise.ts) */
+    surpriseDiamonds: number;
     wordsLearnedCount: number;
     /** False for a replay that only earns the repeat XP (data/missionRewards.ts) */
     isFullReward: boolean;
@@ -109,6 +111,8 @@ interface MissionRunnerProps {
   onClose: () => void;
   /** What the victory screen offers next, given this run's stars (data/victoryNextStep.ts) */
   getNextStep?: (starsEarned: 1 | 2 | 3) => VictoryNextStep;
+  /** The surprise diamonds this run brings, given whether it earns the full prize (data/victorySurprise.ts) */
+  getSurpriseDiamonds?: (isFullReward: boolean) => number;
   /** The tier was already chosen (on the map's mission sheet): start without the intro */
   isTierChosen?: boolean;
   /** Read each question aloud when it opens (grades 1–3, who may not read yet) */
@@ -145,6 +149,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
   onCompleteMission,
   onClose,
   getNextStep,
+  getSurpriseDiamonds,
   roomRewardPreview,
   startXp,
   startLevel,
@@ -445,12 +450,14 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
 
   if (isMissionFinished) {
     const nextStep: VictoryNextStep = getNextStep?.(starsEarned) ?? { kind: 'none' };
+    const surpriseDiamonds = getSurpriseDiamonds?.(isFullReward) ?? 0;
     const result = {
       missionId: mission.id,
       tier,
       starsEarned,
       xpEarned: totalXpEarned,
       diamondsEarned: totalDiamondsEarned,
+      surpriseDiamonds,
       wordsLearnedCount: mission.vocabulary.length,
       isFullReward,
       isVoiceSkipped: skippedStepCount > 0,
@@ -470,7 +477,8 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
         starsEarned={starsEarned}
         xpEarned={totalXpEarned}
         maxCombo={maxCombo}
-        diamondsEarned={totalDiamondsEarned}
+        diamondsEarned={totalDiamondsEarned + surpriseDiamonds}
+        surpriseDiamonds={surpriseDiamonds}
         wordsLearned={mission.vocabulary.length}
         startXp={startXp}
         startLevel={startLevel}

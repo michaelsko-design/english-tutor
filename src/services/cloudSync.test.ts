@@ -80,6 +80,11 @@ describe('mergeLearnerProfiles daily quest counters', () => {
     expect(mergeLearnerProfiles(withCounters({ questIds: quests }), withCounters({})).dailyCounters.questIds).toEqual(quests);
   });
 
+  it("keeps today's victory surprise from either device, so a second device can't give another", () => {
+    expect(mergeLearnerProfiles(withCounters({}), withCounters({ surprisesToday: 1 })).dailyCounters.surprisesToday).toBe(1);
+    expect(mergeLearnerProfiles(withCounters({}), withCounters({})).dailyCounters.surprisesToday).toBeUndefined();
+  });
+
   it("drops an earlier day's kinds and quests", () => {
     const old = { ...baseProfile, dailyCounters: { ...baseProfile.dailyCounters, dateStr: '2026-01-01', kindCounts: { contest: 3 }, questIds: ['quest-contest'] } };
     const merged = mergeLearnerProfiles(old, old);

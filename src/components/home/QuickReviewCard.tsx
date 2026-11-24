@@ -2,6 +2,9 @@ import React from 'react';
 import { Timer } from 'lucide-react';
 import type { MissedWord } from '../../types/learner';
 import type { ThemeDefinition } from '../../themes/themeRegistry';
+import { HebrewAudioContext } from '../../data/hebrewAudio';
+import { QUICK_REVIEW_SPOKEN_HE } from '../../data/quickReview';
+import { HebrewSpeakButton } from '../drills/HebrewSpeakButton';
 import { Button } from '../ui/Button';
 import { useHomeCardTurn } from './HomeCardSlot';
 
@@ -9,6 +12,8 @@ interface QuickReviewCardProps {
   /** Today's review words (data/missedWords.ts `getQuickReviewWords`); the card hides when empty */
   words: MissedWord[];
   theme: ThemeDefinition;
+  /** Grades 1–2 hear the card in Hebrew (Feature 47) */
+  readsHebrewAloud?: boolean;
   onStart: () => void;
 }
 
@@ -16,7 +21,7 @@ interface QuickReviewCardProps {
  * Home: a short, optional review of words missed on the first try. Shown once a day while at least
  * a few words wait; nothing is lost by skipping it (no countdown, no streak warning).
  */
-export const QuickReviewCard: React.FC<QuickReviewCardProps> = ({ words, theme, onStart }) => {
+export const QuickReviewCard: React.FC<QuickReviewCardProps> = ({ words, theme, readsHebrewAloud = false, onStart }) => {
   const isMyTurn = useHomeCardTurn('quick-review', words.length > 0);
   if (!isMyTurn) return null;
 
@@ -32,6 +37,9 @@ export const QuickReviewCard: React.FC<QuickReviewCardProps> = ({ words, theme, 
           {words.length} מילים שהתבלבלנו בהן לאחרונה. דקה אחת והן יושבות טוב יותר.
         </p>
       </div>
+      <HebrewAudioContext.Provider value={readsHebrewAloud}>
+        <HebrewSpeakButton text={QUICK_REVIEW_SPOKEN_HE} label="הקשבה" />
+      </HebrewAudioContext.Provider>
       <Button theme={theme} size="sm" className="shrink-0" onClick={onStart}>
         מתחילים
       </Button>

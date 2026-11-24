@@ -68,10 +68,8 @@ function addStep(corpus: CorpusBuilder, step: MissionExerciseStep): void {
   corpus.add(step.targetSentenceEn);
   corpus.addSentenceAndWords(step.speakTargetEn);
   corpus.addWord(step.focusWordEn);
-  step.options?.forEach((option) => {
-    corpus.add(option.textEn);
-    corpus.add(option.speakEn);
-  });
+  // An option's 🔊 reads speakEn when set (a picture's word, a fill-in option's text before casing)
+  step.options?.forEach((option) => corpus.add(option.speakEn ?? option.textEn));
   step.scrambledWords?.forEach((chip) => corpus.add(chip));
 }
 

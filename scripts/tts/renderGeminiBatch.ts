@@ -2,6 +2,9 @@
  * Renders the Hebrew clips with Gemini through its batch API (interactive requests are capped at
  * 100 a day; a batch has its own limits, costs half and finishes within 24 hours, usually minutes):
  *   npm run tts:render:he -- submit    sends every Hebrew corpus phrase that has no clip yet
+ *   npm run tts:render:he -- submit general [--skip "<text>"]   only the lines every learner meets
+ *                                      (feedback, cards, decks, the 1-minute review), not a unit's
+ *                                      lines; --skip leaves out the lines containing <text>
  *   npm run tts:render:he -- status    shows how the submitted batches are doing
  *   npm run tts:render:he -- regenerate   sends the clips marked "regenerate" in the review (npm run tts:review:he)
  *                                      as new takes; collect saves them to .tts-candidates, the originals stay
@@ -17,6 +20,7 @@ import { join } from 'node:path';
 import { loadEnv } from 'vite';
 import { HEBREW_VOICE, parseListenerGender, type ClipVoice } from '../../src/services/tts/ttsText';
 import { collectCorpus, type CorpusPhrase } from './corpus';
+import { buildGeneralHebrewCorpus } from './hebrewCorpus';
 import { bumpClipRevisions } from './clipRevisions';
 import { getVoiceDir, listRenderedKeys, writeManifest } from './clipManifest';
 import { toGeminiText } from './geminiSpelling';
@@ -100,9 +104,15 @@ function missingPhrases(): CorpusPhrase[] {
   return collectCorpus(HEBREW_VOICE).filter((phrase) => !rendered.has(phrase.key));
 }
 
-async function submit(apiKey: string): Promise<void> {
-  console.log(`${missingPhrases().length} Hebrew phrases without a clip.`);
-  return submitPhrases(apiKey, missingPhrases(), 'clip');
+async function submit(apiKey: string, scope?: string, skipText?: string): Promise<void> {
+  if (scope !== undefined && scope !== 'general') throw new Error(`Unknown submit scope "${scope}"; use general.`);
+  const missing = missingPhrases();
+  const general = scope === 'general' ? new Set(buildGeneralHebrewCorpus().list().map((phrase) => phrase.key)) : null;
+  const todo = missing.filter(
+    (phrase) => (!general || general.has(phrase.key)) && (!skipText || !phrase.text.includes(skipText))
+  );
+  console.log(`${missing.length} Hebrew phrases without a clip; sending ${todo.length}.`);
+  return submitPhrases(apiKey, todo, 'clip');
 }
 
 /** The lines marked for regenerate in the review: rendered as new takes, the originals stay. */
@@ -285,7 +295,10 @@ async function main(): Promise<void> {
   const [command, argument] = process.argv.slice(2).filter((arg) => arg !== '--');
   if (command === 'redo') return redo(argument);
   const apiKey = readApiKey();
-  if (command === 'submit') return submit(apiKey);
+  if (command === 'submit') {
+    const skipIndex = process.argv.indexOf('--skip');
+    return submit(apiKey, argument === '--skip' ? undefined : argument, skipIndex >= 0 ? process.argv[skipIndex + 1] : undefined);
+  }
   if (command === 'regenerate') return regenerate(apiKey, argument);
   if (command === 'lab') return lab(apiKey, process.argv.includes('dry'), process.argv.includes('models'));
   if (command === 'status') return collect(apiKey, true);

@@ -6,6 +6,7 @@ import { ALL_LESSON_PACKS } from '../lessons';
 import type { LessonPack } from '../lessons/types';
 import type { GradeCurriculumPack } from '../types';
 import { CORE_3_EXAM_BANKS, CORE_3_LESSONS } from './core3/all';
+import { CORE_4_EXAM_BANKS, CORE_4_LESSONS } from './core4/all';
 import { HOLIDAYS_EXAM_BANKS, HOLIDAYS_LESSONS } from './holidays/all';
 import { SEASON2_EXAM_BANKS, SEASON2_LESSONS } from './season2/all';
 import { ALL_PACK_CURRICULA } from './index';
@@ -20,6 +21,7 @@ const PACK_SOURCE_CONTENT: Record<ContentPackId, Pick<PackContent, 'lessons' | '
   'core-3': { lessons: CORE_3_LESSONS, examBanks: CORE_3_EXAM_BANKS },
   'holidays-autumn': { lessons: HOLIDAYS_LESSONS, examBanks: HOLIDAYS_EXAM_BANKS },
   'holidays-spring': { lessons: HOLIDAYS_LESSONS, examBanks: HOLIDAYS_EXAM_BANKS },
+  'core-4': { lessons: CORE_4_LESSONS, examBanks: CORE_4_EXAM_BANKS },
 };
 
 /**

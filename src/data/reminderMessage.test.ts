@@ -4,7 +4,10 @@ import { buildReminderMessage, type ReminderKind } from './reminderMessage';
 
 const KINDS: ReminderKind[] = ['streak', 'comeback'];
 const GENDERS = ['girl', 'boy'] as const;
-const allMessages = () => KINDS.flatMap((kind) => GENDERS.map((gender) => buildReminderMessage({ streakDays: 4, gender }, kind)));
+const allMessages = () => [
+  ...KINDS.flatMap((kind) => GENDERS.map((gender) => buildReminderMessage({ streakDays: 4, gender }, kind))),
+  ...GENDERS.map((gender) => buildReminderMessage({ streakDays: 4, gender, hint: 'friend-contest' }, 'streak')),
+];
 
 describe('buildReminderMessage', () => {
   it('puts the streak count in the streak message', () => {

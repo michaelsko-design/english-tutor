@@ -39,10 +39,10 @@ export const TERMS_VERSION = '2026-11-20';
  * The privacy notice's version (config/privacyNotice.ts), saved next to `TERMS_VERSION` wherever
  * consent is recorded. Change it, and `PRIVACY_UPDATED_HE`, with every change to the notice's text.
  */
-export const PRIVACY_VERSION = '2026-11-23';
+export const PRIVACY_VERSION = '2026-11-24';
 
 /** `PRIVACY_VERSION` as the notice's "עודכן לאחרונה" line shows it */
-export const PRIVACY_UPDATED_HE = '23 בנובמבר 2026';
+export const PRIVACY_UPDATED_HE = '24 בנובמבר 2026';
 
 /** Where parents send privacy questions and requests (shown in the privacy notice). */
 export const PRIVACY_CONTACT_EMAIL = 'support@englishvibe.co.il';

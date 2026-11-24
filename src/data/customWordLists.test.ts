@@ -314,6 +314,22 @@ describe('buildWordListSteps', () => {
 });
 
 describe('scoring and rewards', () => {
+  it('sends single words missed on the first try to the 1-minute review, never sentences', () => {
+    const list = makeList(SAMPLE);
+    const [window, blanket, , sentence] = list.items;
+    const result = applyWordListResultToProfile(
+      withLists(list),
+      'list-a',
+      [
+        { type: 'meaning-match', itemId: window.id, isCorrect: false, isSkipped: false },
+        { type: 'meaning-match', itemId: blanket.id, isCorrect: true, isSkipped: false },
+        { type: 'sentence-builder', itemId: sentence.id, isCorrect: false, isSkipped: false },
+      ],
+      NOW
+    );
+    expect(Object.values(result.profile.missedWords ?? {}).map((w) => [w.wordEn, w.translationHe])).toEqual([['window', 'חלון']]);
+  });
+
   it('scores first-try answers and leaves skipped voice steps out', () => {
     expect(scoreWordListAnswers(answersOf(3, 4, 2))).toEqual({ correctCount: 3, scoredCount: 4, scorePercent: 75 });
     expect(scoreWordListAnswers([]).scorePercent).toBe(0);

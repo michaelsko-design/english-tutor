@@ -38,7 +38,10 @@ export function buildQuickReviewList(words: readonly MissedWord[]): CustomWordLi
   };
 }
 
-function sentenceBuilderPromptHe(gender: LearnerGender): string {
+/** The home card's line for grades 1–2, read aloud (Feature 47); in the Hebrew corpus */
+export const QUICK_REVIEW_SPOKEN_HE = 'חזרה של דקה! כמה מילים שהתבלבלנו בהן לאחרונה. דקה אחת והן יושבות טוב יותר.';
+
+export function sentenceBuilderPromptHe(gender: LearnerGender): string {
   return gender === 'girl' ? 'סדרי את המילים לפי הסדר.' : 'סדר את המילים לפי הסדר.';
 }
 

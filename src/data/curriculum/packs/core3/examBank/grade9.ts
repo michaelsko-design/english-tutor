@@ -100,7 +100,7 @@ export const CORE_3_GRADE_9_EXAM_BANK: ExamBankPack = {
     passages: [
       {
         passageEn:
-          'Yosef is a teenager who lives in a village in the north. His family is originally from Russia, and his best friend, Ahmad, is from a village nearby. They play in a basketball team that has players of every religion. In general, Yosef says, the team is like a second family where everyone is accepted.',
+          'Yosef is a teenager who lives in a village in the north. His family is originally from Russia, and his best friend, Ahmad, is from a village nearby. They play in a basketball team that has players of every religion. "In general," Yosef says, "the team is like a second family where everyone is accepted."',
         passageHe:
           'יוסף הוא נער שגר בכפר בצפון. המשפחה שלו היא במקור מרוסיה, והחבר הכי טוב שלו, אחמד, הוא מכפר סמוך. הם משחקים בקבוצת כדורסל שיש בה שחקנים מכל הדתות. באופן כללי, אומר יוסף, הקבוצה היא כמו משפחה שנייה שבה כולם מתקבלים.',
         questions: [

@@ -99,7 +99,7 @@ export function mergeLearnerProfiles(
 
   // Merge daily counters for today's (local) date
   const todayStr = toLocalDateStr(new Date());
-  const localDaily =
+  const localDaily: DailyActivityCounters =
     local.dailyCounters?.dateStr === todayStr
       ? local.dailyCounters
       : {
@@ -108,7 +108,7 @@ export function mergeLearnerProfiles(
           voiceWordsPracticedToday: 0,
           threeStarMissionsToday: 0,
         };
-  const cloudDaily =
+  const cloudDaily: DailyActivityCounters =
     cloud.dailyCounters?.dateStr === todayStr
       ? cloud.dailyCounters
       : {
@@ -133,6 +133,9 @@ export function mergeLearnerProfiles(
       cloudDaily.threeStarMissionsToday
     ),
     ...mergeDailyQuestFields(localDaily, cloudDaily),
+    ...(localDaily.surprisesToday || cloudDaily.surprisesToday
+      ? { surprisesToday: Math.max(localDaily.surprisesToday ?? 0, cloudDaily.surprisesToday ?? 0) }
+      : {}),
   };
 
   const mergedClaimedQuests = Array.from(

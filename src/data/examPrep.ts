@@ -14,6 +14,7 @@ import {
   ProficiencyTier,
 } from '../types/learner';
 import { seededShuffle } from '../utils/shuffle';
+import { getMissionMissedWords, recordMissedWords, type MissedWordInput } from './missedWords';
 import { buildBankSteps, type ExamBankPack, type ExamBankPool } from './examBank';
 
 /**
@@ -94,6 +95,8 @@ export interface ExamSessionStep extends MissionExerciseStep {
 export interface ExamAnswer {
   skill: ExamSkill;
   isCorrect: boolean;
+  /** The unit words a wrong vocabulary question was about, for the 1-minute review */
+  missedWords?: MissedWordInput[];
 }
 
 export interface ExamScoreSummary {
@@ -278,6 +281,20 @@ function toTopicUnitBlock(gradeId: GradeId, block: ExamFocusBlock): ExamFocusBlo
   return { ...block, unitNumber: block.unitNumber + units.filter(isPhonicsUnit).length };
 }
 
+/**
+ * The unit words a wrong vocabulary question was about, for the 1-minute review (data/missedWords.ts).
+ * Grammar, sentence and reading misses are not about one word, so they add none.
+ */
+export function getExamStepMissedWords(gradeId: GradeId, step: ExamSessionStep): MissedWordInput[] {
+  if (step.skill !== 'vocabulary') return [];
+  const unit = getLoadedGrade(gradeId)?.units.find((u) => u.unitNumber === step.unitNumber);
+  if (!unit) return [];
+  return getMissionMissedWords(
+    unit.missions.flatMap((mission) => mission.vocabulary),
+    [step]
+  );
+}
+
 function getMissionBlockSteps(
   plan: ExamPrepPlan,
   block: ExamFocusBlock,
@@ -442,9 +459,15 @@ export function applyExamResultToProfile(
     toLocalDateStr(now)
   );
   const xp = withActivity.stats.xp + xpGain;
+  const missedWords = recordMissedWords(
+    profile.missedWords,
+    answers.flatMap((answer) => answer.missedWords ?? []),
+    toLocalDateStr(now)
+  );
 
   return {
     ...withActivity,
+    ...(missedWords ? { missedWords } : {}),
     examPrep: updatedPlan,
     stats: {
       ...withActivity.stats,

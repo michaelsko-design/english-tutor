@@ -1,5 +1,5 @@
-import type { MissionExerciseStep } from '../missionExercises';
-import { isolateLtr, toExactClozeSentence } from '../../utils/hints';
+import type { MissionExerciseStep, MultipleChoiceOption } from '../missionExercises';
+import { caseOptionsForCloze, isolateLtr, toExactClozeSentence } from '../../utils/hints';
 import {
   buildSentenceStep,
   buildVoiceStep,
@@ -33,7 +33,13 @@ export function buildChallengerSteps(ctx: TierContext): MissionExerciseStep[] {
   const wordIndex = pickExactClozeIndex(ctx, pickVocabIndex(ctx, 1));
   const word = ctx.vocab[wordIndex];
   const cloze = toExactClozeSentence(word.exampleEn, word.wordEn);
-  const [wrongA, wrongB] = tiers.challenger.clozeWrong[wordIndex];
+  const rawOptions = [word.wordEn, ...tiers.challenger.clozeWrong[wordIndex]];
+  const [answer, wrongA, wrongB] = caseOptionsForCloze(cloze ?? word.exampleEn, rawOptions);
+  // A capital added for the blank is display only: 🔊 reads the text as written, which has its clip
+  const withSpokenText = (option: MultipleChoiceOption): MultipleChoiceOption => {
+    const raw = rawOptions.find((text) => text !== option.textEn && text.toLowerCase() === option.textEn.toLowerCase());
+    return raw === undefined ? option : { ...option, speakEn: raw };
+  };
 
   const step1: MissionExerciseStep = {
     id: `${mission.id}-s1`,
@@ -46,11 +52,11 @@ export function buildChallengerSteps(ctx: TierContext): MissionExerciseStep[] {
     hintAfterWrongHe: `💡 המשפט בעברית: ${word.exampleHe}`,
     questionEn: cloze ?? word.exampleEn,
     options: choiceOptions(
-      word.wordEn,
+      answer,
       he`מעולה! ${word.emoji ? `${word.emoji} ` : ''}${word.wordEn} פירושו "${word.translationHe}".`,
       [wrongA, wrongB],
       () => he`לא בדיוק — המילה שמתאימה כאן היא "${isolateLtr(word.wordEn)}" (${word.translationHe}).`
-    ),
+    ).map(withSpokenText),
   };
 
   const step4: MissionExerciseStep = {

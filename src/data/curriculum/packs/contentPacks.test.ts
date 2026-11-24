@@ -85,7 +85,7 @@ describe('content packs', () => {
   });
 
   it('adds nothing to the app while no pack is released', () => {
-    expect(CONTENT_PACK_IDS).toEqual(['season2-1', 'season2-2', 'core-3', 'holidays-autumn', 'holidays-spring']);
+    expect(CONTENT_PACK_IDS).toEqual(['season2-1', 'season2-2', 'core-3', 'holidays-autumn', 'holidays-spring', 'core-4']);
     expect(BASE_CURRICULUM_BY_GRADE['grade-5'].units).toHaveLength(4);
   });
 });

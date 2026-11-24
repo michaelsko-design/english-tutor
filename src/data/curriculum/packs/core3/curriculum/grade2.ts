@@ -55,7 +55,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         },
         story: {
           passageEn:
-            'Maya is in class. She wants a blue pencil. She asks Tom, Can I have your blue pencil, please? Tom says, Yes! Maya says, Thank you!',
+            'Maya is in class. She wants a blue pencil. She asks Tom, "Can I have your blue pencil, please?" Tom says, "Yes!" Maya says, "Thank you!"',
           passageHe:
             'מאיה בכיתה. היא רוצה עיפרון כחול. היא שואלת את תום: אפשר לקבל את העיפרון הכחול שלך, בבקשה? תום אומר: כן! מאיה אומרת: תודה!',
           questionEn: 'What does Maya want?',
@@ -73,7 +73,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
               hintHe: 'מה אומרים כשמקבלים משהו?',
             },
             story: {
-              passageEn: 'Dan has a new ball. He gives it to Lea. Lea says, Thank you, Dan!',
+              passageEn: 'Dan has a new ball. He gives it to Lea. Lea says, "Thank you, Dan!"',
               passageHe: 'לדן יש כדור חדש. הוא נותן אותו ללאה. לאה אומרת: תודה, דן!',
               questionEn: 'What does Lea say?',
               questionHe: 'מה לאה אומרת?',
@@ -106,7 +106,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
             },
             story: {
               passageEn:
-                'It is lunch time. Noa has two apples, but Ben has no apple. Ben looks at the apples. He asks, Can I have an apple, please? Noa gives him one. Ben says, Thank you! Noa says, You\'re welcome.',
+                'It is lunch time. Noa has two apples, but Ben has no apple. Ben looks at the apples. He asks, "Can I have an apple, please?" Noa gives him one. Ben says, "Thank you!" Noa says, "You\'re welcome."',
               passageHe: '',
               questionEn: 'Why does Ben ask Noa?',
               questionHe: '',
@@ -151,7 +151,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         },
         story: {
           passageEn:
-            'Dan runs in the park. Oops! His ball hits a girl. Dan says, I\'m sorry! The girl says, It doesn\'t matter. They play ball together.',
+            'Dan runs in the park. Oops! His ball hits a girl. Dan says, "I\'m sorry!" The girl says, "It doesn\'t matter." They play ball together.',
           passageHe:
             'דן רץ בפארק. אופס! הכדור שלו פוגע בילדה. דן אומר: אני מצטער! הילדה אומרת: לא נורא. הם משחקים בכדור ביחד.',
           questionEn: 'What does the girl say?',
@@ -206,7 +206,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
             },
             story: {
               passageEn:
-                'Tom has a big box. He wants to go into the class, but a boy stands at the door. Tom says, Excuse me, please. The boy says, Oh, I\'m sorry! and moves away. Tom says, Thank you!',
+                'Tom has a big box. He wants to go into the class, but a boy stands at the door. Tom says, "Excuse me, please." The boy says, "Oh, I\'m sorry!" and moves away. Tom says, "Thank you!"',
               passageHe: '',
               questionEn: 'Why does the boy say sorry?',
               questionHe: '',
@@ -244,7 +244,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         shortSentenceEn: 'How are you, Dan?',
         shortSentenceHe: 'מה שלומך, דן?',
         rule: {
-          questionEn: 'Your friend says, Thank you! What do you say?',
+          questionEn: 'Your friend says, "Thank you!" What do you say?',
           correct: 'You\'re welcome!',
           wrong: ['Excuse me!', 'Happy birthday!'],
           explainHe: 'כשמישהו אומר thank you, עונים You\'re welcome (בבקשה, אין בעד מה).',
@@ -252,7 +252,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
         },
         story: {
           passageEn:
-            'It is Noa\'s birthday. Her friends say, Happy birthday, Noa! Noa says, Thank you! Then Grandma comes. Noa asks, How are you, Grandma? Grandma says, I am fine.',
+            'It is Noa\'s birthday. Her friends say, "Happy birthday, Noa!" Noa says, "Thank you!" Then Grandma comes. Noa asks, "How are you, Grandma?" Grandma says, "I am fine."',
           passageHe:
             'זה יום ההולדת של נועה. החברים שלה אומרים: יום הולדת שמח, נועה! נועה אומרת: תודה! אחר כך סבתא באה. נועה שואלת: מה שלומך, סבתא? סבתא אומרת: אני בסדר.',
           questionEn: 'Who comes to the party?',
@@ -270,7 +270,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
               hintHe: 'מה אומרים לחברים ביום ההולדת?',
             },
             story: {
-              passageEn: 'We wait for Dan. Here he is! Dan says, I\'m ready. Let\'s go!',
+              passageEn: 'We wait for Dan. Here he is! Dan says, "I\'m ready. Let\'s go!"',
               passageHe: 'אנחנו מחכים לדן. הנה הוא! דן אומר: אני מוכן. בואו נלך!',
               questionEn: 'Who do we wait for?',
               questionHe: 'למי אנחנו מחכים?',
@@ -303,7 +303,7 @@ const UNIT_CORE_3: ElementaryUnitSpec = {
             },
             story: {
               passageEn:
-                'Ben is at Noa\'s party. He wants some juice, but the juice is on a high table. Ben asks Noa\'s dad, Excuse me, can I have some juice, please? Noa\'s dad gives Ben a cup of juice. Ben says, Thank you!',
+                'Ben is at Noa\'s party. He wants some juice, but the juice is on a high table. Ben asks Noa\'s dad, "Excuse me, can I have some juice, please?" Noa\'s dad gives Ben a cup of juice. Ben says, "Thank you!"',
               passageHe: '',
               questionEn: 'Why does Ben ask Noa\'s dad?',
               questionHe: '',
