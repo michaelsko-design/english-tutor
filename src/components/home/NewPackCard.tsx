@@ -29,29 +29,34 @@ export const NewPackCard: React.FC<NewPackCardProps> = ({ offer, gender, theme, 
   return (
     <section
       aria-label={copy.titleHe}
-      className={`relative rounded-2xl px-3.5 py-3 flex items-center gap-3 ring-2 ring-amber-300/70 ${theme.cardBgClass}`}
+      className={`relative rounded-2xl px-3.5 py-3 space-y-2.5 ring-2 ring-amber-300/70 ${theme.cardBgClass}`}
     >
-      <span className="text-3xl leading-none shrink-0" aria-hidden="true">
-        {offer.badgeEmoji}
-      </span>
-      <div className="flex-1 min-w-0 space-y-0.5">
-        <h2 className="font-extrabold text-sm">{copy.titleHe}</h2>
-        <p className={`text-xs font-bold ${theme.mutedTextClass}`}>{copy.bodyHe}</p>
+      {/* Text gets the full width; on a phone, buttons beside it squeezed it to a few words a line */}
+      <div className="flex items-start gap-3">
+        <span className="text-3xl leading-none shrink-0" aria-hidden="true">
+          {offer.badgeEmoji}
+        </span>
+        <div className="flex-1 min-w-0 space-y-0.5">
+          <h2 className="font-extrabold text-sm">{copy.titleHe}</h2>
+          <p className={`text-xs font-bold ${theme.mutedTextClass}`}>{copy.bodyHe}</p>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="סגירה"
+          className="min-w-11 min-h-11 -my-2 -ml-2 inline-flex items-center justify-center rounded-xl shrink-0 hover:bg-black/5 dark:hover:bg-white/10"
+        >
+          <X className="w-4 h-4" aria-hidden="true" />
+        </button>
       </div>
-      <HebrewAudioContext.Provider value={readsHebrewAloud}>
-        <HebrewSpeakButton text={copy.spokenHe} label="הקשבה להודעה" />
-      </HebrewAudioContext.Provider>
-      <Button theme={theme} size="sm" className="shrink-0" onClick={onOpen}>
-        {copy.buttonHe}
-      </Button>
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="סגירה"
-        className="min-w-11 min-h-11 -my-2 -ml-2 inline-flex items-center justify-center rounded-xl shrink-0 hover:bg-black/5 dark:hover:bg-white/10"
-      >
-        <X className="w-4 h-4" aria-hidden="true" />
-      </button>
+      <div className="flex items-center justify-end gap-2">
+        <HebrewAudioContext.Provider value={readsHebrewAloud}>
+          <HebrewSpeakButton text={copy.spokenHe} label="הקשבה להודעה" />
+        </HebrewAudioContext.Provider>
+        <Button theme={theme} size="sm" className="shrink-0" onClick={onOpen}>
+          {copy.buttonHe}
+        </Button>
+      </div>
     </section>
   );
 };
