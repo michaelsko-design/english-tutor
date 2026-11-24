@@ -149,9 +149,17 @@ function sayLoneLettersByName(text: string): string {
   return text.replace(ANY_LONE_LETTER, (letter) => ENGLISH_LETTER_NAMES[letter.toUpperCase()] ?? letter);
 }
 
+/**
+ * English lead words that Gemini acts out instead of reading, sent spelled by their sound
+ * ("yawn" came out as a yawn in 4 takes; "yon" picked by ear, 2026-11-24).
+ */
+const LEAD_WORD_SPELLINGS: Readonly<Record<string, string>> = { yawn: 'yon' };
+
 /** A Hebrew clip's text (maybe tagged `[to:girl] …`) as Gemini reads it. */
 export function toGeminiText(clipText: string): string {
   const { gender, text } = parseListenerGender(clipText);
+  // An English lead word said alone (splitEnglishLead): bare, as picked by ear
+  if (!/[א-ת]/.test(text)) return LEAD_WORD_SPELLINGS[text] ?? text;
   const forms = gender === 'girl' ? GEMINI_GIRL_FORMS : gender === 'boy' ? GEMINI_BOY_FORMS : null;
   const paired = sayLoneLettersByName(sayLetterPairOnce(dropNumeralBeforeItsWord(text)));
   const whole = applyFullNiqqud(paired);

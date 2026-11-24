@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { LISTENER_GENDERED_WORDS } from '../../src/services/tts/ttsText';
 import { GEMINI_BOY_FORMS, GEMINI_GIRL_FORMS, toGeminiText } from './geminiSpelling';
-import { encodeMp3, readPcm } from './geminiTts';
+import { encodeMp3, readPcm, trimTrailingSilence } from './geminiTts';
 
 describe('toGeminiText', () => {
   it('ends a sentence with a full stop so it does not sound like a question, but not a word or a line that has a mark', () => {
@@ -11,10 +11,19 @@ describe('toGeminiText', () => {
     expect(toGeminiText('לא בדיוק —')).toBe('לא בדיוק —');
   });
 
+  it('sends an English lead word as it is, with no full stop (the owner picked the bare takes by ear)', () => {
+    expect(toGeminiText('happy birthday')).toBe('happy birthday');
+    expect(toGeminiText('Of course!')).toBe('Of course!');
+  });
+
+  it('spells a lead word Gemini acts out by its sound ("yawn" came out as a yawn)', () => {
+    expect(toGeminiText('yawn')).toBe('yon');
+  });
+
   it('says a capital and its small letter once, not "bee bee"', () => {
     expect(toGeminiText('B b: אותה אות, גדולה וקטנה.')).toBe('Bee: אותה אות, גדולה וקטנה.');
     expect(toGeminiText('M m: אותה אות, גדולה וקטנה.')).toBe('Em: אותה אות, גדולה וקטנה.');
-    expect(toGeminiText('The cat is big')).toBe('The cat is big.');
+    expect(toGeminiText('The cat is big. חתול')).toBe('The cat is big. חתול.');
   });
 
   it('says a number word once when the numeral comes before it', () => {
@@ -86,6 +95,16 @@ describe('Gemini audio to MP3', () => {
   it('reads the samples and rate of a WAV, or takes headerless PCM at the given rate', () => {
     expect(readPcm(wav(2400, 22050), 24000)).toMatchObject({ sampleRate: 22050, samples: { length: 2400 } });
     expect(readPcm(Buffer.alloc(100), 24000)).toMatchObject({ sampleRate: 24000, samples: { length: 50 } });
+  });
+
+  it('trims the silence after the speech to a short tail, keeping the silence before it', () => {
+    const samples = new Int16Array(24000);
+    samples.fill(8000, 6000, 12000);
+    const trimmed = trimTrailingSilence({ samples, sampleRate: 24000 }, 80);
+    expect(trimmed.samples.length).toBe(12000 + 1920);
+    expect(trimmed.samples[6000]).toBe(8000);
+    const silent = { samples: new Int16Array(2400), sampleRate: 24000 };
+    expect(trimTrailingSilence(silent, 80)).toBe(silent);
   });
 
   it('encodes one second as about 6 KB of 48 kbps MP3, with the leading silence', () => {

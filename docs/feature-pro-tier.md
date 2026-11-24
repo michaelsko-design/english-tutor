@@ -485,8 +485,8 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
     - The cron secret is compared in constant time (`pro-reconcile`, `streak-reminder`).
   - Checked and sound: parent ID tokens (RS256, audience, issuer, expiry, Google sign-in only); the pairing read as the parent, so the rules decide; prices only from `config/proTier.ts`; payments confirmed by asking Grow with the checkout's own stored process ids, the amount matched, recorded once; no client access to `subscriptions`, `checkouts`, `payments`, `recurringRefs`; the mock gateway and the dev payment API can't run on Vercel or against the live project; return and notify URLs built from `APP_ORIGIN` on Vercel; the portal follows only an `https://` or same-origin payment URL; logs carry no payer details, tokens or keys; gateway ids checked before they become document ids.
   - Open, for launch (Phase 4) or the owner:
-    - Set `APPCHECK_ENFORCE=on` in Production before switching Pro on.
-    - `PAYMENT_WEBHOOK_SECRET` travels in the notify URL's query (Grow can't send headers), so it shows in Vercel's request logs: keep log access to the owner, and rotate it if logs are ever shared.
+    - ~~Set `APPCHECK_ENFORCE=on` in Production before switching Pro on.~~ Done: on in Production (checked 2026-11-24).
+    - `PAYMENT_WEBHOOK_SECRET` travels in the notify URL's query (Grow can't send headers), so it shows in Vercel's request logs: keep log access to the owner (the Hobby plan has one member), and rotate it if logs are ever shared. To rotate: (1) make a new random value (`openssl rand -hex 32`), (2) set it as `PAYMENT_WEBHOOK_SECRET` in Vercel Production and redeploy, (3) at once change the `key=` in the two Grow dashboard webhook URLs (`source=account`, `docs/grow-make-setup.md`). A payment page opened before the change still carries the old key, so its notice is refused (401): rotate at a quiet hour, then check Grow for payments made in that hour and confirm any unmatched one by hand.
     - Renewal and failed-charge webhooks are trusted on `GROW_WEBHOOK_KEY` plus the secret; a renewal amount that differs from the plan is only logged. Check in the sandbox (Phase 3b) whether Grow can confirm a renewal by API.
     - Refunds for `seatedElsewhere` are manual: watch the logs for "refund needed" (rare: it takes two plans for the same child at once).
     - Any linked parent can read a child's entitlement, which names the paying parent's uid (no name or contact). Accepted.
@@ -509,7 +509,7 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
   - **A renewal or failure that matched no plan:** an "unmatched" task.
   - **A standing order running out:** Make can't open one that runs until cancelled (Grow, 2026-11-15). Each makes `GROW_MAKE_MAX_CHARGES` charges (default 36, Make's most with "Custom"). On the renewal that leaves one charge, an "extend" task asks the owner to add as many again in Grow (`extendTask`; counted from the plan's `payments`).
   - **Overdue:** the reconcile counts tasks open for more than 2 days (`overdueTasks`), and the owner card turns red after a day.
-- **Account webhooks:** created in Grow's dashboard. Without a `GROW_WEBHOOK_KEY`, the secret in the address is the check.
+- **Account webhooks:** created in Grow's dashboard. `GROW_WEBHOOK_KEY` holds every webhook's key, comma-separated (Grow gives each its own); without it, the secret in the address is the check.
 - **On Preview:** the notify URL carries Vercel's automation bypass (`VERCEL_AUTOMATION_BYPASS_SECRET`). It is never added on Production.
 - **Env:** `GROW_MAKE_WEBHOOK_URL` and `GROW_MAKE_API_KEY`, one pair per environment; `MAKE_API_TOKEN` (`organizations:read` only) and `MAKE_ORGANIZATION_ID` in Production for the credits warning.
 - **Not yet checked against Grow:** these field names follow Grow's docs, which contradict themselves in places:

@@ -202,13 +202,15 @@ export type GrowAccountEvent =
 
 /**
  * An account webhook from Grow (the dashboard's "ניהול וובהוקים"): a monthly charge after the first,
- * or a failed one. Null when it isn't one of those, or when we set a `webhookKey` (GROW_WEBHOOK_KEY)
- * and it doesn't match. Without one, the secret in the webhook's address is the only check.
+ * or a failed one. Null when it isn't one of those, or when we set webhook keys (GROW_WEBHOOK_KEY,
+ * comma-separated: Grow gives each dashboard webhook its own key) and none matches. Without any, the
+ * secret in the webhook's address is the only check.
  */
-export function parseGrowAccountWebhook(body: GrowData, webhookKey: string): GrowAccountEvent | null {
+export function parseGrowAccountWebhook(body: GrowData, webhookKeys: string): GrowAccountEvent | null {
   const fields = toStrings(body);
   const key = fields.webhookKey || fields.webhook_key || '';
-  if (webhookKey && !safeEqual(key, webhookKey)) return null;
+  const allowedKeys = webhookKeys.split(',').map((k) => k.trim()).filter(Boolean);
+  if (allowedKeys.length > 0 && !allowedKeys.some((allowed) => safeEqual(key, allowed))) return null;
   if (GATEWAY_ID_PATTERN.test(fields.regular_payment_id ?? '')) {
     return {
       kind: 'failed',

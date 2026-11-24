@@ -161,4 +161,13 @@ describe('parseGrowAccountWebhook', () => {
     expect(parseGrowAccountWebhook({ webhookKey: '', regular_payment_id: '55' }, '')).toMatchObject({ kind: 'failed', recurringRef: '55' });
     expect(parseGrowAccountWebhook({ webhookKey: 'KEY', transactionCode: 'T1', paymentSum: 5 }, 'KEY')).toBeNull();
   });
+
+  it('takes any of several comma-separated keys (Grow gives each dashboard webhook its own)', () => {
+    const keys = 'RENEW-KEY, FAIL-KEY';
+    expect(parseGrowAccountWebhook({ webhookKey: 'RENEW-KEY', transactionCode: 'T1', paymentSum: 64, directDebitId: '55' }, keys)).toMatchObject({ kind: 'renewal' });
+    expect(parseGrowAccountWebhook({ webhook_key: 'FAIL-KEY', regular_payment_id: '55' }, keys)).toMatchObject({ kind: 'failed' });
+    expect(parseGrowAccountWebhook({ webhookKey: 'OTHER', regular_payment_id: '55' }, keys)).toBeNull();
+    expect(parseGrowAccountWebhook({ webhookKey: '', regular_payment_id: '55' }, keys)).toBeNull();
+    expect(parseGrowAccountWebhook({ webhookKey: '', regular_payment_id: '55' }, ' , ')).toMatchObject({ kind: 'failed' });
+  });
 });

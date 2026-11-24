@@ -8,11 +8,10 @@
 import { DEFAULT_VOICE_PREFERENCE } from '../../utils/ttsVoice';
 import { CLIP_MANIFEST_URL, getClipUrl, type ClipManifest } from './clipManifestTypes';
 import { voiceForListener } from './hebrewListener';
+import { hebrewLineClips } from './hebrewLineClips';
 import {
   APP_CHECK_HEADER,
   HEBREW_VOICE,
-  englishRestOf,
-  splitHebrewOpener,
   type ListenerGender,
   isSpeakableBy,
   toPlainSpeech,
@@ -22,7 +21,6 @@ import {
   CLIP_BASE_RATE,
   getClipKey,
   getClipSpeed,
-  getClipText,
   getSpeedBucket,
   normalizeTtsText,
   toSpeakableText,
@@ -151,28 +149,19 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
   };
 
   /**
-   * The clips of a line that opens with an opener ("מעולה!"): the opener in the learner's gender, then
-   * the rest (a Hebrew clip, or the English voice's clip when the rest is an English sentence). Null
-   * when either is missing.
+   * The clips of a line said in parts (hebrewLineParts): a shared opener ("מעולה!") in the learner's
+   * gender, the line's own text (or the English voice's clip of an English rest), a shared closer
+   * ("נסי שוב!"). Null when the line is one clip or a part is missing.
    */
-  const findOpenerClips = async (text: string, voice: ClipVoice, rate: number, signal: AbortSignal): Promise<Playable[] | null> => {
-    const split = splitHebrewOpener(text);
-    if (!split) return null;
+  const findPartClips = async (text: string, voice: ClipVoice, rate: number, signal: AbortSignal): Promise<Playable[] | null> => {
+    const lineClips = hebrewLineClips(text, deps.getListenerGender?.() ?? null);
+    if (!lineClips) return null;
     const manifest = await loadManifest();
-    const hebrewClips = manifest?.get(HEBREW_VOICE);
-    const english = englishRestOf(split.rest);
-    const englishClips = manifest?.get(voice);
-    if (!hebrewClips || (english && !englishClips)) return null;
-    const gender = deps.getListenerGender?.() ?? null;
-    // The corpus keys a one-word part without its punctuation, then tags it (getClipText first, as corpusBuilder does)
-    const openerKey = getClipKey(voiceForListener(getClipText(split.opener), gender), 'normal');
-    const parts: { clips: ReadonlySet<string>; voice: ClipVoice; key: string }[] = [
-      { clips: hebrewClips, voice: HEBREW_VOICE, key: openerKey },
-      english
-        ? { clips: englishClips as ReadonlySet<string>, voice, key: getClipKey(english, 'normal') }
-        : { clips: hebrewClips, voice: HEBREW_VOICE, key: getClipKey(voiceForListener(getClipText(split.rest), gender), 'normal') },
-    ];
-    if (!parts.every((part) => part.clips.has(part.key))) return null;
+    const parts = lineClips.map((clip) => {
+      const partVoice = clip.voice === 'en' ? voice : HEBREW_VOICE;
+      return { clips: manifest?.get(partVoice), voice: partVoice, key: clip.key };
+    });
+    if (!parts.every((part) => part.clips?.has(part.key))) return null;
     const playbackRate = rate / CLIP_BASE_RATE;
     const playables = await Promise.all(parts.map((part) => toPlayable(getClipUrl(part.voice, part.key), 'clip', playbackRate, signal)));
     return playables.every((playable): playable is Playable => playable !== null) ? playables : null;
@@ -350,7 +339,7 @@ export function createHybridTtsService(deps: HybridTtsDeps): TextToSpeechService
       // The online voice gets LIVE_TIMEOUT_MS; a slower answer is dropped for the device voice.
       const timer = setTimeout(() => controller.abort(), LIVE_TIMEOUT_MS);
       try {
-        opener = lang === 'he' ? await findOpenerClips(text, voice, rate, controller.signal) : null;
+        opener = lang === 'he' ? await findPartClips(text, voice, rate, controller.signal) : null;
         if (!opener) {
           // A word loaded ahead (queued taps) is already here, or still loading with its own timeout
           playable = ahead ? await ahead : await resolvePlayable(voiced, clipVoice, rate, controller.signal, shouldTrim);

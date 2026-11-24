@@ -107,6 +107,21 @@ export function responseToMp3(body: GeminiResponse): Buffer | null {
   return pcm ? encodeMp3(pcm) : null;
 }
 
+/** Loudest sample of the quiet: -35 dBFS, the level the clip cutters (silencedetect) call silence. */
+const SILENCE_PEAK = Math.round(32768 * 10 ** (-35 / 20));
+
+/**
+ * The samples with the silence after the speech cut to `keepMs`. A lone English word (a line's lead
+ * word, splitEnglishLead) comes back with ~0.3 s of quiet after it, a gap the whole line never had.
+ */
+export function trimTrailingSilence(pcm: Pcm, keepMs: number): Pcm {
+  let last = pcm.samples.length - 1;
+  while (last >= 0 && Math.abs(pcm.samples[last] as number) <= SILENCE_PEAK) last -= 1;
+  if (last < 0) return pcm;
+  const end = Math.min(pcm.samples.length, last + 1 + Math.round((pcm.sampleRate * keepMs) / 1000));
+  return end === pcm.samples.length ? pcm : { samples: pcm.samples.slice(0, end), sampleRate: pcm.sampleRate };
+}
+
 /** Pieces of one line one after the other, `gapMs` of silence between them (they share a sample rate). */
 export function joinPcm(parts: readonly Pcm[], gapMs: number): Pcm {
   const sampleRate = parts[0]?.sampleRate ?? DEFAULT_SAMPLE_RATE;

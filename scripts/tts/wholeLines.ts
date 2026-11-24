@@ -1,35 +1,25 @@
 /**
- * The lines that open with a shared opener, as the player says them: the opener clip, then the
- * rest of the line, back to back. The review page plays these so you hear the join, not the parts.
- * Mirrors hybridTtsService.findOpenerClips (same split, same clip keys).
+ * The lines said in parts (a shared opener, the line's own text, a shared closer), as the player says
+ * them: the part clips back to back. The review page plays these so you hear the joins, not the parts.
+ * Same split and clip keys as hybridTtsService.findPartClips (hebrewLineClips).
  */
-import { voiceForListener } from '../../src/services/tts/hebrewListener';
-import { englishRestOf, getClipKey, getClipText, parseListenerGender, splitHebrewOpener } from '../../src/services/tts/ttsText';
+import { hebrewLineClips, type LineClip } from '../../src/services/tts/hebrewLineClips';
+import { parseListenerGender } from '../../src/services/tts/ttsText';
 import { collectWholeLineHebrewCorpus } from './corpus';
 
-export interface LinePart {
-  /** 'he' is a Gemini clip of the Hebrew voice, 'en' an Azure clip of the English voice. */
-  voice: 'he' | 'en';
-  key: string;
-}
+/** 'he' is a Gemini clip of the Hebrew voice, 'en' an Azure clip of the English voice. */
+export type LinePart = LineClip;
 
 export interface WholeLine {
   /** The line as the app asks for it, with its gender tag when it has one. */
   text: string;
-  parts: [LinePart, LinePart];
+  parts: LinePart[];
 }
 
-/** The two clips of a line with an opener; null for a line that is one clip. */
-export function partsOfLine(text: string): [LinePart, LinePart] | null {
+/** The clips of a line said in parts; null for a line that is one clip. */
+export function partsOfLine(text: string): LinePart[] | null {
   const { gender, text: plain } = parseListenerGender(text);
-  const split = splitHebrewOpener(plain);
-  if (!split) return null;
-  const hebrewKey = (part: string): string => getClipKey(voiceForListener(getClipText(part), gender), 'normal');
-  const english = englishRestOf(split.rest);
-  return [
-    { voice: 'he', key: hebrewKey(split.opener) },
-    english ? { voice: 'en', key: getClipKey(english, 'normal') } : { voice: 'he', key: hebrewKey(split.rest) },
-  ];
+  return hebrewLineClips(plain, gender);
 }
 
 export function buildWholeLines(): WholeLine[] {

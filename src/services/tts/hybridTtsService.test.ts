@@ -136,6 +136,14 @@ describe('hybrid read-aloud service', () => {
     expect(urls).toEqual([`/tts/v4/he-female/${keys[1]}.mp3`, `/tts/v4/he-female/${keys[2]}.mp3`]);
   });
 
+  it('plays the opener, the line and the shared closer, as three clips', async () => {
+    const keys = ['לא בדיוק —', 'cat פירושו "חתול".', 'נסה שוב!'].map((text) => getClipKey(text, 'normal'));
+    const { service, fetchMock } = setup({ hebrewClipKeys: keys, listenerGender: 'boy' });
+    await service.speak('לא בדיוק — cat פירושו "חתול". נסה שוב!', { lang: 'he' });
+    const urls = fetchMock.mock.calls.map(([url]) => String(url)).filter((url) => url.includes('he-female'));
+    expect(urls).toEqual(keys.map((key) => expect.stringMatching(new RegExp(`^/tts/v4/he-female/${key}\\.mp3(\\?r=\\d+)?$`))));
+  });
+
   it('plays the Hebrew opener, then the English voice for an English-only rest', async () => {
     const opener = getClipKey('[to:girl] מעולה', 'normal');
     const sentence = getClipKey('The king has a gold crown.', 'normal');
