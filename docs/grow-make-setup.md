@@ -200,6 +200,7 @@ Use this address for both:
 
 ## 6. Launch
 1. Copy the scenario onto the **live** connection, with a new webhook address and key, and set the Production env. In the copy, set each product's **VAT Type to VAT Exempt (3)**, and clear `invoiceNotifyUrl` (or point it at our server).
+   - **Done 2026-11-24** (Make connector): scenario 8787636 "EnglishVibe payments (live)" on webhook 4174862 and the live connection "Grow Live" (13383331), the sandbox's routes with VAT type 3 and no `invoiceNotifyUrl`, the alert route as in the sandbox, data confidential. The connector can't make API keys, so the owner creates the live key in Make (Webhook API Key Auth, attached to the webhook) and turns the scenario on; it stays off until then. VAT type 3 on the live account is first checked by the first live payment link.
 2. Create the two account webhooks in the live dashboard with the Production address.
 3. Make one real low-price charge on a card that isn't the owner's or a relative's. Check the קבלה, then refund it in Grow.
 

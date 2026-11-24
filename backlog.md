@@ -32,10 +32,10 @@
 
 ### Payments and Pro launch
 - [ ] **Grow live account setup and one real charge** (gate; by about 30 Nov) - The Make route is built and passed in the sandbox and on staging (see Completed, "Grow through Make"). Left, in the live account (`docs/grow-make-setup.md`):
-  - update the phone in Grow's business details to 055-2903310 (changed from 052-9282667 on 2026-11-20);
-  - turn on receipts (מסמכים → הגדרות, קבלה, עוסק פטור, automatic documents);
-  - the payment page: the business name and logo instead of "MAKE", and check that the invoice fields (`שם לחשבונית`, `מ. תעודת זהות`) stay hidden (removed from the Make routes 2026-11-18; not yet seen gone on a checkout);
-  - copy the scenario onto the live "Grow" connection with `vatType` 3, `invoiceNotifyUrl` removed and the Telegram step (the free Make plan allows 2 active scenarios: sandbox plus live);
+  - ~~update the phone in Grow's business details to 055-2903310~~ done 2026-11-24;
+  - ~~turn on receipts (מסמכים → הגדרות, קבלה, עוסק פטור, automatic documents)~~ done 2026-11-24;
+  - the payment page: logo and mood image set in Grow's design settings (2026-11-24; the image is `marketing/grow-payment-page/`); on the first live page check the business name shows instead of "MAKE", and check that the invoice fields (`שם לחשבונית`, `מ. תעודת זהות`) stay hidden (removed from the Make routes 2026-11-18; not yet seen gone on a checkout);
+  - the live scenario is built (8787636, off; `docs/grow-make-setup.md` §6): the owner adds its API key in Make and turns it on;
   - the dashboard webhooks (Recurring Payment, Failed Recurring Payment) with `GROW_WEBHOOK_KEY`;
   - the Production env: `PAYMENT_PROVIDER=grow-make`, the live Make URL and key, `PAYMENT_WEBHOOK_SECRET`, `APP_ORIGIN`, `CRON_SECRET`, `GROW_WEBHOOK_KEY` (`MAKE_API_TOKEN` + `MAKE_ORGANIZATION_ID` are already set);
   - one real low-price charge, then a refund by hand (this also tests the portal's refund request with real Grow). **Never on the owner's or a first-degree relative's card** (Grow terms §11.2.7, §13.8.5.5);
