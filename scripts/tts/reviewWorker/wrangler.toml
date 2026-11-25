@@ -1,0 +1,19 @@
+# The phone review of the Hebrew clips (docs/hebrew-review-phone.md). Run wrangler from this folder.
+name = "englishvibe-hebrew-review"
+main = "worker.ts"
+compatibility_date = "2026-11-01"
+workers_dev = true
+preview_urls = false
+
+[assets]
+directory = "./public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hebrew-review"
+# From `wrangler d1 create hebrew-review`; not a secret
+database_id = "8cc740e5-29d1-4c00-89fe-3935b44fb65c"
+
+[[r2_buckets]]
+binding = "STORE"
+bucket_name = "englishvibe-hebrew-review"

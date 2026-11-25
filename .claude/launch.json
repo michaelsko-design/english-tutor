@@ -48,6 +48,19 @@
         "tts:review:he"
       ],
       "port": 5290
+    },
+    {
+      "name": "he-review-worker",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "wrangler@4",
+        "dev",
+        "--config",
+        "scripts/tts/reviewWorker/wrangler.toml",
+        "--port",
+        "8787"
+      ],
+      "port": 8787
     }
   ]
 }

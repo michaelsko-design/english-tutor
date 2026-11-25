@@ -7,32 +7,19 @@ import { createHash } from 'node:crypto';
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { CorpusPhrase } from './corpusBuilder';
+import { withEntry, type ReviewEntry, type ReviewReason, type ReviewState, type ReviewStatus } from './reviewMarks';
 
-export type ReviewStatus = 'good' | 'regenerate';
+export { MAX_NOTE_LENGTH, REVIEW_REASONS } from './reviewMarks';
+export type { ReviewEntry, ReviewReason, ReviewState, ReviewStatus } from './reviewMarks';
+
 export type ReviewDecision = 'new' | 'old' | 'again';
 /** missing: no clip on disk. compare: marked for regenerate and a new take is waiting. */
 export type ReviewPhase = 'pending' | 'good' | 'regenerate' | 'compare' | 'missing';
-
-/** Why a clip was marked for regenerate; chosen on the review page. */
-export const REVIEW_REASONS = ['wrong-gender', 'english-accent', 'mispronounced', 'letter-name', 'cut-off', 'too-fast', 'too-slow', 'noise', 'bad-wording'] as const;
-export type ReviewReason = (typeof REVIEW_REASONS)[number];
-export const MAX_NOTE_LENGTH = 300;
 
 export interface ReviewDetail {
   reasons: readonly ReviewReason[];
   note: string;
 }
-
-export interface ReviewEntry {
-  status: ReviewStatus;
-  reasons?: readonly ReviewReason[];
-  note?: string;
-  /** Fingerprint of the clip file when it was judged. */
-  fp: string;
-  at: string;
-}
-
-export type ReviewState = Readonly<Record<string, ReviewEntry>>;
 
 export interface ReviewDirs {
   clipDir: string;
@@ -72,11 +59,17 @@ export function readTakes(dirs: ReviewDirs): ReadonlyMap<string, readonly string
   return takes;
 }
 
-export function fingerprintFile(path: string): string | null {
+/** One read of a clip: its fingerprint, and the MD5 the clips bucket reports as the object's ETag. */
+export function inspectClip(path: string): { fp: string; md5: string } | null {
   if (!existsSync(path)) return null;
   const bytes = readFileSync(path);
-  return `${bytes.length}-${createHash('sha1').update(bytes).digest('hex').slice(0, 16)}`;
+  return {
+    fp: `${bytes.length}-${createHash('sha1').update(bytes).digest('hex').slice(0, 16)}`,
+    md5: createHash('md5').update(bytes).digest('hex'),
+  };
 }
+
+export const fingerprintFile = (path: string): string | null => inspectClip(path)?.fp ?? null;
 
 export function loadState(statePath: string): ReviewState {
   if (!existsSync(statePath)) return {};
@@ -119,13 +112,6 @@ export function listReviewItems(phrases: readonly CorpusPhrase[], state: ReviewS
   });
 }
 
-function withEntry(state: ReviewState, key: string, entry: ReviewEntry | null): ReviewState {
-  const rest = Object.fromEntries(Object.entries(state).filter(([existing]) => existing !== key));
-  return entry ? { ...rest, [key]: entry } : rest;
-}
-
-const today = (): string => new Date().toISOString().slice(0, 10);
-
 /** Marks a clip as judged on the audio it has now; `null` takes the mark back. */
 export function markClip(
   dirs: ReviewDirs,
@@ -139,7 +125,8 @@ export function markClip(
   if (!fp) throw new Error(`No clip for ${key}.`);
   const note = detail?.note.trim() ?? '';
   const why = status === 'regenerate' && detail ? { ...(detail.reasons.length > 0 && { reasons: detail.reasons }), ...(note && { note }) } : {};
-  return withEntry(state, key, { status, ...why, fp, at: today() });
+  const markedAt = new Date().toISOString();
+  return withEntry(state, key, { status, ...why, fp, at: markedAt.slice(0, 10), markedAt });
 }
 
 interface UndoMeta {

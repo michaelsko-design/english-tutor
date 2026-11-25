@@ -49,3 +49,8 @@ review-out/
 
 # Ministry of Education source documents (all rights reserved; local reference only)
 docs/ministry-sources/raw/
+
+# Phone review Worker: local wrangler state and test token
+.wrangler/
+scripts/tts/reviewWorker/.dev.vars
+scripts/tts/hebrewReview.before-sync.json.bak

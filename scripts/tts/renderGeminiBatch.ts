@@ -12,6 +12,7 @@
  *   npm run tts:render:he -- status    shows how the submitted batches are doing
  *   npm run tts:render:he -- regenerate   sends the clips marked "regenerate" in the review (npm run tts:review:he)
  *                                      as new takes; collect saves them to .tts-candidates, the originals stay
+ *                                      (takes the marks made on the phone first; --offline skips that)
  *   npm run tts:render:he -- lab        renders a few flagged lines in several ways (geminiLab.ts) to compare by ear
  *   npm run tts:render:he -- collect   writes the finished clips and rewrites public/tts/manifest.json
  *   npm run tts:render:he -- redo "<text>"   deletes the clips whose line contains <text> (one that came
@@ -30,6 +31,8 @@ import { getVoiceDir, listRenderedKeys, writeManifest } from './clipManifest';
 import { toGeminiText } from './geminiSpelling';
 import { CANDIDATE_DIR, getReviewDirs } from './hebrewReviewPaths';
 import { keysToRegenerate, listReviewItems, loadState } from './hebrewReviewState';
+import { createCloudClient, readCloudConfig } from './reviewCloudClient';
+import { syncAndReport } from './reviewCloudCommands';
 import {
   buildGeminiRequest,
   GEMINI_API_BASE,
@@ -120,6 +123,18 @@ async function submit(apiKey: string, scope?: string, skipText?: string, onlySta
   const todo = missing.filter((phrase) => isInScope(phrase) && isPicked(phrase) && (!skipText || !phrase.text.includes(skipText)));
   console.log(`${missing.length} Hebrew phrases without a clip; sending ${todo.length}.`);
   return submitPhrases(apiKey, todo, 'clip');
+}
+
+/** Takes the marks made on the phone first, so the batch has every clip marked for regenerate. */
+async function takePhoneMarks(isOffline: boolean): Promise<void> {
+  const config = readCloudConfig();
+  if (!config || isOffline) return;
+  try {
+    await syncAndReport(createCloudClient(config));
+  } catch (error) {
+    console.error('Could not take the phone marks. Try again, or add --offline to render without them.');
+    throw error;
+  }
 }
 
 /** The lines marked for regenerate in the review: rendered as new takes, the originals stay. */
@@ -311,7 +326,10 @@ async function main(): Promise<void> {
     const scope = argument?.startsWith('--') ? undefined : argument;
     return submit(apiKey, scope, skipIndex >= 0 ? process.argv[skipIndex + 1] : undefined, onlyStarts);
   }
-  if (command === 'regenerate') return regenerate(apiKey, argument);
+  if (command === 'regenerate') {
+    await takePhoneMarks(process.argv.includes('--offline'));
+    return regenerate(apiKey, argument?.startsWith('--') ? undefined : argument);
+  }
   if (command === 'lab') return lab(apiKey, process.argv.includes('dry'), process.argv.includes('models'));
   if (command === 'status') return collect(apiKey, true);
   if (command === 'collect') return collect(apiKey, false);

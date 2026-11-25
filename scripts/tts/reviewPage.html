@@ -55,6 +55,7 @@
   <input type="search" id="search" placeholder="Search the Hebrew text…" dir="auto">
   <div id="view"></div>
 </main>
+<script src="/reviewShared.js"></script>
 <script>
 const TABS = [
   ['pending', 'To review'],
@@ -65,20 +66,8 @@ const TABS = [
 ];
 const TAB_KEY = 'hebrewReviewTab';
 const SCOPE_KEY = 'hebrewReviewScope';
-// Which clips the list shows: what the first learners meet first; the Pro tail and the packs come later
-const SCOPES = [
-  ['opener', 'Openers only (מעולה, כל הכבוד…): check these first', ['opener']],
-  ['cut', 'Cut line clips (shared endings split off): heard in the whole line', 'cut'],
-  ['first', 'Core units + general lines', ['opener', 'general', 'core', 'other']],
-  ['pro-tail', 'Pro: last 2 core units of each grade', ['pro-tail']],
-  ['packs', 'Content packs (not released yet)', ['packs']],
-  ['everything', 'Everything', null],
-];
-const isScope = (id) => SCOPES.some(([scopeId]) => scopeId === id);
 // A choice saved before the list loaded can be empty: fall back to the first learners' clips
 let scope = isScope(localStorage.getItem(SCOPE_KEY)) ? localStorage.getItem(SCOPE_KEY) : 'first';
-// 'cut': the clips cut out of a whole line before its shared closer (they carry the line they are heard in)
-const matchesScope = (item, groups) => (groups === 'cut' ? Boolean(item.line) : !groups || groups.includes(item.group));
 const inScope = (item) => matchesScope(item, (SCOPES.find(([id]) => id === scope) || SCOPES[0])[2]);
 let items = [];
 let reasonList = [];
@@ -231,12 +220,6 @@ function textBlock(item) {
   return el('div', {}, el('div', {}, ...tags), el('div', { className: 'text', dir: 'rtl', lang: 'he', textContent: item.spoken }));
 }
 
-const REASON_LABELS = {
-  'wrong-gender': 'Wrong gender form', 'english-accent': 'English accent', mispronounced: 'Mispronounced word',
-  'letter-name': 'Wrong letter name', 'cut-off': 'Cut off', 'too-fast': 'Too fast', 'too-slow': 'Too slow', noise: 'Noise / glitch',
-  'bad-wording': 'Bad wording (text must change)',
-};
-
 function whyLine(item) {
   if (item.reasons.length === 0 && !item.note) return [];
   const labels = item.reasons.map((reason) => REASON_LABELS[reason] || reason).join(' · ');
@@ -374,7 +357,7 @@ document.addEventListener('keydown', (event) => {
   }
   const isCompare = item.phase === 'compare';
   const handlers = {
-    ' ': () => play(), l: () => item.line && playLine(item.line), '1': () => play('current'), '2': () => play(item.takes[0]), '3': () => play(item.takes[1]), '4': () => play(item.takes[2]), '5': () => play(item.takes[3]), '6': () => play(item.takes[4]), u: undo,
+    ' ': () => play(), l: () => item.lines && playLine(item.lines[0].parts), '1': () => play('current'), '2': () => play(item.takes[0]), '3': () => play(item.takes[1]), '4': () => play(item.takes[2]), '5': () => play(item.takes[3]), '6': () => play(item.takes[4]), u: undo,
     arrowright: () => move(1), arrowleft: () => move(-1),
     g: () => !isCompare && mark('good'), enter: () => !isCompare && mark('good'),
     r: () => (isCompare ? decide('again') : openDraft()),
