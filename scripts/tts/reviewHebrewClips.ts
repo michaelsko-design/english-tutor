@@ -10,16 +10,18 @@
  * then open this page again: the Compare tab plays the current and the new take. "New is better"
  * replaces the clip (and bumps its revision, src/services/tts/clipRevisions.ts); the page then
  * reminds you to run  npm run tts:upload -- --force  and commit.
+ * The "Cut line clips" list holds the clips cut before a shared closer; each plays alone, with its full
+ * lines (opener + clip + closer) shown below it to play on request (L).
  */
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { join } from 'node:path';
-import { getClipText, HEBREW_CLOSERS, HEBREW_OPENERS, HEBREW_SHARED_MIDDLES, HEBREW_VOICE } from '../../src/services/tts/ttsText';
+import { getClipKey, getClipText, HEBREW_CLOSERS, parseListenerGender, HEBREW_OPENERS, HEBREW_SHARED_MIDDLES, HEBREW_VOICE } from '../../src/services/tts/ttsText';
 import { bumpClipRevisions, unbumpClipRevisions } from './clipRevisions';
 import { collectCorpus } from './corpus';
 import { toGeminiText } from './geminiSpelling';
 import { getVoiceDir } from './clipManifest';
-import { buildWholeLines } from './wholeLines';
+import { buildWholeLines, type LinePart } from './wholeLines';
 import { getReviewDirs } from './hebrewReviewPaths';
 import { buildReviewPlaces, REVIEW_GROUPS } from './hebrewReviewOrder';
 import {
@@ -95,6 +97,45 @@ function parseDetail(body: Record<string, unknown>): ReviewDetail {
 const wholeLines = buildWholeLines();
 const englishPartKeys = new Set(wholeLines.flatMap((line) => line.parts.filter((part) => part.voice === 'en').map((part) => part.key)));
 const MAX_LINE_MATCHES = 30;
+const textByKey = new Map(phrases.map((phrase) => [phrase.key, phrase.text]));
+const closerKeys = new Set(HEBREW_CLOSERS.map((closer) => getClipKey(getClipText(closer), 'normal')));
+
+/** A line's own clip, cut from its whole clip before a shared closer (tts:cut:he:parts). */
+function cutOwnPart(parts: readonly LinePart[]): LinePart | null {
+  const own = parts[parts.length - 2];
+  const last = parts[parts.length - 1];
+  if (!own || !last || own.voice !== 'he' || !closerKeys.has(last.key)) return null;
+  return isOpenerClip(textByKey.get(own.key) ?? '') ? null : own;
+}
+
+interface CutLine {
+  /** The whole line as the app asks for it, with its [to:girl] / [to:boy] tag when it has one. */
+  text: string;
+  /** The same line as Gemini was given it (niqqud on the gendered words). */
+  spoken: string;
+  parts: LinePart[];
+  /** Who the line is said to: its tag, else its closer (נסי girl, נסה boy, נסו everyone). */
+  listener: 'girl' | 'boy' | 'all';
+}
+
+function listenerOf(text: string): CutLine['listener'] {
+  const { gender, text: plain } = parseListenerGender(text);
+  if (gender) return gender;
+  if (plain.endsWith('נסי שוב!')) return 'girl';
+  if (plain.endsWith('נסה שוב!')) return 'boy';
+  return 'all';
+}
+
+/**
+ * Each cut clip with every line it is heard in (often a girl's and a boy's line share it, and only
+ * the closer differs), so its cut is judged as the app plays it and the full line can be read.
+ */
+const cutLinesByKey: ReadonlyMap<string, readonly CutLine[]> = wholeLines.reduce((map, line) => {
+  const own = cutOwnPart(line.parts);
+  if (!own) return map;
+  const cutLine: CutLine = { text: line.text, spoken: toGeminiText(line.text), parts: line.parts, listener: listenerOf(line.text) };
+  return new Map(map).set(own.key, [...(map.get(own.key) ?? []), cutLine]);
+}, new Map<string, readonly CutLine[]>());
 
 /** An English rest ("The king has a gold crown.") is an Azure clip of the English voice. */
 function sendEnglishClip(res: ServerResponse, key: string): void {
@@ -141,6 +182,8 @@ async function handleApi(req: IncomingMessage, res: ServerResponse, url: URL): P
           group: isOpener ? 'opener' : (places.get(item.key)?.group ?? 'other'),
           where: isOpener ? 'opener' : (places.get(item.key)?.label ?? ''),
           rank: isOpener ? OPENER_RANK : (places.get(item.key)?.rank ?? LAST_RANK),
+          lines: cutLinesByKey.get(item.key),
+          line: cutLinesByKey.get(item.key)?.[0]?.parts,
         };
       })
       .sort((a, b) => a.rank - b.rank || a.text.localeCompare(b.text));

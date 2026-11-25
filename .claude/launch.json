@@ -39,6 +39,15 @@
         "--strictPort"
       ],
       "port": 5176
+    },
+    {
+      "name": "he-review",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "tts:review:he"
+      ],
+      "port": 5290
     }
   ]
 }
