@@ -23,7 +23,7 @@ import { deleteParentAccount } from '../../services/accountService';
 import { toLocalDateStr } from '../../utils/dates';
 import { lazyNamed } from '../../utils/lazyNamed';
 import { ScreenLoading } from '../ScreenLoading';
-import { IS_PRO_PLAN_VISIBLE } from '../../config/proTier';
+import { isProPlanVisibleFor } from '../../config/proTier';
 import { ChildCard } from './ChildCard';
 import { DeleteParentAccount } from './DeleteParentAccount';
 import { ResetPinForm } from './ResetPinForm';
@@ -69,7 +69,7 @@ export const ParentHome: React.FC<ParentHomeProps> = ({ user, theme, initialCode
     user,
     theme,
     links: children,
-    isEnabled: IS_PRO_PLAN_VISIBLE,
+    isEnabled: isProPlanVisibleFor(user.uid),
     examByChild: Object.fromEntries(Object.entries(glances).map(([childUid, glance]) => [childUid, glance?.exam ?? null])),
     onNotice: (message) => {
       setErrorHe(null);
