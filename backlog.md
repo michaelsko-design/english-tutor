@@ -38,6 +38,7 @@
   - the live scenario is built (8787636, off; `docs/grow-make-setup.md` §6): the owner adds its API key in Make and turns it on;
   - ~~the dashboard webhooks~~ created 2026-11-24 (each has its own key, so `GROW_WEBHOOK_KEY` takes both, comma-separated); the owner sets both keys in Production, then redeploy;
   - ~~the Production env~~ set 2026-11-24 (`PAYMENT_PROVIDER`, the live Make URL and key, `PAYMENT_WEBHOOK_SECRET`; the rest were already there), deployed with `258a6455`;
+  - one-parent plan preview built (`VITE_PRO_PLAN_PREVIEW_UIDS`, 2026-11-26): set the owner's parent uid in Production, redeploy, make the test child (invite, then delete its comp entitlement); after the test remove the variable and redeploy, and remove the test child; then
   - one real low-price charge, then a refund by hand (this also tests the portal's refund request with real Grow). **Never on the owner's or a first-degree relative's card** (Grow terms §11.2.7, §13.8.5.5);
   - still to see: a real owner alert arriving on Telegram (the emails arrive).
   - The sandbox can't do a renewal, a failed charge, dashboard webhooks or receipts (shared Grow account), so the first live renewal is the first real check of those: watch it.

@@ -28,6 +28,25 @@ export const PRO_PRICES_AGOROT: Record<ProSeatCount, Record<BillingPeriod, numbe
 /** The parent portal shows the plans on the dev server and on staging (Grow sandbox) only, until launch */
 export const IS_PRO_PLAN_VISIBLE = import.meta.env?.DEV === true || IS_STAGING_BUILD;
 
+export function parsePreviewUids(value: string | undefined): string[] {
+  return (value ?? '').split(',').map((uid) => uid.trim()).filter(Boolean);
+}
+
+/**
+ * Parents' Google uids that see the plans in production before launch (`VITE_PRO_PLAN_PREVIEW_UIDS`,
+ * comma-separated, set at build time): for the first real charge only. Remove it and redeploy after.
+ */
+const PRO_PLAN_PREVIEW_UIDS = parsePreviewUids(import.meta.env?.VITE_PRO_PLAN_PREVIEW_UIDS);
+
+/** Whether this parent sees the plans: everyone where they're visible, else only the preview list */
+export function isProPlanVisibleFor(
+  parentUid: string | null | undefined,
+  { isAlwaysVisible = IS_PRO_PLAN_VISIBLE, previewUids = PRO_PLAN_PREVIEW_UIDS }: { isAlwaysVisible?: boolean; previewUids?: readonly string[] } = {}
+): boolean {
+  if (isAlwaysVisible) return true;
+  return !!parentUid && previewUids.includes(parentUid);
+}
+
 /** Emulator runs only (`npm run dev:emu`, e2e): this localStorage value set to `on` turns the limits on */
 export const PRO_GATING_EMULATOR_KEY = 'english_tutor_pro_gating';
 
