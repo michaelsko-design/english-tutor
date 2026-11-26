@@ -204,6 +204,7 @@ Use this address for both:
    - **Done 2026-11-24** (Make connector): scenario 8787636 "EnglishVibe payments (live)" on webhook 4174862 and the live connection "Grow Live" (13383331), the sandbox's routes with VAT type 3 and no `invoiceNotifyUrl`, the alert route as in the sandbox, data confidential. The connector can't make API keys, so the owner creates the live key in Make (Webhook API Key Auth, attached to the webhook) and turns the scenario on; it stays off until then. VAT type 3 on the live account is first checked by the first live payment link.
 2. Create the two account webhooks in the live dashboard with the Production address.
 3. Make one real low-price charge on a card that isn't the owner's or a relative's. Check the קבלה, then refund it in Grow.
+   - The plans are hidden in production until launch, so set `VITE_PRO_PLAN_PREVIEW_UIDS` to the owner's parent uid in Vercel Production and redeploy (`VITE_` values are fixed at build time); only that parent sees them. Buy for a test child with no comp Pro (made through an invite, then its comp entitlement deleted, and listed in the owner's test users). Afterwards remove the variable, redeploy, and remove the test child.
 
 ## Owner's manual work
 - Each new Grow task is sent to the owner by **email and Telegram** (route `notify`), and again every day once it's been open more than two days, until it's marked done.

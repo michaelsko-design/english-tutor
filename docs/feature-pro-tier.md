@@ -467,6 +467,7 @@ The server layer (checkout, webhooks, subscriptions, Grow and mock providers, ru
 - **Gating on in emulator runs:** `localStorage.english_tutor_pro_gating = 'on'` turns `PRO_GATING_ENABLED` on in emulator mode only, for the e2e and local checks.
 - **E2E** `e2e/pro.spec.ts`: the learner taps a Pro stop and asks a parent → the parent pairs, pays monthly on the mock page → the return page confirms → the learner's map has no Pro stops → the parent cancels the renewal.
 - Still dev-only: `IS_PRO_PLAN_VISIBLE` keeps the picker and the Pro lines on the dev server until launch.
+- **One-parent preview (2026-11-26, for the first real charge):** `VITE_PRO_PLAN_PREVIEW_UIDS` (comma-separated parent Google uids, Vercel Production, read at build time) shows the plans to those parents only (`isProPlanVisibleFor` in `config/proTier.ts`, used by `ParentHome`). The uids end up in the public bundle; they are not credentials. Remove the variable and redeploy after the test charge.
 - A parent who buys again for a child whose monthly plan they cancelled starts the new plan now; the rest of the old month is not carried over.
 - Known limits (both closed in Phase 3a):
   - A renewal checkout that also adds a free child starts everyone at the old plan's end, so the new child gets up to 14 extra days.

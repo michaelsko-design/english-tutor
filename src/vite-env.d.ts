@@ -10,6 +10,7 @@ interface ImportMetaEnv {
   readonly VITE_APPCHECK_SITE_KEY?: string;
   readonly VITE_TTS_CLIP_BASE_URL?: string;
   readonly VITE_VAPID_PUBLIC_KEY?: string;
+  readonly VITE_PRO_PLAN_PREVIEW_UIDS?: string;
 }
 
 interface ImportMeta {
