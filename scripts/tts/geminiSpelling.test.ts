@@ -55,6 +55,18 @@ describe('toGeminiText', () => {
     expect(toGeminiText('[to:girl] נועה רואה כלב.')).toBe('נועה רואה כלב.');
   });
 
+  it('says a count of letters in the feminine form (אות is feminine)', () => {
+    expect(toGeminiText('בתשובה הנכונה יש 8 אותיות. כדאי לספור את האותיות בכל תשובה.')).toBe(
+      'בתשובה הנכונה יש שְׁמוֹנֶה אותיות. כדאי לספור את האותיות בכל תשובה.',
+    );
+    expect(toGeminiText('המילה מתחילה באות "c" ויש בה 11 אותיות.')).toBe('המילה מתחילה באות "Cee" ויש בה אַחַת עֶשְׂרֵה אותיות.');
+  });
+
+  it('says ביצה, צדף, פה, עז and אמור as the review asked', () => {
+    expect(toGeminiText('יש לי פה אחד.')).toBe('יש לי פֶּה אחד.');
+    expect(toGeminiText('עז')).toBe('עֵז');
+  });
+
   it('says "מחבט" with niqqud', () => {
     expect(toGeminiText('איזו מילה באנגלית פירושה "מחבט"?')).toBe('איזו מילה באנגלית פירושה "מַחְבֵּט"?');
   });

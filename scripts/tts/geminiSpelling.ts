@@ -93,6 +93,13 @@ export const GEMINI_SPELLINGS: Readonly<Record<string, string>> = {
   זו: 'זוֹ',
   // Heard wrong in the 2026-11 review (איזו מילה באנגלית פירושה מחבט)
   מחבט: 'מַחְבֵּט',
+  // Goat (ez), said "az" (strong) in the 2026-11 review; in grades 1–2 עז is always the goat
+  עז: 'עֵז',
+  // Heard wrong in the 2026-11-27 review: egg (not bitza), shell, mouth, and "emor" (say)
+  ביצה: 'בֵּיצָה',
+  צדף: 'צֶדֶף',
+  פה: 'פֶּה',
+  אמור: 'אֱמוֹר',
 };
 
 /**
@@ -105,6 +112,18 @@ export const GEMINI_FULL_NIQQUD: Readonly<Record<string, string>> = {
 };
 
 const TRAILING_PUNCTUATION = /[\s:.!?]*$/;
+
+/**
+ * אות is feminine, so a count of letters is said in the feminine form: "8 אותיות" came out shmona
+ * (2026-11-27 review), it is shmone.
+ */
+const FEMININE_NUMBERS: Readonly<Record<string, string>> = {
+  '2': 'שְׁתֵּי', '3': 'שָׁלוֹשׁ', '4': 'אַרְבַּע', '5': 'חָמֵשׁ', '6': 'שֵׁשׁ', '7': 'שֶׁבַע', '8': 'שְׁמוֹנֶה', '9': 'תֵּשַׁע',
+  '10': 'עֶשֶׂר', '11': 'אַחַת עֶשְׂרֵה', '12': 'שְׁתֵּים עֶשְׂרֵה',
+};
+
+const sayLetterCountFeminine = (text: string): string =>
+  text.replace(/(?<![\d])(\d{1,2}) אותיות/g, (match, count: string) => (FEMININE_NUMBERS[count] ? `${FEMININE_NUMBERS[count]} אותיות` : match));
 
 function applyFullNiqqud(text: string): string {
   const punctuation = TRAILING_PUNCTUATION.exec(text)?.[0] ?? '';
@@ -182,7 +201,7 @@ export function toGeminiText(clipText: string): string {
   // An English lead word said alone (splitEnglishLead): bare, as picked by ear
   if (!/[א-ת]/.test(text)) return LEAD_WORD_SPELLINGS[text] ?? text;
   const forms = gender === 'girl' ? GEMINI_GIRL_FORMS : gender === 'boy' ? GEMINI_BOY_FORMS : null;
-  const paired = sayLoneLettersByName(sayLetterPairOnce(dropNumeralBeforeItsWord(text)));
+  const paired = sayLoneLettersByName(sayLetterPairOnce(dropNumeralBeforeItsWord(sayLetterCountFeminine(text))));
   const whole = applyFullNiqqud(paired);
   if (whole !== paired) return withFinalStop(whole);
   const forListener = forms && gender ? withSpeakerForms(replaceWords(paired, forms), gender) : paired;
