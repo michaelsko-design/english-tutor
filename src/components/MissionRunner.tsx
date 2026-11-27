@@ -681,6 +681,7 @@ export const MissionRunner: React.FC<MissionRunnerProps> = ({
                       <VoiceSpeakDrill
                         targetEn={currentStep.speakTargetEn}
                         targetHe={currentStep.speakTargetHe}
+                        canHearTargetHe
                         speechEval={speechEval}
                         isListening={speech.isListening}
                         isStarting={speech.isStarting}

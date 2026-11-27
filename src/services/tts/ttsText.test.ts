@@ -177,6 +177,36 @@ describe('listener gender', () => {
     expect(addListenerGender('מעולה! בנית', null)).toBe('מעולה! בנית');
   });
 
+  it('tags the "you" words written alike for a girl and a boy (לך, שלומך, איתך, בשבילך)', () => {
+    expect(addListenerGender('איך קוראים לך?', 'boy')).toBe('[to:boy] איך קוראים לך?');
+    expect(addListenerGender('שלום! מה שלומך היום?', 'girl')).toBe('[to:girl] שלום! מה שלומך היום?');
+    expect(addListenerGender('העוגה בשבילך.', 'boy')).toBe('[to:boy] העוגה בשבילך.');
+    // Not inside another word: הלך, נלך
+    expect(addListenerGender('החתול שלי הלך לאיבוד.', 'girl')).toBe('החתול שלי הלך לאיבוד.');
+    expect(addListenerGender('בואו נלך למסיבה!', 'boy')).toBe('בואו נלך למסיבה!');
+  });
+
+  it('says a line that calls someone by name to that person, whatever the learner', () => {
+    expect(addListenerGender('מה שלומך, דן?', 'girl')).toBe('[to:boy] מה שלומך, דן?');
+    expect(addListenerGender('דן, כמה חתולים יש לך?', 'girl')).toBe('[to:boy] דן, כמה חתולים יש לך?');
+    expect(addListenerGender('היי, סבתא! מה שלומך היום?', 'boy')).toBe('[to:girl] היי, סבתא! מה שלומך היום?');
+    expect(addListenerGender('שתהיה לך שנה טובה, אמא!', 'boy')).toBe('[to:girl] שתהיה לך שנה טובה, אמא!');
+    // A name that is talked about, not called, leaves the line to the learner
+    expect(addListenerGender('אמא שלך בבית?', 'boy')).toBe('[to:boy] אמא שלך בבית?');
+    expect(addListenerGender('דן, כמה חתולים יש לך?', null)).toBe('דן, כמה חתולים יש לך?');
+  });
+
+  it('tags a line where the learner says "אני" with a verb written alike for a girl and a boy', () => {
+    expect(addListenerGender('אני שותה חלב.', 'girl')).toBe('[to:girl] אני שותה חלב.');
+    expect(addListenerGender('אני רואה שעון.', 'boy')).toBe('[to:boy] אני רואה שעון.');
+    expect(addListenerGender('אני לא רוצה לישון.', 'boy')).toBe('[to:boy] אני לא רוצה לישון.');
+    // The learner says "I", so a name called in the line doesn't change it
+    expect(addListenerGender('אמא, אני רואה כלב!', 'boy')).toBe('[to:boy] אמא, אני רואה כלב!');
+    // A verb said of someone else, or one written per gender, isn't tagged
+    expect(addListenerGender('נועה רואה כלב.', 'girl')).toBe('נועה רואה כלב.');
+    expect(addListenerGender('אני גרה ליד דן.', 'girl')).toBe('אני גרה ליד דן.');
+  });
+
   it('reads the tag back, and a tagged line is still speakable Hebrew', () => {
     const tagged = addListenerGender('סיימת את המשימה!', 'boy');
     expect(addListenerGender(tagged, 'girl')).toBe(tagged);

@@ -1,5 +1,5 @@
 import type { LessonPack, MiniLesson } from './types';
-import { getAlphabetLetter } from '../../alphabet';
+import { getAlphabetLetter, getLetterExampleHe } from '../../alphabet';
 import { getBlendWord } from '../../blendingWords';
 import { getPhonicsPictureId } from '../../phonicsPictures';
 import { getVocabPictureId } from '../../../components/art/vocabPictureIds';
@@ -22,8 +22,9 @@ function lettersLesson(letters: string[]): MiniLesson {
     ideaHe: LETTERS_IDEA_HE,
     pattern: letters.map((upper) => `${upper}${upper.toLowerCase()}`).join(' · '),
     examples: letters.slice(0, 3).map((upper) => {
-      const word = getAlphabetLetter(upper).words[0];
-      return { en: `${upper} is for ${word.en}.`, he: `${upper} כמו ${word.he}`, highlight: upper, emoji: word.emoji };
+      const letter = getAlphabetLetter(upper);
+      const word = letter.words[0];
+      return { en: `${upper} is for ${word.en}.`, he: getLetterExampleHe(letter, word), highlight: upper, emoji: word.emoji };
     }),
     ...(tipHe ? { tipHe } : {}),
     quickTry: {
@@ -128,7 +129,7 @@ export const GRADE_1_PHONICS_LESSONS: LessonPack = {
     ideaHe: PAIRS_IDEA_HE,
     pattern: 'sh · ch · th',
     words: ['ship', 'chip', 'bath'],
-    tipHe: 'מילים כמו I, a, the, is ו-see קוראים במבט אחד, בלי לפרק לאותיות.',
+    tipHe: 'מילים כמו I, a, the, is ו-see קוראים כמילה שלמה, בלי לפרק לאותיות.',
     tryWord: 'shell',
     tryEmoji: '🐚',
     wrongEmoji: '🍟',

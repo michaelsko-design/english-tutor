@@ -8,13 +8,9 @@
  * - a few words it misreads get niqqud too (ובחרי as uvhari, לחץ as lahetz).
  * Azure's IPA list (api/_lib/hebrewPronunciation.ts) stays for the online voice.
  */
-import { LISTENER_GENDERED_WORDS, parseListenerGender } from '../../src/services/tts/ttsText';
+import { LISTENER_GENDERED_WORDS, parseListenerGender, SPEAKER_GENDERED, SPEAKER_GENDERED_VERBS, type ListenerGender } from '../../src/services/tts/ttsText';
 
-/**
- * The words of LISTENER_GENDERED_WORDS, plus רואה: in a line said to the learner, "אני רואה" is the
- * learner speaking ("קראת משפט שלם: 'אני רואה תרנגולת'"), so it takes their form too.
- */
-type GenderedWord = (typeof LISTENER_GENDERED_WORDS)[number] | 'רואה';
+type GenderedWord = (typeof LISTENER_GENDERED_WORDS)[number];
 
 /** A girl's form of each word that reads by gender. */
 export const GEMINI_GIRL_FORMS: Record<GenderedWord, string> = {
@@ -28,9 +24,12 @@ export const GEMINI_GIRL_FORMS: Record<GenderedWord, string> = {
   דילגת: 'דִּילַגְתְּ',
   אותך: 'אוֹתָךְ',
   שלך: 'שֶׁלָּךְ',
+  לך: 'לָךְ',
+  שלומך: 'שְׁלוֹמֵךְ',
+  איתך: 'אִיתָּךְ',
+  בשבילך: 'בִּשְׁבִילֵךְ',
   // "Great!" is feminine (me'ula) for a girl and masculine (me'ule) for a boy
   מעולה: 'מְעֻלָּה',
-  רואה: 'רוֹאָה',
 };
 
 /** A boy's form: without niqqud Gemini sometimes says the girl's (בנית as banit). */
@@ -43,9 +42,29 @@ export const GEMINI_BOY_FORMS: Record<GenderedWord, string> = {
   דילגת: 'דִּילַגְתָּ',
   אותך: 'אוֹתְךָ',
   שלך: 'שֶׁלְּךָ',
+  לך: 'לְךָ',
+  שלומך: 'שְׁלוֹמְךָ',
+  איתך: 'אִיתְּךָ',
+  בשבילך: 'בִּשְׁבִילְךָ',
   מעולה: 'מְעֻלֶּה',
-  רואה: 'רוֹאֶה',
 };
+
+/**
+ * The verbs of SPEAKER_GENDERED_VERBS in a girl's and a boy's form, said after "אני": the learner is
+ * the one saying "I" ("קראת משפט שלם: 'אני רואה תרנגולת'"). After a name ("נועה רואה") they stay as written.
+ */
+export const GEMINI_SPEAKER_FORMS: Record<(typeof SPEAKER_GENDERED_VERBS)[number], Record<ListenerGender, string>> = {
+  רואה: { girl: 'רוֹאָה', boy: 'רוֹאֶה' },
+  שותה: { girl: 'שׁוֹתָה', boy: 'שׁוֹתֶה' },
+  רוצה: { girl: 'רוֹצָה', boy: 'רוֹצֶה' },
+  משקה: { girl: 'מַשְׁקָה', boy: 'מַשְׁקֶה' },
+  מכה: { girl: 'מַכָּה', boy: 'מַכֶּה' },
+  מחכה: { girl: 'מְחַכָּה', boy: 'מְחַכֶּה' },
+  שוחה: { girl: 'שׂוֹחָה', boy: 'שׂוֹחֶה' },
+};
+
+const withSpeakerForms = (text: string, gender: ListenerGender): string =>
+  text.replace(SPEAKER_GENDERED, (_match, lead: string, verb: keyof typeof GEMINI_SPEAKER_FORMS) => lead + GEMINI_SPEAKER_FORMS[verb][gender]);
 
 /** Words Gemini misreads without niqqud, for every listener. Add one only after hearing it wrong. */
 export const GEMINI_SPELLINGS: Readonly<Record<string, string>> = {
@@ -72,6 +91,8 @@ export const GEMINI_SPELLINGS: Readonly<Record<string, string>> = {
   לימון: 'לִימוֹן',
   תרנגולת: 'תַּרְנְגֹלֶת',
   זו: 'זוֹ',
+  // Heard wrong in the 2026-11 review (איזו מילה באנגלית פירושה מחבט)
+  מחבט: 'מַחְבֵּט',
 };
 
 /**
@@ -164,7 +185,7 @@ export function toGeminiText(clipText: string): string {
   const paired = sayLoneLettersByName(sayLetterPairOnce(dropNumeralBeforeItsWord(text)));
   const whole = applyFullNiqqud(paired);
   if (whole !== paired) return withFinalStop(whole);
-  const forListener = forms ? replaceWords(paired, forms) : paired;
+  const forListener = forms && gender ? withSpeakerForms(replaceWords(paired, forms), gender) : paired;
   return withFinalStop(replaceWords(forListener, GEMINI_SPELLINGS).replace(LONE_LETTER, (letter) => GEMINI_LETTER_NAMES[letter] ?? letter));
 }
 

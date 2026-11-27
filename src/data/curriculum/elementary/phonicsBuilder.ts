@@ -5,7 +5,7 @@
  */
 import { GradeId } from '../../../types/learner';
 import { MissionNode, PhonicsMission, VocabularyItem } from '../types';
-import { getAlphabetLetter } from '../../alphabet';
+import { getAlphabetLetter, getLetterExampleHe } from '../../alphabet';
 import { getBlendWord } from '../../blendingWords';
 
 export interface PhonicsMissionSpec {
@@ -22,16 +22,17 @@ export interface PhonicsMissionSpec {
 const PHONICS_BASE_XP = 25;
 
 function letterVocabulary(letters: readonly string[]): VocabularyItem[] {
-  return letters.flatMap((upper) =>
-    getAlphabetLetter(upper).words.map((word) => ({
+  return letters.flatMap((upper) => {
+    const letter = getAlphabetLetter(upper);
+    return letter.words.map((word) => ({
       wordEn: word.en,
       partOfSpeech: 'word',
       translationHe: word.he,
       emoji: word.emoji,
       exampleEn: `${upper} is for ${word.en}.`,
-      exampleHe: `${upper} כמו ${word.he}`,
-    })),
-  );
+      exampleHe: getLetterExampleHe(letter, word),
+    }));
+  });
 }
 
 function blendVocabulary(words: readonly string[]): VocabularyItem[] {

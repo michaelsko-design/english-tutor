@@ -99,7 +99,7 @@ export const GRADE_1_TOPIC_UNITS: ElementaryUnitSpec[] = [
       {
         icon: '🐶',
         titleEn: 'Colors in the Forest: Red & Blue',
-        titleHe: 'צבעי היער: אדום וכחול',
+        titleHe: 'כדורים צבעוניים ביער: אדום וכחול',
         storyHookHe: 'החיות ביער מצאו כדורים צבעוניים! בואו נלמד לזהות צבעים באנגלית.',
         grammarTopic: 'Colors & Basic Nouns',
         skills: ['Colors', 'Dog & Ball', 'Visual Vocabulary'],

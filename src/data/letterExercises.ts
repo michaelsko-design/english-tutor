@@ -13,7 +13,7 @@
 import type { MissionNode } from './curriculum';
 import type { MissionExerciseStep, MultipleChoiceOption } from './missionExercises';
 import type { LearnerGender, ProficiencyTier } from '../types/learner';
-import { getAlphabetLetter, getLetterNameSpeech, getLettersBefore, type AlphabetLetter } from './alphabet';
+import { getAlphabetLetter, getLetterLikeHe, getLetterNameSpeech, getLettersBefore, type AlphabetLetter } from './alphabet';
 import { hebrewTemplate } from '../utils/hebrewGender';
 import { getVocabPictureId } from '../components/art/vocabPictureIds';
 import { getPronunciationTipHe, isolateLtr } from '../utils/hints';
@@ -47,7 +47,7 @@ function buildListenStep(letter: AlphabetLetter, ctx: LetterStepContext): Missio
       textEn: letter.upper,
       speakEn: getLetterNameSpeech(letter.upper),
       isCorrect: true,
-      explanationHe: `מעולה! זו האות ${en(letter.upper)}. ${en(letter.upper)} כמו ${en(word.en)} ${word.emoji}`,
+      explanationHe: `מעולה! זו האות ${en(letter.upper)}. ${en(letter.upper)} ${getLetterLikeHe(letter)} ${en(word.en)} ${word.emoji}`,
     },
     ...otherLetters(letter, ctx.pool, ctx.optionCount).map((other) => ({
       textEn: other.upper,
@@ -110,7 +110,7 @@ function buildPictureStep(letter: AlphabetLetter, ctx: LetterStepContext): Missi
       textEn: other.upper,
       speakEn: getLetterNameSpeech(other.upper),
       isCorrect: false,
-      explanationHe: he`לא בדיוק. ${en(other.upper)} כמו ${en(other.words[0].en)} ${other.words[0].emoji}. אמרי את המילה לאט ונסי שוב!`,
+      explanationHe: he`לא בדיוק. ${en(other.upper)} ${getLetterLikeHe(other)} ${en(other.words[0].en)} ${other.words[0].emoji}. אמרי את המילה לאט ונסי שוב!`,
     })),
   ];
   return {

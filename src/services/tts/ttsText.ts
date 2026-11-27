@@ -96,7 +96,28 @@ export type ListenerGender = 'girl' | 'boy';
  * differently ("בנית": banit / banita). A line with one gets a clip per gender, and the voice says
  * the word in the learner's form (api/_lib/hebrewPronunciation.ts spells out both).
  */
-export const LISTENER_GENDERED_WORDS = ['בנית', 'שמעת', 'ששמעת', 'קראת', 'סיימת', 'דילגת', 'אותך', 'שלך', 'מעולה'] as const;
+export const LISTENER_GENDERED_WORDS = [
+  'בנית',
+  'שמעת',
+  'ששמעת',
+  'קראת',
+  'סיימת',
+  'דילגת',
+  'אותך',
+  'שלך',
+  'לך',
+  'שלומך',
+  'איתך',
+  'בשבילך',
+  'מעולה',
+] as const;
+
+/**
+ * Verbs a learner says of themself that are written the same for a girl and a boy but read
+ * differently ("אני רואה": ro'a / ro'e). After "אני" the line gets a clip per gender, the verb in the
+ * learner's form (the learner is the one saying "I"). Elsewhere ("נועה רואה") they are left as written.
+ */
+export const SPEAKER_GENDERED_VERBS = ['רואה', 'שותה', 'רוצה', 'משקה', 'מכה', 'מחכה', 'שוחה'] as const;
 
 /**
  * Phrases that open many lines. Each is its own clip, rendered once, and the rest of the line is a
@@ -213,11 +234,31 @@ export function englishRestOf(rest: string): string | null {
 
 const LISTENER_GENDERED = new RegExp(`(?<![\\u05d0-\\u05ea])(?:${LISTENER_GENDERED_WORDS.join('|')})(?![\\u05d0-\\u05ea])`);
 const LISTENER_TOKEN = /^\[to:(girl|boy)\] /;
+/** "אני" (maybe "אני לא", "אני גם") and a verb of SPEAKER_GENDERED_VERBS. */
+export const SPEAKER_GENDERED = new RegExp(
+  `(?<![\u05d0-\u05ea])(אני (?:לא |גם )?)(${SPEAKER_GENDERED_VERBS.join('|')})(?![\u05d0-\u05ea])`,
+  'g',
+);
 
-/** The Hebrew text tagged with the learner's gender (`[to:girl] …`) when a word in it reads by gender. */
+/**
+ * People a line can call by name ("מה שלומך, דן?", "היי, סבתא!"). Such a line is said to them, so its
+ * "you" words take their gender, not the learner's. Add a name here when a new line calls someone.
+ */
+const NAMED_LISTENERS: Readonly<Record<string, ListenerGender>> = { דן: 'boy', אבא: 'boy', סבא: 'boy', אמא: 'girl', סבתא: 'girl' };
+/** A name called out: at the start of the line or after a mark, and followed by a comma, "!" or "?". */
+const CALLED_NAME = new RegExp(`(?:^|[,.!?]\\s*)(${Object.keys(NAMED_LISTENERS).join('|')})\\s*[,!?]`);
+
+/**
+ * The Hebrew text tagged with whom it is said to (`[to:girl] …`) when a word in it reads by gender:
+ * the person the line calls by name, else the learner.
+ */
 export function addListenerGender(text: string, gender: ListenerGender | null): string {
-  if (!gender || LISTENER_TOKEN.test(text) || !LISTENER_GENDERED.test(text)) return text;
-  return `[to:${gender}] ${text}`;
+  if (!gender || LISTENER_TOKEN.test(text)) return text;
+  const isSaidTo = LISTENER_GENDERED.test(text);
+  if (!isSaidTo && !new RegExp(SPEAKER_GENDERED.source).test(text)) return text;
+  // "You" words take the gender of the person called by name; an "אני" verb always the learner's
+  const calledName = isSaidTo ? CALLED_NAME.exec(text)?.[1] : undefined;
+  return `[to:${calledName ? NAMED_LISTENERS[calledName] : gender}] ${text}`;
 }
 
 /** The gender a tagged Hebrew text is said to, and the text without its tag. */

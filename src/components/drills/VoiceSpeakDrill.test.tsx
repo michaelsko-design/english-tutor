@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { TEST_THEME } from '../../test/fixtures';
 import { VoiceSpeakDrill } from './VoiceSpeakDrill';
+import { HebrewAudioContext } from '../../data/hebrewAudio';
 
 function renderDrill(props: Partial<React.ComponentProps<typeof VoiceSpeakDrill>> = {}) {
   render(
@@ -44,5 +45,36 @@ describe('VoiceSpeakDrill say-it-from-memory (Master)', () => {
   it('shows the sentence once an attempt was scored or the step is done', () => {
     renderDrill({ hideText: true, isCompleted: true });
     expect(screen.queryByTestId('hidden-sentence')).not.toBeInTheDocument();
+  });
+});
+
+describe('VoiceSpeakDrill Hebrew line', () => {
+  const renderForYoungGrade = (props: Partial<React.ComponentProps<typeof VoiceSpeakDrill>>) =>
+    render(
+      <HebrewAudioContext.Provider value>
+        <VoiceSpeakDrill
+          targetEn="My brother feeds the fish."
+          targetHe="אחי מאכיל את הדגים."
+          speechEval={null}
+          isListening={false}
+          isCompleted={false}
+          gender="girl"
+          theme={TEST_THEME}
+          onSpeakEnglish={vi.fn()}
+          onStartListening={vi.fn()}
+          onSkip={vi.fn()}
+          {...props}
+        />
+      </HebrewAudioContext.Provider>
+    );
+
+  it('reads the translation aloud where it has a clip', () => {
+    renderForYoungGrade({ canHearTargetHe: true });
+    expect(screen.getByRole('button', { name: 'הקשבה לתרגום' })).toBeInTheDocument();
+  });
+
+  it('has no 🔊 for a line without a clip (the room)', () => {
+    renderForYoungGrade({});
+    expect(screen.queryByRole('button', { name: 'הקשבה לתרגום' })).not.toBeInTheDocument();
   });
 });

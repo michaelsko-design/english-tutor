@@ -48,6 +48,17 @@ describe('toGeminiText', () => {
     expect(toGeminiText('כמה ברווזים נועה רואה?')).toBe('כמה ברווזים נועה רואה?');
   });
 
+  it('says the verb after "אני" in the learner\'s form, and leaves it after a name', () => {
+    expect(toGeminiText('[to:girl] אני שותה חלב.')).toBe('אני שׁוֹתָה חלב.');
+    expect(toGeminiText('[to:boy] אני רואה שעון.')).toBe('אני רוֹאֶה שעון.');
+    expect(toGeminiText('[to:boy] אני לא רוצה לישון.')).toBe('אני לא רוֹצֶה לישון.');
+    expect(toGeminiText('[to:girl] נועה רואה כלב.')).toBe('נועה רואה כלב.');
+  });
+
+  it('says "מחבט" with niqqud', () => {
+    expect(toGeminiText('איזו מילה באנגלית פירושה "מחבט"?')).toBe('איזו מילה באנגלית פירושה "מַחְבֵּט"?');
+  });
+
   it('spells out words Gemini misreads, for every listener, and leaves the rest as written', () => {
     expect(toGeminiText('הקשיבי ובחרי את האות:')).toBe('הקשיבי וּבִחְרִי את האות:');
     expect(toGeminiText('הבנית שלו')).toBe('הבנית שלו.');
