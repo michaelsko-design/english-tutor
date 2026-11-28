@@ -79,6 +79,7 @@ export const GEMINI_SPELLINGS: Readonly<Record<string, string>> = {
   בבוס: 'בְּבּוֹס',
   // Heard wrong in the 2026-10 review, and right once voweled (the listening lab, scripts/tts/geminiLab.ts)
   קראי: 'קִרְאִי',
+  וחשבי: 'וְחִשְׁבִי',
   קראו: 'קִרְאוּ',
   וקראי: 'וְקִרְאִי',
   אמרו: 'אִמְרוּ',
@@ -195,16 +196,38 @@ function sayLoneLettersByName(text: string): string {
  */
 const LEAD_WORD_SPELLINGS: Readonly<Record<string, string>> = { yawn: 'yon' };
 
-/** A Hebrew clip's text (maybe tagged `[to:girl] …`) as Gemini reads it. */
 /**
- * Lines that are one Hebrew word Gemini cannot say alone, written as they sound. "ו" (the gloss of
- * "and") came out in a male voice in the 2026-11-28 review.
+ * Whole lines sent rewritten, from the 2026-11-28 review: "ו" (the gloss of "and") came out in a
+ * male voice; "a:" alone sounded odd; "pot" in a Hebrew accent sounds like a rude Hebrew word;
+ * "(נמצא)" misled the reading; קרא was read as past tense. The screen keeps the line as written.
  */
-const WHOLE_LINE_SPELLINGS: Readonly<Record<string, string>> = { ו: 've' };
+const LINE_SPELLINGS: Readonly<Record<string, string>> = {
+  ו: 've',
+  'בוס: ציד אוצרות בגן': 'בּוֹס, צֵיד אוֹצָרוֹת בַּגַּן.',
+  'לפני דבר אחד צריך להגיד a: a bag.': 'לפני דבר אחד צריך להגיד "uh", a bag.',
+  'זה pot.': 'זה paht.',
+  'הוא / היא (נמצא)': 'הוא או היא.',
+  'קרא את הסיפור הקצר. מה גדול?': 'קְרָא את הסיפור הקצר. מה גדול?',
+};
+
+/** English words in a Hebrew line said with a Hebrew sound, spelled by their sound (2026-11-28 review). */
+const ENGLISH_IN_HEBREW_SPELLINGS: Readonly<Record<string, string>> = { zebra: 'zeebra' };
+const ENGLISH_IN_HEBREW = new RegExp(`(?<![A-Za-z])(${Object.keys(ENGLISH_IN_HEBREW_SPELLINGS).join('|')})(?![A-Za-z])`, 'g');
+
+/**
+ * The letter R ("Ar") came out in a Hebrew accent before Hebrew words (2026-11-28 review): a comma
+ * after it gives it a pause, in place of a full stop right after it.
+ */
+const R_NAME = /(?<![A-Za-z])Ar(?![A-Za-z,])\.?/g;
+
+const sayEnglishInHebrew = (text: string): string =>
+  text.replace(ENGLISH_IN_HEBREW, (word) => ENGLISH_IN_HEBREW_SPELLINGS[word] ?? word).replace(R_NAME, 'Ar,');
+
+/** A Hebrew clip's text (maybe tagged `[to:girl] …`) as Gemini reads it. */
 
 export function toGeminiText(clipText: string): string {
   const { gender, text } = parseListenerGender(clipText);
-  if (WHOLE_LINE_SPELLINGS[text]) return WHOLE_LINE_SPELLINGS[text];
+  if (LINE_SPELLINGS[text]) return LINE_SPELLINGS[text];
   // An English lead word said alone (splitEnglishLead): bare, as picked by ear
   if (!/[א-ת]/.test(text)) return LEAD_WORD_SPELLINGS[text] ?? text;
   const forms = gender === 'girl' ? GEMINI_GIRL_FORMS : gender === 'boy' ? GEMINI_BOY_FORMS : null;
@@ -212,7 +235,8 @@ export function toGeminiText(clipText: string): string {
   const whole = applyFullNiqqud(paired);
   if (whole !== paired) return withFinalStop(whole);
   const forListener = forms && gender ? withSpeakerForms(replaceWords(paired, forms), gender) : paired;
-  return withFinalStop(replaceWords(forListener, GEMINI_SPELLINGS).replace(LONE_LETTER, (letter) => GEMINI_LETTER_NAMES[letter] ?? letter));
+  const spelled = replaceWords(forListener, GEMINI_SPELLINGS).replace(LONE_LETTER, (letter) => GEMINI_LETTER_NAMES[letter] ?? letter);
+  return withFinalStop(sayEnglishInHebrew(spelled));
 }
 
 const ENDS_WITH_PUNCTUATION = /[.!?:;,…—"”')]$/;

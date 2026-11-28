@@ -72,6 +72,18 @@ describe('toGeminiText', () => {
     expect(toGeminiText('Hello ו-Goodbye')).toBe('Hello ו-Goodbye.');
   });
 
+  it('sends the lines the 2026-11-28 review asked for rewritten', () => {
+    expect(toGeminiText('זה pot.')).toBe('זה paht.');
+    expect(toGeminiText('הוא / היא (נמצא)')).toBe('הוא או היא.');
+    expect(toGeminiText('קראי את הסיפור וחשבי: מה התשובה הנכונה?')).toBe('קִרְאִי את הסיפור וְחִשְׁבִי: מה התשובה הנכונה?');
+  });
+
+  it('says zebra as "zeebra" and puts a comma after the letter R', () => {
+    expect(toGeminiText('זו האות Z. Z כמו zebra')).toBe('זוֹ האות Zed. Zed כמו zeebra.');
+    expect(toGeminiText('robot מתחיל באות R.')).toBe('robot מתחיל באות Ar,');
+    expect(toGeminiText('המילה מתחילה באות "r" ויש בה 5 אותיות.')).toBe('המילה מתחילה באות "Ar," ויש בה חָמֵשׁ אותיות.');
+  });
+
   it('says "מחבט" with niqqud', () => {
     expect(toGeminiText('איזו מילה באנגלית פירושה "מחבט"?')).toBe('איזו מילה באנגלית פירושה "מַחְבֵּט"?');
   });
@@ -79,7 +91,7 @@ describe('toGeminiText', () => {
   it('spells out words Gemini misreads, for every listener, and leaves the rest as written', () => {
     expect(toGeminiText('הקשיבי ובחרי את האות:')).toBe('הקשיבי וּבִחְרִי את האות:');
     expect(toGeminiText('הבנית שלו')).toBe('הבנית שלו.');
-    expect(toGeminiText('זו האות Z. Z כמו zebra')).toBe('זוֹ האות Zed. Zed כמו zebra.');
+    expect(toGeminiText('זו האות Z. Z כמו zebra')).toBe('זוֹ האות Zed. Zed כמו zeebra.');
     expect(toGeminiText('האותיות X, Y, Z')).toBe('האותיות X, Y, Zed.');
   });
 
