@@ -11,7 +11,7 @@
  */
 import { toGeminiText } from './geminiSpelling';
 
-export type LabVariant = 'niqqud' | 'sentences' | 'sentences-niqqud' | 'runs-niqqud' | ModelVariant | 'accent-prompt';
+export type LabVariant = 'niqqud' | 'sentences' | 'sentences-niqqud' | 'runs-niqqud' | ModelVariant;
 export const LAB_VARIANTS: readonly LabVariant[] = ['niqqud', 'sentences', 'sentences-niqqud', 'runs-niqqud'];
 
 /**
@@ -28,16 +28,19 @@ export const MODEL_LAB_MODELS: Readonly<Record<ModelVariant, string>> = {
 export const MODEL_LAB_VARIANTS = Object.keys(MODEL_LAB_MODELS) as ModelVariant[];
 /**
  * Accent lab (2026-11-28): English words and letters in a Hebrew line came out in a Hebrew accent
- * ("באות R", zebra, zipper). Tried: a style instruction written before the line, and each English
- * run as its own clip. The TTS model refuses a system instruction ("invalid argument"), so a style
- * can only be asked for in the text itself.
+ * ("באות R", zebra, zipper). Each English run as its own clip fixed it by ear. Ruled out: a style
+ * instruction (the TTS model refuses a system instruction, "invalid argument"; written before the
+ * line, it is read aloud).
  */
-export const ACCENT_LAB_VARIANTS: readonly LabVariant[] = ['accent-prompt', 'runs-niqqud'];
-const ACCENT_PROMPT = 'Read this in Israeli Hebrew, and say the English words and letters with a native American English accent';
+export const ACCENT_LAB_VARIANTS: readonly LabVariant[] = ['runs-niqqud'];
 
-const ALL_LAB_VARIANTS: readonly LabVariant[] = [...LAB_VARIANTS, ...MODEL_LAB_VARIANTS, 'accent-prompt'];
-/** Silence between the clips of one line. */
-export const LAB_GAP_MS = 180;
+const ALL_LAB_VARIANTS: readonly LabVariant[] = [...LAB_VARIANTS, ...MODEL_LAB_VARIANTS];
+/**
+ * Silence between the clips of one line, after each clip's own silence is cut to LAB_EDGE_MS at the
+ * join: 180 ms plus the clips' own quiet sounded slow (2026-11-28, "robot מתחיל באות R").
+ */
+export const LAB_GAP_MS = 40;
+export const LAB_EDGE_MS = 40;
 export const LAB_TAKE_PREFIX = 'lab-';
 
 /** Words flagged by ear in the review (2026-10), in the form Gemini should read them. Now also in GEMINI_SPELLINGS, so every render applies them. */
@@ -65,7 +68,8 @@ const SENTENCE_END = /[.!?:]["”')]*$/;
 const DASH_ONLY = /^[—–-]+$/;
 
 export function applyLabSpellings(text: string): string {
-  const pattern = new RegExp(`(?<![${HEBREW_LETTER}])(${Object.keys(LAB_SPELLINGS).join('|')})(?![${HEBREW_LETTER}])`, 'g');
+  // Not a word that already has niqqud (toGeminiText may have voweled it): "זוֹ" became "זוֹֹ"
+  const pattern = new RegExp(`(?<![${HEBREW_LETTER}])(${Object.keys(LAB_SPELLINGS).join('|')})(?![${HEBREW_LETTER}\u0591-\u05c7])`, 'g');
   return text.replace(pattern, (word) => LAB_SPELLINGS[word] ?? word);
 }
 
@@ -104,7 +108,6 @@ export function splitLine(text: string, isSplitByLanguage: boolean): string[] {
 export function labSegments(variant: LabVariant, clipText: string): string[] {
   const spoken = toGeminiText(clipText);
   if (variant === 'flash' || variant === 'pro25') return [spoken];
-  if (variant === 'accent-prompt') return [`${ACCENT_PROMPT}: ${spoken}`];
   if (variant === 'niqqud' || variant === 'flash-niqqud' || variant === 'pro25-niqqud') return [applyLabSpellings(spoken)];
   if (variant === 'sentences') return splitLine(spoken, false);
   const voweled = applyLabSpellings(spoken);

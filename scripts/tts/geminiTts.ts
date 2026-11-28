@@ -122,6 +122,15 @@ export function trimTrailingSilence(pcm: Pcm, keepMs: number): Pcm {
   return end === pcm.samples.length ? pcm : { samples: pcm.samples.slice(0, end), sampleRate: pcm.sampleRate };
 }
 
+/** The samples with the silence before the speech cut to `keepMs`: a piece of a split line starts close to the one before it. */
+export function trimLeadingSilence(pcm: Pcm, keepMs: number): Pcm {
+  let first = 0;
+  while (first < pcm.samples.length && Math.abs(pcm.samples[first] as number) <= SILENCE_PEAK) first += 1;
+  if (first >= pcm.samples.length) return pcm;
+  const start = Math.max(0, first - Math.round((pcm.sampleRate * keepMs) / 1000));
+  return start === 0 ? pcm : { samples: pcm.samples.slice(start), sampleRate: pcm.sampleRate };
+}
+
 /** Pieces of one line one after the other, `gapMs` of silence between them (they share a sample rate). */
 export function joinPcm(parts: readonly Pcm[], gapMs: number): Pcm {
   const sampleRate = parts[0]?.sampleRate ?? DEFAULT_SAMPLE_RATE;

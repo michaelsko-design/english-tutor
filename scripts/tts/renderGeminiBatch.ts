@@ -40,11 +40,13 @@ import {
   joinPcm,
   encodeMp3,
   responseToPcm,
+  trimLeadingSilence,
   trimTrailingSilence,
   type GeminiResponse,
   type Pcm,
 } from './geminiTts';
 import {
+  LAB_EDGE_MS,
   LAB_GAP_MS,
   LAB_TAKE_PREFIX,
   LAB_VARIANTS,
@@ -246,7 +248,12 @@ async function collectLab(items: BatchItem[]): Promise<{ written: number; failed
       console.error(`${id}: ${line.parts.size} of ${line.count} pieces, skipped.`);
       continue;
     }
-    const ordered = [...line.parts.entries()].sort(([a], [b]) => a - b).map(([, pcm]) => pcm);
+    const sorted = [...line.parts.entries()].sort(([a], [b]) => a - b).map(([, pcm]) => pcm);
+    // Each piece's own quiet is cut at the joins, so the pieces follow as one line does
+    const ordered = sorted.map((pcm, index) => {
+      const tailCut = index < sorted.length - 1 ? trimTrailingSilence(pcm, LAB_EDGE_MS) : pcm;
+      return index > 0 ? trimLeadingSilence(tailCut, LAB_EDGE_MS) : tailCut;
+    });
     writeFileSync(join(CANDIDATE_DIR, `${id}.mp3`), encodeMp3(joinPcm(ordered, LAB_GAP_MS)));
     written += 1;
   }

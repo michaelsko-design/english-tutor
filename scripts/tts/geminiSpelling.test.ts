@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { LISTENER_GENDERED_WORDS } from '../../src/services/tts/ttsText';
 import { GEMINI_BOY_FORMS, GEMINI_GIRL_FORMS, toGeminiText } from './geminiSpelling';
-import { encodeMp3, readPcm, trimTrailingSilence } from './geminiTts';
+import { encodeMp3, readPcm, trimLeadingSilence, trimTrailingSilence } from './geminiTts';
 
 describe('toGeminiText', () => {
   it('ends a sentence with a full stop so it does not sound like a question, but not a word or a line that has a mark', () => {
@@ -145,6 +145,16 @@ describe('Gemini audio to MP3', () => {
     expect(trimmed.samples[6000]).toBe(8000);
     const silent = { samples: new Int16Array(2400), sampleRate: 24000 };
     expect(trimTrailingSilence(silent, 80)).toBe(silent);
+  });
+
+  it('trims the silence before the speech to a short lead-in', () => {
+    const samples = new Int16Array(24000);
+    samples.fill(8000, 6000, 12000);
+    const trimmed = trimLeadingSilence({ samples, sampleRate: 24000 }, 40);
+    expect(trimmed.samples.length).toBe(24000 - 6000 + 960);
+    expect(trimmed.samples[960]).toBe(8000);
+    const silent = { samples: new Int16Array(2400), sampleRate: 24000 };
+    expect(trimLeadingSilence(silent, 40)).toBe(silent);
   });
 
   it('encodes one second as about 6 KB of 48 kbps MP3, with the leading silence', () => {
