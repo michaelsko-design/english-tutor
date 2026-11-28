@@ -74,6 +74,7 @@
 - [ ] **Public launch** (mid-Jan, with the main push; after the soft launch has been fixed) - Follow "Public launch: full deployment checklist" in `docs/early-testers.md` (`setAccess.mjs --open` is already done at the soft launch; now remove `noindex` and the robots `Disallow`, App Check check, comp Pro [decided: testers keep it]).
 
 ### UI
+- [ ] **Shop follow-ups from the 2026-11-20 redesign** - (1) Mystery boxes: decide with the lawyer whether chance boxes suit a children's app and whether to show the odds on the box card (consumer protection; boxes are no longer pushed first). (2) A confirm step before large spends (e.g. the 350-diamond gold box). (3) Read the shop aloud for grades 1–2 (Feature 47: new fixed Hebrew in the corpus, render, upload). (4) An "I can afford this" filter. Before/after sheet: https://claude.ai/artifact/DiPorDwH7Qnr2hjDhTKA3i
 - [ ] **Sprots Theme** - Create a new theme - sports.
 - [ ] **Another Theme** - Create a new theme - suggest something.
 
@@ -144,6 +145,7 @@ A trial of a game-like home screen: the mission map becomes a real-time 3D world
 
 
 ## Completed Features
+- [x] **Reward shop redesign** (2026-11-20, committed 2026-11-28) - Run through the design ladder: design system, a "toy-shop shelf" direction, an Impeccable critique and polish, a Web Interface Guidelines audit, and screenshot testing at 375px and desktop in a light and a dark theme. The shop is split into `components/shop/`, with a wallet that counts down, a next-goal card with a progress bar, one-row tabs on phones, colourful locked items with progress bars, a 2-column phone shelf, price order without boxes first, and messages in a sticky bottom bar. 4 new component tests; the shop e2e passed on desktop and phone. Before/after sheet: https://claude.ai/artifact/DiPorDwH7Qnr2hjDhTKA3i
 - [x] **Invite sign-up keeps the learner's answers; neutral first-run greeting** (2026-11-28) - Redeeming an invite code reloads the page, which dropped the name, gender and grade typed on the sign-in screen, so the new learner saw the first-run form again. `data/signupDraft.ts` now also keeps them in the tab's sessionStorage (checked field by field when read, removed once used). The first-run form's heading and subtitle no longer assume a girl ("שלום! ברוכים הבאים..."), since its gender buttons only start on a default.
 - [x] **Hebrew clip review on the phone** (2026-11-25) - A Cloudflare Worker page for marking clips with the PC off, marks synced into `hebrewReview.json` (`docs/hebrew-review-phone.md`).
 - [x] **Tester comps are open-ended** (2026-11-24) - Production has 16 `entitlements`, all `source: 'comp'`, `status: 'active'`, `periodEnd` 2100-01-01, one for each of the 16 `allowed` testers. New comps get the same date (`api/redeem-invite.ts`, `scripts/grantPro.mjs`, `scripts/allowExisting.mjs`), so switching Pro on cuts nobody off.
