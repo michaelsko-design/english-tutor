@@ -203,7 +203,7 @@ const LEAD_WORD_SPELLINGS: Readonly<Record<string, string>> = { yawn: 'yon' };
  */
 const LINE_SPELLINGS: Readonly<Record<string, string>> = {
   ו: 've',
-  'בוס: ציד אוצרות בגן': 'בּוֹס, צֵיד אוֹצָרוֹת בַּגַּן.',
+  'בוס: ציד אוצרות בגן': 'הבוס: ציד אוצרות בגן.',
   'לפני דבר אחד צריך להגיד a: a bag.': 'לפני דבר אחד צריך להגיד "uh", a bag.',
   'זה pot.': 'זה paht.',
   'הוא / היא (נמצא)': 'הוא או היא.',

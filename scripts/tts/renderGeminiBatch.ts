@@ -50,6 +50,7 @@ import {
   LAB_VARIANTS,
   labRequestKey,
   labSegments,
+  ACCENT_LAB_VARIANTS,
   MODEL_LAB_MODELS,
   MODEL_LAB_VARIANTS,
   parseLabRequestKey,
@@ -149,15 +150,17 @@ async function regenerate(apiKey: string, onlyContaining?: string): Promise<void
 }
 
 /** A few flagged lines in every lab way: what to listen to before choosing how to fix the rest. */
-async function lab(apiKey: string, isDryRun: boolean, isModelLab = false): Promise<void> {
-  const variants: readonly LabVariant[] = isModelLab ? MODEL_LAB_VARIANTS : LAB_VARIANTS;
+async function lab(apiKey: string, isDryRun: boolean, mode: 'ways' | 'models' | 'accent' = 'ways'): Promise<void> {
+  const variants: readonly LabVariant[] = mode === 'models' ? MODEL_LAB_VARIANTS : mode === 'accent' ? ACCENT_LAB_VARIANTS : LAB_VARIANTS;
   const dirs = getReviewDirs();
   const phrases = collectCorpus(HEBREW_VOICE);
   const textByKey = new Map(phrases.map((phrase) => [phrase.key, phrase.text]));
   const flagged = listReviewItems(phrases, loadState(dirs.statePath), dirs).filter(
     (item) => (item.phase === 'regenerate' || item.phase === 'compare') && (item.reasons.length > 0 || item.note),
   );
-  const picked = pickLabKeys(flagged, LAB_PER_CLASS);
+  // The accent lab takes every line still marked, noted or not; the other labs a few noted lines per kind
+  const marked = listReviewItems(phrases, loadState(dirs.statePath), dirs).filter((item) => item.phase === 'regenerate' || item.phase === 'compare');
+  const picked = mode === 'accent' ? marked : pickLabKeys(flagged, LAB_PER_CLASS);
   const requests = picked.flatMap((item) =>
     variants.flatMap((variant) => {
       const segments = labSegments(variant, textByKey.get(item.key) ?? item.text);
@@ -330,7 +333,10 @@ async function main(): Promise<void> {
     await takePhoneMarks(process.argv.includes('--offline'));
     return regenerate(apiKey, argument?.startsWith('--') ? undefined : argument);
   }
-  if (command === 'lab') return lab(apiKey, process.argv.includes('dry'), process.argv.includes('models'));
+  if (command === 'lab') {
+    const mode = process.argv.includes('models') ? 'models' : process.argv.includes('accent') ? 'accent' : 'ways';
+    return lab(apiKey, process.argv.includes('dry'), mode);
+  }
   if (command === 'status') return collect(apiKey, true);
   if (command === 'collect') return collect(apiKey, false);
   throw new Error('Use: npm run tts:render:he -- submit | regenerate | lab | status | collect | redo "<text>"');

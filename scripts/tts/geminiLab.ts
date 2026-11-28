@@ -11,7 +11,7 @@
  */
 import { toGeminiText } from './geminiSpelling';
 
-export type LabVariant = 'niqqud' | 'sentences' | 'sentences-niqqud' | 'runs-niqqud' | ModelVariant;
+export type LabVariant = 'niqqud' | 'sentences' | 'sentences-niqqud' | 'runs-niqqud' | ModelVariant | 'accent-prompt';
 export const LAB_VARIANTS: readonly LabVariant[] = ['niqqud', 'sentences', 'sentences-niqqud', 'runs-niqqud'];
 
 /**
@@ -26,7 +26,16 @@ export const MODEL_LAB_MODELS: Readonly<Record<ModelVariant, string>> = {
   'pro25-niqqud': 'gemini-2.5-pro-preview-tts',
 };
 export const MODEL_LAB_VARIANTS = Object.keys(MODEL_LAB_MODELS) as ModelVariant[];
-const ALL_LAB_VARIANTS: readonly LabVariant[] = [...LAB_VARIANTS, ...MODEL_LAB_VARIANTS];
+/**
+ * Accent lab (2026-11-28): English words and letters in a Hebrew line came out in a Hebrew accent
+ * ("באות R", zebra, zipper). Tried: a style instruction written before the line, and each English
+ * run as its own clip. The TTS model refuses a system instruction ("invalid argument"), so a style
+ * can only be asked for in the text itself.
+ */
+export const ACCENT_LAB_VARIANTS: readonly LabVariant[] = ['accent-prompt', 'runs-niqqud'];
+const ACCENT_PROMPT = 'Read this in Israeli Hebrew, and say the English words and letters with a native American English accent';
+
+const ALL_LAB_VARIANTS: readonly LabVariant[] = [...LAB_VARIANTS, ...MODEL_LAB_VARIANTS, 'accent-prompt'];
 /** Silence between the clips of one line. */
 export const LAB_GAP_MS = 180;
 export const LAB_TAKE_PREFIX = 'lab-';
@@ -95,6 +104,7 @@ export function splitLine(text: string, isSplitByLanguage: boolean): string[] {
 export function labSegments(variant: LabVariant, clipText: string): string[] {
   const spoken = toGeminiText(clipText);
   if (variant === 'flash' || variant === 'pro25') return [spoken];
+  if (variant === 'accent-prompt') return [`${ACCENT_PROMPT}: ${spoken}`];
   if (variant === 'niqqud' || variant === 'flash-niqqud' || variant === 'pro25-niqqud') return [applyLabSpellings(spoken)];
   if (variant === 'sentences') return splitLine(spoken, false);
   const voweled = applyLabSpellings(spoken);
