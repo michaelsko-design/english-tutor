@@ -72,6 +72,12 @@ KEEP_ENCLOSED_WHITE = {
     "landmarks/starlight-rpg/g1-u4",
     "landmarks/starlight-rpg/g6-u2",
 }
+# Shared-set (Cozy) pictures drawn by renderMissionArt.mjs that clear enclosed background white like
+# the theme sets do; the older shared pictures are left as they were made
+CLEAR_ENCLOSED_WHITE = {
+    "landmarks/holidays-autumn",
+    "landmarks/holidays-spring",
+}
 CANVAS_MARGIN = 0.04  # free space around the tallest cut-out, as a share of its height
 FLOOR_MARGIN = 0.02  # gap under the feet, as a share of the cut-out height
 CUTOUT_QUALITY = 85
@@ -307,7 +313,8 @@ def process_single_cutouts(folder_name: str, src_root: Path, out_root: Path, rep
     is_theme_set = folder_name in MISSION_ART_GROUPS
 
     def clears_holes(name: str) -> bool:
-        return is_theme_set and f"{folder_name}/{name}" not in KEEP_ENCLOSED_WHITE
+        key = f"{folder_name}/{name}"
+        return key in CLEAR_ENCLOSED_WHITE or (is_theme_set and key not in KEEP_ENCLOSED_WHITE)
 
     for path in sources:
         if PAIR_SEPARATOR in path.stem:

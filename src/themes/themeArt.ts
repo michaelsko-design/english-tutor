@@ -4,6 +4,7 @@
  * components that show them (ArtImage, Companion, StoryArt) fall back without a broken image.
  */
 
+import { CONTENT_PACKS } from '../data/curriculum/packs/registry';
 import { ThemeId } from '../types/learner';
 
 export type CompanionPose = 'idle' | 'cheer' | 'think' | 'oops' | 'wave';
@@ -215,13 +216,26 @@ export interface LandmarkUnit {
 const MISSION_ID_UNIT = /^g\d+-u(\d+)-m\d+$/;
 
 /**
+ * A seasonal pack teaches the same holidays in every grade, so its unit has one landmark named by
+ * the pack id (/art/landmarks/holidays-autumn.webp) instead of one per grade.
+ */
+const SEASONAL_LANDMARK_BY_UNIT: ReadonlyMap<number, string> = new Map(
+  Object.values(CONTENT_PACKS)
+    .filter((pack) => pack.kind === 'seasonal')
+    .map((pack) => [pack.idUnitNumber, pack.id])
+);
+
+/**
  * The landmark of a unit, named by the unit number in its mission ids like the story pictures.
  * That differs from the unit's place in grade 1, where the letters units (ids g1-u11…) came
- * first later; a unit with no readable mission id falls back to its place.
+ * first later; a unit with no readable mission id falls back to its place. A seasonal pack's unit
+ * uses the pack's one landmark in every grade.
  */
 export function getUnitLandmarkArt(theme: MissionArtTheme, gradeNumber: number, unit: LandmarkUnit): CutoutArt {
   const match = unit.missions[0] && MISSION_ID_UNIT.exec(unit.missions[0].id);
   const idUnitNumber = match ? Number(match[1]) : unit.unitNumber;
+  const seasonalLandmark = SEASONAL_LANDMARK_BY_UNIT.get(idUnitNumber);
+  if (seasonalLandmark) return getCutoutArt(missionArtFolder('landmarks', theme), seasonalLandmark);
   return getLandmarkArt(theme, gradeNumber, idUnitNumber);
 }
 
