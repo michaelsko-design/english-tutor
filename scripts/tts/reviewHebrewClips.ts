@@ -24,6 +24,7 @@ import { toGeminiText } from './geminiSpelling';
 import { getVoiceDir } from './clipManifest';
 import { buildReviewCatalog, byWalkOrder } from './hebrewReviewCatalog';
 import { getReviewDirs } from './hebrewReviewPaths';
+import { loadSplitLines, saveSplitLines, withChosenTake } from './hebrewSplitLines';
 import { REVIEW_GROUPS } from './hebrewReviewOrder';
 import { createCoalescedRunner, syncMarks } from './hebrewReviewSync';
 import { createCloudClient, readCloudConfig } from './reviewCloudClient';
@@ -32,6 +33,7 @@ import {
   candidatePath,
   clipPath,
   decideCandidate,
+  DEFAULT_TAKE,
   isTakeName,
   listReviewItems,
   listUndoable,
@@ -160,7 +162,11 @@ async function handleApi(req: IncomingMessage, res: ServerResponse, url: URL): P
     if (!DECISIONS.includes(decision)) return sendJson(res, 400, { error: 'Bad decision.' });
     const take = typeof body.take === 'string' && isTakeName(body.take) ? body.take : undefined;
     const result = decideCandidate(dirs, state, key, decision, take);
-    if (result.isReplaced) bumpClipRevisions(HEBREW_VOICE, [key]);
+    if (result.isReplaced) {
+      bumpClipRevisions(HEBREW_VOICE, [key]);
+      // The split take won: later renders of the line split it too; a whole take won: they do not
+      saveSplitLines(withChosenTake(loadSplitLines(), key, phraseByKey.get(key)?.text ?? '', take ?? DEFAULT_TAKE));
+    }
     saveState(dirs.statePath, result.state);
     void syncInBackground();
     return sendJson(res, 200, { ok: true, isReplaced: result.isReplaced });

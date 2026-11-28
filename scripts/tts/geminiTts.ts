@@ -132,16 +132,20 @@ export function trimLeadingSilence(pcm: Pcm, keepMs: number): Pcm {
 }
 
 /** Pieces of one line one after the other, `gapMs` of silence between them (they share a sample rate). */
-export function joinPcm(parts: readonly Pcm[], gapMs: number): Pcm {
+/** `gapMs`: one pause between every two parts, or the pause after each part but the last. */
+export function joinPcm(parts: readonly Pcm[], gapMs: number | readonly number[]): Pcm {
   const sampleRate = parts[0]?.sampleRate ?? DEFAULT_SAMPLE_RATE;
-  const gap = Math.round((sampleRate * gapMs) / 1000);
-  const total = parts.reduce((sum, part) => sum + part.samples.length, 0) + gap * Math.max(parts.length - 1, 0);
+  const gaps = parts.slice(0, -1).map((_, index) => {
+    const ms = typeof gapMs === 'number' ? gapMs : (gapMs[index] ?? 0);
+    return Math.round((sampleRate * ms) / 1000);
+  });
+  const total = parts.reduce((sum, part) => sum + part.samples.length, 0) + gaps.reduce((sum, gap) => sum + gap, 0);
   const samples = new Int16Array(total);
   let offset = 0;
-  for (const part of parts) {
+  parts.forEach((part, index) => {
     samples.set(part.samples, offset);
-    offset += part.samples.length + gap;
-  }
+    offset += part.samples.length + (gaps[index] ?? 0);
+  });
   return { samples, sampleRate };
 }
 

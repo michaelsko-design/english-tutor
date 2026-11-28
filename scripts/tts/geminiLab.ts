@@ -7,7 +7,8 @@
  *   English one).
  * - sentences-niqqud: both.
  * - runs-niqqud: also a clip per English run, so each Hebrew piece is read alone.
- * A winning way is promoted: its words move to GEMINI_SPELLINGS, its split into the render.
+ * A winning way is promoted: its words move to GEMINI_SPELLINGS, its split into the render (runs-niqqud
+ * became hebrewSplitLines.ts, 2026-11-28).
  */
 import { toGeminiText } from './geminiSpelling';
 
@@ -35,12 +36,7 @@ export const MODEL_LAB_VARIANTS = Object.keys(MODEL_LAB_MODELS) as ModelVariant[
 export const ACCENT_LAB_VARIANTS: readonly LabVariant[] = ['runs-niqqud'];
 
 const ALL_LAB_VARIANTS: readonly LabVariant[] = [...LAB_VARIANTS, ...MODEL_LAB_VARIANTS];
-/**
- * Silence between the clips of one line, after each clip's own silence is cut to LAB_EDGE_MS at the
- * join: 180 ms plus the clips' own quiet sounded slow (2026-11-28, "robot מתחיל באות R").
- */
-export const LAB_GAP_MS = 40;
-export const LAB_EDGE_MS = 40;
+/** The pieces of a lab line are joined as a split line's are (stitchPieces, hebrewSplitLines.ts). */
 export const LAB_TAKE_PREFIX = 'lab-';
 
 /** Words flagged by ear in the review (2026-10), in the form Gemini should read them. Now also in GEMINI_SPELLINGS, so every render applies them. */
@@ -69,7 +65,7 @@ const DASH_ONLY = /^[—–-]+$/;
 
 export function applyLabSpellings(text: string): string {
   // Not a word that already has niqqud (toGeminiText may have voweled it): "זוֹ" became "זוֹֹ"
-  const pattern = new RegExp(`(?<![${HEBREW_LETTER}])(${Object.keys(LAB_SPELLINGS).join('|')})(?![${HEBREW_LETTER}\u0591-\u05c7])`, 'g');
+  const pattern = new RegExp(`(?<![${HEBREW_LETTER}])(${Object.keys(LAB_SPELLINGS).join('|')})(?![${HEBREW_LETTER}]|\\p{M})`, 'gu');
   return text.replace(pattern, (word) => LAB_SPELLINGS[word] ?? word);
 }
 

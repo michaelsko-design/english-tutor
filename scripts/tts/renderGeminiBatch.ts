@@ -13,6 +13,9 @@
  *   npm run tts:render:he -- regenerate   sends the clips marked "regenerate" in the review (npm run tts:review:he)
  *                                      as new takes; collect saves them to .tts-candidates, the originals stay
  *                                      (takes the marks made on the phone first; --offline skips that)
+ *                                      A marked line with English inside Hebrew is rendered in
+ *                                      pieces instead, as the take 'split' (hebrewSplitLines.ts); choosing it keeps
+ *                                      the line split in later submits
  *   npm run tts:render:he -- lab        renders a few flagged lines in several ways (geminiLab.ts) to compare by ear
  *   npm run tts:render:he -- collect   writes the finished clips and rewrites public/tts/manifest.json
  *   npm run tts:render:he -- redo "<text>"   deletes the clips whose line contains <text> (one that came
@@ -30,6 +33,7 @@ import { bumpClipRevisions } from './clipRevisions';
 import { getVoiceDir, listRenderedKeys, writeManifest } from './clipManifest';
 import { toGeminiText } from './geminiSpelling';
 import { CANDIDATE_DIR, getReviewDirs } from './hebrewReviewPaths';
+import { canSplit, loadSplitLines, splitPieces, SPLIT_TAKE, stitchPieces } from './hebrewSplitLines';
 import { keysToRegenerate, listReviewItems, loadState } from './hebrewReviewState';
 import { createCloudClient, readCloudConfig } from './reviewCloudClient';
 import { syncAndReport } from './reviewCloudCommands';
@@ -37,17 +41,13 @@ import {
   buildGeminiRequest,
   GEMINI_API_BASE,
   GEMINI_TTS_MODEL,
-  joinPcm,
   encodeMp3,
   responseToPcm,
-  trimLeadingSilence,
   trimTrailingSilence,
   type GeminiResponse,
   type Pcm,
 } from './geminiTts';
 import {
-  LAB_EDGE_MS,
-  LAB_GAP_MS,
   LAB_TAKE_PREFIX,
   LAB_VARIANTS,
   labRequestKey,
@@ -69,8 +69,13 @@ const LAB_PER_CLASS = 4;
 const LEAD_WORD_TAIL_MS = 80;
 const DONE_STATES = new Set(['BATCH_STATE_SUCCEEDED', 'BATCH_STATE_FAILED', 'BATCH_STATE_CANCELLED', 'BATCH_STATE_EXPIRED']);
 
-/** 'lab': pieces of lines in several ways (geminiLab.ts), stitched into candidate takes. */
-type BatchTarget = 'clip' | 'candidate' | 'lab';
+/**
+ * 'lab': pieces of lines in several ways (geminiLab.ts), stitched into candidate takes.
+ * 'split' / 'split-clip': the pieces of a line rendered split (hebrewSplitLines.ts), stitched into its
+ * 'split' take / straight into its clip.
+ */
+type BatchTarget = 'clip' | 'candidate' | 'lab' | 'split' | 'split-clip';
+type PieceTarget = 'lab' | 'split' | 'split-clip';
 
 interface SubmittedBatch {
   name: string;
@@ -124,9 +129,21 @@ async function submit(apiKey: string, scope?: string, skipText?: string, onlySta
   const isInScope = (phrase: CorpusPhrase) => (scope === 'lead' ? !/[א-ת]/.test(phrase.text) : !general || general.has(phrase.key));
   const isPicked = (phrase: CorpusPhrase) => onlyStarts.length === 0 || onlyStarts.some((start) => phrase.text.startsWith(start));
   const todo = missing.filter((phrase) => isInScope(phrase) && isPicked(phrase) && (!skipText || !phrase.text.includes(skipText)));
-  console.log(`${missing.length} Hebrew phrases without a clip; sending ${todo.length}.`);
-  return submitPhrases(apiKey, todo, 'clip');
+  // A line the owner chose split is rendered in pieces again, not as one clip
+  const splitLines = loadSplitLines();
+  const whole = todo.filter((phrase) => !(phrase.key in splitLines));
+  const split = todo.filter((phrase) => phrase.key in splitLines);
+  console.log(`${missing.length} Hebrew phrases without a clip; sending ${todo.length} (${split.length} in pieces).`);
+  if (whole.length > 0) await submitPhrases(apiKey, whole, 'clip');
+  if (split.length > 0) await submitRequests(apiKey, pieceRequests(split), 'split-clip');
 }
+
+/** The request of each piece of each line (key `<key>~runs-niqqud~<index>~<count>`). */
+const pieceRequests = (phrases: readonly CorpusPhrase[]) =>
+  phrases.flatMap((phrase) => {
+    const pieces = splitPieces(phrase.text);
+    return pieces.map((text, index) => ({ key: labRequestKey(phrase.key, 'runs-niqqud', index, pieces.length), text }));
+  });
 
 /** Takes the marks made on the phone first, so the batch has every clip marked for regenerate. */
 async function takePhoneMarks(isOffline: boolean): Promise<void> {
@@ -147,8 +164,14 @@ async function regenerate(apiKey: string, onlyContaining?: string): Promise<void
   const keys = new Set(keysToRegenerate(listReviewItems(phrases, loadState(dirs.statePath), dirs)));
   // `regenerate "<text>"` sends only the marked lines that contain the text
   const todo = phrases.filter((phrase) => keys.has(phrase.key) && (!onlyContaining || phrase.text.includes(onlyContaining)));
-  console.log(`${keys.size} clips marked for regenerate${onlyContaining ? `, ${todo.length} containing "${onlyContaining}"` : ''}.`);
-  return submitPhrases(apiKey, todo, 'candidate');
+  // A marked line with English inside Hebrew gets the split take only
+  const split = todo.filter((phrase) => canSplit(phrase.text));
+  const whole = todo.filter((phrase) => !canSplit(phrase.text));
+  console.log(
+    `${keys.size} clips marked for regenerate${onlyContaining ? `, ${todo.length} containing "${onlyContaining}"` : ''}; ${split.length} of them in pieces.`,
+  );
+  if (whole.length > 0) await submitPhrases(apiKey, whole, 'candidate');
+  if (split.length > 0) await submitRequests(apiKey, pieceRequests(split), 'split');
 }
 
 /** A few flagged lines in every lab way: what to listen to before choosing how to fix the rest. */
@@ -225,9 +248,19 @@ async function batchItems(apiKey: string, status: BatchStatus): Promise<BatchIte
     });
 }
 
-/** Stitches the pieces of each lab line into its candidate take; a line with a piece missing is skipped. */
-async function collectLab(items: BatchItem[]): Promise<{ written: number; failed: number }> {
-  const lines = new Map<string, { count: number; parts: Map<number, Pcm> }>();
+/** Where the stitched line goes: a lab take, the split take, or the clip itself. */
+function piecesDestination(target: PieceTarget, key: string, variant: LabVariant): string {
+  if (target === 'split-clip') return join(getVoiceDir(HEBREW_VOICE), `${key}.mp3`);
+  return join(CANDIDATE_DIR, `${key}.${target === 'split' ? SPLIT_TAKE : `${LAB_TAKE_PREFIX}${variant}`}.mp3`);
+}
+
+/** Stitches the pieces of each line into one MP3; a line with a piece missing is skipped. */
+async function collectPieces(items: BatchItem[], target: PieceTarget): Promise<{ written: number; failed: number }> {
+  const lines = new Map<string, { count: number; parts: Map<number, { pcm: Pcm; text: string }> }>();
+  const textByRequest = new Map<string, string>();
+  if (target !== 'lab') {
+    for (const request of pieceRequests(collectCorpus(HEBREW_VOICE))) textByRequest.set(request.key, request.text);
+  }
   let failed = 0;
   for (const item of items) {
     const parsed = parseLabRequestKey(item.metadata?.key ?? '');
@@ -237,9 +270,9 @@ async function collectLab(items: BatchItem[]): Promise<{ written: number; failed
       console.error(`No audio for ${item.metadata?.key ?? '?'}: ${item.error?.message ?? 'empty answer'}`);
       continue;
     }
-    const id = `${parsed.key}.${LAB_TAKE_PREFIX}${parsed.variant}`;
-    const line = lines.get(id) ?? { count: parsed.count, parts: new Map<number, Pcm>() };
-    line.parts.set(parsed.index, pcm);
+    const id = piecesDestination(target, parsed.key, parsed.variant);
+    const line = lines.get(id) ?? { count: parsed.count, parts: new Map<number, { pcm: Pcm; text: string }>() };
+    line.parts.set(parsed.index, { pcm, text: textByRequest.get(item.metadata?.key ?? '') ?? '' });
     lines.set(id, line);
   }
   let written = 0;
@@ -248,13 +281,9 @@ async function collectLab(items: BatchItem[]): Promise<{ written: number; failed
       console.error(`${id}: ${line.parts.size} of ${line.count} pieces, skipped.`);
       continue;
     }
-    const sorted = [...line.parts.entries()].sort(([a], [b]) => a - b).map(([, pcm]) => pcm);
-    // Each piece's own quiet is cut at the joins, so the pieces follow as one line does
-    const ordered = sorted.map((pcm, index) => {
-      const tailCut = index < sorted.length - 1 ? trimTrailingSilence(pcm, LAB_EDGE_MS) : pcm;
-      return index > 0 ? trimLeadingSilence(tailCut, LAB_EDGE_MS) : tailCut;
-    });
-    writeFileSync(join(CANDIDATE_DIR, `${id}.mp3`), encodeMp3(joinPcm(ordered, LAB_GAP_MS)));
+    const sorted = [...line.parts.entries()].sort(([a], [b]) => a - b).map(([, part]) => part);
+    // A lab line has no texts: its pieces are joined with the in-sentence pause
+    writeFileSync(id, encodeMp3(stitchPieces(sorted.map((part) => part.pcm), sorted.map((part) => part.text))));
     written += 1;
   }
   return { written, failed };
@@ -280,8 +309,8 @@ async function collect(apiKey: string, isDryRun: boolean): Promise<void> {
       console.error(`${batch.name}: ${state} ${status.error?.message ?? ''}; its phrases go in the next submit.`);
       continue;
     }
-    if (batch.target === 'lab') {
-      const result = await collectLab(await batchItems(apiKey, status));
+    if (batch.target === 'lab' || batch.target === 'split' || batch.target === 'split-clip') {
+      const result = await collectPieces(await batchItems(apiKey, status), batch.target);
       written += result.written;
       failed += result.failed;
       console.log(`${batch.name}: collected.`);
