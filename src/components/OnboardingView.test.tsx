@@ -17,6 +17,14 @@ const submit = () => screen.getByRole('button', { name: /יאללה|שמירה �
 const gradeChip = (label: string) => screen.getByRole('button', { name: label });
 
 describe('OnboardingView', () => {
+  it('greets without a gender, since the gender buttons only start on a default', async () => {
+    const { user } = setup();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('שלום! ברוכים הבאים');
+    expect(screen.queryByText(/ברוכה הבאה|ברוך הבא|בואי נכיר/)).not.toBeInTheDocument();
+    await user.type(screen.getByPlaceholderText('למשל: נועה'), 'מיה');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('שלום, מיה! נעים להכיר');
+  });
+
   it('asks for a name before starting', async () => {
     const { onComplete, user } = setup();
     await user.click(submit());

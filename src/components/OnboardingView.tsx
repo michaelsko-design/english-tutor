@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { GradeId, LearnerGender, LearnerProfile, getRecommendedGradeForAge } from '../types/learner';
 import { resolveTheme, THEME_IDS } from '../themes/themeRegistry';
-import { getHebrewCopy } from '../utils/hebrewGender';
 import { applyBasicsToProfile } from '../utils/applyBasicsToProfile';
 import { hasCurrentTermsConsent } from '../utils/termsConsent';
 import { APP_NAME } from '../config/appInfo';
@@ -12,6 +11,8 @@ import { TOUR_COMPANION_PX } from '../data/appTutorial';
 import { trackEvent } from '../services/analytics';
 import type { SignupDraft } from '../data/signupDraft';
 import { LearnerBasicsForm } from './LearnerBasicsForm';
+
+const ONBOARDING_SUBTITLE_HE = 'ספרו לנו קצת עליכם, ונתאים את המשימות, הקול והאתגרים בדיוק בשבילכם!';
 
 interface OnboardingViewProps {
   initialProfile: LearnerProfile;
@@ -44,7 +45,6 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, 
   }, [initialProfile.companionId]);
 
   const activeTheme = resolveTheme(initialProfile.themeId || 'cozy-studio', initialProfile.companionId);
-  const heb = getHebrewCopy(preview.gender, preview.name || (preview.gender === 'girl' ? 'נועה' : 'עידו'));
 
   return (
     <div
@@ -58,14 +58,15 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ initialProfile, 
           <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300">
             <span>{APP_NAME}</span>
           </div>
+          {/* Gender-neutral: the gender buttons start on a default, so the app doesn't know it yet */}
           <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
-            {preview.name.trim()
-              ? heb.welcomeTitle
-              : preview.gender === 'girl'
-              ? <>ברוכה הבאה ל־<bdi>{APP_NAME}</bdi>! ✨</>
-              : <>ברוך הבא ל־<bdi>{APP_NAME}</bdi>! ✨</>}
+            {preview.name.trim() ? (
+              <>שלום, <bdi>{preview.name.trim()}</bdi>! נעים להכיר ✨</>
+            ) : (
+              <>שלום! ברוכים הבאים ל־<bdi>{APP_NAME}</bdi> ✨</>
+            )}
           </h1>
-          <p className={`text-xs sm:text-sm ${activeTheme.mutedTextClass}`}>{heb.onboardingSubtitle}</p>
+          <p className={`text-xs sm:text-sm ${activeTheme.mutedTextClass}`}>{ONBOARDING_SUBTITLE_HE}</p>
         </div>
 
         <LearnerBasicsForm
