@@ -207,6 +207,8 @@ const LINE_SPELLINGS: Readonly<Record<string, string>> = {
   'לפני דבר אחד צריך להגיד a: a bag.': 'לפני דבר אחד אומרים "אֵיי".',
   'זה pot.': 'זה paht.',
   'הוא / היא (נמצא)': 'הוא או היא.',
+  // The letter's name in Hebrew letters, as "אֵיי" above: split into English pieces it did not sound natural
+  'זו האות Z. Z כמו zebra': 'זוֹ האות זֶד. זֶד כמו zebra.',
   'קרא את הסיפור הקצר. מה גדול?': 'קְרָא את הסיפור הקצר. מה גדול?',
 };
 

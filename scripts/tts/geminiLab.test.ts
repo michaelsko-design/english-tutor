@@ -21,7 +21,8 @@ describe('splitLine', () => {
 
 describe('labSegments', () => {
   it('says an English piece alone as English, without the in-Hebrew respellings', () => {
-    expect(labSegments('runs-niqqud', 'זו האות Z. Z כמו zebra')).toEqual(['זוֹ האות', 'Zed.', 'Zed', 'כמו', 'zebra.']);
+    expect(labSegments('runs-niqqud', 'זו האות Z. Z כמו zebra')).toEqual(['זוֹ האות זֶד.', 'זֶד כמו', 'zebra.']);
+    expect(labSegments('runs-niqqud', 'zipper מתחיל באות Z.')).toEqual(['zipper', 'מתחיל באות', 'Zed.']);
     expect(labSegments('runs-niqqud', 'איזו תמונה מתחילה באות R?')).toEqual(['איזו תמונה מתחילה באות', 'r?']);
     expect(labSegments('runs-niqqud', 'לפני דבר אחד צריך להגיד a: a bag.')).toEqual(['לפני דבר אחד אומרים "אֵיי".']);
   });

@@ -79,7 +79,7 @@ describe('toGeminiText', () => {
   });
 
   it('says zebra as "zeebra" and puts a comma after the letter R', () => {
-    expect(toGeminiText('זו האות Z. Z כמו zebra')).toBe('זוֹ האות Zed. Zed כמו zeebra.');
+    expect(toGeminiText('לא בדיוק. Z כמו zebra .')).toBe('לא בדיוק. Zed כמו zeebra .');
     expect(toGeminiText('robot מתחיל באות R.')).toBe('robot מתחיל באות Ar,');
     expect(toGeminiText('המילה מתחילה באות "r" ויש בה 5 אותיות.')).toBe('המילה מתחילה באות "Ar," ויש בה חָמֵשׁ אותיות.');
   });
@@ -91,7 +91,7 @@ describe('toGeminiText', () => {
   it('spells out words Gemini misreads, for every listener, and leaves the rest as written', () => {
     expect(toGeminiText('הקשיבי ובחרי את האות:')).toBe('הקשיבי וּבִחְרִי את האות:');
     expect(toGeminiText('הבנית שלו')).toBe('הבנית שלו.');
-    expect(toGeminiText('זו האות Z. Z כמו zebra')).toBe('זוֹ האות Zed. Zed כמו zeebra.');
+    expect(toGeminiText('לא בדיוק. Z כמו zebra .')).toBe('לא בדיוק. Zed כמו zeebra .');
     expect(toGeminiText('האותיות X, Y, Z')).toBe('האותיות X, Y, Zed.');
   });
 
