@@ -67,6 +67,11 @@ describe('toGeminiText', () => {
     expect(toGeminiText('עז')).toBe('עֵז');
   });
 
+  it('says the lone word "ו" as "ve", but keeps ו inside a line', () => {
+    expect(toGeminiText('ו')).toBe('ve');
+    expect(toGeminiText('Hello ו-Goodbye')).toBe('Hello ו-Goodbye.');
+  });
+
   it('says "מחבט" with niqqud', () => {
     expect(toGeminiText('איזו מילה באנגלית פירושה "מחבט"?')).toBe('איזו מילה באנגלית פירושה "מַחְבֵּט"?');
   });

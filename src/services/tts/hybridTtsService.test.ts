@@ -109,7 +109,7 @@ describe('hybrid read-aloud service', () => {
     let engine: TtsEngine | null = null;
     await service.speak(text, { voice: 'male', lang: 'he', onPlaybackStart: (e) => (engine = e) });
     expect(engine).toBe('clip');
-    expect(fetchMock).toHaveBeenCalledWith(expect.stringMatching(/^\/tts\/v\d+\/he-female\/.+\.mp3$/), expect.anything());
+    expect(fetchMock).toHaveBeenCalledWith(expect.stringMatching(/^\/tts\/v\d+\/he-female\/.+\.mp3(\?r=\d+)?$/), expect.anything());
   });
 
   it("plays the clip in the learner's gender for a line whose words read by gender", async () => {

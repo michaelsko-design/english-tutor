@@ -196,8 +196,15 @@ function sayLoneLettersByName(text: string): string {
 const LEAD_WORD_SPELLINGS: Readonly<Record<string, string>> = { yawn: 'yon' };
 
 /** A Hebrew clip's text (maybe tagged `[to:girl] …`) as Gemini reads it. */
+/**
+ * Lines that are one Hebrew word Gemini cannot say alone, written as they sound. "ו" (the gloss of
+ * "and") came out in a male voice in the 2026-11-28 review.
+ */
+const WHOLE_LINE_SPELLINGS: Readonly<Record<string, string>> = { ו: 've' };
+
 export function toGeminiText(clipText: string): string {
   const { gender, text } = parseListenerGender(clipText);
+  if (WHOLE_LINE_SPELLINGS[text]) return WHOLE_LINE_SPELLINGS[text];
   // An English lead word said alone (splitEnglishLead): bare, as picked by ear
   if (!/[א-ת]/.test(text)) return LEAD_WORD_SPELLINGS[text] ?? text;
   const forms = gender === 'girl' ? GEMINI_GIRL_FORMS : gender === 'boy' ? GEMINI_BOY_FORMS : null;
