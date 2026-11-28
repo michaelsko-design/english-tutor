@@ -899,13 +899,10 @@
     "at": "2026-10-30"
   },
   "13cne7o8or7": {
-    "status": "regenerate",
-    "reasons": [
-      "letter-name"
-    ],
-    "fp": "22700-a7864ae227b505bc",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:32:29.548Z"
+    "status": "good",
+    "fp": "18288-78b3a09ef6643531",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:36:47.572Z"
   },
   "13d7livc26": {
     "status": "good",
@@ -2658,11 +2655,10 @@
     "at": "2026-11-06"
   },
   "1ds9uv2rdf8": {
-    "status": "regenerate",
-    "note": "Hebrew accent",
-    "fp": "46368-b1a743f7ed24367e",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:29:28.306Z"
+    "status": "good",
+    "fp": "41616-caef9c63f2d00db3",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:13:33.685Z"
   },
   "1dtx6skdmsn": {
     "status": "good",
@@ -2798,6 +2794,12 @@
     "fp": "23708-c16761fa209abb12",
     "at": "2026-11-25",
     "markedAt": "2026-11-25T18:04:57.046Z"
+  },
+  "1ev6qb3edf4": {
+    "status": "good",
+    "fp": "20448-4c0cb8f89540d519",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:10:01.453Z"
   },
   "1evek4c311w": {
     "status": "good",
@@ -2973,10 +2975,10 @@
     "at": "2026-11-05"
   },
   "1gblklpe6jq": {
-    "status": "regenerate",
-    "fp": "8352-240b0d945ecfd1cc",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:17:14.730Z"
+    "status": "good",
+    "fp": "7632-53215f119e6edb88",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:10:47.795Z"
   },
   "1gccy1t8cz0": {
     "status": "good",
@@ -3426,11 +3428,10 @@
     "at": "2026-11-06"
   },
   "1k3f7pil0v8": {
-    "status": "regenerate",
-    "note": "Put niqqud on ביצה",
-    "fp": "17568-8362f8b90964234d",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:17:49.213Z"
+    "status": "good",
+    "fp": "20880-1f4a5e975f61dc43",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:10:58.344Z"
   },
   "1k7rkgh4vuk": {
     "status": "good",
@@ -4121,10 +4122,10 @@
     "at": "2026-11-05"
   },
   "1qnwwwcvdvk": {
-    "status": "regenerate",
-    "fp": "8732-d8c54b0d75899a22",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:33:36.510Z"
+    "status": "good",
+    "fp": "7488-e1511c567a7bec52",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:15:36.335Z"
   },
   "1qorw562tg8": {
     "status": "good",
@@ -4304,11 +4305,10 @@
     "at": "2026-11-06"
   },
   "1scutioav9v": {
-    "status": "regenerate",
-    "note": "Count of letters in the feminine form (שמונה אותיות)",
-    "fp": "24768-f9560e684dc7d923",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:51:41.698Z"
+    "status": "good",
+    "fp": "27648-07dff1bc81b9b79a",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:37:46.791Z"
   },
   "1sevz3obt7n": {
     "status": "good",
@@ -4335,13 +4335,10 @@
     "markedAt": "2026-11-25T18:28:11.271Z"
   },
   "1sin2wl6c8": {
-    "status": "regenerate",
-    "reasons": [
-      "mispronounced"
-    ],
-    "fp": "12384-a64112818772f103",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:35:47.709Z"
+    "status": "good",
+    "fp": "12816-bdd4d93d36864149",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:37:08.419Z"
   },
   "1skd8q57hhy": {
     "status": "good",
@@ -4451,10 +4448,10 @@
     "markedAt": "2026-11-25T18:22:37.681Z"
   },
   "1thnnvxkoa8": {
-    "status": "regenerate",
+    "status": "good",
     "fp": "36864-cf816d6d3217af0a",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:38:47.191Z"
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:16:39.478Z"
   },
   "1tj2cxhvbg9": {
     "status": "good",
@@ -4491,11 +4488,10 @@
     "at": "2026-11-06"
   },
   "1tw60rpn9p0": {
-    "status": "regenerate",
-    "note": "Was cut too early, missing the last letter",
-    "fp": "8444-0dda7d65f595bb4f",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:34:24.828Z"
+    "status": "good",
+    "fp": "12960-f21ddb70d4b272ba",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:15:54.152Z"
   },
   "1twn0ogop6n": {
     "status": "good",
@@ -4565,11 +4561,10 @@
     "markedAt": "2026-11-25T18:29:31.306Z"
   },
   "1ut8utiq9kj": {
-    "status": "regenerate",
-    "note": "Hebrew accent",
-    "fp": "9216-1b350e93a7b6bb12",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:33:48.128Z"
+    "status": "good",
+    "fp": "7488-bb3e1d9da9c61680",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:37:00.379Z"
   },
   "1uzwqge7olh": {
     "status": "good",
@@ -4706,13 +4701,10 @@
     "at": "2026-11-06"
   },
   "1w52k9wdpk": {
-    "status": "regenerate",
-    "reasons": [
-      "english-accent"
-    ],
-    "fp": "11376-69213a7fc14666cf",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:22:49.379Z"
+    "status": "good",
+    "fp": "16272-144df11798e0a712",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:11:36.876Z"
   },
   "1w61yl1fnme": {
     "status": "good",
@@ -4769,11 +4761,10 @@
     "markedAt": "2026-11-25T18:37:40.965Z"
   },
   "1wkwnqc08m1": {
-    "status": "regenerate",
-    "note": "Hebrew accent",
-    "fp": "15984-4cf0233d6e609aea",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:30:50.234Z"
+    "status": "good",
+    "fp": "14976-0c6d166e1edd4055",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:14:05.393Z"
   },
   "1wlrwncp2jd": {
     "status": "good",
@@ -5650,10 +5641,10 @@
     "markedAt": "2026-11-25T20:31:55.817Z"
   },
   "22ukax5er9b": {
-    "status": "regenerate",
-    "fp": "17856-beeb479302046d8d",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:28:50.310Z"
+    "status": "good",
+    "fp": "19008-0daeb3a8c1c33e9b",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T09:05:11.990Z"
   },
   "22umvqfjf3n": {
     "status": "good",
@@ -6247,13 +6238,10 @@
     "at": "2026-11-05"
   },
   "294giz0weo1": {
-    "status": "regenerate",
-    "reasons": [
-      "wrong-gender"
-    ],
-    "fp": "30816-85a613461516d2c8",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:17:05.992Z"
+    "status": "good",
+    "fp": "31536-2fa45961ce742c03",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:10:38.542Z"
   },
   "2954ubwll1x": {
     "status": "good",
@@ -6428,11 +6416,10 @@
     "markedAt": "2026-11-25T18:23:22.157Z"
   },
   "2a3ybmr19f7": {
-    "status": "regenerate",
-    "note": "Hebrew accent",
-    "fp": "25056-f9e6b5af3d499e95",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:38:09.884Z"
+    "status": "good",
+    "fp": "22464-69c0d5de5ba36e57",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:16:17.248Z"
   },
   "2a5c6eszg8s": {
     "status": "good",
@@ -6755,10 +6742,10 @@
     "markedAt": "2026-11-27T22:51:31.448Z"
   },
   "2ctlibikkz1": {
-    "status": "regenerate",
-    "fp": "25776-33851f3b3da5f499",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:32:05.124Z"
+    "status": "good",
+    "fp": "25292-d26a26fbeb609aba",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T11:09:45.530Z"
   },
   "2cu3xe3sie9": {
     "status": "good",
@@ -7094,13 +7081,10 @@
     "at": "2026-11-24"
   },
   "2feninprahg": {
-    "status": "regenerate",
-    "reasons": [
-      "mispronounced"
-    ],
-    "fp": "20448-f26445bfa249e037",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:40:06.175Z"
+    "status": "good",
+    "fp": "19296-b0ed554eb6e6cf7e",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:37:16.951Z"
   },
   "2fjtv9nvxnt": {
     "status": "good",
@@ -7611,11 +7595,10 @@
     "markedAt": "2026-11-27T21:17:15.979Z"
   },
   "6lkoshchkt": {
-    "status": "regenerate",
-    "note": "hebrew accent on the english words",
-    "fp": "26064-6bd6e1d9f74d36ba",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:23:00.766Z"
+    "status": "good",
+    "fp": "20448-6e31771dac1bebf1",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:35:21.176Z"
   },
   "6mnmw1ccei": {
     "status": "good",
@@ -7726,13 +7709,10 @@
     "markedAt": "2026-11-25T17:57:52.378Z"
   },
   "7xaji22ha8": {
-    "status": "regenerate",
-    "reasons": [
-      "mispronounced"
-    ],
-    "fp": "22464-a4515ac0453533ef",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:41:03.320Z"
+    "status": "good",
+    "fp": "18864-38da6554733982af",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:37:25.327Z"
   },
   "83g0ko2f4j": {
     "status": "good",
@@ -8106,11 +8086,10 @@
     "markedAt": "2026-11-25T18:30:37.956Z"
   },
   "bn7n59suob": {
-    "status": "regenerate",
-    "note": "Count of letters in the feminine form (שמונה אותיות)",
-    "fp": "24336-61ab565320243cff",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:49:19.412Z"
+    "status": "good",
+    "fp": "30672-f3d551d830f9805f",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T09:06:31.422Z"
   },
   "bnb62zaj8y": {
     "status": "good",
@@ -8434,11 +8413,10 @@
     "markedAt": "2026-11-25T20:50:43.543Z"
   },
   "egtcxofyk4": {
-    "status": "regenerate",
-    "note": "Count of letters in the feminine form (שמונה אותיות)",
-    "fp": "23184-9ae0be009ad41086",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:47:50.398Z"
+    "status": "good",
+    "fp": "24912-95490d98cde167d4",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:17:23.507Z"
   },
   "ej6vd67twy": {
     "status": "good",
@@ -8698,11 +8676,10 @@
     "at": "2026-11-24"
   },
   "gjnzl23ivu": {
-    "status": "regenerate",
-    "note": "Male voice",
-    "fp": "6768-258688b7bbb65219",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:39:03.307Z"
+    "status": "good",
+    "fp": "4896-eb1534971c68c87d",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:16:46.200Z"
   },
   "glwy5kth85": {
     "status": "good",
@@ -8717,11 +8694,10 @@
     "markedAt": "2026-11-27T20:51:36.428Z"
   },
   "gr7hnz6lxh": {
-    "status": "regenerate",
-    "note": "Hebrew accent",
-    "fp": "15408-7206ff028fc922b7",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:27:38.855Z"
+    "status": "good",
+    "fp": "16992-45e4bcaf777b30fa",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T09:19:16.469Z"
   },
   "h0y131k6aa": {
     "status": "good",
@@ -8855,13 +8831,10 @@
     "at": "2026-11-05"
   },
   "i0hfx2xh4t": {
-    "status": "regenerate",
-    "reasons": [
-      "mispronounced"
-    ],
-    "fp": "21168-cce071b9c9b779f7",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:29:49.430Z"
+    "status": "good",
+    "fp": "16128-d28ca0aa7417253f",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T10:06:02.911Z"
   },
   "i15fgk4sze": {
     "status": "good",
@@ -9544,10 +9517,10 @@
     "at": "2026-11-24"
   },
   "nvilironrp": {
-    "status": "regenerate",
+    "status": "good",
     "fp": "19296-c3a3681ec2c0806e",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:38:20.682Z"
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:16:30.124Z"
   },
   "nxfbb5jlwb": {
     "status": "good",
@@ -10050,10 +10023,10 @@
     "markedAt": "2026-11-25T18:17:43.152Z"
   },
   "s51tnia8ct": {
-    "status": "regenerate",
-    "fp": "33264-c2e55b2342c7bd7b",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:28:40.872Z"
+    "status": "good",
+    "fp": "28368-09debd10eaa2f8f2",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:12:57.082Z"
   },
   "s98asm8rhd": {
     "status": "good",
@@ -10158,11 +10131,10 @@
     "at": "2026-11-24"
   },
   "tdl908rh36": {
-    "status": "regenerate",
-    "note": "Hebrew accent",
-    "fp": "16416-dd303f14d749b2cf",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:28:09.650Z"
+    "status": "good",
+    "fp": "17856-3a269dfddf3ffce1",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T09:39:14.917Z"
   },
   "tdlmd59lx2": {
     "status": "good",
@@ -10215,13 +10187,10 @@
     "markedAt": "2026-11-25T18:11:47.260Z"
   },
   "trz30x3y19": {
-    "status": "regenerate",
-    "reasons": [
-      "mispronounced"
-    ],
-    "fp": "9504-6649ce54dcf76f39",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:27:17.807Z"
+    "status": "good",
+    "fp": "8064-5055a615916a608f",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:12:23.123Z"
   },
   "tuihm95eod": {
     "status": "good",
@@ -10670,11 +10639,10 @@
     "markedAt": "2026-11-27T20:56:18.105Z"
   },
   "y9i6wfkv9x": {
-    "status": "regenerate",
-    "note": "Hebrew accent",
-    "fp": "16704-907346444c72cee8",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:30:58.701Z"
+    "status": "good",
+    "fp": "23040-f3ce1ed401cfcfb5",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T09:05:57.555Z"
   },
   "y9tpdk4kv2": {
     "status": "good",
@@ -10848,13 +10816,10 @@
     "markedAt": "2026-11-25T19:50:16.589Z"
   },
   "zammwpwc6c": {
-    "status": "regenerate",
-    "reasons": [
-      "mispronounced"
-    ],
-    "fp": "38736-7942ae2c0461d1c2",
-    "at": "2026-11-27",
-    "markedAt": "2026-11-27T22:18:40.834Z"
+    "status": "good",
+    "fp": "42912-c1fff2c911e1a80d",
+    "at": "2026-11-28",
+    "markedAt": "2026-11-28T06:11:17.525Z"
   },
   "zamxz53zq1": {
     "status": "good",
