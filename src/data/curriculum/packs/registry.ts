@@ -113,7 +113,8 @@ export const CONTENT_PACK_IDS = Object.keys(CONTENT_PACKS) as ContentPackId[];
  * that pack (`registry.test.ts`). To release a pack: add it here with
  * today's date (it is Pro only by default; add `access: 'free'` to open it to everyone), and add its curriculum, lessons and exam bank to `RELEASED_PACK_CURRICULA`
  * (`curriculum/loader.ts`), `RELEASED_PACK_LESSON_LOADERS` (`miniLessons.ts`) and
- * `RELEASED_PACK_EXAM_BANK_LOADERS` (`examBank.ts`). See docs/architecture.md §4.26.
+ * `RELEASED_PACK_EXAM_BANK_LOADERS` (`examBank.ts`). Its map landmarks must be drawn first, in all six
+ * art sets (`landmarkCoverage.test.ts`; docs/architecture.md §4.17). See docs/architecture.md §4.26.
  */
 export const RELEASED_CONTENT_PACKS: readonly ReleasedPack[] = [
   // Free for everyone, and new (badge, home card, reminder) through the last day of Hanukkah

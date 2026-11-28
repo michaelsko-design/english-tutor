@@ -17,8 +17,10 @@
  *   node scripts/art/renderMissionArt.mjs collect
  *   node scripts/art/renderMissionArt.mjs list <theme>             every key and whether its file exists
  *   node scripts/art/renderMissionArt.mjs prompts <theme> [key ...] print the sheet prompts, draws nothing
- * Keys: boss, chest (pairs, closed and open on one sheet), level-badge, and landmark ids (g7-u3).
- * Pictures land in art-src/common/<theme>/ and art-src/landmarks/<theme>/.
+ * Keys: boss, chest (pairs, closed and open on one sheet), level-badge, and landmark ids (g7-u3, or a
+ * seasonal pack's id such as holidays-autumn, one landmark for every grade).
+ * Pictures land in art-src/common/<theme>/ and art-src/landmarks/<theme>/; cozy-studio (the shared set)
+ * draws only new landmarks, into art-src/landmarks/ itself.
  * <theme>:<variant> (e.g. urban-night:flat) draws the same subjects in one of the theme's
  * styleVariants, into art-src/common/<theme>-<variant>/ and so on, to compare styles in a pilot.
  */
@@ -61,10 +63,15 @@ function artFolder(theme) {
   return theme.replace(':', '-');
 }
 
+/** Where a theme's pictures go under art-src/common and art-src/landmarks: Cozy's shared set (sharedSet) has no folder of its own. */
+function pictureFolder(theme) {
+  return themeSpec(theme).sharedSet ? '' : artFolder(theme);
+}
+
 /** Every picture of a theme: { key, kind, subject, path }; kind is pair, single or landmark. */
 function allJobs(theme) {
   const spec = themeSpec(theme);
-  const commonDir = join(ART_SRC, 'common', artFolder(theme));
+  const commonDir = join(ART_SRC, 'common', pictureFolder(theme));
   const pairs = Object.entries(spec.pairs).map(([key, { names, subject }]) => ({
     key,
     kind: 'pair',
@@ -81,7 +88,7 @@ function allJobs(theme) {
     key,
     kind: 'landmark',
     subject,
-    path: join(ART_SRC, 'landmarks', artFolder(theme), `${key}.png`),
+    path: join(ART_SRC, 'landmarks', pictureFolder(theme), `${key}.png`),
   }));
   return [...pairs, ...singles, ...landmarks].map((job) => ({ ...job, key: `${theme}/${job.key}` }));
 }

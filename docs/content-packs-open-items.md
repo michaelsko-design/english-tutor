@@ -21,6 +21,8 @@ Everything below was written and passed the tests, typecheck and build; it was c
 - [x] First-person slash forms ("אני אוהב/ת") stay as they are (owner, 2026-11-10).
 
 ## 2. Pictures (paid, 3×3 batch sheets): 10 sheets drawn 2026-11-10 (sheets 52–61), wired in
+
+- [ ] **Map landmarks for the core packs** (before each release; `landmarkCoverage.test.ts` fails on a released pack without them): one per grade the pack serves, in all six art sets (docs/architecture.md §4.17 "Landmarks for a new unit"). `season2-1` / `season2-2`: 12 each, `core-3` / `core-4`: 11 each, × 6 sets. The holiday packs' two shared landmarks were drawn 2026-11-28.
 All 90 are in `public/art/icons` and mapped in `iconArt.ts`. **Redraws approved 2026-11-10 (sheet 62, `-2` ids):** lost, keep, thirsty, full, fill (drawn on a coloured tile), once, don't forget (coloured circle behind), nationality (the passport shows the word "PASSPORT"). Drawn and wired in (the old pictures are deleted). The new passport still had "PASSPORT" on it, so the word was painted out by hand in `art-src/icons/word-nationality-2.png`: re-slicing sheet 62 brings it back, so don't re-run `process_art.py` on that icon from a fresh slice.
 Each word now has its own emoji key (pictures are looked up by emoji). 90 pictures: the 57 required (minus "across", which keeps its bridge picture), 23 optional grades 7–12 (croissant already had one), and 10 core-3 deck words (noise, ground, keep, bottle, thirsty, full, yogurt, jam, grill, fill). Other grade 4–6 deck words without a fitting picture: fat, brown, Do you mind?, would like, anything else, half-price, order, extra, cover, add, lovely, pleasant.
 

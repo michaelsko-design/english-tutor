@@ -96,6 +96,9 @@ export const MISSION_ART_THEMES = {
       'g12-u2': 'The Bagrut Opinion Essay: a fountain pen lying on a lined page with blank lines, beside a short stack of drafts.',
       'g12-u3': "Author's Tone & Unseen Texts: a magnifying glass over a page with one highlighted line, beside a round dial knob.",
       'g12-u4': 'Global Horizons & Professional Future: an open laptop with a small globe and a blank lanyard ID badge beside it.',
+      // The holiday packs share one landmark per pack in every grade (getUnitLandmarkArt in src/themes/themeArt.ts)
+      'holidays-autumn': 'Autumn & Winter Holidays: a small glass jar of honey with a red apple beside it, a lit nine-branch candle holder with small candles, and a tiny model of a palm-leaf-roofed hut.',
+      'holidays-spring': 'Spring & Summer Holidays: a small potted sapling with pink blossoms, a paper party crown lying beside it, and a little bundle of golden wheat stalks.',
     },
   },
 
@@ -188,6 +191,9 @@ export const MISSION_ART_THEMES = {
       'g12-u2': 'The Bagrut Opinion Essay: a speaker’s corner: a wooden crate with a megaphone on it, in front of a wall with a giant fountain pen mural.',
       'g12-u3': "Author's Tone & Unseen Texts: a record shop front with a big volume dial picture on its sign and a magnifying glass picture in the window.",
       'g12-u4': 'Global Horizons & Professional Future: an office tower entrance with a globe sculpture in front and lit amber windows above.',
+      // The holiday packs share one landmark per pack in every grade (getUnitLandmarkArt in src/themes/themeArt.ts)
+      'holidays-autumn': 'Autumn & Winter Holidays: a little street hut with a roof of green palm branches and strings of warm lights, a crate of red apples and a honey jar in front, and a lit nine-branch candle holder glowing in its window.',
+      'holidays-spring': 'Spring & Summer Holidays: a street corner with a young blossoming tree in a planter, a string of blue-and-white striped pennants above, a party crown and a bundle of golden wheat on a bench in front.',
     },
   },
 
@@ -280,6 +286,9 @@ export const MISSION_ART_THEMES = {
       'g12-u2': 'The Bagrut Opinion Essay: a writer’s desk set out on a seaside terrace, with a fountain pen, a blank lined page and a stack of drafts.',
       'g12-u3': "Author's Tone & Unseen Texts: a music shop by a canal with a big volume dial picture on its sign and a magnifying glass picture in the window.",
       'g12-u4': 'Global Horizons & Professional Future: a modern glass terminal building with a big globe sculpture in front and a plane taking off above it.',
+      // The holiday packs share one landmark per pack in every grade (getUnitLandmarkArt in src/themes/themeArt.ts)
+      'holidays-autumn': 'Autumn & Winter Holidays: a little hut with a roof of green palm branches and hanging fruit on its grassy base, a basket of red apples with a honey jar in front, and a lit nine-branch candle holder on a small table beside it.',
+      'holidays-spring': 'Spring & Summer Holidays: a young tree with pink blossoms on its grassy base, a picnic blanket with a basket, a party crown and a bundle of golden wheat in front, and a string of blue-and-white striped pennants from the tree.',
     },
   },
 
@@ -372,6 +381,9 @@ export const MISSION_ART_THEMES = {
       'g12-u2': 'The Bagrut Opinion Essay: a speaker’s soapbox with a megaphone on it, in front of a big billboard showing a fountain pen picture.',
       'g12-u3': "Author's Tone & Unseen Texts: a DJ booth with a big volume dial on its front and a magnifying glass picture on its banner.",
       'g12-u4': 'Global Horizons & Professional Future: a modern tower entrance on its base with a globe sculpture in front, lit windows and a small toy-like plane on a pole on its roof. No sky, no night backdrop and no panel behind it: plain white all around.',
+      // The holiday packs share one landmark per pack in every grade (getUnitLandmarkArt in src/themes/themeArt.ts)
+      'holidays-autumn': 'Autumn & Winter Holidays: a little stage hut on its base with a roof of green palm branches and strings of glowing lights, a honey jar and a red apple in front, and a lit nine-branch candle holder glowing at its side. No sky, no night backdrop and no panel behind it: plain white all around.',
+      'holidays-spring': 'Spring & Summer Holidays: a rooftop party on its base with a young tree in pink blossom, a string of blue-and-white striped pennants, a sparkly party crown and a bundle of golden wheat in front. No sky, no night backdrop and no panel behind it: plain white all around.',
     },
   },
 
@@ -464,6 +476,28 @@ export const MISSION_ART_THEMES = {
       'g12-u2': 'The Bagrut Opinion Essay: a writing desk under a star-tree with a quill pen, a blank scroll and a stack of drafts.',
       'g12-u3': "Author's Tone & Unseen Texts: a music pavilion with a big volume dial on a stand and a magnifying glass picture on its banner.",
       'g12-u4': 'Global Horizons & Professional Future: a tall academy spire with a globe sculpture in front and lit windows above.',
+      // The holiday packs share one landmark per pack in every grade (getUnitLandmarkArt in src/themes/themeArt.ts)
+      'holidays-autumn': 'Autumn & Winter Holidays: a little hut with a roof of green palm branches and hanging fruit, a honey jar and a red apple in front, and a lit nine-branch candle holder glowing beside it.',
+      'holidays-spring': 'Spring & Summer Holidays: a young tree in pink blossom with a string of blue-and-white striped pennants, a golden party crown and a bundle of golden wheat in front of it.',
+    },
+  },
+  // Cozy's shared set (missionArtFolder null): only the landmarks added after the first set was drawn
+  // by hand; they go to art-src/landmarks/ like the rest of the shared set (sharedSet).
+  'cozy-studio': {
+    sharedSet: true,
+    style: [
+      'Cute, chunky 2.5D illustration for an English-learning app for children (ages 6–12), like a cosy mobile game diorama: a small scene on its own round floating base of soft green grass with a rounded edge, seen from a three-quarter angle from above, with rounded soft shapes, smooth soft shading and a few small highlights.',
+      'Palette: pastel pink #F9A8C8, peach #FBC4A0, lavender purple #A78BFA, deep purple #6D4AA8, soft mint grass #7CCB9A, warm cream #FFF4E6 for light areas (never pure white) and a little sunny yellow. A thick, even dark plum outline #3B2A4A closes every shape.',
+      'Friendly and sweet: small flowers and tufts of grass on the base, no faces on objects.',
+    ].join('\n'),
+    landmarkIdea:
+      'Each picture is one small diorama on its own round grass base: one building or object that shows the unit topic, with one or two small things around it on the grass.',
+    pairs: {},
+    singles: {},
+    landmarks: {
+      // The holiday packs share one landmark per pack in every grade (getUnitLandmarkArt in src/themes/themeArt.ts)
+      'holidays-autumn': 'Autumn & Winter Holidays: a little hut with a roof of green palm branches and hanging fruit, a honey jar and a red apple in front, and a lit nine-branch candle holder beside it.',
+      'holidays-spring': 'Spring & Summer Holidays: a young tree in pink blossom with a string of blue-and-white striped pennants, a party crown and a small bundle of golden wheat on the grass in front.',
     },
   },
 };

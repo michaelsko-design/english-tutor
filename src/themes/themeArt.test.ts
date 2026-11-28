@@ -70,6 +70,15 @@ describe('getUnitLandmarkArt', () => {
     expect(getUnitLandmarkArt(SHARED, 1, units[9]).full).toBe('/art/landmarks/g1-u4.webp');
   });
 
+  it("gives a seasonal pack's unit the pack's one landmark in every grade", () => {
+    const holidayUnit = (grade: number) => ({ unitNumber: 5, missions: [{ id: `g${grade}-u31-m1` }] });
+    expect(getUnitLandmarkArt(SHARED, 4, holidayUnit(4)).full).toBe('/art/landmarks/holidays-autumn.webp');
+    expect(getUnitLandmarkArt(FOCUS, 9, holidayUnit(9)).small).toBe('/art/landmarks/focus-desk/holidays-autumn@256.webp');
+    expect(getUnitLandmarkArt(SHARED, 2, { unitNumber: 6, missions: [{ id: 'g2-u32-m1' }] }).full).toBe(
+      '/art/landmarks/holidays-spring.webp'
+    );
+  });
+
   it('falls back to the unit place when the unit has no mission id to read', () => {
     expect(getUnitLandmarkArt(SHARED, 7, { unitNumber: 3, missions: [] }).full).toBe('/art/landmarks/g7-u3.webp');
     expect(getUnitLandmarkArt(SHARED, 7, { unitNumber: 3, missions: [{ id: 'odd-id' }] }).full).toBe(
