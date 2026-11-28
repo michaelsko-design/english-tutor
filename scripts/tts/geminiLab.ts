@@ -111,7 +111,24 @@ export function labSegments(variant: LabVariant, clipText: string): string[] {
   if (variant === 'niqqud' || variant === 'flash-niqqud' || variant === 'pro25-niqqud') return [applyLabSpellings(spoken)];
   if (variant === 'sentences') return splitLine(spoken, false);
   const voweled = applyLabSpellings(spoken);
-  return splitLine(voweled, variant === 'runs-niqqud');
+  const segments = splitLine(voweled, variant === 'runs-niqqud');
+  return variant === 'runs-niqqud' ? segments.map(asLonePiece) : segments;
+}
+
+/**
+ * An English piece said alone needs none of the respellings made for English inside Hebrew
+ * (2026-11-28, by ear): alone, "zeebra" came out spelled and "Ar,?" as the Hebrew letter א, while
+ * "zebra", the bare capital "Z." and "Ar?" are said as English.
+ */
+const LONE_PIECE_SPELLINGS: readonly [RegExp, string][] = [
+  [/(?<![A-Za-z])zeebra(?![A-Za-z])/g, 'zebra'],
+  [/^Zed([.]?)$/, 'Z.'],
+  [/^Ar,\?$/, 'Ar?'],
+];
+
+function asLonePiece(segment: string): string {
+  if (HEBREW.test(segment)) return segment;
+  return LONE_PIECE_SPELLINGS.reduce((text, [pattern, spelled]) => text.replace(pattern, spelled), segment);
 }
 
 export type LabClass = 'mixed' | 'short' | 'other';

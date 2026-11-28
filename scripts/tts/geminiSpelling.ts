@@ -198,13 +198,13 @@ const LEAD_WORD_SPELLINGS: Readonly<Record<string, string>> = { yawn: 'yon' };
 
 /**
  * Whole lines sent rewritten, from the 2026-11-28 review: "ו" (the gloss of "and") came out in a
- * male voice; "a:" alone sounded odd; "pot" in a Hebrew accent sounds like a rude Hebrew word;
+ * male voice; "a:" alone sounded odd (said by the letter's name, the owner's choice); "pot" in a Hebrew accent sounds like a rude Hebrew word;
  * "(נמצא)" misled the reading; קרא was read as past tense. The screen keeps the line as written.
  */
 const LINE_SPELLINGS: Readonly<Record<string, string>> = {
   ו: 've',
   'בוס: ציד אוצרות בגן': 'הבוס: ציד אוצרות בגן.',
-  'לפני דבר אחד צריך להגיד a: a bag.': 'לפני דבר אחד צריך להגיד "uh", a bag.',
+  'לפני דבר אחד צריך להגיד a: a bag.': 'לפני דבר אחד צריך להגיד Ay: a bag.',
   'זה pot.': 'זה paht.',
   'הוא / היא (נמצא)': 'הוא או היא.',
   'קרא את הסיפור הקצר. מה גדול?': 'קְרָא את הסיפור הקצר. מה גדול?',
