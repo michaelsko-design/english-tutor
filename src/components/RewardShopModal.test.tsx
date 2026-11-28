@@ -144,6 +144,41 @@ describe('RewardShopModal', () => {
     expect(screen.getByText(/המטרה הבאה/)).toBeInTheDocument();
   });
 
+  it('shows how close the next goal is as a progress bar', () => {
+    renderShop({ diamonds: 0 });
+
+    const goalBar = screen.getAllByRole('progressbar', { name: /^התקדמות אל/ })[0];
+    expect(goalBar).toHaveAttribute('aria-valuenow', '0');
+    expect(Number(goalBar.getAttribute('aria-valuemax'))).toBeGreaterThan(0);
+  });
+
+  it('keeps a locked item readable, with its progress and the diamonds still missing', () => {
+    const item = paidAvatar();
+    renderShop({ diamonds: item.costDiamonds - 5 });
+
+    const card = within(cardOf(item));
+    expect(card.getByRole('progressbar')).toHaveAttribute('aria-valuenow', String(item.costDiamonds - 5));
+    expect(card.getByRole('button')).toHaveTextContent('חסרים עוד 5');
+  });
+
+  it('marks the chosen category tab as pressed', async () => {
+    renderShop();
+
+    const stickers = screen.getByRole('button', { name: 'אלבום מדבקות' });
+    await userEvent.click(stickers);
+
+    expect(stickers).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'הכל' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('does not put the mystery boxes first: the cheapest item for sale leads the shelf', () => {
+    renderShop({ diamonds: 0 });
+
+    const titles = screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent);
+    const firstBox = titles.findIndex((title) => title?.includes('קופסת הפתעה'));
+    expect(firstBox).toBeGreaterThan(0);
+  });
+
   it('closes on Escape and on the close button', async () => {
     const { onClose } = renderShop();
 
