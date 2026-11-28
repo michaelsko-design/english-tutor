@@ -7,7 +7,8 @@
  *   English one).
  * - sentences-niqqud: both.
  * - runs-niqqud: also a clip per English run, so each Hebrew piece is read alone.
- * A winning way is promoted: its words move to GEMINI_SPELLINGS, its split into the render.
+ * A winning way is promoted: its words move to GEMINI_SPELLINGS, its split into the render (runs-niqqud
+ * became hebrewSplitLines.ts, 2026-11-28).
  */
 import { toGeminiText } from './geminiSpelling';
 
@@ -26,9 +27,16 @@ export const MODEL_LAB_MODELS: Readonly<Record<ModelVariant, string>> = {
   'pro25-niqqud': 'gemini-2.5-pro-preview-tts',
 };
 export const MODEL_LAB_VARIANTS = Object.keys(MODEL_LAB_MODELS) as ModelVariant[];
+/**
+ * Accent lab (2026-11-28): English words and letters in a Hebrew line came out in a Hebrew accent
+ * ("באות R", zebra, zipper). Each English run as its own clip fixed it by ear. Ruled out: a style
+ * instruction (the TTS model refuses a system instruction, "invalid argument"; written before the
+ * line, it is read aloud).
+ */
+export const ACCENT_LAB_VARIANTS: readonly LabVariant[] = ['runs-niqqud'];
+
 const ALL_LAB_VARIANTS: readonly LabVariant[] = [...LAB_VARIANTS, ...MODEL_LAB_VARIANTS];
-/** Silence between the clips of one line. */
-export const LAB_GAP_MS = 180;
+/** The pieces of a lab line are joined as a split line's are (stitchPieces, hebrewSplitLines.ts). */
 export const LAB_TAKE_PREFIX = 'lab-';
 
 /** Words flagged by ear in the review (2026-10), in the form Gemini should read them. Now also in GEMINI_SPELLINGS, so every render applies them. */
@@ -56,7 +64,8 @@ const SENTENCE_END = /[.!?:]["”')]*$/;
 const DASH_ONLY = /^[—–-]+$/;
 
 export function applyLabSpellings(text: string): string {
-  const pattern = new RegExp(`(?<![${HEBREW_LETTER}])(${Object.keys(LAB_SPELLINGS).join('|')})(?![${HEBREW_LETTER}])`, 'g');
+  // Not a word that already has niqqud (toGeminiText may have voweled it): "זוֹ" became "זוֹֹ"
+  const pattern = new RegExp(`(?<![${HEBREW_LETTER}])(${Object.keys(LAB_SPELLINGS).join('|')})(?![${HEBREW_LETTER}]|\\p{M})`, 'gu');
   return text.replace(pattern, (word) => LAB_SPELLINGS[word] ?? word);
 }
 
@@ -98,7 +107,23 @@ export function labSegments(variant: LabVariant, clipText: string): string[] {
   if (variant === 'niqqud' || variant === 'flash-niqqud' || variant === 'pro25-niqqud') return [applyLabSpellings(spoken)];
   if (variant === 'sentences') return splitLine(spoken, false);
   const voweled = applyLabSpellings(spoken);
-  return splitLine(voweled, variant === 'runs-niqqud');
+  const segments = splitLine(voweled, variant === 'runs-niqqud');
+  return variant === 'runs-niqqud' ? segments.map(asLonePiece) : segments;
+}
+
+/**
+ * An English piece said alone needs none of the respellings made for English inside Hebrew
+ * (2026-11-28, by ear): alone, "zeebra" came out spelled and "Ar,?" as the Hebrew letter א; "Z." is
+ * said "zee" (the app says "Zed"). Being tried: "zebra", "Zed" and the small "r".
+ */
+const LONE_PIECE_SPELLINGS: readonly [RegExp, string][] = [
+  [/(?<![A-Za-z])zeebra(?![A-Za-z])/g, 'zebra'],
+  [/^Ar,?([.?]?)$/, 'r$1'],
+];
+
+function asLonePiece(segment: string): string {
+  if (HEBREW.test(segment)) return segment;
+  return LONE_PIECE_SPELLINGS.reduce((text, [pattern, spelled]) => text.replace(pattern, spelled), segment);
 }
 
 export type LabClass = 'mixed' | 'short' | 'other';

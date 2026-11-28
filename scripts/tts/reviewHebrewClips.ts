@@ -10,22 +10,30 @@
  * then open this page again: the Compare tab plays the current and the new take. "New is better"
  * replaces the clip (and bumps its revision, src/services/tts/clipRevisions.ts); the page then
  * reminds you to run  npm run tts:upload -- --force  and commit.
+ * On the phone: `npm run tts:review:he -- sync` sends the lines and marks to the online page and takes
+ * the marks made there (docs/hebrew-review-phone.md); this page also syncs after every mark.
+ * The "Cut line clips" list holds the clips cut before a shared closer; each plays alone, with its full
+ * lines (opener + clip + closer) shown below it to play on request (L).
  */
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { join } from 'node:path';
-import { getClipText, HEBREW_CLOSERS, HEBREW_OPENERS, HEBREW_SHARED_MIDDLES, HEBREW_VOICE } from '../../src/services/tts/ttsText';
+import { HEBREW_VOICE } from '../../src/services/tts/ttsText';
 import { bumpClipRevisions, unbumpClipRevisions } from './clipRevisions';
-import { collectCorpus } from './corpus';
 import { toGeminiText } from './geminiSpelling';
 import { getVoiceDir } from './clipManifest';
-import { buildWholeLines } from './wholeLines';
+import { buildReviewCatalog, byWalkOrder } from './hebrewReviewCatalog';
 import { getReviewDirs } from './hebrewReviewPaths';
-import { buildReviewPlaces, REVIEW_GROUPS } from './hebrewReviewOrder';
+import { loadSplitLines, saveSplitLines, withChosenTake } from './hebrewSplitLines';
+import { REVIEW_GROUPS } from './hebrewReviewOrder';
+import { createCoalescedRunner, syncMarks } from './hebrewReviewSync';
+import { createCloudClient, readCloudConfig } from './reviewCloudClient';
+import { publishSnapshot, runCloudCommand } from './reviewCloudCommands';
 import {
   candidatePath,
   clipPath,
   decideCandidate,
+  DEFAULT_TAKE,
   isTakeName,
   listReviewItems,
   listUndoable,
@@ -42,25 +50,27 @@ import {
 } from './hebrewReviewState';
 
 const HOST = '127.0.0.1';
-const PORT = 5290;
+/** PORT is set by a preview that found 5290 taken. */
+const PORT = Number(process.env.PORT) || 5290;
 const MAX_BODY_BYTES = 4096;
 const DECISIONS: readonly ReviewDecision[] = ['new', 'old', 'again'];
 const STATUSES: readonly (ReviewStatus | null)[] = ['good', 'regenerate', null];
 const PAGE_PATH = join(process.cwd(), 'scripts', 'tts', 'reviewPage.html');
+const SHARED_SCRIPT_PATH = join(process.cwd(), 'scripts', 'tts', 'reviewWorker', 'public', 'reviewShared.js');
 
 const dirs = getReviewDirs();
-const phrases = collectCorpus(HEBREW_VOICE);
-const places = buildReviewPlaces();
-const LAST_RANK = Number.MAX_SAFE_INTEGER;
+const catalog = buildReviewCatalog();
+const { phrases, wholeLines } = catalog;
 const knownKeys = new Set(phrases.map((phrase) => phrase.key));
-/** The text exactly as Gemini was given it: niqqud on the words that read by the listener's gender. */
-const spokenByKey = new Map(phrases.map((phrase) => [phrase.key, toGeminiText(phrase.text)]));
-/** The shared openers and closers ("מעולה!", "נסי שוב!", …) are heard in hundreds of lines, so they get their own group, first in the walk. */
-const OPENER_TEXTS: ReadonlySet<string> = new Set(
-  [...HEBREW_OPENERS, ...HEBREW_SHARED_MIDDLES, ...HEBREW_CLOSERS].map((part) => getClipText(part)),
-);
-const OPENER_RANK = -1;
-const isOpenerClip = (text: string): boolean => OPENER_TEXTS.has(getClipText(text.replace(/^\[to:(?:girl|boy)\] /, '')));
+const phraseByKey = new Map(phrases.map((phrase) => [phrase.key, phrase]));
+
+const config = readCloudConfig();
+const cloud = config ? createCloudClient(config) : null;
+const warnSync = (error: unknown): void => console.warn(`Phone sync failed (marks are safe on this PC): ${error instanceof Error ? error.message : String(error)}`);
+/** Sends the marks to the phone page and takes its marks; never holds up a click. */
+const syncInBackground = createCoalescedRunner(async () => {
+  if (cloud) await syncMarks(cloud, dirs);
+}, warnSync);
 
 function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
@@ -92,7 +102,6 @@ function parseDetail(body: Record<string, unknown>): ReviewDetail {
   return { reasons: [...new Set(reasons)], note };
 }
 
-const wholeLines = buildWholeLines();
 const englishPartKeys = new Set(wholeLines.flatMap((line) => line.parts.filter((part) => part.voice === 'en').map((part) => part.key)));
 const MAX_LINE_MATCHES = 30;
 
@@ -133,17 +142,8 @@ async function handleApi(req: IncomingMessage, res: ServerResponse, url: URL): P
   if (url.pathname === '/api/clips') {
     // The walk order: general lines, core units, the Pro tail, then the packs; unplaced lines last
     const items = listReviewItems(phrases, loadState(dirs.statePath), dirs)
-      .map((item) => {
-        const isOpener = isOpenerClip(item.text);
-        return {
-          ...item,
-          spoken: spokenByKey.get(item.key) ?? item.text,
-          group: isOpener ? 'opener' : (places.get(item.key)?.group ?? 'other'),
-          where: isOpener ? 'opener' : (places.get(item.key)?.label ?? ''),
-          rank: isOpener ? OPENER_RANK : (places.get(item.key)?.rank ?? LAST_RANK),
-        };
-      })
-      .sort((a, b) => a.rank - b.rank || a.text.localeCompare(b.text));
+      .map((item) => ({ ...item, ...catalog.describe(phraseByKey.get(item.key) ?? item) }))
+      .sort(byWalkOrder);
     return sendJson(res, 200, { items, groups: [...REVIEW_GROUPS, 'opener'], reasons: REVIEW_REASONS, maxNote: MAX_NOTE_LENGTH, undoable: listUndoable(dirs) });
   }
   const body = await readBody(req);
@@ -154,6 +154,7 @@ async function handleApi(req: IncomingMessage, res: ServerResponse, url: URL): P
     const status = (body.status ?? null) as ReviewStatus | null;
     if (!STATUSES.includes(status)) return sendJson(res, 400, { error: 'Bad status.' });
     saveState(dirs.statePath, markClip(dirs, state, key, status, parseDetail(body)));
+    void syncInBackground();
     return sendJson(res, 200, { ok: true });
   }
   if (url.pathname === '/api/decide') {
@@ -161,14 +162,20 @@ async function handleApi(req: IncomingMessage, res: ServerResponse, url: URL): P
     if (!DECISIONS.includes(decision)) return sendJson(res, 400, { error: 'Bad decision.' });
     const take = typeof body.take === 'string' && isTakeName(body.take) ? body.take : undefined;
     const result = decideCandidate(dirs, state, key, decision, take);
-    if (result.isReplaced) bumpClipRevisions(HEBREW_VOICE, [key]);
+    if (result.isReplaced) {
+      bumpClipRevisions(HEBREW_VOICE, [key]);
+      // The split take won: later renders of the line split it too; a whole take won: they do not
+      saveSplitLines(withChosenTake(loadSplitLines(), key, phraseByKey.get(key)?.text ?? '', take ?? DEFAULT_TAKE));
+    }
     saveState(dirs.statePath, result.state);
+    void syncInBackground();
     return sendJson(res, 200, { ok: true, isReplaced: result.isReplaced });
   }
   if (url.pathname === '/api/undo') {
     const result = undoDecision(dirs, state, key);
     if (result.wasReplaced) unbumpClipRevisions(HEBREW_VOICE, [key]);
     saveState(dirs.statePath, result.state);
+    void syncInBackground();
     return sendJson(res, 200, { ok: true, wasReplaced: result.wasReplaced });
   }
   return sendJson(res, 404, { error: 'Not found.' });
@@ -187,6 +194,10 @@ const server = createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
     return void res.end(readFileSync(PAGE_PATH));
   }
+  if (url.pathname === '/reviewShared.js') {
+    res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
+    return void res.end(readFileSync(SHARED_SCRIPT_PATH));
+  }
   if (url.pathname.startsWith('/clip/')) return sendClip(res, url);
   if (url.pathname.startsWith('/api/')) {
     handleApi(req, res, url).catch((error: unknown) => {
@@ -197,4 +208,21 @@ const server = createServer((req, res) => {
   sendJson(res, 404, { error: 'Not found.' });
 });
 
-server.listen(PORT, HOST, () => console.log(`Hebrew clip review: http://localhost:${PORT}  (Ctrl+C to stop; marks are saved as you go)`));
+function startServer(): void {
+  server.listen(PORT, HOST, () => {
+    console.log(`Hebrew clip review: http://localhost:${PORT}  (Ctrl+C to stop; marks are saved as you go)`);
+    if (!cloud) return console.log('Phone review is not set up (docs/hebrew-review-phone.md): marks stay on this PC.');
+    // Phone marks first, so the page opens with them; the snapshot for the phone can take a while
+    void syncInBackground().then(() => publishSnapshot(cloud, catalog)).catch(warnSync);
+  });
+}
+
+const [command] = process.argv.slice(2).filter((arg) => arg !== '--');
+if (command) {
+  runCloudCommand(command, catalog).catch((error: unknown) => {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  });
+} else {
+  startServer();
+}

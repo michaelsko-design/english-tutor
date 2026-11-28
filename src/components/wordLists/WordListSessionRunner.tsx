@@ -300,6 +300,7 @@ export const WordListSessionRunner: React.FC<WordListSessionRunnerProps> = ({
           <VoiceSpeakDrill
             targetEn={step.textEn}
             targetHe={step.translationHe}
+            canHearTargetHe
             speechEval={speechEval}
             isListening={speech.isListening}
             isStarting={speech.isStarting}

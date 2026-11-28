@@ -8,13 +8,9 @@
  * - a few words it misreads get niqqud too (ובחרי as uvhari, לחץ as lahetz).
  * Azure's IPA list (api/_lib/hebrewPronunciation.ts) stays for the online voice.
  */
-import { LISTENER_GENDERED_WORDS, parseListenerGender } from '../../src/services/tts/ttsText';
+import { LISTENER_GENDERED_WORDS, parseListenerGender, SPEAKER_GENDERED, SPEAKER_GENDERED_VERBS, type ListenerGender } from '../../src/services/tts/ttsText';
 
-/**
- * The words of LISTENER_GENDERED_WORDS, plus רואה: in a line said to the learner, "אני רואה" is the
- * learner speaking ("קראת משפט שלם: 'אני רואה תרנגולת'"), so it takes their form too.
- */
-type GenderedWord = (typeof LISTENER_GENDERED_WORDS)[number] | 'רואה';
+type GenderedWord = (typeof LISTENER_GENDERED_WORDS)[number];
 
 /** A girl's form of each word that reads by gender. */
 export const GEMINI_GIRL_FORMS: Record<GenderedWord, string> = {
@@ -28,9 +24,12 @@ export const GEMINI_GIRL_FORMS: Record<GenderedWord, string> = {
   דילגת: 'דִּילַגְתְּ',
   אותך: 'אוֹתָךְ',
   שלך: 'שֶׁלָּךְ',
+  לך: 'לָךְ',
+  שלומך: 'שְׁלוֹמֵךְ',
+  איתך: 'אִיתָּךְ',
+  בשבילך: 'בִּשְׁבִילֵךְ',
   // "Great!" is feminine (me'ula) for a girl and masculine (me'ule) for a boy
   מעולה: 'מְעֻלָּה',
-  רואה: 'רוֹאָה',
 };
 
 /** A boy's form: without niqqud Gemini sometimes says the girl's (בנית as banit). */
@@ -43,9 +42,29 @@ export const GEMINI_BOY_FORMS: Record<GenderedWord, string> = {
   דילגת: 'דִּילַגְתָּ',
   אותך: 'אוֹתְךָ',
   שלך: 'שֶׁלְּךָ',
+  לך: 'לְךָ',
+  שלומך: 'שְׁלוֹמְךָ',
+  איתך: 'אִיתְּךָ',
+  בשבילך: 'בִּשְׁבִילְךָ',
   מעולה: 'מְעֻלֶּה',
-  רואה: 'רוֹאֶה',
 };
+
+/**
+ * The verbs of SPEAKER_GENDERED_VERBS in a girl's and a boy's form, said after "אני": the learner is
+ * the one saying "I" ("קראת משפט שלם: 'אני רואה תרנגולת'"). After a name ("נועה רואה") they stay as written.
+ */
+export const GEMINI_SPEAKER_FORMS: Record<(typeof SPEAKER_GENDERED_VERBS)[number], Record<ListenerGender, string>> = {
+  רואה: { girl: 'רוֹאָה', boy: 'רוֹאֶה' },
+  שותה: { girl: 'שׁוֹתָה', boy: 'שׁוֹתֶה' },
+  רוצה: { girl: 'רוֹצָה', boy: 'רוֹצֶה' },
+  משקה: { girl: 'מַשְׁקָה', boy: 'מַשְׁקֶה' },
+  מכה: { girl: 'מַכָּה', boy: 'מַכֶּה' },
+  מחכה: { girl: 'מְחַכָּה', boy: 'מְחַכֶּה' },
+  שוחה: { girl: 'שׂוֹחָה', boy: 'שׂוֹחֶה' },
+};
+
+const withSpeakerForms = (text: string, gender: ListenerGender): string =>
+  text.replace(SPEAKER_GENDERED, (_match, lead: string, verb: keyof typeof GEMINI_SPEAKER_FORMS) => lead + GEMINI_SPEAKER_FORMS[verb][gender]);
 
 /** Words Gemini misreads without niqqud, for every listener. Add one only after hearing it wrong. */
 export const GEMINI_SPELLINGS: Readonly<Record<string, string>> = {
@@ -60,6 +79,7 @@ export const GEMINI_SPELLINGS: Readonly<Record<string, string>> = {
   בבוס: 'בְּבּוֹס',
   // Heard wrong in the 2026-10 review, and right once voweled (the listening lab, scripts/tts/geminiLab.ts)
   קראי: 'קִרְאִי',
+  וחשבי: 'וְחִשְׁבִי',
   קראו: 'קִרְאוּ',
   וקראי: 'וְקִרְאִי',
   אמרו: 'אִמְרוּ',
@@ -72,6 +92,15 @@ export const GEMINI_SPELLINGS: Readonly<Record<string, string>> = {
   לימון: 'לִימוֹן',
   תרנגולת: 'תַּרְנְגֹלֶת',
   זו: 'זוֹ',
+  // Heard wrong in the 2026-11 review (איזו מילה באנגלית פירושה מחבט)
+  מחבט: 'מַחְבֵּט',
+  // Goat (ez), said "az" (strong) in the 2026-11 review; in grades 1–2 עז is always the goat
+  עז: 'עֵז',
+  // Heard wrong in the 2026-11-27 review: egg (not bitza), shell, mouth, and "emor" (say)
+  ביצה: 'בֵּיצָה',
+  צדף: 'צֶדֶף',
+  פה: 'פֶּה',
+  אמור: 'אֱמוֹר',
 };
 
 /**
@@ -84,6 +113,18 @@ export const GEMINI_FULL_NIQQUD: Readonly<Record<string, string>> = {
 };
 
 const TRAILING_PUNCTUATION = /[\s:.!?]*$/;
+
+/**
+ * אות is feminine, so a count of letters is said in the feminine form: "8 אותיות" came out shmona
+ * (2026-11-27 review), it is shmone.
+ */
+const FEMININE_NUMBERS: Readonly<Record<string, string>> = {
+  '2': 'שְׁתֵּי', '3': 'שָׁלוֹשׁ', '4': 'אַרְבַּע', '5': 'חָמֵשׁ', '6': 'שֵׁשׁ', '7': 'שֶׁבַע', '8': 'שְׁמוֹנֶה', '9': 'תֵּשַׁע',
+  '10': 'עֶשֶׂר', '11': 'אַחַת עֶשְׂרֵה', '12': 'שְׁתֵּים עֶשְׂרֵה',
+};
+
+const sayLetterCountFeminine = (text: string): string =>
+  text.replace(/(?<![\d])(\d{1,2}) אותיות/g, (match, count: string) => (FEMININE_NUMBERS[count] ? `${FEMININE_NUMBERS[count]} אותיות` : match));
 
 function applyFullNiqqud(text: string): string {
   const punctuation = TRAILING_PUNCTUATION.exec(text)?.[0] ?? '';
@@ -155,17 +196,49 @@ function sayLoneLettersByName(text: string): string {
  */
 const LEAD_WORD_SPELLINGS: Readonly<Record<string, string>> = { yawn: 'yon' };
 
+/**
+ * Whole lines sent rewritten, from the 2026-11-28 review: "ו" (the gloss of "and") came out in a
+ * male voice; "a: a bag" confused it (said without the example, "a" by the letter's name, the owner's choice); "pot" in a Hebrew accent sounds like a rude Hebrew word;
+ * "(נמצא)" misled the reading; קרא was read as past tense. The screen keeps the line as written.
+ */
+const LINE_SPELLINGS: Readonly<Record<string, string>> = {
+  ו: 've',
+  'בוס: ציד אוצרות בגן': 'הבוס: ציד אוצרות בגן.',
+  'לפני דבר אחד צריך להגיד a: a bag.': 'לפני דבר אחד אומרים "אֵיי".',
+  'זה pot.': 'זה paht.',
+  'הוא / היא (נמצא)': 'הוא או היא.',
+  // The letter's name in Hebrew letters, as "אֵיי" above: split into English pieces it did not sound natural
+  'זו האות Z. Z כמו zebra': 'זוֹ האות זֶד. זֶד כמו zebra.',
+  'קרא את הסיפור הקצר. מה גדול?': 'קְרָא את הסיפור הקצר. מה גדול?',
+};
+
+/** English words in a Hebrew line said with a Hebrew sound, spelled by their sound (2026-11-28 review). */
+const ENGLISH_IN_HEBREW_SPELLINGS: Readonly<Record<string, string>> = { zebra: 'zeebra' };
+const ENGLISH_IN_HEBREW = new RegExp(`(?<![A-Za-z])(${Object.keys(ENGLISH_IN_HEBREW_SPELLINGS).join('|')})(?![A-Za-z])`, 'g');
+
+/**
+ * The letter R ("Ar") came out in a Hebrew accent before Hebrew words (2026-11-28 review): a comma
+ * after it gives it a pause, in place of a full stop right after it.
+ */
+const R_NAME = /(?<![A-Za-z])Ar(?![A-Za-z,])\.?/g;
+
+const sayEnglishInHebrew = (text: string): string =>
+  text.replace(ENGLISH_IN_HEBREW, (word) => ENGLISH_IN_HEBREW_SPELLINGS[word] ?? word).replace(R_NAME, 'Ar,');
+
 /** A Hebrew clip's text (maybe tagged `[to:girl] …`) as Gemini reads it. */
+
 export function toGeminiText(clipText: string): string {
   const { gender, text } = parseListenerGender(clipText);
+  if (LINE_SPELLINGS[text]) return LINE_SPELLINGS[text];
   // An English lead word said alone (splitEnglishLead): bare, as picked by ear
   if (!/[א-ת]/.test(text)) return LEAD_WORD_SPELLINGS[text] ?? text;
   const forms = gender === 'girl' ? GEMINI_GIRL_FORMS : gender === 'boy' ? GEMINI_BOY_FORMS : null;
-  const paired = sayLoneLettersByName(sayLetterPairOnce(dropNumeralBeforeItsWord(text)));
+  const paired = sayLoneLettersByName(sayLetterPairOnce(dropNumeralBeforeItsWord(sayLetterCountFeminine(text))));
   const whole = applyFullNiqqud(paired);
   if (whole !== paired) return withFinalStop(whole);
-  const forListener = forms ? replaceWords(paired, forms) : paired;
-  return withFinalStop(replaceWords(forListener, GEMINI_SPELLINGS).replace(LONE_LETTER, (letter) => GEMINI_LETTER_NAMES[letter] ?? letter));
+  const forListener = forms && gender ? withSpeakerForms(replaceWords(paired, forms), gender) : paired;
+  const spelled = replaceWords(forListener, GEMINI_SPELLINGS).replace(LONE_LETTER, (letter) => GEMINI_LETTER_NAMES[letter] ?? letter);
+  return withFinalStop(sayEnglishInHebrew(spelled));
 }
 
 const ENDS_WITH_PUNCTUATION = /[.!?:;,…—"”')]$/;

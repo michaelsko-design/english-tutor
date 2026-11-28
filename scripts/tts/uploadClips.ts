@@ -7,10 +7,10 @@
  * R2_BUCKET in .env.local.
  */
 import { existsSync, readFileSync } from 'node:fs';
-import { ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { loadEnv } from 'vite';
+import { PutObjectCommand, type S3Client } from '@aws-sdk/client-s3';
 import { CLIP_REVISIONS } from '../../src/services/tts/clipRevisions';
 import { listManifestClips, readManifest } from './clipManifest';
+import { listRemoteClips, openR2 } from './r2';
 
 const CLIP_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 const UPLOAD_CONCURRENCY = 16;
@@ -21,27 +21,6 @@ interface LocalClip {
   file: string;
 }
 
-interface R2Config {
-  accountId: string;
-  accessKeyId: string;
-  secretAccessKey: string;
-  bucket: string;
-}
-
-function readR2Config(): R2Config {
-  const env = loadEnv('development', process.cwd(), 'R2_');
-  const config = {
-    accountId: env.R2_ACCOUNT_ID?.trim(),
-    accessKeyId: env.R2_ACCESS_KEY_ID?.trim(),
-    secretAccessKey: env.R2_SECRET_ACCESS_KEY?.trim(),
-    bucket: env.R2_BUCKET?.trim(),
-  };
-  if (!config.accountId || !config.accessKeyId || !config.secretAccessKey || !config.bucket) {
-    throw new Error('Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY and R2_BUCKET in .env.local.');
-  }
-  return config as R2Config;
-}
-
 /** The clips the manifest lists, so clips that are not in it never reach the bucket. */
 function listLocalClips(): LocalClip[] {
   const manifest = readManifest();
@@ -50,17 +29,6 @@ function listLocalClips(): LocalClip[] {
   const missing = clips.filter((clip) => !existsSync(clip.file));
   if (missing.length > 0) throw new Error(`${missing.length} clips in the manifest have no file, e.g. ${missing[0]?.file}. Render them first.`);
   return clips;
-}
-
-async function listRemoteKeys(client: S3Client, bucket: string): Promise<Set<string>> {
-  const keys = new Set<string>();
-  let token: string | undefined;
-  do {
-    const page = await client.send(new ListObjectsV2Command({ Bucket: bucket, Prefix: 'tts/', ContinuationToken: token }));
-    for (const object of page.Contents ?? []) if (object.Key) keys.add(object.Key);
-    token = page.IsTruncated ? page.NextContinuationToken : undefined;
-  } while (token);
-  return keys;
 }
 
 async function uploadAll(client: S3Client, bucket: string, clips: LocalClip[]): Promise<number> {
@@ -93,15 +61,10 @@ async function main(): Promise<void> {
   const dryRun = args.includes('--dry-run');
   const voiceIndex = args.indexOf('--voice');
   const onlyVoice = voiceIndex >= 0 ? args[voiceIndex + 1] : undefined;
-  const config = readR2Config();
-  const client = new S3Client({
-    region: 'auto',
-    endpoint: `https://${config.accountId}.r2.cloudflarestorage.com`,
-    credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
-  });
+  const { client, bucket } = openR2();
 
   const local = listLocalClips();
-  const remote = force ? new Set<string>() : await listRemoteKeys(client, config.bucket);
+  const remote = force ? new Map<string, string>() : await listRemoteClips(client, bucket);
   // --revised: the clips re-rendered after they shipped (a revision entry) are sent again, the rest skipped as usual
   const isRevised = (clip: LocalClip): boolean => isRevisedOnly && /^tts\/v\d+\/([^/]+\/[^/]+)\.mp3$/.test(clip.key) && (clip.key.replace(/^tts\/v\d+\//, '').replace(/\.mp3$/, '') in CLIP_REVISIONS);
   const isWantedVoice = (clip: LocalClip): boolean => !onlyVoice || clip.key.split('/')[2] === onlyVoice;
@@ -109,8 +72,9 @@ async function main(): Promise<void> {
   console.log(`${local.length} local clips, ${local.length - pending.length} already uploaded, ${pending.length} to upload.`);
   if (dryRun || pending.length === 0) return;
 
-  const uploaded = await uploadAll(client, config.bucket, pending);
+  const uploaded = await uploadAll(client, bucket, pending);
   console.log(`Uploaded ${uploaded} clips.`);
+  console.log('Reviewing on the phone? Run  npm run tts:review:he -- sync');
 }
 
 main().catch((error: unknown) => {

@@ -6,10 +6,16 @@ import { SpeechEvaluationResult } from '../../utils/speechSimilarity';
 import { useSpeechToggle } from '../../hooks/useSpeech';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import { SpeakIcon, STOP_SPEECH_TEXT } from '../SpeakIcon';
+import { HebrewSpeakButton } from './HebrewSpeakButton';
 
 interface VoiceSpeakDrillProps {
   targetEn: string;
   targetHe?: string;
+  /**
+   * The young grades can hear the Hebrew line (a 🔊 beside it). Only where it has a rendered clip:
+   * the missions and word decks, not the room's names or messages.
+   */
+  canHearTargetHe?: boolean;
   /** Word-by-word result of the latest attempt (green = heard, orange = missed) */
   speechEval: SpeechEvaluationResult | null;
   isListening: boolean;
@@ -56,6 +62,7 @@ function getMicLabel(isListening: boolean, isStarting: boolean, isGirl: boolean)
 export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
   targetEn,
   targetHe,
+  canHearTargetHe = false,
   speechEval,
   isListening,
   isStarting = false,
@@ -118,9 +125,12 @@ export const VoiceSpeakDrill: React.FC<VoiceSpeakDrillProps> = ({
             </p>
 
             {targetHe && (
-              <p className={`text-sm md:text-base font-semibold ${theme.mutedTextClass}`} dir="rtl" lang="he">
-                {targetHe}
-              </p>
+              <div className="flex items-center justify-center gap-2">
+                <p className={`text-sm md:text-base font-semibold ${theme.mutedTextClass}`} dir="rtl" lang="he">
+                  {targetHe}
+                </p>
+                {canHearTargetHe && <HebrewSpeakButton text={targetHe} label="הקשבה לתרגום" />}
+              </div>
             )}
           </>
         )}

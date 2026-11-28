@@ -24,6 +24,19 @@ export interface AlphabetLetter {
 
 const w = (en: string, he: string, emoji: string): AlphabetWord => ({ en, he, emoji });
 
+/**
+ * The Hebrew that links a letter to its example word: "A כמו apple", but "X כמו בסוף המילה fox",
+ * since X ends its words and "X כמו fox" sounds as if fox began with it.
+ */
+export const getLetterLikeHe = (letter: AlphabetLetter): string => (letter.position === 'end' ? 'כמו בסוף המילה' : 'כמו');
+
+/**
+ * The Hebrew of "A is for apple": "A כמו תפוח". A letter that ends its words keeps the English word
+ * ("X כמו בסוף המילה fox"): the Hebrew one (שועל) has no such letter.
+ */
+export const getLetterExampleHe = (letter: AlphabetLetter, word: AlphabetWord): string =>
+  letter.position === 'end' ? `${letter.upper} ${getLetterLikeHe(letter)} ${word.en}` : `${letter.upper} כמו ${word.he}`;
+
 export const ALPHABET: readonly AlphabetLetter[] = [
   { upper: 'A', lower: 'a', words: [w('apple', 'תפוח', '🍎'), w('ant', 'נמלה', '🐜'), w('alligator', 'תנין', '🐊')] },
   { upper: 'B', lower: 'b', words: [w('ball', 'כדור', '⚽'), w('banana', 'בננה', '🍌'), w('bear', 'דוב', '🐻')], tipHe: 'שימו לב: b הקטנה פונה ימינה, ו-d פונה שמאלה.' },

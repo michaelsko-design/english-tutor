@@ -55,6 +55,7 @@
   <input type="search" id="search" placeholder="Search the Hebrew text…" dir="auto">
   <div id="view"></div>
 </main>
+<script src="/reviewShared.js"></script>
 <script>
 const TABS = [
   ['pending', 'To review'],
@@ -65,16 +66,9 @@ const TABS = [
 ];
 const TAB_KEY = 'hebrewReviewTab';
 const SCOPE_KEY = 'hebrewReviewScope';
-// Which clips the list shows: what the first learners meet first; the Pro tail and the packs come later
-const SCOPES = [
-  ['opener', 'Openers only (מעולה, כל הכבוד…): check these first', ['opener']],
-  ['first', 'Core units + general lines', ['opener', 'general', 'core', 'other']],
-  ['pro-tail', 'Pro: last 2 core units of each grade', ['pro-tail']],
-  ['packs', 'Content packs (not released yet)', ['packs']],
-  ['everything', 'Everything', null],
-];
-let scope = localStorage.getItem(SCOPE_KEY) || 'first';
-const inScope = (item) => { const groups = (SCOPES.find(([id]) => id === scope) || SCOPES[0])[2]; return !groups || groups.includes(item.group); };
+// A choice saved before the list loaded can be empty: fall back to the first learners' clips
+let scope = isScope(localStorage.getItem(SCOPE_KEY)) ? localStorage.getItem(SCOPE_KEY) : 'first';
+const inScope = (item) => matchesScope(item, (SCOPES.find(([id]) => id === scope) || SCOPES[0])[2]);
 let items = [];
 let reasonList = [];
 let maxNote = 300;
@@ -124,7 +118,7 @@ function renderChrome() {
   const count = (phase) => scoped.filter((item) => item.phase === phase).length;
   const total = scoped.filter((item) => item.phase !== 'missing').length;
   $('scope').replaceChildren(...SCOPES.map(([id, label, groups]) => {
-    const n = items.filter((item) => item.phase === 'pending' && (!groups || groups.includes(item.group))).length;
+    const n = items.filter((item) => item.phase === 'pending' && matchesScope(item, groups)).length;
     return el('option', { value: id, textContent: `${label} (${n} to review)`, selected: id === scope });
   }));
   const reviewed = total - count('pending');
@@ -155,6 +149,7 @@ const TAKE_LABELS = {
   'lab-sentences': 'Lab: a clip per sentence',
   'lab-sentences-niqqud': 'Lab: per sentence + niqqud',
   'lab-runs-niqqud': 'Lab: per sentence and language + niqqud',
+  split: 'New take, English words said apart',
   'lab-flash': 'Model: 3.8 flash (full), plain',
   'lab-flash-niqqud': 'Model: 3.8 flash (full) + niqqud',
   'lab-pro25': 'Model: 2.5 pro, plain',
@@ -171,7 +166,26 @@ function takeBox(item, take, number) {
     el('div', { className: 'row' }, button('Use this one', '', 'good', () => decide('new', take))));
 }
 
+let linePlayer = null;
+const stopLine = () => { if (linePlayer) { linePlayer.pause(); linePlayer = null; } };
+const partUrl = (part) => `/clip/${encodeURIComponent(part.key)}.mp3${part.voice === 'en' ? '?voice=en' : `?t=${Date.now()}`}`;
+/** The line as the app says it: its part clips back to back. */
+function playLine(parts) {
+  stopLine();
+  document.querySelectorAll('audio').forEach((other) => other.pause());
+  const queue = parts.map((part) => new Audio(partUrl(part)));
+  const next = () => {
+    const audio = queue.shift();
+    if (!audio) { linePlayer = null; return; }
+    linePlayer = audio;
+    audio.addEventListener('ended', next, { once: true });
+    audio.play().catch(() => {});
+  };
+  next();
+}
+
 const play = (take = 'current') => {
+  stopLine();
   const audio = document.querySelector(`audio[data-take="${take}"]`);
   if (!audio) return;
   if (take !== 'current') pickedTake = take;
@@ -179,6 +193,24 @@ const play = (take = 'current') => {
   audio.currentTime = 0;
   audio.play().catch(() => {});
 };
+
+const GENDER_TAG_LABELS = { girl: 'to a girl', boy: 'to a boy' };
+
+/** The full lines a cut clip is heard in: who each is said to, its text, and a button that plays it. */
+function wholeLinesBlock(lines) {
+  const rows = lines.map((line, i) => {
+    const gender = line.listener === 'all' ? null : line.listener;
+    const tag = el('span', { className: `tag${gender ? ` gender-${gender}` : ''}`, textContent: gender ? GENDER_TAG_LABELS[gender] : 'to everyone (plural)' });
+    return el('div', { className: 'row', style: 'align-items:center;margin:4px 0' },
+      button('▶ Play the full line', i === 0 ? 'L' : '', 'ghost', () => playLine(line.parts)),
+      tag,
+      el('span', { className: 'text', dir: 'rtl', lang: 'he', style: 'font-size:18px', textContent: line.spoken.replace(/^\[to:(?:girl|boy)\] /, '') }));
+  });
+  const shared = lines.length > 1 ? ' The same clip is used in each of these lines; only the ending differs.' : '';
+  return el('div', { style: 'margin-top:10px' },
+    el('div', { className: 'muted', textContent: 'Heard in the app as (the opener and ending are shared clips, already reviewed):' + shared }),
+    ...rows);
+}
 
 function textBlock(item) {
   const gender = (/^\[to:(girl|boy)\]/.exec(item.text) || [])[1];
@@ -188,12 +220,6 @@ function textBlock(item) {
   // item.spoken is the text with the niqqud Gemini was given, so the gendered words show their form
   return el('div', {}, el('div', {}, ...tags), el('div', { className: 'text', dir: 'rtl', lang: 'he', textContent: item.spoken }));
 }
-
-const REASON_LABELS = {
-  'wrong-gender': 'Wrong gender form', 'english-accent': 'English accent', mispronounced: 'Mispronounced word',
-  'letter-name': 'Wrong letter name', 'cut-off': 'Cut off', 'too-fast': 'Too fast', 'too-slow': 'Too slow', noise: 'Noise / glitch',
-  'bad-wording': 'Bad wording (text must change)',
-};
 
 function whyLine(item) {
   if (item.reasons.length === 0 && !item.note) return [];
@@ -245,6 +271,7 @@ function render() {
         button('Regenerate again', 'R', 'bad', () => decide('again'))));
   } else {
     card.append(audioEl(item.key, 'current'));
+    if (item.lines) card.append(wholeLinesBlock(item.lines));
     const row = el('div', { className: 'row' });
     if (item.phase === 'pending') {
       row.append(button('Good', 'G', 'good', () => mark('good')), button('Regenerate', 'R', 'bad', openDraft));
@@ -257,7 +284,9 @@ function render() {
   }
   card.append(el('div', { className: 'row' }, button('Previous', '←', 'ghost', () => move(-1)), button('Next', '→', 'ghost', () => move(1))));
   view.replaceChildren(card);
-  if (document.activeElement && document.activeElement.tagName !== 'INPUT') play(item.phase === 'compare' ? 'current' : 'current');
+  if (document.activeElement && document.activeElement.tagName !== 'INPUT') {
+    play('current');
+  }
 }
 
 function current() { return visible()[index]; }
@@ -329,7 +358,7 @@ document.addEventListener('keydown', (event) => {
   }
   const isCompare = item.phase === 'compare';
   const handlers = {
-    ' ': () => play(), '1': () => play('current'), '2': () => play(item.takes[0]), '3': () => play(item.takes[1]), '4': () => play(item.takes[2]), '5': () => play(item.takes[3]), '6': () => play(item.takes[4]), u: undo,
+    ' ': () => play(), l: () => item.lines && playLine(item.lines[0].parts), '1': () => play('current'), '2': () => play(item.takes[0]), '3': () => play(item.takes[1]), '4': () => play(item.takes[2]), '5': () => play(item.takes[3]), '6': () => play(item.takes[4]), u: undo,
     arrowright: () => move(1), arrowleft: () => move(-1),
     g: () => !isCompare && mark('good'), enter: () => !isCompare && mark('good'),
     r: () => (isCompare ? decide('again') : openDraft()),
@@ -339,6 +368,7 @@ document.addEventListener('keydown', (event) => {
 });
 $('search').addEventListener('input', () => { index = 0; render(); });
 $('scope').addEventListener('change', () => {
+  if (!isScope($('scope').value)) return;
   scope = $('scope').value;
   try { localStorage.setItem(SCOPE_KEY, scope); } catch { /* the choice just isn't remembered */ }
   index = 0;

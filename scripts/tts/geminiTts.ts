@@ -122,17 +122,30 @@ export function trimTrailingSilence(pcm: Pcm, keepMs: number): Pcm {
   return end === pcm.samples.length ? pcm : { samples: pcm.samples.slice(0, end), sampleRate: pcm.sampleRate };
 }
 
+/** The samples with the silence before the speech cut to `keepMs`: a piece of a split line starts close to the one before it. */
+export function trimLeadingSilence(pcm: Pcm, keepMs: number): Pcm {
+  let first = 0;
+  while (first < pcm.samples.length && Math.abs(pcm.samples[first] as number) <= SILENCE_PEAK) first += 1;
+  if (first >= pcm.samples.length) return pcm;
+  const start = Math.max(0, first - Math.round((pcm.sampleRate * keepMs) / 1000));
+  return start === 0 ? pcm : { samples: pcm.samples.slice(start), sampleRate: pcm.sampleRate };
+}
+
 /** Pieces of one line one after the other, `gapMs` of silence between them (they share a sample rate). */
-export function joinPcm(parts: readonly Pcm[], gapMs: number): Pcm {
+/** `gapMs`: one pause between every two parts, or the pause after each part but the last. */
+export function joinPcm(parts: readonly Pcm[], gapMs: number | readonly number[]): Pcm {
   const sampleRate = parts[0]?.sampleRate ?? DEFAULT_SAMPLE_RATE;
-  const gap = Math.round((sampleRate * gapMs) / 1000);
-  const total = parts.reduce((sum, part) => sum + part.samples.length, 0) + gap * Math.max(parts.length - 1, 0);
+  const gaps = parts.slice(0, -1).map((_, index) => {
+    const ms = typeof gapMs === 'number' ? gapMs : (gapMs[index] ?? 0);
+    return Math.round((sampleRate * ms) / 1000);
+  });
+  const total = parts.reduce((sum, part) => sum + part.samples.length, 0) + gaps.reduce((sum, gap) => sum + gap, 0);
   const samples = new Int16Array(total);
   let offset = 0;
-  for (const part of parts) {
+  parts.forEach((part, index) => {
     samples.set(part.samples, offset);
-    offset += part.samples.length + gap;
-  }
+    offset += part.samples.length + (gaps[index] ?? 0);
+  });
   return { samples, sampleRate };
 }
 

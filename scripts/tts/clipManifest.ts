@@ -37,6 +37,9 @@ export function writeManifest(getCorpusKeys: (voice: ClipVoice) => ReadonlySet<s
   return manifest;
 }
 
+/** A clip's path in the bucket, which is also its URL path (`tts/v4/he-female/<key>.mp3`). */
+export const getClipObjectKey = (voice: ClipVoice, key: string): string => `tts/v${getAudioVersion(voice)}/${voice}/${key}.mp3`;
+
 /**
  * The clips the manifest lists, as the bucket key (`tts/v4/he-female/<key>.mp3`, the URL path) and the
  * local file. The upload sends these only: a clip on disk that the manifest doesn't list (an old
@@ -45,7 +48,7 @@ export function writeManifest(getCorpusKeys: (voice: ClipVoice) => ReadonlySet<s
 export function listManifestClips(manifest: ClipManifest): { key: string; file: string }[] {
   return TTS_VOICES.flatMap((voice) =>
     (manifest.voices[voice] ?? []).map((name) => ({
-      key: `tts/v${getAudioVersion(voice)}/${voice}/${name}.mp3`,
+      key: getClipObjectKey(voice, name),
       file: join(getVoiceDir(voice), `${name}.mp3`),
     })),
   );

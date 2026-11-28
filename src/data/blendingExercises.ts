@@ -176,7 +176,7 @@ function buildSentenceStep(ctx: BlendStepContext, sentenceIdx: number): MissionE
     type: 'blend-read',
     badgeLabelHe: he`🏆 שלב 5/5: המשפט הראשון שלי`,
     promptHe: he`קראי את המשפט ובחרי את התמונה המתאימה:`,
-    hintHe: he`💡 מילים כמו I, a ו-the קוראים במבט אחד. את שאר המילים קוראים אות אחרי אות.`,
+    hintHe: he`💡 מילים כמו I, a ו-the קוראים כמילה שלמה. את שאר המילים קוראים אות אחרי אות.`,
     // Nothing is read by itself (the learner's own reading); the card's 🔊 reads cardDisplay on request
     questionEn: '',
     cardDisplay: sentence.en,

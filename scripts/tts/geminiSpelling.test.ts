@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { LISTENER_GENDERED_WORDS } from '../../src/services/tts/ttsText';
 import { GEMINI_BOY_FORMS, GEMINI_GIRL_FORMS, toGeminiText } from './geminiSpelling';
-import { encodeMp3, readPcm, trimTrailingSilence } from './geminiTts';
+import { encodeMp3, readPcm, trimLeadingSilence, trimTrailingSilence } from './geminiTts';
 
 describe('toGeminiText', () => {
   it('ends a sentence with a full stop so it does not sound like a question, but not a word or a line that has a mark', () => {
@@ -48,10 +48,50 @@ describe('toGeminiText', () => {
     expect(toGeminiText('כמה ברווזים נועה רואה?')).toBe('כמה ברווזים נועה רואה?');
   });
 
+  it('says the verb after "אני" in the learner\'s form, and leaves it after a name', () => {
+    expect(toGeminiText('[to:girl] אני שותה חלב.')).toBe('אני שׁוֹתָה חלב.');
+    expect(toGeminiText('[to:boy] אני רואה שעון.')).toBe('אני רוֹאֶה שעון.');
+    expect(toGeminiText('[to:boy] אני לא רוצה לישון.')).toBe('אני לא רוֹצֶה לישון.');
+    expect(toGeminiText('[to:girl] נועה רואה כלב.')).toBe('נועה רואה כלב.');
+  });
+
+  it('says a count of letters in the feminine form (אות is feminine)', () => {
+    expect(toGeminiText('בתשובה הנכונה יש 8 אותיות. כדאי לספור את האותיות בכל תשובה.')).toBe(
+      'בתשובה הנכונה יש שְׁמוֹנֶה אותיות. כדאי לספור את האותיות בכל תשובה.',
+    );
+    expect(toGeminiText('המילה מתחילה באות "c" ויש בה 11 אותיות.')).toBe('המילה מתחילה באות "Cee" ויש בה אַחַת עֶשְׂרֵה אותיות.');
+  });
+
+  it('says ביצה, צדף, פה, עז and אמור as the review asked', () => {
+    expect(toGeminiText('יש לי פה אחד.')).toBe('יש לי פֶּה אחד.');
+    expect(toGeminiText('עז')).toBe('עֵז');
+  });
+
+  it('says the lone word "ו" as "ve", but keeps ו inside a line', () => {
+    expect(toGeminiText('ו')).toBe('ve');
+    expect(toGeminiText('Hello ו-Goodbye')).toBe('Hello ו-Goodbye.');
+  });
+
+  it('sends the lines the 2026-11-28 review asked for rewritten', () => {
+    expect(toGeminiText('זה pot.')).toBe('זה paht.');
+    expect(toGeminiText('הוא / היא (נמצא)')).toBe('הוא או היא.');
+    expect(toGeminiText('קראי את הסיפור וחשבי: מה התשובה הנכונה?')).toBe('קִרְאִי את הסיפור וְחִשְׁבִי: מה התשובה הנכונה?');
+  });
+
+  it('says zebra as "zeebra" and puts a comma after the letter R', () => {
+    expect(toGeminiText('לא בדיוק. Z כמו zebra .')).toBe('לא בדיוק. Zed כמו zeebra .');
+    expect(toGeminiText('robot מתחיל באות R.')).toBe('robot מתחיל באות Ar,');
+    expect(toGeminiText('המילה מתחילה באות "r" ויש בה 5 אותיות.')).toBe('המילה מתחילה באות "Ar," ויש בה חָמֵשׁ אותיות.');
+  });
+
+  it('says "מחבט" with niqqud', () => {
+    expect(toGeminiText('איזו מילה באנגלית פירושה "מחבט"?')).toBe('איזו מילה באנגלית פירושה "מַחְבֵּט"?');
+  });
+
   it('spells out words Gemini misreads, for every listener, and leaves the rest as written', () => {
     expect(toGeminiText('הקשיבי ובחרי את האות:')).toBe('הקשיבי וּבִחְרִי את האות:');
     expect(toGeminiText('הבנית שלו')).toBe('הבנית שלו.');
-    expect(toGeminiText('זו האות Z. Z כמו zebra')).toBe('זוֹ האות Zed. Zed כמו zebra.');
+    expect(toGeminiText('לא בדיוק. Z כמו zebra .')).toBe('לא בדיוק. Zed כמו zeebra .');
     expect(toGeminiText('האותיות X, Y, Z')).toBe('האותיות X, Y, Zed.');
   });
 
@@ -105,6 +145,16 @@ describe('Gemini audio to MP3', () => {
     expect(trimmed.samples[6000]).toBe(8000);
     const silent = { samples: new Int16Array(2400), sampleRate: 24000 };
     expect(trimTrailingSilence(silent, 80)).toBe(silent);
+  });
+
+  it('trims the silence before the speech to a short lead-in', () => {
+    const samples = new Int16Array(24000);
+    samples.fill(8000, 6000, 12000);
+    const trimmed = trimLeadingSilence({ samples, sampleRate: 24000 }, 40);
+    expect(trimmed.samples.length).toBe(24000 - 6000 + 960);
+    expect(trimmed.samples[960]).toBe(8000);
+    const silent = { samples: new Int16Array(2400), sampleRate: 24000 };
+    expect(trimLeadingSilence(silent, 40)).toBe(silent);
   });
 
   it('encodes one second as about 6 KB of 48 kbps MP3, with the leading silence', () => {

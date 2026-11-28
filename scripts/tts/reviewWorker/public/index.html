@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Clip review">
+<title>Hebrew clip review</title>
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>Hebrew clip review</h1>
+    <progress id="bar" value="0" max="1" aria-label="Reviewed"></progress>
+    <div class="muted" id="summary" aria-live="polite">Loading…</div>
+    <div class="muted" id="sync" aria-live="polite"></div>
+  </header>
+  <form id="signin" class="card" hidden>
+    <p>This device is not signed in. Open the link from <code>npm run tts:review:he -- link</code>, or paste it here.</p>
+    <input type="password" id="token" autocomplete="off" aria-label="Sign-in link or token">
+    <button type="submit" class="info">Sign in</button>
+  </form>
+  <div id="controls" hidden>
+    <nav id="tabs" aria-label="Lists"></nav>
+    <label class="muted">Part of the app <select id="scope"></select></label>
+    <input type="search" id="search" placeholder="Search the Hebrew text…" aria-label="Search the Hebrew text" dir="auto">
+  </div>
+  <div id="view"></div>
+</main>
+<footer id="actions" hidden></footer>
+<script src="/reviewShared.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
