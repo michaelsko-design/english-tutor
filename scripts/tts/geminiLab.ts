@@ -117,13 +117,12 @@ export function labSegments(variant: LabVariant, clipText: string): string[] {
 
 /**
  * An English piece said alone needs none of the respellings made for English inside Hebrew
- * (2026-11-28, by ear): alone, "zeebra" came out spelled and "Ar,?" as the Hebrew letter א, while
- * "zebra", the bare capital "Z." and "Ar?" are said as English.
+ * (2026-11-28, by ear): alone, "zeebra" came out spelled and "Ar,?" as the Hebrew letter א; "Z." is
+ * said "zee" (the app says "Zed"). Being tried: "zebra", "Zed" and the small "r".
  */
 const LONE_PIECE_SPELLINGS: readonly [RegExp, string][] = [
   [/(?<![A-Za-z])zeebra(?![A-Za-z])/g, 'zebra'],
-  [/^Zed([.]?)$/, 'Z.'],
-  [/^Ar,\?$/, 'Ar?'],
+  [/^Ar,?([.?]?)$/, 'r$1'],
 ];
 
 function asLonePiece(segment: string): string {
